@@ -856,9 +856,9 @@ fn crc32_update(mut crc: u32, bytes: &[u8]) -> u32 {
     // Slicing by eight removes the byte-at-a-time dependency chain for large
     // frames. Explicit little-endian reads work with any alignment and target
     // endianness; no hardware-specific instructions or unsafe code are needed.
-    let mut chunks = bytes.chunks_exact(8);
-    for chunk in &mut chunks {
-        let word = u64::from_le_bytes(chunk.try_into().unwrap()) ^ u64::from(crc);
+    let (chunks, remainder) = bytes.as_chunks::<8>();
+    for chunk in chunks {
+        let word = u64::from_le_bytes(*chunk) ^ u64::from(crc);
         crc = CRC_TABLES[7][(word & 255) as usize]
             ^ CRC_TABLES[6][((word >> 8) & 255) as usize]
             ^ CRC_TABLES[5][((word >> 16) & 255) as usize]
@@ -868,7 +868,7 @@ fn crc32_update(mut crc: u32, bytes: &[u8]) -> u32 {
             ^ CRC_TABLES[1][((word >> 48) & 255) as usize]
             ^ CRC_TABLES[0][(word >> 56) as usize];
     }
-    for &byte in chunks.remainder() {
+    for &byte in remainder {
         crc = (crc >> 8) ^ CRC_TABLES[0][((crc as u8) ^ byte) as usize];
     }
     crc

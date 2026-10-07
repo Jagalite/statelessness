@@ -1,6 +1,6 @@
 {
   "name": "@jagalite/stateless",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dependency-free synchronous byte-model checking and replay through Rust/Wasm",
   "license": "MIT",
   "type": "module",

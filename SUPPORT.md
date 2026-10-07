@@ -1,7 +1,9 @@
 # Installation and support status
 
-Stateless is experimental. The Rust library is the complete interface; binding
-packages expose the ABI 1 subset. Test API and artifact compatibility when
+Stateless is pre-1.0: API stability is not yet promised across minor versions.
+The Rust library is the complete interface; binding packages expose the ABI 1
+subset. A release qualifies the documented operations on the tested platforms;
+it does not require every roadmap feature. Test API and artifact compatibility when
 upgrading. Report problems through the repository's GitHub Issues with the
 version, toolchain, platform, configured limits and a minimal model. Review
 application payloads for private data before attaching traces.
@@ -79,8 +81,8 @@ remain separate from this small-state application baseline.
 
 ## Remaining release gates
 
-Run the remote verification matrix against the committed candidate, choose a new
-crate version (0.1.0 is already published), and follow [RELEASING.md](RELEASING.md).
+The next candidate is 0.1.1; 0.1.0 is already published. Run the remote verification
+matrix against the committed candidate and follow [RELEASING.md](RELEASING.md).
 Publication is a separate explicit release action. Configurable checkpoints,
 recorded selective checking, foreign fuzz/shrink APIs and broader runtime and
 performance qualification remain roadmap work.
