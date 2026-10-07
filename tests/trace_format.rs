@@ -77,7 +77,9 @@ fn version_one_golden_bytes_preserve_the_existing_wire_format() {
     let golden = "53544c4553531a0a01000000012f000000010000006d010000000100000001000000010000006201000000730000000000010000000001000000010000007000d00b9faa02260000000000000000000000010000000100010000000100000002010000000301000000010000007000e4c092b30309000000010000000000000000b742343d";
     let bytes: Vec<u8> = golden
         .as_bytes()
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
         .collect();
     let trace = Trace {
