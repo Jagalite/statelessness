@@ -1,0 +1,24 @@
+import assert from "node:assert/strict";
+import { readFile, writeFile } from "node:fs/promises";
+import { createCounter } from "./adapter.mjs";
+
+const wasm = await readFile(new URL("../../target/wasm32-unknown-unknown/release/stateless.wasm", import.meta.url));
+const original = await createCounter(wasm);
+const artifact = original.record();
+await writeFile(new URL("../../target/javascript-counter.trace", import.meta.url), artifact);
+const fresh = await createCounter(wasm);
+const replay = fresh.replay(artifact);
+assert.equal(replay.status, 1, replay.detail);
+const changed = fresh.replay(artifact, true);
+assert.equal(changed.status, 2, changed.detail);
+const truncated = fresh.replay(artifact.slice(0, artifact.length - 1));
+assert.equal(truncated.status, 12, truncated.detail);
+const enumerated = fresh.enumerate();
+assert.equal(enumerated.status, 1);
+assert.match(enumerated.report, /termination=FailureFound/);
+assert.equal(fresh.replay(enumerated.artifact).status, 1);
+const bounded = fresh.enumerate(1);
+assert.equal(bounded.status, 0);
+assert.match(bounded.report, /termination=DepthBound/);
+assert.equal(bounded.artifact.length, 0);
+console.log(JSON.stringify({ bytes: artifact.length, replay, changed, truncated, enumeration: enumerated.report, bounded: bounded.report }, null, 2));

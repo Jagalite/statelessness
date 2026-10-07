@@ -1,0 +1,41 @@
+[package]
+name = "statelessness"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+description = "Dependency-free state-machine checking, exploration, and replay"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Jagalite/stateless"
+publish = ["crates-io"]
+include = [
+    "src/**", "tests/**", "examples/**", "benches/**", "bindings/**",
+    "build.rs", "Cargo.toml", "Cargo.lock", "LICENSE",
+    "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md",
+]
+
+[lib]
+name = "stateless"
+crate-type = ["rlib", "cdylib", "staticlib"]
+
+[[bin]]
+name = "stateless"
+path = "src/main.rs"
+
+[[bench]]
+name = "engine"
+harness = false
+
+[[bench]]
+name = "scaling"
+harness = false
+
+[[bench]]
+name = "campaign"
+harness = false
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+undocumented_unsafe_blocks = "deny"

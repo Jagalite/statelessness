@@ -1,0 +1,6 @@
+/target/
+/artifacts/
+*.sttrace
+
+# Keep local experiments out of the MIT distribution.
+/.local-experiments/

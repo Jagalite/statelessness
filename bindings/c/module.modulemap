@@ -1,0 +1,4 @@
+module Stateless {
+    header "stateless.h"
+    export *
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stateless browser fixture</title>
+<style>
+  body { font: 17px/1.6 system-ui,sans-serif; max-width: 760px; margin: 4rem auto; padding: 0 1.5rem; color: #152638; background: #f5f8fa; }
+  h1 { line-height: 1.2; }
+  button, a { margin: .4rem .7rem .4rem 0; }
+  button { padding: .7rem 1rem; cursor: pointer; }
+  pre { padding: 1.5rem; background: #e4ecf0; white-space: pre-wrap; }
+</style>
+<h1>Stateless browser fixture</h1>
+<p>A JavaScript counter drives the Rust verification engine through Wasm.
+Three increments violate the counter's upper bound of two.</p>
+<button id="record" disabled>Record failure</button>
+<button id="enumerate" disabled>Explore inputs</button>
+<button id="replay" disabled>Replay trace</button>
+<button id="changed" disabled>Check changed reducer</button>
+<a id="download" hidden download="javascript-counter.trace">Download trace</a>
+<pre id="status" role="status">Loading Rust engine…</pre>
+<script type="module">
+  import { createCounter } from './adapter.mjs';
+  const status = document.querySelector('#status');
+  let artifact;
+  let url;
+  try {
+    const response = await fetch('../../target/wasm32-unknown-unknown/release/stateless.wasm');
+    if (!response.ok) throw new Error(`Wasm fetch failed: ${response.status}`);
+    const engine = await createCounter(await response.arrayBuffer());
+    document.querySelector('#record').disabled = false;
+    document.querySelector('#enumerate').disabled = false;
+    status.textContent = 'Ready. The model and invariant are JavaScript; recording and replay are Rust.';
+    document.querySelector('#record').onclick = () => {
+      try {
+        artifact = engine.record();
+        status.textContent = `Captured counter_bound failure after 3 transitions. Trace: ${artifact.length} bytes.`;
+        document.querySelector('#replay').disabled = false;
+        document.querySelector('#changed').disabled = false;
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(new Blob([artifact], {type: 'application/octet-stream'}));
+        const download = document.querySelector('#download');
+        download.href = url;
+        download.hidden = false;
+      } catch (error) { status.textContent = String(error); }
+    };
+    document.querySelector('#replay').onclick = () => {
+      try { const result = engine.replay(artifact); status.textContent = `Status ${result.status}: ${result.detail}`; }
+      catch (error) { status.textContent = String(error); }
+    };
+    document.querySelector('#enumerate').onclick = () => {
+      try {
+        const result = engine.enumerate();
+        artifact = result.artifact;
+        status.textContent = `Exploration status ${result.status}\n${result.report}Failure trace: ${artifact.length} bytes.`;
+        document.querySelector('#replay').disabled = false;
+        document.querySelector('#changed').disabled = false;
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(new Blob([artifact], {type: 'application/octet-stream'}));
+        const download = document.querySelector('#download');
+        download.href = url;
+        download.hidden = false;
+      } catch (error) { status.textContent = String(error); }
+    };
+    document.querySelector('#changed').onclick = () => {
+      try { const result = engine.replay(artifact, true); status.textContent = `Status ${result.status}: ${result.detail}`; }
+      catch (error) { status.textContent = String(error); }
+    };
+  } catch (error) { status.textContent = String(error); }
+</script>
+</html>
