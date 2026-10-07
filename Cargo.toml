@@ -6,7 +6,7 @@ rust-version = "1.90"
 description = "Dependency-free state-machine checking, exploration, and replay"
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/Jagalite/stateless"
+repository = "https://github.com/Jagalite/statelessness"
 publish = ["crates-io"]
 include = [
     "src/**", "tests/**", "examples/**", "benches/**", "bindings/**",

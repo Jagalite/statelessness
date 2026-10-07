@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   publish:
-    if: github.repository == 'Jagalite/stateless' && startsWith(github.ref, 'refs/tags/v')
+    if: github.repository == 'Jagalite/statelessness' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     environment: release
     permissions:

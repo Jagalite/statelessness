@@ -1,6 +1,6 @@
 # Publishing releases
 
-The GitHub repository is https://github.com/Jagalite/stateless.
+The GitHub repository is https://github.com/Jagalite/statelessness.
 The crates.io package is `statelessness`. The Rust library import remains
 `stateless`.
 
@@ -33,7 +33,7 @@ crates.io and add a GitHub publisher with these exact fields:
 | Field | Value |
 | --- | --- |
 | Repository owner | `Jagalite` |
-| Repository name | `stateless` |
+| Repository name | `statelessness` |
 | Workflow filename | `release.yml` |
 | Environment | `release` |
 
@@ -53,7 +53,7 @@ not build or publish anything by itself.
 Run **Publish to crates.io** against the version tag, or use:
 
 ```sh
-gh workflow run release.yml --repo Jagalite/stateless --ref vVERSION
+gh workflow run release.yml --repo Jagalite/statelessness --ref vVERSION
 ```
 
 The workflow rejects non-tag runs and tags that disagree with `Cargo.toml`, runs
