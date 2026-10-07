@@ -9,7 +9,7 @@ State + Input -> Next State + Outputs -> Check rules -> Record evidence
 ```
 
 Stateless is experimental; APIs may change. Development focuses on the Rust
-library and CLI. C, Swift, and browser bindings are reference prototypes.
+library and CLI. C, Swift, and browser bindings are experimental ABI 1 byte-model packages.
 Passing a finite model establishes only the supplied properties within that
 model and its bounds.
 
@@ -23,6 +23,10 @@ stateless = { package = "statelessness", version = "0.1" }
 ```
 
 ## Try it
+
+For a complete custom-model workflow, start with
+[Test your own application](examples/README.md): write a regression test, find
+and shrink a bug, save its evidence, and replay it with your own executable.
 
 Rust 1.90 or later is required. No package download is needed.
 
@@ -443,11 +447,10 @@ Recording still encodes exact before/after states; buffer reuse reduces allocati
 without weakening continuity or replay comparisons. Use `check_observed_into`
 when persistence is unnecessary.
 
-The existing [C, Swift, and browser prototypes](bindings/README.md) keep model logic in its
+The [C, Swift, and browser packages](bindings/README.md) keep model logic in its
 original language and use the Rust engine. This initial boundary copies canonical
-byte representations. Further binding development, native application state
-handles, and foreign fuzz/shrink interfaces are deferred to the later binding
-phase; no low-overhead foreign-runtime claim is made.
+byte representations. Native application state handles and foreign fuzz/shrink interfaces remain
+future work; no low-overhead foreign-runtime claim is made.
 
 ## Validation and performance
 
@@ -476,8 +479,9 @@ measurements. Full-state scans, full-state capture, and the number of distinct
 reachable states still determine scalability. See [PLAN.md](PLAN.md#remaining-rust-work)
 for completion criteria.
 
-Foreign binding updates, general liveness, parallel enumeration, state normalization,
-and production project integrations remain later work.
+General liveness, parallel enumeration, state normalization, and broader production
+runtime qualification remain later work. See [support status](SUPPORT.md) for
+installation paths, current evidence, and remaining release gates.
 
 ## Releases
 

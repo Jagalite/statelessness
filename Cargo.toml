@@ -9,9 +9,10 @@ readme = "README.md"
 repository = "https://github.com/Jagalite/statelessness"
 publish = ["crates-io"]
 include = [
-    "src/**", "tests/**", "examples/**", "benches/**", "bindings/**",
+    "src/**", "tests/**", "examples/**", "benches/**", "bindings/**", "scripts/**",
     "build.rs", "Cargo.toml", "Cargo.lock", "LICENSE",
-    "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md",
+    "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md", "SUPPORT.md",
+    "CHANGELOG.md", "validation/**",
 ]
 
 [lib]

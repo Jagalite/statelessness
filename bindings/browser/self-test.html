@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Stateless browser checks</title>
+<h1>Stateless browser checks</h1>
+<pre id="results" role="status">Running…</pre>
+<script type="module">
+import { createCounter } from './adapter.mjs';
+const results = document.querySelector('#results');
+try {
+  const response = await fetch('../../target/wasm32-unknown-unknown/release/stateless.wasm');
+  if (!response.ok) throw new Error(`Wasm HTTP ${response.status}`);
+  const wasm = await response.arrayBuffer();
+  const engine = await createCounter(wasm);
+  const trace = engine.record();
+  const fresh = await createCounter(wasm);
+  const checks = {
+    recorded: trace.length > 0,
+    freshReplay: fresh.replay(trace).status === 1,
+    divergence: fresh.replay(trace, true).status === 2,
+    corruption: fresh.replay(trace.slice(0, -1)).status === 12,
+    enumeration: fresh.enumerate().status === 1,
+    bounded: fresh.enumerate(1).report.includes('DepthBound'),
+  };
+  if (!Object.values(checks).every(Boolean)) throw new Error(JSON.stringify(checks));
+  document.documentElement.dataset.result = 'passed';
+  results.textContent = JSON.stringify({ runtime: navigator.userAgent, bytes: trace.length, checks }, null, 2);
+} catch (error) {
+  document.documentElement.dataset.result = 'failed';
+  results.textContent = String(error);
+}
+</script>
+</html>

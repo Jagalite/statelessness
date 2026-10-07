@@ -21,7 +21,20 @@ cargo test --offline
 cargo clippy --offline --all-targets -- -D warnings
 cargo fmt --check
 cargo run --offline --example counter
+cargo test --locked --offline --example application
+cargo run --locked --offline --example application -- check
 ```
+
+The [application starter](examples/README.md) additionally exercises seeded
+failure discovery, original/minimized artifacts, and application-specific replay.
+Its example unit tests are selected explicitly; they are not part of plain
+`cargo test`.
+
+The manually triggered [verification workflow](.github/workflows/verify.yml)
+runs Rust 1.90.0 and stable on Linux, macOS, and Windows, including fresh-process
+starter replay and offline package verification. It does not publish anything.
+This is a configured validation matrix, not a claim that all jobs have passed.
+Like the release workflow, it does not run automatically on pushes or pull requests.
 
 The counter example intentionally detects a violated bound. The CLI's deliberate
 failure and replay workflow is described in [README.md](README.md#try-it).
@@ -47,11 +60,30 @@ toolchain, host, configuration, and repeated results when reporting measurements
 Separate reducer cost, checking, serialization, search, and I/O. Synthetic
 results do not establish production performance; byte accounting is not RSS.
 
-## Binding prototypes
+## Binding packages
 
-See [bindings/README.md](bindings/README.md) for native Swift and browser/Wasm
-fixture commands. Native, Node, and actual browser execution are separate checks.
+See [bindings/README.md](bindings/README.md) for native C/Swift and browser/Wasm
+package commands. Native, Node, and actual browser execution are separate checks.
 A successful Rust test run alone does not qualify foreign runtime integration.
+Build distributions with `python3 scripts/build-bindings.py`; run
+`node scripts/check-js-package.mjs` to pack/install an independent npm consumer.
+Run `python3 scripts/test_readiness.py` for bundle file selection, versioning,
+replacement and rollback regressions. Node adapter tests also cover large input
+batches, aggregate packet limits and invalid string identities.
+The manual binding jobs compile a C header smoke, run Node adapter/consumer checks,
+and run Swift package tests plus fresh-process fixtures on macOS.
+
+## Adoption and long-session measurements
+
+`python3 scripts/check-playscale.py /path/to/playscale` snapshots a separately
+supplied application's core and this engine into a temporary directory, tests
+those snapshots, then measures reducer, checking, bounded recording, export and replay.
+Application dependencies must already be cached for offline Cargo use. The runner
+does not modify the application checkout or redistribute its source. Each
+measurement exports a bounded trace and replays it in a fresh process; reports
+include snapshot hashes, the resolved application lockfile, toolchain, host,
+timings and process resource output.
+See [SUPPORT.md](SUPPORT.md) for the measured 2026-10-07 baseline and its limits.
 
 ## Interpreting results
 

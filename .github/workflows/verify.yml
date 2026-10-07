@@ -1,0 +1,84 @@
+name: Verify Rust library and starter
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [1.90.0, stable]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: |
+          rustup toolchain install ${{ matrix.rust }} --profile minimal --component clippy,rustfmt
+          rustup default ${{ matrix.rust }}
+      - name: Verify source and documentation
+        run: |
+          cargo fmt --check
+          cargo test --locked --offline
+          cargo test --locked --offline --example application
+          cargo clippy --locked --offline --all-targets -- -D warnings
+          cargo doc --locked --offline --no-deps
+          cargo run --locked --offline --example counter
+      - name: Verify starter in separate processes
+        run: |
+          cargo run --locked --offline --example application -- check
+          status=0
+          cargo run --locked --offline --example application -- find starter-failure || status=$?
+          test "$status" -eq 1
+          cargo run --locked --offline --example application -- replay starter-failure/original.sttrace
+          cargo run --locked --offline --example application -- replay starter-failure/minimized.sttrace
+          status=0
+          cargo run --locked --offline --example application -- replay-fixed starter-failure/minimized.sttrace || status=$?
+          test "$status" -eq 3
+      - name: Verify packaged crate
+        run: python3 scripts/check-consumer.py
+
+  bindings:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install Rust and Wasm target
+        run: |
+          rustup toolchain install 1.90.0 --profile minimal --target wasm32-unknown-unknown
+          rustup default 1.90.0
+      - name: Build local distributions
+        run: |
+          python3 scripts/test_readiness.py
+          python3 scripts/build-bindings.py
+      - name: Verify C ABI and JavaScript adapter
+        run: |
+          python3 scripts/check-native.py
+          node --test bindings/browser/test.mjs
+          node bindings/browser/check.mjs
+          node scripts/check-js-package.mjs
+      - name: Verify Swift package and fresh-process replay
+        if: runner.os == 'macOS'
+        run: |
+          swift test --package-path target/bindings/swift --scratch-path target/swift-build -Xlinker -L -Xlinker "$PWD/target/bindings/native/lib" -Xlinker -rpath -Xlinker "$PWD/target/bindings/native/lib"
+          target/swift-build/debug/swift-counter record target/swift-counter.trace
+          target/swift-build/debug/swift-counter replay target/swift-counter.trace
+          target/swift-build/debug/swift-counter changed target/swift-counter.trace
+          target/swift-build/debug/swift-counter enumerate target/swift-enumerated.trace

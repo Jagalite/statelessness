@@ -1,112 +1,56 @@
 import Foundation
-import Stateless
+import StatelessNative
 
-func integer(_ value: UInt32) -> [UInt8] {
-    (0..<4).map { UInt8(truncatingIfNeeded: value >> ($0 * 8)) }
+func integer(_ n: UInt32) -> [UInt8] {
+    (0..<4).map { UInt8(truncatingIfNeeded: n >> ($0 * 8)) }
 }
-func blob(_ bytes: [UInt8]) -> [UInt8] { integer(UInt32(bytes.count)) + bytes }
-func string(_ value: String) -> [UInt8] { blob(Array(value.utf8)) }
-func decode(_ bytes: [UInt8]) -> UInt32? {
-    guard bytes.count == 4 else { return nil }
+func decode(_ bytes: [UInt8]) throws -> UInt32 {
+    guard bytes.count == 4 else { throw BindingError("invalid counter value") }
     return bytes.enumerated().reduce(0) { $0 | UInt32($1.element) << ($1.offset * 8) }
 }
-
-// This reducer and its property remain entirely in Swift. Rust drives the
-// execution, records the observations, and reruns the callback during replay.
-let callback: StatelessDispatch = { context, operation, state, stateLength, input, inputLength, response in
-    let stateBytes = Array(UnsafeBufferPointer(start: state, count: stateLength))
-    let inputBytes = Array(UnsafeBufferPointer(start: input, count: inputLength))
-    let bytes: [UInt8]
-    switch operation {
-    case 0:
-        bytes = integer(0)
-    case 1:
-        guard let count = decode(stateBytes), let increment = decode(inputBytes) else { return 11 }
-        let amount = increment.addingReportingOverflow(context == nil ? 0 : 1)
-        guard !amount.overflow else { return 11 }
-        let next = count.addingReportingOverflow(amount.partialValue)
-        guard !next.overflow else { return 11 }
-        bytes = [0] + string("") + blob(integer(next.partialValue)) + integer(1) + blob(integer(next.partialValue))
-    case 2:
-        guard let count = decode(stateBytes) else { return 11 }
-        let failed = count > 2
-        bytes = integer(1) + string("counter_bound") + [failed ? 1 : 0]
-            + string(failed ? "counter exceeded 2" : "")
-    case 3:
-        bytes = integer(0)
-    case 4:
-        guard decode(stateBytes) != nil else { return 11 }
-        bytes = integer(1) + blob(integer(1))
-    default:
-        return 11
+struct Counter: ByteModel {
+    let changed: Bool
+    // Deliberately retain identity for the changed-reducer divergence control.
+    var metadata: Metadata { Metadata(name: "swift-counter", build: "swift-counter-fixture-v1") }
+    func initial() throws -> [UInt8] { integer(0) }
+    func step(state: [UInt8], input: [UInt8]) throws -> Transition {
+        let a = try decode(input).addingReportingOverflow(changed ? 1 : 0)
+        let b = try decode(state).addingReportingOverflow(a.partialValue)
+        guard !a.overflow && !b.overflow else { throw BindingError("counter overflow") }
+        return Transition(state: integer(b.partialValue), outputs: [integer(b.partialValue)])
     }
-    return bytes.withUnsafeBufferPointer {
-        stateless_buffer_assign(response, $0.baseAddress, $0.count)
+    func checkState(_ state: [UInt8]) throws -> [Check] {
+        let failed = try decode(state) > 2
+        return [Check("counter_bound", failed ? .failed : .passed, failed ? "counter exceeded 2" : "")]
     }
+    func inputs(state: [UInt8]) throws -> [[UInt8]] { _ = try decode(state); return [integer(1)] }
 }
-
-func lastError() -> String {
-    guard let buffer = stateless_buffer_new(0) else { return "allocation failed" }
-    defer { stateless_buffer_free(buffer) }
-    _ = stateless_last_error(buffer)
-    return String(decoding: UnsafeBufferPointer(start: stateless_buffer_data(buffer), count: stateless_buffer_len(buffer)), as: UTF8.self)
-}
-
-func require(_ actual: Int32, _ expected: Int32) {
-    guard actual == expected else {
-        FileHandle.standardError.write(Data("expected status \(expected), got \(actual): \(lastError())\n".utf8))
-        exit(1)
-    }
-}
-
 let args = CommandLine.arguments
-guard args.count == 3, ["record", "replay", "changed", "enumerate"].contains(args[1]) else {
-    FileHandle.standardError.write(Data("usage: swift-counter record|replay|changed|enumerate trace-path\n".utf8))
-    exit(2)
+func require(_ status: Int32, _ expected: Int32) throws {
+    guard status == expected else { throw BindingError("expected status \(expected), got \(status)") }
 }
-
-var callbacks = StatelessCallbacks(
-    abi_version: stateless_abi_version(),
-    struct_size: UInt32(MemoryLayout<StatelessCallbacks>.size),
-    context: args[1] == "changed" ? UnsafeMutableRawPointer(bitPattern: 1) : nil,
-    dispatch: callback
-)
-var model: OpaquePointer?
-let name = Array("swift-counter".utf8)
-let build = Array("swift-counter-fixture-v1".utf8)
-let createStatus = name.withUnsafeBufferPointer { n in
-    build.withUnsafeBufferPointer { b in
-        stateless_model_new(&callbacks, n.baseAddress, n.count, b.baseAddress, b.count, 1, 1, 1, &model)
+do {
+    guard args.count == 3, ["record", "replay", "changed", "enumerate"].contains(args[1]) else {
+        throw BindingError("usage: swift-counter record|replay|changed|enumerate trace-path")
     }
-}
-require(createStatus, 0)
-defer { stateless_model_free(model) }
-
-if args[1] == "enumerate" {
-    guard let artifact = stateless_buffer_new(0), let report = stateless_buffer_new(0) else { fatalError("allocation failed") }
-    defer { stateless_buffer_free(artifact); stateless_buffer_free(report) }
-    require(stateless_enumerate(model, 20, 100, 10, report, artifact), 1)
-    let text = String(decoding: UnsafeBufferPointer(start: stateless_buffer_data(report), count: stateless_buffer_len(report)), as: UTF8.self)
-    let data = Data(bytes: stateless_buffer_data(artifact)!, count: stateless_buffer_len(artifact))
-    try data.write(to: URL(fileURLWithPath: args[2]), options: .atomic)
-    print(text)
-    print("Saved enumerated failure: \(data.count) bytes")
-} else if args[1] == "record" {
-    guard let artifact = stateless_buffer_new(0) else { fatalError("allocation failed") }
-    defer { stateless_buffer_free(artifact) }
-    let batch = integer(3) + blob(integer(1)) + blob(integer(1)) + blob(integer(1))
-    let status = batch.withUnsafeBufferPointer {
-        stateless_record(model, $0.baseAddress, $0.count, 10, artifact)
+    let session = try Session(Counter(changed: args[1] == "changed"))
+    let path = URL(fileURLWithPath: args[2])
+    switch args[1] {
+    case "record":
+        let result = try session.record([integer(1), integer(1), integer(1)])
+        try require(result.status, 1)
+        try Data(result.artifact).write(to: path, options: .withoutOverwriting)
+        print("Recorded counter_bound failure: \(result.artifact.count) bytes")
+    case "enumerate":
+        let result = try session.enumerate(maxStates: 20, maxTransitions: 100, maxDepth: 10)
+        try require(result.status, 1)
+        try Data(result.artifact).write(to: path, options: .withoutOverwriting)
+        print(result.report)
+    default:
+        let result = try session.replay(Array(Data(contentsOf: path)))
+        try require(result.status, args[1] == "changed" ? 2 : 1)
+        print(result.detail)
     }
-    require(status, 1)
-    let data = Data(bytes: stateless_buffer_data(artifact)!, count: stateless_buffer_len(artifact))
-    try data.write(to: URL(fileURLWithPath: args[2]), options: .atomic)
-    print("Recorded counter_bound failure: 3 transitions, \(data.count) bytes")
-} else {
-    let data = try Data(contentsOf: URL(fileURLWithPath: args[2]))
-    let status = data.withUnsafeBytes {
-        stateless_replay(model, $0.bindMemory(to: UInt8.self).baseAddress, $0.count)
-    }
-    require(status, args[1] == "changed" ? 2 : 1)
-    print(args[1] == "changed" ? "Detected deliberate divergence: \(lastError())" : "Exact replay matched and counter_bound failure reproduced")
+} catch {
+    FileHandle.standardError.write(Data("\(error)\n".utf8)); exit(2)
 }

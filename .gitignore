@@ -4,3 +4,6 @@
 
 # Keep local experiments out of the MIT distribution.
 /.local-experiments/
+/bindings/.build/
+/bindings/.swiftpm/
+__pycache__/

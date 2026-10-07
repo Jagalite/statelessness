@@ -4,6 +4,19 @@ The GitHub repository is https://github.com/Jagalite/statelessness.
 The crates.io package is `statelessness`. The Rust library import remains
 `stateless`.
 
+Version 0.1.0 is already published and was downloaded/tested through the registry
+on 2026-10-07. The first-publication section below is retained for reference;
+new changes require a new package version. See [CHANGELOG.md](CHANGELOG.md) for
+the unreleased scope and [SUPPORT.md](SUPPORT.md) for qualification boundaries.
+
+Before a subsequent release, run the manual `verify.yml` workflow on the exact
+committed candidate. It verifies independent packaged consumers and binding
+packages in addition to the Rust tests. Record which platform jobs passed.
+For local package verification, run `python3 scripts/check-consumer.py` from a
+clean checkout. Build local bindings with `python3 scripts/build-bindings.py`;
+retain its hash manifest with distributed native/Wasm artifacts. Crates.io
+publishing does not also publish an npm package or distribute native binaries.
+
 ## First publication
 
 crates.io requires the crate to exist before configuring trusted publishing.

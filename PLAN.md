@@ -50,11 +50,15 @@ application callbacks.
 
 ## Deferred work
 
-Further foreign binding development follows stabilization of the Rust API.
+Experimental ABI 1 source packages cover C, Swift and JavaScript recording,
+replay and enumeration. Foreign fuzzing/shrinking, live recording and additional
+platform qualification follow stabilization of the Rust API.
 General liveness checking, partial-order reduction, parallel exact enumeration,
 state normalization, shared coverage corpora, GPU execution, distributed workers,
 and a visual debugger are outside the current scope.
 
 Finite exploration supports only the supplied properties within the modeled
 bounds. Production integration requires separate validation of adapters and
-external behavior.
+external behavior. The isolated Playscale core adoption check and bounded-session
+measurements are documented in [SUPPORT.md](SUPPORT.md); external runtime behavior
+remains outside that evidence.

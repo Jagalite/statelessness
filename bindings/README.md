@@ -1,8 +1,9 @@
 # Language adapters
 
-Status: reference prototypes. Further binding work is deferred while the Rust
-library and CLI are completed. Refresh these adapters and their validation against
-the settled Rust API in the later binding phase.
+Status: experimental ABI 1 packages for canonical byte models. Reusable C, Swift
+and JavaScript interfaces cover recording, exact replay and finite enumeration.
+Rust remains the full-featured interface; foreign fuzzing, shrinking and live
+recording are not exposed. See [support status](../SUPPORT.md) for tested runtimes.
 
 These initial adapters exercise the same Rust recorder, trace format, invariant
 observations, and exact replayer as native Rust models. The application reducer
@@ -76,13 +77,14 @@ outputs, dispositions, and property observations.
 From the repository root on macOS:
 
 ```sh
-cargo build --release --lib --offline
-swiftc -I bindings/c -L target/release -lstateless \
-  -Xlinker -rpath -Xlinker "$PWD/target/release" \
-  bindings/swift/Counter.swift -o target/swift-counter
-target/swift-counter record target/swift-counter.trace
-target/swift-counter replay target/swift-counter.trace
-target/swift-counter enumerate target/swift-enumerated.trace
+python3 scripts/build-bindings.py --kind native
+swift test --package-path bindings --scratch-path target/swift-build \
+  -Xlinker -L -Xlinker "$PWD/target/bindings/native/lib" \
+  -Xlinker -rpath -Xlinker "$PWD/target/bindings/native/lib"
+target/swift-build/debug/swift-counter record target/swift-counter.trace
+target/swift-build/debug/swift-counter replay target/swift-counter.trace
+target/swift-build/debug/swift-counter changed target/swift-counter.trace
+target/swift-build/debug/swift-counter enumerate target/swift-enumerated.trace
 ```
 
 The counter permits incrementing past its bound, then reports `counter_bound`.
@@ -93,6 +95,7 @@ with a deliberately changed reducer and expects first-transition divergence.
 
 ```sh
 cargo build --release --lib --target wasm32-unknown-unknown --offline
+node --test bindings/browser/test.mjs
 node bindings/browser/check.mjs
 ```
 
@@ -108,3 +111,44 @@ array views after calls that can grow memory. Calls and checks are synchronous;
 this interface inserts no asynchronous hop into a reducer call. Initial Wasm
 fetch/instantiation is asynchronous. This is a correctness fixture; no low
 overhead claim or production browser integration is established.
+
+## Local distributions and application integration
+
+With Python 3.11+, `python3 scripts/build-bindings.py` builds native and Wasm distributions under
+`target/bindings/`, with source-package license files and `manifest-all.json`
+SHA-256 entries for every file copied by that invocation. `--kind native` and
+`--kind browser` build independently and write corresponding manifests. Install
+the Rust `wasm32-unknown-unknown` target before a browser build. Generated bundles
+are host-specific and are not uploaded or published by this command. On macOS,
+the distributed dylib uses `@rpath` and an ad-hoc signature so it can be relocated;
+application signing/notarization remains the host application's responsibility.
+Run `python3 scripts/check-native.py` to compile and execute a relocated consumer.
+
+Builds stage an explicit list of public files before replacing the selected
+bundle directories. Keep your own files and packed archives outside those
+generated directories; rebuilding removes obsolete contents. The generated npm
+version follows `Cargo.toml`. Failed builds preserve the previous bundles, and
+replacement errors restore them. Partial rebuilds invalidate the old combined
+manifest while preserving the other component's separate manifest. Concurrent
+builders are rejected by `target/.bindings-build.lock`.
+
+- C: use `native/include/stateless.h` and link the matching `native/lib` library.
+  `bindings/c/smoke.c` verifies the header against the built library.
+- Swift: add a local SwiftPM dependency on `target/bindings/swift`, select the
+  `StatelessNative` product, and configure the native library search/runtime path
+  as above. Implement `ByteModel` with `Metadata`, `Transition`, and named `Check`
+  values. `Session(model)` owns the native handle and exposes `record`, `replay`
+  and `enumerate`. The updated [counter](swift/Counter.swift) is a complete model.
+  Sessions are synchronous and thread-confined; callbacks throw Swift errors
+  that are contained at the ABI. Returned artifact arrays are owned copies.
+- JavaScript: install the generated `target/bindings/browser` directory locally,
+  or run `npm pack --offline` there. Its [guide](browser/README.md) documents the
+  generic `createModel` API; `createCounter` is only a fixture on top of that API.
+  Serve `target/bindings/` to run the packaged `browser-fixture/` separately from
+  the source tree. No npm runtime dependencies are needed.
+
+These are source/local packages, not prebuilt universal binaries, an XCFramework,
+a hosted Wasm service, or published npm/Swift registry releases. Native libraries
+must be rebuilt for the consumer's target architecture. The Swift package is
+currently qualified on macOS only. Node tests and browser tests are distinct:
+`browser/self-test.html` exposes pass/fail results for real browser execution.

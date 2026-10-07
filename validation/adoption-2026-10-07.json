@@ -1,0 +1,83 @@
+{
+  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.90.0 (1159e78c4 2025-09-14)\nbinary: rustc\ncommit-hash: 1159e78c4747b02ef996e55082b704c09b970588\ncommit-date: 2025-09-14\nhost: aarch64-apple-darwin\nrelease: 1.90.0\nLLVM version: 20.1.8\n",
+  "steps": 100000,
+  "samples": 5,
+  "summary": {
+    "reducer": {
+      "median_ns_per_transition": 17.97083,
+      "min_ns_per_transition": 17.87291,
+      "max_ns_per_transition": 26.32916
+    },
+    "checked": {
+      "median_ns_per_transition": 170.01,
+      "min_ns_per_transition": 157.39666,
+      "max_ns_per_transition": 210.11334
+    },
+    "recorded": {
+      "median_ns_per_transition": 12624.80625,
+      "min_ns_per_transition": 1540.73083,
+      "max_ns_per_transition": 24742.92708
+    }
+  },
+  "core_source_sha256": {
+    "Cargo.toml": "b52337b3aa00e7c0dde12caa6898f7271ab200e4479aa5affd401f26133fbdfa",
+    "src/artwork.rs": "3333d67352e99cd6b8b425a4ff9478a34f3b5c7a6c5dc79ad8e48334b26001c1",
+    "src/catalog.rs": "49c5d321ae093cde083a8f2abc1e15244aeb3c61ef956e6b85158ca9a76c1839",
+    "src/events.rs": "7843a40ec69c7088716b6a03b2715c1850f9fdf6593c24e1a72128ba39f42302",
+    "src/jobs.rs": "276e9df60338e5192f8b73ce0be6874f2189555e7f2b8c0a67fa0e572d32e55d",
+    "src/lib.rs": "e86c88d6f165c9cf7ae49ab10c7e62875888798820b14b4b06326d978b2797c8",
+    "src/maintenance.rs": "19f70ab356fdfe6de77fcd5dac052386cf8beeb345efbeb5cb3cbd2e4ba3844a",
+    "src/metadata.rs": "81477614396e1c673439b0943bf61cbd3d3e058d6c8b2be452d7504fb2f059b1",
+    "src/playback.rs": "f11bf7be769bfcd2d073f00f45e937db830fa49285e58aed1845b4d8bcf2eaac",
+    "src/processing.rs": "faa03fbd658374420d179c07ec480baeecadf7516d5016922ad67563575b57a7",
+    "src/ranges.rs": "292a9792e4b0b88ca2801174e1af8c4e93780ce33a7a3e29fddaa08a9f77be92",
+    "src/renditions.rs": "63f57adf47ef40b63cd7dd8354edbc98e977e9c9a8278221e28679170dbb7ce0",
+    "src/revision.rs": "a1359e5f474edf917b4efd8e07828cc6b274ccaa52c7888134c59a1f08a35639",
+    "src/scan.rs": "31cbfaedc31d9026d7047d1b485c249d81ea90393925954b0aa792afa74b8cf2",
+    "src/viewing.rs": "ad77c29abd85a6ffa0cda517d26ddf097c5df306e4c0ee2a91589c8b196294cf",
+    "tests/jobs_model.rs": "9a8422ff98082e8bd7d94a8fbe2728fc0df1152635ee76311046f5fd0b935a75",
+    "tests/processing_model.rs": "400d5a609055dc214991a2032d6a2ae47537eead19c9fa43afd56017b448b109",
+    "tests/state_policies.rs": "15840cae8eed000665604c32bac2d86bfa1cb8d136332ae64f82637b02439cf2",
+    "tests/viewing_model.rs": "38b378103c538b3deedab08ef2a1d0f0d423c37188d733077f923b48032e2b44"
+  },
+  "engine_source_sha256": {
+    "automatic.rs": "19f08f2caafdecace4509a2d61117078e2728db3608634a1036d811f3b57b02e",
+    "campaign/lifecycle/codec.rs": "a93ee1cf524339743564923dacd6d8aac007e95d9ecd68e00f5f4e08de8b579d",
+    "campaign/lifecycle/tests.rs": "3102ec704a8757f339d558e93faf98c82499076ffc94d8177551aba2af582b3a",
+    "campaign/lifecycle.rs": "7931c3ef82bf7f2b806448ef8a65f8f2e4a136d38c58d8e06307ee4b090ef44a",
+    "campaign.rs": "0852ec021b314caf6a5c171d4ffd85f127802b8587947185a30ed889603f50ae",
+    "demo.rs": "56ab68427fa0a3af604b568058034315d0cd5330bfd31739549a9e6490140974",
+    "execution.rs": "3c4b5ffe0df8461dad380b721680d6c87f18c3a4dcb588f8c0341bb7535467e7",
+    "explore.rs": "dd7203ee44b532e11184f0eef72947816b324a60b6539945a2c797b234e2e207",
+    "ffi.rs": "677d85644d272af5001eac04f4529e7c58b927c8927ff50abec4f55bf9d278f8",
+    "guided.rs": "bb63ae728d16c1e561c984951034f16b4384ecb2218109d0bbdd0a4cb64e86b3",
+    "lib.rs": "10932c820dad04fe04ab3d2515e9abdd7f658b9168098eab2cfb7d3111edb402",
+    "main.rs": "9ad82772da8bed76027bf8426b49b191ebd606c7eb3a6a71cecf46f1cc6ad50a",
+    "model.rs": "dddbcccc0e7e22017b6938022e1eadcc4b366420fa3d85f62475e2becd642fd8",
+    "monitor.rs": "069b14d82839a73de65b7d5daf4f441e8c2f220343e69e55c35318ccd96f57e8",
+    "oracle.rs": "0c4e5625b90d44333ae81df3b518d2ebe1cb11f63b5e3f1c4c83c4fe21bca5f7",
+    "trace.rs": "ad12adb8f0c22ca63f0acf4c1ea1457ca5277c54df16c6c820c0c8e55144a388"
+  },
+  "measurement_sha256": "1f02df3f578b910dffe2b564c39f6cf44625acfed96986aff48e72431cd015c2",
+  "notes": "Production reducer/adapter snapshot; simulated schedules, not live server or FFmpeg qualification. RSS is whole measurement-process peak, not incremental recorder memory. No warmup excluded; min/median/max include all samples.",
+  "measurement_csv": "mode,sample,steps,elapsed_ns,retained_steps,evicted_steps,encoded_bytes,export_ns,replay_ns\nreducer,0,100000,1851250,0,0,0,0,0\nreducer,1,100000,2632916,0,0,0,0,0\nreducer,2,100000,1789083,0,0,0,0,0\nreducer,3,100000,1787291,0,0,0,0,0\nreducer,4,100000,1797083,0,0,0,0,0\nchecked,0,100000,16519583,0,0,0,0,0\nchecked,1,100000,15739666,0,0,0,0,0\nchecked,2,100000,19786375,0,0,0,0,0\nchecked,3,100000,17001000,0,0,0,0,0\nchecked,4,100000,21011334,0,0,0,0,0\nrecorded,0,100000,154073083,1024,98976,358848,11551073167,4876417\nrecorded,1,100000,705419209,1024,98976,358848,391338666,1995333\nrecorded,2,100000,1262480625,1024,98976,358848,510578583,11862250\nrecorded,3,100000,1351876792,1024,98976,358848,1234105333,1975708\nrecorded,4,100000,2474292708,1024,98976,358848,3837997125,3839125\n",
+  "resource_report": "       25.22 real         1.08 user         0.13 sys\n             2932736  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                1026  page reclaims\n                  33  page faults\n                   0  swaps\n                   1  block input operations\n                 391  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                 304  voluntary context switches\n               11005  involuntary context switches\n          8445069788  instructions retired\n          2262708363  cycles elapsed\n             2589568  peak memory footprint\n",
+  "fresh_process_replay": [
+    "fresh-process replay: 1024 transitions exact",
+    "fresh-process replay: 1024 transitions exact",
+    "fresh-process replay: 1024 transitions exact",
+    "fresh-process replay: 1024 transitions exact",
+    "fresh-process replay: 1024 transitions exact"
+  ],
+  "model_test_results": [
+    "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "Stateless: 20 states, 274 edges; attempts <=3, completion identities 0..4; only declared properties checked",
+    "Stateless fuzz: 1000 cases, 100000 transitions, CasesCompleted",
+    "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s",
+    "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+  ]
+}
