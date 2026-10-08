@@ -1,6 +1,6 @@
 [package]
 name = "statelessness"
-version = "0.2.0-rc.1"
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.90"
 description = "Dependency-free state-machine checking, exploration, and replay"

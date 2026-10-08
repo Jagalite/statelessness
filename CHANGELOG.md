@@ -1,8 +1,8 @@
 # Changelog
 
-## 0.2.0-rc.1
+## 0.2.0
 
-Experimental prerelease; broad performance qualification and M7 language/pruning
+Broad performance qualification and M7 language/pruning
 experiments remain deferred. The companion macro package is explicitly imported.
 
 - Add model adapters, ordered input domains, bounded value codecs and derives.

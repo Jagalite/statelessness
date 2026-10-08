@@ -1,10 +1,10 @@
 # Macro implementation status — 2026-10-08
 
 Implementation is based on checkout `6c8aed126977204f8cf35248947c4f78dd00bb54`,
-which is newer than the supplied roadmap's pinned baseline. This work is being qualified as 0.2.0-rc.1, an experimental prerelease.
+which is newer than the supplied roadmap's pinned baseline. This work is released as 0.2.0.
 Source SHA-256 manifests identify the snapshots covered by local evidence.
 Hosted verification must pass on the release commit before publication.
-A prerelease does not close the broader performance and authoring gates.
+This release does not close the broader performance and authoring gates.
 
 | Milestone | Delivered here | Gate status |
 |---|---|---|
@@ -92,11 +92,11 @@ outside the current qualified parser envelope. No structural-diff derive, inferr
 purity, automatic correlation-key shrinking, statechart language, symmetry reduction,
 or partial-order pruning is claimed. The original handwritten APIs remain available.
 
-## Prerelease scope
+## Release scope
 
-0.2.0-rc.1 adds serialized trace replay with lifecycle monitors, saved-history
+0.2.0 adds serialized trace replay with lifecycle monitors, saved-history
 attachment, and composition with actual monitor histories in equality and replay.
 A zero-sized product fixture checks real usize cardinality overflow before mapping.
 These fixtures supplement the prior review; hosted release verification covers them.
 M7 remains deferred. Broad performance, production throughput, authoring-effort
-measurements and unsupported syntax remain outside this experimental release.
+measurements and unsupported syntax remain outside this release.

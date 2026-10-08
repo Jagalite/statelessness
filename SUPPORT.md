@@ -12,7 +12,7 @@ application payloads for private data before attaching traces.
 
 | Consumer | Installation | Scope |
 | --- | --- | --- |
-| Rust application tests | `stateless = { package = "statelessness", version = "=0.2.0-rc.1" }` in dev-dependencies | Checking, exploration, fuzzing, shrinking, recording, replay, oracles and campaigns |
+| Rust application tests | `stateless = { package = "statelessness", version = "=0.2.0" }` in dev-dependencies | Checking, exploration, fuzzing, shrinking, recording, replay, oracles and campaigns |
 | Rust runtime observation | Same dependency in dependencies | Checking and bounded recording of already executed transitions |
 | Custom replay command | Adapt the [application starter](examples/README.md) | Your model and codec; the bundled CLI only understands its request fixture |
 | C | Build `target/bindings/native` with `scripts/build-bindings.py` | ABI 1 byte-model recording, replay and enumeration |
@@ -20,13 +20,12 @@ application payloads for private data before attaching traces.
 | JavaScript | Local npm package/tarball from `target/bindings/browser` | Same ABI 1 subset via Wasm; no npm runtime dependencies |
 
 Rust 1.90 is the minimum supported version. Versions 0.1.0 and 0.1.1 were
-published previously. This candidate is 0.2.0-rc.1; prerelease dependencies must
-select it explicitly. Add `statelessness-macros = "=0.2.0-rc.1"` for the optional
+published previously. The current release is 0.2.0. Add `statelessness-macros = "=0.2.0"` for the optional
 companion. See [macro support and limits](docs/MACRO-STATUS.md).
 
 ## Validation status
 
-The following local environment evidence predates 0.2.0-rc.1; release notes
+The following local environment evidence predates 0.2.0; release notes
 identify the hosted run and artifacts that qualify each release.
 
 Local qualification uses macOS arm64 and Rust 1.90.0. Node tests use Node 23.5.0;
@@ -84,7 +83,7 @@ remain separate from this small-state application baseline.
 
 ## Remaining release gates
 
-The current candidate is the experimental 0.2.0-rc.1 prerelease. Run the remote verification
+The current release is 0.2.0. Run the remote verification
 matrix against the committed candidate and follow [RELEASING.md](RELEASING.md).
 Publication is a separate explicit release action. Configurable checkpoints,
 recorded selective checking, foreign fuzz/shrink APIs and broader runtime and

@@ -12,8 +12,8 @@ dependencies = [
 
 [[package]]
 name = "statelessness"
-version = "0.2.0-rc.1"
+version = "0.2.0"
 
 [[package]]
 name = "statelessness-macros"
-version = "0.2.0-rc.1"
+version = "0.2.0"
