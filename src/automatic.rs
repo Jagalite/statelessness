@@ -7,6 +7,7 @@
 //! Models should override `input_iter` for lazy generation: its default still
 //! allocates `inputs()` before this adapter can apply the candidate limit.
 
+use crate::CheckSink;
 use crate::model::{
     Check, EncodeBuffer, Enumerate, Generate, Model, ModelCodec, ModelError, ModelMetadata, Rng,
     Transition, TransitionRef,
@@ -88,7 +89,7 @@ impl<M: Model> Model for Auto<M> {
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         self.model.check_state_into(state, checks)
     }
@@ -105,7 +106,7 @@ impl<M: Model> Model for Auto<M> {
         before: &Self::State,
         input: &Self::Input,
         transition: &TransitionRef<'_, Self::State, Self::Output>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         self.model
             .check_transition_into(before, input, transition, checks)

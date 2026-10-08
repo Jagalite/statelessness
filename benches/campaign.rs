@@ -1,5 +1,6 @@
 //! Identical fixed jobs at different worker counts; no dependencies or I/O in
 //! measured model callbacks. Checks scan real payloads or inspect single cells.
+use stateless::CheckSink;
 use std::cell::Cell;
 use std::hint::black_box;
 use std::sync::Arc;
@@ -73,10 +74,14 @@ impl Model for Fixture {
     }
     fn check_state(&self, state: &State) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_state_into(state, &mut checks)?;
+        self.check_state_into(state, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
-    fn check_state_into(&self, state: &State, checks: &mut Vec<Check>) -> Result<(), ModelError> {
+    fn check_state_into(
+        &self,
+        state: &State,
+        checks: &mut CheckSink<'_>,
+    ) -> Result<(), ModelError> {
         for (index, id) in IDS.iter().enumerate() {
             let threshold = black_box(255 + index as u64);
             let valid = if self.scans {

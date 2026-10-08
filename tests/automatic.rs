@@ -1,3 +1,4 @@
+use stateless::CheckSink;
 use stateless::TransitionRef;
 use stateless::automatic::{Auto, AutoOptions};
 use stateless::execution::{ReplayOptions, ReplayOutcome, record, replay};
@@ -177,7 +178,7 @@ impl Model for Counter {
     fn check_state(&self, _: &u8) -> Result<Vec<Check>, ModelError> {
         panic!("optimized state checker was not delegated")
     }
-    fn check_state_into(&self, state: &u8, checks: &mut Vec<Check>) -> Result<(), ModelError> {
+    fn check_state_into(&self, state: &u8, checks: &mut CheckSink<'_>) -> Result<(), ModelError> {
         checks.push(if *state < 3 {
             Check::passed("under-three")
         } else {
@@ -198,7 +199,7 @@ impl Model for Counter {
         _: &u8,
         _: &u8,
         transition: &TransitionRef<'_, u8, u8>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.push(if transition.outputs == [*transition.state] {
             Check::passed("output")

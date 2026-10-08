@@ -8,6 +8,7 @@ use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
+use crate::CheckSink;
 use crate::model::{Check, CheckStatus, Enumerate, Generate, Model, ModelError, Rng, Transition};
 
 /// Cooperative limits checked between model callbacks/fully checked transitions.
@@ -1089,7 +1090,7 @@ fn initial_checks<M: Model>(
 ) -> Result<Vec<PropertyFailure>, ModelError> {
     checks.clear();
     model
-        .check_state_into(state, checks)
+        .check_state_into(state, &mut CheckSink::new(checks))
         .map_err(|e| context("initial check_state", e))?;
     Ok(observe(checks, checks.len(), true, skipped))
 }
@@ -1104,16 +1105,16 @@ fn transition_checks<M: Model>(
 ) -> Result<Vec<PropertyFailure>, ModelError> {
     checks.clear();
     model
-        .check_state_into(&transition.state, checks)
+        .check_state_into(&transition.state, &mut CheckSink::new(checks))
         .map_err(|e| context("check_state", e))?;
     let state_count = checks.len();
     model
-        .check_transition_into(before, input, &transition.as_ref(), checks)
+        .check_transition_into(
+            before,
+            input,
+            &transition.as_ref(),
+            &mut CheckSink::new(checks),
+        )
         .map_err(|e| context("check_transition", e))?;
-    if checks.len() < state_count {
-        return Err(ModelError::new(
-            "check_transition_into removed state observations",
-        ));
-    }
     Ok(observe(checks, state_count, false, skipped))
 }

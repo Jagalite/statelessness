@@ -6,6 +6,7 @@
 //! Retention budgets count serialized evidence, not process memory or arbitrary
 //! allocations inside application callbacks and legacy codecs.
 
+use crate::CheckSink;
 use crate::execution::{CheckPolicy, check_observed_into};
 use crate::model::{
     Check, EncodeBuffer, Model, ModelCodec, ModelError, ModelMetadata, Transition, TransitionRef,
@@ -165,7 +166,7 @@ impl Recorder {
             .map_err(|e| stage("encode checkpoint", e))?;
         let mut checks = Vec::new();
         model
-            .check_state_into(initial_state, &mut checks)
+            .check_state_into(initial_state, &mut CheckSink::new(&mut checks))
             .map_err(|e| stage("check checkpoint", e))?;
         let failed = checks.iter().any(Check::is_failure);
         let run_size = run_size(&metadata, &config, &encoded, &checks, &options.limits)
@@ -614,7 +615,7 @@ impl<M: Model> Model for CaptureStateCheckCount<'_, M> {
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         let start = checks.len();
         self.model.check_state_into(state, checks)?;
@@ -634,7 +635,7 @@ impl<M: Model> Model for CaptureStateCheckCount<'_, M> {
         before: &Self::State,
         input: &Self::Input,
         transition: &TransitionRef<'_, Self::State, Self::Output>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         self.model
             .check_transition_into(before, input, transition, checks)

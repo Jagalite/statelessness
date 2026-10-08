@@ -65,7 +65,7 @@ pub fn check_observed_into<M: Model>(
     let result = (|| {
         if sequence.is_multiple_of(policy.state_every.get()) {
             model
-                .check_state_into(&transition.state, checks)
+                .check_state_into(&transition.state, &mut CheckSink::new(checks))
                 .map_err(|e| stage("state check", e))?;
         } else {
             checks.push(Check::skipped(
@@ -74,15 +74,14 @@ pub fn check_observed_into<M: Model>(
             ));
         }
         if policy.transition_checks {
-            let state_count = checks.len();
             model
-                .check_transition_into(before, input, &transition.as_ref(), checks)
+                .check_transition_into(
+                    before,
+                    input,
+                    &transition.as_ref(),
+                    &mut CheckSink::new(checks),
+                )
                 .map_err(|e| stage("transition check", e))?;
-            if checks.len() < state_count {
-                return Err(ModelError::new(
-                    "transition checker removed state observations; append checks instead",
-                ));
-            }
         } else {
             checks.push(Check::skipped(
                 "stateless.transition_checks",
@@ -132,7 +131,7 @@ pub fn record_with_limits<M: ModelCodec>(
         .map_err(|e| stage("initial state", e))?;
     let mut initial_checks = Vec::new();
     model
-        .check_state_into(&state, &mut initial_checks)
+        .check_state_into(&state, &mut CheckSink::new(&mut initial_checks))
         .map_err(|e| stage("initial check", e))?;
     let mut initial_state = Vec::new();
     let blob_limit = limits
@@ -386,7 +385,7 @@ pub fn replay_with_observer<M: ModelCodec>(
     }
     let mut checks = Vec::new();
     model
-        .check_state_into(&state, &mut checks)
+        .check_state_into(&state, &mut CheckSink::new(&mut checks))
         .map_err(|e| stage("initial check", e))?;
     report.failure_reproduced = same_failure(&trace.initial_checks, &checks);
     if checks != trace.initial_checks {

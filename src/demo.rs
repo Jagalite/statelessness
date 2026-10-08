@@ -97,10 +97,14 @@ impl Model for RequestModel {
     }
     fn check_state(&self, state: &State) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_state_into(state, &mut checks)?;
+        self.check_state_into(state, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
-    fn check_state_into(&self, state: &State, checks: &mut Vec<Check>) -> Result<(), ModelError> {
+    fn check_state_into(
+        &self,
+        state: &State,
+        checks: &mut CheckSink<'_>,
+    ) -> Result<(), ModelError> {
         checks.extend([
             rule(
                 "ready_requires_active",
@@ -128,7 +132,7 @@ impl Model for RequestModel {
         transition: &TransitionRef<'_, State, Output>,
     ) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_transition_into(before, input, transition, &mut checks)?;
+        self.check_transition_into(before, input, transition, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
     fn check_transition_into(
@@ -136,7 +140,7 @@ impl Model for RequestModel {
         before: &State,
         input: &Input,
         transition: &TransitionRef<'_, State, Output>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         let stale = matches!(input, Input::Complete(g) if before.pending.contains(g) && (!before.active || *g != before.generation));
         checks.push(rule(

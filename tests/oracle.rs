@@ -12,7 +12,7 @@ struct Counter {
     steps: Cell<usize>,
     bug: bool,
     missing: bool,
-    clear_checks: bool,
+    state_failure: bool,
 }
 fn metadata(name: &str) -> ModelMetadata {
     ModelMetadata {
@@ -42,7 +42,7 @@ impl Model for Counter {
         ))
     }
     fn check_state(&self, _: &u64) -> Result<Vec<Check>, ModelError> {
-        Ok(vec![if self.clear_checks {
+        Ok(vec![if self.state_failure {
             Check::failed("application.failure", "must survive transition callbacks")
         } else {
             Check::passed("application.consistent")
@@ -53,12 +53,8 @@ impl Model for Counter {
         _: &u64,
         _: &u64,
         transition: &TransitionRef<'_, u64, u64>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
-        if self.clear_checks {
-            checks.clear();
-            return Ok(());
-        }
         checks.push(if *transition.state <= 100 {
             Check::passed("application.bound")
         } else {
@@ -147,7 +143,7 @@ impl Oracle<Counter> for Reference {
         &self,
         h: &History,
         actual: &u64,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.push(if h.expected == *actual {
             Check::passed("oracle.expected")
@@ -166,7 +162,7 @@ impl Oracle<Counter> for Reference {
         _: &OracleState<u64, History>,
         _: &u64,
         _: &TransitionRef<'_, OracleState<u64, History>, u64>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         if self.replenish {
             for id in ["oracle.t1", "oracle.t2", "oracle.t3", "oracle.t4"] {
@@ -211,7 +207,7 @@ fn fixture(bug: bool, missing: bool) -> WithOracle<Counter, Reference> {
             steps: Cell::new(0),
             bug,
             missing,
-            clear_checks: false,
+            state_failure: false,
         },
         Reference {
             version: 1,
@@ -296,7 +292,7 @@ fn checkpoint_is_strict_bounded_and_versions_remain_strict() {
             steps: Cell::new(0),
             bug: false,
             missing: false,
-            clear_checks: false,
+            state_failure: false,
         },
         Reference {
             version: 2,
@@ -357,7 +353,7 @@ fn oracle_advancement_error_leaves_a_coherent_recorded_prefix() {
             steps: Cell::new(0),
             bug: false,
             missing: false,
-            clear_checks: false,
+            state_failure: false,
         },
         Reference {
             version: 1,
@@ -401,7 +397,7 @@ fn borrowed_transition_checks_do_not_clone_application_state() {
             _: &Large,
             _: &(),
             after: &TransitionRef<'_, Large, ()>,
-            checks: &mut Vec<Check>,
+            checks: &mut CheckSink<'_>,
         ) -> Result<(), ModelError> {
             assert_eq!(after.state.0[0], 1);
             checks.push(Check::passed("borrowed"));
@@ -424,7 +420,7 @@ fn borrowed_transition_checks_do_not_clone_application_state() {
             &self,
             _: &u64,
             _: &Large,
-            _: &mut Vec<Check>,
+            _: &mut CheckSink<'_>,
         ) -> Result<(), ModelError> {
             Ok(())
         }
@@ -433,7 +429,7 @@ fn borrowed_transition_checks_do_not_clone_application_state() {
             before: &OracleState<Large, u64>,
             _: &(),
             after: &TransitionRef<'_, OracleState<Large, u64>, ()>,
-            checks: &mut Vec<Check>,
+            checks: &mut CheckSink<'_>,
         ) -> Result<(), ModelError> {
             assert_eq!(after.state.oracle, before.oracle + 1);
             checks.push(Check::passed("oracle.once"));
@@ -450,12 +446,29 @@ fn borrowed_transition_checks_do_not_clone_application_state() {
 #[test]
 fn application_checker_cannot_erase_state_checks_and_hide_behind_oracle_checks() {
     let (mut app, mut oracle) = fixture(false, false).into_parts();
-    app.clear_checks = true;
+    app.state_failure = true;
     oracle.replenish = true;
     let m = WithOracle::new(app, oracle);
     let before = m.initial_state().unwrap();
     let transition = m.step(&before, &1).unwrap();
-    assert!(check_observed(&m, &before, &1, &transition, 1, CheckPolicy::default()).is_err());
+    let checks = check_observed(&m, &before, &1, &transition, 1, CheckPolicy::default()).unwrap();
+    assert_eq!(
+        checks[0],
+        Check::failed("application.failure", "must survive transition callbacks")
+    );
+    assert_eq!(
+        checks[1..],
+        [
+            "oracle.expected",
+            "oracle.effects",
+            "application.bound",
+            "oracle.t1",
+            "oracle.t2",
+            "oracle.t3",
+            "oracle.t4"
+        ]
+        .map(Check::passed)
+    );
 }
 
 #[test]

@@ -1,3 +1,4 @@
+use stateless::CheckSink;
 use stateless::TransitionRef;
 use std::hash::{Hash, Hasher};
 
@@ -644,7 +645,7 @@ impl Model for Instrumented {
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.push(
             if self.fail_after.is_some_and(|limit| state.value >= limit) {
@@ -653,7 +654,9 @@ impl Model for Instrumented {
                 Check::passed("counted.limit")
             },
         );
-        self.buffers.borrow_mut().push(checks.as_ptr() as usize);
+        self.buffers
+            .borrow_mut()
+            .push(checks.as_slice().as_ptr() as usize);
         Ok(())
     }
     fn check_transition_into(
@@ -661,7 +664,7 @@ impl Model for Instrumented {
         _: &Self::State,
         _: &usize,
         _: &TransitionRef<'_, Self::State, ()>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.push(Check::passed("counted.edge"));
         Ok(())
@@ -1006,7 +1009,7 @@ impl Model for CancellingCallbacks {
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         self.call();
         self.inner.check_state_into(state, checks)?;
@@ -1244,8 +1247,8 @@ fn estimated_state_size_overflow_cannot_bypass_an_admission_budget() {
     assert_eq!(unlimited.estimated_retained_state_bytes, None);
 }
 
-struct RemovesStateChecks;
-impl Model for RemovesStateChecks {
+struct StateFailureThenPassingTransition;
+impl Model for StateFailureThenPassingTransition {
     type State = bool;
     type Input = ();
     type Output = ();
@@ -1270,19 +1273,28 @@ impl Model for RemovesStateChecks {
         _: &bool,
         _: &(),
         _: &TransitionRef<'_, bool, ()>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
-        checks.clear();
+        checks.push(Check::passed("transition"));
         Ok(())
     }
 }
-impl Generate for RemovesStateChecks {
+impl Generate for StateFailureThenPassingTransition {
     fn generate(&self, _: &bool, _: &mut Rng) -> Result<Option<()>, ModelError> {
         Ok(Some(()))
     }
 }
 #[test]
-fn malformed_transition_checker_cannot_silently_remove_state_failures() {
-    let error = fuzz(&RemovesStateChecks, FuzzConfig::default()).unwrap_err();
-    assert!(error.0.contains("removed state observations"));
+fn passing_transition_checker_preserves_state_failure() {
+    let report = fuzz(&StateFailureThenPassingTransition, FuzzConfig::default()).unwrap();
+    let failure = report.failure.unwrap();
+    assert_eq!(failure.violations.len(), 1);
+    assert_eq!(
+        failure.violations[0].phase,
+        stateless::explore::CheckPhase::State
+    );
+    assert_eq!(
+        failure.violations[0].check,
+        Check::failed("state", "violated")
+    );
 }

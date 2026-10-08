@@ -139,7 +139,10 @@ Properties and their reporting order must be deterministic.
 Property names use `PropertyId`: string literals are borrowed, and dynamic names
 can be created once from a `String` and cheaply cloned. Names still compare and
 serialize by text. Override `check_state_into` and `check_transition_into` to
-append results into reusable caller storage; the original vector-returning
+append results through `&mut CheckSink<'_>` into reusable caller storage. The
+sink exposes `push`, `extend`, and read-only inspection, with no access to mutate or
+remove earlier observations. Existing `*_into` overrides must change their
+parameter from `&mut Vec<Check>` to `&mut CheckSink<'_>`; the original vector-returning
 callbacks remain supported. `check_observed_into` clears and reuses its output
 buffer, clearing partial results if a checker returns an error.
 

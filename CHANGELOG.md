@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Harden check composition with append-only `CheckSink` across execution,
+  exploration, monitoring, and oracle callbacks. Rust `*_into` overrides must
+  accept `&mut CheckSink<'_>` instead of `&mut Vec<Check>`. Vector-returning
+  callbacks and the trace format are unchanged.
+
 ## 0.1.1 (release candidate)
 
 - Complete custom-model regression, failure-shrinking and replay starter.

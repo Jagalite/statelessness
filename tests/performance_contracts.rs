@@ -1,3 +1,4 @@
+use stateless::CheckSink;
 use stateless::TransitionRef;
 use std::cell::Cell;
 
@@ -15,7 +16,6 @@ struct Fixture {
     growth: usize,
     checker_error_at: Option<u8>,
     property_failure_at: Option<u8>,
-    clears_state_checks: bool,
     outputs: usize,
     encoded_outputs: Cell<usize>,
 }
@@ -42,7 +42,7 @@ impl Model for Fixture {
     fn check_state(&self, _: &u8) -> Result<Vec<Check>, ModelError> {
         panic!("engine should use append-style checking")
     }
-    fn check_state_into(&self, state: &u8, checks: &mut Vec<Check>) -> Result<(), ModelError> {
+    fn check_state_into(&self, state: &u8, checks: &mut CheckSink<'_>) -> Result<(), ModelError> {
         checks.push(if self.property_failure_at == Some(*state) {
             Check::failed("state", "injected failure")
         } else {
@@ -59,12 +59,8 @@ impl Model for Fixture {
         _: &u8,
         _: &u8,
         _: &TransitionRef<'_, u8, u8>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
-        if self.clears_state_checks {
-            checks.clear();
-            return Ok(());
-        }
         checks.push(Check::passed("transition"));
         Ok(())
     }
@@ -296,12 +292,12 @@ fn terminal_property_failures_use_their_actual_footer_at_exact_byte_limit() {
 #[test]
 fn transition_checker_cannot_silently_discard_state_observations() {
     let model = Fixture {
-        clears_state_checks: true,
+        property_failure_at: Some(1),
         ..Fixture::default()
     };
     let transition = model.step(&0, &1).unwrap();
     let mut checks = Vec::new();
-    let error = check_observed_into(
+    check_observed_into(
         &model,
         &0,
         &1,
@@ -310,12 +306,17 @@ fn transition_checker_cannot_silently_discard_state_observations() {
         CheckPolicy::default(),
         &mut checks,
     )
-    .unwrap_err();
-    assert!(error.0.contains("removed state observations"));
-    assert!(checks.is_empty());
+    .unwrap();
+    assert_eq!(
+        checks,
+        vec![
+            Check::failed("state", "injected failure"),
+            Check::passed("transition")
+        ]
+    );
     let mut recorder =
         stateless::monitor::Recorder::new(&model, &0, RunConfig::default(), 1).unwrap();
-    assert!(recorder.observe(&model, &0, &1, &transition).is_err());
+    recorder.observe(&model, &0, &1, &transition).unwrap();
     assert!(recorder.is_frozen());
-    assert_eq!(recorder.retained_steps(), 0);
+    assert_eq!(recorder.retained_steps(), 1);
 }

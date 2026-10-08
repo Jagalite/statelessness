@@ -1,3 +1,4 @@
+use stateless::CheckSink;
 use stateless::execution::{ReplayOptions, ReplayOutcome, replay};
 use stateless::monitor::{Recorder, RecorderOptions};
 use stateless::trace::{ReadLimits, RunConfig, Termination, Trace};
@@ -49,13 +50,13 @@ impl Model for Blobs {
     }
     fn check_state(&self, state: &Self::State) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_state_into(state, &mut checks)?;
+        self.check_state_into(state, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         self.state_checks.set(self.state_checks.get() + 1);
         if self.error_at == Some(state.len()) {

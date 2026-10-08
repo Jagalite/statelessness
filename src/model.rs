@@ -85,6 +85,80 @@ impl Hash for PropertyId {
     }
 }
 
+/// Append-only observations for model and oracle callbacks.
+/// Earlier observations cannot be removed or changed through this interface.
+/// The caller owns the vector and controls clearing and capacity reuse.
+/// This protects composition in safe Rust; callbacks are not a security sandbox.
+///
+/// ```
+/// use stateless::{Check, CheckSink};
+/// let mut checks = vec![Check::failed("earlier", "must survive")];
+/// let mut sink = CheckSink::new(&mut checks);
+/// sink.push(Check::passed("later"));
+/// sink.extend([Check::passed("another")]);
+/// assert!(checks[0].is_failure());
+/// assert_eq!(checks.len(), 3);
+/// ```
+///
+/// Clearing and replacing earlier checks is not available:
+/// ```compile_fail
+/// use stateless::{Check, CheckSink};
+/// fn faulty(sink: &mut CheckSink<'_>) {
+///     sink.clear();
+///     sink.push(Check::passed("replacement"));
+/// }
+/// ```
+/// ```compile_fail
+/// use stateless::{Check, CheckSink};
+/// fn faulty(sink: &mut CheckSink<'_>) {
+///     sink[0] = Check::passed("replacement");
+/// }
+/// ```
+/// ```compile_fail
+/// use stateless::{Check, CheckSink};
+/// fn faulty(sink: &mut CheckSink<'_>) {
+///     sink.as_slice()[0] = Check::passed("replacement");
+/// }
+/// ```
+pub struct CheckSink<'a> {
+    checks: &'a mut Vec<Check>,
+}
+
+impl<'a> CheckSink<'a> {
+    /// Wrap existing storage without clearing earlier observations.
+    pub fn new(checks: &'a mut Vec<Check>) -> Self {
+        Self { checks }
+    }
+
+    /// Inspect observations without granting mutable access.
+    pub fn as_slice(&self) -> &[Check] {
+        self.checks
+    }
+
+    /// Reserve room for additional observations without changing existing ones.
+    pub fn reserve(&mut self, additional: usize) {
+        self.checks.reserve(additional);
+    }
+
+    pub fn push(&mut self, check: Check) {
+        self.checks.push(check);
+    }
+
+    pub fn len(&self) -> usize {
+        self.checks.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.checks.is_empty()
+    }
+}
+
+impl Extend<Check> for CheckSink<'_> {
+    fn extend<T: IntoIterator<Item = Check>>(&mut self, checks: T) {
+        self.checks.extend(checks);
+    }
+}
+
 /// Reusable bounded output for codecs. Limits apply before growing the buffer.
 /// A rejected write is sticky, even if a codec accidentally ignores its error.
 pub struct EncodeBuffer<'a> {
@@ -307,7 +381,7 @@ pub trait Model {
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.extend(self.check_state(state)?);
         Ok(())
@@ -326,7 +400,7 @@ pub trait Model {
         before: &Self::State,
         input: &Self::Input,
         transition: &TransitionRef<'_, Self::State, Self::Output>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         checks.extend(self.check_transition(before, input, transition)?);
         Ok(())

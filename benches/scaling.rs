@@ -1,6 +1,7 @@
 //! Synthetic scaling review. No third-party dependencies or production claims.
 //! Timings and requested-heap probes are separate; output is CSV on stdout.
 
+use stateless::CheckSink;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::cell::Cell;
 use std::hint::black_box;
@@ -164,10 +165,14 @@ impl Model for Synthetic {
     fn check_state(&self, state: &State) -> Result<Vec<Check>, ModelError> {
         let mut checks =
             Vec::with_capacity(self.ids.len() + usize::from(self.fail_after.is_some()));
-        self.check_state_into(state, &mut checks)?;
+        self.check_state_into(state, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
-    fn check_state_into(&self, state: &State, checks: &mut Vec<Check>) -> Result<(), ModelError> {
+    fn check_state_into(
+        &self,
+        state: &State,
+        checks: &mut CheckSink<'_>,
+    ) -> Result<(), ModelError> {
         checks.reserve(self.ids.len() + usize::from(self.fail_after.is_some()));
         for (index, id) in self.ids.iter().enumerate() {
             let valid = if self.scan {

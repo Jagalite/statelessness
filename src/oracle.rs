@@ -28,14 +28,14 @@ pub trait Oracle<M: Model> {
         &self,
         history: &Self::State,
         actual: &M::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError>;
     fn check_transition_into(
         &self,
         _before: &OracleState<M::State, Self::State>,
         _input: &M::Input,
         _transition: &TransitionRef<'_, OracleState<M::State, Self::State>, M::Output>,
-        _checks: &mut Vec<Check>,
+        _checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
         Ok(())
     }
@@ -189,21 +189,18 @@ impl<M: Model, O: Oracle<M>> Model for WithOracle<M, O> {
     }
     fn check_state(&self, state: &Self::State) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_state_into(state, &mut checks)?;
+        self.check_state_into(state, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
     fn check_state_into(
         &self,
         state: &Self::State,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
-        let count = checks.len();
         self.model.check_state_into(&state.model, checks)?;
-        preserve(count, checks)?;
-        let count = checks.len();
         self.oracle
             .check_state_into(&state.oracle, &state.model, checks)?;
-        preserve(count, checks)
+        Ok(())
     }
     fn check_transition(
         &self,
@@ -212,7 +209,7 @@ impl<M: Model, O: Oracle<M>> Model for WithOracle<M, O> {
         transition: &TransitionRef<'_, Self::State, Self::Output>,
     ) -> Result<Vec<Check>, ModelError> {
         let mut checks = Vec::new();
-        self.check_transition_into(before, input, transition, &mut checks)?;
+        self.check_transition_into(before, input, transition, &mut CheckSink::new(&mut checks))?;
         Ok(checks)
     }
     fn check_transition_into(
@@ -220,9 +217,8 @@ impl<M: Model, O: Oracle<M>> Model for WithOracle<M, O> {
         before: &Self::State,
         input: &Self::Input,
         transition: &TransitionRef<'_, Self::State, Self::Output>,
-        checks: &mut Vec<Check>,
+        checks: &mut CheckSink<'_>,
     ) -> Result<(), ModelError> {
-        let count = checks.len();
         self.model.check_transition_into(
             &before.model,
             input,
@@ -233,11 +229,9 @@ impl<M: Model, O: Oracle<M>> Model for WithOracle<M, O> {
             },
             checks,
         )?;
-        preserve(count, checks)?;
-        let count = checks.len();
         self.oracle
             .check_transition_into(before, input, transition, checks)?;
-        preserve(count, checks)
+        Ok(())
     }
     fn estimated_state_bytes(&self, state: &Self::State) -> Option<usize> {
         let overhead =
@@ -246,15 +240,6 @@ impl<M: Model, O: Oracle<M>> Model for WithOracle<M, O> {
             .estimated_state_bytes(&state.model)?
             .checked_add(self.oracle.estimated_state_bytes(&state.oracle)?)?
             .checked_add(overhead)
-    }
-}
-fn preserve(count: usize, checks: &[Check]) -> Result<(), ModelError> {
-    if checks.len() < count {
-        Err(ModelError::new(
-            "checker removed earlier observations; append checks instead",
-        ))
-    } else {
-        Ok(())
     }
 }
 impl<M: Enumerate, O: Oracle<M>> Enumerate for WithOracle<M, O> {
