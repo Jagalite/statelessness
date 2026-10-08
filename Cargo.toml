@@ -1,6 +1,6 @@
 [package]
 name = "statelessness"
-version = "0.1.1"
+version = "0.2.0-rc.1"
 edition = "2024"
 rust-version = "1.90"
 description = "Dependency-free state-machine checking, exploration, and replay"
@@ -12,7 +12,7 @@ include = [
     "src/**", "tests/**", "examples/**", "benches/**", "bindings/**", "scripts/**",
     "build.rs", "Cargo.toml", "Cargo.lock", "LICENSE",
     "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md", "SUPPORT.md",
-    "CHANGELOG.md", "validation/**",
+    "CHANGELOG.md", "validation/adoption-2026-10-07.json", "docs/**",
 ]
 
 [lib]
@@ -44,3 +44,8 @@ unsafe_op_in_unsafe_fn = "deny"
 
 [lints.clippy]
 undocumented_unsafe_blocks = "deny"
+
+[workspace]
+members = ["crates/statelessness-macros", "crates/macro-qualification"]
+default-members = ["."]
+resolver = "3"

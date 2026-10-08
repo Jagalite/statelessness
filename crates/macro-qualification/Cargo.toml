@@ -1,0 +1,8 @@
+[package]
+name = "macro-qualification"
+version = "0.0.0"
+edition = "2024"
+publish = false
+[dependencies]
+stateless = { package = "statelessness", path = "../.." }
+statelessness-macros = { path = "../statelessness-macros" }

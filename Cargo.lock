@@ -3,5 +3,17 @@
 version = 4
 
 [[package]]
+name = "macro-qualification"
+version = "0.0.0"
+dependencies = [
+ "statelessness",
+ "statelessness-macros",
+]
+
+[[package]]
 name = "statelessness"
-version = "0.1.1"
+version = "0.2.0-rc.1"
+
+[[package]]
+name = "statelessness-macros"
+version = "0.2.0-rc.1"

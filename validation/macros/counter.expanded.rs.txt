@@ -1,0 +1,136 @@
+// Inspection excerpt, not a standalone Rust module or stable expansion API.
+// rustc 1.97.0-nightly (d3cd04068 2026-05-16); complete expansion repeated identically.
+impl ::stateless::Model for Counter {
+    type State = u8;
+    type Input = u8;
+    type Output = u8;
+    #[inline]
+    fn metadata(&self) -> ::stateless::ModelMetadata {
+        let mut m = Self::identity(self);
+        m.build.push_str(";macro-v1:source-fnv1a64:4aa89c9c784ffdf6");
+        m.build.push_str(";runtime:");
+        m.build.push_str(::stateless::modeling::RUNTIME_BUILD_ID);
+        m
+    }
+    #[inline]
+    fn initial_state(&self)
+        -> ::std::result::Result<Self::State, ::stateless::ModelError> {
+        Self::initial(self)
+    }
+    #[inline]
+    fn step(&self, state: &Self::State, input: &Self::Input)
+        ->
+            ::std::result::Result<::stateless::Transition<Self::State,
+            Self::Output>, ::stateless::ModelError> {
+        Self::reduce(self, state, input)
+    }
+    #[inline]
+    fn check_state(&self, state: &Self::State)
+        ->
+            ::std::result::Result<::std::vec::Vec<::stateless::Check>,
+            ::stateless::ModelError> {
+        let mut checks = ::std::vec::Vec::new();
+        <Self as
+                    ::stateless::Model>::check_state_into(self, state,
+                &mut ::stateless::CheckSink::new(&mut checks))?;
+        Ok(checks)
+    }
+    #[inline]
+    fn check_state_into(&self, state: &Self::State,
+        checks: &mut ::stateless::CheckSink<'_>)
+        -> ::std::result::Result<(), ::stateless::ModelError> {
+        checks.push(::stateless::Check {
+                id: ("counter.bound").into(),
+                status: Self::bound(self, state)?,
+            });
+        Ok(())
+    }
+    #[inline]
+    fn check_transition(&self, before: &Self::State, input: &Self::Input,
+        transition:
+            &::stateless::TransitionRef<'_, Self::State, Self::Output>)
+        ->
+            ::std::result::Result<::std::vec::Vec<::stateless::Check>,
+            ::stateless::ModelError> {
+        let mut checks = ::std::vec::Vec::new();
+        <Self as
+                    ::stateless::Model>::check_transition_into(self, before,
+                input, transition,
+                &mut ::stateless::CheckSink::new(&mut checks))?;
+        Ok(checks)
+    }
+    #[inline]
+    fn check_transition_into(&self, before: &Self::State, input: &Self::Input,
+        transition:
+            &::stateless::TransitionRef<'_, Self::State, Self::Output>,
+        checks: &mut ::stateless::CheckSink<'_>)
+        -> ::std::result::Result<(), ::stateless::ModelError> {
+        Ok(())
+    }
+}
+impl ::stateless::Enumerate for Counter {
+    #[inline]
+    fn inputs(&self, state: &Self::State)
+        ->
+            ::std::result::Result<::std::vec::Vec<Self::Input>,
+            ::stateless::ModelError> {
+        Self::deliveries(self, state)
+    }
+}
+impl ::stateless::ModelCodec for Counter {
+    #[inline]
+    fn encode_state(&self, value: &Self::State)
+        ->
+            ::std::result::Result<::std::vec::Vec<u8>,
+            ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_bytes(value, usize::MAX)
+    }
+    #[inline]
+    fn encode_state_into(&self, value: &Self::State,
+        out: &mut ::stateless::EncodeBuffer<'_>)
+        -> ::std::result::Result<(), ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_encode(value, out)
+    }
+    #[inline]
+    fn decode_state(&self, bytes: &[u8])
+        -> ::std::result::Result<Self::State, ::stateless::ModelError> {
+        ::stateless::value_codec::TraceDecode::from_trace(bytes,
+            ::stateless::value_codec::DecodeLimits::default())
+    }
+    #[inline]
+    fn encode_input(&self, value: &Self::Input)
+        ->
+            ::std::result::Result<::std::vec::Vec<u8>,
+            ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_bytes(value, usize::MAX)
+    }
+    #[inline]
+    fn encode_input_into(&self, value: &Self::Input,
+        out: &mut ::stateless::EncodeBuffer<'_>)
+        -> ::std::result::Result<(), ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_encode(value, out)
+    }
+    #[inline]
+    fn decode_input(&self, bytes: &[u8])
+        -> ::std::result::Result<Self::Input, ::stateless::ModelError> {
+        ::stateless::value_codec::TraceDecode::from_trace(bytes,
+            ::stateless::value_codec::DecodeLimits::default())
+    }
+    #[inline]
+    fn encode_output(&self, value: &Self::Output)
+        ->
+            ::std::result::Result<::std::vec::Vec<u8>,
+            ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_bytes(value, usize::MAX)
+    }
+    #[inline]
+    fn encode_output_into(&self, value: &Self::Output,
+        out: &mut ::stateless::EncodeBuffer<'_>)
+        -> ::std::result::Result<(), ::stateless::ModelError> {
+        ::stateless::value_codec::TraceEncode::trace_encode(value, out)
+    }
+}
+impl Counter {
+    pub const STATELESS_PROPERTIES: &'static [(&'static str, &'static str)] =
+        &[("state_check", "counter.bound")];
+}

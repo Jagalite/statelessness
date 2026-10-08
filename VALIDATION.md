@@ -99,3 +99,20 @@ See [SUPPORT.md](SUPPORT.md) for the measured 2026-10-07 baseline and its limits
 Release validation should record the final source revision and the checks
 actually run against it. Do not carry forward test counts or performance numbers
 from unrelated source snapshots or local experiments.
+
+## Macro development qualification
+
+See [the macro status](docs/MACRO-STATUS.md) and `validation/macros/` for source-bound
+local evidence and outstanding release gates. Reproduce with:
+
+```sh
+cargo test --locked --offline --workspace
+cargo clippy --locked --offline --workspace --all-targets -- -D warnings
+python3 scripts/check-macros.py --allow-dirty --evidence /tmp/macro-evidence.json
+cargo run --locked --offline -p macro-qualification --bin jobs -- record /tmp/jobs-new.sttrace
+cargo run --locked --offline -p macro-qualification --bin jobs -- replay /tmp/jobs-new.sttrace
+```
+
+Omit `--allow-dirty` on clean source. On hosts with multiple Rust installations,
+verify the actual compiler path as well as Cargo's version. Preserve the existing
+native/browser distribution checks; macro acceptance does not qualify other ABIs.

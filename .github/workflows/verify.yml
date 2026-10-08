@@ -27,11 +27,11 @@ jobs:
           rustup default ${{ matrix.rust }}
       - name: Verify source and documentation
         run: |
-          cargo fmt --check
-          cargo test --locked --offline
+          cargo fmt --all --check
+          cargo test --locked --offline --workspace
           cargo test --locked --offline --example application
-          cargo clippy --locked --offline --all-targets -- -D warnings
-          cargo doc --locked --offline --no-deps
+          cargo clippy --locked --offline --workspace --all-targets -- -D warnings
+          cargo doc --locked --offline --workspace --no-deps
           cargo run --locked --offline --example counter
       - name: Verify starter in separate processes
         run: |
@@ -44,6 +44,11 @@ jobs:
           status=0
           cargo run --locked --offline --example application -- replay-fixed starter-failure/minimized.sttrace || status=$?
           test "$status" -eq 3
+      - name: Verify macro consumers and fresh-process replay
+        run: |
+          python3 scripts/check-macros.py --evidence target/macro-evidence.json
+          cargo run --locked --offline -p macro-qualification --bin jobs -- record target/jobs.sttrace
+          cargo run --locked --offline -p macro-qualification --bin jobs -- replay target/jobs.sttrace
       - name: Verify packaged crate
         run: python3 scripts/check-consumer.py
 

@@ -542,3 +542,11 @@ from GitHub Actions.
 ## License
 
 Licensed under the [MIT License](LICENSE).
+
+## Modeling helpers and companion macros
+
+The [modeling guide](docs/MACROS.md) documents the first-party macro companion,
+explicit environmental domains, bounded value codecs, independent lifecycle
+monitors and two-machine routing. Core-only users still compile no extra package.
+The [implementation status](docs/MACRO-STATUS.md) distinguishes local evidence from
+release qualification. Run `cargo test --offline --workspace` to include macro fixtures.

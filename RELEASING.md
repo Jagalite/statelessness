@@ -4,7 +4,7 @@ The GitHub repository is https://github.com/Jagalite/statelessness.
 The crates.io package is `statelessness`. The Rust library import remains
 `stateless`.
 
-Version 0.1.0 is already published and was downloaded/tested through the registry
+Versions 0.1.0 and 0.1.1 are already published and was downloaded/tested through the registry
 on 2026-10-07. The first-publication section below is retained for reference;
 new changes require a new package version. See [CHANGELOG.md](CHANGELOG.md) for
 the unreleased scope and [SUPPORT.md](SUPPORT.md) for qualification boundaries.
@@ -75,3 +75,14 @@ publishes. A run on `main` is skipped. Do not rerun publication for a version
 already published, including the initial version published during bootstrap.
 
 See the [official trusted publishing documentation](https://crates.io/docs/trusted-publishing).
+
+## Macro companion release gate
+
+The macro companion is explicitly imported and does not add a dependency to the
+core package. Before a supported macro release, run the existing Rust 1.90/stable
+Linux/macOS/Windows matrix with workspace tests and `scripts/check-macros.py`.
+The latter tests extracted core and macro packages with an empty Cargo home.
+Review `docs/MACRO-STATUS.md`, macro/runtime protocol compatibility, codec migration
+and the source-bound evidence bundle. Assign coordinated release versions and
+publish the core exposing the protocol before the companion. Publishing is not
+part of implementation qualification. Keep the native/browser binding jobs intact.

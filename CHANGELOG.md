@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.2.0-rc.1
+
+Experimental prerelease; broad performance qualification and M7 language/pruning
+experiments remain deferred. The companion macro package is explicitly imported.
+
+- Add model adapters, ordered input domains, bounded value codecs and derives.
+- Add independent lifecycle monitors and explicit two-machine composition.
+- Add offline packaged macro consumers, diagnostics and replay qualification.
+- Fix overdue obligation cancellation, restored history checks, macro identifier
+  capture, generic parsing and suppressed decoder errors.
+
 
 - Add opt-in borrowed runtime observations with Off through Trace logging,
   configurable text snapshots, bounded codec payload formatting, explicit sink
@@ -12,7 +22,7 @@
   accept `&mut CheckSink<'_>` instead of `&mut Vec<Check>`. Vector-returning
   callbacks and the trace format are unchanged.
 
-## 0.1.1 (release candidate)
+## 0.1.1
 
 - Complete custom-model regression, failure-shrinking and replay starter.
 - Executable crate documentation and isolated packaged/registry consumer checks.

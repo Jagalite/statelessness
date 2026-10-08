@@ -1,0 +1,120 @@
+{
+  "source_sha256": {
+    "Cargo.toml": "8ae960cd2571f24ee9bd9cb33a55244b21429b4d5e05a907e2884fe6cb8b131c",
+    "build.rs": "f8b62ba9564aed8e971a9bdb8941225ed07ce6c32fecb68835671239c3f4df35",
+    "crates/macro-qualification/Cargo.toml": "32eedd4c1ab60f5062c8707f94d61322d453660c4a815c17d6a54a783514f7f9",
+    "crates/macro-qualification/examples/measure.rs": "6dcd2c244f5b345c5f73cccc7ea12f4b81531821b86688199aec0211efbad407",
+    "crates/macro-qualification/src/bin/jobs.rs": "aa2203da94034d2be0206fdbb647aa1bd1fc103d6fdf3bb6a25b9baa01e05e99",
+    "crates/macro-qualification/src/jobs.rs": "c77f5e7caf9da45eb5f00d08004b6a36e7c205842821307ace653ecf92d92a13",
+    "crates/macro-qualification/src/lib.rs": "192f91bf147b2433b9424b04d04fd7b0b3b885ec095333ec6d676e9936b12bd8",
+    "crates/macro-qualification/tests/behavior.rs": "faeaa6454ba3dab648e7e6c44e5c157e593c8a7446ebb8f21889e6a0f6ee38da",
+    "crates/macro-qualification/tests/codecs.rs": "fc6a84394d88b0c9989ed0197a19ac2f6a02a71db5353fad3364ecab35a4721f",
+    "crates/statelessness-macros/Cargo.toml": "e1c5fdabeb11c618bea70ce8aeeba2d0c98cfedfd1ea9ac08ba842a121369f46",
+    "crates/statelessness-macros/build.rs": "f8b62ba9564aed8e971a9bdb8941225ed07ce6c32fecb68835671239c3f4df35",
+    "crates/statelessness-macros/src/adapter.rs": "ea08f200b322313a19363184566d57a5f355d8b41b88ef0d7e77e943a7d83a63",
+    "crates/statelessness-macros/src/codec.rs": "c980491431772346e488e0412f65b8698c42da7c13d77287a864ae996b3a3f7b",
+    "crates/statelessness-macros/src/domain.rs": "489de51c24f708b4a5b53859692ff949252bccb3cc949daf961946a6fa14fbe2",
+    "crates/statelessness-macros/src/lib.rs": "dc757db2a6a45da5191e9c515a24563c5693a72ebd243879808d3ca1953e5c0d",
+    "crates/statelessness-macros/src/parse.rs": "b2234d7c70198f80be66fa1f22c6097fab97bef43e367d6b9286016e60fb2e23",
+    "src/automatic.rs": "f378d84d6dc4ba91b01622c62f10212137a56007af3bcb2bcd932de3f07e9055",
+    "src/campaign/lifecycle/codec.rs": "a93ee1cf524339743564923dacd6d8aac007e95d9ecd68e00f5f4e08de8b579d",
+    "src/campaign/lifecycle/tests.rs": "3102ec704a8757f339d558e93faf98c82499076ffc94d8177551aba2af582b3a",
+    "src/campaign/lifecycle.rs": "7931c3ef82bf7f2b806448ef8a65f8f2e4a136d38c58d8e06307ee4b090ef44a",
+    "src/campaign.rs": "0852ec021b314caf6a5c171d4ffd85f127802b8587947185a30ed889603f50ae",
+    "src/composition.rs": "dcef4c9ed0f1a64bba8834f2482261c02ea630d9666237d3b08cd5eb1f5b94ec",
+    "src/demo.rs": "0a644f878de5408954ab0b3d621dd869b7fab60dcfe79da0a63c4a00d628c289",
+    "src/execution.rs": "0ff7c8991ec39c2d7ade6a6453e09a9e6cc2282a0b2a54ce6e2b0df5556cd63b",
+    "src/explore.rs": "7db89f0b19ec97408fec702721a9cbb1457581968d23c7689ad438ef2d2c29cf",
+    "src/ffi.rs": "677d85644d272af5001eac04f4529e7c58b927c8927ff50abec4f55bf9d278f8",
+    "src/guided.rs": "bb63ae728d16c1e561c984951034f16b4384ecb2218109d0bbdd0a4cb64e86b3",
+    "src/lib.rs": "66747d72fb88380cd912fd6c8a14dc12b8e0922152bbadef5dd04d7a26beb73b",
+    "src/lifecycle.rs": "9a3f03a8575163dd71c398dd7bb9bbe083853fa1fa0efb6441badd6e17529ff8",
+    "src/main.rs": "9ad82772da8bed76027bf8426b49b191ebd606c7eb3a6a71cecf46f1cc6ad50a",
+    "src/model.rs": "b341ba01318547452eb22ab8816539b565e0087ced2bd0b2991cfe20af7b41f8",
+    "src/modeling.rs": "ea8dd173cba22cbbdd9c76716f2cd29e4e710a4d677e77c5329b4f77c0b364f8",
+    "src/monitor.rs": "9230685a52f7ec952ec376d2b54d14d31b2b62b98f652b9931bd4df3fd7d2b46",
+    "src/observation.rs": "f03ae199c9953eab10be5ef296bb91abf4d495c33f15a0fc779b6c4e9c8683f0",
+    "src/oracle.rs": "8f252af5945c81b236a19caf326ab626d060702791675d918cea2ef9663e2fdf",
+    "src/trace.rs": "30c10974d0cd8efbf9ca712684cef7947e952a93ba86bca2b114d7ac6dafb59e",
+    "src/value_codec.rs": "a9eb223ee1e215ceb1d1de27f6fbfd531866dc1aeaef838d8c3334afd15bd3b7"
+  },
+  "compiler": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew)",
+  "results": [
+    {
+      "case": "core",
+      "mode": "clean",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness",
+        "--lib"
+      ],
+      "seconds": 10.54454112500025,
+      "top_level_library_bytes": {
+        "debug/libstateless.rlib": 6637888,
+        "debug/libstateless.d": 1131,
+        "debug/libstateless.a": 12966672,
+        "debug/libstateless.dylib": 1007696
+      }
+    },
+    {
+      "case": "core",
+      "mode": "unchanged",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness",
+        "--lib"
+      ],
+      "seconds": 0.2300377079991449,
+      "top_level_library_bytes": {
+        "debug/libstateless.rlib": 6637888,
+        "debug/libstateless.d": 1131,
+        "debug/libstateless.a": 12966672,
+        "debug/libstateless.dylib": 1007696
+      }
+    },
+    {
+      "case": "macros",
+      "mode": "clean",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "macro-qualification",
+        "--lib"
+      ],
+      "seconds": 1.573456875001284,
+      "top_level_library_bytes": {
+        "debug/libmacro_qualification.d": 1877,
+        "debug/libmacro_qualification.rlib": 281960
+      }
+    },
+    {
+      "case": "macros",
+      "mode": "unchanged",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "macro-qualification",
+        "--lib"
+      ],
+      "seconds": 0.01910387499810895,
+      "top_level_library_bytes": {
+        "debug/libmacro_qualification.d": 1877,
+        "debug/libmacro_qualification.rlib": 281960
+      }
+    }
+  ]
+}
