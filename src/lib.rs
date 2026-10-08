@@ -52,6 +52,7 @@ pub mod ffi;
 pub mod guided;
 pub mod model;
 pub mod monitor;
+pub mod observation;
 pub mod oracle;
 pub mod trace;
 

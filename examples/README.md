@@ -1,5 +1,8 @@
 # Test your own application
 
+For configurable runtime logging and full replay capture, see
+[logging.rs](logging.rs): `cargo run --offline --example logging`.
+
 [application.rs](application.rs) is a self-contained starter using the public
 library API. Its bounded counter stands in for your application's pure reducer.
 It includes a deliberately buggy reducer, a corrected reducer, a regression

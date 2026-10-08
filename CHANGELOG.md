@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add opt-in borrowed runtime observations with Off through Trace logging,
+  configurable text snapshots, bounded codec payload formatting, explicit sink
+  errors, and an example sharing checks with full replay capture. Includes a
+  benchmark separating observation/formatting from buffered file writes.
+
 - Harden check composition with append-only `CheckSink` across execution,
   exploration, monitoring, and oracle callbacks. Rust `*_into` overrides must
   accept `&mut CheckSink<'_>` instead of `&mut Vec<Check>`. Vector-returning

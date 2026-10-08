@@ -450,6 +450,53 @@ Recording still encodes exact before/after states; buffer reuse reduces allocati
 without weakening continuity or replay comparisons. Use `check_observed_into`
 when persistence is unnecessary.
 
+### Runtime log levels and snapshots
+
+`observation::TextObserver` consumes borrowed `Event`s from application execution:
+
+| Level | Included diagnostics |
+| --- | --- |
+| `Off` (default) | No formatting, payload encoding, or writes |
+| `Error` | Failed properties and explicit error messages |
+| `Warn` | Errors, skipped checks, and explicit warnings |
+| `Info` | Above, plus start/end events and explicit informational messages |
+| `Debug` | Above, plus every transition's sequence, disposition, output/check counts |
+| `Trace` | Above, plus every check and formatted input/output payloads |
+
+At `Trace`, `SnapshotPolicy::EveryTransition` adds full post-state payloads;
+`Every(NonZeroU64)` adds periodic post-states and `None` omits them. Send an
+explicit `Event::Checkpoint` for the initial state or after enabling snapshots
+mid-run. Explicit checkpoints include state under either enabled snapshot policy.
+Each logger has an application-provided stream ID. Use separate IDs for branches
+or concurrent executions; callers own sequence ordering and gap reporting.
+Rejected and ignored inputs are ordinary transitions, not automatic warnings.
+
+`NoPayloads` works with any `Model`, without `Debug` or codec bounds, and marks
+payloads unavailable. `EncodedPayloads` uses `ModelCodec` to render canonical
+bytes as hex, with a reusable bounded encoding buffer. Applications can implement
+`PayloadFormat` for readable domain values. `max_record_bytes` bounds a complete
+text record; codec limits bound individual encoded blobs. These limits do not
+bound application callbacks or temporary allocations in legacy codecs.
+
+Logging never executes transitions or checks. Pass the checks returned by
+`Recorder::observe`, or by `check_observed` when replay capture is unnecessary.
+Log level and snapshot settings do not change checking or recorder retention.
+Text diagnostics are not replay artifacts: full replay capture still uses
+`Recorder` and its existing binary format. The recorder freezes on failure;
+the text logger can continue independently with checks supplied by the host.
+
+Errors are returned to the caller. Formatting/encoding errors publish no record;
+a write or flush error permanently disables that logger because its output may
+be partial. Applications decide whether to stop, report through another sink,
+or continue without logging. Writes are synchronous, flushing is explicit, and
+there is no background queue, automatic rotation, or whole-run persistence.
+`set_level` and `set_snapshots` affect future events only.
+
+Run the [logging example](examples/logging.rs) with
+`cargo run --offline --example logging`. It emits full text transitions and
+snapshots, captures a bounded binary trace, and verifies exact replay while
+sharing check results between capture and logging.
+
 The [C, Swift, and browser packages](bindings/README.md) keep model logic in its
 original language and use the Rust engine. This initial boundary copies canonical
 byte representations. Native application state handles and foreign fuzz/shrink interfaces remain
@@ -464,6 +511,7 @@ cargo fmt --check
 cargo bench --offline --bench engine
 cargo bench --offline --bench scaling
 cargo bench --offline --bench campaign
+cargo bench --offline --bench observation
 ```
 
 Tests cover graph accounting, hash collisions, initial/edge properties, causal
