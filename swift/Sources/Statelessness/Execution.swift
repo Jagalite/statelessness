@@ -39,9 +39,14 @@ private func encoded<T>(_ stage: String, _ callback: (T) throws -> [UInt8], _ va
 public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
     guard let codec = m.codec else { throw ModelError("record requires a codec") }
-    var state = try copied(m.cloneState, call("initial state", m.initialState))
+    // Evaluate throwing arguments separately. Swift 6.0.3 on Darwin otherwise
+    // crashes its SIL ownership verifier when an initial-state error bypasses
+    // cleanup of the generic clone closure. No verifier flags are disabled.
+    let initialValue = try call("initial state", m.initialState)
+    var state = try copied(m.cloneState, initialValue)
     let initialChecks = try collect("initial check") { try m.checkState(copied(m.cloneState, state)) }
-    let initialState = try encoded("encode initial state", codec.encodeState, copied(m.cloneState, state), maximum: limits.maxBlobBytes)
+    let initialSnapshot = try copied(m.cloneState, state)
+    let initialState = try encoded("encode initial state", codec.encodeState, initialSnapshot, maximum: limits.maxBlobBytes)
     let metadata = try call("metadata", codec.metadata)
     var items = initialChecks.count, payload = initialState.count, steps: [TraceStep] = []
     guard items <= limits.maxItems, payload <= limits.maxPayloadBytes else { throw ModelError("recording limit: initial checkpoint") }
@@ -52,13 +57,18 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
     do {
         while let input = try call("inputs", inputs.next) {
             if steps.count >= min(maxSteps, limits.maxSteps) { return result(.stepLimit) }
-            let bytes = try encoded("encode input", codec.encodeInput, copied(m.cloneInput, input), maximum: limits.maxBlobBytes)
+            let inputSnapshot = try copied(m.cloneInput, input)
+            let bytes = try encoded("encode input", codec.encodeInput, inputSnapshot, maximum: limits.maxBlobBytes)
             let t = try perform(m, state, input)
             let checks = try checkObserved(m, before: state, input: input, transition: t, sequence: UInt64(steps.count + 1))
             let nextItems = items + 1 + checks.count + t.outputs.count
             if nextItems > limits.maxItems { throw ModelError("recording limit: aggregate items") }
-            let outputs = try t.outputs.map { try encoded("encode output", codec.encodeOutput, copied(m.cloneOutput, $0), maximum: limits.maxBlobBytes) }
-            let postState = try encoded("encode state", codec.encodeState, copied(m.cloneState, t.state), maximum: limits.maxBlobBytes)
+            let outputs = try t.outputs.map { output in
+                let snapshot = try copied(m.cloneOutput, output)
+                return try encoded("encode output", codec.encodeOutput, snapshot, maximum: limits.maxBlobBytes)
+            }
+            let nextSnapshot = try copied(m.cloneState, t.state)
+            let postState = try encoded("encode state", codec.encodeState, nextSnapshot, maximum: limits.maxBlobBytes)
             let nextPayload = payload + bytes.count + postState.count + outputs.reduce(0) { $0 + $1.count }
             if nextPayload > limits.maxPayloadBytes { throw ModelError("recording limit: aggregate payload bytes") }
             steps.append(TraceStep(input: bytes, disposition: t.disposition, outputs: outputs, postState: postState, checks: checks))
