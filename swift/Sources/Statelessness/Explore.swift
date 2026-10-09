@@ -26,7 +26,8 @@ private func findings(_ phase: String, _ checks: [Check], _ skipped: inout UInt6
 public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig = SearchConfig()) throws -> SearchReport<I> {
     guard config.maxStates > 0, config.maxDepth >= 0 else { throw ConfigError("invalid search configuration") }
     guard let inputs = m.inputs, let equal = m.equalStates else { throw ModelError("enumeration requires inputs and equality") }
-    let initial = try copied(m.cloneState, call("initial_state", m.initialState))
+    let initialValue = try call("initial_state", m.initialState)
+    let initial = try copied(m.cloneState, initialValue)
     let checks = try stateChecks(m, initial)
     var r = SearchReport<I>(termination: "graph_exhausted", states: 1, transitions: 0, maxDepthReached: 0, skippedChecks: 0, failure: nil)
     let bad = findings("initial_state", checks, &r.skippedChecks)
