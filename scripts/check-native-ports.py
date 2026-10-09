@@ -122,7 +122,9 @@ def main():
         shutil.copy2(ROOT / 'Package.swift', source / 'Package.swift')
         shutil.copy2(ROOT / 'LICENSE', source / 'LICENSE')
         copy(ROOT / 'swift', source / 'swift')
-        run('swift-native-tests', [swift, 'test', '--package-path', source, '-j', '2'])
+        # All package tests use XCTest. Avoid launching the unused Swift Testing
+        # runner, whose Swift 6.0.3 Darwin loader cannot locate Xcode's XCTestCore.
+        run('swift-native-tests', [swift, 'test', '--disable-swift-testing', '--package-path', source, '-j', '2'])
         run('swift-release-build', [swift, 'build', '--package-path', source, '-c', 'release', '-j', '2'])
         binary_dir = run('swift-bin-path', [swift, 'build', '--package-path', source, '-c', 'release', '--show-bin-path']).strip()
         swift_runner = out / ('swift-corpus' + suffix)

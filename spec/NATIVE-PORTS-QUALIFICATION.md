@@ -136,3 +136,10 @@ portability and transport checks, plus 198 fresh-process replays with no
 mismatches. All six mutation controls were detected through structured results.
 This local follow-up does not requalify installed packages, other platforms,
 Swift 6.0.3, or the unchanged Python/Rust runners; CI records those separately.
+
+Hosted Swift 6.0.3 on macOS subsequently compiled and passed all 32 XCTest cases
+after splitting the remaining replay and enumeration snapshot arguments. SwiftPM
+then failed to load Xcode's XCTestCore framework for its unused Swift Testing
+runner. Qualification now explicitly uses `swift test --disable-swift-testing`;
+all package tests use XCTest, so this excludes no package tests. The same command
+passed locally with all 32 cases.
