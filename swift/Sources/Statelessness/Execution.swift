@@ -124,8 +124,12 @@ public func replay<S, I, O>(_ m: Model<S, I, O>, trace: Trace, allowBuildMismatc
         let actual = try perform(m, state, input)
         let checks = try checkObserved(m, before: state, input: input, transition: actual, sequence: UInt64(index + 1))
         r.failureReproduced = r.failureReproduced || sameFailure(expected.checks, checks)
-        let outputs = try actual.outputs.map { try encoded("encode output", codec.encodeOutput, copied(m.cloneOutput, $0)) }
-        let postState = try encoded("encode state", codec.encodeState, copied(m.cloneState, actual.state))
+        let outputs = try actual.outputs.map { output in
+            let snapshot = try copied(m.cloneOutput, output)
+            return try encoded("encode output", codec.encodeOutput, snapshot)
+        }
+        let nextSnapshot = try copied(m.cloneState, actual.state)
+        let postState = try encoded("encode state", codec.encodeState, nextSnapshot)
         let field: String?
         if actual.disposition != expected.disposition { field = "disposition" }
         else if outputs != expected.outputs { field = "outputs" }
