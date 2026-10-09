@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import os
+import runpy
 from pathlib import Path
 import subprocess
 import sys
@@ -132,8 +133,10 @@ def main():
         changed["id"] += "-reordered"
         changed["request"]["model"]["states"].reverse()
         reordered.append(changed)
-    cases = golden + generated + reordered
-    transport = list(transport_cases())
+    portability = runpy.run_path(str(ROOT / "portability.py"))
+    portable_cases = list(portability["cases"]())
+    cases = golden + generated + reordered + portable_cases
+    transport = list(transport_cases()) + list(portability["transport"]())
     failures, summaries, recordings = [], [], []
     started = time.monotonic()
     for command in commands:
@@ -157,7 +160,7 @@ def main():
                    if case["request"]["operation"] == "record" and "trace" in response]
         recordings.append((hello["implementation"], records))
         summaries.append(dict(**hello, command=command, golden_cases=len(golden), generated_graphs=len(generated),
-                              metamorphic_cases=len(reordered), transport_cases=len(transport), failures=len(local_failures)))
+                              metamorphic_cases=len(reordered), portability_cases=len(portable_cases), transport_cases=len(transport), failures=len(local_failures)))
         failures.extend(dict(implementation=hello["implementation"], **f) for f in local_failures)
     cross_count = 0
     # Fresh process for every producer/consumer pairing. Only fixture models share
@@ -174,6 +177,7 @@ def main():
                 if not equivalent(response, wanted):
                     failures.append(dict(id=case["id"], producer=producer, consumer=summary["implementation"], expected=wanted, actual=response))
     result = dict(spec_version=corpus["spec_version"], corpus_sha256=hashlib.sha256(corpus_bytes).hexdigest(),
+                  portability_sha256=hashlib.sha256((ROOT / "portability.py").read_bytes()).hexdigest(),
                   source_commit=os.environ.get("GITHUB_SHA"), implementations=summaries,
                   fresh_process_replays=cross_count, elapsed_seconds=round(time.monotonic()-started, 3),
                   failures=failures)
