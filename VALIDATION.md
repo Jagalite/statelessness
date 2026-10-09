@@ -116,3 +116,8 @@ cargo run --locked --offline -p macro-qualification --bin jobs -- replay /tmp/jo
 Omit `--allow-dirty` on clean source. On hosts with multiple Rust installations,
 verify the actual compiler path as well as Cargo's version. Preserve the existing
 native/browser distribution checks; macro acceptance does not qualify other ABIs.
+
+The opt-in Go SDK and Rust/Go paired job kit run with `scripts/check-go.sh`.
+See [Go conformance qualification](docs/GO-CONFORMANCE-VALIDATION.md) for exact
+local commands, toolchain identities, witnesses and platform limits. This is
+bounded semantic comparison and exact replay evidence, not release qualification.

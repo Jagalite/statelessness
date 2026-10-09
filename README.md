@@ -550,3 +550,8 @@ explicit environmental domains, bounded value codecs, independent lifecycle
 monitors and two-machine routing. Core-only users still compile no extra package.
 The [implementation status](docs/MACRO-STATUS.md) distinguishes local evidence from
 release qualification. Run `cargo test --offline --workspace` to include macro fixtures.
+
+The opt-in [Go SDK and paired conformance kit](bindings/go/README.md) reuse the
+callback ABI and `WithOracle` machinery. Run `scripts/check-go.sh` to compare
+the bounded Go job reducer with its native Rust reference, shrink the deliberate
+fault, and replay it in a fresh process. Ordinary Rust builds need no Go/cgo.

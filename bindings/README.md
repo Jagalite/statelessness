@@ -1,8 +1,8 @@
 # Language adapters
 
-Status: experimental ABI 1 packages for canonical byte models. Reusable C, Swift
-and JavaScript interfaces cover recording, exact replay and finite enumeration.
-Rust remains the full-featured interface; foreign fuzzing, shrinking and live
+Status: experimental ABI 1 packages for canonical byte models. Reusable C, Swift,
+Go and JavaScript interfaces cover recording, exact replay and finite enumeration.
+Rust remains the full-featured interface; generic foreign fuzzing, shrinking and live
 recording are not exposed. See [support status](../SUPPORT.md) for tested runtimes.
 
 These initial adapters exercise the same Rust recorder, trace format, invariant
@@ -152,3 +152,10 @@ a hosted Wasm service, or published npm/Swift registry releases. Native librarie
 must be rebuilt for the consumer's target architecture. The Swift package is
 currently qualified on macOS only. Node tests and browser tests are distinct:
 `browser/self-test.html` exposes pass/fail results for real browser execution.
+
+## Go and paired conformance
+
+See [go/README.md](go/README.md) for the opt-in SDK and the native Rust/Go
+paired job example. `scripts/check-go.sh` builds both and reproduces a reduced
+disagreement in a fresh process. Generic Go fuzz/shrink APIs remain separate
+from the Rust paired harness.

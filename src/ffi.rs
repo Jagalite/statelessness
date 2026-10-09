@@ -59,7 +59,7 @@ pub struct StatelessModel {
     host: HostModel,
 }
 
-struct HostModel {
+pub struct HostModel {
     callbacks: StatelessCallbacks,
     metadata: ModelMetadata,
 }
@@ -495,6 +495,15 @@ pub unsafe extern "C" fn stateless_enumerate(
     })
 }
 
+impl StatelessModel {
+    /// Borrow the foreign adapter for Rust composition (for example WithOracle).
+    /// The owning ABI handle/context must remain live, thread confined and idle
+    /// throughout the borrow. This does not transfer ownership.
+    pub fn host(&self) -> &HostModel {
+        &self.host
+    }
+}
+
 impl HostModel {
     fn call(&self, operation: u32, state: &[u8], input: &[u8]) -> Result<Vec<u8>, ModelError> {
         let mut response = StatelessBuffer { bytes: Vec::new() };
@@ -801,5 +810,54 @@ pub unsafe extern "C" fn stateless_wasm_model_new(
             codec_version,
             output,
         )
+    }
+}
+
+// Borrowed composition never extends the lifetime of the owning ABI model.
+impl Model for &HostModel {
+    type State = Vec<u8>;
+    type Input = Vec<u8>;
+    type Output = Vec<u8>;
+    fn metadata(&self) -> ModelMetadata {
+        (**self).metadata()
+    }
+    fn initial_state(&self) -> Result<Vec<u8>, ModelError> {
+        (**self).initial_state()
+    }
+    fn step(&self, s: &Vec<u8>, i: &Vec<u8>) -> Result<Transition<Vec<u8>, Vec<u8>>, ModelError> {
+        (**self).step(s, i)
+    }
+    fn check_state(&self, s: &Vec<u8>) -> Result<Vec<Check>, ModelError> {
+        (**self).check_state(s)
+    }
+    fn check_transition(
+        &self,
+        b: &Vec<u8>,
+        i: &Vec<u8>,
+        t: &TransitionRef<'_, Vec<u8>, Vec<u8>>,
+    ) -> Result<Vec<Check>, ModelError> {
+        (**self).check_transition(b, i, t)
+    }
+}
+impl ModelCodec for &HostModel {
+    fn encode_state(&self, s: &Vec<u8>) -> Result<Vec<u8>, ModelError> {
+        Ok(s.clone())
+    }
+    fn decode_state(&self, b: &[u8]) -> Result<Vec<u8>, ModelError> {
+        Ok(b.to_vec())
+    }
+    fn encode_input(&self, s: &Vec<u8>) -> Result<Vec<u8>, ModelError> {
+        Ok(s.clone())
+    }
+    fn decode_input(&self, b: &[u8]) -> Result<Vec<u8>, ModelError> {
+        Ok(b.to_vec())
+    }
+    fn encode_output(&self, s: &Vec<u8>) -> Result<Vec<u8>, ModelError> {
+        Ok(s.clone())
+    }
+}
+impl Enumerate for &HostModel {
+    fn inputs(&self, s: &Vec<u8>) -> Result<Vec<Vec<u8>>, ModelError> {
+        (**self).inputs(s)
     }
 }

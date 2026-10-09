@@ -66,3 +66,5 @@ pub mod composition;
 pub mod lifecycle;
 pub mod modeling;
 pub mod value_codec;
+
+pub mod conformance;
