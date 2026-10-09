@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "statelessness"
+version = "0.1.0"
+description = "Native deterministic model checking with portable conformance profiles"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.scripts]
+statelessness-conformance = "statelessness.conformance:main"
+
+[project.urls]
+Repository = "https://github.com/Jagalite/statelessness"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+statelessness = ["py.typed"]
