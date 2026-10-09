@@ -108,13 +108,19 @@ public func replay<S, I, O>(_ m: Model<S, I, O>, trace: Trace, allowBuildMismatc
     }
     try validateRecording(trace)
     var state = try call("decode initial state") { try codec.decodeState(trace.initialState) }
-    if try encoded("encode initial state", codec.encodeState, copied(m.cloneState, state)) != trace.initialState { throw ModelError("initial state encoding is not canonical") }
+    // Keep throwing snapshots/encoding outside conditional expressions. Swift
+    // 6.0.3's ownership verifier can abort on the nested throwing expression.
+    let initialSnapshot = try copied(m.cloneState, state)
+    let initialEncoding = try encoded("encode initial state", codec.encodeState, initialSnapshot)
+    if initialEncoding != trace.initialState { throw ModelError("initial state encoding is not canonical") }
     let initial = try collect("initial check") { try m.checkState(copied(m.cloneState, state)) }
     r.failureReproduced = sameFailure(trace.initialChecks, initial)
     if initial != trace.initialChecks { r.outcome = "diverged"; r.field = "initial checks"; return r }
     for (index, expected) in trace.steps.enumerated() {
         let input = try call("decode input") { try codec.decodeInput(expected.input) }
-        if try encoded("encode input", codec.encodeInput, copied(m.cloneInput, input)) != expected.input { throw ModelError("input \(index + 1) encoding is not canonical") }
+        let inputSnapshot = try copied(m.cloneInput, input)
+        let inputEncoding = try encoded("encode input", codec.encodeInput, inputSnapshot)
+        if inputEncoding != expected.input { throw ModelError("input \(index + 1) encoding is not canonical") }
         let actual = try perform(m, state, input)
         let checks = try checkObserved(m, before: state, input: input, transition: actual, sequence: UInt64(index + 1))
         r.failureReproduced = r.failureReproduced || sameFailure(expected.checks, checks)

@@ -249,6 +249,9 @@ func CheckObserved[S, I, O any](m Model[S, I, O], before S, input I, t Transitio
 	if sequence == 0 || policy.StateEvery == 0 {
 		return nil, &ConfigError{"sequence and state period must be positive"}
 	}
+	if err := t.Disposition.Validate(); err != nil {
+		return nil, &ModelError{fmt.Sprintf("observed transition: %v", err)}
+	}
 	var sc, ec []Check
 	var err error
 	if sequence%policy.StateEvery == 0 {

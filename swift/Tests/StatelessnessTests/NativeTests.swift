@@ -17,11 +17,24 @@ private func counter() -> Model<CounterState, String, String> {
                        decodeInput: { bytes in guard let s = String(bytes: bytes, encoding: .utf8) else { throw ModelError("invalid UTF-8") }; return s },
                        encodeOutput: { Array($0.utf8) }))
 }
-private func recording(_ inputs: [String] = []) throws -> Trace { try record(counter(), inputs: InputIterator(values: inputs)) }
+private func recording(_ inputs: [String] = []) throws -> Trace { try Statelessness.record(counter(), inputs: InputIterator(values: inputs)) }
 private func altered(_ t: Trace, initial: [UInt8]? = nil, steps: [TraceStep]? = nil, termination: Termination? = nil) -> Trace {
     Trace(metadata: t.metadata, initialState: initial ?? t.initialState, initialChecks: t.initialChecks, steps: steps ?? t.steps, termination: termination ?? t.termination, error: t.error)
 }
 final class NativeTests: XCTestCase {
+    func testObjectFieldsPreserveExactUnicodeKeys() throws {
+        let composed = "\u{e9}", decomposed = "e\u{301}"
+        let value = JSON.object([ExactString(composed): .number("1"), ExactString(decomposed): .number("2")])
+        let decoded = try parseJSON(renderJSON(value))
+        let fields = try objectFields(decoded, required: [composed], optional: [decomposed])
+        XCTAssertEqual(fields.count, 2)
+        XCTAssertEqual(fields[composed], .number("1"))
+        XCTAssertEqual(fields[decomposed], .number("2"))
+        XCTAssertEqual(try objectFields(decoded, required: [composed, decomposed]).count, 2)
+        XCTAssertThrowsError(try objectFields(decoded, required: [composed]))
+        XCTAssertThrowsError(try objectFields(.object([ExactString(composed): .null]), required: [decomposed]))
+    }
+
     func testNativeStructCollisionWitness() throws {
         let r = try enumerateStates(counter()); XCTAssertEqual(r.termination, "failure_found"); XCTAssertEqual(r.states, 3); XCTAssertEqual(r.transitions, 3)
         XCTAssertEqual(r.failure?.inputs, ["increment", "increment", "increment"]); XCTAssertEqual(r.failure?.violations.first?.phase, "state")
@@ -55,7 +68,7 @@ final class NativeTests: XCTestCase {
     }
     func testInitialErrorHasNoTrace() throws {
         var m = counter(); m.initialState = { throw ModelError("initial failed") }
-        XCTAssertThrowsError(try record(m, inputs: InputIterator(values: []))) { XCTAssertTrue($0 is ModelError) }
+        XCTAssertThrowsError(try Statelessness.record(m, inputs: InputIterator(values: []))) { XCTAssertTrue($0 is ModelError) }
     }
     func testLaterErrorRetainsOnlyCoherentPrefix() throws {
         let t = try recording(["increment", "unknown"]); XCTAssertEqual(t.termination, .modelError); XCTAssertEqual(t.steps.count, 1)
@@ -63,7 +76,7 @@ final class NativeTests: XCTestCase {
     }
     func testCodecError() throws {
         var m = counter(); m.codec?.encodeState = { _ in throw ModelError("broken codec") }
-        XCTAssertThrowsError(try record(m, inputs: InputIterator(values: []))) { XCTAssertTrue($0 is ModelError) }
+        XCTAssertThrowsError(try Statelessness.record(m, inputs: InputIterator(values: []))) { XCTAssertTrue($0 is ModelError) }
     }
     func testCanonicalInitialBytes() throws {
         let t = try altered(recording(), initial: Array("00".utf8)); XCTAssertThrowsError(try replay(counter(), trace: t)) { XCTAssertTrue(String(describing: $0).contains("not canonical")) }
@@ -103,7 +116,7 @@ final class NativeTests: XCTestCase {
         var m = counter(), buffer: [UInt8] = [0]
         m.codec?.encodeState = { s in buffer[0] = UInt8(s.value + 48); return buffer }
         m.codec?.encodeOutput = { _ in buffer[0] = 120; return buffer }
-        let t = try record(m, inputs: InputIterator(values: ["increment", "increment"])); buffer[0] = 255
+        let t = try Statelessness.record(m, inputs: InputIterator(values: ["increment", "increment"])); buffer[0] = 255
         XCTAssertEqual(t.initialState, [48]); XCTAssertEqual(t.steps[0].postState, [49]); XCTAssertEqual(t.steps[0].outputs[0], [120])
         XCTAssertEqual(try replay(m, trace: t).outcome, "exact")
     }
@@ -119,9 +132,9 @@ final class NativeTests: XCTestCase {
     }
     func testRetentionLimits() throws {
         var l = TraceLimits(); l.maxPayloadBytes = 1
-        let t = try record(counter(), inputs: InputIterator(values: ["increment"]), limits: l); XCTAssertEqual(t.termination, .modelError); XCTAssertEqual(t.steps, [])
-        l = TraceLimits(); l.maxBlobBytes = 0; XCTAssertThrowsError(try record(counter(), inputs: InputIterator(values: []), limits: l))
-        l = TraceLimits(); l.maxItems = 0; XCTAssertThrowsError(try record(counter(), inputs: InputIterator(values: []), limits: l))
+        let t = try Statelessness.record(counter(), inputs: InputIterator(values: ["increment"]), limits: l); XCTAssertEqual(t.termination, .modelError); XCTAssertEqual(t.steps, [])
+        l = TraceLimits(); l.maxBlobBytes = 0; XCTAssertThrowsError(try Statelessness.record(counter(), inputs: InputIterator(values: []), limits: l))
+        l = TraceLimits(); l.maxItems = 0; XCTAssertThrowsError(try Statelessness.record(counter(), inputs: InputIterator(values: []), limits: l))
     }
     func testJSONLimits() throws {
         let bytes = try encodeTrace(recording(["increment"]))
@@ -154,7 +167,7 @@ final class NativeTests: XCTestCase {
     }
     func testUnicodeReplayDetailsStayExact() throws {
         var m = counter(); m.checkState = { _ in [.failed("p", "é")] }
-        let t = try record(m, inputs: InputIterator(values: [])); m.checkState = { _ in [.failed("p", "e\u{301}")] }
+        let t = try Statelessness.record(m, inputs: InputIterator(values: [])); m.checkState = { _ in [.failed("p", "e\u{301}")] }
         let r = try replay(m, trace: t); XCTAssertEqual(r.outcome, "diverged"); XCTAssertTrue(r.failureReproduced)
     }
     func testFalseTerminationAndContinuation() throws {
@@ -163,10 +176,10 @@ final class NativeTests: XCTestCase {
         XCTAssertThrowsError(try replay(counter(), trace: altered(t, steps: t.steps + [try XCTUnwrap(t.steps.last)])))
     }
     func testZeroAndExactStepLimits() throws {
-        XCTAssertEqual(try record(counter(), inputs: InputIterator(values: []), maxSteps: 0).termination, .completed)
-        XCTAssertEqual(try record(counter(), inputs: InputIterator(values: ["increment"]), maxSteps: 0).termination, .stepLimit)
-        XCTAssertEqual(try record(counter(), inputs: InputIterator(values: ["increment"]), maxSteps: 1).termination, .completed)
-        XCTAssertEqual(try record(counter(), inputs: InputIterator(values: ["increment", "increment"]), maxSteps: 1).termination, .stepLimit)
+        XCTAssertEqual(try Statelessness.record(counter(), inputs: InputIterator(values: []), maxSteps: 0).termination, .completed)
+        XCTAssertEqual(try Statelessness.record(counter(), inputs: InputIterator(values: ["increment"]), maxSteps: 0).termination, .stepLimit)
+        XCTAssertEqual(try Statelessness.record(counter(), inputs: InputIterator(values: ["increment"]), maxSteps: 1).termination, .completed)
+        XCTAssertEqual(try Statelessness.record(counter(), inputs: InputIterator(values: ["increment", "increment"]), maxSteps: 1).termination, .stepLimit)
     }
     func testInvalidChecksAreErrors() throws {
         var m = counter(); m.checkState = { _ in [Check("x", .passed, "wrong")] }

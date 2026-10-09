@@ -98,3 +98,41 @@ agreement is evidence, not universal correctness or equivalence proof.
 
 No npm, PyPI, Go module tag, Swift binary release, deployment, or merge to main is
 part of this change. CI artifacts carry exact source commits and package digests.
+
+## PR #2 review follow-up (2026-10-09)
+
+The review fixes validate all TypeScript trace limits before decoding/encoding,
+reject invalid Go observed dispositions independently of optional checking, and
+retain `ExactString` keys in Swift `objectFields` results. String subscripting
+still works and performs exact UTF-8 lookup. Regression tests cover each case.
+
+The Swift Unicode fault control now mutates hashing together with equality, so
+it produces structured disagreements without violating `Hashable`. Replay
+separates throwing snapshot/encoding expressions to avoid the Swift 6.0.3 Darwin
+ownership-verifier failure seen in CI. XCTest calls explicitly qualify
+`Statelessness.record` to avoid the Apple XCTest method of the same name.
+
+Local macOS arm64 checks passed with Go 1.24.2, Node 23.5.0, TypeScript 5.8.3,
+and Apple Swift 6.3.3:
+
+```sh
+(cd go && CGO_ENABLED=0 go test -count=1 ./... && go vet ./...)
+(cd go && go test -race -count=1 ./...)
+npm ci --prefix typescript
+npm test --prefix typescript
+swift test --scratch-path target/pr2-swift
+(cd go && CGO_ENABLED=0 go build -o ../target/pr2-go-corpus ./cmd/stateless-corpus)
+python3 conformance/run.py \
+  --runner '["target/pr2-go-corpus"]' \
+  --runner '["node","typescript/bin/corpus.mjs"]' \
+  --runner '["target/pr2-swift/debug/stateless-corpus"]' \
+  --report target/pr2-conformance.json
+python3 conformance/native_mutations.py --report target/pr2-native-mutations.json
+```
+
+TypeScript: 30 tests; Swift: 32 tests; all Go packages and race checks passed.
+The three affected runners passed the shared corpus, generated graph,
+portability and transport checks, plus 198 fresh-process replays with no
+mismatches. All six mutation controls were detected through structured results.
+This local follow-up does not requalify installed packages, other platforms,
+Swift 6.0.3, or the unchanged Python/Rust runners; CI records those separately.

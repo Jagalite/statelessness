@@ -45,7 +45,15 @@ def main():
                             ignore=shutil.ignore_patterns('.build','.swiftpm','dist','node_modules','*.tgz'))
             if language == 'swift':
                 shutil.copy2(ROOT / 'Package.swift', target / 'Package.swift')
-            (target / path).write_text(original.replace(old,new),encoding='utf-8')
+            mutated = original.replace(old, new)
+            if name == 'normalize-unicode-equality':
+                # Mutate hashing with equality: otherwise the control violates
+                # Hashable and may crash instead of yielding a semantic mismatch.
+                exact_hash = 'for byte in value.utf8 { hasher.combine(byte) }'
+                if mutated.count(exact_hash) != 1:
+                    raise RuntimeError('Unicode mutation hash site changed')
+                mutated = mutated.replace(exact_hash, 'hasher.combine(value)')
+            (target / path).write_text(mutated, encoding='utf-8')
             env = dict(os.environ, CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off')
             if language == 'go':
                 binary = target / ('mutant.exe' if os.name == 'nt' else 'mutant')

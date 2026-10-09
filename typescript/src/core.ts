@@ -169,6 +169,9 @@ export type Termination = 'completed' | 'property_failed' | 'step_limit' | 'inte
 export interface Trace { readonly metadata: Metadata; readonly initialState: Uint8Array; readonly initialChecks: readonly Check[]; readonly steps: readonly TraceStep[]; readonly termination: Termination; readonly error: string }
 export interface TraceLimits { readonly maxSteps: number; readonly maxBlobBytes: number; readonly maxItems: number; readonly maxPayloadBytes: number; readonly maxJSONBytes: number }
 export const DEFAULT_TRACE_LIMITS: TraceLimits = Object.freeze({ maxSteps: 100_000, maxBlobBytes: 4 * 1024 * 1024, maxItems: 250_000, maxPayloadBytes: 32 * 1024 * 1024, maxJSONBytes: 64 * 1024 * 1024 });
+export function validateTraceLimits(limits: TraceLimits): void {
+  for (const key of ['maxSteps', 'maxBlobBytes', 'maxItems', 'maxPayloadBytes', 'maxJSONBytes'] as const) natural(limits[key], key);
+}
 function encode(stage: string, callback: () => Uint8Array, maximum = Number.MAX_SAFE_INTEGER): Uint8Array {
   return call(stage, () => {
     const value = callback();
@@ -178,7 +181,7 @@ function encode(stage: string, callback: () => Uint8Array, maximum = Number.MAX_
   });
 }
 export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps = 100_000, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace {
-  natural(maxSteps, 'maxSteps'); for (const [k, v] of Object.entries(limits)) natural(v, k);
+  natural(maxSteps, 'maxSteps'); validateTraceLimits(limits);
   let state = copyState(m, call('initial state', () => m.initialState()));
   const initialChecks = collect('initial check', () => m.checkState(copyState(m, state)));
   const initialState = encode('encode initial state', () => m.encodeState(copyState(m, state)), limits.maxBlobBytes);

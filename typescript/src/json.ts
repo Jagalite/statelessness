@@ -1,5 +1,5 @@
 /** Strict portable JSON, separate from the native runtime. No Node dependencies. */
-import { check, disposition, scalar, type Check, type Disposition, type Metadata, type Trace, type TraceStep, type TraceLimits, DEFAULT_TRACE_LIMITS } from './core.js';
+import { validateTraceLimits, check, disposition, scalar, type Check, type Disposition, type Metadata, type Trace, type TraceStep, type TraceLimits, DEFAULT_TRACE_LIMITS } from './core.js';
 export class FormatError extends Error { constructor(message: string) { super(message); this.name = 'FormatError'; } }
 export function fields(value: unknown, required: readonly string[], optional: readonly string[] = []): Record<string, unknown> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new FormatError('expected object');
@@ -99,6 +99,7 @@ export function traceToData(t: Trace): Record<string, unknown> {
     termination: t.termination, error: t.error };
 }
 export function traceFromData(value: unknown, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace {
+  validateTraceLimits(limits);
   const o = fields(value, ['format', 'version', 'metadata', 'initial_state', 'initial_checks', 'steps', 'termination', 'error']);
   if (o.format !== 'stateless.trace-json' || o.version !== 1) throw new FormatError('unsupported trace format');
   let items = 0, payload = 0;
@@ -123,9 +124,10 @@ export function traceFromData(value: unknown, limits: TraceLimits = DEFAULT_TRAC
   return { metadata: metadataFromData(o.metadata), initialState, initialChecks, steps, termination, error };
 }
 export function stringifyTrace(trace: Trace, limits: TraceLimits = DEFAULT_TRACE_LIMITS): string {
+  validateTraceLimits(limits);
   const data = traceToData(trace); traceFromData(data, limits);
   const result = JSON.stringify(data);
   if (new TextEncoder().encode(result).length > limits.maxJSONBytes) throw new FormatError('trace JSON limit');
   return result;
 }
-export function parseTrace(data: string | Uint8Array, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace { return traceFromData(strictParse(data, limits.maxJSONBytes), limits); }
+export function parseTrace(data: string | Uint8Array, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace { validateTraceLimits(limits); return traceFromData(strictParse(data, limits.maxJSONBytes), limits); }

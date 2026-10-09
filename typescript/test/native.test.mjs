@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ModelError, ConfigError, Rng, metadata, accepted, check, disposition, checkObserved, enumerateStates, record, replay, parseTrace, stringifyTrace, DEFAULT_TRACE_LIMITS } from '../dist/index.js';
-import { strictParse } from '../dist/json.js';
+import { strictParse, traceFromData, traceToData } from '../dist/json.js';
 
 class CounterState { constructor(value = 0) { this.value = value; } }
 class Counter {
@@ -150,4 +150,22 @@ test('zero and exact step limits distinguish completed from bounded prefix', () 
 });
 test('invalid checks do not become passing observations', () => {
   const m = new Counter(); m.checkState = () => [{ id: 'x', status: 'passed', details: 'wrong' }]; assert.throws(() => enumerateStates(m), ModelError);
+});
+
+test('all trace entry points reject invalid custom limits before touching input', () => {
+  const trace = record(new Counter(), []), raw = stringifyTrace(trace), data = traceToData(trace);
+  for (const key of Object.keys(DEFAULT_TRACE_LIMITS)) {
+    for (const value of [NaN, Infinity, -Infinity, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, undefined, true]) {
+      const limits = { ...DEFAULT_TRACE_LIMITS, [key]: value };
+      for (const run of [() => parseTrace(raw, limits), () => stringifyTrace(trace, limits), () => traceFromData(data, limits), () => record(new Counter(), [], 10, limits)]) assert.throws(run, ConfigError, `${key}=${value}`);
+      assert.throws(() => parseTrace('invalid JSON', limits), ConfigError);
+      assert.throws(() => stringifyTrace(null, limits), ConfigError);
+    }
+  }
+});
+test('zero and exact custom trace limits remain valid', () => {
+  const trace = record(new Counter(), []), raw = stringifyTrace(trace);
+  const limits = { maxSteps: 0, maxBlobBytes: 1, maxItems: 1, maxPayloadBytes: 1, maxJSONBytes: new TextEncoder().encode(raw).length };
+  assert.deepEqual(parseTrace(raw, limits), trace);
+  assert.equal(stringifyTrace(trace, limits), raw);
 });

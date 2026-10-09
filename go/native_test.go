@@ -404,3 +404,25 @@ func TestMarshalRejectsInvalidUTF8BeforeJSONReplacement(t *testing.T) {
 		t.Fatal("invalid UTF-8 silently normalized")
 	}
 }
+
+func TestObservedDispositionValidatedWithoutOptionalChecks(t *testing.T) {
+	for _, d := range []s.Disposition{{Kind: "invalid"}, {Kind: "accepted", Reason: "unexpected"}, {Kind: "rejected", Reason: string([]byte{255})}} {
+		for _, enabled := range []bool{false, true} {
+			for _, present := range []bool{false, true} {
+				m := counter()
+				m.CheckState = func(counterState) ([]s.Check, error) { t.Fatal("state checker ran before validation"); return nil, nil }
+				if present {
+					m.CheckTransition = func(counterState, string, s.Transition[counterState, string]) ([]s.Check, error) {
+						t.Fatal("transition checker ran before validation")
+						return nil, nil
+					}
+				}
+				checks, err := s.CheckObserved(m, counterState{}, "increment", s.Transition[counterState, string]{State: counterState{1}, Disposition: d}, 1, s.CheckPolicy{StateEvery: 1, TransitionChecks: enabled})
+				var modelErr *s.ModelError
+				if checks != nil || !errors.As(err, &modelErr) {
+					t.Fatalf("malformed disposition accepted: checks=%v error=%v", checks, err)
+				}
+			}
+		}
+	}
+}

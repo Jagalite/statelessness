@@ -15,7 +15,7 @@ private func model() -> Model<Int, Int, Int> {
 final class RecordingErrorTests: XCTestCase {
     func testInitialCloneErrorHasNoTrace() throws {
         var m = model(); m.cloneState = { _ in throw ModelError("clone failed") }
-        XCTAssertThrowsError(try record(m, inputs: InputIterator(values: []))) {
+        XCTAssertThrowsError(try Statelessness.record(m, inputs: InputIterator(values: []))) {
             XCTAssertTrue(String(describing: $0).contains("snapshot: clone failed"))
         }
     }
@@ -25,7 +25,7 @@ final class RecordingErrorTests: XCTestCase {
             if state == 2 { throw ModelError("later clone failed") }
             return state
         }
-        let t = try record(m, inputs: InputIterator(values: [1, 1]))
+        let t = try Statelessness.record(m, inputs: InputIterator(values: [1, 1]))
         XCTAssertEqual(t.termination, .modelError)
         XCTAssertEqual(t.steps.count, 1)
         XCTAssertTrue(t.error.contains("later clone failed"))

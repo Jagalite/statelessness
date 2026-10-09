@@ -160,11 +160,11 @@ public func renderJSON(_ value: JSON, maximum: Int = 64 * 1024 * 1024) throws ->
     guard maximum >= 0 else { throw FormatError("negative JSON byte limit") }
     var encoder = JSONEncoder(maximum: maximum); try encoder.value(value, 0); return encoder.output
 }
-public func objectFields(_ value: JSON?, required: [String], optional: [String] = []) throws -> [String: JSON] {
+public func objectFields(_ value: JSON?, required: [String], optional: [String] = []) throws -> [ExactString: JSON] {
     guard case let .object(o) = value else { throw FormatError("expected object") }
     let allowed = Set((required + optional).map(ExactString.init))
     guard required.allSatisfy({ o[ExactString($0)] != nil }), o.keys.allSatisfy({ allowed.contains($0) }) else { throw FormatError("missing or unknown object field") }
-    return Dictionary(uniqueKeysWithValues: o.map { ($0.key.value, $0.value) })
+    return o
 }
 public func readString(_ value: JSON?) throws -> String { guard case let .string(s) = value else { throw FormatError("expected string") }; return s }
 public func readInteger(_ value: JSON?, maximum: UInt64 = (1 << 53) - 1) throws -> UInt64 {
@@ -175,4 +175,9 @@ public func readArray(_ value: JSON?, maximum: Int = 250_000) throws -> [JSON] {
 public func readU64(_ value: JSON?) throws -> UInt64 {
     let s = try readString(value), bytes = Array(s.utf8)
     guard !bytes.isEmpty, bytes.count <= 20, (bytes.count == 1 || bytes[0] != 48), bytes.allSatisfy({ $0 >= 48 && $0 <= 57 }), let n = UInt64(s) else { throw FormatError("invalid decimal u64") }; return n
+}
+
+// String lookups retain exact UTF-8 identity, including dynamically supplied keys.
+extension Dictionary where Key == ExactString, Value == JSON {
+    public subscript(key: String) -> JSON? { self[ExactString(key)] }
 }
