@@ -17,3 +17,9 @@ for case in corpus["cases"]:
         validator.validate(case["request"])
         positive += 1
 print(json.dumps(dict(container="valid", positive_requests=positive)))
+
+import runpy
+additional = list(runpy.run_path(str(ROOT / "conformance/portability.py"))["cases"]())
+for case in additional:
+    validator.validate(case["request"])
+print(json.dumps(dict(additional_portability_requests=len(additional))))

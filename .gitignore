@@ -13,3 +13,14 @@ __pycache__/
 /python/build/
 /python/dist/
 /python/src/*.egg-info/
+
+# Independent native language ports.
+/.build/
+/.swiftpm/
+/swift/**/.build/
+/swift/**/.swiftpm/
+/go/bin/
+/typescript/dist/
+/typescript/node_modules/
+/typescript/*.tgz
+/typescript/examples/build/

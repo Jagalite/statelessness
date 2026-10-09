@@ -1,7 +1,7 @@
 # Shared conformance kit
 
-This compares **independent engines**: the existing native Rust library and a
-native Python library. It is distinct from the existing Rust/Go paired reducer
+This compares **independent engines**: the existing native Rust library and
+independent Python, Go, TypeScript, and Swift libraries. It is distinct from the existing Rust/Go paired reducer
 kit, whose Go SDK calls the Rust engine.
 
 From the repository root:
@@ -53,3 +53,25 @@ profiles. Passing a finite corpus is not a universal correctness proof.
 The JSON replay envelope does not replace the existing binary `.sttrace` audit
 format or make unrelated model codecs compatible. See `../spec/README.md` for
 precise supported profiles, identity rules, and limits.
+
+## Additional native-port qualification
+
+`portability.py` adds 38 specification-derived cases without changing the original
+94-case artifact: exact scalar identity (including canonically equivalent Unicode
+spellings), BOM preservation inside values, empty/NUL/astral/prototype-like keys,
+metadata and failure-ID comparison, and full-width random arithmetic. Ten extra
+transport cases bring malformed/boundary coverage to 23, including a request
+exactly at the 4 MiB limit and one byte over. With all five implementations,
+22 recorded fixtures per producer exercise **550** fresh-process replays.
+The additional vector source has a separate SHA-256 in each qualification report.
+
+`native_mutations.py` changes real engine source in temporary directories and
+requires structured disagreements, not compilation errors, crashes, or timeouts.
+It checks six controls across Go/TypeScript/Swift. This is representative fault
+coverage, not proof that all possible implementation faults are detected.
+
+Native install/build/consumer checks are automated in
+`../scripts/check-native-ports.py`; reports include actual toolchains, source
+fingerprints, package digests, and the same conformance results. The Windows
+matrix does not claim Swift qualification. Runtime packages remain dependency-free;
+compiler/build/qualification tooling is separate from runtime dependencies.

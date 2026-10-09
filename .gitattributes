@@ -1,2 +1,8 @@
 # The shared corpus fingerprint must be identical on every platform.
 conformance/corpus.json text eol=lf
+# Source-bound additional portability vectors must hash identically on Windows.
+conformance/portability.py text eol=lf
+go/** text eol=lf
+swift/** text eol=lf
+typescript/** text eol=lf
+Package.swift text eol=lf

@@ -1,0 +1,95 @@
+name: Native language ports
+
+on:
+  push:
+    branches: [main, codex/native-go-typescript-swift]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Native packages (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            swift: true
+          - os: macos-15
+            swift: true
+          - os: windows-latest
+            swift: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.2'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: swift-actions/setup-swift@v2
+        if: matrix.swift
+        with:
+          swift-version: '6.0.3'
+      - name: Install development tools and Python package
+        run: |
+          python -m pip install ./python jsonschema
+          npm ci --prefix typescript --ignore-scripts --no-audit --no-fund
+          rustup toolchain install 1.90.0 --profile minimal --component clippy
+          rustup default 1.90.0
+      - name: Verify existing engines, specification, and Rust adapter
+        run: |
+          cargo test --locked --offline --workspace
+          cargo test --locked --manifest-path validation/corpus/Cargo.toml
+          cargo build --locked --manifest-path validation/corpus/Cargo.toml
+          cargo clippy --locked --manifest-path validation/corpus/Cargo.toml -- -D warnings
+          python -I -m unittest discover -s python/tests -v
+          python -I -m unittest discover -s conformance -p 'test_*.py' -v
+          python conformance/validate.py
+          python conformance/mutations.py > target/python-mutations.json
+          test -z "$(gofmt -l go)"
+          git diff --exit-code -- conformance/corpus.json
+      - name: Build distributions and qualify installed native libraries
+        env:
+          QUALIFY_SWIFT: ${{ matrix.swift }}
+        run: |
+          python - <<'PY'
+          import os, subprocess, sys
+          binary = 'validation/corpus/target/debug/stateless-corpus' + ('.exe' if os.name == 'nt' else '')
+          args = [sys.executable, 'scripts/check-native-ports.py', '--rust', binary]
+          if os.environ['QUALIFY_SWIFT'] != 'true': args.append('--without-swift')
+          subprocess.run(args, check=True)
+          PY
+      - name: Prove shared tests reject broken native engines
+        if: runner.os == 'Linux'
+        run: python conformance/native_mutations.py --report target/native-ports/native-mutations.json
+      - name: Preserve tested source
+        if: always()
+        run: |
+          mkdir -p target/native-ports
+          git archive --format=tar.gz HEAD -o target/native-ports/source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-ports-${{ matrix.os }}
+          path: |
+            target/native-ports/packages/
+            target/native-ports/*.json
+            target/native-ports/source.tar.gz
+            target/native-ports/logs/
+            target/python-mutations.json
+          retention-days: 14

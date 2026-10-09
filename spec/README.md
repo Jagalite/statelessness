@@ -20,8 +20,9 @@ MUST NOT be reported as successful qualification.
 | `rng-splitmix64-v1` | The specified 64-bit generator and bounded-choice operation. |
 | `trace-json-v1` | JSON observation-envelope decoding/encoding and exact replay. |
 
-The initial Rust runner and native Python package implement these four profiles.
-The Python package does **not** provide fuzzing, shrinking, guided corpora, oracle
+The Rust runner and independent native Python, Go, TypeScript, and Swift packages
+implement these four profiles.
+The native ports do **not** provide fuzzing, shrinking, guided corpora, oracle
 composition, campaign scheduling, runtime ring recording, composition helpers,
 or Rust's binary `.sttrace` reader/writer. Those require additional profiles and
 independent qualification; exposing an operation name alone is not parity.
