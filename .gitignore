@@ -7,3 +7,9 @@
 /bindings/.build/
 /bindings/.swiftpm/
 __pycache__/
+
+# Portable qualification and Python packaging outputs.
+/validation/corpus/target/
+/python/build/
+/python/dist/
+/python/src/*.egg-info/

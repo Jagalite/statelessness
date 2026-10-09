@@ -1,0 +1,30 @@
+# One-time branch bootstrap; removed after the reviewed corpus is committed.
+name: Materialize reviewed portable corpus
+on:
+  push:
+    branches: [codex/portable-spec-python-v1]
+    paths: [.github/workflows/materialize-portable-corpus.yml]
+permissions:
+  contents: read
+jobs:
+  materialize:
+    if: github.repository == 'Jagalite/statelessness' && github.ref == 'refs/heads/codex/portable-spec-python-v1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: codex/portable-spec-python-v1
+      - name: Reproduce the independently reviewed golden corpus
+        run: |
+          python3 conformance/build_corpus.py
+          echo '6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11  conformance/corpus.json' | sha256sum -c -
+      - name: Commit only the deterministic corpus to this feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- conformance/corpus.json
+          git commit -m 'Add 94 reviewed portable golden conformance fixtures'
+          git push origin HEAD:refs/heads/codex/portable-spec-python-v1
