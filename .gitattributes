@@ -1,0 +1,2 @@
+# The shared corpus fingerprint must be identical on every platform.
+conformance/corpus.json text eol=lf

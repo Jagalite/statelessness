@@ -273,7 +273,7 @@ def write():
     # executable JSON. Expected output object-key order is intentionally irrelevant.
     header = json.dumps({k: v for k, v in result.items() if k != "cases"})[:-1]
     text = header + ', "cases": [\n' + ',\n'.join(json.dumps(c, ensure_ascii=True, separators=(",", ":")) for c in CASES) + '\n]}\n'
-    (ROOT / "corpus.json").write_text(text, encoding="utf-8")
+    (ROOT / "corpus.json").write_bytes(text.encode("utf-8"))
     print(f"Wrote {len(CASES)} golden cases")
 
 

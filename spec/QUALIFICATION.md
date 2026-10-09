@@ -42,8 +42,16 @@ Windows (Python 3.13). It runs the existing Rust workspace tests, Rust adapter
 smoke tests and Clippy, native tests, shared/generative/differential checks,
 schema checks, reproducibility, and fault controls. Its artifacts include the
 source snapshot, wheel/sdist, corpus fingerprint, `GITHUB_SHA`, and reports.
-A configured matrix is not evidence of completed jobs: inspect that exact run's
-conclusions and artifacts before claiming a platform is qualified.
+The full four-job matrix passed in run
+[37881358434](https://github.com/Jagalite/statelessness/actions/runs/37881358434)
+at commit `3f08ffefd54885018b1ed3fb05e0491e5cf73c25`, including wheel and
+source-distribution installation, Rust workspace tests, and Clippy on all three
+operating systems. Its source archive exactly matched the locally tested files.
+Review of the artifacts found Windows checkout/newline translation changed the
+raw corpus fingerprint despite semantic agreement. The subsequent fix pins the
+corpus to LF in Git and writes explicit UTF-8 bytes in its reproducer. Current
+run artifacts identify the exact qualified revision and corpus fingerprint;
+prior test results must not be silently carried over to changed source.
 
 ## Scope and limitations
 
