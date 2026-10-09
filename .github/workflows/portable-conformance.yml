@@ -1,0 +1,41 @@
+name: Portable conformance
+
+on:
+  push:
+    branches: [codex/portable-spec-python-v1]
+    paths: [validation/corpus/**, .github/workflows/portable-conformance.yml]
+  pull_request:
+    paths: [src/**, python/**, spec/**, conformance/**, validation/corpus/**, .github/workflows/portable-conformance.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: |
+          rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy
+          rustup default 1.90.0
+      - name: Test and build native Rust adapter
+        run: |
+          cargo test --manifest-path validation/corpus/Cargo.toml
+          cargo build --manifest-path validation/corpus/Cargo.toml
+      - name: Preserve source snapshot
+        if: always()
+        run: git archive --format=tar.gz HEAD -o source.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rust-corpus-runner
+          path: |
+            source.tar.gz
+            validation/corpus/target/debug/stateless-corpus
+            validation/corpus/Cargo.lock
+          retention-days: 7
