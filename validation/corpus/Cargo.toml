@@ -1,0 +1,15 @@
+[package]
+name = "stateless-corpus"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+# Standalone qualification tool: JSON dependencies do not enter the core crate,
+# its workspace, or consumers of statelessness.
+[workspace]
+
+[dependencies]
+stateless = { package = "statelessness", path = "../.." }
+serde = "1.0"
+serde_json = "1.0"
