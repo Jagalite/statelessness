@@ -2,40 +2,88 @@ name: Portable conformance
 
 on:
   push:
-    branches: [codex/portable-spec-python-v1]
-    paths: [validation/corpus/**, .github/workflows/portable-conformance.yml]
+    branches: [main, codex/portable-spec-python-v1]
   pull_request:
-    paths: [src/**, python/**, spec/**, conformance/**, validation/corpus/**, .github/workflows/portable-conformance.yml]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  rust-runner:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  conformance:
+    name: ${{ matrix.os }} Python ${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+          - os: ubuntu-latest
+            python: '3.13'
+          - os: macos-latest
+            python: '3.13'
+          - os: windows-latest
+            python: '3.13'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
-      - name: Install Rust
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Rust and package build tooling
         run: |
-          rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy
+          rustup toolchain install 1.90.0 --profile minimal --component clippy
           rustup default 1.90.0
-      - name: Test and build native Rust adapter
+          python -m pip install build jsonschema
+      - name: Test Rust engine and native JSON adapter
         run: |
-          cargo test --manifest-path validation/corpus/Cargo.toml
-          cargo build --manifest-path validation/corpus/Cargo.toml
-      - name: Preserve source snapshot
+          cargo test --locked --offline --workspace
+          cargo test --locked --manifest-path validation/corpus/Cargo.toml
+          cargo build --locked --manifest-path validation/corpus/Cargo.toml
+          cargo clippy --locked --manifest-path validation/corpus/Cargo.toml -- -D warnings
+      - name: Build wheel and source distribution; install wheel
+        run: |
+          python -m build python --outdir target/python-dist
+          python -m pip install --no-deps target/python-dist/*.whl
+          python -I -c "import statelessness, importlib.metadata as m; print(statelessness.__file__); assert not m.requires('statelessness')"
+      - name: Native tests, schema checks, corpus integrity, and fault controls
+        run: |
+          python -I -m unittest discover -s python/tests -v
+          python -I -m unittest discover -s conformance -p 'test_*.py' -v
+          python conformance/validate.py
+          python conformance/mutations.py > target/mutations.json
+          git diff --exit-code -- conformance/corpus.json
+      - name: Installed wheel cross-language conformance
+        run: |
+          python - <<'PY'
+          import json, os, subprocess, sys
+          rust = 'validation/corpus/target/debug/stateless-corpus' + ('.exe' if os.name == 'nt' else '')
+          subprocess.run([sys.executable, '-I', 'conformance/run.py',
+              '--runner', json.dumps([sys.executable, '-I', '-m', 'statelessness.conformance', '--runner']),
+              '--runner', json.dumps([rust]), '--report', 'target/conformance.json'], check=True)
+          PY
+      - name: Verify source distribution can build an installable library
+        run: |
+          python -m pip wheel --no-deps target/python-dist/*.tar.gz -w target/sdist-wheel
+          python -m pip install --no-deps --force-reinstall target/sdist-wheel/*.whl
+          python -I -m unittest discover -s python/tests -v
+          python -I -m statelessness.conformance conformance/corpus.json
+      - name: Preserve source identity
         if: always()
         run: git archive --format=tar.gz HEAD -o source.tar.gz
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rust-corpus-runner
+          name: portable-${{ matrix.os }}-py${{ matrix.python }}
           path: |
+            target/python-dist/
+            target/conformance.json
+            target/mutations.json
             source.tar.gz
-            validation/corpus/target/debug/stateless-corpus
-            validation/corpus/Cargo.lock
-          retention-days: 7
+          retention-days: 14
