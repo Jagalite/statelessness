@@ -1,0 +1,21 @@
+[package]
+name = "statelessness-debug"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/Jagalite/statelessness"
+description = "Optional headless transition debugger for statelessness"
+[dependencies]
+stateless = { package = "statelessness", version = "0.2.0", path = "../.." }
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+[lints.clippy]
+undocumented_unsafe_blocks = "deny"
+
+[dev-dependencies]
+statelessness-macros = { version = "0.2.0", path = "../statelessness-macros" }
+
+[features]
+compiled-out-diagnostics = []

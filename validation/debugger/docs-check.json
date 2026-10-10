@@ -1,0 +1,8 @@
+{
+  "command": "RUSTDOCFLAGS=\"-D warnings\" cargo doc --locked --offline --workspace --all-features --no-deps",
+  "source_commit": "e80044cf69d393dc6e8be3671c2158219f74f91d",
+  "passed": true,
+  "returncode": 0,
+  "log": "docs-check.log",
+  "source_hash_manifest": "qualification.json"
+}

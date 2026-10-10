@@ -1,0 +1,3 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
+stdio: original workflows plus 14 malformed-frame cases, 87 fatal pipe cases, byte-at-a-time framing, epoch discovery, stale handles/revisions, dedup conflict/eviction, sink/profile authorization, raw-export denial, restart reconciliation, and fail-closed startup options passed

@@ -1,0 +1,8 @@
+    Checking statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive)
+ Documenting statelessness-macros v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive/crates/statelessness-macros)
+ Documenting statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive)
+ Documenting macro-qualification v0.0.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive/crates/macro-qualification)
+    Checking macro-qualification v0.0.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive/crates/macro-qualification)
+ Documenting statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive/crates/statelessness-debug)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.46s
+   Generated /workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/doc/macro_qualification/index.html and 4 other files

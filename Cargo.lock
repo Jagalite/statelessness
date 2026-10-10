@@ -15,5 +15,13 @@ name = "statelessness"
 version = "0.2.0"
 
 [[package]]
+name = "statelessness-debug"
+version = "0.2.0"
+dependencies = [
+ "statelessness",
+ "statelessness-macros",
+]
+
+[[package]]
 name = "statelessness-macros"
 version = "0.2.0"

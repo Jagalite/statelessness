@@ -1,0 +1,7 @@
+    Checking statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+ Documenting statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+ Documenting macro-qualification v0.0.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/macro-qualification)
+    Checking macro-qualification v0.0.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/macro-qualification)
+ Documenting statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.71s
+   Generated /workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/target/doc/macro_qualification/index.html and 4 other files

@@ -1,0 +1,46 @@
+{
+  "milestones": [
+    "M1",
+    "M2"
+  ],
+  "baseline": "f3e00e79471b928d67ddb530c113d6d51af6f277",
+  "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "tests": [
+    {
+      "command": "cargo test --locked --offline -p statelessness-debug --test session --test workbench",
+      "passed": true,
+      "tests": 17
+    }
+  ],
+  "fresh_process": [
+    {
+      "command": "debug_request record request-failure.sttrace",
+      "passed": true
+    },
+    {
+      "command": "debug_request verify request-failure.sttrace",
+      "passed": true
+    },
+    {
+      "command": "debug_request compare request-failure.sttrace",
+      "passed": true
+    }
+  ],
+  "comparison": {
+    "sequence": 3,
+    "primary_difference": "outputs",
+    "all_differences": [
+      "outputs",
+      "state",
+      "checks"
+    ],
+    "steps_verified": 2,
+    "failure_reproduced": false
+  },
+  "limitations": [
+    "Linux native only",
+    "Whole workspace qualification pending remaining milestones",
+    "Cold-offline and benchmark qualification pending final source",
+    "No native-debugger platform integration claimed"
+  ]
+}

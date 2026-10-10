@@ -1,0 +1,833 @@
+
+running 3 tests
+test tests::adapter ... ok
+test jobs::tests::missing_effect_and_healthy_graph ... ok
+test tests::golden ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test observing_generated_model_does_not_execute_reducer_again ... ok
+test every_request_state_matches_handwritten_and_preserves_stale_delivery ... ok
+test exactly_once_partial_error_and_lazy_details ... ok
+test macro_search_fuzz_shrink_guidance_and_replay ... ok
+test campaigns_use_generated_adapter ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test custom_adapter_and_limits ... ok
+test legacy_request_bytes_and_property_failing_snapshots ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test attached_history_and_serialized_monitor_trace_replay ... ok
+test composed_monitor_histories_affect_equality_and_serialized_replay ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test domain_locals_do_not_capture_application_bindings ... ok
+test generic_function_arrow_does_not_close_parameter_list ... ok
+test generic_associated_binding_is_preserved ... ok
+test shadowed_results::adapter_and_domain_use_standard_result_constructors ... ok
+test primitive_aliases::enum_wire_tag_width_is_not_a_caller_type_alias ... ok
+test shadowed_results::derives_use_standard_result_constructors ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 24 tests
+test automatic::tests::candidate_counter_never_wraps_at_usize_max ... ok
+test campaign::lifecycle::codec::tests::input_rejects_unknown_tags_flags_lengths_and_invalid_utf8 ... ok
+test campaign::lifecycle::codec::tests::state_rejects_bad_tags_counts_order_duplicates_and_invalid_properties ... ok
+test campaign::lifecycle::codec::tests::output_tags_and_ids_are_distinct_and_canonical ... ok
+test campaign::lifecycle::tests::controls_are_observed_before_claims_and_do_not_rewrite_completed_campaigns ... ok
+test campaign::lifecycle::codec::tests::state_roundtrips_all_reports_stops_pending_and_delivery_fields ... ok
+test campaign::lifecycle::tests::accounting_distinguishes_known_zero_work_and_lost_counters_and_saturates ... ok
+test campaign::lifecycle::tests::duplicate_delivery_fault_is_detected_shrunk_recorded_and_replayed ... ok
+test campaign::lifecycle::tests::first_sink_error_survives_drain_and_worker_failure ... ok
+test campaign::lifecycle::tests::exhausted_job_range_reports_a_bad_claim_without_panicking_in_the_checker ... ok
+test campaign::lifecycle::tests::hostile_events_cannot_duplicate_work_delivery_or_mutate_terminal_state ... ok
+test campaign::lifecycle::tests::active_job_stop_precedence_is_independent_of_completion_order ... ok
+test campaign::lifecycle::codec::tests::state_rejects_stop_reasons_without_causal_evidence ... ok
+test campaign::lifecycle::tests::missing_worker_outcome_requires_explicit_accounting_loss ... ok
+test campaign::lifecycle::codec::tests::every_input_roundtrips_and_rejects_truncation_or_trailing_data ... ok
+test campaign::lifecycle::tests::rejection_of_enabled_lifecycle_events_is_detected ... ok
+test campaign::lifecycle::tests::stale_error_acknowledgement_is_detected_independently ... ok
+test campaign::lifecycle::tests::healthy_campaign_audit_roundtrips_and_replays ... ok
+test campaign::lifecycle::tests::persisted_fault_trace_replays_when_supplied ... ok
+test campaign::lifecycle::tests::unobserved_stop_is_detected_before_additional_claims ... ok
+test trace::crc_tests::standard_crc_and_every_short_split_match_bitwise_reference ... ok
+test campaign::lifecycle::tests::fixed_seed_campaign_protocol_fuzz_uses_independent_ledger ... ok
+test trace::crc_tests::unaligned_random_frames_match_bitwise_reference ... ok
+test campaign::lifecycle::tests::finite_campaign_protocol_graph_is_exhausted ... ok
+
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.10s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test empty_domains_and_errors_leave_the_rng_unchanged ... ok
+test bounded_codec_errors_are_preserved_by_delegation ... ok
+test candidate_boundary_accepts_complete_domains_but_never_a_truncated_prefix ... ok
+test membership_short_circuits_matches_and_bounds_missing_candidates ... ok
+test enumerated_only_model_fuzzes_shrinks_records_and_replays_through_the_adapter ... ok
+test reservoir_is_repeatable_and_samples_the_whole_lazy_domain ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 19 tests
+test budget_validation_uses_the_actual_per_job_transition_upper_bound ... ok
+test factory_panics_are_reported_and_other_jobs_continue ... ok
+test callback_panics_also_drain_workers ... ok
+test disposing_a_drained_report_cannot_unwind_past_the_original_sink_error ... ok
+test cancellation_from_factory_is_observed_before_search_and_drains_active_jobs ... ok
+test invalid_configuration_has_no_factory_or_sink_side_effects ... ok
+test callback_error_stops_calls_and_drains_workers_with_rendezvous_channel ... ok
+test factory_errors_have_known_zero_fuzz_work ... ok
+test pre_cancelled_or_zero_duration_campaign_does_no_work ... ok
+test factory_checker_and_panic_outcomes_are_distinct_from_failures ... ok
+test serial_execution_stays_on_calling_thread_and_uses_fresh_models ... ok
+test fixed_jobs_have_identical_failures_with_one_or_four_workers ... ok
+test more_workers_than_jobs_and_zero_work_jobs_are_supported ... ok
+test panicking_panic_payload_cleanup_does_not_escape_job_or_sink_reporting ... ok
+test stop_on_failure_finishes_already_claimed_jobs ... ok
+test job_ranges_reproduce_the_same_seeds_and_inputs ... ok
+test a_blocked_sink_bounds_started_jobs_by_queue_plus_workers_plus_sink ... ok
+test deadline_includes_factory_time_and_is_not_reset_per_job ... ok
+test last_zero_case_job_observes_factory_cancellation_and_expired_deadline ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+
+running 14 tests
+test checked_attachment_accepts_global_host_sequence_and_rejects_overflow_or_gaps ... ok
+test external_check_error_freezes_coherent_prefix_and_cannot_overwrite_failure ... ok
+test initial_checker_error_retains_state_and_error_observer_cannot_mask_it ... ok
+test initial_divergence_is_visible_only_to_rich_observer ... ok
+test rich_replay_exposes_every_difference_but_preserves_primary_and_legacy_timing ... ok
+test reducer_error_has_no_invented_transition_and_identity_rejection_has_no_events ... ok
+test initial_failure_freezes_recorder_without_rechecking ... ok
+test non_full_and_out_of_order_tokens_cannot_bypass_recording_checks ... ok
+test observer_errors_keep_the_complete_result_and_verified_prefix ... ok
+test replay_initial_observer_failure_keeps_checked_state_without_delivery ... ok
+test plain_model_check_tokens_require_no_codec_debug_send_or_sync ... ok
+test checked_recorder_bytes_match_legacy_including_eviction_and_freeze ... ok
+test shared_tokens_record_and_observe_one_reducer_check_and_oracle_advance ... ok
+test replay_checker_and_codec_errors_retain_actual_and_do_not_repeat_delivery ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 13 tests
+test campaigns_default_to_the_custom_generator ... ok
+test campaign_deadline_and_automatic_domain_error_are_not_successes ... ok
+test invalid_options_and_truncated_artifacts_fail ... ok
+test guided_cli_validates_before_creating_artifacts_and_reports_retention_limits ... ok
+test guided_campaign_cli_jobs_are_identical_across_worker_counts ... ok
+test automatic_fixed_campaign_jobs_are_identical_with_one_or_four_workers ... ok
+test automatic_campaign_failure_artifacts_replay_in_new_processes ... ok
+test automatic_single_fuzz_persists_replayable_failure_and_engine_errors ... ok
+test campaign_rejects_bad_configuration_before_creating_any_directory ... ok
+test guided_fuzz_records_feedback_and_replays_original_and_shrunk_failures ... ok
+test search_failures_are_saved_and_fixed_model_exhausts ... ok
+test fresh_process_record_replay_and_fixed_divergence ... ok
+test zero_case_and_step_budgets_retain_existing_fuzz_semantics ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 3 tests
+test registry_collisions_are_errors_and_prior_checks_survive ... ok
+test delayed_delivery_cancellation_namespaces_and_replay ... ok
+test routing_matches_handwritten_for_bounded_interleavings ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test paired_history_preserves_bounded_codec_hook ... ok
+test reference_history_is_not_reconstructed_from_actual ... ok
+test semantic_comparison_is_independent_of_layout_and_encoding ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 10 tests
+test budgets_and_initial_failures_are_reported_honestly ... ok
+test generator_algorithm_has_a_fixed_known_vector ... ok
+test checker_errors_and_invalid_trace_semantics_cannot_pass ... ok
+test all_observable_fields_are_compared ... ok
+test identity_mismatches_cannot_be_overridden_by_the_build_option ... ok
+test malformed_or_noncanonical_payloads_cannot_replay_successfully ... ok
+test reproducing_a_failure_is_independent_of_exact_observation_matching ... ok
+test runtime_checking_does_not_repeat_transition_and_declares_skips ... ok
+test records_and_exactly_replays_failure_and_detects_fixed_behavior ... ok
+test replay_observer_sees_first_divergence_and_never_changes_logical_time ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 28 tests
+test bfs_checks_transition_to_an_already_visited_state ... ok
+test bfs_returns_a_shortest_counterexample ... ok
+test bfs_checks_a_failing_successor_before_enforcing_state_storage_cap ... ok
+test bfs_exhausts_known_graph_despite_collisions_and_duplicate_paths ... ok
+test cancellation_and_deadline_have_distinct_search_results ... ok
+test cooperative_stops_preserve_a_failure_on_the_just_executed_transition ... ok
+test cyclic_simplification_hints_terminate_without_a_budget_cutoff ... ok
+test disabled_generated_inputs_are_adapter_errors_not_findings ... ok
+test enumeration_hashes_each_candidate_once_and_reuses_check_storage ... ok
+test estimated_state_size_overflow_cannot_bypass_an_admission_budget ... ok
+test fuzz_honors_cancellation_at_terminal_callbacks_and_the_final_planned_step ... ok
+test fuzz_reports_transition_budget_and_does_not_claim_exhaustiveness ... ok
+test graph_completion_depth_cutoffs_and_edge_cutoffs_are_distinct ... ok
+test initial_failures_precede_transition_budgets_and_need_no_input ... ok
+test fuzz_reused_inputs_are_validated_once_and_exhausted_budget_skips_generation ... ok
+test lazy_depth_boundary_probes_one_input_without_materializing_the_domain ... ok
+test passing_transition_checker_preserves_state_failure ... ok
+test pre_cancelled_enumeration_invokes_no_model_callbacks ... ok
+test shrink_budget_counts_validation_and_preserves_unvalidated_original_evidence ... ok
+test shrink_cancellation_keeps_validation_status_and_never_claims_search_complete ... ok
+test shrinking_honors_replay_budget_and_rejects_wrong_or_disabled_originals ... ok
+test shrinking_reports_cooperative_deadline_without_claiming_original_validation ... ok
+test shrinking_preserves_causality_failure_identity_and_original_evidence ... ok
+test skipped_checks_are_counted_and_checker_errors_are_not_violations ... ok
+test terminal_iterator_cancellation_cannot_claim_graph_exhaustion_or_depth_completion ... ok
+test state_byte_admission_reports_estimates_and_preserves_failures ... ok
+test zero_case_fuzz_still_observes_pre_start_controls_without_model_callbacks ... ok
+test fuzz_is_seeded_and_reuses_only_causally_enabled_inputs ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test abi_and_callback_errors_cannot_become_successful_artifacts ... ok
+test buffer_assignment_permits_its_own_borrowed_contents ... ok
+test malformed_callback_packets_are_model_errors ... ok
+test errors_after_a_valid_prefix_are_errors_and_preserve_output_buffer ... ok
+test enumeration_reports_budgets_and_emits_a_replayable_failure ... ok
+test records_normal_trace_and_replays_with_a_fresh_foreign_model ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 12 tests
+test a_shorter_witness_recovers_a_feature_from_a_dropped_prefix_even_at_feature_cap ... ok
+test cancellation_from_feedback_is_observed_before_the_next_transition ... ok
+test failing_property_precedes_feedback_error_and_pre_cancel_invokes_no_execution ... ok
+test invalid_guidance_rejected_before_campaign_factories_or_sinks ... ok
+test a_full_corpus_replaces_oldest_paths_and_accounts_for_stored_inputs ... ok
+test ignored_feedback_limits_and_callback_errors_are_engine_errors ... ok
+test retention_saturates_without_stopping_execution_or_growing_past_limits ... ok
+test novel_prefixes_find_a_deep_failure_and_remain_shrinkable_and_replayable ... ok
+test metadata_time_is_included_and_exact_state_feedback_is_available ... ok
+test campaign_deadline_includes_feedback_factory_time_in_the_last_job ... ok
+test fixed_seed_repeats_inputs_and_collision_safe_corpus_evidence ... ok
+test guided_campaign_jobs_match_across_workers_with_local_non_send_feature_keys ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+
+running 5 tests
+test bounded_history_persistence_and_observation_error ... ok
+test missing_duplicate_stale_and_resource_faults ... ok
+test restored_overdue_history_is_a_failure_without_reconstructed_events ... ok
+test past_due_creation_cannot_be_hidden_by_immediate_cancellation ... ok
+test overdue_cancellation_cannot_erase_a_missed_deadline ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test ordered_weighted_bounded_domains ... ok
+test product_cardinality_overflow_is_rejected_before_mapping ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 10 tests
+test capacity_one_and_midrun_start_replay_after_repeated_eviction ... ok
+test checker_and_codec_errors_do_not_evict_the_last_coherent_window ... ok
+test a_missing_observation_freezes_the_coherent_prefix_and_declares_the_gap ... ok
+test recorder_checks_actual_outputs_instead_of_recomputing_the_transition ... ok
+test evicted_history_keeps_an_exact_replayable_checkpoint_without_rechecking ... ok
+test freeze_on_failure_preserves_last_window_and_reproduces_failure ... ok
+test initial_failure_freezes_without_executing_a_transition ... ok
+test ignored_inputs_are_still_recorded_and_snapshots_do_not_stop_recording ... ok
+test too_many_checks_freezes_before_evicting_the_previous_observation ... ok
+test invalid_limits_and_reserved_audit_keys_are_rejected ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 11 tests
+test candidate_that_cannot_fit_with_its_checkpoint_does_not_evict_the_prefix ... ok
+test bounded_utf8_error_footer_preserves_full_returned_error_and_exportability ... ok
+test error_footer_respects_a_small_string_limit_and_keeps_utf8_valid ... ok
+test cumulative_frame_budget_stops_outputs_before_collecting_all_of_them ... ok
+test counter_digit_growth_that_exceeds_the_run_frame_freezes_the_old_config ... ok
+test oversized_disposition_is_rejected_before_copying_or_checking_the_candidate ... ok
+test initial_checkpoint_and_format_limits_are_enforced_before_capture ... ok
+test initial_property_failure_fits_without_reserving_an_unreachable_future_error ... ok
+test failing_observation_fits_its_complete_terminal_artifact_at_the_exact_byte_limit ... ok
+test byte_eviction_preserves_replay_and_borrowed_consuming_exports_match ... ok
+test changing_checkpoint_sizes_and_multi_evictions_preserve_exact_history ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 3 tests
+test failure_after_eviction_retains_the_failing_edge_and_freezes_it ... ok
+test encoding_error_at_full_capacity_freezes_without_evicting_valid_evidence ... ok
+test every_rolling_checkpoint_replays_with_variable_check_counts ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 13 tests
+test diagnostic_logging_requires_neither_codec_nor_debug ... ok
+test codec_errors_identify_the_failed_payload ... ok
+test filtering_never_encodes_below_trace_and_does_not_run_model_or_checks ... ok
+test full_text_includes_actual_outputs_disposition_checks_and_snapshot ... ok
+test failures_and_skips_are_visible_at_their_severity_and_strings_are_escaped ... ok
+test interrupted_and_short_writes_deliver_complete_records_with_exact_limit ... ok
+test formatting_and_codec_limits_never_publish_partial_records ... ok
+test partial_writes_and_flush_errors_permanently_disable_the_sink ... ok
+test lifecycle_and_explicit_messages_follow_the_threshold ... ok
+test periodic_and_explicit_snapshots_and_runtime_level_changes ... ok
+test swallowed_formatter_write_errors_cannot_publish_partial_records ... ok
+test verbosity_does_not_change_execution_checks_or_replay_evidence ... ok
+test recorder_and_logging_share_checks_preserve_failure_and_allow_later_diagnostics ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 8 tests
+test application_checker_cannot_erase_state_checks_and_hide_behind_oracle_checks ... ok
+test automatic_fuzz_shrink_and_enumeration_preserve_oracle_history ... ok
+test checkpoint_is_strict_bounded_and_versions_remain_strict ... ok
+test independent_reference_finds_consistent_wrong_state_and_missing_effects ... ok
+test failed_runtime_advancement_returns_the_actual_transition_without_copying ... ok
+test oracle_advancement_error_leaves_a_coherent_recorded_prefix ... ok
+test borrowed_transition_checks_do_not_clone_application_state ... ok
+test runtime_advances_once_without_reexecuting_and_evicted_checkpoint_replays ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 9 tests
+test borrowed_and_shared_property_ids_have_identical_identity ... ok
+test bounded_encoder_rejects_before_growth_and_keeps_errors_sticky ... ok
+test reusable_checking_preserves_order_capacity_and_clears_partial_errors ... ok
+test output_encoding_stops_at_cumulative_frame_budget ... ok
+test checker_error_preserves_already_recorded_evidence ... ok
+test capture_rejects_oversized_successor_and_exports_coherent_prefix ... ok
+test total_budget_terminates_before_export_would_fail ... ok
+test transition_checker_cannot_silently_discard_state_observations ... ok
+test terminal_property_failures_use_their_actual_footer_at_exact_byte_limit ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 6 tests
+test actual_output_overflow_retains_checks_without_starting_output_encoding ... ok
+test bounded_replay_validates_artifact_before_any_model_decode ... ok
+test sealed_checked_recording_never_rechecks_and_rejects_sampling_policy ... ok
+test legacy_and_rich_replay_agree_on_every_nonempty_difference_combination ... ok
+test checker_failure_retains_actual_once_and_secondary_observer_error ... ok
+test every_single_bit_artifact_corruption_is_rejected_under_finite_limits ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+
+running 9 tests
+test finite_replay_preserves_exact_report_and_callbacks ... ok
+test exact_artifact_total_budget_and_between_turn_cancellation_are_preserved ... ok
+test huge_zero_sized_output_count_is_rejected_before_encoded_vector_allocation ... ok
+test excessive_actual_checks_are_retained_without_encoding_outputs ... ok
+test initial_and_post_state_encoders_have_finite_blob_budgets ... ok
+test oversized_source_rejected_before_decode_or_execution ... ok
+test actual_reason_limits_are_checked_before_encoding_outputs ... ok
+test output_bodies_share_one_frame_budget ... ok
+test actual_observations_respect_aggregate_total_and_item_limits ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 13 tests
+test empty_runs_and_all_termination_kinds_round_trip ... ok
+test hostile_frame_length_hits_limit_without_reading_payload ... ok
+test aggregate_item_limit_catches_many_small_records ... ok
+test read_and_write_enforce_all_limits_and_validation_precedes_writes ... ok
+test invalid_utf8_and_impossible_nested_count_are_rejected_before_allocation ... ok
+test round_trip_preserves_all_evidence_and_is_deterministic ... ok
+test short_and_interrupted_reads_are_supported ... ok
+test underlying_io_errors_are_preserved ... ok
+test unknown_records_reordered_steps_and_wrong_footer_count_are_rejected ... ok
+test version_one_golden_bytes_preserve_the_existing_wire_format ... ok
+test unsupported_versions_flags_and_trailing_artifacts_are_rejected ... ok
+test every_truncated_prefix_is_rejected_including_missing_footer ... ok
+test every_single_bit_corruption_is_rejected ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+
+running 4 tests
+test aggregate_depth_work_and_allocation_bounds ... ok
+test independent_golden_and_strict_failures ... ok
+test allocation_overflow_and_encoder_limit_are_errors ... ok
+test swallowed_reader_errors_never_become_successful_values ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 7 tests
+test effects::drop_tests::completed_effect_drop_does_not_report_an_unnecessary_contended_hook ... ok
+test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+test effects::drop_tests::raw_attempt_drop_never_blocks_or_invents_termination ... ok
+test effects::drop_tests::raw_delivery_drop_never_blocks_or_invents_consumption ... ok
+test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+test effects::drop_tests::rejected_snapshot_queries_preserve_revision_and_acknowledged_history ... ok
+test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 14 tests
+test disabled_probe_never_evaluates_closure_or_inspector ... ok
+test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+test delivery_sampling_preserves_change_baseline ... ok
+test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+test threshold_crossing_has_hysteresis_and_cooldown ... ok
+test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+test privacy_survives_text_jsonl_and_custom_sinks ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test bounded_two_producer_subscription_interleavings_match_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 12.02s
+
+
+running 13 tests
+test multiple_matching_scopes_share_closure_and_authorized_projection ... ok
+test configuration_is_stale_safe_and_applied_per_producer_at_explicit_boundaries ... ok
+test producer_and_origin_selectors_are_independent_exact_filters ... ok
+test every_declared_label_filters_match_mismatch_and_unknown_before_closure ... ok
+test combined_scope_is_conjunctive_and_context_is_not_implicitly_exported ... ok
+test property_outcome_selection_does_not_treat_unknown_as_nonfailure ... ok
+test invalid_selector_labels_and_aggregate_metadata_budget_do_not_change_revision ... ok
+test context_byte_limits_reject_before_advancing_producer_boundary ... ok
+test scope_filters_preserve_field_redaction_in_all_sinks ... ok
+test scoped_configuration_cannot_expand_sink_projection_permissions ... ok
+test scope_selection_does_not_bypass_site_kind_or_severity_filters ... ok
+test selector_gap_resets_threshold_hysteresis_and_cooldown_as_unknown ... ok
+test selector_gaps_invalidate_change_baselines_without_evaluating_filtered_values ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test exhaustive_independent_ledger_preserves_counts_and_physical_work ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+
+
+running 28 tests
+test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+test classifier_fault_cannot_replace_completed_future_value ... ok
+test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+test debugger_pause_marks_samples_without_subtracting_time ... ok
+test detail_eviction_does_not_evict_live_accounting ... ok
+test concurrent_consumer_can_win_publication_confirmation_race ... ok
+test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+test disabled_and_counters_only_do_not_read_clock ... ok
+test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+test gauge_underflow_and_counter_reset_are_explicit ... ok
+test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+test host_baseline_does_not_upgrade_other_label_groups ... ok
+test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+test windows_epochs_schema_and_history_are_honest ... ok
+test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 11 tests
+test default_schema_names_distinguish_qualified_types_and_generics ... ok
+test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+test generated_bindings_do_not_shadow_caller_identifiers ... ok
+test named_fields_have_stable_ids_labels_version_and_source ... ok
+test redacted_paths_never_invoke_or_require_an_inspector ... ok
+test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+test rust_cfg_is_respected ... ok
+test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+test unsized_generic_tail_uses_reference_inspection ... ok
+test variants_support_each_shape_and_structural_paths ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 10 tests
+test float_payload_bits_prevent_false_nan_equality ... ok
+test large_integers_keep_type_and_exact_decimal ... ok
+test maps_preserve_typed_keys_order_and_selection ... ok
+test handwritten_and_generated_inspectors_have_the_same_projection ... ok
+test missing_map_keys_and_far_pages_have_explicit_work_bounds ... ok
+test opaque_unavailable_truncated_and_schema_mismatch_never_equal ... ok
+test nested_path_is_structural_and_does_not_traverse_siblings ... ok
+test utf8_bytes_depth_and_aggregate_budgets_are_honest ... ok
+test huge_map_key_is_bounded_before_owned_key_capture ... ok
+test paging_allocates_and_evaluates_only_requested_values ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 23 tests
+test admission_backpressure_and_disconnect_return_owned_input_and_bound_queue ... ok
+test default_observation_authority_cannot_escalate_on_reconnect ... ok
+test bridge_and_controller_origins_continue_correlating_after_client_reconnect ... ok
+test controller_property_stop_and_pause_correlation_are_explicit ... ok
+test disconnect_preserves_inflight_result_under_every_detach_policy ... ok
+test coherent_midrun_attach_shares_one_checked_batch_and_exports_exact_suffix ... ok
+test counter_exhaustion_is_atomic_and_keeps_buffered_arrival_owned ... ok
+test duplicate_and_mismatched_tokens_do_not_consume_a_delivery ... ok
+test identity_changes_are_rejected_even_after_capture_freezes ... ok
+test omitted_roundtrip_freezes_before_gap_even_if_before_state_matches ... ok
+test one_turn_is_exactly_one_delivered_input_including_rejection_and_ignore ... ok
+test oversized_output_batch_has_capacity_bounded_diagnostic_work ... ok
+test metadata_loss_is_separate_from_exact_retention_and_effect_dispatch_facts ... ok
+test pause_racing_with_delivery_or_dispatch_waits_for_a_complete_boundary ... ok
+test oversized_outputs_and_host_failure_terminate_without_hidden_retry ... ok
+test permits_are_bound_to_their_controller_and_uncertain_work_is_not_retried ... ok
+test reconnect_retains_dispatch_ownership_and_invalidates_old_commands ... ok
+test property_failure_freezes_capture_without_stopping_host_or_rewriting_failure ... ok
+test reserved_limits_and_provenance_cannot_be_forged ... ok
+test recorder_owns_bounded_error_footer_even_for_external_stop ... ok
+test sampled_checks_end_exact_capture_and_preserve_actual_host_transition ... ok
+test staged_effects_can_resume_or_precede_one_turn_without_duplicate_dispatch ... ok
+test exhaustive_controller::all_finite_controller_interleavings_match_independent_model ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.06s
+
+
+running 4 tests
+test missing_settlement_is_independently_detected_and_replayed ... ok
+test resource_ownership_faults_fail_even_when_application_checks_pass ... ok
+test recording_inspection_and_breakpoints_advance_each_machine_exactly_once ... ok
+test evicted_composite_checkpoints_preserve_pending_and_completed_branch_history ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 15 tests
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 20 tests
+test constructor_clock_failure_is_visible_without_inventing_an_epoch_start ... ok
+test abandoned_or_resolved_attempt_cannot_be_scheduled_as_a_retry ... ok
+test current_metrics_do_not_reuse_a_timestamp_from_before_new_observations ... ok
+test dropping_request_before_admission_keeps_the_missing_decision_visible ... ok
+test foreign_future_adapter_cannot_write_another_observers_accounting ... ok
+test health_overflow_during_merge_is_atomic ... ok
+test diagnostic_encoder_failure_preserves_actual_state_requested_outputs_and_dispatch ... ok
+test invalid_snapshot_clock_does_not_erase_the_previous_valid_watermark ... ok
+test pause_ack_with_staged_outputs_requires_new_authority_before_dispatch ... ok
+test last_raw_attempt_handle_loss_marks_running_evidence_incomplete ... ok
+test last_raw_delivery_handle_loss_marks_unobserved_publication_incomplete ... ok
+test integrated_actual_host_pause_cancellation_late_delivery_and_replay ... ok
+test retry_scheduled_during_pause_never_enters_production_histograms ... ok
+test rejected_publication_and_finished_attempt_drops_do_not_invent_abandonment ... ok
+test safe_point_waits_for_every_reserved_output_across_disconnect ... ok
+test merging_disjoint_producers_preserves_loss_health ... ok
+test concurrently_dropped_raw_clones_report_one_missing_endpoint ... ok
+test rejected_admission_is_not_censored_pending_work ... ok
+test snapshot_timestamp_never_predates_a_concurrently_included_measurement ... ok
+test publication_commit_and_consumer_race_counts_boundaries_once ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 11 tests
+test exact_value_permission_cannot_export_raw_trace ... ok
+test discovery_is_read_only_and_reconnect_cannot_resurrect_cached_mutation ... ok
+test evicted_candidate_and_snapshot_handles_do_not_alias_replacements ... ok
+test every_truncated_prefix_and_oversize_header_closes_without_delivery ... ok
+test minimum_wire_limits_keep_mutation_acks_and_retry_identity ... ok
+test first_failure_identity_survives_check_page_truncation_without_message_leak ... ok
+test fatal_frame_after_committed_turn_disconnects_without_rollback_or_extra_delivery ... ok
+test exposed_probe_sink_redacts_payload_and_never_drains_other_sink ... ok
+test rejected_new_metric_capture_preserves_last_acknowledged_handle ... ok
+test rejected_metric_window_preserves_last_acknowledged_handle ... ok
+test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 12 tests
+test invalid_minimization_attempt_budget_and_target_do_not_execute_model ... ok
+test initial_failure_minimization_needs_no_transition_budget ... ok
+test legacy_minimization_rejects_recorded_strict_policy_without_execution ... ok
+test cancellation_raised_by_policy_prevents_candidate_delivery ... ok
+test explicit_policy_can_shrink_without_leaving_the_recorded_domain ... ok
+test minimization_preserves_recorded_enumerated_environment ... ok
+test mismatched_ambiguous_and_incomplete_policy_provenance_is_rejected ... ok
+test nonstatic_non_debug_non_send_values_remain_source_compatible ... ok
+test simultaneous_property_capture_and_frontend_failures_preserve_actual_and_prefix ... ok
+test minimization_admission_has_finite_enumeration_work ... ok
+test unrestricted_and_legacy_traces_retain_explicit_generate_causality ... ok
+test verified_fork_and_parent_binding_remain_independent ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 30 tests
+test events_are_bounded_and_loss_survives_saturated_queue ... ok
+test duplicate_request_delivers_once_conflicts_reject_and_retired_ids_do_not_retry ... ok
+test framed_server_is_linked_to_model_and_exposes_explicit_disconnect ... ok
+test diagnostics_configuration_does_not_change_exact_trace_bytes ... ok
+test metric_pages_bind_to_immutable_snapshot_and_metric_revision_is_separate ... ok
+test oversized_probe_payload_is_not_consumed_and_summary_fits_smallest_frame ... ok
+test partial_oversize_invalid_utf8_escape_and_unknown_commands_reject ... ok
+test queued_response_write_failure_does_not_rerun_or_rollback_delivery ... ok
+test probe_wire_roundtrip_and_framed_configuration_leave_workers_pending ... ok
+test raw_export_authority_is_independent_and_stale_handles_offsets_reject ... ok
+test reconnect_invalidates_epochs_handles_and_never_grants_authority ... ok
+test rejected_watch_stale_schema_and_unknown_path_leave_configuration_unchanged ... ok
+test recreating_same_display_id_cannot_accept_old_incarnation_commands ... ok
+test probe_profile_stale_unknown_denied_and_busy_paths_do_not_mutate_capture ... ok
+test runtime_watch_authority_is_separate_and_configuration_is_revisioned ... ok
+test snapshot_and_candidate_handles_are_revision_bound ... ok
+test runtime_probe_profiles_require_separate_authority_and_real_producer_acknowledgement ... ok
+test stale_version_epoch_unauthorized_and_malformed_input_never_deliver ... ok
+test structured_inspection_preserves_large_integers_and_only_one_turn_check_runs ... ok
+test bounded_parser_corpus_is_panic_free_and_roundtrips_every_accepted_record ... ok
+test telemetry_queries_need_explicit_adapter_and_never_grant_model_authority ... ok
+test watch_admission_ack_cannot_fail_after_mutation_when_schema_metadata_is_large ... ok
+test telemetry_query_wire_roundtrip_and_missing_history_remain_explicit ... ok
+test response_and_candidate_caps_reject_without_excess_or_hidden_delivery ... ok
+test watches_observe_actual_turns_and_do_not_change_exact_model_state ... ok
+test bounded_raw_export_reconstructs_and_replays_exact_failure_across_chunks ... ok
+test maximum_probe_catalog_and_producer_status_can_be_paged_under_small_frame ... ok
+test repeated_interrupted_reads_do_not_recurse_and_limits_validate_before_work ... ok
+test lifecycle_timeline_and_histogram_metadata_remain_host_measured ... ok
+test wire_roundtrip_preserves_128_bit_keys_and_terminal_escaping ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 7 tests
+test candidate_revalidation_respects_session_work_budget ... ok
+test cancel_preserves_terminal_property_failure ... ok
+test diagnostic_permission_entries_consume_configuration_budget ... ok
+test diagnostic_inspection_failure_invalidates_threshold_crossing_baseline ... ok
+test diagnostic_gap_invalidates_threshold_crossing_baseline ... ok
+test simulation_provenance_cannot_be_shadowed_by_user_config ... ok
+test minimization_honors_cancellation_raised_during_verification ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 14 tests
+test bounded_continue_reports_budget_not_success ... ok
+test admission_stale_invalid_payload_and_candidates_do_not_deliver ... ok
+test candidate_tokens_do_not_cross_sessions_with_identical_display_ids ... ok
+test admission_and_pre_breakpoint_panics_poison_the_controller ... ok
+test checker_error_retains_actual_state_and_is_not_property_failure ... ok
+test codec_debug_and_thread_bounds_are_optional ... ok
+test initial_failure_is_sequence_zero ... ok
+test history_eviction_is_visible_and_replayable ... ok
+test observer_panic_leaves_controlled_session_ended ... ok
+test lifecycle_failure_is_exact_and_cannot_continue ... ok
+test observer_error_cannot_roll_back_or_hide_property_failure ... ok
+test post_breakpoint_observes_completed_turn ... ok
+test rejected_inputs_are_deliveries_in_explicit_injection_mode ... ok
+test pre_breakpoint_stops_before_delivery_and_bypasses_exact_pending_once ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 16 tests
+test committed_boundary_watch_cannot_invent_internal_reverted_changes ... ok
+test admission_authorization_redaction_and_unknown_paths_are_checked ... ok
+test explicit_snapshot_returns_type_and_does_not_replace_change_baseline ... ok
+test failure_annotation_is_bounded_and_cannot_hide_an_inspector_error ... ok
+test inspection_errors_are_diagnostic_and_preserve_metadata ... ok
+test exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on ... ok
+test lazy_post_turn_marker_skips_disabled_and_full_payloads ... ok
+test count_byte_baseline_and_failure_budgets_are_independent ... ok
+test boundary_reconfiguration_cannot_change_an_in_progress_generation ... ok
+test disabled_and_static_filtered_paths_do_not_read_schema_or_payload ... ok
+test sampled_evaluation_and_delivery_loss_have_different_meanings ... ok
+test schema_changes_pause_before_selected_value_access ... ok
+test lifecycle_reenable_and_expiry_boundaries_are_explicit ... ok
+test matching_queries_are_shared_and_event_loss_does_not_reset_baselines ... ok
+test live_identity_and_machine_changes_never_claim_cross_machine_change ... ok
+test missing_observations_and_expired_baselines_start_unknown ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test minimization_starts_from_saved_midrun_checkpoint ... ok
+test build_comparison_is_explicit_and_reports_first_divergence ... ok
+test viewing_is_unverified_and_outputs_are_encoded_without_decoder ... ok
+test sidecar_and_exact_continuation_mismatches_are_rejected ... ok
+test branch_is_independent_verified_and_preserves_parent ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test src/model.rs - model::CheckSink (line 93) ... ok
+test src/lib.rs - (line 13) ... ok
+test src/lib.rs - (line 27) ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test src/model.rs - model::CheckSink (line 117) - compile fail ... ok
+test src/observation.rs - observation::CheckedInitial (line 16) - compile fail ... ok
+test src/observation.rs - observation::CheckedTurn (line 54) - compile fail ... ok
+test src/model.rs - model::CheckSink (line 111) - compile fail ... ok
+test src/model.rs - model::CheckSink (line 104) - compile fail ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+all doctests ran in 0.35s; merged doctests compilation took 0.31s
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+   Compiling statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+   Compiling macro-qualification v0.0.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/macro-qualification)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.64s
+     Running unittests src/lib.rs (target/debug/deps/macro_qualification-44e5b6314b4cd8fd)
+     Running unittests src/bin/jobs.rs (target/debug/deps/jobs-8c1c7e44d580f3ae)
+     Running tests/behavior.rs (target/debug/deps/behavior-bbee5544f4203f5b)
+     Running tests/codecs.rs (target/debug/deps/codecs-65b2e07dfbd73d72)
+     Running tests/monitor_release.rs (target/debug/deps/monitor_release-f97f94d04f9ef40e)
+     Running tests/review_regressions.rs (target/debug/deps/review_regressions-5c767f33f1fd1e86)
+     Running unittests src/lib.rs (target/debug/deps/stateless-9f299313335bed0d)
+     Running unittests src/main.rs (target/debug/deps/stateless-245ba7f79309027a)
+     Running tests/automatic.rs (target/debug/deps/automatic-0db37df4e8ef459a)
+     Running tests/campaign.rs (target/debug/deps/campaign-78b67fb62b6658a2)
+     Running tests/checked_replay.rs (target/debug/deps/checked_replay-428c3f8417172776)
+     Running tests/cli.rs (target/debug/deps/cli-fec323f9732d5b6f)
+     Running tests/composition.rs (target/debug/deps/composition-9c43b131315cba5b)
+     Running tests/conformance.rs (target/debug/deps/conformance-92d505b3d27777e3)
+     Running tests/execution.rs (target/debug/deps/execution-ec6b722afdc5ce22)
+     Running tests/exploration.rs (target/debug/deps/exploration-397f5480fbd44150)
+     Running tests/ffi.rs (target/debug/deps/ffi-0b93ec0796e749fd)
+     Running tests/guided.rs (target/debug/deps/guided-0f1e14e38f5f4e94)
+     Running tests/lifecycle_templates.rs (target/debug/deps/lifecycle_templates-e052eb091a68d3cc)
+     Running tests/modeling.rs (target/debug/deps/modeling-8e07aefb2b3b7c9c)
+     Running tests/monitor.rs (target/debug/deps/monitor-10bf432fc56548cc)
+     Running tests/monitor_limits.rs (target/debug/deps/monitor_limits-3d3359c0e3740919)
+     Running tests/monitor_review.rs (target/debug/deps/monitor_review-7c3da2a8e4b4fe6c)
+     Running tests/observation.rs (target/debug/deps/observation-78bf93f921421e55)
+     Running tests/oracle.rs (target/debug/deps/oracle-0040794ace5fa9a4)
+     Running tests/performance_contracts.rs (target/debug/deps/performance_contracts-27f52ec35f9d0cec)
+     Running tests/pr_review_core.rs (target/debug/deps/pr_review_core-011dedb637d93ea0)
+     Running tests/review_replay_bounds.rs (target/debug/deps/review_replay_bounds-551f660adead8358)
+     Running tests/trace_format.rs (target/debug/deps/trace_format-120c24f697668e73)
+     Running tests/value_codec.rs (target/debug/deps/value_codec-e1aab399837676d8)
+     Running unittests src/lib.rs (target/debug/deps/statelessness_debug-e445a1da697b4618)
+     Running tests/diagnostic.rs (target/debug/deps/diagnostic-77773ef9c26c2d5c)
+     Running tests/diagnostic_controller_model.rs (target/debug/deps/diagnostic_controller_model-ce3056118acb5052)
+     Running tests/diagnostic_selectors.rs (target/debug/deps/diagnostic_selectors-389fc2b9a98cb7ee)
+     Running tests/effect_ledger_model.rs (target/debug/deps/effect_ledger_model-f1ecec08dddc5cfe)
+     Running tests/effects_metrics.rs (target/debug/deps/effects_metrics-f8f8d5948b6bf8a2)
+     Running tests/inspect_derive.rs (target/debug/deps/inspect_derive-c12eeab442deb68c)
+     Running tests/inspection.rs (target/debug/deps/inspection-ef0501f6420ebb5b)
+     Running tests/live.rs (target/debug/deps/live-79221f22b383cdb8)
+     Running tests/oracle_lifecycle.rs (target/debug/deps/oracle_lifecycle-a532f922e2b57c9b)
+     Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-305e6ed5268b86be)
+     Running tests/pr_review_live_effects.rs (target/debug/deps/pr_review_live_effects-4bf25111a9a2c74a)
+     Running tests/pr_review_protocol.rs (target/debug/deps/pr_review_protocol-a0a35d750fb3bab7)
+     Running tests/pr_review_sessions.rs (target/debug/deps/pr_review_sessions-b89038213a40b1b3)
+     Running tests/protocol.rs (target/debug/deps/protocol-3bc9a7640f7febaf)
+     Running tests/review_debugger.rs (target/debug/deps/review_debugger-6f89afae4f146fa3)
+     Running tests/session.rs (target/debug/deps/session-9f9e275e1227d82d)
+     Running tests/watches.rs (target/debug/deps/watches-03ef5110eba847bf)
+     Running tests/workbench.rs (target/debug/deps/workbench-3af60777bf93bd75)
+     Running unittests src/lib.rs (target/debug/deps/statelessness_macros-d93978cc6820270a)
+   Doc-tests macro_qualification
+   Doc-tests stateless
+   Doc-tests statelessness_debug
+   Doc-tests statelessness_macros

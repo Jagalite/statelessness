@@ -534,6 +534,16 @@ General liveness, parallel enumeration, state normalization, and broader product
 runtime qualification remain later work. See [support status](SUPPORT.md) for
 installation paths, current evidence, and remaining release gates.
 
+## Optional transition debugger
+
+The dependency-free [headless Rust debugger](docs/DEBUGGER.md) adds one-input
+sessions, exact replay and verified branches, bounded inspection and runtime
+watches/probes, a versioned stdio protocol, host effect timing/metrics, and opt-in
+cooperative live control. Effects stay application-owned. Start with
+`cargo run --offline -p statelessness-debug --example debug_request -- interactive`.
+See [milestone qualification](docs/debugger/ACCEPTANCE.md) for the design revision,
+reproducible local gates and unsupported platform/integration claims.
+
 ## Releases
 
 See [RELEASING.md](RELEASING.md) for first publication and trusted publishing

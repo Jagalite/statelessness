@@ -9,6 +9,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
+from qualification_context import git_context
 
 root = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
@@ -16,7 +17,7 @@ parser.add_argument('--allow-dirty', action='store_true')
 parser.add_argument('--evidence', type=Path)
 args = parser.parse_args()
 results = []
-files = sorted([*root.glob('src/**/*.rs'), *root.glob('tests/**/*.rs'), *root.glob('crates/**/*.rs'), *root.glob('crates/**/Cargo.toml'), root/'Cargo.toml', root/'Cargo.lock', root/'build.rs', Path(__file__).resolve()])
+files = sorted([*root.glob('src/**/*.rs'), *root.glob('tests/**/*.rs'), *root.glob('crates/**/*.rs'), *root.glob('crates/**/Cargo.toml'), root/'Cargo.toml', root/'Cargo.lock', root/'build.rs', Path(__file__).resolve(), root/'scripts/qualification_context.py', root/'scripts/test_qualification_context.py'])
 def source_hashes():
     return {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 initial_hashes = source_hashes()
@@ -44,6 +45,8 @@ with tempfile.TemporaryDirectory(prefix='stateless-macros-') as directory:
     for archive in sorted((temp/'target/package').glob('*.crate')):
         archive_hashes[archive.name] = hashlib.sha256(archive.read_bytes()).hexdigest()
         with tarfile.open(archive) as source:
+            assert not any("__pycache__" in Path(member.name).parts or member.name.endswith(".pyc")
+                           for member in source.getmembers()), "Generated Python cache leaked into package"
             source.extractall(temp/'extracted', filter='data')
     core = next((temp/'extracted').glob('statelessness-[0-9]*'))
     macros = next((temp/'extracted').glob('statelessness-macros-*'))
@@ -51,12 +54,12 @@ with tempfile.TemporaryDirectory(prefix='stateless-macros-') as directory:
     (consumer/'src').mkdir(parents=True)
     # Empty cache/registry verifies actual resolution, not a warm --offline build.
     env['CARGO_HOME'] = str(temp/'empty-cargo-home')
-    base = '[package]\nname="macro-consumer"\nversion="0.0.0"\nedition="2024"\n[dependencies]\nengine={package="statelessness",path='+json.dumps(str(core))+'}\n'
-    (consumer/'Cargo.toml').write_text(base)
+    base = '[package]\nname="macro-consumer"\nversion="0.0.0"\nedition="2024"\n[dependencies]\nengine={package="statelessness",path='+json.dumps(str(core), ensure_ascii=False)+'}\n'
+    (consumer/'Cargo.toml').write_text(base, encoding='utf-8')
     (consumer/'src/main.rs').write_text('fn main(){let _=engine::Rng::new(0);}')
     output = run(['cargo','check','--offline','-v'], consumer, env)
     assert 'statelessness_macros' not in output and 'statelessness-macros' not in output, output
-    (consumer/'Cargo.toml').write_text(base+'macros={package="statelessness-macros",path='+json.dumps(str(macros))+'}\n')
+    (consumer/'Cargo.toml').write_text(base+'macros={package="statelessness-macros",path='+json.dumps(str(macros), ensure_ascii=False)+'}\n', encoding='utf-8')
     prelude = 'use macros::{model, TraceEncode, TraceDecode, input_domain};\n'
     passed = '''
 use engine::value_codec::{TraceEncode as _,TraceDecode as _};
@@ -128,7 +131,8 @@ if args.evidence:
     assert hashes == initial_hashes, "Source changed during qualification; rerun on a stable snapshot"
     for entry in results:
         entry['command'] = [arg.replace(str(root), '<checkout>').replace(str(temp), '<temporary>') for arg in entry['command']]
-    evidence = {'revision': subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(), 'compiler': subprocess.check_output(['rustc','--version'],text=True).strip(), 'source_sha256':hashes, 'archive_sha256':archive_hashes, 'results':results}
+    context = git_context(root)
+    evidence = {'revision': context['commit'], 'git_provenance_available': context['available'], 'compiler': subprocess.check_output(['rustc','--version'],text=True).strip(), 'source_sha256':hashes, 'archive_sha256':archive_hashes, 'results':results}
     args.evidence.parent.mkdir(parents=True,exist_ok=True)
     args.evidence.write_text(json.dumps(evidence,indent=2)+'\n')
 print('Macro package and diagnostic qualification passed')

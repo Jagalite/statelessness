@@ -9,7 +9,8 @@ readme = "README.md"
 repository = "https://github.com/Jagalite/statelessness"
 publish = ["crates-io"]
 include = [
-    "src/**", "tests/**", "examples/**", "benches/**", "bindings/**", "scripts/**",
+    "src/**", "tests/**", "examples/**", "benches/**", "bindings/**",
+    "scripts/*.py", "scripts/*.sh", "scripts/*.mjs", "scripts/*.rs",
     "build.rs", "Cargo.toml", "Cargo.lock", "LICENSE",
     "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md", "SUPPORT.md",
     "CHANGELOG.md", "validation/adoption-2026-10-07.json", "docs/**",
@@ -46,6 +47,6 @@ unsafe_op_in_unsafe_fn = "deny"
 undocumented_unsafe_blocks = "deny"
 
 [workspace]
-members = ["crates/statelessness-macros", "crates/macro-qualification"]
+members = ["crates/statelessness-macros", "crates/macro-qualification", "crates/statelessness-debug"]
 default-members = ["."]
 resolver = "3"

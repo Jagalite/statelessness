@@ -1,0 +1,85 @@
+   Compiling statelessness-debug v0.2.0 (/tmp/pr-review-inspection-before.5gzt8i/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-305e6ed5268b86be)
+
+running 15 tests
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... FAILED
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... FAILED
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... FAILED
+test intrinsically_incomplete_kinds_cannot_claim_equality ... FAILED
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... FAILED
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... FAILED
+test value_match_relabeling_does_not_invent_an_initial_addition ... FAILED
+test watch_origin_changes_reset_comparison_before_failure_capture ... FAILED
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+
+failures:
+
+---- failure_relabeling_keeps_initial_and_gap_differences_unknown stdout ----
+
+thread 'failure_relabeling_keeps_initial_and_gap_differences_unknown' (133) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:30:5:
+assertion `left == right` failed
+  left: Added
+ right: Unknown
+
+---- failure_relabeling_preserves_sampled_completeness_and_unknown_diff stdout ----
+
+thread 'failure_relabeling_preserves_sampled_completeness_and_unknown_diff' (134) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:49:5:
+assertion `left == right` failed
+  left: Unchanged
+ right: Unknown
+
+---- inconsistent_paging_counts_and_partial_descendants_never_certify_equality stdout ----
+
+thread 'inconsistent_paging_counts_and_partial_descendants_never_certify_equality' (135) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:164:9:
+assertion failed: !node.is_complete()
+
+---- intrinsically_incomplete_kinds_cannot_claim_equality stdout ----
+
+thread 'intrinsically_incomplete_kinds_cannot_claim_equality' (137) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:114:9:
+assertion failed: !node.is_complete()
+
+---- probe_machine_and_entity_context_changes_reset_unscoped_comparisons stdout ----
+
+thread 'probe_machine_and_entity_context_changes_reset_unscoped_comparisons' (138) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:244:14:
+a new source must emit even if its value matches
+
+---- probe_run_and_origin_changes_do_not_reuse_another_stream_baseline stdout ----
+
+thread 'probe_run_and_origin_changes_do_not_reuse_another_stream_baseline' (139) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:214:9:
+assertion failed: event.baseline
+
+---- value_match_relabeling_does_not_invent_an_initial_addition stdout ----
+
+thread 'value_match_relabeling_does_not_invent_an_initial_addition' (141) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:64:5:
+assertion `left == right` failed
+  left: Added
+ right: Unknown
+
+---- watch_origin_changes_reset_comparison_before_failure_capture stdout ----
+
+thread 'watch_origin_changes_reset_comparison_before_failure_capture' (142) panicked at crates/statelessness-debug/tests/pr_review_inspection.rs:75:5:
+assertion `left == right` failed
+  left: Changed
+ right: Baseline(SourceChanged)
+
+
+failures:
+    failure_relabeling_keeps_initial_and_gap_differences_unknown
+    failure_relabeling_preserves_sampled_completeness_and_unknown_diff
+    inconsistent_paging_counts_and_partial_descendants_never_certify_equality
+    intrinsically_incomplete_kinds_cannot_claim_equality
+    probe_machine_and_entity_context_changes_reset_unscoped_comparisons
+    probe_run_and_origin_changes_do_not_reuse_another_stream_baseline
+    value_match_relabeling_does_not_invent_an_initial_addition
+    watch_origin_changes_reset_comparison_before_failure_capture
+
+test result: FAILED. 7 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p statelessness-debug --test pr_review_inspection`
