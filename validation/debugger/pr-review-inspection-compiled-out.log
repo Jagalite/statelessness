@@ -1,0 +1,60 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.27s
+     Running tests/diagnostic.rs (target/debug/deps/diagnostic-de511840de546132)
+
+running 14 tests
+test disabled_probe_never_evaluates_closure_or_inspector ... ok
+test delivery_sampling_preserves_change_baseline ... ok
+test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+test privacy_survives_text_jsonl_and_custom_sinks ... ok
+test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+test threshold_crossing_has_hysteresis_and_cooldown ... ok
+test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/inspect_derive.rs (target/debug/deps/inspect_derive-cbeb47bf445270d2)
+
+running 11 tests
+test generated_bindings_do_not_shadow_caller_identifiers ... ok
+test default_schema_names_distinguish_qualified_types_and_generics ... ok
+test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+test named_fields_have_stable_ids_labels_version_and_source ... ok
+test redacted_paths_never_invoke_or_require_an_inspector ... ok
+test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+test unsized_generic_tail_uses_reference_inspection ... ok
+test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+test variants_support_each_shape_and_structural_paths ... ok
+test rust_cfg_is_respected ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-56ae86ae491a5dd7)
+
+running 15 tests
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

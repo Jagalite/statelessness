@@ -1,0 +1,541 @@
+{
+  "design_revision": "f3e00e79471b928d67ddb530c113d6d51af6f277",
+  "design_sha256": "4557a92bc9689da26accf22b651cf0ca70f3e508242296c6f99c820a8dad8877",
+  "source_commit": null,
+  "git_provenance_available": false,
+  "source_dirty_at_start": null,
+  "initial_worktree_status": null,
+  "source_hashes": {
+    ".github/workflows/native-ports.yml": "a9be019973afa86f4cce78093b2c5daa71270621d48c34cdc53d7a883cfabe44",
+    ".github/workflows/portable-conformance.yml": "ce2595364c9b6954ad50878af0a96ce5fe4895b66ee418476eec8090cbeb0bdd",
+    ".github/workflows/release.yml": "0ee2e9407e2dace99aa72f987d36222312fa52d513ab8ef7588c42728d93c77c",
+    ".github/workflows/verify.yml": "60b30adbb9a006565108c0a0642e015eef6cf1df6995f998562985772abb8bd1",
+    "Cargo.lock": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2",
+    "Cargo.toml": "33a077e8a175edb322d5c560f3c330a7d18749c825610813af3a8b7038dd6aa2",
+    "benches/campaign.rs": "ec4b4ec042c7322296e027d2e9216d28d45229c55991edc2ca2522e0530411fc",
+    "benches/engine.rs": "6d88a8cd0853b532af145b06c216f5b801ba24413d985c2374f196b327bf6552",
+    "benches/observation.rs": "29583bc6b1cac6492c9407a6473fd84e522c3bd61b57813e9f7c420b5d71d8d3",
+    "benches/scaling.rs": "2034ed0eeaa43b88c2ebe1c3a059d191071bb60e8c66c75780ad2343fb7c658f",
+    "build.rs": "f8b62ba9564aed8e971a9bdb8941225ed07ce6c32fecb68835671239c3f4df35",
+    "crates/macro-qualification/Cargo.toml": "32eedd4c1ab60f5062c8707f94d61322d453660c4a815c17d6a54a783514f7f9",
+    "crates/macro-qualification/examples/measure.rs": "6dcd2c244f5b345c5f73cccc7ea12f4b81531821b86688199aec0211efbad407",
+    "crates/macro-qualification/src/bin/jobs.rs": "aa2203da94034d2be0206fdbb647aa1bd1fc103d6fdf3bb6a25b9baa01e05e99",
+    "crates/macro-qualification/src/jobs.rs": "c77f5e7caf9da45eb5f00d08004b6a36e7c205842821307ace653ecf92d92a13",
+    "crates/macro-qualification/src/lib.rs": "192f91bf147b2433b9424b04d04fd7b0b3b885ec095333ec6d676e9936b12bd8",
+    "crates/macro-qualification/tests/behavior.rs": "faeaa6454ba3dab648e7e6c44e5c157e593c8a7446ebb8f21889e6a0f6ee38da",
+    "crates/macro-qualification/tests/codecs.rs": "fc6a84394d88b0c9989ed0197a19ac2f6a02a71db5353fad3364ecab35a4721f",
+    "crates/macro-qualification/tests/monitor_release.rs": "e18e8fbde77f4aa184a3f504f3e1285b97cc9cd67a26084fc3fba19034874cfe",
+    "crates/macro-qualification/tests/review_regressions.rs": "6dfb51b42f508756d6d05f8ef2e33eb418d0a535ac6579beff5f1291807f30b4",
+    "crates/statelessness-debug/Cargo.toml": "5863f01bd214901dd2a087b0d147b5487b7f1c76b22d5a2cb2120ce5a48c5161",
+    "crates/statelessness-debug/examples/debug_composition.rs": "88f8df27e328158a4dce0ee7e1da843d1ada23f28d81c8260d48c488b138d4a3",
+    "crates/statelessness-debug/examples/debug_counter.rs": "8284d282aee13e5464990d00b25c2d26a997d5bc530d51452367db7fd4e1790c",
+    "crates/statelessness-debug/examples/debug_request.rs": "b92101deb8f602009f7849cbcb0390390ad95f03bee74295e8c41c939039f25a",
+    "crates/statelessness-debug/examples/debug_stdio.rs": "1a17e2808814075996ddd466540047a87cd7258ec51d5ac1a3acb3f30b777eca",
+    "crates/statelessness-debug/examples/effect_overhead.rs": "07c67e3e70bacaa63dc500974db65992c81dabee6ac23642c44b3d664ce92fe2",
+    "crates/statelessness-debug/examples/instrumentation_parity.rs": "d75438f72e2b994f19e900096d8a9c20b874ef53f7812bb37ecb669fa8ddd4b4",
+    "crates/statelessness-debug/examples/live_host.rs": "f5f3f92cbb5cdcd04a6f6680858a7026c307f30b7beae60ba0848c991d540a67",
+    "crates/statelessness-debug/examples/measure_watches.rs": "f94964e81a5caa77030164b291a8895f1e4f530ef26f1bffbd155068dc3edc26",
+    "crates/statelessness-debug/src/diagnostic.rs": "af84f58d588efed19580f885f211faea4c47bc14528e24ee0a4f74c287bd8e35",
+    "crates/statelessness-debug/src/effects.rs": "9504964df78c82e0338d7f7592786dfd9dd9428749ecb02d4ae76b3fc635bcae",
+    "crates/statelessness-debug/src/inspect.rs": "106cee7faed51e0ba77d02695399faed8c84963538d970428a149766c84ce0c0",
+    "crates/statelessness-debug/src/lib.rs": "8bd2d5ae4707b53edfa5c45f8f89aeafe4e63f10895e64086f6cb6e18fe1b231",
+    "crates/statelessness-debug/src/live.rs": "11bd9bde1a052515143fd86ed7c032e5016743f4b7aeaaf2ebfe8a35b2d6866b",
+    "crates/statelessness-debug/src/metrics.rs": "78e69a0f9adba15bc34864109c7e86c57952f1037f32f2753b62383261a94d0f",
+    "crates/statelessness-debug/src/protocol.rs": "3a74ab36d07c9f810953988aa00570ce35c5144d4efaa415917b00f331ce23c1",
+    "crates/statelessness-debug/src/session.rs": "b1c5d1f6fd8615d65d12fec3cf66813e72762e06d8ba880d4f88ea9241f82ce7",
+    "crates/statelessness-debug/src/watches.rs": "323f6b4b5a30cb98351cc375244ce49f063af82cd4a3f13d1166c9026c087960",
+    "crates/statelessness-debug/src/workbench.rs": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d",
+    "crates/statelessness-debug/tests/diagnostic.rs": "1f1fef18e3c9a6b1f6c019d37ec47bbaadadecd7f77534f971f83aa986237b77",
+    "crates/statelessness-debug/tests/diagnostic_controller_model.rs": "8d82d4f730f8dd36a9a975dfd3cb14133dddda597346fe5852cc391b811bc3d7",
+    "crates/statelessness-debug/tests/diagnostic_selectors.rs": "dfeafd7304676e9bd0c21e0782add8726d2fa160b17b4b7c13b142d87da4608c",
+    "crates/statelessness-debug/tests/effect_ledger_model.rs": "b98b4b8dd4f6762bdb73374c997fd4213a7d632ac25ff9783dbf166cac01afd6",
+    "crates/statelessness-debug/tests/effects_metrics.rs": "8b4a0f23c60c17c47edbf52037e552d40f9ac9d3867c2e73980adb769447a9fb",
+    "crates/statelessness-debug/tests/inspect_derive.rs": "81f7819879dd2fbd33d045daf916f5cc51209ad5b1ec62f6c1c4fced3aab05e7",
+    "crates/statelessness-debug/tests/inspection.rs": "a01c83fa2340f19da02a93f0643d09d9771fdb2bebc1a36479b08886eebc3cb5",
+    "crates/statelessness-debug/tests/live.rs": "1506f772131884ba4815058fcb00963ce4b17da23ae919c663413da81672da2e",
+    "crates/statelessness-debug/tests/oracle_lifecycle.rs": "9a636619599950778dd899a2e2e6cd79b920c98bb0860a6b296e7b11e9cd3af2",
+    "crates/statelessness-debug/tests/pr_review_inspection.rs": "782bd6c2adde8bfa922bbf81cbdb3c4e0aebae4e05f55ee3090159f2eaebec9e",
+    "crates/statelessness-debug/tests/pr_review_live_effects.rs": "47b84a006975f7ec0946f66b12aee2d251f6477e3ba17685f51bc02f31090092",
+    "crates/statelessness-debug/tests/pr_review_protocol.rs": "3fa65f4317aa05c2f364f1c16a34118c2cf66ab1d63361e609d65d560113f2bb",
+    "crates/statelessness-debug/tests/pr_review_sessions.rs": "b689415e58fde9408c11a72c3f169bc7bd0c9f2848042c00382f31ca2a29d963",
+    "crates/statelessness-debug/tests/protocol.rs": "4b6cd01ebb7a35e215fffba5dc3948ec1e5d778089b6772fbe90a6079b10197f",
+    "crates/statelessness-debug/tests/review_debugger.rs": "5375a171f662b9149a72c5adbc71d3e0e12abd8e1e5ca4c2558a7b45b3a7719e",
+    "crates/statelessness-debug/tests/session.rs": "57436eb80ab069bb01cf1038e4fee647fd0398ceca826ca19ffedc75f49b9a5c",
+    "crates/statelessness-debug/tests/watches.rs": "f3c979dc88d3812b98b3b5395516decc7c698366dc34e53afda81d168c8b027c",
+    "crates/statelessness-debug/tests/workbench.rs": "f5caf6cf55992e969d475d730b4e125498888489a7c447b35b7fdeafe2c657a6",
+    "crates/statelessness-macros/Cargo.toml": "fb5f0c25edc7a8211c3cdfaf75c8c373d7f2c758f4e4df518eca9235aae4eac6",
+    "crates/statelessness-macros/build.rs": "f8b62ba9564aed8e971a9bdb8941225ed07ce6c32fecb68835671239c3f4df35",
+    "crates/statelessness-macros/src/adapter.rs": "9587105af507300e964da81da9e51d38d5707a1e743b957c1d6da1f4352e7c6e",
+    "crates/statelessness-macros/src/codec.rs": "63bf688b114cdd6d86afdc6bc6227c49f027210303c61603c9c044d47f0e0dcd",
+    "crates/statelessness-macros/src/domain.rs": "2c76631b12ee90ea7cce73919b3f4b4fe9a051a79a70b4446eea77def550b5ce",
+    "crates/statelessness-macros/src/inspect.rs": "c9f3990491a8bb045dbab85e60a4de86f9f6f891f30f8a0666541763c76fe856",
+    "crates/statelessness-macros/src/lib.rs": "7d13559eca32f4330f91109d271b5820b8430d2cac922d77a50ec9e4e06cb64c",
+    "crates/statelessness-macros/src/parse.rs": "3825968d1ab4a4f3fbacf1dea2aea4113b3e04dbb3e20a97aa29995dc387de6e",
+    "examples/application.rs": "f9ad8c1cb61d9423a99000c7c766c56223abe91a19c457fec94c1b7056d1afc6",
+    "examples/counter.rs": "7c73d15752320b463cb2eedc8a84ece38f0bac04a273541dd46c9007f3e38e7d",
+    "examples/go-jobs/Cargo.toml": "b4da17decf16c320946acc658aa718a3f60790d123755be4b0e838bf09392723",
+    "examples/go-jobs/build.rs": "ad509f12b81ab14ffe031b0219500fd25bf8df22da67e57b6e801090deeef90f",
+    "examples/go-jobs/src/lib.rs": "006dde0e04c44d42416caf9a7b027bc462053b880e77ba069130db08a611b4fc",
+    "examples/logging.rs": "3cb3d800adf0ab0a27eee50821bd6ad9d915720acae03f4a05b15ffedc5921f6",
+    "scripts/build-bindings.py": "8c21dfb13c9dd7f13741cd4c04c8ba6b8aaf77415aced65c1fc678d4b6d63779",
+    "scripts/check-consumer.py": "3348c036389d7393bfd7cffd67378f112ed56435bbbd10df52433dd79d1f617e",
+    "scripts/check-debugger-stdio.py": "3fa73cf4d851ba75623b243abd272ac844dce88a7a701eeb65be0a67fd652fb9",
+    "scripts/check-debugger-targets.py": "201d0c602efa4828d89551e53f422ccc23425a3de23dd3b5d8bdca1ecac8a1b9",
+    "scripts/check-debugger.py": "f209be15601cd8f6e5a2759b94e9a14c8132c29385b5ac2e9ac1b8a8e8512b6f",
+    "scripts/check-inspect-derive.py": "b1fead738da2f9dca6252d08e088d15f9778a94745707e5d1e13e31791440c7f",
+    "scripts/check-macros.py": "bed90b95b92de005cc0ad63c7e2b8c0f65b52dc187d5304afe9dca7bc594eca7",
+    "scripts/check-native-ports.py": "aac7b35ef8c85f83b79419e857bbda78532264e00bd964bcc67fb5f4b89c23dc",
+    "scripts/check-native.py": "aadef7b5f52b66a1e6690e25777f599d1f0df2019311f542e6d73a52a9676b7b",
+    "scripts/check-playscale.py": "0c5bdf277615e142d65875bf090b4c77c0a4193712544e9a772389fb6cfcc0db",
+    "scripts/measure-macros.py": "9639323c10f788835254b2f02bfa785fc16674f66e4f88c2c6b6810938da0fba",
+    "scripts/qualification_context.py": "4f48f01290d0aff1ac2f448abb7f10ac1175881acb2f150c7fc5c53532bff54f",
+    "scripts/test_qualification_context.py": "4d87c2bfea02be819d44eb68da001c733dfb18cc128d21e781ffd3d510de7901",
+    "scripts/test_readiness.py": "dbaec530657c9aa91ebefc83d1b74106088e5d313dac35cbae94b3efaf6264df",
+    "src/automatic.rs": "f378d84d6dc4ba91b01622c62f10212137a56007af3bcb2bcd932de3f07e9055",
+    "src/campaign/lifecycle/codec.rs": "a93ee1cf524339743564923dacd6d8aac007e95d9ecd68e00f5f4e08de8b579d",
+    "src/campaign/lifecycle/tests.rs": "3102ec704a8757f339d558e93faf98c82499076ffc94d8177551aba2af582b3a",
+    "src/campaign/lifecycle.rs": "7931c3ef82bf7f2b806448ef8a65f8f2e4a136d38c58d8e06307ee4b090ef44a",
+    "src/campaign.rs": "0852ec021b314caf6a5c171d4ffd85f127802b8587947185a30ed889603f50ae",
+    "src/composition.rs": "dcef4c9ed0f1a64bba8834f2482261c02ea630d9666237d3b08cd5eb1f5b94ec",
+    "src/conformance.rs": "2162d07b340a14a13b04e863f8ac134b0498fa35e3e503b561f6461e7b2bcb54",
+    "src/demo.rs": "0a644f878de5408954ab0b3d621dd869b7fab60dcfe79da0a63c4a00d628c289",
+    "src/execution.rs": "8bbb6be87232604409786a4fc25ddf4ac3113b235d888d40fb3ed729d62c160e",
+    "src/explore.rs": "7db89f0b19ec97408fec702721a9cbb1457581968d23c7689ad438ef2d2c29cf",
+    "src/ffi.rs": "1762b6e7731bda4722b74d6b7b211ff7213ce4479d193c52473c790560e18575",
+    "src/guided.rs": "bb63ae728d16c1e561c984951034f16b4384ecb2218109d0bbdd0a4cb64e86b3",
+    "src/lib.rs": "b5a88de4aa43cadac5a6e1c42b3e7575976e68d2326a62faa1e8b18c2a5e71f5",
+    "src/lifecycle.rs": "8cdf12b3197ed9d2c9d416178827f40970d5118f03b430984487b7c48516bfc7",
+    "src/main.rs": "9ad82772da8bed76027bf8426b49b191ebd606c7eb3a6a71cecf46f1cc6ad50a",
+    "src/model.rs": "b341ba01318547452eb22ab8816539b565e0087ced2bd0b2991cfe20af7b41f8",
+    "src/modeling.rs": "ea8dd173cba22cbbdd9c76716f2cd29e4e710a4d677e77c5329b4f77c0b364f8",
+    "src/monitor.rs": "89af740073b6655974ee6d0e9e1eea3dd3f6cc77954319224b744c3f56e8bd49",
+    "src/observation.rs": "c0c288b687dbf03a87be44dab322af47ca8c3472997da337544972f5962fd870",
+    "src/oracle.rs": "8f252af5945c81b236a19caf326ab626d060702791675d918cea2ef9663e2fdf",
+    "src/trace.rs": "157ed1c5e070372220c14a23e6ba9e636e0ab94507160e7197f1419052bfc786",
+    "src/value_codec.rs": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3",
+    "tests/automatic.rs": "776ca202050f352e8e5274beaec87e867ac297a173b3d220253baf8d585a3bf5",
+    "tests/campaign.rs": "4ef4844eb77de0f120acbeaefdaea372a8e08caf7fc3466d0ccee10452aca449",
+    "tests/checked_replay.rs": "704e559b3d31c660464fb9412f69b0803f1fb41313343e21b9b88ec5adc3ea96",
+    "tests/cli.rs": "dbe7f34d993dc5f1d7f5530b38d614c3a17b4b3fc11988a580a79d0508e1f185",
+    "tests/composition.rs": "2b38348d66ec0f980333ffd9157d912055e48f47e6720e7c0de84c6611955a2c",
+    "tests/conformance.rs": "d9253ed8ac7b516afc44a8ebee2fb868f04ddef8cdc121fea4a10b004b532626",
+    "tests/execution.rs": "b634476c8eae3c5bd13878758f59340b0bd539ce1e777e39b81236448bf2833d",
+    "tests/exploration.rs": "fbff342d620c75c7fb1c5cfb7d1995482d5ce0eb70f2c2f5d0a3826ae76f444e",
+    "tests/ffi.rs": "acd6247f5c5e66120c9a03966f723cc0af7c0cf6ad5c447b9a448153070bb6fc",
+    "tests/guided.rs": "02624f83c5a6d310817fc69f0d3c9897ed96669dde75ead554fac17066fccd15",
+    "tests/lifecycle_templates.rs": "680128ee7189b8bd92ad13352d7c134741a09094831f8d36d39915a44f68b9f3",
+    "tests/modeling.rs": "42ef981a1720c98730bd5d7b71fa7a0e1b8510de73b5a48e8ea7c911c93894c7",
+    "tests/monitor.rs": "c4d9ad75cc0916eb6bd582cf98e22f3194c54df2be3aa52a6505a81b8dd35c0f",
+    "tests/monitor_limits.rs": "4a79b2f8fe236c27442a016bf748f254164a96da7d10706c01725ba852b10165",
+    "tests/monitor_review.rs": "f21ec4778015ad0ace2e54735dee6a6ed37072db918a00ef975854e1bf3042cc",
+    "tests/observation.rs": "842e4713c39efae912792ab99f72cc5b669c3d077b11dece9e37bd76c4a1af2d",
+    "tests/oracle.rs": "2944c089be2fa2cc3b4963c9901da0e53729cd4fe7ec05cf84af98ca7d95ebb4",
+    "tests/performance_contracts.rs": "08ae3ffee4ef2beb3af94f0408ab01d4ea3d1001399fce52ae4e6b21e3027364",
+    "tests/pr_review_core.rs": "4ae56ac8563de4dd118638cff125e2a013534fb8baa33994bf7d7d970f148cce",
+    "tests/review_replay_bounds.rs": "cdd10c7b11e883de97ca5483473217f9ad7d22b2f3f48eceb5686a8ed6c546d1",
+    "tests/trace_format.rs": "b1ecd2d6d7bc0ceb3bba7b4b56f00b45b1f31d9f709f59b9a6a753011897b083",
+    "tests/value_codec.rs": "af9559eb1e679eeaf631a2fcdf68bcf5bcf403d637cde8161daa49e4275e4b5a"
+  },
+  "source_unchanged_during_qualification": true,
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)\nbinary: rustc\ncommit-hash: 59807616e1fa2540724bfbac14d7976d7e4a3860\ncommit-date: 2026-04-14\nhost: x86_64-unknown-linux-gnu\nrelease: 1.95.0\nLLVM version: 22.1.2",
+  "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "machine": "x86_64",
+  "logical_cpu_count": 9,
+  "results": [
+    {
+      "name": "qualification-provenance",
+      "command": [
+        "python3",
+        "scripts/test_qualification_context.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.305,
+      "log": "logs/qualification-provenance.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "format",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.607,
+      "log": "logs/format.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "workspace",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--workspace"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 29.004,
+      "log": "logs/workspace.log",
+      "rust_tests_passed": 499
+    },
+    {
+      "name": "debugger-examples",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness-debug",
+        "--examples"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.491,
+      "log": "logs/debugger-examples.log",
+      "rust_tests_passed": 4
+    },
+    {
+      "name": "compiled-out",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness-debug",
+        "--features",
+        "compiled-out-diagnostics"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 16.184,
+      "log": "logs/compiled-out.log",
+      "rust_tests_passed": 242
+    },
+    {
+      "name": "clippy",
+      "command": [
+        "cargo",
+        "clippy",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 3.752,
+      "log": "logs/clippy.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "rustdoc",
+      "command": [
+        "cargo",
+        "doc",
+        "--locked",
+        "--offline",
+        "--workspace",
+        "--all-features",
+        "--no-deps"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 1.476,
+      "log": "logs/rustdoc.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "parity-enabled",
+      "command": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "-q",
+        "-p",
+        "statelessness-debug",
+        "--example",
+        "instrumentation_parity"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.03,
+      "log": "logs/parity-enabled.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "parity-compiled-out",
+      "command": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "-q",
+        "-p",
+        "statelessness-debug",
+        "--example",
+        "instrumentation_parity",
+        "--features",
+        "compiled-out-diagnostics"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.024,
+      "log": "logs/parity-compiled-out.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "normalized-instrumentation-parity",
+      "passed": true,
+      "description": "State/input/output/disposition/check observations match across both feature builds; each also compares capture-off, capture-on and saturated queues"
+    },
+    {
+      "name": "inspect-derive",
+      "command": [
+        "python3",
+        "scripts/check-inspect-derive.py"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 9.412,
+      "log": "logs/inspect-derive.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "existing-macros",
+      "command": [
+        "python3",
+        "scripts/check-macros.py",
+        "--allow-dirty",
+        "--evidence",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/macro-results.json"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 3.289,
+      "log": "logs/existing-macros.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "packaged-core-consumer",
+      "command": [
+        "python3",
+        "scripts/check-consumer.py",
+        "--allow-dirty",
+        "--target-dir",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/packaged-core"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 5.924,
+      "log": "logs/packaged-core-consumer.log",
+      "rust_tests_passed": 3
+    },
+    {
+      "name": "default-engine-dependencies",
+      "command": [
+        "cargo",
+        "tree",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.012,
+      "log": "logs/default-engine-dependencies.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "cold-offline-core",
+      "command": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness",
+        "--lib"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 1.078,
+      "log": "logs/cold-offline-core.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "harness-build",
+      "command": [
+        "cargo",
+        "build",
+        "--locked",
+        "--offline",
+        "-p",
+        "statelessness-debug",
+        "--example",
+        "debug_request",
+        "--example",
+        "debug_stdio",
+        "--example",
+        "debug_counter",
+        "--example",
+        "debug_composition",
+        "--example",
+        "live_host"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.024,
+      "log": "logs/harness-build.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "stdio-real-pipes",
+      "command": [
+        "python3",
+        "scripts/check-debugger-stdio.py",
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_stdio"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.203,
+      "log": "logs/stdio-real-pipes.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "interactive-failure",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "interactive"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.01,
+      "log": "logs/interactive-failure.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "fresh-record",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "record",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/failure.sttrace"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.003,
+      "log": "logs/fresh-record.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "fresh-verify",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "verify",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/failure.sttrace"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.004,
+      "log": "logs/fresh-verify.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "fresh-corrected-comparison",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "compare",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/failure.sttrace"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.003,
+      "log": "logs/fresh-corrected-comparison.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "browse-without-model-execution",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "view",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/failure.sttrace",
+        "3"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.002,
+      "log": "logs/browse-without-model-execution.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "verified-fork",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request",
+        "fork",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/failure.sttrace",
+        "2",
+        "/tmp/stateless-debugger-qualification-ypf5ht_7/branch.sttrace"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.002,
+      "log": "logs/verified-fork.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "run-debug_counter",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_counter"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.006,
+      "log": "logs/run-debug_counter.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "run-debug_composition",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_composition"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.005,
+      "log": "logs/run-debug_composition.log",
+      "rust_tests_passed": 0
+    },
+    {
+      "name": "run-live_host",
+      "command": [
+        "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/live_host"
+      ],
+      "returncode": 0,
+      "passed": true,
+      "elapsed_seconds": 0.006,
+      "log": "logs/run-live_host.log",
+      "rust_tests_passed": 0
+    }
+  ],
+  "benchmarks_run": false,
+  "passed": true,
+  "limitations": [
+    "Native runtime qualification covers only the recorded host platform and machine",
+    "No native LLDB/GDB, remote transport or external telemetry collector qualification",
+    "Callbacks and synchronous writer I/O are cooperative, not hard-preemptible",
+    "Microbenchmark load is synthetic and does not establish production scheduling or SLA behavior"
+  ]
+}

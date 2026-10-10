@@ -1,0 +1,1 @@
+stdio: original workflows plus 14 malformed-frame cases, 87 fatal pipe cases, byte-at-a-time framing, epoch discovery, stale handles/revisions, dedup conflict/eviction, sink/profile authorization, raw-export denial, restart reconciliation, and fail-closed startup options passed

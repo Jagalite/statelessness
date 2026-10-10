@@ -1,0 +1,55 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.74s
+     Running tests/pr_review_protocol.rs (target/debug/deps/pr_review_protocol-a0a35d750fb3bab7)
+
+running 11 tests
+test exact_value_permission_cannot_export_raw_trace ... ok
+test discovery_is_read_only_and_reconnect_cannot_resurrect_cached_mutation ... ok
+test evicted_candidate_and_snapshot_handles_do_not_alias_replacements ... ok
+test fatal_frame_after_committed_turn_disconnects_without_rollback_or_extra_delivery ... ok
+test exposed_probe_sink_redacts_payload_and_never_drains_other_sink ... ok
+test every_truncated_prefix_and_oversize_header_closes_without_delivery ... ok
+test first_failure_identity_survives_check_page_truncation_without_message_leak ... ok
+test rejected_new_metric_capture_preserves_last_acknowledged_handle ... ok
+test rejected_metric_window_preserves_last_acknowledged_handle ... ok
+test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... ok
+test minimum_wire_limits_keep_mutation_acks_and_retry_identity ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/protocol.rs (target/debug/deps/protocol-3bc9a7640f7febaf)
+
+running 30 tests
+test duplicate_request_delivers_once_conflicts_reject_and_retired_ids_do_not_retry ... ok
+test events_are_bounded_and_loss_survives_saturated_queue ... ok
+test framed_server_is_linked_to_model_and_exposes_explicit_disconnect ... ok
+test diagnostics_configuration_does_not_change_exact_trace_bytes ... ok
+test metric_pages_bind_to_immutable_snapshot_and_metric_revision_is_separate ... ok
+test partial_oversize_invalid_utf8_escape_and_unknown_commands_reject ... ok
+test queued_response_write_failure_does_not_rerun_or_rollback_delivery ... ok
+test probe_profile_stale_unknown_denied_and_busy_paths_do_not_mutate_capture ... ok
+test oversized_probe_payload_is_not_consumed_and_summary_fits_smallest_frame ... ok
+test probe_wire_roundtrip_and_framed_configuration_leave_workers_pending ... ok
+test raw_export_authority_is_independent_and_stale_handles_offsets_reject ... ok
+test reconnect_invalidates_epochs_handles_and_never_grants_authority ... ok
+test rejected_watch_stale_schema_and_unknown_path_leave_configuration_unchanged ... ok
+test recreating_same_display_id_cannot_accept_old_incarnation_commands ... ok
+test response_and_candidate_caps_reject_without_excess_or_hidden_delivery ... ok
+test runtime_probe_profiles_require_separate_authority_and_real_producer_acknowledgement ... ok
+test runtime_watch_authority_is_separate_and_configuration_is_revisioned ... ok
+test bounded_parser_corpus_is_panic_free_and_roundtrips_every_accepted_record ... ok
+test stale_version_epoch_unauthorized_and_malformed_input_never_deliver ... ok
+test snapshot_and_candidate_handles_are_revision_bound ... ok
+test structured_inspection_preserves_large_integers_and_only_one_turn_check_runs ... ok
+test watch_admission_ack_cannot_fail_after_mutation_when_schema_metadata_is_large ... ok
+test watches_observe_actual_turns_and_do_not_change_exact_model_state ... ok
+test telemetry_query_wire_roundtrip_and_missing_history_remain_explicit ... ok
+test telemetry_queries_need_explicit_adapter_and_never_grant_model_authority ... ok
+test wire_roundtrip_preserves_128_bit_keys_and_terminal_escaping ... ok
+test lifecycle_timeline_and_histogram_metadata_remain_host_measured ... ok
+test bounded_raw_export_reconstructs_and_replays_exact_failure_across_chunks ... ok
+test maximum_probe_catalog_and_producer_status_can_be_paged_under_small_frame ... ok
+test repeated_interrupted_reads_do_not_recurse_and_limits_validate_before_work ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

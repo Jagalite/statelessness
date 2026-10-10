@@ -1,0 +1,7 @@
+pause 1 at revision 0
+host dispatches Request(1)
+pause 2 at revision 1, effects Dispatched
+pause 3 at revision 2, effects Dispatched
+host dispatches Release(1)
+pause 4 at revision 3, effects Dispatched
+2 actual host dispatches; 3 recorded turns replayed without dispatch

@@ -1,0 +1,137 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
+     Running tests/diagnostic.rs (target/debug/deps/diagnostic-77773ef9c26c2d5c)
+
+running 14 tests
+test disabled_probe_never_evaluates_closure_or_inspector ... ok
+test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+test delivery_sampling_preserves_change_baseline ... ok
+test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+test privacy_survives_text_jsonl_and_custom_sinks ... ok
+test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+test threshold_crossing_has_hysteresis_and_cooldown ... ok
+test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/diagnostic_controller_model.rs (target/debug/deps/diagnostic_controller_model-ce3056118acb5052)
+
+running 1 test
+test bounded_two_producer_subscription_interleavings_match_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.72s
+
+     Running tests/diagnostic_selectors.rs (target/debug/deps/diagnostic_selectors-389fc2b9a98cb7ee)
+
+running 13 tests
+test configuration_is_stale_safe_and_applied_per_producer_at_explicit_boundaries ... ok
+test combined_scope_is_conjunctive_and_context_is_not_implicitly_exported ... ok
+test multiple_matching_scopes_share_closure_and_authorized_projection ... ok
+test every_declared_label_filters_match_mismatch_and_unknown_before_closure ... ok
+test producer_and_origin_selectors_are_independent_exact_filters ... ok
+test invalid_selector_labels_and_aggregate_metadata_budget_do_not_change_revision ... ok
+test context_byte_limits_reject_before_advancing_producer_boundary ... ok
+test property_outcome_selection_does_not_treat_unknown_as_nonfailure ... ok
+test scope_selection_does_not_bypass_site_kind_or_severity_filters ... ok
+test scoped_configuration_cannot_expand_sink_projection_permissions ... ok
+test scope_filters_preserve_field_redaction_in_all_sinks ... ok
+test selector_gap_resets_threshold_hysteresis_and_cooldown_as_unknown ... ok
+test selector_gaps_invalidate_change_baselines_without_evaluating_filtered_values ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/inspect_derive.rs (target/debug/deps/inspect_derive-c12eeab442deb68c)
+
+running 11 tests
+test default_schema_names_distinguish_qualified_types_and_generics ... ok
+test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+test generated_bindings_do_not_shadow_caller_identifiers ... ok
+test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+test named_fields_have_stable_ids_labels_version_and_source ... ok
+test redacted_paths_never_invoke_or_require_an_inspector ... ok
+test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+test rust_cfg_is_respected ... ok
+test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+test unsized_generic_tail_uses_reference_inspection ... ok
+test variants_support_each_shape_and_structural_paths ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/inspection.rs (target/debug/deps/inspection-ef0501f6420ebb5b)
+
+running 10 tests
+test float_payload_bits_prevent_false_nan_equality ... ok
+test handwritten_and_generated_inspectors_have_the_same_projection ... ok
+test large_integers_keep_type_and_exact_decimal ... ok
+test maps_preserve_typed_keys_order_and_selection ... ok
+test nested_path_is_structural_and_does_not_traverse_siblings ... ok
+test missing_map_keys_and_far_pages_have_explicit_work_bounds ... ok
+test utf8_bytes_depth_and_aggregate_budgets_are_honest ... ok
+test opaque_unavailable_truncated_and_schema_mismatch_never_equal ... ok
+test huge_map_key_is_bounded_before_owned_key_capture ... ok
+test paging_allocates_and_evaluates_only_requested_values ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-305e6ed5268b86be)
+
+running 15 tests
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/review_debugger.rs (target/debug/deps/review_debugger-6f89afae4f146fa3)
+
+running 7 tests
+test candidate_revalidation_respects_session_work_budget ... ok
+test diagnostic_permission_entries_consume_configuration_budget ... ok
+test diagnostic_gap_invalidates_threshold_crossing_baseline ... ok
+test cancel_preserves_terminal_property_failure ... ok
+test diagnostic_inspection_failure_invalidates_threshold_crossing_baseline ... ok
+test minimization_honors_cancellation_raised_during_verification ... ok
+test simulation_provenance_cannot_be_shadowed_by_user_config ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/watches.rs (target/debug/deps/watches-03ef5110eba847bf)
+
+running 16 tests
+test committed_boundary_watch_cannot_invent_internal_reverted_changes ... ok
+test admission_authorization_redaction_and_unknown_paths_are_checked ... ok
+test count_byte_baseline_and_failure_budgets_are_independent ... ok
+test disabled_and_static_filtered_paths_do_not_read_schema_or_payload ... ok
+test explicit_snapshot_returns_type_and_does_not_replace_change_baseline ... ok
+test failure_annotation_is_bounded_and_cannot_hide_an_inspector_error ... ok
+test inspection_errors_are_diagnostic_and_preserve_metadata ... ok
+test lazy_post_turn_marker_skips_disabled_and_full_payloads ... ok
+test live_identity_and_machine_changes_never_claim_cross_machine_change ... ok
+test matching_queries_are_shared_and_event_loss_does_not_reset_baselines ... ok
+test missing_observations_and_expired_baselines_start_unknown ... ok
+test sampled_evaluation_and_delivery_loss_have_different_meanings ... ok
+test exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on ... ok
+test boundary_reconfiguration_cannot_change_an_in_progress_generation ... ok
+test schema_changes_pause_before_selected_value_access ... ok
+test lifecycle_reenable_and_expiry_boundaries_are_explicit ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

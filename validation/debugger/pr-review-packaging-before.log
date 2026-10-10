@@ -1,0 +1,24 @@
+error: 14 files in the working directory contain changes that were not yet committed into git:
+
+scripts/__pycache__/build-bindings.cpython-312.pyc
+scripts/__pycache__/check-consumer.cpython-312.pyc
+scripts/__pycache__/check-debugger-stdio.cpython-312.pyc
+scripts/__pycache__/check-debugger-targets.cpython-312.pyc
+scripts/__pycache__/check-debugger.cpython-312.pyc
+scripts/__pycache__/check-inspect-derive.cpython-312.pyc
+scripts/__pycache__/check-macros.cpython-312.pyc
+scripts/__pycache__/check-native-ports.cpython-312.pyc
+scripts/__pycache__/check-native.cpython-312.pyc
+scripts/__pycache__/check-playscale.cpython-312.pyc
+scripts/__pycache__/measure-macros.cpython-312.pyc
+scripts/__pycache__/qualification_context.cpython-312.pyc
+scripts/__pycache__/test_qualification_context.cpython-312.pyc
+scripts/__pycache__/test_readiness.cpython-312.pyc
+
+to proceed despite this and include the uncommitted changes, pass the `--allow-dirty` flag
+Traceback (most recent call last):
+  File "/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/scripts/check-consumer.py", line 22, in <module>
+    subprocess.run(command, cwd=root, env={**os.environ, "CARGO_TARGET_DIR": str(target)}, check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cargo', 'package', '--locked', '--offline']' returned non-zero exit status 101.

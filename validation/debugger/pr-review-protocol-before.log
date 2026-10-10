@@ -1,0 +1,31 @@
+Independent protocol pre-fix evidence, 2026-10-10 UTC
+Reviewed implementation HEAD: 461a369eb161d3924e9e9dd1e72633e122f144f7
+These are captured command/output excerpts, not a claim that the final tree fails.
+
+$ source /workspace/shared/render-rust-1.95.0/activate.sh
+$ cargo test -p statelessness-debug --offline --test pr_review_protocol -- --nocapture
+running 1 test
+thread 'rejected_new_metric_capture_preserves_last_acknowledged_handle' panicked:
+assertion `left == right` failed: a rejected new capture must not evict the acknowledged paged snapshot
+  left: Err(StaleHandle)
+ right: Ok(())
+test rejected_new_metric_capture_preserves_last_acknowledged_handle ... FAILED
+test result: FAILED. 0 passed; 1 failed
+
+$ python3 - <<'PY'
+import subprocess, struct
+payload=b'DDBG\tu32:1\trequest\tstring:request-lifecycle\tu64:1\tu64:1\tu64:0\tu64:0\tstep\tbytes:00'
+r=subprocess.run(['target/debug/examples/debug_stdio','--read-onyl'],input=struct.pack('>I',len(payload))+payload,capture_output=True)
+print('unknown startup option returncode:',r.returncode)
+print('response:',r.stdout[4:].decode())
+PY
+unknown startup option returncode: 0
+response: DDBG u32:1 response string:request-lifecycle u64:1 u64:1 u64:1 u64:0 ok none u64:2 delivered bool:true sequence u64:1
+(The response above is tab-separated on the wire; spaces make this excerpt readable.)
+
+$ cargo test -p statelessness-debug --offline --test pr_review_protocol first_failure_identity -- --nocapture
+running 1 test
+thread 'first_failure_identity_survives_check_page_truncation_without_message_leak' panicked:
+missing checks.first_failure.id: Response { version: 1, session: "review", epoch: 1, request_id: 2, revision: 0, configuration: 0, result: Ok(()), fields: [("checks.complete", "bool:true"), ("checks.total", "u64:129"), ("checks.returned", "u64:1"), ("checks.truncated", "bool:true"), ("checks.0.id", "string:pass-0"), ("checks.0.status", "enum:passed")] }
+test first_failure_identity_survives_check_page_truncation_without_message_leak ... FAILED
+test result: FAILED. 0 passed; 1 failed; 9 filtered out

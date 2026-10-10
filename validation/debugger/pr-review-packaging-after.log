@@ -1,0 +1,28 @@
+   Packaging statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+    Packaged 139 files, 1.3MiB (360.7KiB compressed)
+   Verifying statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+   Compiling statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/target/package/statelessness-0.2.0)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.56s
+     Locking 1 package to latest Rust 1.95.0 compatible version
+   Compiling statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/target/package/statelessness-0.2.0)
+   Compiling stateless-consumer v0.0.0 (/tmp/stateless-consumer-d1y9_wgy)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.96s
+     Running unittests src/main.rs (target/debug/deps/stateless_consumer-08101ff2de85ada6)
+
+running 3 tests
+test tests::application_regression ... ok
+test tests::regression_gate_rejects_bug_and_incomplete_search ... ok
+test tests::restored_payloads_reject_invalid_values_and_trailing_bytes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling stateless-consumer v0.0.0 (/tmp/stateless-consumer-d1y9_wgy)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.29s
+check 0 Graph exhausted: 3 states, 6 transitions, no skipped checks
+find 1 Property failure: 19 -> 3 inputs; shrink SearchComplete; artifacts in failure
+replay 0 Exact; failure reproduced: true; build matches: true; recorded termination: PropertyFailed
+replay 0 Exact; failure reproduced: true; build matches: true; recorded termination: PropertyFailed
+replay-fixed 3 Diverged { step: Some(3), field: "state" }; failure reproduced: false; build matches: false; recorded termination: PropertyFailed
+find 2 
+replay 2 
+Packaged consumer verified

@@ -1,0 +1,15 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `release` profile [optimized] target(s) in 3.24s
+     Running `target/release/examples/measure_watches`
+watch benchmark; profile=release; one producer; no exporter I/O; no model execution; "x86_64"-linux
+64_runtime_disabled: turns=100000 ns_per_observation=99 allocations=0 allocations_per_observation=0.000
+one_changed_scalar: turns=10000 ns_per_observation=537 allocations=70008 allocations_per_observation=7.001
+64_shared_scalar: turns=2000 ns_per_observation=64281 allocations=518004 allocations_per_observation=259.002
+large_subtree_page100: turns=2000 ns_per_observation=27075 allocations=982006 allocations_per_observation=491.003
+failure_ring_snapshot: turns=2000 ns_per_observation=2235 allocations=43048 allocations_per_observation=21.524
+retained ring bytes: disabled=29696 scalar=631000 many=631000 subtree=4194192 failure=631000
+runtime_disabled_scoped_probe: turns=100000 ns_per_observation=39 allocations=0 allocations_per_observation=0.000
+one_scalar_probe_and_drain: turns=10000 ns_per_observation=497 allocations=70001 allocations_per_observation=7.000
+64_probe_subscribers_and_drain: turns=2000 ns_per_observation=22904 allocations=526005 allocations_per_observation=263.002
+saturated_probe_drop_newest: turns=10000 ns_per_observation=478 allocations=70001 allocations_per_observation=7.000
+saturated sink health: SinkHealth { captured: 1, filtered: 0, sampled: 0, dropped: 9999, truncated: 0, exporter_failed: 0, abandoned: 0, inspection_failed: 0, baseline_evicted: 0, observation_gaps: 0 }

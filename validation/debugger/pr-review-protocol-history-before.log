@@ -1,0 +1,21 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.51s
+     Running tests/pr_review_protocol.rs (target/debug/deps/pr_review_protocol-a0a35d750fb3bab7)
+
+running 1 test
+
+thread 'rejected_metric_captures_cannot_evict_acknowledged_window_endpoints' (170) panicked at crates/statelessness-debug/tests/pr_review_protocol.rs:829:5:
+assertion `left == right` failed: rejected wire captures must not advance or evict host snapshot history
+  left: [6, 7]
+ right: [1, 2]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... FAILED
+
+failures:
+
+failures:
+    rejected_metric_captures_cannot_evict_acknowledged_window_endpoints
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 10 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p statelessness-debug --test pr_review_protocol`

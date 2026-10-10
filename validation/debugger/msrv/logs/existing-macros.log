@@ -1,0 +1,18 @@
+PASS renamed imports, generics, structs/enums, output encode-only, cold offline packages
+PASS compile-fail duplicate_tag SM107
+PASS compile-fail unknown_field SM112
+PASS compile-fail duplicate_field_option SM115
+PASS compile-fail associated_item SM206
+PASS compile-fail missing_tag SM106
+PASS compile-fail unsupported_type TraceEncode
+PASS compile-fail conditional_method SM205
+PASS compile-fail unknown_model SM200
+PASS compile-fail unchecked_required SM211
+PASS compile-fail duplicate_id SM208
+PASS compile-fail duplicate_role SM210
+PASS compile-fail bad_receiver SM207
+PASS compile-fail domain_missing_variant non-exhaustive
+PASS compile-fail domain_missing_type SM301
+PASS compile-fail domain_no_assumptions SM306
+PASS compile-fail runtime_incompatible MACRO_API_V1
+Macro package and diagnostic qualification passed

@@ -1,0 +1,54 @@
+
+running 1 test
+test explicit_message_order_is_preserved ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 3 tests
+test tests::codec_failure_keeps_authorized_dispatch_and_single_actual_fact ... ok
+test tests::checker_property_and_output_limit_stops_retain_actual_result_without_dispatch ... ok
+test tests::detach_termination_preserves_completed_state_and_staged_output ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-source-archive/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running unittests examples/debug_composition.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_composition-c0b6092730f5547a)
+     Running unittests examples/debug_counter.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_counter-f1e94afff1a40d35)
+     Running unittests examples/debug_request.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_request-b12648f146f2b9ff)
+     Running unittests examples/debug_stdio.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/debug_stdio-585ad8080bfa19fc)
+     Running unittests examples/effect_overhead.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/effect_overhead-ef3585d33f2d80b5)
+     Running unittests examples/instrumentation_parity.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/instrumentation_parity-ffc933d7e2586db6)
+     Running unittests examples/live_host.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/live_host-184716f34eeccdd7)
+     Running unittests examples/measure_watches.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-source-archive/debug/examples/measure_watches-f031a39ea3723082)

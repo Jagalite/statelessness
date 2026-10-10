@@ -33,6 +33,8 @@ jobs:
           cargo clippy --locked --offline --workspace --all-targets -- -D warnings
           cargo doc --locked --offline --workspace --no-deps
           cargo run --locked --offline --example counter
+      - name: Verify debugger integration, feature-off builds, and source-bound evidence
+        run: python3 scripts/check-debugger.py --skip-benchmarks --evidence target/debugger-evidence.json
       - name: Verify starter in separate processes
         run: |
           cargo run --locked --offline --example application -- check

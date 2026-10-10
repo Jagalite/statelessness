@@ -1,0 +1,410 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.75s
+     Running unittests src/lib.rs (target/debug/deps/statelessness_debug-e445a1da697b4618)
+
+running 7 tests
+test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+test effects::drop_tests::completed_effect_drop_does_not_report_an_unnecessary_contended_hook ... ok
+test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+test effects::drop_tests::raw_attempt_drop_never_blocks_or_invents_termination ... ok
+test effects::drop_tests::rejected_snapshot_queries_preserve_revision_and_acknowledged_history ... ok
+test effects::drop_tests::raw_delivery_drop_never_blocks_or_invents_consumption ... ok
+test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/diagnostic.rs (target/debug/deps/diagnostic-77773ef9c26c2d5c)
+
+running 14 tests
+test disabled_probe_never_evaluates_closure_or_inspector ... ok
+test delivery_sampling_preserves_change_baseline ... ok
+test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+test threshold_crossing_has_hysteresis_and_cooldown ... ok
+test privacy_survives_text_jsonl_and_custom_sinks ... ok
+test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/diagnostic_controller_model.rs (target/debug/deps/diagnostic_controller_model-ce3056118acb5052)
+
+running 1 test
+test bounded_two_producer_subscription_interleavings_match_reference ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.60s
+
+     Running tests/diagnostic_selectors.rs (target/debug/deps/diagnostic_selectors-389fc2b9a98cb7ee)
+
+running 13 tests
+test invalid_selector_labels_and_aggregate_metadata_budget_do_not_change_revision ... ok
+test configuration_is_stale_safe_and_applied_per_producer_at_explicit_boundaries ... ok
+test combined_scope_is_conjunctive_and_context_is_not_implicitly_exported ... ok
+test context_byte_limits_reject_before_advancing_producer_boundary ... ok
+test every_declared_label_filters_match_mismatch_and_unknown_before_closure ... ok
+test producer_and_origin_selectors_are_independent_exact_filters ... ok
+test multiple_matching_scopes_share_closure_and_authorized_projection ... ok
+test scope_filters_preserve_field_redaction_in_all_sinks ... ok
+test scoped_configuration_cannot_expand_sink_projection_permissions ... ok
+test property_outcome_selection_does_not_treat_unknown_as_nonfailure ... ok
+test scope_selection_does_not_bypass_site_kind_or_severity_filters ... ok
+test selector_gap_resets_threshold_hysteresis_and_cooldown_as_unknown ... ok
+test selector_gaps_invalidate_change_baselines_without_evaluating_filtered_values ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/effect_ledger_model.rs (target/debug/deps/effect_ledger_model-f1ecec08dddc5cfe)
+
+running 1 test
+test exhaustive_independent_ledger_preserves_counts_and_physical_work ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/effects_metrics.rs (target/debug/deps/effects_metrics-f8f8d5948b6bf8a2)
+
+running 28 tests
+test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+test debugger_pause_marks_samples_without_subtracting_time ... ok
+test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+test classifier_fault_cannot_replace_completed_future_value ... ok
+test concurrent_consumer_can_win_publication_confirmation_race ... ok
+test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+test detail_eviction_does_not_evict_live_accounting ... ok
+test disabled_and_counters_only_do_not_read_clock ... ok
+test gauge_underflow_and_counter_reset_are_explicit ... ok
+test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+test host_baseline_does_not_upgrade_other_label_groups ... ok
+test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+test windows_epochs_schema_and_history_are_honest ... ok
+test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/inspect_derive.rs (target/debug/deps/inspect_derive-c12eeab442deb68c)
+
+running 11 tests
+test default_schema_names_distinguish_qualified_types_and_generics ... ok
+test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+test generated_bindings_do_not_shadow_caller_identifiers ... ok
+test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+test redacted_paths_never_invoke_or_require_an_inspector ... ok
+test named_fields_have_stable_ids_labels_version_and_source ... ok
+test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+test rust_cfg_is_respected ... ok
+test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+test unsized_generic_tail_uses_reference_inspection ... ok
+test variants_support_each_shape_and_structural_paths ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/inspection.rs (target/debug/deps/inspection-ef0501f6420ebb5b)
+
+running 10 tests
+test float_payload_bits_prevent_false_nan_equality ... ok
+test large_integers_keep_type_and_exact_decimal ... ok
+test handwritten_and_generated_inspectors_have_the_same_projection ... ok
+test maps_preserve_typed_keys_order_and_selection ... ok
+test huge_map_key_is_bounded_before_owned_key_capture ... ok
+test opaque_unavailable_truncated_and_schema_mismatch_never_equal ... ok
+test nested_path_is_structural_and_does_not_traverse_siblings ... ok
+test missing_map_keys_and_far_pages_have_explicit_work_bounds ... ok
+test utf8_bytes_depth_and_aggregate_budgets_are_honest ... ok
+test paging_allocates_and_evaluates_only_requested_values ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/live.rs (target/debug/deps/live-79221f22b383cdb8)
+
+running 23 tests
+test admission_backpressure_and_disconnect_return_owned_input_and_bound_queue ... ok
+test controller_property_stop_and_pause_correlation_are_explicit ... ok
+test counter_exhaustion_is_atomic_and_keeps_buffered_arrival_owned ... ok
+test bridge_and_controller_origins_continue_correlating_after_client_reconnect ... ok
+test default_observation_authority_cannot_escalate_on_reconnect ... ok
+test disconnect_preserves_inflight_result_under_every_detach_policy ... ok
+test coherent_midrun_attach_shares_one_checked_batch_and_exports_exact_suffix ... ok
+test duplicate_and_mismatched_tokens_do_not_consume_a_delivery ... ok
+test identity_changes_are_rejected_even_after_capture_freezes ... ok
+test metadata_loss_is_separate_from_exact_retention_and_effect_dispatch_facts ... ok
+test omitted_roundtrip_freezes_before_gap_even_if_before_state_matches ... ok
+test oversized_output_batch_has_capacity_bounded_diagnostic_work ... ok
+test permits_are_bound_to_their_controller_and_uncertain_work_is_not_retried ... ok
+test reconnect_retains_dispatch_ownership_and_invalidates_old_commands ... ok
+test pause_racing_with_delivery_or_dispatch_waits_for_a_complete_boundary ... ok
+test one_turn_is_exactly_one_delivered_input_including_rejection_and_ignore ... ok
+test reserved_limits_and_provenance_cannot_be_forged ... ok
+test recorder_owns_bounded_error_footer_even_for_external_stop ... ok
+test staged_effects_can_resume_or_precede_one_turn_without_duplicate_dispatch ... ok
+test oversized_outputs_and_host_failure_terminate_without_hidden_retry ... ok
+test property_failure_freezes_capture_without_stopping_host_or_rewriting_failure ... ok
+test sampled_checks_end_exact_capture_and_preserve_actual_host_transition ... ok
+test exhaustive_controller::all_finite_controller_interleavings_match_independent_model ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.84s
+
+     Running tests/oracle_lifecycle.rs (target/debug/deps/oracle_lifecycle-a532f922e2b57c9b)
+
+running 4 tests
+test missing_settlement_is_independently_detected_and_replayed ... ok
+test recording_inspection_and_breakpoints_advance_each_machine_exactly_once ... ok
+test resource_ownership_faults_fail_even_when_application_checks_pass ... ok
+test evicted_composite_checkpoints_preserve_pending_and_completed_branch_history ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-305e6ed5268b86be)
+
+running 15 tests
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pr_review_live_effects.rs (target/debug/deps/pr_review_live_effects-4bf25111a9a2c74a)
+
+running 20 tests
+test constructor_clock_failure_is_visible_without_inventing_an_epoch_start ... ok
+test current_metrics_do_not_reuse_a_timestamp_from_before_new_observations ... ok
+test abandoned_or_resolved_attempt_cannot_be_scheduled_as_a_retry ... ok
+test diagnostic_encoder_failure_preserves_actual_state_requested_outputs_and_dispatch ... ok
+test foreign_future_adapter_cannot_write_another_observers_accounting ... ok
+test health_overflow_during_merge_is_atomic ... ok
+test integrated_actual_host_pause_cancellation_late_delivery_and_replay ... ok
+test dropping_request_before_admission_keeps_the_missing_decision_visible ... ok
+test invalid_snapshot_clock_does_not_erase_the_previous_valid_watermark ... ok
+test last_raw_attempt_handle_loss_marks_running_evidence_incomplete ... ok
+test last_raw_delivery_handle_loss_marks_unobserved_publication_incomplete ... ok
+test merging_disjoint_producers_preserves_loss_health ... ok
+test rejected_admission_is_not_censored_pending_work ... ok
+test safe_point_waits_for_every_reserved_output_across_disconnect ... ok
+test rejected_publication_and_finished_attempt_drops_do_not_invent_abandonment ... ok
+test retry_scheduled_during_pause_never_enters_production_histograms ... ok
+test pause_ack_with_staged_outputs_requires_new_authority_before_dispatch ... ok
+test concurrently_dropped_raw_clones_report_one_missing_endpoint ... ok
+test snapshot_timestamp_never_predates_a_concurrently_included_measurement ... ok
+test publication_commit_and_consumer_race_counts_boundaries_once ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/pr_review_protocol.rs (target/debug/deps/pr_review_protocol-a0a35d750fb3bab7)
+
+running 11 tests
+test exact_value_permission_cannot_export_raw_trace ... ok
+test discovery_is_read_only_and_reconnect_cannot_resurrect_cached_mutation ... ok
+test evicted_candidate_and_snapshot_handles_do_not_alias_replacements ... ok
+test fatal_frame_after_committed_turn_disconnects_without_rollback_or_extra_delivery ... ok
+test exposed_probe_sink_redacts_payload_and_never_drains_other_sink ... ok
+test every_truncated_prefix_and_oversize_header_closes_without_delivery ... ok
+test rejected_new_metric_capture_preserves_last_acknowledged_handle ... ok
+test rejected_metric_window_preserves_last_acknowledged_handle ... ok
+test first_failure_identity_survives_check_page_truncation_without_message_leak ... ok
+test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... ok
+test minimum_wire_limits_keep_mutation_acks_and_retry_identity ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pr_review_sessions.rs (target/debug/deps/pr_review_sessions-b89038213a40b1b3)
+
+running 12 tests
+test invalid_minimization_attempt_budget_and_target_do_not_execute_model ... ok
+test legacy_minimization_rejects_recorded_strict_policy_without_execution ... ok
+test initial_failure_minimization_needs_no_transition_budget ... ok
+test explicit_policy_can_shrink_without_leaving_the_recorded_domain ... ok
+test cancellation_raised_by_policy_prevents_candidate_delivery ... ok
+test minimization_admission_has_finite_enumeration_work ... ok
+test mismatched_ambiguous_and_incomplete_policy_provenance_is_rejected ... ok
+test nonstatic_non_debug_non_send_values_remain_source_compatible ... ok
+test simultaneous_property_capture_and_frontend_failures_preserve_actual_and_prefix ... ok
+test minimization_preserves_recorded_enumerated_environment ... ok
+test unrestricted_and_legacy_traces_retain_explicit_generate_causality ... ok
+test verified_fork_and_parent_binding_remain_independent ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/protocol.rs (target/debug/deps/protocol-3bc9a7640f7febaf)
+
+running 30 tests
+test events_are_bounded_and_loss_survives_saturated_queue ... ok
+test duplicate_request_delivers_once_conflicts_reject_and_retired_ids_do_not_retry ... ok
+test diagnostics_configuration_does_not_change_exact_trace_bytes ... ok
+test partial_oversize_invalid_utf8_escape_and_unknown_commands_reject ... ok
+test metric_pages_bind_to_immutable_snapshot_and_metric_revision_is_separate ... ok
+test oversized_probe_payload_is_not_consumed_and_summary_fits_smallest_frame ... ok
+test bounded_parser_corpus_is_panic_free_and_roundtrips_every_accepted_record ... ok
+test framed_server_is_linked_to_model_and_exposes_explicit_disconnect ... ok
+test queued_response_write_failure_does_not_rerun_or_rollback_delivery ... ok
+test reconnect_invalidates_epochs_handles_and_never_grants_authority ... ok
+test probe_profile_stale_unknown_denied_and_busy_paths_do_not_mutate_capture ... ok
+test rejected_watch_stale_schema_and_unknown_path_leave_configuration_unchanged ... ok
+test raw_export_authority_is_independent_and_stale_handles_offsets_reject ... ok
+test probe_wire_roundtrip_and_framed_configuration_leave_workers_pending ... ok
+test runtime_watch_authority_is_separate_and_configuration_is_revisioned ... ok
+test runtime_probe_profiles_require_separate_authority_and_real_producer_acknowledgement ... ok
+test stale_version_epoch_unauthorized_and_malformed_input_never_deliver ... ok
+test snapshot_and_candidate_handles_are_revision_bound ... ok
+test response_and_candidate_caps_reject_without_excess_or_hidden_delivery ... ok
+test structured_inspection_preserves_large_integers_and_only_one_turn_check_runs ... ok
+test telemetry_queries_need_explicit_adapter_and_never_grant_model_authority ... ok
+test watch_admission_ack_cannot_fail_after_mutation_when_schema_metadata_is_large ... ok
+test telemetry_query_wire_roundtrip_and_missing_history_remain_explicit ... ok
+test watches_observe_actual_turns_and_do_not_change_exact_model_state ... ok
+test wire_roundtrip_preserves_128_bit_keys_and_terminal_escaping ... ok
+test recreating_same_display_id_cannot_accept_old_incarnation_commands ... ok
+test lifecycle_timeline_and_histogram_metadata_remain_host_measured ... ok
+test bounded_raw_export_reconstructs_and_replays_exact_failure_across_chunks ... ok
+test maximum_probe_catalog_and_producer_status_can_be_paged_under_small_frame ... ok
+test repeated_interrupted_reads_do_not_recurse_and_limits_validate_before_work ... ok
+
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/review_debugger.rs (target/debug/deps/review_debugger-6f89afae4f146fa3)
+
+running 7 tests
+test candidate_revalidation_respects_session_work_budget ... ok
+test cancel_preserves_terminal_property_failure ... ok
+test diagnostic_inspection_failure_invalidates_threshold_crossing_baseline ... ok
+test diagnostic_permission_entries_consume_configuration_budget ... ok
+test simulation_provenance_cannot_be_shadowed_by_user_config ... ok
+test diagnostic_gap_invalidates_threshold_crossing_baseline ... ok
+test minimization_honors_cancellation_raised_during_verification ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/session.rs (target/debug/deps/session-9f9e275e1227d82d)
+
+running 14 tests
+test bounded_continue_reports_budget_not_success ... ok
+test admission_stale_invalid_payload_and_candidates_do_not_deliver ... ok
+test admission_and_pre_breakpoint_panics_poison_the_controller ... ok
+test checker_error_retains_actual_state_and_is_not_property_failure ... ok
+test candidate_tokens_do_not_cross_sessions_with_identical_display_ids ... ok
+test initial_failure_is_sequence_zero ... ok
+test codec_debug_and_thread_bounds_are_optional ... ok
+test history_eviction_is_visible_and_replayable ... ok
+test observer_panic_leaves_controlled_session_ended ... ok
+test observer_error_cannot_roll_back_or_hide_property_failure ... ok
+test lifecycle_failure_is_exact_and_cannot_continue ... ok
+test post_breakpoint_observes_completed_turn ... ok
+test pre_breakpoint_stops_before_delivery_and_bypasses_exact_pending_once ... ok
+test rejected_inputs_are_deliveries_in_explicit_injection_mode ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/watches.rs (target/debug/deps/watches-03ef5110eba847bf)
+
+running 16 tests
+test admission_authorization_redaction_and_unknown_paths_are_checked ... ok
+test count_byte_baseline_and_failure_budgets_are_independent ... ok
+test committed_boundary_watch_cannot_invent_internal_reverted_changes ... ok
+test disabled_and_static_filtered_paths_do_not_read_schema_or_payload ... ok
+test explicit_snapshot_returns_type_and_does_not_replace_change_baseline ... ok
+test exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on ... ok
+test failure_annotation_is_bounded_and_cannot_hide_an_inspector_error ... ok
+test lazy_post_turn_marker_skips_disabled_and_full_payloads ... ok
+test live_identity_and_machine_changes_never_claim_cross_machine_change ... ok
+test lifecycle_reenable_and_expiry_boundaries_are_explicit ... ok
+test matching_queries_are_shared_and_event_loss_does_not_reset_baselines ... ok
+test inspection_errors_are_diagnostic_and_preserve_metadata ... ok
+test missing_observations_and_expired_baselines_start_unknown ... ok
+test sampled_evaluation_and_delivery_loss_have_different_meanings ... ok
+test schema_changes_pause_before_selected_value_access ... ok
+test boundary_reconfiguration_cannot_change_an_in_progress_generation ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/workbench.rs (target/debug/deps/workbench-3af60777bf93bd75)
+
+running 5 tests
+test viewing_is_unverified_and_outputs_are_encoded_without_decoder ... ok
+test build_comparison_is_explicit_and_reports_first_divergence ... ok
+test minimization_starts_from_saved_midrun_checkpoint ... ok
+test branch_is_independent_verified_and_preserves_parent ... ok
+test sidecar_and_exact_continuation_mismatches_are_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/debug_composition.rs (target/debug/examples/debug_composition-c0b6092730f5547a)
+
+running 1 test
+test explicit_message_order_is_preserved ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/debug_counter.rs (target/debug/examples/debug_counter-f1e94afff1a40d35)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/debug_request.rs (target/debug/examples/debug_request-b12648f146f2b9ff)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/debug_stdio.rs (target/debug/examples/debug_stdio-585ad8080bfa19fc)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/effect_overhead.rs (target/debug/examples/effect_overhead-ef3585d33f2d80b5)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/instrumentation_parity.rs (target/debug/examples/instrumentation_parity-ffc933d7e2586db6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/live_host.rs (target/debug/examples/live_host-184716f34eeccdd7)
+
+running 3 tests
+test tests::codec_failure_keeps_authorized_dispatch_and_single_actual_fact ... ok
+test tests::detach_termination_preserves_completed_state_and_staged_output ... ok
+test tests::checker_property_and_output_limit_stops_retain_actual_result_without_dispatch ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/measure_watches.rs (target/debug/examples/measure_watches-f031a39ea3723082)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
