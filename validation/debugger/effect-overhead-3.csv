@@ -1,0 +1,7 @@
+scenario,iterations,ns_per_effect,effects_per_second,allocations,reallocations,allocated_bytes,clock_reads,concurrency,unfinished,aggregate_bytes,detail_bytes,detail_losses
+compiled_out,20000,1.1,920725532,0,0,0,0,1,0,574,0,0
+runtime_disabled,20000,329.6,3033697,60000,0,10080000,0,1,0,574,0,0
+counters_only,20000,663.5,1507092,60000,0,10080000,0,1,0,2006,0,0
+timings_only,20000,1385.1,721980,60000,0,10080000,180000,1,0,9002,0,0
+full_detail,20000,62135.3,16094,100000,380010,245600384,180000,1,0,9002,8388600,16188
+saturated_detail,20000,2301.3,434540,100000,340000,205600000,180000,1,0,9002,4016,59999

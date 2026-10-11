@@ -1,0 +1,12 @@
+Stateless bounded request fixture; release build recommended; 20000 iterations/sample; 7 samples
+Build: source-fnv1a64:9cf951ff54a6d6bd:fixed
+direct transition: median 59.2 ns/op; sample range 57.2..62.2 ns/op
+transition + all checks: median 110.5 ns/op; sample range 102.3..307.2 ns/op
+3-transition trace: 664 bytes (includes header, checks, and exact snapshots)
+record 3 transitions: median 1304.1 ns/op; sample range 1267.0..2277.7 ns/op
+encode trace: median 882.5 ns/op; sample range 876.3..954.2 ns/op
+exact replay 3 transitions: median 679.5 ns/op; sample range 635.1..739.9 ns/op
+These measurements characterize only this small Rust fixture, not production or foreign-runtime overhead.
+   Compiling statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+    Finished `bench` profile [optimized] target(s) in 1.14s
+     Running benches/engine.rs (target/release/deps/engine-1b2e54f5666a582d)

@@ -1,0 +1,8 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-rust-1.90/debug/jobs replay /workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/final-qualification/broader/jobs.sttrace`
+
+thread 'main' panicked at crates/macro-qualification/src/bin/jobs.rs:29:13:
+assertion `left == right` failed
+  left: Incompatible { reason: "model, property, codec, or build identity differs" }
+ right: Exact
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

@@ -1,0 +1,6 @@
+initial checks=[Check { id: "ready_requires_active", status: Passed }, Check { id: "bounded_pending", status: Passed }] differences=ReplayDifferences { disposition: false, outputs: false, state: false, checks: false }
+sequence=1 replay-produced outputs=[Request(1)] all_differences=ReplayDifferences { disposition: false, outputs: false, state: false, checks: false } verified_prefix=1
+sequence=2 replay-produced outputs=[] all_differences=ReplayDifferences { disposition: false, outputs: false, state: false, checks: false } verified_prefix=2
+sequence=3 replay-produced outputs=[Release(1)] all_differences=ReplayDifferences { disposition: false, outputs: true, state: true, checks: true } verified_prefix=2
+ReplayReport { outcome: Diverged { step: Some(3), field: "outputs" }, steps_verified: 2, failure_reproduced: false, build_matches: false }
+Comparison divergence is not a universal correctness proof

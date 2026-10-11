@@ -1,0 +1,21 @@
+Commands: state | inputs | step Start | step Cancel | step Complete N | export NEW_PATH | quit
+sequence=0 revision=0 phase=Ready state=State { generation: 0, active: false, ready: false, pending: [] }
+initial_checks=[Check { id: "ready_requires_active", status: Passed }, Check { id: "bounded_pending", status: Passed }]
+stop=None diagnostics=[]
+sequence=0 revision=0 phase=Ready state=State { generation: 0, active: false, ready: false, pending: [] }
+initial_checks=[Check { id: "ready_requires_active", status: Passed }, Check { id: "bounded_pending", status: Passed }]
+stop=None diagnostics=[]
+Start
+complete=true
+sequence=1 revision=1 phase=Paused state=State { generation: 1, active: true, ready: false, pending: [1] }
+input=Start disposition=Accepted outputs=[Request(1)] checks=[Check { id: "ready_requires_active", status: Passed }, Check { id: "bounded_pending", status: Passed }, Check { id: "stale_completion_is_cleanup_only", status: Passed }]
+stop=None diagnostics=[]
+sequence=2 revision=2 phase=Paused state=State { generation: 1, active: false, ready: false, pending: [1] }
+input=Cancel disposition=Accepted outputs=[] checks=[Check { id: "ready_requires_active", status: Passed }, Check { id: "bounded_pending", status: Passed }, Check { id: "stale_completion_is_cleanup_only", status: Passed }]
+stop=None diagnostics=[]
+sequence=3 revision=3 phase=Ended state=State { generation: 1, active: false, ready: true, pending: [] }
+input=Complete(1) disposition=Accepted outputs=[Publish(1)] checks=[Check { id: "ready_requires_active", status: Failed("retired request became ready") }, Check { id: "bounded_pending", status: Passed }, Check { id: "stale_completion_is_cleanup_only", status: Failed("stale completion published instead of releasing") }]
+stop=Some(PropertyFailure) diagnostics=[]
+sequence=3 revision=3 phase=Ended state=State { generation: 1, active: false, ready: true, pending: [] }
+input=Complete(1) disposition=Accepted outputs=[Publish(1)] checks=[Check { id: "ready_requires_active", status: Failed("retired request became ready") }, Check { id: "bounded_pending", status: Passed }, Check { id: "stale_completion_is_cleanup_only", status: Failed("stale completion published instead of releasing") }]
+stop=Some(PropertyFailure) diagnostics=[]

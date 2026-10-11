@@ -1,0 +1,2 @@
+rustc 1.95.0 (59807616e 2026-04-14)
+Linux d580bc8a13cc 6.18.44 #1 SMP Sat Sep 26 20:02:31 UTC 2026 x86_64 GNU/Linux

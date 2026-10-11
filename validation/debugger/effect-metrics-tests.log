@@ -1,0 +1,57 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.19s
+     Running unittests src/lib.rs (target/debug/deps/statelessness_debug-e445a1da697b4618)
+
+running 3 tests
+test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/effect_ledger_model.rs (target/debug/deps/effect_ledger_model-f1ecec08dddc5cfe)
+
+running 1 test
+effect ledger: 390 states, 6024 edges
+test exhaustive_independent_ledger_preserves_counts_and_physical_work ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/effects_metrics.rs (target/debug/deps/effects_metrics-f8f8d5948b6bf8a2)
+
+running 28 tests
+
+thread 'classifier_fault_cannot_replace_completed_future_value' (550) panicked at crates/statelessness-debug/tests/effects_metrics.rs:736:9:
+synthetic classifier fault
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+test debugger_pause_marks_samples_without_subtracting_time ... ok
+test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+test disabled_and_counters_only_do_not_read_clock ... ok
+test classifier_fault_cannot_replace_completed_future_value ... ok
+test detail_eviction_does_not_evict_live_accounting ... ok
+test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+test concurrent_consumer_can_win_publication_confirmation_race ... ok
+test gauge_underflow_and_counter_reset_are_explicit ... ok
+test host_baseline_does_not_upgrade_other_label_groups ... ok
+test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+test windows_epochs_schema_and_history_are_honest ... ok
+test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

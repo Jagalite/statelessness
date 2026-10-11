@@ -26,7 +26,7 @@ fn shape(group: Option<&TokenTree>) -> Result<Shape> {
         let mut adapter = None;
         let mut seen = std::collections::BTreeSet::new();
         for (a, v) in attrs {
-            if ["doc", "cfg", "cfg_attr"].contains(&a.as_str()) {
+            if ["doc", "cfg", "cfg_attr", "inspect"].contains(&a.as_str()) {
                 continue;
             }
             if a != "trace" {
@@ -226,7 +226,7 @@ pub fn expand(input: TokenStream, decoding: bool) -> Result<String> {
             let attrs = attributes(&v, &mut i)?;
             let mut tag = None;
             for (a, v) in attrs {
-                if ["doc", "cfg", "cfg_attr"].contains(&a.as_str()) {
+                if ["doc", "cfg", "cfg_attr", "inspect"].contains(&a.as_str()) {
                     continue;
                 }
                 if a != "trace" {

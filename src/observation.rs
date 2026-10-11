@@ -2,9 +2,131 @@
 //! transitions or checks. Text is diagnostic output, not an exact replay artifact;
 //! use [`crate::monitor::Recorder`] alongside it for durable replay evidence.
 use crate::trace::RunConfig;
-use crate::{Check, CheckStatus, EncodeBuffer, Model, ModelCodec, ModelMetadata, TransitionRef};
+use crate::{
+    Check, CheckStatus, EncodeBuffer, Model, ModelCodec, ModelMetadata, Transition, TransitionRef,
+};
 use std::io::{self, Write};
 use std::num::NonZeroU64;
+
+/// A complete initial check batch produced by the engine. Its private fields
+/// bind the checks to the model and checkpoint that were actually checked.
+/// This is evidence of checking, not proof that the checks passed.
+///
+/// Check collections cannot be substituted after checking:
+/// ```compile_fail
+/// use stateless::{Model, observation::CheckedInitial};
+/// fn replace<M: Model>(checked: &mut CheckedInitial<'_, M>) {
+///     checked.checks.clear();
+/// }
+/// ```
+pub struct CheckedInitial<'a, M: Model> {
+    pub(crate) model: &'a M,
+    pub(crate) state: &'a M::State,
+    pub(crate) checks: Vec<Check>,
+}
+
+impl<'a, M: Model> CheckedInitial<'a, M> {
+    pub fn model(&self) -> &'a M {
+        self.model
+    }
+    pub fn state(&self) -> &'a M::State {
+        self.state
+    }
+    pub fn checks(&self) -> &[Check] {
+        &self.checks
+    }
+    pub fn state_check_count(&self) -> usize {
+        self.checks.len()
+    }
+    pub fn into_checks(self) -> Vec<Check> {
+        self.checks
+    }
+}
+
+/// A sealed, complete check batch for an already executed transition. Only the
+/// engine's checking path can construct it; diagnostic callers cannot replace
+/// its checks, context, sequence, or coverage before exact recording.
+///
+/// Borrowed values must obey Model's determinism contract. Interior mutation of
+/// a checked value is not an independent snapshot or valid recording evidence.
+///
+/// The context and coverage cannot be changed to certify a different turn:
+/// ```compile_fail
+/// use stateless::{Model, observation::CheckedTurn};
+/// fn replace<M: Model>(checked: &mut CheckedTurn<'_, M>) {
+///     checked.full_checking = true;
+///     checked.sequence = 1;
+/// }
+/// ```
+pub struct CheckedTurn<'a, M: Model> {
+    pub(crate) model: &'a M,
+    pub(crate) before: &'a M::State,
+    pub(crate) input: &'a M::Input,
+    pub(crate) transition: &'a Transition<M::State, M::Output>,
+    pub(crate) sequence: u64,
+    pub(crate) checks: Vec<Check>,
+    pub(crate) state_check_count: usize,
+    pub(crate) full_checking: bool,
+}
+
+impl<'a, M: Model> CheckedTurn<'a, M> {
+    pub fn model(&self) -> &'a M {
+        self.model
+    }
+    pub fn before(&self) -> &'a M::State {
+        self.before
+    }
+    pub fn input(&self) -> &'a M::Input {
+        self.input
+    }
+    pub fn transition(&self) -> &'a Transition<M::State, M::Output> {
+        self.transition
+    }
+    pub fn sequence(&self) -> u64 {
+        self.sequence
+    }
+    pub fn checks(&self) -> &[Check] {
+        &self.checks
+    }
+    pub fn state_check_count(&self) -> usize {
+        self.state_check_count
+    }
+    pub fn full_checking(&self) -> bool {
+        self.full_checking
+    }
+    pub fn into_checks(self) -> Vec<Check> {
+        self.checks
+    }
+    pub fn observation(&self) -> TurnObservation<'_, M> {
+        TurnObservation {
+            sequence: self.sequence,
+            before: self.before,
+            input: self.input,
+            transition: self.transition.as_ref(),
+            checks: &self.checks,
+            state_check_count: self.state_check_count,
+        }
+    }
+}
+
+/// Borrowed diagnostic view of one completed turn. Unlike CheckedTurn, a view
+/// is not authority to bypass checking in the exact recorder.
+pub struct TurnObservation<'a, M: Model> {
+    pub sequence: u64,
+    pub before: &'a M::State,
+    pub input: &'a M::Input,
+    pub transition: TransitionRef<'a, M::State, M::Output>,
+    pub checks: &'a [Check],
+    pub state_check_count: usize,
+}
+
+pub enum DebugObservation<'a, M: Model> {
+    Initial {
+        state: &'a M::State,
+        checks: &'a [Check],
+    },
+    Turn(TurnObservation<'a, M>),
+}
 
 /// Increasing verbosity. Rejected/ignored inputs are ordinary debug events;
 /// they are not automatically warnings or property failures.

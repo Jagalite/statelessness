@@ -1,0 +1,11 @@
+
+running 3 tests
+test tests::restored_payloads_reject_invalid_values_and_trailing_bytes ... ok
+test tests::application_regression ... ok
+test tests::regression_gate_rejects_bug_and_incomplete_search ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling statelessness v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.18s
+     Running unittests examples/application.rs (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-inputs/target-rust-1.90/debug/examples/application-68c3b6cdc795a543)

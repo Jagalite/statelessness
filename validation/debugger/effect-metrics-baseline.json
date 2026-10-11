@@ -1,0 +1,105 @@
+{
+  "qualified_at_utc": "2026-10-10T18:09:58.278895+00:00",
+  "base_git_head": "9d3b88eefe2115796f31a6b00906d1988d726d10",
+  "uncommitted_source_qualification": true,
+  "source_sha256": {
+    "crates/statelessness-debug/src/effects.rs": "c05c94923cd0042f7908e38827c2a256970da7383af7dc44ad66aa3f964f46d5",
+    "crates/statelessness-debug/src/metrics.rs": "117df9c3f46f2087f24ec2ca48513f6d3f6ec88ce74f00879510618d575576da",
+    "crates/statelessness-debug/tests/effects_metrics.rs": "8b4a0f23c60c17c47edbf52037e552d40f9ac9d3867c2e73980adb769447a9fb",
+    "crates/statelessness-debug/tests/effect_ledger_model.rs": "b98b4b8dd4f6762bdb73374c997fd4213a7d632ac25ff9783dbf166cac01afd6",
+    "crates/statelessness-debug/examples/effect_overhead.rs": "07c67e3e70bacaa63dc500974db65992c81dabee6ac23642c44b3d664ce92fe2",
+    "docs/DEBUGGER_EFFECT_METRICS.md": "61ccd454ac7d7701a560c523d2aa9a6021f1918431202000d3b556c88f2bfacb",
+    "docs/Statelessness-Rust-Debugger-Design-v1.1.md": "4557a92bc9689da26accf22b651cf0ca70f3e508242296c6f99c820a8dad8877",
+    "crates/statelessness-debug/Cargo.toml": "8283ac888e2b3250b93ae266b40c537767c491aa369c46cf433519eac1951c53",
+    "Cargo.toml": "d8a6ea4d24abb226c1c178efbf7b9c0a00907d371c6181baa2e403c85ce58c5c",
+    "Cargo.lock": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2"
+  },
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+  "profile": "release",
+  "load": {
+    "kind": "closed-loop self-paced",
+    "offered_operations": 20000,
+    "completed_operations": 20000,
+    "concurrency": 1,
+    "unfinished": 0,
+    "warmup_operations": 1,
+    "repetitions": 3,
+    "sleep_suspend": "not induced; platform Instant suspend policy not qualified",
+    "exporter": "none"
+  },
+  "commands": [
+    "cargo test -p statelessness-debug --test effects_metrics --test effect_ledger_model --lib --offline -- --nocapture",
+    "cargo clippy -p statelessness-debug --test effects_metrics --test effect_ledger_model --example effect_overhead --offline -- -D warnings",
+    "cargo run -p statelessness-debug --example effect_overhead --release --offline -- 20000"
+  ],
+  "results": {
+    "focused_tests_passed": 28,
+    "destructor_unit_tests_passed": 3,
+    "independent_ledger_tests_passed": 1,
+    "independent_ledger_states": 390,
+    "independent_ledger_edges": 6024,
+    "clippy": "passed"
+  },
+  "benchmark_summary": {
+    "compiled_out": {
+      "median_ns_per_effect": 1.1,
+      "min_ns_per_effect": 1.1,
+      "max_ns_per_effect": 1.1,
+      "allocations_per_effect": 0.0,
+      "clock_reads_per_effect": 0.0
+    },
+    "runtime_disabled": {
+      "median_ns_per_effect": 329.6,
+      "min_ns_per_effect": 324.4,
+      "max_ns_per_effect": 348.7,
+      "allocations_per_effect": 3.0,
+      "clock_reads_per_effect": 0.0
+    },
+    "counters_only": {
+      "median_ns_per_effect": 663.5,
+      "min_ns_per_effect": 649.2,
+      "max_ns_per_effect": 704.1,
+      "allocations_per_effect": 3.0,
+      "clock_reads_per_effect": 0.0
+    },
+    "timings_only": {
+      "median_ns_per_effect": 1418.2,
+      "min_ns_per_effect": 1385.1,
+      "max_ns_per_effect": 1689.9,
+      "allocations_per_effect": 3.0,
+      "clock_reads_per_effect": 9.0
+    },
+    "full_detail": {
+      "median_ns_per_effect": 62135.3,
+      "min_ns_per_effect": 62004.6,
+      "max_ns_per_effect": 66079.1,
+      "allocations_per_effect": 5.0,
+      "clock_reads_per_effect": 9.0
+    },
+    "saturated_detail": {
+      "median_ns_per_effect": 2301.3,
+      "min_ns_per_effect": 2191.6,
+      "max_ns_per_effect": 2498.5,
+      "allocations_per_effect": 5.0,
+      "clock_reads_per_effect": 9.0
+    }
+  },
+  "limits": [
+    "No production SLA/CPU or open-loop queue growth claim",
+    "Full-detail registry scans are linear and substantially costlier than metric-only",
+    "Runtime-disabled handle allocation remains measured, not zero",
+    "Third-party metrics/tracing/OpenTelemetry exporters unqualified",
+    "Only sequential retries qualified; no additive hedged critical-path claim"
+  ],
+  "artifacts": {
+    "validation/debugger/effect-metrics-baseline.json": "f76ba4ad01ebd0c15cf7c2f58aa5208914fec52dcbd26daa5786395f2ed101dd",
+    "validation/debugger/effect-metrics-clippy.log": "19b45427b9f06adc611fec13b92d324098011f61d4eb189cf8ae9186953e007c",
+    "validation/debugger/effect-metrics-environment.txt": "ed077be0759e0d74175bfd882940abd7509cc6658845dc5818acdb1250ff8a9f",
+    "validation/debugger/effect-metrics-tests.log": "dbf2c7e045aba7ce7f2dada8b59bf8622724ed39db7cf51dc8b98cf49a1ea8b6",
+    "validation/debugger/effect-overhead-1.csv": "d99766d281b3e50249593cf01f500693ff78c3af59c6003b462f0645e63d1542",
+    "validation/debugger/effect-overhead-2.csv": "eb93d26cd362a65ba2acc2c4e1efd0b073d4f7071908f1202d943b1e99d40821",
+    "validation/debugger/effect-overhead-3.csv": "3510ddf6a96947e98d28e91aecbc2ae040722415ec1003ab1debe970231e5ce5"
+  }
+}

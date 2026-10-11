@@ -1,0 +1,1 @@
+head=3 state=State { left: 5, right: 3, pending: [Right(2)] }; one message remains pending

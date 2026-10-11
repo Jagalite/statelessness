@@ -1,6 +1,7 @@
 //! Checking, exact recording, and replay. No real effects are executed here.
 
 use crate::model::*;
+use crate::observation::{CheckedInitial, CheckedTurn, TurnObservation};
 use crate::trace::{ReadLimits, RunConfig, Termination, Trace, TraceStep};
 use std::num::NonZeroU64;
 
@@ -19,6 +20,56 @@ impl Default for CheckPolicy {
             transition_checks: true,
         }
     }
+}
+
+/// Check a supplied initial state or coherent checkpoint exactly once. The
+/// sealed result can initialize an exact recorder without checking it again.
+pub fn check_initial<'a, M: Model>(
+    model: &'a M,
+    state: &'a M::State,
+) -> Result<CheckedInitial<'a, M>, ModelError> {
+    let mut checks = Vec::new();
+    model
+        .check_state_into(state, &mut CheckSink::new(&mut checks))
+        .map_err(|e| stage("initial check", e))?;
+    Ok(CheckedInitial {
+        model,
+        state,
+        checks,
+    })
+}
+
+/// Check an already executed turn once and bind its complete result to the
+/// borrowed transition. A checker error leaves the caller's actual transition
+/// intact and never manufactures a token from a partial batch.
+pub fn check_turn<'a, M: Model>(
+    model: &'a M,
+    before: &'a M::State,
+    input: &'a M::Input,
+    transition: &'a Transition<M::State, M::Output>,
+    sequence: u64,
+    policy: CheckPolicy,
+) -> Result<CheckedTurn<'a, M>, ModelError> {
+    let mut checks = Vec::new();
+    let state_check_count = check_observed_count_into(
+        model,
+        before,
+        input,
+        transition,
+        sequence,
+        policy,
+        &mut checks,
+    )?;
+    Ok(CheckedTurn {
+        model,
+        before,
+        input,
+        transition,
+        sequence,
+        checks,
+        state_check_count,
+        full_checking: policy.state_every.get() == 1 && policy.transition_checks,
+    })
 }
 
 /// Check a transition already performed by an application, without executing it
@@ -58,6 +109,19 @@ pub fn check_observed_into<M: Model>(
     policy: CheckPolicy,
     checks: &mut Vec<Check>,
 ) -> Result<(), ModelError> {
+    check_observed_count_into(model, before, input, transition, sequence, policy, checks)
+        .map(|_| ())
+}
+
+pub(crate) fn check_observed_count_into<M: Model>(
+    model: &M,
+    before: &M::State,
+    input: &M::Input,
+    transition: &Transition<M::State, M::Output>,
+    sequence: u64,
+    policy: CheckPolicy,
+    checks: &mut Vec<Check>,
+) -> Result<usize, ModelError> {
     checks.clear();
     if sequence == 0 {
         return Err(ModelError::new("transition sequence must be positive"));
@@ -73,6 +137,7 @@ pub fn check_observed_into<M: Model>(
                 "periodic checking policy",
             ));
         }
+        let state_check_count = checks.len();
         if policy.transition_checks {
             model
                 .check_transition_into(
@@ -88,7 +153,7 @@ pub fn check_observed_into<M: Model>(
                 "disabled by policy",
             ));
         }
-        Ok(())
+        Ok(state_check_count)
     })();
     if result.is_err() {
         checks.clear();
@@ -354,6 +419,163 @@ pub fn replay_with_observer<M: ModelCodec>(
     options: ReplayOptions,
     mut observer: impl FnMut(usize, &ReplayReport),
 ) -> Result<ReplayReport, ModelError> {
+    replay_with_observations(model, trace, options, |observation, report| {
+        if let ReplayObservation::Turn(turn) = observation {
+            observer(turn.actual.sequence as usize, report);
+        }
+        Ok(())
+    })
+    .map_err(|error| error.error)
+}
+
+/// All available differences at the first mismatching boundary. The primary
+/// ReplayOutcome field still follows disposition, outputs, state, checks order.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct ReplayDifferences {
+    pub disposition: bool,
+    pub outputs: bool,
+    pub state: bool,
+    pub checks: bool,
+}
+
+impl ReplayDifferences {
+    pub fn is_empty(self) -> bool {
+        !(self.disposition || self.outputs || self.state || self.checks)
+    }
+    pub fn primary(self) -> Option<&'static str> {
+        if self.disposition {
+            Some("disposition")
+        } else if self.outputs {
+            Some("outputs")
+        } else if self.state {
+            Some("state")
+        } else if self.checks {
+            Some("checks")
+        } else {
+            None
+        }
+    }
+}
+
+pub struct ReplayInitialObservation<'a, M: Model> {
+    pub state: &'a M::State,
+    pub checks: &'a [Check],
+    pub expected_state: &'a [u8],
+    pub actual_state: &'a [u8],
+    pub expected_checks: &'a [Check],
+    pub differences: ReplayDifferences,
+}
+
+pub struct ReplayTurnObservation<'a, M: Model> {
+    pub actual: TurnObservation<'a, M>,
+    pub expected: &'a TraceStep,
+    pub actual_input: &'a [u8],
+    pub actual_outputs: &'a [Vec<u8>],
+    pub actual_state: &'a [u8],
+    pub differences: ReplayDifferences,
+}
+
+/// Synchronous borrowed replay observations. Stored outputs remain encoded;
+/// actual typed outputs are explicitly the result of this replay execution.
+/// Error observations never assert a complete check batch unless one exists.
+pub enum ReplayObservation<'a, M: Model> {
+    Initial(ReplayInitialObservation<'a, M>),
+    Turn(ReplayTurnObservation<'a, M>),
+    Error {
+        sequence: u64,
+        actual: Option<&'a ReplayActual<M>>,
+        error: &'a ModelError,
+    },
+}
+
+/// Owned recovery evidence on an incomplete replay. No transition is repeated
+/// to obtain this value. None checks means checking never completed, not passed.
+pub enum ReplayActual<M: Model> {
+    Initial {
+        state: M::State,
+        checks: Option<Vec<Check>>,
+    },
+    Turn {
+        sequence: u64,
+        before: M::State,
+        input: M::Input,
+        transition: Transition<M::State, M::Output>,
+        checks: Option<Vec<Check>>,
+        state_check_count: Option<usize>,
+    },
+}
+
+/// A replay error retains the actual result when execution already produced it.
+/// An error-reporting observer's additional failure cannot mask the engine error.
+pub struct ReplayError<M: Model> {
+    pub error: ModelError,
+    pub observer_error: Option<ModelError>,
+    pub report: ReplayReport,
+    pub actual: Option<Box<ReplayActual<M>>>,
+}
+
+impl<M: Model> std::fmt::Debug for ReplayError<M> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ReplayError")
+            .field("error", &self.error)
+            .field("observer_error", &self.observer_error)
+            .field("report", &self.report)
+            .field("has_actual", &self.actual.is_some())
+            .finish()
+    }
+}
+impl<M: Model> std::fmt::Display for ReplayError<M> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.error.fmt(f)
+    }
+}
+impl<M: Model> std::error::Error for ReplayError<M> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.error)
+    }
+}
+
+/// Rich replay with sequence-zero, typed actual values, every encoded
+/// difference, and retained error results. Observations borrow engine storage
+/// and must be consumed before the callback returns. No Send/Sync/Debug bounds
+/// or historical output decoder are required.
+///
+/// Stops at the same first divergence as replay_with_observer. The callback
+/// sees the updated report after comparison; an observer error stops replay and
+/// retains that completed actual result without executing the next input.
+pub fn replay_with_observations<M: ModelCodec>(
+    model: &M,
+    trace: &Trace,
+    options: ReplayOptions,
+    observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
+) -> Result<ReplayReport, ReplayError<M>> {
+    replay_observations_impl(model, trace, options, None, observer)
+}
+
+/// Rich replay with finite format and allocation-work bounds for debugger use.
+/// The stored artifact is validated before decoding. Actual encoded observations
+/// share per-frame and aggregate byte/item budgets, including a divergent turn.
+/// Application reducers, checkers, decoders and legacy allocating codecs remain
+/// cooperative; use incremental codec methods to bound their encoding buffers.
+/// A callback may stop at initial/turn boundaries for cancellation or deadlines.
+/// Existing unbounded replay APIs retain their original compatibility behavior.
+pub fn replay_with_observations_bounded<M: ModelCodec>(
+    model: &M,
+    trace: &Trace,
+    options: ReplayOptions,
+    limits: &ReadLimits,
+    observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
+) -> Result<ReplayReport, ReplayError<M>> {
+    replay_observations_impl(model, trace, options, Some(limits), observer)
+}
+
+fn replay_observations_impl<M: ModelCodec>(
+    model: &M,
+    trace: &Trace,
+    options: ReplayOptions,
+    limits: Option<&ReadLimits>,
+    mut observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
+) -> Result<ReplayReport, ReplayError<M>> {
     let metadata = model.metadata();
     let mut report = ReplayReport {
         outcome: ReplayOutcome::Exact,
@@ -372,94 +594,364 @@ pub fn replay_with_observer<M: ModelCodec>(
         };
         return Ok(report);
     }
-    validate_recording(trace)?;
-    let mut state = model
-        .decode_state(&trace.initial_state)
-        .map_err(|e| stage("decode initial state", e))?;
-    let mut state_bytes = Vec::new();
-    let mut encoder = EncodeBuffer::new(&mut state_bytes, usize::MAX);
-    model.encode_state_into(&state, &mut encoder)?;
-    encoder.finish()?;
-    if state_bytes != trace.initial_state {
-        return Err(ModelError::new("initial state encoding is not canonical"));
+    if let Some(limits) = limits
+        && let Err(error) = trace.write_with_limits(std::io::sink(), limits)
+    {
+        return Err(replay_error(
+            stage(
+                "bounded replay artifact",
+                ModelError::new(error.to_string()),
+            ),
+            report,
+            None,
+            0,
+            &mut observer,
+        ));
     }
+    if let Err(error) = validate_recording(trace) {
+        return Err(replay_error(error, report, None, 0, &mut observer));
+    }
+    let blob_limit = limits.map_or(usize::MAX, replay_blob_limit);
+    let mut bounded_bytes = 0u64;
+    let mut bounded_items = 0usize;
+    let bounded_footer = crate::trace::FRAME_OVERHEAD + 9;
+    let mut state = match model.decode_state(&trace.initial_state) {
+        Ok(state) => state,
+        Err(error) => {
+            return Err(replay_error(
+                stage("decode initial state", error),
+                report,
+                None,
+                0,
+                &mut observer,
+            ));
+        }
+    };
+    let mut state_bytes = Vec::new();
     let mut checks = Vec::new();
-    model
-        .check_state_into(&state, &mut CheckSink::new(&mut checks))
-        .map_err(|e| stage("initial check", e))?;
-    report.failure_reproduced = same_failure(&trace.initial_checks, &checks);
-    if checks != trace.initial_checks {
-        report.outcome = ReplayOutcome::Diverged {
-            step: None,
-            field: "initial checks",
+    let mut initial_complete = false;
+    let initial_result = (|| {
+        let mut encoder = EncodeBuffer::new(&mut state_bytes, blob_limit);
+        model.encode_state_into(&state, &mut encoder)?;
+        encoder.finish()?;
+        if state_bytes != trace.initial_state {
+            return Err(ModelError::new("initial state encoding is not canonical"));
+        }
+        model
+            .check_state_into(&state, &mut CheckSink::new(&mut checks))
+            .map_err(|e| stage("initial check", e))?;
+        initial_complete = true;
+        if let Some(limits) = limits {
+            let size =
+                crate::trace::run_size(&metadata, &trace.config, &state_bytes, &checks, limits)
+                    .map_err(|e| ModelError::new(format!("bounded replay initial: {e}")))?;
+            bounded_bytes = crate::trace::FILE_HEADER_SIZE
+                .checked_add(size.bytes)
+                .ok_or_else(|| ModelError::new("bounded replay byte count overflow"))?;
+            if bounded_bytes
+                .checked_add(bounded_footer)
+                .is_none_or(|n| n > limits.max_total_bytes)
+            {
+                return Err(ModelError::new("bounded replay limit: total bytes"));
+            }
+            bounded_items = size.items;
+        }
+        report.failure_reproduced = same_failure(&trace.initial_checks, &checks);
+        if checks != trace.initial_checks {
+            report.outcome = ReplayOutcome::Diverged {
+                step: None,
+                field: "initial checks",
+            };
+        }
+        Ok(())
+    })();
+    if let Err(error) = initial_result {
+        let actual = ReplayActual::Initial {
+            state,
+            checks: initial_complete.then_some(checks),
         };
+        return Err(replay_error(error, report, Some(actual), 0, &mut observer));
+    }
+    let initial = ReplayInitialObservation {
+        state: &state,
+        checks: &checks,
+        expected_state: &trace.initial_state,
+        actual_state: &state_bytes,
+        expected_checks: &trace.initial_checks,
+        differences: ReplayDifferences {
+            checks: checks != trace.initial_checks,
+            ..ReplayDifferences::default()
+        },
+    };
+    if let Err(error) = observer(ReplayObservation::Initial(initial), &report) {
+        return Err(ReplayError {
+            error: stage("replay observer", error),
+            observer_error: None,
+            report,
+            actual: Some(Box::new(ReplayActual::Initial {
+                state,
+                checks: Some(checks),
+            })),
+        });
+    }
+    if !matches!(report.outcome, ReplayOutcome::Exact) {
         return Ok(report);
     }
     let mut input_bytes = Vec::new();
     let mut outputs: Vec<Vec<u8>> = Vec::new();
     for (index, expected) in trace.steps.iter().enumerate() {
-        let input = model
-            .decode_input(&expected.input)
-            .map_err(|e| stage("decode input", e))?;
-        let mut encoder = EncodeBuffer::new(&mut input_bytes, usize::MAX);
-        model.encode_input_into(&input, &mut encoder)?;
-        encoder.finish()?;
-        if input_bytes != expected.input {
-            return Err(ModelError::new(format!(
-                "input {} encoding is not canonical",
-                index + 1
-            )));
-        }
-        let actual = model
-            .step(&state, &input)
-            .map_err(|e| stage("transition", e))?;
-        check_observed_into(
-            model,
-            &state,
-            &input,
-            &actual,
-            index as u64 + 1,
-            CheckPolicy::default(),
-            &mut checks,
-        )?;
-        report.failure_reproduced |= same_failure(&expected.checks, &checks);
-        outputs.resize_with(actual.outputs.len(), Vec::new);
-        for (output, bytes) in actual.outputs.iter().zip(&mut outputs) {
-            let mut encoder = EncodeBuffer::new(bytes, usize::MAX);
-            model
-                .encode_output_into(output, &mut encoder)
-                .map_err(|e| stage("encode output", e))?;
+        let sequence = index as u64 + 1;
+        let prepared = (|| {
+            let input = model
+                .decode_input(&expected.input)
+                .map_err(|e| stage("decode input", e))?;
+            let mut encoder = EncodeBuffer::new(&mut input_bytes, blob_limit);
+            model.encode_input_into(&input, &mut encoder)?;
             encoder.finish()?;
-        }
-        let mut encoder = EncodeBuffer::new(&mut state_bytes, usize::MAX);
-        model
-            .encode_state_into(&actual.state, &mut encoder)
-            .map_err(|e| stage("encode state", e))?;
-        encoder.finish()?;
-        let mismatch = if actual.disposition != expected.disposition {
-            Some("disposition")
-        } else if outputs != expected.outputs {
-            Some("outputs")
-        } else if state_bytes != expected.post_state {
-            Some("state")
-        } else if checks != expected.checks {
-            Some("checks")
-        } else {
-            None
+            if input_bytes != expected.input {
+                return Err(ModelError::new(format!(
+                    "input {} encoding is not canonical",
+                    index + 1
+                )));
+            }
+            let actual = model
+                .step(&state, &input)
+                .map_err(|e| stage("transition", e))?;
+            Ok((input, actual))
+        })();
+        let (input, actual) = match prepared {
+            Ok(prepared) => prepared,
+            Err(error) => return Err(replay_error(error, report, None, sequence, &mut observer)),
         };
-        if let Some(field) = mismatch {
+        let mut state_check_count = None;
+        let compared = (|| {
+            state_check_count = Some(check_observed_count_into(
+                model,
+                &state,
+                &input,
+                &actual,
+                sequence,
+                CheckPolicy::default(),
+                &mut checks,
+            )?);
+            let mut remaining = if let Some(limits) = limits {
+                let (fixed, items) = replay_step_preflight(
+                    input_bytes.len(),
+                    &actual.disposition,
+                    actual.outputs.len(),
+                    &checks,
+                    limits,
+                )?;
+                bounded_items = bounded_items
+                    .checked_add(items)
+                    .filter(|n| *n <= limits.max_items)
+                    .ok_or_else(|| ModelError::new("bounded replay limit: aggregate items"))?;
+                let total_remaining = limits
+                    .max_total_bytes
+                    .checked_sub(bounded_bytes)
+                    .and_then(|n| n.checked_sub(bounded_footer))
+                    .and_then(|n| n.checked_sub(crate::trace::FRAME_OVERHEAD))
+                    .ok_or_else(|| ModelError::new("bounded replay limit: total bytes"))?;
+                let frame = limits
+                    .max_frame_bytes
+                    .min(u32::MAX as usize)
+                    .min(usize::try_from(total_remaining).unwrap_or(usize::MAX));
+                let remaining = frame
+                    .checked_sub(fixed)
+                    .ok_or_else(|| ModelError::new("bounded replay limit: frame bytes"))?;
+                bounded_bytes = bounded_bytes
+                    .checked_add(fixed as u64)
+                    .and_then(|n| n.checked_add(crate::trace::FRAME_OVERHEAD))
+                    .ok_or_else(|| ModelError::new("bounded replay byte count overflow"))?;
+                Some(remaining)
+            } else {
+                None
+            };
+            report.failure_reproduced |= same_failure(&expected.checks, &checks);
+            if limits.is_some() && actual.outputs.len() > outputs.len() {
+                outputs
+                    .try_reserve_exact(actual.outputs.len() - outputs.len())
+                    .map_err(|_| {
+                        ModelError::new("bounded replay output storage allocation failed")
+                    })?;
+            }
+            outputs.resize_with(actual.outputs.len(), Vec::new);
+            for (output, bytes) in actual.outputs.iter().zip(&mut outputs) {
+                let mut encoder =
+                    EncodeBuffer::new(bytes, blob_limit.min(remaining.unwrap_or(usize::MAX)));
+                model
+                    .encode_output_into(output, &mut encoder)
+                    .map_err(|e| stage("encode output", e))?;
+                encoder.finish()?;
+                if let Some(remaining) = &mut remaining {
+                    *remaining -= bytes.len();
+                    bounded_bytes += bytes.len() as u64;
+                }
+            }
+            let mut encoder = EncodeBuffer::new(
+                &mut state_bytes,
+                blob_limit.min(remaining.unwrap_or(usize::MAX)),
+            );
+            model
+                .encode_state_into(&actual.state, &mut encoder)
+                .map_err(|e| stage("encode state", e))?;
+            encoder.finish()?;
+            if limits.is_some() {
+                bounded_bytes += state_bytes.len() as u64;
+            }
+            Ok(ReplayDifferences {
+                disposition: actual.disposition != expected.disposition,
+                outputs: outputs != expected.outputs,
+                state: state_bytes != expected.post_state,
+                checks: checks != expected.checks,
+            })
+        })();
+        let differences = match compared {
+            Ok(differences) => differences,
+            Err(error) => {
+                let actual = ReplayActual::Turn {
+                    sequence,
+                    before: state,
+                    input,
+                    transition: actual,
+                    checks: state_check_count.map(|_| checks),
+                    state_check_count,
+                };
+                return Err(replay_error(
+                    error,
+                    report,
+                    Some(actual),
+                    sequence,
+                    &mut observer,
+                ));
+            }
+        };
+        if let Some(field) = differences.primary() {
             report.outcome = ReplayOutcome::Diverged {
                 step: Some(index + 1),
                 field,
             };
-            observer(index + 1, &report);
+        } else {
+            report.steps_verified += 1;
+        }
+        let observation = ReplayTurnObservation {
+            actual: TurnObservation {
+                sequence,
+                before: &state,
+                input: &input,
+                transition: actual.as_ref(),
+                checks: &checks,
+                state_check_count: state_check_count.expect("completed checks"),
+            },
+            expected,
+            actual_input: &input_bytes,
+            actual_outputs: &outputs,
+            actual_state: &state_bytes,
+            differences,
+        };
+        if let Err(error) = observer(ReplayObservation::Turn(observation), &report) {
+            return Err(ReplayError {
+                error: stage("replay observer", error),
+                observer_error: None,
+                report,
+                actual: Some(Box::new(ReplayActual::Turn {
+                    sequence,
+                    before: state,
+                    input,
+                    transition: actual,
+                    checks: Some(checks),
+                    state_check_count,
+                })),
+            });
+        }
+        if !differences.is_empty() {
             return Ok(report);
         }
-        report.steps_verified += 1;
-        observer(index + 1, &report);
         state = actual.state;
     }
     Ok(report)
+}
+
+fn replay_blob_limit(limits: &ReadLimits) -> usize {
+    limits
+        .max_blob_bytes
+        .min(u32::MAX as usize)
+        .min(limits.max_frame_bytes)
+        .min(usize::try_from(limits.max_total_bytes).unwrap_or(usize::MAX))
+}
+
+/// Fixed serialized step payload before output/state bodies. Borrowed checks
+/// and reason strings are validated before allocating encoded-output storage.
+fn replay_step_preflight(
+    input_bytes: usize,
+    disposition: &Disposition,
+    outputs: usize,
+    checks: &[Check],
+    limits: &ReadLimits,
+) -> Result<(usize, usize), ModelError> {
+    let error = |name| ModelError::new(format!("bounded replay limit: {name}"));
+    if outputs > limits.max_outputs_per_step.min(u32::MAX as usize) {
+        return Err(error("outputs per step"));
+    }
+    let batch = crate::trace::checked_batch_size(checks, limits)
+        .map_err(|e| ModelError::new(format!("bounded replay checks: {e}")))?;
+    let items = batch
+        .items
+        .checked_add(outputs)
+        .and_then(|n| n.checked_add(1))
+        .filter(|n| *n <= limits.max_items)
+        .ok_or_else(|| error("aggregate items"))?;
+    let reason = match disposition {
+        Disposition::Accepted => 0,
+        Disposition::Ignored(reason) | Disposition::Rejected(reason) => {
+            if reason.len() > limits.max_string_bytes.min(u32::MAX as usize) {
+                return Err(error("string bytes"));
+            }
+            reason
+                .len()
+                .checked_add(4)
+                .ok_or_else(|| error("frame bytes"))?
+        }
+    };
+    // sequence, input length, disposition tag, output count, state length,
+    // per-output lengths, and the complete check batch (including its count).
+    let fixed = 8usize + 4 + 1 + 4 + 4;
+    let fixed = fixed
+        .checked_add(input_bytes)
+        .and_then(|n| n.checked_add(reason))
+        .and_then(|n| outputs.checked_mul(4).and_then(|v| n.checked_add(v)))
+        .and_then(|n| {
+            usize::try_from(batch.bytes)
+                .ok()
+                .and_then(|v| n.checked_add(v))
+        })
+        .filter(|n| *n <= limits.max_frame_bytes.min(u32::MAX as usize))
+        .ok_or_else(|| error("frame bytes"))?;
+    Ok((fixed, items))
+}
+
+fn replay_error<M: Model>(
+    error: ModelError,
+    report: ReplayReport,
+    actual: Option<ReplayActual<M>>,
+    sequence: u64,
+    observer: &mut impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
+) -> ReplayError<M> {
+    let observer_error = observer(
+        ReplayObservation::Error {
+            sequence,
+            actual: actual.as_ref(),
+            error: &error,
+        },
+        &report,
+    )
+    .err();
+    ReplayError {
+        error,
+        observer_error,
+        report,
+        actual: actual.map(Box::new),
+    }
 }
 
 fn same_failure(expected: &[Check], actual: &[Check]) -> bool {
@@ -469,7 +961,9 @@ fn same_failure(expected: &[Check], actual: &[Check]) -> bool {
         .any(|e| actual.iter().any(|a| a.id == e.id && a.is_failure()))
 }
 
-fn validate_recording(trace: &Trace) -> Result<(), ModelError> {
+/// Validate first-failure and termination semantics without executing a model.
+/// Format/allocation limits remain the trace reader or writer's responsibility.
+pub fn validate_recording(trace: &Trace) -> Result<(), ModelError> {
     // The recorder stops on the first failure; later steps would be fabricated
     // continuation evidence and cannot be silently accepted by this replayer.
     let initial_failed = trace.initial_checks.iter().any(Check::is_failure);

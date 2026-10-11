@@ -7,16 +7,14 @@
 //! allocations inside application callbacks and legacy codecs.
 
 use crate::CheckSink;
-use crate::execution::{CheckPolicy, check_observed_into};
-use crate::model::{
-    Check, EncodeBuffer, Model, ModelCodec, ModelError, ModelMetadata, Transition, TransitionRef,
-};
+use crate::execution::{CheckPolicy, check_observed_count_into};
+use crate::model::{Check, EncodeBuffer, ModelCodec, ModelError, ModelMetadata, Transition};
+use crate::observation::{CheckedInitial, CheckedTurn};
 use crate::trace::{
     EncodedSize, FILE_HEADER_SIZE, FRAME_OVERHEAD, ReadLimits, RunConfig, Termination, Trace,
     TraceError, TraceStep, TraceView, end_size, error_termination, reserved_end_size, run_size,
     step_size, validate_totals,
 };
-use std::cell::Cell;
 use std::collections::VecDeque;
 use std::fmt::Write as _;
 use std::io::Write;
@@ -77,6 +75,7 @@ pub struct Recorder {
     steps: VecDeque<Observation>,
     options: RecorderOptions,
     observed_steps: u64,
+    sequence_origin: u64,
     evicted_steps: u64,
     termination: Termination,
     step_size: EncodedSize,
@@ -117,6 +116,46 @@ impl Recorder {
         config: RunConfig,
         options: RecorderOptions,
     ) -> Result<Self, ModelError> {
+        Self::with_initial_checks(model, initial_state, config, options, None, 0)
+    }
+
+    /// Initialize exact recording from a sealed engine-checked checkpoint,
+    /// sharing the existing check batch without invoking a checker again.
+    pub fn with_checked_initial<M: ModelCodec>(
+        initial: &CheckedInitial<'_, M>,
+        config: RunConfig,
+        options: RecorderOptions,
+    ) -> Result<Self, ModelError> {
+        Self::with_checked_initial_at(initial, 0, config, options)
+    }
+
+    /// Attach at an explicit host sequence. The next checked token must carry
+    /// host_sequence + 1; counters and retained trace indices remain local to
+    /// this attachment. Nonzero origin is preserved in recording metadata.
+    pub fn with_checked_initial_at<M: ModelCodec>(
+        initial: &CheckedInitial<'_, M>,
+        host_sequence: u64,
+        config: RunConfig,
+        options: RecorderOptions,
+    ) -> Result<Self, ModelError> {
+        Self::with_initial_checks(
+            initial.model(),
+            initial.state(),
+            config,
+            options,
+            Some(initial.checks()),
+            host_sequence,
+        )
+    }
+
+    fn with_initial_checks<M: ModelCodec>(
+        model: &M,
+        initial_state: &M::State,
+        config: RunConfig,
+        options: RecorderOptions,
+        checked: Option<&[Check]>,
+        sequence_origin: u64,
+    ) -> Result<Self, ModelError> {
         if options.max_steps == 0 || options.max_steps > options.limits.max_steps {
             return Err(ModelError::new(
                 "runtime recorder max_steps must be positive and within trace limits",
@@ -137,6 +176,12 @@ impl Recorder {
             ));
         }
         let mut config = crate::execution::stamp_config(config)?;
+        if sequence_origin != 0 {
+            config.parameters.push((
+                format!("{PARAMETER_PREFIX}sequence_origin"),
+                sequence_origin.to_string(),
+            ));
+        }
         for (key, value) in [
             ("max_steps", options.max_steps.to_string()),
             ("max_retained_bytes", options.max_retained_bytes.to_string()),
@@ -164,10 +209,20 @@ impl Recorder {
         encoder
             .finish()
             .map_err(|e| stage("encode checkpoint", e))?;
-        let mut checks = Vec::new();
-        model
-            .check_state_into(initial_state, &mut CheckSink::new(&mut checks))
-            .map_err(|e| stage("check checkpoint", e))?;
+        let checks = if let Some(checks) = checked {
+            let size =
+                crate::trace::checked_batch_size(checks, &options.limits).map_err(format_error)?;
+            if size.bytes > options.max_retained_bytes {
+                return Err(format_error(TraceError::LimitExceeded("retained bytes")));
+            }
+            checks.to_vec()
+        } else {
+            let mut checks = Vec::new();
+            model
+                .check_state_into(initial_state, &mut CheckSink::new(&mut checks))
+                .map_err(|e| stage("check checkpoint", e))?;
+            checks
+        };
         let failed = checks.iter().any(Check::is_failure);
         let run_size = run_size(&metadata, &config, &encoded, &checks, &options.limits)
             .map_err(format_error)?;
@@ -185,6 +240,7 @@ impl Recorder {
             steps: VecDeque::new(),
             options,
             observed_steps: 0,
+            sequence_origin,
             evicted_steps: 0,
             termination: if failed {
                 Termination::PropertyFailed
@@ -218,11 +274,54 @@ impl Recorder {
                 "runtime recorder is frozen; export its retained trace",
             ));
         }
-        let prepared = self.prepare(model, before, input, transition);
+        let prepared = self.prepare(model, before, input, transition, None);
         let observation = match prepared {
             Ok(observation) => observation,
             Err(error) => return Err(self.freeze(error)),
         };
+        self.commit(observation)
+    }
+
+    /// Record the exact transition and complete checks bound into an engine
+    /// token. Neither reducer nor checker callbacks run here. Diagnostic views
+    /// and caller-created Check collections cannot substitute for this token.
+    pub fn observe_checked<M: ModelCodec>(
+        &mut self,
+        checked: &CheckedTurn<'_, M>,
+    ) -> Result<&[Check], ModelError> {
+        if self.is_frozen() {
+            return Err(ModelError::new(
+                "runtime recorder is frozen; export its retained trace",
+            ));
+        }
+        if !checked.full_checking() {
+            return Err(self.freeze(ModelError::new("runtime recorder requires full checking")));
+        }
+        if self
+            .sequence_origin
+            .checked_add(self.observed_steps)
+            .and_then(|sequence| sequence.checked_add(1))
+            != Some(checked.sequence())
+        {
+            return Err(self.freeze(ModelError::new(
+                "runtime checked observation sequence is missing or reordered",
+            )));
+        }
+        let prepared = self.prepare(
+            checked.model(),
+            checked.before(),
+            checked.input(),
+            checked.transition(),
+            Some(checked),
+        );
+        let observation = match prepared {
+            Ok(observation) => observation,
+            Err(error) => return Err(self.freeze(error)),
+        };
+        self.commit(observation)
+    }
+
+    fn commit(&mut self, observation: Observation) -> Result<&[Check], ModelError> {
         let fit = self.fit(&observation);
         let (evictions, run_size, step_size) = match fit {
             Ok(fit) => fit,
@@ -262,6 +361,7 @@ impl Recorder {
         before: &M::State,
         input: &M::Input,
         transition: &Transition<M::State, M::Output>,
+        checked: Option<&CheckedTurn<'_, M>>,
     ) -> Result<Observation, ModelError> {
         if model.metadata() != self.metadata {
             return Err(ModelError::new("runtime recorder model identity changed"));
@@ -320,19 +420,26 @@ impl Recorder {
             .encode_input_into(input, &mut encoder)
             .map_err(|e| stage("encode input", e))?;
         encoder.finish().map_err(|e| stage("encode input", e))?;
-        let capture = CaptureStateCheckCount {
-            model,
-            count: Cell::new(0),
+        let state_check_count = if let Some(checked) = checked {
+            let size = crate::trace::checked_batch_size(checked.checks(), &self.options.limits)
+                .map_err(format_error)?;
+            if size.bytes > frame_payload_budget {
+                return Err(format_error(TraceError::LimitExceeded("frame bytes")));
+            }
+            step.checks.clear();
+            step.checks.extend_from_slice(checked.checks());
+            checked.state_check_count()
+        } else {
+            check_observed_count_into(
+                model,
+                before,
+                input,
+                transition,
+                sequence,
+                CheckPolicy::default(),
+                &mut step.checks,
+            )?
         };
-        check_observed_into(
-            &capture,
-            before,
-            input,
-            transition,
-            sequence,
-            CheckPolicy::default(),
-            &mut step.checks,
-        )?;
         step.disposition = transition.disposition.clone();
         step.post_state.clear();
         if transition.outputs.len() > step.outputs.len() {
@@ -376,7 +483,7 @@ impl Recorder {
         let size = step_size(&step, &self.options.limits).map_err(format_error)?;
         Ok(Observation {
             step,
-            state_check_count: capture.count.get(),
+            state_check_count,
             size,
         })
     }
@@ -458,6 +565,18 @@ impl Recorder {
             let value = &mut self.config.parameters[offset + index].1;
             value.clear();
             write!(value, "{count}").expect("writing to a String cannot fail");
+        }
+    }
+
+    /// Stop exact capture after an external checker, oracle, or delivery-gap
+    /// error. Retains the last coherent prefix and uses the normal bounded error
+    /// footer. Does not check, execute, or append the uncaptured transition.
+    /// An existing terminal property failure or error is never overwritten.
+    pub fn stop_with_error(&mut self, error: ModelError) -> ModelError {
+        if self.is_frozen() {
+            error
+        } else {
+            self.freeze(error)
         }
     }
 
@@ -583,63 +702,6 @@ fn validate_budget(
         ));
     }
     Ok(())
-}
-
-// Keep the state-check boundary without running or cloning checks a second time.
-struct CaptureStateCheckCount<'a, M> {
-    model: &'a M,
-    count: Cell<usize>,
-}
-impl<M: Model> Model for CaptureStateCheckCount<'_, M> {
-    type State = M::State;
-    type Input = M::Input;
-    type Output = M::Output;
-    fn metadata(&self) -> ModelMetadata {
-        self.model.metadata()
-    }
-    fn initial_state(&self) -> Result<Self::State, ModelError> {
-        self.model.initial_state()
-    }
-    fn step(
-        &self,
-        state: &Self::State,
-        input: &Self::Input,
-    ) -> Result<Transition<Self::State, Self::Output>, ModelError> {
-        self.model.step(state, input)
-    }
-    fn check_state(&self, state: &Self::State) -> Result<Vec<Check>, ModelError> {
-        let checks = self.model.check_state(state)?;
-        self.count.set(checks.len());
-        Ok(checks)
-    }
-    fn check_state_into(
-        &self,
-        state: &Self::State,
-        checks: &mut CheckSink<'_>,
-    ) -> Result<(), ModelError> {
-        let start = checks.len();
-        self.model.check_state_into(state, checks)?;
-        self.count.set(checks.len() - start);
-        Ok(())
-    }
-    fn check_transition(
-        &self,
-        before: &Self::State,
-        input: &Self::Input,
-        transition: &TransitionRef<'_, Self::State, Self::Output>,
-    ) -> Result<Vec<Check>, ModelError> {
-        self.model.check_transition(before, input, transition)
-    }
-    fn check_transition_into(
-        &self,
-        before: &Self::State,
-        input: &Self::Input,
-        transition: &TransitionRef<'_, Self::State, Self::Output>,
-        checks: &mut CheckSink<'_>,
-    ) -> Result<(), ModelError> {
-        self.model
-            .check_transition_into(before, input, transition, checks)
-    }
 }
 
 fn stage(stage: &str, error: ModelError) -> ModelError {

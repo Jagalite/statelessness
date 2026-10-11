@@ -1,0 +1,120 @@
+   Compiling statelessness-debug v0.2.0 (/workspace/scratch/9c9a5a8c3955/statelessness-debugger-v11/crates/statelessness-debug)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.89s
+     Running unittests src/lib.rs (target/debug/deps/statelessness_debug-4058b7b006018963)
+
+running 7 tests
+test effects::drop_tests::completed_effect_drop_does_not_report_an_unnecessary_contended_hook ... ok
+test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+test effects::drop_tests::raw_attempt_drop_never_blocks_or_invents_termination ... ok
+test effects::drop_tests::raw_delivery_drop_never_blocks_or_invents_consumption ... ok
+test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+test effects::drop_tests::rejected_snapshot_queries_preserve_revision_and_acknowledged_history ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/effect_ledger_model.rs (target/debug/deps/effect_ledger_model-378ad7215fe070a9)
+
+running 1 test
+test exhaustive_independent_ledger_preserves_counts_and_physical_work ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/effects_metrics.rs (target/debug/deps/effects_metrics-c28cfdf344fb8c6c)
+
+running 28 tests
+test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+test classifier_fault_cannot_replace_completed_future_value ... ok
+test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+test debugger_pause_marks_samples_without_subtracting_time ... ok
+test detail_eviction_does_not_evict_live_accounting ... ok
+test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+test disabled_and_counters_only_do_not_read_clock ... ok
+test gauge_underflow_and_counter_reset_are_explicit ... ok
+test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+test concurrent_consumer_can_win_publication_confirmation_race ... ok
+test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+test host_baseline_does_not_upgrade_other_label_groups ... ok
+test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+test windows_epochs_schema_and_history_are_honest ... ok
+test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/live.rs (target/debug/deps/live-47c687e8c7a26137)
+
+running 23 tests
+test admission_backpressure_and_disconnect_return_owned_input_and_bound_queue ... ok
+test bridge_and_controller_origins_continue_correlating_after_client_reconnect ... ok
+test coherent_midrun_attach_shares_one_checked_batch_and_exports_exact_suffix ... ok
+test default_observation_authority_cannot_escalate_on_reconnect ... ok
+test counter_exhaustion_is_atomic_and_keeps_buffered_arrival_owned ... ok
+test controller_property_stop_and_pause_correlation_are_explicit ... ok
+test disconnect_preserves_inflight_result_under_every_detach_policy ... ok
+test duplicate_and_mismatched_tokens_do_not_consume_a_delivery ... ok
+test identity_changes_are_rejected_even_after_capture_freezes ... ok
+test metadata_loss_is_separate_from_exact_retention_and_effect_dispatch_facts ... ok
+test pause_racing_with_delivery_or_dispatch_waits_for_a_complete_boundary ... ok
+test permits_are_bound_to_their_controller_and_uncertain_work_is_not_retried ... ok
+test oversized_outputs_and_host_failure_terminate_without_hidden_retry ... ok
+test reconnect_retains_dispatch_ownership_and_invalidates_old_commands ... ok
+test omitted_roundtrip_freezes_before_gap_even_if_before_state_matches ... ok
+test property_failure_freezes_capture_without_stopping_host_or_rewriting_failure ... ok
+test one_turn_is_exactly_one_delivered_input_including_rejection_and_ignore ... ok
+test staged_effects_can_resume_or_precede_one_turn_without_duplicate_dispatch ... ok
+test sampled_checks_end_exact_capture_and_preserve_actual_host_transition ... ok
+test recorder_owns_bounded_error_footer_even_for_external_stop ... ok
+test oversized_output_batch_has_capacity_bounded_diagnostic_work ... ok
+test reserved_limits_and_provenance_cannot_be_forged ... ok
+test exhaustive_controller::all_finite_controller_interleavings_match_independent_model ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.79s
+
+     Running tests/pr_review_live_effects.rs (target/debug/deps/pr_review_live_effects-78c33e67ad3cca36)
+
+running 20 tests
+test constructor_clock_failure_is_visible_without_inventing_an_epoch_start ... ok
+test current_metrics_do_not_reuse_a_timestamp_from_before_new_observations ... ok
+test abandoned_or_resolved_attempt_cannot_be_scheduled_as_a_retry ... ok
+test dropping_request_before_admission_keeps_the_missing_decision_visible ... ok
+test health_overflow_during_merge_is_atomic ... ok
+test diagnostic_encoder_failure_preserves_actual_state_requested_outputs_and_dispatch ... ok
+test invalid_snapshot_clock_does_not_erase_the_previous_valid_watermark ... ok
+test foreign_future_adapter_cannot_write_another_observers_accounting ... ok
+test merging_disjoint_producers_preserves_loss_health ... ok
+test pause_ack_with_staged_outputs_requires_new_authority_before_dispatch ... ok
+test integrated_actual_host_pause_cancellation_late_delivery_and_replay ... ok
+test last_raw_attempt_handle_loss_marks_running_evidence_incomplete ... ok
+test safe_point_waits_for_every_reserved_output_across_disconnect ... ok
+test rejected_publication_and_finished_attempt_drops_do_not_invent_abandonment ... ok
+test retry_scheduled_during_pause_never_enters_production_histograms ... ok
+test rejected_admission_is_not_censored_pending_work ... ok
+test last_raw_delivery_handle_loss_marks_unobserved_publication_incomplete ... ok
+test snapshot_timestamp_never_predates_a_concurrently_included_measurement ... ok
+test concurrently_dropped_raw_clones_report_one_missing_endpoint ... ok
+test publication_commit_and_consumer_race_counts_boundaries_once ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests examples/live_host.rs (target/debug/examples/live_host-a2cdbc055bc28b3b)
+
+running 3 tests
+test tests::codec_failure_keeps_authorized_dispatch_and_single_actual_fact ... ok
+test tests::detach_termination_preserves_completed_state_and_staged_output ... ok
+test tests::checker_property_and_output_limit_stops_retain_actual_result_without_dispatch ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

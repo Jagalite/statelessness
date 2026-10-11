@@ -2,6 +2,7 @@
 extern crate proc_macro;
 mod adapter;
 mod codec;
+mod inspect;
 mod parse;
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, TokenStream, TokenTree};
 fn finish(result: parse::Result<String>) -> TokenStream {
@@ -38,6 +39,21 @@ pub fn encode(item: TokenStream) -> TokenStream {
 #[proc_macro_derive(TraceDecode, attributes(trace))]
 pub fn decode(item: TokenStream) -> TokenStream {
     finish(codec::expand(item, true))
+}
+/// Generate bounded, read-only display traversal without changing replay or equality.
+///
+/// Type options: `#[inspect(crate = "::statelessness_debug", version = 1,
+/// label = "Display name")]`. Field options: `id`, `label`, and the bare `redact`
+/// flag. Variant options: `id` and `label`. Redacted fields are never accessed and
+/// do not require an `Inspect` implementation. IDs default to field/variant names
+/// (tuple field IDs are decimal indexes); schema versions default to one.
+///
+/// Generated source metadata identifies the derive invocation, not a faulty line
+/// within a reducer. This derive adds no codec, equality, serialization, or
+/// checkpoint behavior.
+#[proc_macro_derive(Inspect, attributes(inspect))]
+pub fn inspect(item: TokenStream) -> TokenStream {
+    finish(inspect::expand(item))
 }
 mod domain;
 #[proc_macro]

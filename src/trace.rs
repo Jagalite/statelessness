@@ -327,6 +327,20 @@ pub(crate) struct EncodedSize {
     pub items: usize,
 }
 
+/// Validate borrowed check batches before copying them into retained evidence.
+pub(crate) fn checked_batch_size(
+    checks: &[Check],
+    limits: &ReadLimits,
+) -> Result<EncodedSize, TraceError> {
+    let mut count = 0;
+    let mut encoder = Encoder::new(limits, &mut count, None);
+    encoder.checks(checks)?;
+    Ok(EncodedSize {
+        bytes: encoder.len as u64,
+        items: count,
+    })
+}
+
 pub(crate) fn run_size(
     metadata: &ModelMetadata,
     config: &RunConfig,

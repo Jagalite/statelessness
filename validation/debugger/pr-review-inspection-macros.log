@@ -1,0 +1,34 @@
+PASS cold offline renamed external consumer
+PASS union SM409
+PASS discriminant SM411
+PASS data_discriminant SM411
+PASS unknown_type SM403
+PASS unknown_field SM403
+PASS unknown_variant SM403
+PASS duplicate_type_option SM402
+PASS duplicate_attribute_option SM402
+PASS duplicate_field_option SM402
+PASS duplicate_variant_option SM402
+PASS duplicate_field_id SM408
+PASS duplicate_default_field_id SM408
+PASS duplicate_escaped_field_id SM408
+PASS duplicate_raw_field_id SM408
+PASS duplicate_variant_id SM412
+PASS duplicate_default_variant_id SM412
+PASS empty_field_id SM405
+PASS bare_attribute SM400
+PASS equals_attribute SM400
+PASS wrong_group SM400
+PASS empty_option SM400
+PASS leading_comma SM400
+PASS missing_value SM400
+PASS bool_redact SM400
+PASS non_string_label SM401
+PASS byte_string_label SM401
+PASS string_version SM404
+PASS overflow_version SM404
+PASS float_version SM404
+PASS invalid_runtime SM406
+PASS empty_runtime SM406
+PASS runtime_injection SM406
+Inspect qualification passed: renamed consumer and 32 diagnostic fixtures
