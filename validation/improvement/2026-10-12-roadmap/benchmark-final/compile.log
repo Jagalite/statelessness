@@ -1,0 +1,5 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [===>                         ] 1/7: statelessness(build)            Building [=======>                     ] 2/7: statelessness                   Building [===========>                 ] 3/7: engine(bench), roadmap(be...    Building [===============>             ] 4/7: engine(bench), roadmap(be...    Building [===================>         ] 5/7: roadmap(bench), stateless...    Building [=======================>     ] 6/7: stateless(bin)                  Finished `bench` profile [optimized] target(s) in 7.99s
+  Executable benches/engine.rs (target/roadmap-bench-build/release/deps/engine-dc8a0034cff63cf6)
+  Executable benches/observation.rs (target/roadmap-bench-build/release/deps/observation-e5f65f3d005166e0)
+  Executable benches/roadmap.rs (target/roadmap-bench-build/release/deps/roadmap-a3b23fbee5ef01fb)

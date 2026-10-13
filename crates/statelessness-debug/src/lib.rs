@@ -4,6 +4,7 @@
 pub mod session;
 pub use session::{DebugError, DebugSession, InputPolicy, SessionLimits};
 
+pub mod evidence;
 pub mod workbench;
 
 pub mod inspect;
@@ -15,5 +16,6 @@ pub mod watches;
 pub mod diagnostic;
 pub mod protocol;
 
+pub mod dashboard;
 pub mod effects;
 pub mod metrics;

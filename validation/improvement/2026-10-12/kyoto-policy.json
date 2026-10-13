@@ -1,0 +1,25 @@
+{
+  "default": "allow",
+  "rules": [
+    {
+      "id": 2,
+      "action": "require",
+      "command": "bench",
+      "scope": "cargo",
+      "parameter": "no-run",
+      "value": null,
+      "max_value": null
+    },
+    {
+      "id": 3,
+      "action": "require",
+      "command": "test",
+      "scope": "cargo",
+      "parameter": "no-run",
+      "value": null,
+      "max_value": null
+    }
+  ],
+  "precedence": "last matching rule wins",
+  "opaque_commands": "not inspected"
+}

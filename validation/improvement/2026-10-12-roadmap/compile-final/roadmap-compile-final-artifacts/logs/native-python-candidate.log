@@ -1,0 +1,39 @@
+test_application_owned_dataclass_and_failure_witness (test_native.NativeTests.test_application_owned_dataclass_and_failure_witness) ... ok
+test_bad_codec_type_is_a_model_error (test_native.NativeTests.test_bad_codec_type_is_a_model_error) ... ok
+test_build_mismatch_must_be_explicit (test_native.NativeTests.test_build_mismatch_must_be_explicit) ... ok
+test_check_error_does_not_return_partial_success (test_native.NativeTests.test_check_error_does_not_return_partial_success) ... ok
+test_corpus_cli (test_native.NativeTests.test_corpus_cli) ... ok
+test_duplicate_failure_ids_preserve_order (test_native.NativeTests.test_duplicate_failure_ids_preserve_order) ... ok
+test_hashable_and_unhashable_equal_states_deduplicate (test_native.NativeTests.test_hashable_and_unhashable_equal_states_deduplicate) ... ok
+test_initial_callback_error_is_not_a_trace (test_native.NativeTests.test_initial_callback_error_is_not_a_trace) ... ok
+test_iterator_error_classified (test_native.NativeTests.test_iterator_error_classified) ... ok
+test_json_byte_and_aggregate_limits (test_native.NativeTests.test_json_byte_and_aggregate_limits) ... ok
+test_json_rejects_duplicates_unicode_floats_and_trailing (test_native.NativeTests.test_json_rejects_duplicates_unicode_floats_and_trailing) ... ok
+test_keyboard_interrupt_is_not_swallowed (test_native.NativeTests.test_keyboard_interrupt_is_not_swallowed) ... ok
+test_later_callback_error_retains_coherent_prefix (test_native.NativeTests.test_later_callback_error_retains_coherent_prefix) ... ok
+test_mutable_native_state_branches_are_isolated (test_native.NativeTests.test_mutable_native_state_branches_are_isolated) ... ok
+test_noncanonical_initial_bytes_rejected (test_native.NativeTests.test_noncanonical_initial_bytes_rejected) ... ok
+test_noncanonical_input_bytes_rejected (test_native.NativeTests.test_noncanonical_input_bytes_rejected) ... ok
+test_observation_does_not_call_step (test_native.NativeTests.test_observation_does_not_call_step) ... ok
+test_periodic_check_explicitly_skipped (test_native.NativeTests.test_periodic_check_explicitly_skipped) ... ok
+test_record_blob_limit (test_native.NativeTests.test_record_blob_limit) ... ok
+test_record_item_limit (test_native.NativeTests.test_record_item_limit) ... ok
+test_record_payload_limit (test_native.NativeTests.test_record_payload_limit) ... ok
+test_record_replay_and_json_roundtrip (test_native.NativeTests.test_record_replay_and_json_roundtrip) ... ok
+test_replay_restores_checkpoint_not_initial (test_native.NativeTests.test_replay_restores_checkpoint_not_initial) ... ok
+test_trace_false_termination_and_continuation_rejected (test_native.NativeTests.test_trace_false_termination_and_continuation_rejected) ... ok
+test_u64_boundaries (test_native.NativeTests.test_u64_boundaries) ... ok
+test_work_limit_validation_rejects_bool_negative (test_native.NativeTests.test_work_limit_validation_rejects_bool_negative) ... ok
+test_zero_rng_domain_does_not_consume_state (test_native.NativeTests.test_zero_rng_domain_does_not_consume_state) ... ok
+test_exact_replay_rejects_permissive_component_decoder_alias (test_paired.PairedTests.test_exact_replay_rejects_permissive_component_decoder_alias) ... ok
+test_independent_golden_search_cases (test_paired.PairedTests.test_independent_golden_search_cases) ... ok
+test_limits_bad_checkpoint_projection_and_duplicate_checks (test_paired.PairedTests.test_limits_bad_checkpoint_projection_and_duplicate_checks) ... ok
+test_metadata_mismatch_remains_strict_with_build_override (test_paired.PairedTests.test_metadata_mismatch_remains_strict_with_build_override) ... ok
+test_observer_does_not_step_actual_and_retains_completed_transition_on_error (test_paired.PairedTests.test_observer_does_not_step_actual_and_retains_completed_transition_on_error) ... ok
+test_ordered_checks_codec_restart_and_fail_fast_replay (test_paired.PairedTests.test_ordered_checks_codec_restart_and_fail_fast_replay) ... ok
+test_same_actual_state_keeps_distinct_reference_history (test_paired.PairedTests.test_same_actual_state_keeps_distinct_reference_history) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 0.096s
+
+OK

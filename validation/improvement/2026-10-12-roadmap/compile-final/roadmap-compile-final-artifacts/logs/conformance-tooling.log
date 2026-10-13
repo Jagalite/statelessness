@@ -1,0 +1,14 @@
+test_comparison_does_not_equate_boolean_integer_float (test_harness.HarnessTests.test_comparison_does_not_equate_boolean_integer_float) ... ok
+test_corpus_reproduction_is_exact (test_harness.HarnessTests.test_corpus_reproduction_is_exact) ... ok
+test_every_normative_rule_has_golden_links (test_harness.HarnessTests.test_every_normative_rule_has_golden_links) ... ok
+test_generated_topologies_are_unique (test_harness.HarnessTests.test_generated_topologies_are_unique) ... ok
+test_missing_responses_are_not_pass (test_harness.HarnessTests.test_missing_responses_are_not_pass) ... ok
+test_process_crash_is_not_pass (test_harness.HarnessTests.test_process_crash_is_not_pass) ... ok
+test_response_rejects_duplicate_and_float (test_harness.HarnessTests.test_response_rejects_duplicate_and_float) ... ok
+test_independent_counts_and_required_negative_cases (test_paired_profile.PairedProfileTests.test_independent_counts_and_required_negative_cases) ... ok
+test_normalized_schema_when_validator_is_available (test_paired_profile.PairedProfileTests.test_normalized_schema_when_validator_is_available) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.399s
+
+OK

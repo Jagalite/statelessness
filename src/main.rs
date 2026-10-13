@@ -26,6 +26,7 @@ const HELP: &str = "Stateless — dependency-free state-machine exploration\n\n\
   stateless enumerate TRACE [--fixed] [--depth N] [--states N] [--edges N]\n\
   stateless replay TRACE [--fixed] [--allow-build-mismatch] [--delay-ms N] [--step]\n\
   stateless inspect TRACE\n\n\
+  stateless export-diagnostic TRACE NEW_JSON [--max-steps N] [--max-bytes N]\n\n\
 Fuzz and enumeration write TRACE.report.txt, including successful/bounded runs.\n\
 Campaigns write configuration, per-job reports, and a summary into a new directory.\n\
 --auto samples the complete enumerated input domain; --max-candidates requires it.\n\
@@ -61,8 +62,54 @@ fn run() -> Result<u8, Error> {
     let path = PathBuf::from(args.remove(0));
     if command == "inspect" {
         reject_extra(&args)?;
-        let trace = read(&path)?;
-        inspect(&trace);
+        let artifact = stateless::evidence::Artifact::read(
+            File::open(&path)?,
+            &stateless::evidence::EvidenceLimits::default(),
+        )?;
+        inspect(artifact.trace());
+        if let stateless::evidence::Artifact::V2(value) = artifact {
+            println!(
+                "evidence version: 2\ncheckpoint after: {}\nprovenance: {:?}",
+                value.checkpoint_after, value.provenance
+            );
+            for (index, step) in value.steps.iter().enumerate() {
+                println!(
+                    "step {}: host sequence {}, state checks {}, causal {:?}",
+                    index + 1,
+                    step.sequence,
+                    step.state_check_count,
+                    step.causal
+                );
+            }
+        }
+        return Ok(0);
+    }
+    if command == "export-diagnostic" {
+        if args.is_empty() {
+            return Err("missing new diagnostic export path".into());
+        }
+        let destination = PathBuf::from(args.remove(0));
+        let defaults = stateless::evidence::ExportPolicy::default();
+        let max_steps = number(&mut args, "--max-steps", defaults.max_steps)?;
+        let max_bytes = number(&mut args, "--max-bytes", defaults.max_bytes)?;
+        reject_extra(&args)?;
+        let artifact = stateless::evidence::Artifact::read(
+            File::open(&path)?,
+            &stateless::evidence::EvidenceLimits::default(),
+        )?;
+        stateless::evidence::export_diagnostic_new(
+            &artifact,
+            &destination,
+            &stateless::evidence::ExportPolicy {
+                max_steps,
+                max_bytes,
+                property_ids: &[],
+            },
+        )?;
+        println!(
+            "diagnostic export: {} (redacted; not replayable)",
+            destination.display()
+        );
         return Ok(0);
     }
     let fixed = flag(&mut args, "--fixed");

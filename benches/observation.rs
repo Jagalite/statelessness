@@ -6,33 +6,11 @@ use stateless::observation::*;
 use std::hint::black_box;
 use std::io::{self, Write};
 use std::num::NonZeroU64;
-use std::time::Instant;
 
-fn measure(name: &str, iterations: usize, mut f: impl FnMut()) {
-    for _ in 0..100 {
-        f();
-    }
-    let mut samples = Vec::new();
-    for _ in 0..7 {
-        let start = Instant::now();
-        for _ in 0..iterations {
-            f();
-        }
-        samples.push(start.elapsed().as_nanos() as f64 / iterations as f64);
-    }
-    samples.sort_by(f64::total_cmp);
-    println!(
-        "{name}: median {:.1} ns/op (range {:.1}..{:.1})",
-        samples[3], samples[0], samples[6]
-    );
-}
+mod support;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let iterations = std::env::var("STATELESS_BENCH_ITERS")
-        .ok()
-        .and_then(|v| v.parse::<usize>().ok())
-        .unwrap_or(20_000)
-        .max(1);
+    let config = support::Config::from_env();
     let model = RequestModel::fixed();
     let before = model.initial_state()?;
     let input = Input::Start;
@@ -52,18 +30,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         transition: transition.as_ref(),
         checks: &checks,
     };
-    println!(
-        "Small request fixture; {iterations} iterations/sample; 7 samples; build {}",
+    eprintln!(
+        "Small request fixture; {} iterations/sample; build {}",
+        config.iterations,
         model.metadata().build
     );
-    measure("borrowed event baseline", iterations, || {
+    config.measure("observation", "borrowed_event", 1, "event", || {
         black_box(event());
     });
-    for level in [
-        LogLevel::Off,
-        LogLevel::Info,
-        LogLevel::Debug,
-        LogLevel::Trace,
+    for (level, case) in [
+        (LogLevel::Off, "off_to_sink"),
+        (LogLevel::Info, "info_to_sink"),
+        (LogLevel::Debug, "debug_to_sink"),
+        (LogLevel::Trace, "trace_to_sink"),
     ] {
         let mut logger = TextObserver::new(
             io::sink(),
@@ -75,16 +54,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             },
             EncodedPayloads::new(1024),
         );
-        measure(
-            &format!("{level:?} observation to sink"),
-            iterations,
-            || {
-                logger
-                    .observe(black_box(&model), black_box(event()))
-                    .unwrap();
-                black_box(&logger);
-            },
-        );
+        config.measure("observation", case, 1, "event", || {
+            logger
+                .observe(black_box(&model), black_box(event()))
+                .unwrap();
+            black_box(&logger);
+        });
     }
     let mut logger = TextObserver::new(
         Vec::new(),
@@ -112,19 +87,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .open(&path)?;
     let result = (|| -> io::Result<()> {
         let mut writer = io::BufWriter::new(file);
-        measure(
-            "preformatted buffered file write (no fsync)",
-            iterations,
-            || {
-                writer.write_all(black_box(&bytes)).unwrap();
-            },
-        );
+        config.measure("observation", "buffered_file_no_fsync", 1, "record", || {
+            writer.write_all(black_box(&bytes)).unwrap();
+        });
         writer.flush()?;
         Ok(())
     })();
     std::fs::remove_file(&path)?;
     result?;
-    println!(
+    eprintln!(
         "{} bytes/record. File timing includes OS caching, not durability. No production or end-to-end performance claim.",
         bytes.len()
     );

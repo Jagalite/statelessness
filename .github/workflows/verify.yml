@@ -1,19 +1,32 @@
 name: Verify Rust library and starter
 
 on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 3 * * *'
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      profile:
+        description: Qualification profile (pr or full); reusable callers default to the full matrix
+        type: string
+        default: full
 
 permissions:
   contents: read
 
 jobs:
   verify:
+    name: ${{ matrix.profile }} (${{ matrix.os }}, Rust ${{ matrix.rust }})
     strategy:
       fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [1.90.0, stable]
+      # Ordinary PRs/main pushes add one specialized gate. Scheduled, manual,
+      # and reusable full runs qualify every supported Rust host/toolchain.
+      matrix: ${{ fromJSON((inputs.profile == 'full' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '{"os":["ubuntu-latest","macos-latest","windows-latest"],"rust":["1.90.0","stable"],"profile":["full"]}' || '{"os":["ubuntu-latest"],"rust":["1.90.0"],"profile":["pr"]}') }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     defaults:
       run:
         shell: bash
@@ -21,45 +34,44 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install schema development dependency
+        run: python -m pip install jsonschema==4.23.0
+      - name: Validate requested profile
+        env:
+          REQUESTED_PROFILE: ${{ inputs.profile }}
+        run: |
+          case "$REQUESTED_PROFILE" in
+            ''|pr|full) ;;
+            *) echo "Unknown qualification profile: $REQUESTED_PROFILE" >&2; exit 1 ;;
+          esac
       - name: Install Rust
         run: |
           rustup toolchain install ${{ matrix.rust }} --profile minimal --component clippy,rustfmt
           rustup default ${{ matrix.rust }}
-      - name: Verify source and documentation
-        run: |
-          cargo fmt --all --check
-          cargo test --locked --offline --workspace
-          cargo test --locked --offline --example application
-          cargo clippy --locked --offline --workspace --all-targets -- -D warnings
-          cargo doc --locked --offline --workspace --no-deps
-          cargo run --locked --offline --example counter
-      - name: Verify debugger integration, feature-off builds, and source-bound evidence
-        run: python3 scripts/check-debugger.py --skip-benchmarks --evidence target/debugger-evidence.json
-      - name: Verify starter in separate processes
-        run: |
-          cargo run --locked --offline --example application -- check
-          status=0
-          cargo run --locked --offline --example application -- find starter-failure || status=$?
-          test "$status" -eq 1
-          cargo run --locked --offline --example application -- replay starter-failure/original.sttrace
-          cargo run --locked --offline --example application -- replay starter-failure/minimized.sttrace
-          status=0
-          cargo run --locked --offline --example application -- replay-fixed starter-failure/minimized.sttrace || status=$?
-          test "$status" -eq 3
-      - name: Verify macro consumers and fresh-process replay
-        run: |
-          python3 scripts/check-macros.py --evidence target/macro-evidence.json
-          cargo run --locked --offline -p macro-qualification --bin jobs -- record target/jobs.sttrace
-          cargo run --locked --offline -p macro-qualification --bin jobs -- replay target/jobs.sttrace
-      - name: Verify packaged crate
-        run: python3 scripts/check-consumer.py
+      - name: Qualify source, independent requirements, fault controls, and replay
+        run: python scripts/qualify.py --profile ${{ matrix.profile }} --toolchain ${{ matrix.rust }} --evidence target/qualification/manifest.json
+      - name: Preserve qualification evidence and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-${{ matrix.profile }}-${{ matrix.os }}-${{ matrix.rust }}
+          path: target/qualification/
+          if-no-files-found: error
+          retention-days: 14
 
   bindings:
+    if: inputs.profile == 'full' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    name: Full bindings (${{ matrix.os }}, Rust 1.90.0)
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     defaults:
       run:
         shell: bash
@@ -67,20 +79,32 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.0'
+          cache: false
       - name: Install Rust and Wasm target
         run: |
           rustup toolchain install 1.90.0 --profile minimal --target wasm32-unknown-unknown
           rustup default 1.90.0
       - name: Build local distributions
         run: |
-          python3 scripts/test_readiness.py
-          python3 scripts/build-bindings.py
+          python scripts/test_readiness.py
+          python scripts/build-bindings.py
       - name: Verify C ABI and JavaScript adapter
         run: |
-          python3 scripts/check-native.py
+          python scripts/check-native.py
           node --test bindings/browser/test.mjs
           node bindings/browser/check.mjs
           node scripts/check-js-package.mjs
+      - name: Verify Go bridge, paired engines, and fresh-process replay
+        run: sh scripts/check-go.sh
       - name: Verify Swift package and fresh-process replay
         if: runner.os == 'macOS'
         run: |
@@ -89,3 +113,76 @@ jobs:
           target/swift-build/debug/swift-counter replay target/swift-counter.trace
           target/swift-build/debug/swift-counter changed target/swift-counter.trace
           target/swift-build/debug/swift-counter enumerate target/swift-enumerated.trace
+      - name: Preserve binding source identity
+        if: always()
+        env:
+          QUALIFICATION_STATUS: ${{ job.status }}
+        run: |
+          mkdir -p target/bindings-evidence
+          git archive --format=tar.gz HEAD -o target/bindings-evidence/source.tar.gz
+          python - <<'PYTHON'
+          import json, os, platform, subprocess
+          from pathlib import Path
+          report = {"source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                    "platform": platform.platform(), "machine": platform.machine(),
+                    "job_status_at_capture": os.environ["QUALIFICATION_STATUS"], "tools": {}}
+          tools = [["rustc", "-vV"], ["cargo", "--version"], ["node", "--version"],
+                   ["go", "version"], ["cc", "--version"]]
+          if os.environ["RUNNER_OS"] == "macOS":
+              tools.append(["swift", "--version"])
+          for tool in tools:
+              try:
+                  result = subprocess.run(tool, text=True, capture_output=True)
+                  report["tools"][tool[0]] = {"returncode": result.returncode, "output": result.stdout + result.stderr}
+              except OSError as error:
+                  report["tools"][tool[0]] = {"unavailable": str(error)}
+          Path("target/bindings-evidence/identity.json").write_text(json.dumps(report, indent=2) + "\n")
+          PYTHON
+      - name: Preserve binding distributions and replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bindings-${{ matrix.os }}-1.90.0
+          path: |
+            target/bindings/
+            target/bindings-evidence/
+            target/go-jobs*.trace
+            target/go-jobs.incompatible.txt
+            target/swift-*.trace
+          if-no-files-found: error
+          retention-days: 14
+
+  portable:
+    if: inputs.profile == 'full' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/portable-conformance.yml
+
+  native:
+    if: inputs.profile == 'full' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/native-ports.yml
+
+  benchmark:
+    # Collect baseline distributions without imposing unmeasured thresholds.
+    # This job does not participate in PR or publication qualification.
+    if: github.event_name == 'schedule'
+    name: Scheduled benchmark baseline (Ubuntu, Rust 1.90.0)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install benchmark toolchain
+        run: rustup toolchain install 1.90.0 --profile minimal
+      - name: Collect repeated source-bound samples
+        run: python scripts/benchmark.py --toolchain 1.90.0 --samples 15
+      - name: Preserve benchmark samples and raw logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmarks-ubuntu-1.90.0
+          path: artifacts/benchmarks/
+          if-no-files-found: error
+          retention-days: 30

@@ -4,14 +4,25 @@ The GitHub repository is https://github.com/Jagalite/statelessness.
 The crates.io package is `statelessness`. The Rust library import remains
 `stateless`.
 
-Versions 0.1.0 and 0.1.1 are already published and was downloaded/tested through the registry
-on 2026-10-07. The first-publication section below is retained for reference;
-new changes require a new package version. See [CHANGELOG.md](CHANGELOG.md) for
-the unreleased scope and [SUPPORT.md](SUPPORT.md) for qualification boundaries.
+Versions 0.1.0 and 0.1.1 were previously published. Registry metadata and archive
+checksums for core and macro **0.2.0** were verified on 2026-10-12; both published
+archives name commit `2af92dfdc0b0d0b0a76848a67bf9c4804b3bb116`. The debugger crate
+was absent from crates.io at that check. The
+[registry receipt](validation/releases/2026-10-12-registry.json) is availability
+and identity evidence, not a new installed-consumer test. This checkout includes
+newer changes under the same manifest version, so publication requires new versions.
+See [capabilities](docs/CAPABILITIES.md), [CHANGELOG.md](CHANGELOG.md) and
+[SUPPORT.md](SUPPORT.md) for source and qualification boundaries.
 
-Before a subsequent release, run the manual `verify.yml` workflow on the exact
-committed candidate. It verifies independent packaged consumers and binding
-packages in addition to the Rust tests. Record which platform jobs passed.
+The representative `verify.yml` gate runs on pull requests and pushes to `main`.
+Nightly, manual and reusable workflow runs use the full Rust 1.90/stable ×
+Linux/macOS/Windows matrix, binding jobs and native/portable conformance workflows.
+`release.yml` requires that full reusable verification workflow on the exact tag
+before publication. Record each job's actual outcome and retain its qualification
+manifest and logs. These gates being configured is not evidence that M0's new
+matrix has run or passed. A representative PR pass is not the full release gate.
+Nightly Linux/MSRV benchmark collection retains baseline samples separately; it
+has no regression threshold and is not a PR or release qualification gate.
 For local package verification, run `python3 scripts/check-consumer.py` from a
 clean checkout. Build local bindings with `python3 scripts/build-bindings.py`;
 retain its hash manifest with distributed native/Wasm artifacts. Crates.io
@@ -59,9 +70,10 @@ mode on crates.io.
 
 ## Subsequent releases
 
-Update the package version and lockfile, commit the release, and push a matching
-`vVERSION` tag. The workflow is deliberately manual: pushing commits or tags does
-not build or publish anything by itself.
+Update package versions and lockfiles, regenerate/check
+`docs/CAPABILITIES.md` with `scripts/check-capabilities.py`, commit the release,
+and push a matching `vVERSION` tag. Publishing remains manually dispatched;
+ordinary PRs and pushes to `main` run verification without publishing.
 
 Run **Publish to crates.io** against the version tag, or use:
 
@@ -69,9 +81,11 @@ Run **Publish to crates.io** against the version tag, or use:
 gh workflow run release.yml --repo Jagalite/statelessness --ref vVERSION
 ```
 
-The workflow rejects non-tag runs and tags that disagree with `Cargo.toml`, runs
-formatting, tests, Clippy and package verification, then authenticates and
-publishes. A run on `main` is skipped. Do not rerun publication for a version
+The workflow requires full candidate qualification, rejects publication on non-tag
+runs and tags that disagree with `Cargo.toml`, then performs registry package
+dry runs before authenticating and publishing. Formatting, tests and Clippy run
+in the required qualification workflow.
+Publication on `main` is skipped. Do not rerun publication for a version
 already published, including the initial version published during bootstrap.
 
 See the [official trusted publishing documentation](https://crates.io/docs/trusted-publishing).
@@ -86,3 +100,19 @@ Review `docs/MACRO-STATUS.md`, macro/runtime protocol compatibility, codec migra
 and the source-bound evidence bundle. Assign coordinated release versions and
 publish the core exposing the protocol before the companion. Publishing is not
 part of implementation qualification. Keep the native/browser binding jobs intact.
+
+## Candidate evidence checklist
+
+- Retain the exact source revision, dirty-tree status, toolchain/platform,
+  dependency locks, command outcomes and artifact hashes. Failed, skipped and
+  unavailable checks stay visible; a compile-only target is not runtime qualification.
+- Run core, macro, debugger and packaged-consumer checks for the candidate. Include
+  debugger compiled-out semantic parity, real stdio checks, native-port conformance
+  and fault controls where the matrix declares support. Evidence from older source
+  hashes does not qualify changed code.
+- Review model/property/codec compatibility, binary trace version, macro protocol,
+  callback ABI and portable profiles separately from package versions. Retain
+  fresh-process replay and matching consumer results for the intended upgrade path.
+- After publishing, read back the exact registry version and archive checksum and
+  run the registry consumer check before claiming installation success. Update the
+  dated availability receipt explicitly; the documentation check is offline.

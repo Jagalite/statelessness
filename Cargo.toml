@@ -14,6 +14,7 @@ include = [
     "build.rs", "Cargo.toml", "Cargo.lock", "LICENSE",
     "README.md", "PLAN.md", "VALIDATION.md", "RELEASING.md", "SUPPORT.md",
     "CHANGELOG.md", "validation/adoption-2026-10-07.json", "docs/**",
+    "spec/**", "conformance/paired-v1.tsv", "conformance/test_paired_profile.py",
 ]
 
 [lib]
@@ -38,6 +39,10 @@ harness = false
 
 [[bench]]
 name = "observation"
+harness = false
+
+[[bench]]
+name = "roadmap"
 harness = false
 
 [lints.rust]

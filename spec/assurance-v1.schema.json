@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statelessness.dev/spec/assurance-v1.schema.json",
+  "title": "Statelessness optional assurance manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assurance_version",
+    "model",
+    "required_properties",
+    "input_families",
+    "bounds",
+    "cover_goals",
+    "required_search_outcome",
+    "provenance"
+  ],
+  "properties": {
+    "assurance_version": {
+      "const": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "required_properties": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "phase"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "phase": {
+            "enum": [
+              "state",
+              "transition"
+            ]
+          }
+        }
+      }
+    },
+    "input_families": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "coverage"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "coverage": {
+                "const": "required"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "coverage",
+              "reason"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "coverage": {
+                "const": "excluded"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "cover_goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "enum": [
+              "transition",
+              "history"
+            ]
+          }
+        }
+      }
+    },
+    "required_search_outcome": {
+      "enum": [
+        "exhausted_within_declared_bounds",
+        "completed"
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest",
+        "model",
+        "properties"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

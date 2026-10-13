@@ -19,3 +19,7 @@ statelessness-macros = { version = "0.2.0", path = "../statelessness-macros" }
 
 [features]
 compiled-out-diagnostics = []
+
+[[bench]]
+name = "diagnostics"
+harness = false

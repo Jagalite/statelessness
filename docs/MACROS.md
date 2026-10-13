@@ -1,10 +1,14 @@
 # Modeling macros and runtime helpers
 
-This is the first implementation of the [macro roadmap](Statelessness-Macro-Roadmap.md).
-The source is usable and locally qualified; it has not been published as a new
-release. Cross-platform release qualification runs in the existing verification
-workflow. Passing these fixtures does not establish completeness of an application
-model or correctness outside its declared bounds.
+This guide covers the [macro roadmap](Statelessness-Macro-Roadmap.md) implementation
+and current source additions beyond the published 0.2.0 snapshot. The
+[dated macro receipts](MACRO-STATUS.md) qualify only their recorded historical
+source. New default initialization, generation, property metadata and `ModelCodec`
+fixtures are subject to the current [compile-only qualification boundary](improvement/STATUS.md);
+their Rust runtime behavior is not yet locally qualified. Cross-platform release
+qualification runs in the existing verification workflow. Passing these fixtures
+does not establish completeness of an application model or correctness outside its
+declared bounds.
 
 ## Installation and compatibility
 
@@ -25,8 +29,9 @@ use statelessness_macros::{model, input_domain, TraceEncode, TraceDecode};
 
 No `macros` feature is necessary. `cargo build --offline` at the repository root
 builds only the engine. `cargo test --offline --workspace` includes macro fixtures.
-Both packages use Rust 1.90 or later. Generated code references
-`stateless::modeling::MACRO_API_V1`; older runtimes without that protocol fail to
+Both packages use Rust 1.90 or later. Value codec derives reference `stateless::modeling::MACRO_API_V1`; current model
+adapters reference the additive `MACRO_API_V2` for assurance metadata and shared
+generation helpers. Older runtimes without the selected protocol fail to
 compile rather than silently selecting another implementation. Breaking protocol
 changes require a new token and coordinated release notes. Public codec changes
 still require the application's codec version to change.
@@ -260,3 +265,62 @@ bytes. `jobs record NEW_TRACE` and `jobs replay TRACE` provide separate-process 
 
 See [implementation evidence and remaining release gates](MACRO-STATUS.md) before
 making a release claim.
+
+## Progressive adapter conveniences
+
+The optional companion accepts `initial_default` when the initial state is exactly
+`State::default()`. Supplying both that option and an `initial` callback is an
+error (`SM213`). Metadata remains explicit: configuration-dependent identity must
+never be invented from a type name.
+
+`generate` opts into the same reservoir sampler and causal domain membership used
+by `Auto`; it requires an `inputs` callback (`SM214`). Optional
+`auto_options = expression` configures its candidate bound, otherwise
+`AutoOptions::default()` applies. Oversized generation domains return an error and
+leave the RNG unchanged. This adds no alternative search engine and preserves
+Auto's seed semantics. Custom generation remains an ordinary handwritten `Generate`
+implementation when this option is absent.
+
+```rust,ignore
+#[model(state = State, input = Input, output = Output,
+        initial_default, generate, codec)]
+impl Controller {
+    // Explicit metadata, production reducer, properties and bounded inputs.
+}
+```
+
+Generated adapters additionally expose `stateless_declared_properties()` as typed
+`assurance::RequiredProperty` metadata. This describes literal registrations;
+dynamic batched checks still require an explicit catalog. Keep independently
+required properties in the assurance manifest. Building that manifest solely from
+this generated list would hide a removed property.
+
+A handwritten `Model` can opt into codec glue without adopting `#[model]`:
+
+```rust,ignore
+#[derive(statelessness_macros::ModelCodec)]
+#[model_codec(crate = "::stateless", version = 1)]
+struct Controller;
+// impl Model for Controller remains handwritten.
+```
+
+State and Input implement `TraceEncode + TraceDecode`; Output only needs
+`TraceEncode`. Named, tuple, unit and generic model structs are supported.
+`decode_limits = expression` optionally customizes aggregate reader bounds.
+The derive checks the declared codec version against the actual model metadata
+before encoding or decoding. It does not infer a schema migration or change model
+identity. No new runtime dependency is introduced. Both metadata and any changed
+wire interpretation remain the application's responsibility.
+
+Macro diagnostics explicitly reject asynchronous, unsafe or const callbacks
+(`SM215`), method-level generic callbacks (`SM207`), missing role callbacks
+(`SM212`), duplicate properties (`SM208`), unbounded domain declarations (missing
+`limit`), and malformed codec options (`SM400`–`SM402`). Ordinary Rust diagnostics
+still validate callback argument/return types. The custom parser remains narrow;
+these additions do not claim arbitrary Rust syntax support. The extracted-package
+qualification script includes renamed-crate, generic, and compile-fail fixtures.
+
+The manual fallback is always available: implement `Model`, use the existing
+value traits inside `ModelCodec`, and wrap in `Auto` or implement `Generate`.
+Replacing glue must preserve the production reducer, ordered observations and
+independently declared requirements.

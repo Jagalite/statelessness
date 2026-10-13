@@ -5,6 +5,8 @@ from .core import (
     TraceLimits, TraceStep, Transition, Violation, check_observed,
     enumerate_states, record, replay, validate_recording,
 )
+from .oracle import (EXPERIMENTAL_PROFILES, ObservationError, Oracle, OracleState,
+                     Paired, Projection, WithOracle)
 
 __version__ = "0.1.0"
 SPEC_VERSION = "1.0.0"
@@ -15,4 +17,6 @@ __all__ = [
     "SearchReport", "Trace", "TraceLimits", "TraceStep", "Transition", "Violation",
     "check_observed", "enumerate_states", "record", "replay", "validate_recording",
     "SPEC_VERSION", "PROFILES",
+    "EXPERIMENTAL_PROFILES", "ObservationError", "Oracle", "OracleState",
+    "Paired", "Projection", "WithOracle",
 ]

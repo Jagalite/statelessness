@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assurance_version",
+    "report",
+    "jobs",
+    "missing_jobs"
+  ],
+  "properties": {
+    "assurance_version": {
+      "const": 1
+    },
+    "report": {
+      "$ref": "assurance-report-v1.schema.json"
+    },
+    "jobs": {
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "$ref": "assurance-report-v1.schema.json"
+        }
+      },
+      "additionalProperties": false
+    },
+    "missing_jobs": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statelessness.dev/spec/assurance-campaign-v1.schema.json",
+  "title": "Statelessness merged assurance campaign v1"
+}

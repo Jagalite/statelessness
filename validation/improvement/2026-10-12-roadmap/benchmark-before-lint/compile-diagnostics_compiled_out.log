@@ -1,0 +1,9 @@
+   Compiling statelessness-macros v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-macros)
+   Compiling statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [=========>                   ] 3/8: statelessness-macros(buil...    Building [=============>               ] 4/8: statelessness-macros(buil...    Building [=================>           ] 5/8: statelessness-macros, sta...    Building [====================>        ] 6/8: statelessness-debug         
+[Kyoto: stopping for sustained memory/swap pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [====================>        ] 6/8: statelessness-debug             Building [========================>    ] 7/8: diagnostics(bench)              Finished `bench` profile [optimized] target(s) in 6.23s
+  Executable benches/diagnostics.rs (target/roadmap-bench-build/release/deps/diagnostics-4a0f6c3f46ce925d)

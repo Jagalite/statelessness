@@ -1,0 +1,7 @@
+{
+  "limitation": "No PR base provided; no change review was performed",
+  "requires_independent_review": false,
+  "review_status": "awaiting_independent_review",
+  "schema_version": 1,
+  "validation_only": true
+}

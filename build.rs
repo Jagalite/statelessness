@@ -20,6 +20,15 @@ fn main() {
     println!("cargo:rerun-if-changed=Cargo.toml");
     println!("cargo:rerun-if-changed=build.rs");
     let mut files = vec![PathBuf::from("Cargo.toml"), PathBuf::from("build.rs")];
+    // The reference model embeds these requirements in the compiled library.
+    // Include them in the runtime identity as well as Cargo's rebuild inputs.
+    for file in [
+        "docs/requirements/controller-properties.txt",
+        "docs/requirements/controller.json",
+    ] {
+        println!("cargo:rerun-if-changed={file}");
+        files.push(PathBuf::from(file));
+    }
     collect(Path::new("src"), &mut files);
     files.sort();
     let mut hash = 0xcbf29ce484222325u64;

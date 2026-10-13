@@ -43,17 +43,22 @@
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 
+pub mod assurance;
 pub mod automatic;
 pub mod campaign;
 pub mod demo;
+pub mod evidence;
 pub mod execution;
 pub mod explore;
 pub mod ffi;
 pub mod guided;
 pub mod model;
 pub mod monitor;
+pub mod network;
 pub mod observation;
 pub mod oracle;
+pub mod reference;
+pub mod research;
 pub mod trace;
 
 pub use model::*;

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-13T01:28:38.528557+00:00",
+  "scope": "Registry metadata and downloaded crate archive identity only; no build, installation, runtime, or current-source qualification.",
+  "crates": [
+    {
+      "name": "statelessness",
+      "version": "0.2.0",
+      "metadata_url": "https://crates.io/api/v1/crates/statelessness/0.2.0",
+      "http_status": 200,
+      "published_at": "2026-10-08T17:46:46.187679Z",
+      "yanked": false,
+      "registry_checksum": "a16408c5801d09925958067be17ba149acf0467efcab9285bedb2e59235320f8",
+      "archive_url": "https://static.crates.io/crates/statelessness/statelessness-0.2.0.crate",
+      "archive_sha256": "a16408c5801d09925958067be17ba149acf0467efcab9285bedb2e59235320f8",
+      "vcs": {
+        "git": {
+          "sha1": "2af92dfdc0b0d0b0a76848a67bf9c4804b3bb116"
+        },
+        "path_in_vcs": ""
+      }
+    },
+    {
+      "name": "statelessness-macros",
+      "version": "0.2.0",
+      "metadata_url": "https://crates.io/api/v1/crates/statelessness-macros/0.2.0",
+      "http_status": 200,
+      "published_at": "2026-10-08T17:47:13.949159Z",
+      "yanked": false,
+      "registry_checksum": "eb8e023da4552c839beaead1a2040d28002ef188b690f77a27439e6de72f0367",
+      "archive_url": "https://static.crates.io/crates/statelessness-macros/statelessness-macros-0.2.0.crate",
+      "archive_sha256": "eb8e023da4552c839beaead1a2040d28002ef188b690f77a27439e6de72f0367",
+      "vcs": {
+        "git": {
+          "sha1": "2af92dfdc0b0d0b0a76848a67bf9c4804b3bb116"
+        },
+        "path_in_vcs": "crates/statelessness-macros"
+      }
+    },
+    {
+      "name": "statelessness-debug",
+      "version": "0.2.0",
+      "metadata_url": "https://crates.io/api/v1/crates/statelessness-debug/0.2.0",
+      "http_status": 404,
+      "registry_error": {
+        "errors": [
+          {
+            "detail": "crate `statelessness-debug` does not exist"
+          }
+        ]
+      }
+    }
+  ]
+}

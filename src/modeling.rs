@@ -3,6 +3,10 @@ use crate::{Check, ModelError, PropertyId, Rng};
 
 /// Exact macro/runtime expansion protocol. Changing this requires coordinated releases.
 pub const MACRO_API_V1: () = ();
+
+/// Additive adapter protocol: typed assurance metadata and bounded generation.
+/// V1 remains available for value/inspection derives and older adapters.
+pub const MACRO_API_V2: () = ();
 /// Content identity of the runtime helpers used by generated adapters.
 pub const RUNTIME_BUILD_ID: &str = env!("STATELESS_BUILD_ID");
 

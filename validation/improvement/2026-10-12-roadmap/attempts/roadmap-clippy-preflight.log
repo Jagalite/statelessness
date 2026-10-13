@@ -1,0 +1,110 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [                            ] 0/89: statelessness(build.rs)         Building [                            ] 1/89: statelessness(build)            Building [                            ] 2/89: statelessness               error: this `if` statement can be collapsed
+   --> src/evidence.rs:592:17
+    |
+592 | /                 if origin.sequence > checkpoint {
+593 | |                     if self
+594 | |                         .recorder
+595 | |                         .retained_output_count(origin.sequence)
+...   |
+600 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+592 ~                 if origin.sequence > checkpoint
+593 ~                     && self
+594 |                         .recorder
+...
+598 |                         return Err(invalid("causal origin outside retained output range"));
+599 ~                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> src/reference/host.rs:186:21
+    |
+186 | /                     if let Some(worker) = self.workers.remove(&key) {
+187 | |                         if worker.join.join().is_err() {
+188 | |                             self.diagnostics
+189 | |                                 .push("worker panicked outside its work callback".into());
+190 | |                         }
+191 | |                     }
+    | |_____________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#collapsible_if
+help: collapse nested if block
+    |
+186 ~                     if let Some(worker) = self.workers.remove(&key)
+187 ~                         && worker.join.join().is_err() {
+188 |                             self.diagnostics
+189 |                                 .push("worker panicked outside its work callback".into());
+190 ~                         }
+    |
+
+error: this `if` statement can be collapsed
+   --> src/reference.rs:348:17
+    |
+348 | /                 if let Input::Complete {
+349 | |                     generation,
+350 | |                     outcome: Outcome::Success,
+351 | |                     ..
+...   |
+366 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#collapsible_if
+help: collapse nested if block
+    |
+352 ~                 } = input
+353 ~                     && before
+354 |                         .job(*generation)
+...
+363 |                         );
+364 ~                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> src/reference.rs:390:17
+    |
+390 | /                 if let Input::Complete { generation, .. } = input {
+391 | |                     if before
+392 | |                         .job(*generation)
+393 | |                         .is_some_and(|j| matches!(j.phase, Phase::Settled(_)))
+...   |
+401 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#collapsible_if
+help: collapse nested if block
+    |
+390 ~                 if let Input::Complete { generation, .. } = input
+391 ~                     && before
+392 |                         .job(*generation)
+...
+399 |                         after.disposition = Disposition::Accepted;
+400 ~                     }
+    |
+
+error: this `if` statement can be collapsed
+   --> src/lifecycle/indexed.rs:313:17
+    |
+313 | /                 if let Some(v) = self.obligations.get_mut(&key) {
+314 | |                     if !v.cancelled {
+315 | |                         v.settled = true;
+316 | |                     }
+317 | |                 }
+    | |_________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#collapsible_if
+help: collapse nested if block
+    |
+313 ~                 if let Some(v) = self.obligations.get_mut(&key)
+314 ~                     && !v.cancelled {
+315 |                         v.settled = true;
+316 ~                     }
+    |
+
+error: could not compile `statelessness` (lib) due to 5 previous errors

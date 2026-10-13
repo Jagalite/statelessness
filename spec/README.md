@@ -22,10 +22,16 @@ MUST NOT be reported as successful qualification.
 
 The Rust runner and independent native Python, Go, TypeScript, and Swift packages
 implement these four profiles.
-The native ports do **not** provide fuzzing, shrinking, guided corpora, oracle
-composition, campaign scheduling, runtime ring recording, composition helpers,
+The native ports do **not** provide fuzzing, shrinking, guided corpora,
+campaign scheduling, runtime ring recording, composition helpers,
 or Rust's binary `.sttrace` reader/writer. Those require additional profiles and
 independent qualification; exposing an operation name alone is not parity.
+
+Python and TypeScript additionally expose experimental `WithOracle`/`Paired`
+adapters for the [`paired-v1` candidate](paired-v1.md). This candidate is outside
+the four advertised qualified profiles. Its shared Rust/Python/TypeScript golden
+suite still needs Rust runtime qualification and independent specification review;
+Go and Swift do not implement it. `EXPERIMENTAL_PROFILES` is separate from `PROFILES`.
 
 Native APIs, ownership, allocation, internal hashes, error prose, and performance
 may differ. Normative observations, ordering, identity checks, deterministic work

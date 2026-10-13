@@ -50,6 +50,10 @@ application callbacks.
 
 ## Deferred work
 
+The [ABI v2 architecture and migration plan](docs/ABI-V2-PLAN.md) defines the
+proposed shared Rust engine boundary, language API preservation, implementation
+phases, and qualification gates for replacing independent production engines.
+
 Experimental ABI 1 source packages cover C, Swift and JavaScript recording,
 replay and enumeration. Foreign fuzzing/shrinking, live recording and additional
 platform qualification follow stabilization of the Rust API.

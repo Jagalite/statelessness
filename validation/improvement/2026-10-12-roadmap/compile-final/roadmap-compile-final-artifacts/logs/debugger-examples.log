@@ -1,0 +1,10 @@
+   Compiling statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [============>               ] 7/15: live_host(example test)         Building [=============>              ] 8/15: debug_counter(example test)     Building [===============>            ] 9/15: debug_request(example test)     Building [=================>         ] 10/15: instrumentation_parity(ex...    Building [==================>        ] 11/15: debug_composition(example...    Building [====================>      ] 12/15: effect_overhead(example t...    Building [======================>    ] 13/15: measure_watches(example t...    Building [========================>  ] 14/15: debug_stdio(example test)       Finished `test` profile [unoptimized + debuginfo] target(s) in 2.00s
+  Executable unittests examples/debug_composition.rs (target/roadmap-build/debug/examples/debug_composition-8e50cb23d3286462)
+  Executable unittests examples/debug_counter.rs (target/roadmap-build/debug/examples/debug_counter-3b10048d0b00ec41)
+  Executable unittests examples/debug_request.rs (target/roadmap-build/debug/examples/debug_request-ceb473ef835ffe96)
+  Executable unittests examples/debug_stdio.rs (target/roadmap-build/debug/examples/debug_stdio-02d83cdf50bd2c61)
+  Executable unittests examples/effect_overhead.rs (target/roadmap-build/debug/examples/effect_overhead-dd4a9865de413f1d)
+  Executable unittests examples/instrumentation_parity.rs (target/roadmap-build/debug/examples/instrumentation_parity-ee2adbf2ec29cf6f)
+  Executable unittests examples/live_host.rs (target/roadmap-build/debug/examples/live_host-91856b087ef45031)
+  Executable unittests examples/measure_watches.rs (target/roadmap-build/debug/examples/measure_watches-922f87fabe0eccc0)

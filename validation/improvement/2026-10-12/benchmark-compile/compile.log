@@ -1,0 +1,4 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [===>                         ] 1/6: statelessness(build)            Building [========>                    ] 2/6: statelessness                   Building [=============>               ] 3/6: engine(bench), stateless(...    Building [==================>          ] 4/6: engine(bench), stateless(...    Building [=======================>     ] 5/6: stateless(bin)                  Finished `bench` profile [optimized] target(s) in 10.54s
+  Executable benches/engine.rs (target/release/deps/engine-dc8a0034cff63cf6)
+  Executable benches/observation.rs (target/release/deps/observation-e5f65f3d005166e0)

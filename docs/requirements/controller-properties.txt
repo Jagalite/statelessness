@@ -1,0 +1,14 @@
+state controller.state_valid
+transition controller.publication_current
+transition controller.success_published
+transition controller.cleanup_required
+transition controller.settlement_once
+transition controller.cancellation_ack
+transition controller.duplicate_inert
+transition controller.release_after_settlement
+transition controller.retry_deadline
+transition controller.ignored_inert
+transition controller.effect_order
+transition controller.completion_progress
+transition controller.cancellation_progress
+transition controller.submission_progress

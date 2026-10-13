@@ -4,8 +4,16 @@ Experimental, dependency-free **Python implementation**, not a Rust/FFI binding.
 Python >=3.10. Applications retain their own state types, callbacks, and codecs.
 This package implements the `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and
 `trace-json-v1` profiles in `../spec/README.md`. It does not imply full Rust feature
-parity: fuzzing, shrinking, guided search, oracles, runtime ring recording,
+parity: fuzzing, shrinking, guided search, runtime ring recording,
 campaigns, composition helpers, and the binary `.sttrace` format are not provided.
+
+`WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
+by the [`paired-v1` candidate](../spec/paired-v1.md). They keep independent reference
+history in state and compare projected state, ordered effects, and full disposition
+using the existing observer, BFS and recorder. They are listed in
+`EXPERIMENTAL_PROFILES`, outside the four qualified `PROFILES`: runtime Rust parity
+and independent specification review remain pending. See `tests/test_paired.py`
+for separately implemented bounded-queue reducers and retained error observations.
 
 ## Install and test
 

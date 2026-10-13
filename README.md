@@ -1,30 +1,56 @@
 # Stateless
 
 A Rust library for exploring application state transitions, checking invariants,
-and recording replayable failures. Zero third-party dependencies, including tests
-and builds. The application keeps its own state, transition function, and effects.
+and recording replayable failures. The Rust core has zero third-party dependencies,
+including its tests and builds. The application keeps its own state, transition
+function, and effects.
 
 ```text
 State + Input -> Next State + Outputs -> Check rules -> Record evidence
 ```
 
-Stateless is experimental; APIs may change. Development focuses on the Rust
-library and CLI. C, Swift, and browser bindings are experimental ABI 1 byte-model packages.
+Stateless is experimental; APIs may change. The Rust library and optional debugger
+have the broadest interfaces. Independent Python, Go, TypeScript and Swift engines
+implement the four portable v1 profiles; Python and TypeScript also contain an
+unqualified candidate paired profile. C, Go, Swift and browser bindings expose
+the Rust ABI 1 byte-model subset. See the
+[capability/version matrix](docs/CAPABILITIES.md) for source, release and
+qualification boundaries.
 Passing a finite model establishes only the supplied properties within that
 model and its bounds.
 
 ## Use as a library
 
-The crates.io package is `statelessness`; the Rust library is named `stateless`:
+The crates.io package is `statelessness`; the Rust library is named `stateless`.
+The published 0.2.0 release can be installed with:
 
 ```toml
 [dependencies]
-stateless = { package = "statelessness", version = "0.1" }
+stateless = { package = "statelessness", version = "=0.2.0" }
 ```
+
+This README describes the newer source checkout, whose manifests still say 0.2.0.
+For the APIs in this checkout, including the optional debugger and new inspection
+derives, use matching local dependencies:
+
+```toml
+[dependencies]
+stateless = { package = "statelessness", path = "/path/to/statelessness" }
+# Optional companions:
+statelessness-macros = { path = "/path/to/statelessness/crates/statelessness-macros" }
+statelessness-debug = { path = "/path/to/statelessness/crates/statelessness-debug" }
+```
+
+Use `dev-dependencies` for test-only adoption. The core and macro 0.2.0 registry
+archives were verified on 2026-10-12; the debugger was not published. See the
+[release identity receipt and limits](docs/CAPABILITIES.md#source-checkout-and-registry-release).
 
 ## Try it
 
-For a complete custom-model workflow, start with
+For a production-shaped controller with real background workers, ordered effects,
+independent requirements, mutation controls and replay, start with the
+[host integration guide](docs/INTEGRATION.md). It uses the same application reducer
+in the host and verifier. For a smaller custom-model workflow, start with
 [Test your own application](examples/README.md): write a regression test, find
 and shrink a bug, save its evidence, and replay it with your own executable.
 
@@ -524,11 +550,15 @@ See [VALIDATION.md](VALIDATION.md) for available checks and their limits.
 Benchmark results depend on the model, enabled checks, build configuration,
 and host. Measure your workload before making performance claims.
 
-Remaining Rust work includes targeted checking with auditable replay policies,
-configurable checkpoints/lossless state sharing, and representative long-session
-measurements. Full-state scans, full-state capture, and the number of distinct
-reachable states still determine scalability. See [PLAN.md](PLAN.md#remaining-rust-work)
-for completion criteria.
+Current source adds [assurance manifests and cover goals](docs/ASSURANCE.md),
+[versioned causal evidence](docs/EVIDENCE.md), explicit multi-machine scheduling,
+lifecycle retention and [diagnostic reports](docs/DIAGNOSTIC_REPORTS.md).
+[New benchmark suites](docs/benchmarks.md) and reduction experiments separate
+candidate storage strategies from production defaults. Measurements and current
+runtime qualification remain required; compilation alone establishes neither.
+Full-state scans, full-state capture, and the number of distinct reachable states
+still determine scalability. See the [improvement status](docs/improvement/STATUS.md)
+for implementation and qualification boundaries.
 
 General liveness, parallel enumeration, state normalization, and broader production
 runtime qualification remain later work. See [support status](SUPPORT.md) for
@@ -557,7 +587,8 @@ Licensed under the [MIT License](LICENSE).
 
 The [modeling guide](docs/MACROS.md) documents the first-party macro companion,
 explicit environmental domains, bounded value codecs, independent lifecycle
-monitors and two-machine routing. Core-only users still compile no extra package.
+monitors, explicit multi-machine routing, default initialization, bounded automatic
+generation and opt-in codec adapters for handwritten models. Core-only users still compile no extra package.
 The [implementation status](docs/MACRO-STATUS.md) distinguishes local evidence from
 release qualification. Run `cargo test --offline --workspace` to include macro fixtures.
 

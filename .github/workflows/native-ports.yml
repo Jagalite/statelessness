@@ -5,6 +5,7 @@ on:
     branches: [main, codex/native-go-typescript-swift]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read

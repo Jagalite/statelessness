@@ -177,32 +177,64 @@ impl<M: Enumerate> Generate for Auto<M> {
         state: &Self::State,
         rng: &mut Rng,
     ) -> Result<Option<Self::Input>, ModelError> {
-        let mut candidate_rng = rng.clone();
-        let mut selected = None;
-        let mut count = 0;
-        for input in self.model.input_iter(state)? {
-            count = next_count(count, self.options.max_candidates)?;
-            if count == 1 || candidate_rng.index(count) == Some(0) {
-                selected = Some(input);
-            }
-        }
-        *rng = candidate_rng;
-        Ok(selected)
+        sample_enumerated(&self.model, state, rng, self.options)
     }
 
     /// Membership is checked in declared order and stops at the first match.
     /// Its candidate cap bounds the inspected prefix; a match within the cap
     /// does not require validating the size of the rest of the domain.
     fn is_enabled(&self, state: &Self::State, input: &Self::Input) -> Result<bool, ModelError> {
-        let mut count = 0;
-        for candidate in self.model.input_iter(state)? {
-            count = next_count(count, self.options.max_candidates)?;
-            if candidate == *input {
-                return Ok(true);
-            }
-        }
-        Ok(false)
+        contains_enumerated(&self.model, state, input, self.options)
     }
+}
+
+/// Shared reservoir sampler for handwritten and generated adapters. Its seed,
+/// complete-domain validation and RNG rollback semantics are identical to Auto.
+pub fn sample_enumerated<M: Enumerate + ?Sized>(
+    model: &M,
+    state: &M::State,
+    rng: &mut Rng,
+    options: AutoOptions,
+) -> Result<Option<M::Input>, ModelError> {
+    if options.max_candidates == 0 {
+        return Err(ModelError::new(
+            "automatic generation max_candidates must be positive",
+        ));
+    }
+    let mut candidate_rng = rng.clone();
+    let mut selected = None;
+    let mut count = 0;
+    for input in model.input_iter(state)? {
+        count = next_count(count, options.max_candidates)?;
+        if count == 1 || candidate_rng.index(count) == Some(0) {
+            selected = Some(input);
+        }
+    }
+    *rng = candidate_rng;
+    Ok(selected)
+}
+
+/// Shared causal membership check. Like Auto, it stops at the first matching
+/// entry and does not claim the unvisited suffix fits the candidate limit.
+pub fn contains_enumerated<M: Enumerate + ?Sized>(
+    model: &M,
+    state: &M::State,
+    input: &M::Input,
+    options: AutoOptions,
+) -> Result<bool, ModelError> {
+    if options.max_candidates == 0 {
+        return Err(ModelError::new(
+            "automatic generation max_candidates must be positive",
+        ));
+    }
+    let mut count = 0;
+    for candidate in model.input_iter(state)? {
+        count = next_count(count, options.max_candidates)?;
+        if candidate == *input {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 fn next_count(count: usize, maximum: usize) -> Result<usize, ModelError> {

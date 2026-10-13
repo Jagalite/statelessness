@@ -1,0 +1,151 @@
+/** Experimental paired-v1. Uses the existing native recorder, observer and BFS.
+ * Advancement never receives actual next state; callbacks must remain pure. */
+import { type Check, type Disposition, type Metadata, type Model, type EnumerateModel,
+  type CodecModel, type Transition, ModelError, check, disposition, validateMetadata } from './core.js';
+
+export const EXPERIMENTAL_PROFILES = ['paired-v1'] as const;
+export interface OracleState<S, H> { readonly model: S; readonly oracle: H }
+export interface Oracle<S, H, I, O> {
+  metadata(): Metadata;
+  initialState(): H;
+  advance(before: H, input: I, outputs: readonly O[], disposition: Disposition): H;
+  checkState(history: H, actual: S): Iterable<Check>;
+  checkTransition?(before: OracleState<S, H>, input: I, transition: Transition<OracleState<S, H>, O>): Iterable<Check>;
+  cloneHistory(history: H): H;
+  equalHistory(left: H, right: H): boolean;
+  encodeHistory?(history: H): Uint8Array;
+  decodeHistory?(bytes: Uint8Array): H;
+}
+type Adapter<S, I, O> = Model<S, I, O> & Partial<EnumerateModel<S, I, O> & CodecModel<S, I, O>>;
+function need<T>(value: T | undefined, name: string): T {
+  if (value === undefined) throw new ModelError(`unsupported oracle adapter operation: ${name}`);
+  return value;
+}
+const length = (text: string): number => new TextEncoder().encode(text).length;
+function checks(values: Iterable<Check>): Check[] { return Array.from(values, c => check(c.id, c.status, c.details)); }
+export class ObservationError<S, O> extends ModelError {
+  constructor(readonly cause: unknown, readonly transition: Transition<S, O>) {
+    super(cause instanceof Error ? cause.message : String(cause)); this.name = 'ObservationError';
+  }
+}
+export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>, I, O>, CodecModel<OracleState<S, H>, I, O> {
+  constructor(readonly model: Adapter<S, I, O>, readonly oracle: Oracle<S, H, I, O>) {}
+  metadata(): Metadata {
+    const m = validateMetadata(need(this.model.metadata, 'metadata').call(this.model));
+    const o = validateMetadata(this.oracle.metadata());
+    return { name: `with-oracle-v1:${length(m.name)}:${m.name}:${m.model_version}:${m.properties_version}:${m.codec_version}:${length(o.name)}:${o.name}:${o.model_version}:${o.properties_version}:${o.codec_version}`,
+      model_version: m.model_version, properties_version: m.properties_version, codec_version: m.codec_version,
+      build: `${length(m.build)}:${m.build}:${length(o.build)}:${o.build}` };
+  }
+  initialState(): OracleState<S, H> { return this.attach(this.model.initialState(), this.oracle.initialState()); }
+  attach(model: S, oracle: H): OracleState<S, H> { return { model: this.model.cloneState(model), oracle: this.oracle.cloneHistory(oracle) }; }
+  cloneState(s: OracleState<S, H>): OracleState<S, H> { return this.attach(s.model, s.oracle); }
+  cloneInput(i: I): I { return this.model.cloneInput(i); }
+  cloneOutput(o: O): O { return this.model.cloneOutput(o); }
+  private copyTransition(t: Transition<S, O>): Transition<S, O> {
+    return { state: this.model.cloneState(t.state), outputs: t.outputs.map(o => this.cloneOutput(o)), disposition: { ...t.disposition } };
+  }
+  observeTransition(before: OracleState<S, H>, input: I, transition: Transition<S, O>): Transition<OracleState<S, H>, O> {
+    const retained = this.copyTransition(transition);
+    try {
+      const history = this.oracle.advance(this.oracle.cloneHistory(before.oracle), this.cloneInput(input),
+        transition.outputs.map(o => this.cloneOutput(o)), { ...transition.disposition });
+      return { state: this.attach(transition.state, history), outputs: retained.outputs, disposition: retained.disposition };
+    } catch (error) { throw new ObservationError(error, retained); }
+  }
+  step(before: OracleState<S, H>, input: I): Transition<OracleState<S, H>, O> {
+    return this.observeTransition(before, input, this.model.step(this.model.cloneState(before.model), this.cloneInput(input)));
+  }
+  inputs(s: OracleState<S, H>): Iterable<I> { return need(this.model.inputs, 'inputs').call(this.model, this.model.cloneState(s.model)); }
+  equalStates(a: OracleState<S, H>, b: OracleState<S, H>): boolean {
+    return need(this.model.equalStates, 'equalStates').call(this.model, a.model, b.model) && this.oracle.equalHistory(a.oracle, b.oracle);
+  }
+  checkState(s: OracleState<S, H>): Check[] {
+    return [...checks(this.model.checkState(this.model.cloneState(s.model))),
+      ...checks(this.oracle.checkState(this.oracle.cloneHistory(s.oracle), this.model.cloneState(s.model)))];
+  }
+  checkTransition(before: OracleState<S, H>, input: I, t: Transition<OracleState<S, H>, O>): Check[] {
+    const actual = this.copyTransition({ state: t.state.model, outputs: t.outputs, disposition: t.disposition });
+    const result = this.model.checkTransition ? checks(this.model.checkTransition(this.model.cloneState(before.model), this.cloneInput(input), actual)) : [];
+    if (this.oracle.checkTransition) result.push(...checks(this.oracle.checkTransition(this.cloneState(before), this.cloneInput(input),
+      { state: this.cloneState(t.state), outputs: t.outputs.map(o => this.cloneOutput(o)), disposition: { ...t.disposition } })));
+    return result;
+  }
+  encodeState(s: OracleState<S, H>): Uint8Array {
+    const a = need(this.model.encodeState, 'encodeState').call(this.model, this.model.cloneState(s.model));
+    const b = need(this.oracle.encodeHistory, 'encodeHistory').call(this.oracle, this.oracle.cloneHistory(s.oracle));
+    if (!(a instanceof Uint8Array) || !(b instanceof Uint8Array)) throw new ModelError('oracle codec must return bytes');
+    const bytes = new Uint8Array(20 + a.length + b.length), view = new DataView(bytes.buffer);
+    bytes.set([79, 82, 67, 49]); view.setBigUint64(4, BigInt(a.length), true); bytes.set(a, 12);
+    view.setBigUint64(12 + a.length, BigInt(b.length), true); bytes.set(b, 20 + a.length); return bytes;
+  }
+  decodeState(bytes: Uint8Array): OracleState<S, H> {
+    if (!(bytes instanceof Uint8Array) || bytes.length < 4 || ![79, 82, 67, 49].every((v, n) => bytes[n] === v)) throw new ModelError('invalid oracle checkpoint format');
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength), parts: Uint8Array[] = [];
+    let offset = 4;
+    for (let n = 0; n < 2; n++) {
+      if (bytes.length - offset < 8) throw new ModelError('truncated oracle checkpoint length');
+      const size = view.getBigUint64(offset, true); offset += 8;
+      if (size > BigInt(bytes.length - offset)) throw new ModelError('truncated oracle checkpoint component');
+      parts.push(bytes.slice(offset, offset + Number(size))); offset += Number(size);
+    }
+    if (offset !== bytes.length) throw new ModelError('trailing oracle checkpoint bytes');
+    return this.attach(need(this.model.decodeState, 'decodeState').call(this.model, parts[0]),
+      need(this.oracle.decodeHistory, 'decodeHistory').call(this.oracle, parts[1]));
+  }
+  encodeInput(i: I): Uint8Array { return need(this.model.encodeInput, 'encodeInput').call(this.model, i); }
+  decodeInput(b: Uint8Array): I { return need(this.model.decodeInput, 'decodeInput').call(this.model, b); }
+  encodeOutput(o: O): Uint8Array { return need(this.model.encodeOutput, 'encodeOutput').call(this.model, o); }
+}
+
+export interface Projection<S, H, O, R, V, E> {
+  metadata(): Metadata;
+  actualState(state: S): V;
+  referenceState(state: H): V;
+  actualEffect(effect: O): E;
+  referenceEffect(effect: R): E;
+  equalState(actual: V, reference: V): boolean;
+  equalEffect(actual: E, reference: E): boolean;
+}
+export class Paired<S, H, I, O, R, V, E> implements Oracle<S, H, I, O> {
+  constructor(readonly reference: Adapter<H, I, R>, readonly projection: Projection<S, H, O, R, V, E>) {}
+  metadata(): Metadata {
+    const r = validateMetadata(need(this.reference.metadata, 'reference metadata').call(this.reference)), p = validateMetadata(this.projection.metadata());
+    return { name: `paired-v1:${length(r.name)}:${r.name}:${r.model_version}:${r.properties_version}:${r.codec_version}:${length(p.name)}:${p.name}:${p.model_version}`,
+      model_version: p.model_version, properties_version: p.properties_version, codec_version: p.codec_version,
+      build: `${length(r.build)}:${r.build}:${length(p.build)}:${p.build}` };
+  }
+  initialState(): H { return this.reference.initialState(); }
+  cloneHistory(h: H): H { return this.reference.cloneState(h); }
+  equalHistory(a: H, b: H): boolean { return need(this.reference.equalStates, 'reference equalStates').call(this.reference, a, b); }
+  private referenceStep(before: H, input: I): Transition<H, R> {
+    try {
+      const transition = this.reference.step(this.reference.cloneState(before), this.reference.cloneInput(input));
+      return { state: this.reference.cloneState(transition.state),
+        outputs: Array.from(transition.outputs, output => this.reference.cloneOutput(output)),
+        disposition: disposition(transition.disposition.kind, transition.disposition.reason) };
+    } catch (error) {
+      throw new ModelError(`reference transition: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  advance(before: H, input: I, _outputs: readonly O[], _disposition: Disposition): H {
+    return this.referenceStep(before, input).state;
+  }
+  checkState(history: H, actual: S): Check[] {
+    const result = checks(this.reference.checkState(this.reference.cloneState(history)));
+    const matches = this.projection.equalState(this.projection.actualState(actual), this.projection.referenceState(history));
+    result.push(check('pair.state', matches ? 'passed' : 'failed', matches ? '' : 'projected states differ')); return result;
+  }
+  checkTransition(before: OracleState<S, H>, input: I, actual: Transition<OracleState<S, H>, O>): Check[] {
+    const expected = this.referenceStep(before.oracle, input);
+    const result = this.reference.checkTransition ? checks(this.reference.checkTransition(this.reference.cloneState(before.oracle), this.reference.cloneInput(input),
+      { state: this.reference.cloneState(expected.state), outputs: expected.outputs.map(o => this.reference.cloneOutput(o)), disposition: { ...expected.disposition } })) : [];
+    const a = actual.outputs.map(o => this.projection.actualEffect(o)), r = expected.outputs.map(o => this.projection.referenceEffect(o));
+    const effects = a.length === r.length && a.every((v, n) => this.projection.equalEffect(v, r[n]));
+    const outcome = actual.disposition.kind === expected.disposition.kind && actual.disposition.reason === expected.disposition.reason;
+    result.push(check('pair.effects', effects ? 'passed' : 'failed', effects ? '' : 'projected ordered effects differ'));
+    result.push(check('pair.outcome', outcome ? 'passed' : 'failed', outcome ? '' : 'dispositions differ')); return result;
+  }
+  encodeHistory(h: H): Uint8Array { return need(this.reference.encodeState, 'reference encodeState').call(this.reference, h); }
+  decodeHistory(b: Uint8Array): H { return need(this.reference.decodeState, 'reference decodeState').call(this.reference, b); }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "sha256": {
+    "README.md": "786190c6d5c8810806c1fd080c9e9c15984c6976b50b68adc9ab7ef8075d4f78",
+    "benchmark-compile/compile.log": "6fa62eb308642a30fd6d09113dad3bc1740dbc5b9742885b4e6c74e657364900",
+    "benchmark-compile/report.json": "27f7bffed7f2d8b173d227c1bfc995fb916712956fbc0cad0f063aeaf4977e52",
+    "kyoto-policy.json": "1bc5598d2dd5f725069f8038b55f5bafc2caca27fcf4c88e260874bcf8078286",
+    "m0-msrv-compile-artifacts/logs/capability-docs.log": "e1cf185fb159201fdbb541712b9b02f591e81824a27c525dba78e03b89837bbf",
+    "m0-msrv-compile-artifacts/logs/clippy.log": "7cd5c523cc389979faf195725aceef343c0153f103eac13e5dd0efbf8c41036b",
+    "m0-msrv-compile-artifacts/logs/compiled-out-tests.log": "02beefac81d3357533201e227239cb44e6ded0146c3805ddb715eff5a14bce64",
+    "m0-msrv-compile-artifacts/logs/debugger-examples.log": "0c5f47eadf09cd8b11409c4225a6319d929a97917b3ad3dc1728094e239aee26",
+    "m0-msrv-compile-artifacts/logs/format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "m0-msrv-compile-artifacts/logs/macro-jobs-build.log": "fecede7c2157efe2f16c8c8b9dce94b0fb4dd384dca8207046c8bf7636eb0ffe",
+    "m0-msrv-compile-artifacts/logs/python-tooling.log": "daf37eac8e01f66812d4e009e895e16f1c3022d76b68a40eddf28621e47ffd4f",
+    "m0-msrv-compile-artifacts/logs/rustdoc.log": "84e7d3ae3750264c6aef2ee8c45ac1990fb9a462a2fef78aee6e0cab8b1bccbe",
+    "m0-msrv-compile-artifacts/logs/starter-build.log": "45d8f7d972875790a6cec7ca48e9acc17c5af68372da1940633becec3b4cd60a",
+    "m0-msrv-compile-artifacts/logs/starter-tests.log": "8909e0e24e7fefe3cb0daa8d903c53e7d3f6dbc82da2ab6082d973ba072eeb8c",
+    "m0-msrv-compile-artifacts/logs/workspace-tests.log": "6e0a1dc2ac4ee2a5ee18cf7e8a8f5c8a84d4bb7626c034b21788ccf9ef0edcdc",
+    "m0-msrv-compile.json": "5c6e5745822a11653c5e958c2b7e32cae3df8776607f6d1c9a7eb2fbf1017c48"
+  }
+}

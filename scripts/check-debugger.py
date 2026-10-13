@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix="stateless-debugger-qualification-") as 
     results.append({"name": "normalized-instrumentation-parity", "passed": parity_same, "description": "State/input/output/disposition/check observations match across both feature builds; each also compares capture-off, capture-on and saturated queues"})
     print(f"{'PASS' if parity_same else 'FAIL'} normalized-instrumentation-parity", flush=True)
     run("inspect-derive", ["python3", "scripts/check-inspect-derive.py"])
-    run("existing-macros", ["python3", "scripts/check-macros.py", "--allow-dirty", "--evidence", str(temp / "macro-results.json")])
+    run("existing-macros", ["python3", "scripts/check-macros.py", "--allow-dirty", "--evidence", str(args.evidence.parent / "macros.json")])
     run("packaged-core-consumer", ["python3", "scripts/check-consumer.py", "--allow-dirty", "--target-dir", str(temp / "packaged-core")])
     run("default-engine-dependencies", ["cargo", "tree", "--locked", "--offline", "-p", "statelessness"])
     cold_env = {**os.environ, "CARGO_HOME": str(temp / "cold-cargo"), "CARGO_TARGET_DIR": str(temp / "cold-target")}

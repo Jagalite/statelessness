@@ -1,0 +1,10 @@
+   Compiling statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [============>               ] 7/15: debug_stdio(example test)       Building [=============>              ] 8/15: debug_composition(example...    Building [===============>            ] 9/15: live_host(example test)         Building [=================>         ] 10/15: debug_request(example test)     Building [==================>        ] 11/15: effect_overhead(example t...    Building [====================>      ] 12/15: measure_watches(example t...    Building [======================>    ] 13/15: instrumentation_parity(ex...    Building [========================>  ] 14/15: debug_counter(example test)     Finished `test` profile [unoptimized + debuginfo] target(s) in 2.64s
+  Executable unittests examples/debug_composition.rs (target/debug/examples/debug_composition-36b6baedaaa13b34)
+  Executable unittests examples/debug_counter.rs (target/debug/examples/debug_counter-be11435c54a7aedd)
+  Executable unittests examples/debug_request.rs (target/debug/examples/debug_request-6c51c87ad65aab36)
+  Executable unittests examples/debug_stdio.rs (target/debug/examples/debug_stdio-976859141cc945f9)
+  Executable unittests examples/effect_overhead.rs (target/debug/examples/effect_overhead-e09afef1571b9391)
+  Executable unittests examples/instrumentation_parity.rs (target/debug/examples/instrumentation_parity-3d042dffae9a5983)
+  Executable unittests examples/live_host.rs (target/debug/examples/live_host-4940e42a13d8886f)
+  Executable unittests examples/measure_watches.rs (target/debug/examples/measure_watches-3651e928f6de38df)

@@ -279,7 +279,7 @@ impl Recorder {
             Ok(observation) => observation,
             Err(error) => return Err(self.freeze(error)),
         };
-        self.commit(observation)
+        self.commit(observation, 0)
     }
 
     /// Record the exact transition and complete checks bound into an engine
@@ -288,6 +288,16 @@ impl Recorder {
     pub fn observe_checked<M: ModelCodec>(
         &mut self,
         checked: &CheckedTurn<'_, M>,
+    ) -> Result<&[Check], ModelError> {
+        self.observe_checked_retaining(checked, 0)
+    }
+
+    // A versioned envelope can impose an additional metadata retention budget.
+    // Plan these evictions before committing, preserving failure atomicity.
+    pub(crate) fn observe_checked_retaining<M: ModelCodec>(
+        &mut self,
+        checked: &CheckedTurn<'_, M>,
+        minimum_evictions: usize,
     ) -> Result<&[Check], ModelError> {
         if self.is_frozen() {
             return Err(ModelError::new(
@@ -318,11 +328,15 @@ impl Recorder {
             Ok(observation) => observation,
             Err(error) => return Err(self.freeze(error)),
         };
-        self.commit(observation)
+        self.commit(observation, minimum_evictions)
     }
 
-    fn commit(&mut self, observation: Observation) -> Result<&[Check], ModelError> {
-        let fit = self.fit(&observation);
+    fn commit(
+        &mut self,
+        observation: Observation,
+        minimum_evictions: usize,
+    ) -> Result<&[Check], ModelError> {
+        let fit = self.fit(&observation, minimum_evictions);
         let (evictions, run_size, step_size) = match fit {
             Ok(fit) => fit,
             Err(error) => return Err(self.freeze(error)),
@@ -491,7 +505,11 @@ impl Recorder {
     fn fit(
         &mut self,
         observation: &Observation,
+        requested_evictions: usize,
     ) -> Result<(usize, EncodedSize, EncodedSize), ModelError> {
+        if requested_evictions > self.steps.len() {
+            return Err(ModelError::new("invalid envelope retention request"));
+        }
         let mut steps = EncodedSize {
             bytes: self
                 .step_size
@@ -513,9 +531,9 @@ impl Recorder {
         // A full step-limited window must evict its first entry. Start at that
         // candidate instead of manufacturing and discarding a limit error on
         // every ordinary observation. No retained evidence is changed here.
-        let minimum_evictions = usize::from(self.steps.len() == self.options.max_steps);
-        if minimum_evictions == 1 {
-            let evicted = self.steps.front().expect("positive full recorder capacity");
+        let minimum_evictions =
+            requested_evictions.max(usize::from(self.steps.len() == self.options.max_steps));
+        for evicted in self.steps.iter().take(minimum_evictions) {
             steps.bytes -= evicted.size.bytes;
             steps.items -= evicted.size.items;
         }
@@ -646,6 +664,11 @@ impl Recorder {
 
     pub fn retained_steps(&self) -> usize {
         self.steps.len()
+    }
+    pub(crate) fn retained_output_count(&self, sequence: u64) -> Option<usize> {
+        let checkpoint = self.sequence_origin.checked_add(self.evicted_steps)?;
+        let index = usize::try_from(sequence.checked_sub(checkpoint)?.checked_sub(1)?).ok()?;
+        self.steps.get(index).map(|step| step.step.outputs.len())
     }
     pub fn observed_steps(&self) -> u64 {
         self.observed_steps

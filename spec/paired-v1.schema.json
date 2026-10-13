@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "paired-v1 candidate normalized golden corpus",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "version", "status", "cases"],
+  "properties": {
+    "profile": { "const": "paired-v1" },
+    "version": { "const": 1 },
+    "status": { "const": "experimental" },
+    "cases": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["case", "mutation", "max_states", "max_transitions", "max_depth", "termination", "states", "transitions", "failed_ids", "witness", "failed_phases", "skipped_checks"],
+        "properties": {
+          "case": { "type": "string", "minLength": 1 },
+          "mutation": { "enum": ["none", "state", "order", "omit", "reason", "initial"] },
+          "max_states": { "type": "integer", "minimum": 1 },
+          "max_transitions": { "type": "integer", "minimum": 0 },
+          "max_depth": { "type": "integer", "minimum": 0 },
+          "termination": { "enum": ["graph_exhausted", "depth_bound", "state_limit", "transition_limit", "failure_found"] },
+          "states": { "type": "integer", "minimum": 1 },
+          "transitions": { "type": "integer", "minimum": 0 },
+          "failed_ids": { "type": "array", "items": { "enum": ["pair.state", "pair.effects", "pair.outcome"] } },
+          "failed_phases": { "type": "array", "items": { "enum": ["initial_state", "state", "transition"] } },
+          "skipped_checks": { "type": "integer", "minimum": 0 },
+          "witness": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 2 } }
+        }
+      }
+    }
+  }
+}

@@ -59,6 +59,14 @@ remains processable. Full-width random values are BigInt in the native API and
 canonical decimal strings on the wire.
 
 Implemented: `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, `trace-json-v1`.
-Not implemented: Rust's advanced fuzzing/shrinking, oracles, guided/campaign/
+Experimental candidate: `WithOracle`, `Paired`, and typed `Projection` implement
+[`paired-v1`](../spec/paired-v1.md) using this native engine. Projections supply
+explicit state/effect equality functions; history supplies its own clone and
+equality hooks. `EXPERIMENTAL_PROFILES` lists this separately from the four
+qualified `PROFILES`. Rust runtime parity and independent specification review
+remain pending. `test/paired.test.mjs` exercises independent bounded-queue reducers,
+shared golden results, fail-fast recording, checkpoint restart, and exact replay.
+
+Not implemented: Rust's advanced fuzzing/shrinking, guided/campaign/
 composition helpers, ring recording, and binary `.sttrace` audit format.
 The archive is installable locally; this change does not publish to npm.

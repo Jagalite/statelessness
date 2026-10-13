@@ -7,6 +7,9 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
     let mut output = None;
     let mut unchecked = false;
     let mut codec = false;
+    let mut initial_default = false;
+    let mut generate = false;
+    let mut auto_options = None;
     let mut decode_limits = format!("{rt}::value_codec::DecodeLimits::default()");
     let mut seen = std::collections::BTreeSet::new();
     for (k, v) in options(&tokens(args))? {
@@ -21,8 +24,14 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
             "decode_limits" => decode_limits = v,
             "unchecked" if v.is_empty() => unchecked = true,
             "codec" if v.is_empty() => codec = true,
+            "initial_default" if v.is_empty() => initial_default = true,
+            "generate" if v.is_empty() => generate = true,
+            "auto_options" => auto_options = Some(v),
             _ => return Err(error("SM200: unknown model option")),
         }
+    }
+    if auto_options.is_some() && !generate {
+        return Err(error("SM214: auto_options requires generate"));
     }
     if seen.contains("decode_limits") && !codec {
         return Err(error("SM200: decode_limits requires codec"));
@@ -119,6 +128,14 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
             .get(pos)
             .is_some_and(|t| ["async", "const", "unsafe"].iter().any(|word| is(t, word)))
         {
+            if role.is_some()
+                && (!is(&bt[pos], "const") || bt.get(pos + 1).is_some_and(|t| is(t, "fn")))
+            {
+                return Err(error_at(
+                    &bt[pos],
+                    "SM215: callbacks must be synchronous safe ordinary methods",
+                ));
+            }
             pos += 1;
         }
         if !bt.get(pos).is_some_and(|t| is(t, "fn")) {
@@ -134,6 +151,14 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
         let parameters = bt
             .get(pos + 2)
             .ok_or_else(|| error("SM207: generic callbacks unsupported"))?;
+        if role.is_some()
+            && !matches!(parameters, TokenTree::Group(g) if g.delimiter() == Delimiter::Parenthesis)
+        {
+            return Err(error_at(
+                parameters,
+                "SM207: generic callbacks unsupported; move parameters to the impl",
+            ));
+        }
         let params = group(parameters, Delimiter::Parenthesis)?;
         let params = tokens(params.stream());
         if role.is_some() {
@@ -198,15 +223,26 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
     let metadata = roles
         .get("metadata")
         .ok_or_else(|| error("SM212: metadata callback required"))?;
-    let initial = roles
-        .get("initial")
-        .ok_or_else(|| error("SM212: initial callback required"))?;
+    let initial_call = match (roles.get("initial"), initial_default) {
+        (Some(_), true) => {
+            return Err(error(
+                "SM213: initial_default conflicts with initial callback",
+            ));
+        }
+        (Some(initial), false) => format!("Self::{initial}(self)"),
+        (None, true) => "::std::result::Result::Ok(::std::default::Default::default())".into(),
+        (None, false) => {
+            return Err(error(
+                "SM212: initial callback required; opt in to initial_default for State::default()",
+            ));
+        }
+    };
     let step = roles
         .get("step")
         .ok_or_else(|| error("SM212: step callback required"))?;
     let mut methods = format!(
-        "type State={state};type Input={input};type Output={output};#[inline] fn metadata(&self)->{rt}::ModelMetadata{{let mut m=Self::{metadata}(self);m.build.push_str({stamp:?});m.build.push_str(\";runtime:\");m.build.push_str({rt}::modeling::RUNTIME_BUILD_ID);m}} #[inline] fn initial_state(&self)->::std::result::Result<Self::State,{rt}::ModelError>{{Self::{initial}(self)}} #[inline] fn step(&self,state:&Self::State,input:&Self::Input)->::std::result::Result<{rt}::Transition<Self::State,Self::Output>,{rt}::ModelError>{{Self::{step}(self,state,input)}}",
-        stamp = format!(";macro-v1:{}", env!("STATELESS_BUILD_ID"))
+        "type State={state};type Input={input};type Output={output};#[inline] fn metadata(&self)->{rt}::ModelMetadata{{let mut m=Self::{metadata}(self);m.build.push_str({stamp:?});m.build.push_str(\";runtime:\");m.build.push_str({rt}::modeling::RUNTIME_BUILD_ID);m}} #[inline] fn initial_state(&self)->::std::result::Result<Self::State,{rt}::ModelError>{{{initial_call}}} #[inline] fn step(&self,state:&Self::State,input:&Self::Input)->::std::result::Result<{rt}::Transition<Self::State,Self::Output>,{rt}::ModelError>{{Self::{step}(self,state,input)}}",
+        stamp = format!(";macro-v2:{}", env!("STATELESS_BUILD_ID"))
     );
     for (phase, params, call) in [
         ("state", "state:&Self::State", "state"),
@@ -239,6 +275,14 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
     if let Some(n) = roles.get("inputs") {
         extra.push_str(&format!("impl {} {rt}::Enumerate for {target} {where_clause} {{#[inline] fn inputs(&self,state:&Self::State)->::std::result::Result<::std::vec::Vec<Self::Input>,{rt}::ModelError>{{Self::{n}(self,state)}}}}",h.generics));
     }
+    if generate {
+        if !roles.contains_key("inputs") {
+            return Err(error("SM214: generate requires an inputs callback"));
+        }
+        let options =
+            auto_options.unwrap_or_else(|| format!("{rt}::automatic::AutoOptions::default()"));
+        extra.push_str(&format!("impl {} {rt}::Generate for {target} {where_clause} {{ fn generate(&self,state:&Self::State,rng:&mut {rt}::Rng)->::std::result::Result<::std::option::Option<Self::Input>,{rt}::ModelError>{{{rt}::automatic::sample_enumerated(self,state,rng,{options})}} fn is_enabled(&self,state:&Self::State,input:&Self::Input)->::std::result::Result<::std::primitive::bool,{rt}::ModelError>{{{rt}::automatic::contains_enumerated(self,state,input,{options})}} }}",h.generics));
+    }
     if codec {
         let mut methods = String::new();
         for part in ["state", "input", "output"] {
@@ -262,10 +306,12 @@ pub fn expand(args: TokenStream, item: TokenStream) -> Result<String> {
         .map(|(phase, id, _)| format!("({phase:?},{id})"))
         .collect::<Vec<_>>()
         .join(",");
+    let typed_catalog = checks.iter().map(|(phase,id,_)| format!("{rt}::assurance::RequiredProperty{{id:({id}).into(),phase: {rt}::assurance::PropertyPhase::{}}}", if phase == "state_check" { "State" } else { "Transition" })).collect::<Vec<_>>().join(",");
+    extra.push_str(&format!("impl {} {target} {where_clause} {{ pub fn stateless_declared_properties()->::std::vec::Vec<{rt}::assurance::RequiredProperty>{{::std::vec![{typed_catalog}]}} }}", h.generics));
     extra.push_str(&format!("impl {} {target} {where_clause} {{ pub const STATELESS_PROPERTIES: &'static [(&'static ::std::primitive::str,&'static ::std::primitive::str)] = &[{catalog}]; }}",h.generics));
     let clean: TokenStream = clean.into_iter().collect();
     Ok(format!(
-        "impl {} {target} {where_clause} {{ {clean} }} const _: () = {rt}::modeling::MACRO_API_V1; impl {} {rt}::Model for {target} {where_clause} {{ {methods} }} {extra}",
+        "impl {} {target} {where_clause} {{ {clean} }} const _: () = {rt}::modeling::MACRO_API_V2; impl {} {rt}::Model for {target} {where_clause} {{ {methods} }} {extra}",
         h.generics, h.generics
     ))
 }
