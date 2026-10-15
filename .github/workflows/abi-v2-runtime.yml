@@ -40,6 +40,8 @@ jobs:
           rustup toolchain install 1.90.0 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
           rustup default 1.90.0
           python -m pip install 'setuptools>=77' wheel
+          npm ci --prefix typescript --ignore-scripts --no-audit --no-fund
+          npm run build --prefix typescript
       - name: Rust regression and documentation tests
         run: |
           cargo fmt --all --check
