@@ -16,7 +16,7 @@ SOURCE_PATHS = (
     "scripts", "python", "typescript", "go", "swift", "Package.swift",
     "tests", "benches", "examples", "crates", "spec", "conformance",
     "validation/corpus", "docs/ABI-V2.md",
-    ".github/workflows/abi-v2.yml", "docs/ABI-V2-DISTRIBUTION.md",
+    ".github/workflows/abi-v2.yml", ".github/workflows/abi-v2-runtime.yml", "docs/ABI-V2-DISTRIBUTION.md",
     "docs/ABI-V2-BENCHMARKS.md",
 )
 ARTIFACT_NAMES = {

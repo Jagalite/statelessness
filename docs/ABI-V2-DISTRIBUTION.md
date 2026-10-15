@@ -84,7 +84,7 @@ Wasm interface check verifies that the default artifact retains only the legacy
 host import and that the v2 artifact has its separate dispatch/release imports
 and required exports. This is metadata inspection, not WebAssembly execution.
 An explicit
-`--mode runtime` exists for a future execution-permitted environment. That mode
+`--mode runtime` explicitly enables bootstrap execution. That mode
 checks native version/capability bootstrap and missing-file, wrong-bytes,
 wrong-version and wrong-library rejection. Those are bootstrap checks, separate
 from SDK loading and actual installed model consumers. It does not assert
@@ -99,6 +99,15 @@ without running them. Windows cgo and mobile Swift remain separate pending cells
 Infrastructure tests use fixture bytes and fake bootstrap functions, never an
 engine. Configuration is not a passed hosted run. No runtime or benchmark cells
 are enabled by this workflow.
+
+The separate [ABI v2 runtime PR check](../.github/workflows/abi-v2-runtime.yml)
+executes Rust, C, relocated Go, Node/Wasm, installed Python/npm consumers and
+the portable corpus on Linux/macOS, plus relocated Swift tests on macOS.
+`check-abi-v2-installed.py --output /outside/checkout/new-directory` installs
+the generated wheel and npm archive, checks their import origins, and runs
+typed model tests and fresh-process binary replay. It invokes no Rust compiler.
+Local Rust compilation still goes through Kyoto. A green PR check qualifies its
+specific merge candidate; default adoption still requires the broader gates below.
 
 `check-abi-v2-gates.py` aggregates explicitly supplied, source/language/target
 matched receipts. Missing gates remain pending; `--require-ready` fails until

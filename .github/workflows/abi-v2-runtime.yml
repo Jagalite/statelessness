@@ -1,0 +1,85 @@
+name: ABI v2 runtime regression
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    name: ABI v2 runtime (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.0'
+          cache: false
+      - name: Install build tools
+        run: |
+          rustup toolchain install 1.90.0 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
+          rustup default 1.90.0
+          python -m pip install 'setuptools>=77' wheel
+      - name: Rust regression and documentation tests
+        run: |
+          cargo fmt --all --check
+          cargo test --locked --offline --workspace
+          cargo test --locked --offline --example application
+          cargo clippy --locked --offline --workspace --all-targets -- -D warnings
+      - name: Build and exercise installed packages
+        run: |
+          python scripts/build-bindings.py --kind all --abi-v2 --toolchain 1.90.0
+          python scripts/check-abi-v2-package.py --package target/bindings/native --mode runtime --source-root . --report target/abi-v2/native-runtime.json
+          python scripts/check-abi-v2-package.py --package target/bindings/browser --source-root . --report target/abi-v2/browser-inspection.json
+          python scripts/check-abi-v2-installed.py --output "$RUNNER_TEMP/abi-v2-installed"
+      - name: C, Go and Wasm regression
+        run: |
+          export CGO_ENABLED=1
+          export CGO_LDFLAGS="-L$RUNNER_TEMP/abi-v2-installed/distribution/native/lib -Wl,-rpath,$RUNNER_TEMP/abi-v2-installed/distribution/native/lib"
+          cc -std=c11 -I target/bindings/native/include bindings/c/v2_smoke.c $CGO_LDFLAGS -lstateless -o target/abi-v2/c-v2
+          target/abi-v2/c-v2
+          cc -std=c11 -I target/bindings/native/include bindings/c/smoke.c $CGO_LDFLAGS -lstateless -o target/abi-v2/c-v1
+          target/abi-v2/c-v1
+          go -C "$RUNNER_TEMP/abi-v2-installed/distribution/go-v2" test ./v2 ./v2/internal/portablejson
+          go -C "$RUNNER_TEMP/abi-v2-installed/distribution/go-v2" build -o "$PWD/target/abi-v2/go-corpus" ./v2/cmd/stateless-corpus
+          STATELESS_ABI2_WASM="$PWD/target/bindings/browser/stateless_v2.wasm" node --test bindings/browser/test-v2.mjs
+          node --test bindings/browser/test.mjs
+          PYTHONPATH=python/src python conformance/run.py \
+            --runner '["python","-m","statelessness.conformance","--runner"]' \
+            --runner "[\"python\",\"-m\",\"statelessness.native_conformance\",\"--library\",\"$PWD/target/bindings/native/lib/libstateless.$([[ $RUNNER_OS == macOS ]] && echo dylib || echo so)\"]" \
+            --runner "[\"$PWD/target/abi-v2/go-corpus\"]" \
+            --runner "[\"node\",\"bindings/browser/v2-corpus.mjs\",\"$PWD/target/bindings/browser/stateless_v2.wasm\"]" \
+            --report target/abi-v2/conformance.json
+      - name: Installed Swift v2 regression
+        if: runner.os == 'macOS'
+        run: |
+          swift test --package-path "$RUNNER_TEMP/abi-v2-installed/distribution/swift-v2" --scratch-path "$RUNNER_TEMP/abi-v2-swift-build" -Xlinker -L -Xlinker "$RUNNER_TEMP/abi-v2-installed/distribution/native/lib" -Xlinker -rpath -Xlinker "$RUNNER_TEMP/abi-v2-installed/distribution/native/lib"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: abi-v2-runtime-${{ matrix.os }}
+          path: |
+            target/abi-v2/
+            ${{ runner.temp }}/abi-v2-installed/*.json
+            ${{ runner.temp }}/abi-v2-installed/*.log
+          retention-days: 14
