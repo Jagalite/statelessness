@@ -49,10 +49,12 @@ pub mod demo;
 pub mod execution;
 pub mod explore;
 pub mod ffi;
+pub mod ffi_v2;
 pub mod guided;
 pub mod model;
 pub mod monitor;
 pub mod observation;
+mod operations;
 pub mod oracle;
 pub mod trace;
 

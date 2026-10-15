@@ -492,15 +492,20 @@ impl Rng {
     }
     /// Unbiased choice from 0..upper; None for an empty domain.
     pub fn index(&mut self, upper: usize) -> Option<usize> {
+        self.index_u64(upper as u64).map(|value| value as usize)
+    }
+    pub(crate) fn state(&self) -> u64 {
+        self.state
+    }
+    pub(crate) fn index_u64(&mut self, upper: u64) -> Option<u64> {
         if upper == 0 {
             return None;
         }
-        let upper = upper as u64;
         let threshold = upper.wrapping_neg() % upper;
         loop {
             let value = self.next_u64();
             if value >= threshold {
-                return Some((value % upper) as usize);
+                return Some(value % upper);
             }
         }
     }

@@ -14,7 +14,7 @@ private struct Edge: Equatable {
 }
 private struct Row { let checks: [Check]; let edges: [Edge]; let checkError: Bool, inputsError: Bool }
 /// A fixture adapter, not an alternate engine. All algorithm operations use the
-/// public native Statelessness library and its application-owned callback API.
+/// selected engine backend and its application-owned callback API.
 public final class TableModel {
     private let initial: String, identity: Metadata
     private let initialError: Bool
@@ -68,22 +68,61 @@ public final class TableModel {
     }
 }
 private func errorJSON(_ value: String) -> JSON { .obj(["error": .string(value)]) }
-public func execute(_ value: JSON) throws -> JSON {
+public typealias FixtureModel = Model<String, String, String>
+/// Adapts operations only. Request validation, fixtures and response framing are
+/// shared by independent and Rust-backed runners; engine identity stays explicit.
+public struct ExecutionBackend {
+    public var implementation: String
+    public var engineFamily: String
+    public var abiVersion: UInt32?
+    public var rng: (UInt64, UInt64, [UInt64]) throws -> JSON
+    public var enumerate: (FixtureModel, SearchConfig) throws -> JSON
+    public var record: (FixtureModel, InputIterator<String>, Int) throws -> Trace
+    public var observe: (FixtureModel, String, String, Transition<String, String>, UInt64, CheckPolicy) throws -> [Check]
+    public var replay: (FixtureModel, Trace, Bool) throws -> JSON
+    public init(implementation: String, engineFamily: String = "swift-independent", abiVersion: UInt32? = nil,
+                rng: @escaping (UInt64, UInt64, [UInt64]) throws -> JSON,
+                enumerate: @escaping (FixtureModel, SearchConfig) throws -> JSON,
+                record: @escaping (FixtureModel, InputIterator<String>, Int) throws -> Trace,
+                observe: @escaping (FixtureModel, String, String, Transition<String, String>, UInt64, CheckPolicy) throws -> [Check],
+                replay: @escaping (FixtureModel, Trace, Bool) throws -> JSON) {
+        self.implementation = implementation; self.rng = rng; self.enumerate = enumerate
+        self.engineFamily = engineFamily; self.abiVersion = abiVersion
+        self.record = record; self.observe = observe; self.replay = replay
+    }
+    public static var independent: Self {
+        Self(implementation: "swift", rng: { seed, draws, bounds in
+            var rng = Rng(seed: seed), raw: [JSON] = [], indices: [JSON] = []
+            for _ in 0..<draws { raw.append(.string(String(rng.nextU64()))) }
+            for bound in bounds { indices.append(rng.index(bound).map { .string(String($0)) } ?? .null) }
+            return .obj(["raw": .array(raw), "indices": .array(indices), "next": .string(String(rng.nextU64()))])
+        }, enumerate: { model, config in
+            let report = try enumerateStates(model, config: config)
+            let failure: JSON = report.failure.map { .obj(["inputs": .array($0.inputs.map(JSON.string)), "violations": .array($0.violations.map { .obj(["phase": .string($0.phase), "check": checkJSON($0.check)]) })]) } ?? .null
+            return .obj(["termination": .string(report.termination), "states": .int(report.states), "transitions": .uint(report.transitions), "max_depth_reached": .int(report.maxDepthReached), "skipped_checks": .uint(report.skippedChecks), "failure": failure])
+        }, record: { try Statelessness.record($0, inputs: $1, maxSteps: $2) },
+        observe: { try checkObserved($0, before: $1, input: $2, transition: $3, sequence: $4, policy: $5) },
+        replay: { model, trace, allow in
+            let report = try Statelessness.replay(model, trace: trace, allowBuildMismatch: allow)
+            return .obj(["outcome": .string(report.outcome), "steps_verified": .int(report.stepsVerified), "failure_reproduced": .bool(report.failureReproduced), "build_matches": .bool(report.buildMatches), "step": report.step.map(JSON.int) ?? .null, "field": report.field.map(JSON.string) ?? .null])
+        })
+    }
+}
+public func execute(_ value: JSON, backend: ExecutionBackend = .independent) throws -> JSON {
     guard case let .object(raw) = value else { throw FormatError("expected request") }
     let version = try readInteger(raw[ExactString("version")]); if version != 1 { return errorJSON("unsupported_version") }
     let operation = try readString(raw[ExactString("operation")])
     if operation == "hello" {
         _ = try objectFields(value, required: ["version", "operation"])
-        return .obj(["implementation": .string("swift"), "package_version": .string(statelessnessVersion), "spec_version": .string(specificationVersion), "profiles": .array(conformanceProfiles.map(JSON.string)), "protocol_version": .int(1)])
+        var reply: [String: JSON] = ["implementation": .string(backend.implementation), "engine_family": .string(backend.engineFamily), "package_version": .string(statelessnessVersion), "spec_version": .string(specificationVersion), "profiles": .array(conformanceProfiles.map(JSON.string)), "protocol_version": .int(1)]
+        if let abi = backend.abiVersion { reply["abi_version"] = .uint(UInt64(abi)) }
+        return .obj(reply)
     }
     if operation == "rng" {
         let o = try objectFields(value, required: ["version", "operation", "seed", "draws", "bounds"])
-        var rng = Rng(seed: try readU64(o["seed"]))
+        let seed = try readU64(o["seed"])
         let draws = try readInteger(o["draws"], maximum: 10_000), bounds = try readArray(o["bounds"], maximum: 10_000).map(readU64)
-        var raw: [JSON] = [], indices: [JSON] = []
-        for _ in 0..<draws { raw.append(.string(String(rng.nextU64()))) }
-        for b in bounds { indices.append(rng.index(b).map { .string(String($0)) } ?? .null) }
-        return .obj(["raw": .array(raw), "indices": .array(indices), "next": .string(String(rng.nextU64()))])
+        return try backend.rng(seed, draws, bounds)
     }
     let extras = ["enumerate": ["config"], "record": ["inputs", "max_steps"], "observe": ["before", "input", "transition", "sequence", "policy"], "replay": ["trace", "allow_build_mismatch"]]
     guard let required = extras[operation] else { return errorJSON("unsupported_operation") }
@@ -95,12 +134,10 @@ public func execute(_ value: JSON) throws -> JSON {
         let c = try objectFields(o["config"], required: ["max_states", "max_transitions", "max_depth"])
         let states = try readInteger(c["max_states"], maximum: 100_000), transitions = try readInteger(c["max_transitions"], maximum: 100_000), depth = try readInteger(c["max_depth"], maximum: 100_000)
         if states == 0 { return errorJSON("invalid_config") }
-        let r = try enumerateStates(m, config: SearchConfig(maxStates: Int(states), maxTransitions: transitions, maxDepth: Int(depth)))
-        let failure: JSON = r.failure.map { .obj(["inputs": .array($0.inputs.map(JSON.string)), "violations": .array($0.violations.map { .obj(["phase": .string($0.phase), "check": checkJSON($0.check)]) })]) } ?? .null
-        return .obj(["termination": .string(r.termination), "states": .int(r.states), "transitions": .uint(r.transitions), "max_depth_reached": .int(r.maxDepthReached), "skipped_checks": .uint(r.skippedChecks), "failure": failure])
+        return try backend.enumerate(m, SearchConfig(maxStates: Int(states), maxTransitions: transitions, maxDepth: Int(depth)))
     case "record":
         let inputs = try readArray(o["inputs"], maximum: 100_000).map(readString), maximum = try readInteger(o["max_steps"], maximum: 100_000)
-        return .obj(["trace": traceToJSON(try record(m, inputs: InputIterator(values: inputs), maxSteps: Int(maximum)))])
+        return .obj(["trace": traceToJSON(try backend.record(m, InputIterator(values: inputs), Int(maximum)))])
     case "observe":
         let before = try readString(o["before"]), input = try readString(o["input"])
         let t = try objectFields(o["transition"], required: ["state", "outputs", "disposition"])
@@ -108,26 +145,25 @@ public func execute(_ value: JSON) throws -> JSON {
         let p = try objectFields(o["policy"], required: ["state_every", "transition_checks"])
         let sequence = try readInteger(o["sequence"], maximum: 100_000), every = try readInteger(p["state_every"], maximum: 100_000), enabled = try readBool(p["transition_checks"])
         if sequence == 0 || every == 0 { return errorJSON("invalid_config") }
-        let checks = try checkObserved(m, before: before, input: input, transition: transition, sequence: sequence, policy: CheckPolicy(stateEvery: every, transitionChecks: enabled))
+        let checks = try backend.observe(m, before, input, transition, sequence, CheckPolicy(stateEvery: every, transitionChecks: enabled))
         return .obj(["checks": .array(checks.map(checkJSON)), "step_calls": .int(table.stepCalls)])
     default:
         guard let value = o["trace"] else { throw FormatError("missing trace") }
         let trace = try traceFromJSON(value), allow = try readBool(o["allow_build_mismatch"])
-        let r = try replay(m, trace: trace, allowBuildMismatch: allow)
-        return .obj(["outcome": .string(r.outcome), "steps_verified": .int(r.stepsVerified), "failure_reproduced": .bool(r.failureReproduced), "build_matches": .bool(r.buildMatches), "step": r.step.map(JSON.int) ?? .null, "field": r.field.map(JSON.string) ?? .null])
+        return try backend.replay(m, trace, allow)
     }
 }
-public func response(_ bytes: [UInt8]) throws -> JSON {
-    do { return try execute(parseJSON(bytes, maximum: maximumLineBytes)) }
+public func response(_ bytes: [UInt8], backend: ExecutionBackend = .independent) throws -> JSON {
+    do { return try execute(parseJSON(bytes, maximum: maximumLineBytes), backend: backend) }
     catch is FormatError { return errorJSON("invalid_request") }
     catch is ModelError { return errorJSON("model_error") }
 }
 /// Reads bounded byte chunks rather than readLine(), which can lose malformed
 /// UTF-8 and allocate an unbounded line. Oversize errors recover at the next LF.
-public func run(input: FileHandle = .standardInput, output: FileHandle = .standardOutput) throws {
+public func run(input: FileHandle = .standardInput, output: FileHandle = .standardOutput, backend: ExecutionBackend = .independent) throws {
     var buffer: [UInt8] = [], oversized = false
     func send() throws {
-        let reply = oversized ? errorJSON("invalid_request") : try response(buffer)
+        let reply = oversized ? errorJSON("invalid_request") : try response(buffer, backend: backend)
         try output.write(contentsOf: Data(try renderJSON(reply) + [10]))
     }
     while let chunk = try input.read(upToCount: 65536), !chunk.isEmpty {

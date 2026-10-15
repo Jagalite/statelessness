@@ -20,6 +20,11 @@ include = [
 name = "stateless"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
+[features]
+# The v2 Wasm transport adds imports. Keep it separate so ABI 1 modules remain
+# instantiable by unchanged adapters; native libraries always expose both ABIs.
+abi-v2-wasm = []
+
 [[bin]]
 name = "stateless"
 path = "src/main.rs"
@@ -38,6 +43,10 @@ harness = false
 
 [[bench]]
 name = "observation"
+harness = false
+
+[[bench]]
+name = "abi_v2"
 harness = false
 
 [lints.rust]

@@ -141,7 +141,7 @@ def u64(value: Any) -> int:
     return int(text)
 
 
-def execute(request: Any) -> dict[str, Any]:
+def execute(request: Any, backend: Any = None) -> dict[str, Any]:
     if type(request) is not dict or "version" not in request:
         raise FormatError("request needs version")
     integer(request["version"])
@@ -152,10 +152,10 @@ def execute(request: Any) -> dict[str, Any]:
     if operation == "hello":
         object_fields(request, base)
         return {"implementation": "python", "package_version": __version__, "spec_version": SPEC_VERSION,
-                "profiles": list(PROFILES), "protocol_version": 1}
+                "profiles": list(PROFILES), "protocol_version": 1, **(backend.identity if backend else {})}
     if operation == "rng":
         object_fields(request, base | {"seed", "draws", "bounds"})
-        rng = Rng(u64(request["seed"]))
+        rng = (backend.rng if backend else Rng)(u64(request["seed"]))
         draws = integer(request["draws"], maximum=10_000)
         bounds = [u64(x) for x in array(request["bounds"], 10_000)]
         raw = [str(rng.next_u64()) for _ in range(draws)]
@@ -180,11 +180,11 @@ def execute(request: Any) -> dict[str, Any]:
         values = {name: integer(value, maximum=MAX_WORK) for name, value in config.items()}
         if values["max_states"] == 0:
             return {"error": "invalid_config"}
-        return asdict(enumerate_states(model, SearchConfig(**values)))
+        return asdict((backend.enumerate_states if backend else enumerate_states)(model, SearchConfig(**values)))
     if operation == "record":
         inputs = [string(x) for x in array(request["inputs"], MAX_WORK)]
         maximum = integer(request["max_steps"], maximum=MAX_WORK)
-        return {"trace": trace_to_data(record(model, inputs, maximum))}
+        return {"trace": trace_to_data((backend.record if backend else record)(model, inputs, maximum))}
     if operation == "observe":
         before, input = State(string(request["before"])), string(request["input"])
         observed = object_fields(request["transition"], {"state", "outputs", "disposition"})
@@ -197,16 +197,16 @@ def execute(request: Any) -> dict[str, Any]:
         enabled = boolean(policy["transition_checks"])
         if sequence == 0 or every == 0:
             return {"error": "invalid_config"}
-        checks = check_observed(model, before, input, transition, sequence, CheckPolicy(every, enabled))
+        checks = (backend.check_observed if backend else check_observed)(model, before, input, transition, sequence, CheckPolicy(every, enabled))
         return {"checks": [asdict(c) for c in checks], "step_calls": model.step_calls}
     trace = trace_from_data(request["trace"])
     allow = boolean(request["allow_build_mismatch"])
-    return asdict(replay(model, trace, allow_build_mismatch=allow))
+    return asdict((backend.replay if backend else replay)(model, trace, allow_build_mismatch=allow))
 
 
-def respond(request: Any) -> dict[str, Any]:
+def respond(request: Any, backend: Any = None) -> dict[str, Any]:
     try:
-        return execute(request)
+        return execute(request, backend)
     except ModelError as error:
         print(str(error), file=sys.stderr)
         return {"error": "model_error"}
@@ -215,15 +215,15 @@ def respond(request: Any) -> dict[str, Any]:
         return {"error": "invalid_request"}
 
 
-def raw_response(raw: bytes) -> dict[str, Any]:
+def raw_response(raw: bytes, backend: Any = None) -> dict[str, Any]:
     try:
-        return respond(strict_loads(raw, MAX_LINE))
+        return respond(strict_loads(raw, MAX_LINE), backend)
     except (ValueError, TypeError) as error:
         print(str(error), file=sys.stderr)
         return {"error": "invalid_request"}
 
 
-def run_jsonl() -> None:
+def run_jsonl(backend: Any = None) -> None:
     stream = sys.stdin.buffer
     while True:
         raw = stream.readline(MAX_LINE + 1)
@@ -234,7 +234,7 @@ def run_jsonl() -> None:
                 raw = stream.readline(MAX_LINE + 1)
             response = {"error": "invalid_request"}
         else:
-            response = raw_response(raw)
+            response = raw_response(raw, backend)
         print(json.dumps(response, ensure_ascii=True, allow_nan=False, separators=(",", ":")), flush=True)
 
 

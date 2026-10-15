@@ -3,6 +3,7 @@
 //! every transition. Feature equality never merges application states for replay.
 use crate::explore::{self, FuzzConfig, FuzzDriver, FuzzReport, RunLimits};
 use crate::model::{Generate, Model, ModelError, Rng, Transition, TransitionRef};
+use crate::operations::NativeOps;
 use std::collections::{HashMap, VecDeque, hash_map::Entry};
 use std::hash::Hash;
 
@@ -265,7 +266,7 @@ impl<I: Clone, F, K: Eq + Hash> Driver<I, F, K> {
         });
     }
 }
-impl<M: Generate, F: Feedback<M>> FuzzDriver<M> for Driver<M::Input, F, F::Feature> {
+impl<M: Generate, F: Feedback<M>> FuzzDriver<NativeOps<'_, M>> for Driver<M::Input, F, F::Feature> {
     fn candidate(
         &mut self,
         _: &[M::Input],
