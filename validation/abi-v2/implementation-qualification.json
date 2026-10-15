@@ -3,6 +3,7 @@
   "benchmarks": "not_run",
   "branch": "abi/v2-foundation",
   "build_qualification": "source_compiler_checks_passed; final_artifact_attestation_pending",
+  "commit_identity_note": "The two unpublished commits were rewritten to the GitHub noreply author address after GH007 rejected the initial push. Source file bytes and their SHA-256 inventory are unchanged. Refreshed build and package qualification remains pending.",
   "committed": true,
   "compiler_evidence": "validation/abi-v2/implementation-checks.json",
   "completed_followup_checks": [
@@ -184,6 +185,6 @@
   "runtime_qualification": "pending_by_explicit_user_instruction",
   "schema": "stateless.abi-v2-implementation.v1",
   "scope": "Opt-in first-release ABI v2 source, compile and static package qualification only",
-  "source_commit": "ab2ee6378c7e4739b452c3656e4df4554df695b2",
+  "source_commit": "2792f1fe652a050c0869c7739e8294d6a8912032",
   "worktree": "/Volumes/seed2/Projects/stateless-abi-v2"
 }
