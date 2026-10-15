@@ -78,12 +78,12 @@
       "status": "succeeded"
     }
   ],
-  "corpus": "not_run",
-  "current_source_sha256": "90c1670666ca0de5560cb6f6bc5d8adb9c7b2f9711930d0321a6946f835d24be",
+  "corpus": "browser_717_passed; initial_five_runner_run_two_go_label_failures; 550_cross_producer_replays_passed; corrected_go_rerun_pending",
+  "current_source_sha256": "acfe820dca2d35020faa60ee8fe6084b510ec2d624233fb3f6706bb18bef4358",
   "default_switch_ready": false,
   "defaults_changed": false,
-  "engine_tests": "not_run",
-  "final_candidate": "draft review; source compiler checks passed; refreshed release artifacts and package verification pending",
+  "engine_tests": "534_rust_workspace_tests_passed; adapter_and_compatibility_suites_passed",
+  "final_candidate": "draft review; local runtime tests executed; remaining runtime/package/platform/performance gates open",
   "final_packaging_receipt": "validation/abi-v2/final-packaging-qualification.json",
   "go_diagnostic_fix_receipt": "validation/abi-v2/go-diagnostic-qualification.json",
   "hosted_workflow": "not_run",
@@ -91,13 +91,30 @@
   "independent_engines_removed": false,
   "installed_consumers": "not_run",
   "limitations": [
-    "Compilation and static inspection do not establish semantic parity, lifetime safety, installed runtime operation or performance.",
+    "Finite runtime suites passed on macOS arm64, Node and Chromium; this does not establish universal memory safety, installed operation on other platforms or performance.",
     "Native compiler/link evidence is macOS arm64; other deployment cells remain pending.",
     "Guided feedback, debugger/composition foreign APIs and arbitrary asynchronous callbacks are outside the first capability set.",
     "Parallel uncommitted roadmap/evidence work from the original checkout is not imported."
   ],
   "package_qualification": "prior_candidate_passed; current_candidate_pending",
-  "pending_checks": [
+  "performance_budgets": "not_approved",
+  "prior_build_evidence": "validation/abi-v2/final-build-receipt.json",
+  "prior_build_source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
+  "published": false,
+  "recorded_at_utc": "2026-10-15T03:32:17.315635+00:00",
+  "remaining_steps": [
+    "Complete queued application/doctest and corrected Go corpus runtime checks.",
+    "Restage and verify final packages against current source identity.",
+    "Execute installed-consumer and platform/hosted matrix.",
+    "Collect repeated performance/memory measurements and approve numeric budgets."
+  ],
+  "runtime_qualification": "executed_local_suites; corrected_go_corpus_and_queued_rust_checks_pending",
+  "schema": "stateless.abi-v2-implementation.v1",
+  "scope": "Opt-in ABI v2 implementation with local runtime evidence; platform, installed package and performance gates open",
+  "source_commit": "2792f1fe652a050c0869c7739e8294d6a8912032",
+  "worktree": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "runtime_receipt": "validation/abi-v2/runtime-qualification/summary.json",
+  "completed_release_refreshes": [
     {
       "command": [
         "env",
@@ -118,7 +135,7 @@
       "kind": "native_release_build",
       "kyoto_job": "42ec322a35f348148231615b35373fb1",
       "runtime_executed": false,
-      "status": "queued"
+      "status": "succeeded"
     },
     {
       "command": [
@@ -142,7 +159,7 @@
       "kind": "wasm-v1_release_build",
       "kyoto_job": "3d6fe8b304a345e18a57b83348fd2d12",
       "runtime_executed": false,
-      "status": "queued"
+      "status": "succeeded"
     },
     {
       "command": [
@@ -168,23 +185,25 @@
       "kind": "wasm-v2_release_build",
       "kyoto_job": "754e3a1be3ae466da027e81e914f1d89",
       "runtime_executed": false,
-      "status": "queued"
+      "status": "succeeded"
     }
   ],
-  "performance_budgets": "not_approved",
-  "prior_build_evidence": "validation/abi-v2/final-build-receipt.json",
-  "prior_build_source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
-  "published": false,
-  "recorded_at_utc": "2026-10-15T02:52:28.025215+00:00",
-  "remaining_steps": [
-    "After formatting, capture the stable final source manifest and refresh native/Wasm build attestation through Kyoto.",
-    "Restage packages against the current source-bound receipt; inspect final hashes and npm archive.",
-    "Compile changed relocated Go package; carry unchanged Swift/wheel evidence only after exact input-byte comparison.",
-    "Refresh final receipts and readiness reports, retaining runtime/performance as pending."
-  ],
-  "runtime_qualification": "pending_by_explicit_user_instruction",
-  "schema": "stateless.abi-v2-implementation.v1",
-  "scope": "Opt-in first-release ABI v2 source, compile and static package qualification only",
-  "source_commit": "2792f1fe652a050c0869c7739e8294d6a8912032",
-  "worktree": "/Volumes/seed2/Projects/stateless-abi-v2"
+  "pending_checks": {
+    "rust-application-tests": {
+      "job": "affbd784ba764abcbdc251db2e43d682",
+      "status": "queued"
+    },
+    "go-conformance-tests": {
+      "job": "cc34380a01b74d0d88296f6a84a7c033",
+      "status": "queued"
+    },
+    "go-conformance-runner": {
+      "job": "5809f17d7ff54c4f9cf96a8cba7b2be7",
+      "status": "queued"
+    },
+    "rust-doctests": {
+      "job": "a03f3c612958414dbcf20442d9a682b7",
+      "status": "queued"
+    }
+  }
 }

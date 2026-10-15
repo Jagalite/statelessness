@@ -1,0 +1,14 @@
+{
+  "name": "rust-ffi_v2-41344f90621c1e7a",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/ffi_v2-41344f90621c1e7a",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:23.822794+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.2770302909775637,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-ffi_v2-41344f90621c1e7a.log",
+  "log_sha256": "c5645138876e8f91eb467a8fe7182fe9f5d6983a26ffecb20802db9e211c3c9d"
+}

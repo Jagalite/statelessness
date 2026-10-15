@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/statelessness_macros-b4aa0b5f4ead12f0",
+  "sha256": "9d2b1d3550fb109ad42a4913865d3bfc7ec0b922cccb7ff65c9c3ab51121ee71",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-macros#0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-macros/Cargo.toml",
+    "target": {
+      "kind": [
+        "proc-macro"
+      ],
+      "crate_types": [
+        "proc-macro"
+      ],
+      "name": "statelessness_macros",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-macros/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/statelessness_macros-b4aa0b5f4ead12f0"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/statelessness_macros-b4aa0b5f4ead12f0",
+    "fresh": true
+  }
+}

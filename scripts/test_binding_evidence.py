@@ -33,7 +33,7 @@ class Evidence(unittest.TestCase):
         receipt = self.receipt()
         with patch.object(evidence, "source_snapshot", return_value=self.source):
             self.assertEqual(evidence.validate_receipt(receipt, self.root, ["native/lib/libstateless.so"]),
-                             {"native/lib/libstateless.so": self.binary})
+                             {"native/lib/libstateless.so": self.binary.resolve()})
             self.binary.write_bytes(b"another build")
             with self.assertRaisesRegex(ValueError, "artifact changed"):
                 evidence.validate_receipt(receipt, self.root, ["native/lib/libstateless.so"])

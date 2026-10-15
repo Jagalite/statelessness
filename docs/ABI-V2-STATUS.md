@@ -2,7 +2,8 @@
 
 Date: October 14, 2026. The shared Rust engine, additive C/Wasm ABI, four opt-in
 language adapters and distribution/gate tooling are implemented in source.
-**Runtime qualification and benchmarks remain pending by explicit user choice.**
+**Runtime tests are now authorized and have executed on macOS arm64, Node and
+the collaborative Chromium browser. Benchmarks remain unmeasured.**
 No language default has switched, no independent engine or ABI 1 surface has been
 removed, and no package has been published.
 
@@ -22,10 +23,10 @@ execution, measured performance and retirement are separate statuses.
 | Phase | Implemented source | Pending exit gates |
 | --- | --- | --- |
 | P0 | Isolated baseline, compatibility inventory, matched workload fixtures, content identity and measured-budget comparison tooling. | Repeated baseline/candidate execution and approved numeric budgets; no measurements supplied. |
-| P1 | Fallible model/cursor/equality/hash/codec/generation operations; shared checking, BFS, recording/replay, fuzz/shrink, automatic generation and ring paths; unchanged native Rust public adapters. | Executed native regression and independent semantic comparison; native performance budgets. |
-| P2 | Versioned C header, capability negotiation, session/value/result ownership, callback builders/errors, bounded results, cancellation, portable conversion, ABI tests and C consumer fixture. | Executed complete C workflow, lifetime accounting and malformed-callback checks. |
-| P3 | Go v2 cgo adapter and typed TypeScript/Wasm adapter; explicit engine lifetime, snapshots, error containment, recording/reload/replay, fuzz/shrink/ring and corpus adapters. | Actual runtime pilot workflows, GC/lifetime/negative tests, Node and browser qualification. |
-| P4 | Python ctypes and separate Swift package; shared automatic finite generation, codec-less witnesses, structural portable codecs and four-profile fixture adapters. | Full unfiltered corpus, installed typed-model consumers, historical cross-producer replay and runtime mutation detection. |
+| P1 | Fallible model/cursor/equality/hash/codec/generation operations; shared checking, BFS, recording/replay, fuzz/shrink, automatic generation and ring paths; unchanged native Rust public adapters. | Native performance budgets and remaining platform coverage; workspace regression executed. |
+| P2 | Versioned C header, capability negotiation, session/value/result ownership, callback builders/errors, bounded results, cancellation, portable conversion, ABI tests and C consumer fixture. | Broader platform and installed-consumer coverage; native ABI regression and both C smoke consumers executed. |
+| P3 | Go v2 cgo adapter and typed TypeScript/Wasm adapter; explicit engine lifetime, snapshots, error containment, recording/reload/replay, fuzz/shrink/ring and corpus adapters. | Corrected Go corpus rerun and remaining browser/platform cells; Go unit, Node and Chromium tests executed. |
+| P4 | Python ctypes and separate Swift package; shared automatic finite generation, codec-less witnesses, structural portable codecs and four-profile fixture adapters. | Final all-runner corpus result and installed-consumer/platform coverage; Python and Swift tests executed. |
 | P5 | Additive package staging, exact source/artifact receipts, package inspector, compile-only workflow, fail-closed readiness and performance comparison tools. | Executed installation/platform/deployment matrix, target artifact verification and measured budgets. |
 | P6 | Existing defaults preserved; pending-gate reports prevent retirement claims. | Per-language adoption gates, distinct migration/cutover releases, rollback windows and explicit retirement decision. |
 
@@ -52,11 +53,10 @@ wrappers do not count as several independent implementations.
 
 ## Evidence and policy
 
-All local builds, formatters, code generators and compiler checks go through
-`/Volumes/seed1/Projects/kyoto/kyoto.py`. Cargo tests/benches use `--no-run`;
-Go test binaries and Swift test bundles are compiled without execution. Generated
-binaries are not run as a workaround. Runtime tests, corpus runs, installed
-model consumers and measurements remain pending.
+Rust compilation continues through `/Volumes/seed1/Projects/kyoto/kyoto.py`.
+Kyoto's shared policy adds `--no-run` to Cargo tests. Following the user's later
+instruction to proceed with tests, successfully compiled executables are run
+directly, with separate runtime receipts. No shared queue policy was changed.
 
 The earlier [foundation qualification](../validation/abi-v2/qualification.json)
 and [118-input manifest](../validation/abi-v2/build-inputs.json) describe only the
@@ -71,34 +71,35 @@ toolchains, targets, logs, source identity and artifact hashes. The
 release library and separate ABI 1/v2 Wasm artifacts to the 297-input source
 manifest. Earlier receipts and superseded source snapshots remain historical.
 
-The final Go diagnostic-containment follow-up now passes Kyoto formatting and
-compilation, including the regression test/benchmark binaries and cgo-disabled
-structural helpers. No generated executable was run. Final source/build
-attestation and package restaging still need to include that edit; existing
-package receipts describe the prior candidate. Refreshed native/Wasm artifact
-builds are queued in Kyoto under host memory pressure; the draft PR keeps this
-package gate open.
+## Executed runtime qualification
 
-| Check | Observed result | Qualification boundary |
+The [runtime evidence directory](../validation/abi-v2/runtime-qualification/)
+contains commands, exit codes, logs, artifact hashes and preserved initial
+failure receipts. The runtime summary is authoritative for pending jobs.
+
+| Check | Executed result | Qualification boundary |
 | --- | --- | --- |
-| Rust | Workspace tests and benches compile; all-target Clippy and formatting checks pass. | Cargo uses `--no-run`; no model tests or benchmarks executed. |
-| C | ABI 1 and ABI v2 consumers compile and link against the native release library. | Neither consumer executed. |
-| Go | Source and relocated package test/benchmark binaries and corpus executable compile and link. | No tests, corpus requests or benchmarks executed. |
-| Swift | Source and relocated package, XCTest bundle, corpus and benchmark executables compile and link. | No XCTest, corpus or benchmark execution; macOS arm64 only. |
-| TypeScript/JavaScript | Backend and typed `.mjs` consumer compile; syntax and generated parser drift checks pass. | No Node/Wasm/browser execution. |
-| Python | Adapter, tests, benchmark and corpus sources compile; wheel builds. | No engine imports or tests executed; native library supplied separately. |
-| Packaging | Native/browser hashes and Wasm interfaces inspected; npm archive and wheel built and inspected. | Static inspection only; no installed model consumer or publication. |
+| Rust workspace | 534 tests passed across 51 binaries; none failed or ignored. | macOS arm64, Rust 1.90.0; application example and doctests tracked separately. |
+| C | ABI 1 and ABI v2 smoke consumers passed. | Matched native release library on macOS arm64. |
+| Go v2 | 15 top-level tests plus diagnostic subtests passed. | Corrected corpus runner requires compilation and rerun. |
+| Swift v2 | 10 XCTest tests passed. | macOS arm64; 25 staged compilation inputs verified unchanged. |
+| Node/Wasm | 17 v2 and 8 v1 tests passed. Independent TypeScript: 30 passed. | Exact separate v1/v2 Wasm artifacts; JavaScript diagnostic fix included. |
+| Python | 43 tests passed, no skips. | Independent and ctypes adapter with explicit native library. |
+| Browser | 717 semantic/transport cases passed; zero retained sessions. | T3 collaborative Chromium browser; not Safari or Firefox. |
+| Infrastructure | 13 evidence, 6 readiness and 7 conformance-harness tests passed. | Does not qualify installed packages. |
+| Cross-language corpus | Initial run passed all 550 fresh-process cross-producer replays; two Go termination-label mismatches found and patched. | Final five-runner rerun pending rebuilt Go executable; wrappers represent two engine families. |
 
-The readiness reports remain `default_switch_ready: false`. Runtime tests,
-portable corpus execution, fresh-process replay, ownership behavior, installation,
-platform coverage and measured performance are pending. Benchmark fixtures exist;
-repeated measurements, complete memory accounting and approved numeric budgets
-have not been collected. The implementation is committed on `abi/v2-foundation`
-for draft review. Runtime workflows skip draft PRs and run when marked ready for
-review; the ABI v2 compile/package workflow remains manual.
+Runtime tests exposed and fixed JavaScript error-message normalization and the
+Go corpus depth-bound label. A packaging test also needed canonical paths on
+macOS (`/var` versus `/private/var`). Initial failures are retained in evidence.
 
-Even a complete compile pass does not establish semantic parity, cleanup behavior,
-memory safety under hostile callbacks, throughput, RSS, browser/mobile behavior
-or installed package operation. Keep the established backend for every deployment
-cell without the required evidence. ABI 1 deprecation and independent-engine
-retirement have separate consumer migration gates.
+Final package restaging/attestation, installed-consumer and deployment matrices,
+measured performance, memory accounting and approved numeric budgets remain
+open. Native and Wasm release refresh builds succeeded, but historical package
+receipts do not cover the latest wrapper edits. No performance improvement or
+regression budget is claimed. The readiness/default-switch gate remains false.
+
+The implementation remains a draft PR. Runtime workflows skip draft PRs;
+local execution does not replace hosted/platform checks or review. Preserve
+established defaults until their adoption gates pass. ABI 1 deprecation and
+independent-engine retirement require separate migration decisions.

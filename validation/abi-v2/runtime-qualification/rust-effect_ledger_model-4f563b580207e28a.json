@@ -1,0 +1,14 @@
+{
+  "name": "rust-effect_ledger_model-4f563b580207e28a",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/effect_ledger_model-4f563b580207e28a",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:20:58.329324+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.1854935829760507,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-effect_ledger_model-4f563b580207e28a.log",
+  "log_sha256": "c0846791d0fce9691f96417b56c610026e7a718437d49162fb1e20ca4d20f083"
+}

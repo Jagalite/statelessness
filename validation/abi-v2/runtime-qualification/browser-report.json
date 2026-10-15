@@ -1,0 +1,25 @@
+{
+  "artifact_sha256": "484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15",
+  "cases": 717,
+  "failures": [],
+  "hello": {
+    "abi_version": 2,
+    "artifact_sha256": "484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15",
+    "engine_family": "rust-shared",
+    "implementation": "typescript-rust-abi2",
+    "package_version": "0.1.0",
+    "profiles": [
+      "core-v1",
+      "bfs-v1",
+      "rng-splitmix64-v1",
+      "trace-json-v1"
+    ],
+    "protocol_version": 1,
+    "spec_version": "1.0.0"
+  },
+  "retained_sessions": 0,
+  "status": "passed",
+  "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) T3Code(Alpha)/0.0.45 Chrome/152.0.7977.130 Electron/44.4.2 Safari/537.36",
+  "scope": "Executed in T3 collaborative Chromium/Electron browser; no Safari or Firefox qualification.",
+  "framing_correction": "The first fixture omitted the JSONL newline. The corrected fixture reproduces the orchestrator framing, including its final newline byte."
+}

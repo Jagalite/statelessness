@@ -299,7 +299,7 @@ func executeModel(session *s.Session[string, string, string], table *table, op s
 			}
 			failure = map[string]any{"inputs": result.Inputs, "violations": violations}
 		}
-		names := []string{"graph_exhausted", "depth_limit", "state_limit", "transition_limit", "failure_found", "estimated_state_bytes", "deadline", "cancelled"}
+		names := []string{"graph_exhausted", "depth_bound", "state_limit", "transition_limit", "failure_found", "estimated_state_bytes", "deadline", "cancelled"}
 		return map[string]any{"termination": names[result.Termination], "states": result.States, "transitions": result.Transitions, "max_depth_reached": result.Depth, "skipped_checks": result.Skipped, "failure": failure}, nil
 	case "record":
 		inputs := r.Strings(o["inputs"], maxWork)

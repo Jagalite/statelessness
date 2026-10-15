@@ -1,0 +1,14 @@
+{
+  "name": "go-v2-tests",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/go/v2-diagnostic-release.test",
+    "-test.v"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/bindings/go/v2",
+  "started_at": "2026-10-15T03:18:28.568414+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.23438154195901,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/go-v2-tests.log",
+  "log_sha256": "103d56fa7e0c5dbd2aa356fc778a84b0d204a282baa458b66923f0b1ec921332"
+}

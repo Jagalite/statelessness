@@ -1,0 +1,14 @@
+{
+  "name": "rust-workbench-ef94d9fa21adbbd6",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/workbench-ef94d9fa21adbbd6",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:15.515501+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.2380467079929076,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-workbench-ef94d9fa21adbbd6.log",
+  "log_sha256": "3412fbb28c3dc6b79dd79940fe3a478bd680bbab27d3a3d768139ff5c44197d6"
+}

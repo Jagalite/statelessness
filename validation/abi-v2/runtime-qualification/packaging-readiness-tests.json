@@ -1,0 +1,14 @@
+{
+  "name": "packaging-readiness-tests",
+  "command": [
+    "python3",
+    "scripts/test_readiness.py"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:20:10.430104+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.4999077909742482,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/packaging-readiness-tests.log",
+  "log_sha256": "b634e4437b4d06477791d91456f61ff269084b2f65903d0f950f61051d6e8982"
+}

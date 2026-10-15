@@ -1,0 +1,25 @@
+✔ packet reader accepts a nonzero-offset Buffer and owns its decoded blobs (2.726209ms)
+✔ every truncated packet, trailing data and aggregate bounds are rejected (2.689875ms)
+✔ discarded binary parameters do not consume the portable item budget (0.194041ms)
+✔ owned witness copies outlive results and sessions without retained roots (4.090417ms)
+✔ lazy callback failure preserves a replayable prefix and closes its cursor (3.298875ms)
+✔ partial callback check batches fail without publishing passing results (0.425125ms)
+✔ observation uses supplied values and never calls initialState or step (0.621958ms)
+✔ unpublished cursors close exactly once when host roots reach quota (0.179417ms)
+✔ portable payload limits stop before candidate checkpoint commit (0.858875ms)
+✔ cross-session shrink rejects a foreign result without consuming it (1.69375ms)
+✔ cursor cleanup rejects reentry and leaves the outer session usable (0.382292ms)
+✔ unsupported persistence rejects before cloning or opening an iterator (0.196542ms)
+✔ fixture corpus explicitly dispatches to Rust and recovers after invalid UTF-8 (110.689167ms)
+✔ Wasm memory growth during callbacks preserves copied buffers and result reads (0.550375ms)
+✔ cooperative callback cancellation is resettable and clock limits fail explicitly (0.520458ms)
+✔ packet strings preserve a leading Unicode byte-order mark (0.199083ms)
+✔ native result text preserves leading BOM code points (0.234708ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 292.506792

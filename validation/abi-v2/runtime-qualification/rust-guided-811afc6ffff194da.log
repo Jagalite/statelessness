@@ -1,0 +1,17 @@
+
+running 12 tests
+test a_shorter_witness_recovers_a_feature_from_a_dropped_prefix_even_at_feature_cap ... ok
+test a_full_corpus_replaces_oldest_paths_and_accounts_for_stored_inputs ... ok
+test cancellation_from_feedback_is_observed_before_the_next_transition ... ok
+test failing_property_precedes_feedback_error_and_pre_cancel_invokes_no_execution ... ok
+test campaign_deadline_includes_feedback_factory_time_in_the_last_job ... ok
+test fixed_seed_repeats_inputs_and_collision_safe_corpus_evidence ... ok
+test ignored_feedback_limits_and_callback_errors_are_engine_errors ... ok
+test invalid_guidance_rejected_before_campaign_factories_or_sinks ... ok
+test metadata_time_is_included_and_exact_state_feedback_is_available ... ok
+test guided_campaign_jobs_match_across_workers_with_local_non_send_feature_keys ... ok
+test retention_saturates_without_stopping_execution_or_growing_past_limits ... ok
+test novel_prefixes_find_a_deep_failure_and_remain_shrinkable_and_replayable ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

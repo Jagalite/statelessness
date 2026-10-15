@@ -1,0 +1,75 @@
+✔ packet reader accepts a nonzero-offset Buffer and owns its decoded blobs (2.731416ms)
+✔ every truncated packet, trailing data and aggregate bounds are rejected (3.419792ms)
+✔ discarded binary parameters do not consume the portable item budget (0.189417ms)
+✔ owned witness copies outlive results and sessions without retained roots (4.795583ms)
+✔ lazy callback failure preserves a replayable prefix and closes its cursor (3.792959ms)
+✔ partial callback check batches fail without publishing passing results (0.519125ms)
+✔ observation uses supplied values and never calls initialState or step (0.714167ms)
+✔ unpublished cursors close exactly once when host roots reach quota (0.218625ms)
+✔ portable payload limits stop before candidate checkpoint commit (1.031667ms)
+✔ cross-session shrink rejects a foreign result without consuming it (1.87575ms)
+✔ cursor cleanup rejects reentry and leaves the outer session usable (0.591625ms)
+✔ unsupported persistence rejects before cloning or opening an iterator (0.355583ms)
+✖ fixture corpus explicitly dispatches to Rust and recovers after invalid UTF-8 (109.706959ms)
+  AssertionError [ERR_ASSERTION]: record-error-keeps-only-coherent-prefix
+  + actual - expected
+  
+    {
+      trace: {
+  +     error: 'transition: ModelError: injected step',
+  -     error: 'transition: injected step',
+        format: 'stateless.trace-json',
+        initial_checks: [],
+        initial_state: '73',
+        metadata: {
+          build: 'fixture-v1',
+  
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-abi-v2/bindings/browser/test-v2.mjs:249:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { trace: { format: 'stateless.trace-json', version: 1, metadata: [Object], initial_state: '73', initial_checks: [], steps: [Array], termination: 'model_error', error: 'transition: ModelError: injected step' } },
+    expected: { trace: { format: 'stateless.trace-json', version: 1, metadata: [Object], initial_state: '73', initial_checks: [], steps: [Array], termination: 'model_error', error: 'transition: injected step' } },
+    operator: 'deepStrictEqual'
+  }
+
+✔ Wasm memory growth during callbacks preserves copied buffers and result reads (1.104375ms)
+✔ cooperative callback cancellation is resettable and clock limits fail explicitly (0.889125ms)
+✔ packet strings preserve a leading Unicode byte-order mark (0.305917ms)
+✔ native result text preserves leading BOM code points (0.14475ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 16
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 324.907458
+
+✖ failing tests:
+
+test at bindings/browser/test-v2.mjs:11:32
+✖ fixture corpus explicitly dispatches to Rust and recovers after invalid UTF-8 (109.706959ms)
+  AssertionError [ERR_ASSERTION]: record-error-keeps-only-coherent-prefix
+  + actual - expected
+  
+    {
+      trace: {
+  +     error: 'transition: ModelError: injected step',
+  -     error: 'transition: injected step',
+        format: 'stateless.trace-json',
+        initial_checks: [],
+        initial_state: '73',
+        metadata: {
+          build: 'fixture-v1',
+  
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-abi-v2/bindings/browser/test-v2.mjs:249:12)
+      at async Test.run (node:internal/test_runner/test:932:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { trace: { format: 'stateless.trace-json', version: 1, metadata: [Object], initial_state: '73', initial_checks: [], steps: [Array], termination: 'model_error', error: 'transition: ModelError: injected step' } },
+    expected: { trace: { format: 'stateless.trace-json', version: 1, metadata: [Object], initial_state: '73', initial_checks: [], steps: [Array], termination: 'model_error', error: 'transition: injected step' } },
+    operator: 'deepStrictEqual'
+  }

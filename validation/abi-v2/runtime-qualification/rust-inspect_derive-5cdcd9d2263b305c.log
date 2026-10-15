@@ -1,0 +1,16 @@
+
+running 11 tests
+test default_schema_names_distinguish_qualified_types_and_generics ... ok
+test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+test generated_bindings_do_not_shadow_caller_identifiers ... ok
+test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+test named_fields_have_stable_ids_labels_version_and_source ... ok
+test redacted_paths_never_invoke_or_require_an_inspector ... ok
+test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+test rust_cfg_is_respected ... ok
+test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+test unsized_generic_tail_uses_reference_inspection ... ok
+test variants_support_each_shape_and_structural_paths ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

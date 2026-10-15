@@ -62,7 +62,8 @@ observation projection, not a lossless audit archive. `NeutralPacket` and
 The source regressions cover callbacks, cursor cleanup, errors with coherent
 prefixes, observations without reducer execution, collisions, shrink witnesses,
 RNG vectors and strict transport parsing. Runtime tests and performance
-qualification remain pending; compilation does not establish runtime conformance.
+qualification are tracked in [the status report](../../../docs/ABI-V2-STATUS.md);
+compilation alone does not establish runtime conformance.
 
 The optional `v2/cmd/stateless-corpus` executable speaks the existing bounded
 newline JSON conformance protocol. Its fixture tables and structural JSON reader

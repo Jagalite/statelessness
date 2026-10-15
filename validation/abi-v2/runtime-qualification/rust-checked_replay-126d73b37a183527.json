@@ -1,0 +1,14 @@
+{
+  "name": "rust-checked_replay-126d73b37a183527",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/checked_replay-126d73b37a183527",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:25.066098+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.34853229200234637,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-checked_replay-126d73b37a183527.log",
+  "log_sha256": "7f1fa5b36de9fcd70b559b4cf10fb104c39ea109d1e1f3711867003187b7b74c"
+}

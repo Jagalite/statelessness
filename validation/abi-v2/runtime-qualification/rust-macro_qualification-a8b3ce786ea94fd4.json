@@ -1,0 +1,14 @@
+{
+  "name": "rust-macro_qualification-a8b3ce786ea94fd4",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/macro_qualification-a8b3ce786ea94fd4",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:21:19.107952+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.18298737501027063,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-macro_qualification-a8b3ce786ea94fd4.log",
+  "log_sha256": "98dd687fff544b70328175b733a9434e5aff48eb9a314930cba8596a3d9292ba"
+}

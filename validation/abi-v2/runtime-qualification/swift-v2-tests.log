@@ -1,0 +1,29 @@
+Test Suite 'All tests' started at 2026-10-14 23:20:11.694.
+Test Suite 'StatelessNativeV2PackageTests.xctest' started at 2026-10-14 23:20:11.701.
+Test Suite 'NativeV2Tests' started at 2026-10-14 23:20:11.701.
+Test Case '-[NativeV2Tests.NativeV2Tests testCollisionSafeBFSAndOwnedWitness]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testCollisionSafeBFSAndOwnedWitness]' passed (0.004 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testDiscardedProvenanceDoesNotConsumePortableItemBudget]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testDiscardedProvenanceDoesNotConsumePortableItemBudget]' passed (0.003 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testFuzzShrinkAndRingUseRustOperations]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testFuzzShrinkAndRingUseRustOperations]' passed (0.001 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testMutableRootsAreIsolatedAndDisposed]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testMutableRootsAreIsolatedAndDisposed]' passed (0.000 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testNeutralPacketRejectsTruncationTrailingDataAndBounds]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testNeutralPacketRejectsTruncationTrailingDataAndBounds]' passed (0.000 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testObservedDoesNotStepAndPreservesExactUTF8]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testObservedDoesNotStepAndPreservesExactUTF8]' passed (0.000 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testRecordReplayPortableAndThrowingCursorPrefix]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testRecordReplayPortableAndThrowingCursorPrefix]' passed (0.003 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testReentryIsRejectedWithoutInvalidatingOuterCall]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testReentryIsRejectedWithoutInvalidatingOuterCall]' passed (0.000 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testRngProfileUsesEngine]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testRngProfileUsesEngine]' passed (0.000 seconds).
+Test Case '-[NativeV2Tests.NativeV2Tests testThrowingCheckIsAnErrorAndSessionRemainsUsable]' started.
+Test Case '-[NativeV2Tests.NativeV2Tests testThrowingCheckIsAnErrorAndSessionRemainsUsable]' passed (0.000 seconds).
+Test Suite 'NativeV2Tests' passed at 2026-10-14 23:20:11.714.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+Test Suite 'StatelessNativeV2PackageTests.xctest' passed at 2026-10-14 23:20:11.714.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+Test Suite 'All tests' passed at 2026-10-14 23:20:11.714.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.012 (0.020) seconds

@@ -1,0 +1,11 @@
+
+running 6 tests
+test buffer_assignment_permits_its_own_borrowed_contents ... ok
+test abi_and_callback_errors_cannot_become_successful_artifacts ... ok
+test errors_after_a_valid_prefix_are_errors_and_preserve_output_buffer ... ok
+test malformed_callback_packets_are_model_errors ... ok
+test enumeration_reports_budgets_and_emits_a_replayable_failure ... ok
+test records_normal_trace_and_replays_with_a_fresh_foreign_model ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

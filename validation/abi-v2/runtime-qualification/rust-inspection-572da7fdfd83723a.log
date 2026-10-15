@@ -1,0 +1,15 @@
+
+running 10 tests
+test float_payload_bits_prevent_false_nan_equality ... ok
+test handwritten_and_generated_inspectors_have_the_same_projection ... ok
+test large_integers_keep_type_and_exact_decimal ... ok
+test huge_map_key_is_bounded_before_owned_key_capture ... ok
+test maps_preserve_typed_keys_order_and_selection ... ok
+test nested_path_is_structural_and_does_not_traverse_siblings ... ok
+test missing_map_keys_and_far_pages_have_explicit_work_bounds ... ok
+test opaque_unavailable_truncated_and_schema_mismatch_never_equal ... ok
+test utf8_bytes_depth_and_aggregate_budgets_are_honest ... ok
+test paging_allocates_and_evaluates_only_requested_values ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

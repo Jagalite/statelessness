@@ -1,0 +1,11 @@
+
+running 6 tests
+test bounded_replay_validates_artifact_before_any_model_decode ... ok
+test actual_output_overflow_retains_checks_without_starting_output_encoding ... ok
+test checker_failure_retains_actual_once_and_secondary_observer_error ... ok
+test legacy_and_rich_replay_agree_on_every_nonempty_difference_combination ... ok
+test sealed_checked_recording_never_rechecks_and_rejects_sampling_policy ... ok
+test every_single_bit_artifact_corruption_is_rejected_under_finite_limits ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+

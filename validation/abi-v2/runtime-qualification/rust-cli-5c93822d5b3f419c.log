@@ -1,0 +1,18 @@
+
+running 13 tests
+test automatic_campaign_failure_artifacts_replay_in_new_processes ... ok
+test automatic_single_fuzz_persists_replayable_failure_and_engine_errors ... ok
+test campaign_deadline_and_automatic_domain_error_are_not_successes ... ok
+test campaign_rejects_bad_configuration_before_creating_any_directory ... ok
+test campaigns_default_to_the_custom_generator ... ok
+test automatic_fixed_campaign_jobs_are_identical_with_one_or_four_workers ... ok
+test fresh_process_record_replay_and_fixed_divergence ... ok
+test guided_cli_validates_before_creating_artifacts_and_reports_retention_limits ... ok
+test guided_fuzz_records_feedback_and_replays_original_and_shrunk_failures ... ok
+test guided_campaign_cli_jobs_are_identical_across_worker_counts ... ok
+test invalid_options_and_truncated_artifacts_fail ... ok
+test search_failures_are_saved_and_fixed_model_exhausts ... ok
+test zero_case_and_step_budgets_retain_existing_fuzz_semantics ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.95s
+

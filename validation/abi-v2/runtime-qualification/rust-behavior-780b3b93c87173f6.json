@@ -1,0 +1,14 @@
+{
+  "name": "rust-behavior-780b3b93c87173f6",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/behavior-780b3b93c87173f6",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:20:56.429373+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.7095782500109635,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-behavior-780b3b93c87173f6.log",
+  "log_sha256": "a3dbb9cf3b937a542a8abf3e6288b1ddf69eff0f6062da38f2733d8f262685e8"
+}

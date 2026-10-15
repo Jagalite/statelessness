@@ -1,0 +1,14 @@
+{
+  "name": "rust-effects_metrics-310ddaa1342e68c8",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/effects_metrics-310ddaa1342e68c8",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:02.100074+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23589474998880178,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-effects_metrics-310ddaa1342e68c8.log",
+  "log_sha256": "732ced86ee0845fdbba02f509d8b1256a636da12666e87e48d7a6d7551a73e48"
+}

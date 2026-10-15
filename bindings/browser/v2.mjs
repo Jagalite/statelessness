@@ -9,7 +9,7 @@ export {check,disposition,DEFAULT_TRACE_LIMITS};
 const MAX=(1n<<64n)-1n,MAX_BYTES=64*1024*1024;
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{fatal:true,ignoreBOM:true});
 const kinds=['accepted','rejected','ignored'],statuses=['passed','failed','skipped'];
-function diagnostic(error){try{return String(error).slice(0,16000);}catch{return 'callback failed (diagnostic unavailable)';}}
+function diagnostic(error){try{return String(error instanceof Error ? error.message : error).slice(0,16000);}catch{return 'callback failed (diagnostic unavailable)';}}
 function u64(value,name='u64') {
   if(typeof value==='number'){natural(value,name);value=BigInt(value);}
   if(typeof value!=='bigint'||value<0n||value>MAX)throw new RangeError(`invalid ${name}`);return value;

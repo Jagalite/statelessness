@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/jobs-3d431bdad95555d6",
+  "sha256": "85fdfa877340045c1abed88ec519b0a40e2a664134a91849b5599d8518c19752",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "jobs",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification/src/bin/jobs.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/jobs-3d431bdad95555d6"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/jobs-3d431bdad95555d6",
+    "fresh": true
+  }
+}

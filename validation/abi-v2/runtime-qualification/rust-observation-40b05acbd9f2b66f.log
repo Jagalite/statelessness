@@ -1,0 +1,18 @@
+
+running 13 tests
+test codec_errors_identify_the_failed_payload ... ok
+test diagnostic_logging_requires_neither_codec_nor_debug ... ok
+test failures_and_skips_are_visible_at_their_severity_and_strings_are_escaped ... ok
+test filtering_never_encodes_below_trace_and_does_not_run_model_or_checks ... ok
+test formatting_and_codec_limits_never_publish_partial_records ... ok
+test full_text_includes_actual_outputs_disposition_checks_and_snapshot ... ok
+test interrupted_and_short_writes_deliver_complete_records_with_exact_limit ... ok
+test partial_writes_and_flush_errors_permanently_disable_the_sink ... ok
+test lifecycle_and_explicit_messages_follow_the_threshold ... ok
+test periodic_and_explicit_snapshots_and_runtime_level_changes ... ok
+test swallowed_formatter_write_errors_cannot_publish_partial_records ... ok
+test recorder_and_logging_share_checks_preserve_failure_and_allow_later_diagnostics ... ok
+test verbosity_does_not_change_execution_checks_or_replay_evidence ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

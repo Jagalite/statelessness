@@ -1,0 +1,14 @@
+{
+  "name": "rust-statelessness_macros-b4aa0b5f4ead12f0",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/statelessness_macros-b4aa0b5f4ead12f0",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-macros",
+  "started_at": "2026-10-15T03:21:19.637773+00:00",
+  "status": "failed",
+  "exit_code": -6,
+  "seconds": 0.21088045800570399,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-statelessness_macros-b4aa0b5f4ead12f0.log",
+  "log_sha256": "f2526be12adf77dd4316933a2a777f90f619c7278809b336e7a63ae5c60899d3"
+}

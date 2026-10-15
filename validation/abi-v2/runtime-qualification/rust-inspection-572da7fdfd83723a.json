@@ -1,0 +1,14 @@
+{
+  "name": "rust-inspection-572da7fdfd83723a",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/inspection-572da7fdfd83723a",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:20:59.693212+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.34114379197126254,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-inspection-572da7fdfd83723a.log",
+  "log_sha256": "822238aae3abe506f4075fd655cc46e15f5abd04ff9a4903c3051126b27811fd"
+}

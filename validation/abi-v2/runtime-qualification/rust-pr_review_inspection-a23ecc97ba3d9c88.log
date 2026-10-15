@@ -1,0 +1,20 @@
+
+running 15 tests
+test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

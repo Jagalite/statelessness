@@ -1,0 +1,14 @@
+
+running 9 tests
+test actual_reason_limits_are_checked_before_encoding_outputs ... ok
+test actual_observations_respect_aggregate_total_and_item_limits ... ok
+test excessive_actual_checks_are_retained_without_encoding_outputs ... ok
+test exact_artifact_total_budget_and_between_turn_cancellation_are_preserved ... ok
+test finite_replay_preserves_exact_report_and_callbacks ... ok
+test huge_zero_sized_output_count_is_rejected_before_encoded_vector_allocation ... ok
+test output_bodies_share_one_frame_budget ... ok
+test initial_and_post_state_encoders_have_finite_blob_budgets ... ok
+test oversized_source_rejected_before_decode_or_execution ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

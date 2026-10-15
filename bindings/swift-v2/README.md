@@ -3,8 +3,9 @@
 `StatelessNativeV2` uses the Rust engine with typed Swift closures and values.
 It is a separate Swift 6 package, preserving the legacy binding package's Swift
 5.9 manifest and `StatelessNative` product. Supply the matching native library
-and linker search path explicitly. Source and compile fixtures are not runtime
-qualification; execution, installed consumers and performance remain pending.
+and linker search path explicitly. Local macOS XCTest and corpus execution is
+recorded in [the status report](../../docs/ABI-V2-STATUS.md); installed consumers,
+other deployment targets and performance remain open.
 
 ```swift
 import StatelessNativeV2

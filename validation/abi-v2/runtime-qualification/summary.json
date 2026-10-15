@@ -1,0 +1,107 @@
+{
+  "schema": "stateless.abi-v2-runtime.v1",
+  "recorded_at_utc": "2026-10-15T03:32:17.315635+00:00",
+  "source_snapshot": "final-inputs.json",
+  "source_sha256": "acfe820dca2d35020faa60ee8fe6084b510ec2d624233fb3f6706bb18bef4358",
+  "source_commit_before_fixes": "7a74eaed5bde11479d00ca668515f8f2dcef3a90",
+  "rust_workspace": {
+    "binaries": 51,
+    "passed": 534,
+    "failed": 0,
+    "ignored": 0
+  },
+  "executed_checks": {
+    "python-tests": {
+      "status": "passed",
+      "receipt": "python-tests.json"
+    },
+    "go-v2-tests": {
+      "status": "passed",
+      "receipt": "go-v2-tests.json"
+    },
+    "swift-v2-tests": {
+      "status": "passed",
+      "receipt": "swift-v2-tests.json"
+    },
+    "wasm-v2-tests": {
+      "status": "passed",
+      "receipt": "wasm-v2-tests.json"
+    },
+    "wasm-v1-tests": {
+      "status": "passed",
+      "receipt": "wasm-v1-tests.json"
+    },
+    "typescript-independent-tests": {
+      "status": "passed",
+      "receipt": "typescript-independent-tests.json"
+    },
+    "c-v1-smoke": {
+      "status": "passed",
+      "receipt": "c-v1-smoke.json"
+    },
+    "c-v2-smoke": {
+      "status": "passed",
+      "receipt": "c-v2-smoke.json"
+    },
+    "packaging-tool-tests": {
+      "status": "passed",
+      "receipt": "packaging-tool-tests.json"
+    },
+    "packaging-readiness-tests": {
+      "status": "passed",
+      "receipt": "packaging-readiness-tests.json"
+    },
+    "conformance-harness-tests": {
+      "status": "passed",
+      "receipt": "conformance-harness-tests.json"
+    },
+    "python-mutation-controls": {
+      "status": "passed",
+      "receipt": "python-mutation-controls.json"
+    },
+    "corpus-schema-validation": {
+      "status": "passed",
+      "receipt": "corpus-schema-validation.json"
+    },
+    "cross-language-conformance": {
+      "status": "failed",
+      "receipt": "cross-language-conformance.json"
+    },
+    "browser": {
+      "status": "passed",
+      "cases": 717,
+      "receipt": "browser-report.json"
+    }
+  },
+  "queued_builds": {
+    "rust-application-tests": {
+      "job": "affbd784ba764abcbdc251db2e43d682",
+      "status": "queued"
+    },
+    "go-conformance-tests": {
+      "job": "cc34380a01b74d0d88296f6a84a7c033",
+      "status": "queued"
+    },
+    "go-conformance-runner": {
+      "job": "5809f17d7ff54c4f9cf96a8cba7b2be7",
+      "status": "queued"
+    },
+    "rust-doctests": {
+      "job": "a03f3c612958414dbcf20442d9a682b7",
+      "status": "queued"
+    }
+  },
+  "fixes": [
+    "JavaScript Error.message normalization for coherent portable recording diagnostics",
+    "Go corpus depth_bound termination label; rerun pending",
+    "Canonical artifact path in macOS packaging test"
+  ],
+  "open_gates": [
+    "Queued application example and doctests",
+    "Corrected Go corpus build and complete rerun",
+    "Final package restaging and installed consumers",
+    "Hosted and remaining platform matrix",
+    "Measured performance, memory accounting and approved budgets"
+  ],
+  "default_switch_ready": false
+}

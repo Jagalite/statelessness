@@ -1,0 +1,22 @@
+{
+  "name": "python-tests",
+  "command": [
+    "env",
+    "PYTHONPATH=python/src",
+    "STATELESS_ABI2_LIBRARY=/Volumes/seed1/Projects/stateless-abi-v2-target/release/libstateless.dylib",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "python/tests",
+    "-v"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:18:28.549487+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.1656150410417467,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/python-tests.log",
+  "log_sha256": "4e6ccbbd27007218cd9e5d422dfbab0b89d69bb7f3c06b501455dfabf4678e57"
+}

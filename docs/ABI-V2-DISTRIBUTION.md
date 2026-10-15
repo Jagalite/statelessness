@@ -3,7 +3,8 @@
 The v2 distribution is additive. Existing independent Python/Go/TypeScript/Swift
 engines and ABI 1 remain available. No default changes, publication, performance
 claim, or completed migration window is established by building these packages.
-Runtime qualification and benchmarks are explicitly pending in this workstream.
+Local runtime results are recorded in [ABI-V2-STATUS.md](ABI-V2-STATUS.md).
+Installed package/platform qualification and benchmarks remain open.
 
 ## Package choices
 
@@ -46,7 +47,9 @@ For the current Kyoto-only build workflow, use the external-build path instead:
 1. Capture source before the authorized build:
    `python scripts/binding_evidence.py snapshot --output target/abi-v2/source.json`.
 2. Build through Kyoto, retaining the actual toolchain output, command records,
-   exit codes and logs. Do not execute generated tests or benchmark binaries.
+   exit codes and logs. Inspect the effective command and policy message.
+   With runtime testing authorized, execute successfully compiled test binaries
+   separately and retain their runtime receipts.
 3. Use `binding_evidence.py attest` with that snapshot, successful command JSON,
    toolchain-output files and each `--artifact BUNDLE_PATH=FILE`. For example,
    `native/lib/libstateless.dylib` identifies the built Darwin shared library and

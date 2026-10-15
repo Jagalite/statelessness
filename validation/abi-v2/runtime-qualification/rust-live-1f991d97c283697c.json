@@ -1,0 +1,14 @@
+{
+  "name": "rust-live-1f991d97c283697c",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/live-1f991d97c283697c",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:16.152519+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 2.1730933749931864,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-live-1f991d97c283697c.log",
+  "log_sha256": "41a8fe30276b4881a9a5bb4a38780dad451692f910af5047a116078207c1ed83"
+}

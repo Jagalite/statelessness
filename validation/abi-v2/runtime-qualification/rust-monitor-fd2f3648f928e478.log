@@ -1,0 +1,15 @@
+
+running 10 tests
+test a_missing_observation_freezes_the_coherent_prefix_and_declares_the_gap ... ok
+test capacity_one_and_midrun_start_replay_after_repeated_eviction ... ok
+test checker_and_codec_errors_do_not_evict_the_last_coherent_window ... ok
+test freeze_on_failure_preserves_last_window_and_reproduces_failure ... ok
+test ignored_inputs_are_still_recorded_and_snapshots_do_not_stop_recording ... ok
+test initial_failure_freezes_without_executing_a_transition ... ok
+test evicted_history_keeps_an_exact_replayable_checkpoint_without_rechecking ... ok
+test invalid_limits_and_reserved_audit_keys_are_rejected ... ok
+test recorder_checks_actual_outputs_instead_of_recomputing_the_transition ... ok
+test too_many_checks_freezes_before_evicting_the_previous_observation ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

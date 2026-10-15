@@ -1,0 +1,18 @@
+
+running 13 tests
+test empty_runs_and_all_termination_kinds_round_trip ... ok
+test aggregate_item_limit_catches_many_small_records ... ok
+test every_truncated_prefix_is_rejected_including_missing_footer ... ok
+test hostile_frame_length_hits_limit_without_reading_payload ... ok
+test invalid_utf8_and_impossible_nested_count_are_rejected_before_allocation ... ok
+test read_and_write_enforce_all_limits_and_validation_precedes_writes ... ok
+test round_trip_preserves_all_evidence_and_is_deterministic ... ok
+test short_and_interrupted_reads_are_supported ... ok
+test underlying_io_errors_are_preserved ... ok
+test unknown_records_reordered_steps_and_wrong_footer_count_are_rejected ... ok
+test unsupported_versions_flags_and_trailing_artifacts_are_rejected ... ok
+test version_one_golden_bytes_preserve_the_existing_wire_format ... ok
+test every_single_bit_corruption_is_rejected ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+

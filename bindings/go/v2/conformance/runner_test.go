@@ -9,8 +9,8 @@ import (
 	"testing"
 )
 
-// This test is compiled by the build-only qualification workflow. Running it is
-// an explicit later conformance gate and executes the Rust-backed fixture runner.
+// Execute the golden corpus through the Rust-backed fixture runner, including
+// depth-bound termination names and coherent recording error prefixes.
 func TestPortableCorpus(t *testing.T) {
 	data, err := os.ReadFile("../../../../conformance/corpus.json")
 	if err != nil {

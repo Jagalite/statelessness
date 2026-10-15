@@ -1,0 +1,18 @@
+
+running 13 tests
+test configuration_is_stale_safe_and_applied_per_producer_at_explicit_boundaries ... ok
+test combined_scope_is_conjunctive_and_context_is_not_implicitly_exported ... ok
+test context_byte_limits_reject_before_advancing_producer_boundary ... ok
+test invalid_selector_labels_and_aggregate_metadata_budget_do_not_change_revision ... ok
+test multiple_matching_scopes_share_closure_and_authorized_projection ... ok
+test producer_and_origin_selectors_are_independent_exact_filters ... ok
+test every_declared_label_filters_match_mismatch_and_unknown_before_closure ... ok
+test property_outcome_selection_does_not_treat_unknown_as_nonfailure ... ok
+test scope_filters_preserve_field_redaction_in_all_sinks ... ok
+test scoped_configuration_cannot_expand_sink_projection_permissions ... ok
+test scope_selection_does_not_bypass_site_kind_or_severity_filters ... ok
+test selector_gap_resets_threshold_hysteresis_and_cooldown_as_unknown ... ok
+test selector_gaps_invalidate_change_baselines_without_evaluating_filtered_values ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

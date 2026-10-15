@@ -1,0 +1,79 @@
+test_cross_session_shrink_rejected_and_source_result_remains_usable (test_abi_v2.NativeTests.test_cross_session_shrink_rejected_and_source_result_remains_usable) ... ok
+test_cursor_cleanup_reentry_is_rejected_and_outer_session_recovers (test_abi_v2.NativeTests.test_cursor_cleanup_reentry_is_rejected_and_outer_session_recovers) ... ok
+test_fixture_corpus_uses_explicit_rust_backend_and_recovers_after_bad_input (test_abi_v2.NativeTests.test_fixture_corpus_uses_explicit_rust_backend_and_recovers_after_bad_input) ... invalid JSON: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+initial_state: injected initial_state
+initial check_state: injected check_state
+enumerate inputs: injected inputs
+step: injected step
+check_state: injected check_state
+check_transition: injected check_transition
+check_transition: injected check_transition
+initial state: injected initial_state
+trace continues after initial property failure
+trace continues after property failure
+trace termination disagrees with recorded checks
+trace termination disagrees with recorded checks
+decode input: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+decode initial state: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+expected integer in 0..100000
+expected integer in 0..100000
+floating-point values are outside the portable profile
+expected canonical decimal u64 string
+expected canonical decimal u64 string
+expected canonical decimal u64 string
+invalid model size or initial state
+unknown transition target
+duplicate state ID
+conflicting transitions for the same state/input
+unsupported trace format/version
+unsupported trace format/version
+unsupported trace format/version
+expected bounded lowercase hexadecimal bytes
+expected bounded lowercase hexadecimal bytes
+unknown trace termination
+ok
+test_lazy_callback_failure_preserves_only_completed_prefix (test_abi_v2.NativeTests.test_lazy_callback_failure_preserves_only_completed_prefix) ... ok
+test_live_session_keeps_callback_trampolines_rooted_until_close (test_abi_v2.NativeTests.test_live_session_keeps_callback_trampolines_rooted_until_close) ... ok
+test_observed_transition_never_calls_reducer_or_mutates_caller (test_abi_v2.NativeTests.test_observed_transition_never_calls_reducer_or_mutates_caller) ... ok
+test_owned_witness_copies_survive_result_and_session_close (test_abi_v2.NativeTests.test_owned_witness_copies_survive_result_and_session_close) ... ok
+test_partial_check_batch_cannot_return_success (test_abi_v2.NativeTests.test_partial_check_batch_cannot_return_success) ... ok
+test_portable_limit_rejects_candidate_before_prefix_commit (test_abi_v2.NativeTests.test_portable_limit_rejects_candidate_before_prefix_commit) ... ok
+test_unpublished_cursor_is_closed_on_root_quota_failure (test_abi_v2.NativeTests.test_unpublished_cursor_is_closed_on_root_quota_failure) ... ok
+test_unsupported_persistence_fails_before_snapshot_or_iterator (test_abi_v2.NativeTests.test_unsupported_persistence_fails_before_snapshot_or_iterator) ... ok
+test_wrong_thread_and_hash_mismatch_fail_without_losing_owner (test_abi_v2.NativeTests.test_wrong_thread_and_hash_mismatch_fail_without_losing_owner) ... ok
+test_blob_payload_and_cumulative_collection_limits (test_abi_v2.PacketTests.test_blob_payload_and_cumulative_collection_limits) ... ok
+test_discarded_binary_parameters_do_not_consume_portable_item_budget (test_abi_v2.PacketTests.test_discarded_binary_parameters_do_not_consume_portable_item_budget) ... ok
+test_every_truncated_prefix_and_trailing_bytes_fail (test_abi_v2.PacketTests.test_every_truncated_prefix_and_trailing_bytes_fail) ... ok
+test_packet_roundtrip_empty_identifiers_and_owned_blobs (test_abi_v2.PacketTests.test_packet_roundtrip_empty_identifiers_and_owned_blobs) ... ok
+test_application_owned_dataclass_and_failure_witness (test_native.NativeTests.test_application_owned_dataclass_and_failure_witness) ... ok
+test_bad_codec_type_is_a_model_error (test_native.NativeTests.test_bad_codec_type_is_a_model_error) ... ok
+test_build_mismatch_must_be_explicit (test_native.NativeTests.test_build_mismatch_must_be_explicit) ... ok
+test_check_error_does_not_return_partial_success (test_native.NativeTests.test_check_error_does_not_return_partial_success) ... ok
+test_corpus_cli (test_native.NativeTests.test_corpus_cli) ... ok
+test_duplicate_failure_ids_preserve_order (test_native.NativeTests.test_duplicate_failure_ids_preserve_order) ... ok
+test_hashable_and_unhashable_equal_states_deduplicate (test_native.NativeTests.test_hashable_and_unhashable_equal_states_deduplicate) ... ok
+test_initial_callback_error_is_not_a_trace (test_native.NativeTests.test_initial_callback_error_is_not_a_trace) ... ok
+test_iterator_error_classified (test_native.NativeTests.test_iterator_error_classified) ... ok
+test_json_byte_and_aggregate_limits (test_native.NativeTests.test_json_byte_and_aggregate_limits) ... ok
+test_json_rejects_duplicates_unicode_floats_and_trailing (test_native.NativeTests.test_json_rejects_duplicates_unicode_floats_and_trailing) ... ok
+test_keyboard_interrupt_is_not_swallowed (test_native.NativeTests.test_keyboard_interrupt_is_not_swallowed) ... ok
+test_later_callback_error_retains_coherent_prefix (test_native.NativeTests.test_later_callback_error_retains_coherent_prefix) ... ok
+test_mutable_native_state_branches_are_isolated (test_native.NativeTests.test_mutable_native_state_branches_are_isolated) ... ok
+test_noncanonical_initial_bytes_rejected (test_native.NativeTests.test_noncanonical_initial_bytes_rejected) ... ok
+test_noncanonical_input_bytes_rejected (test_native.NativeTests.test_noncanonical_input_bytes_rejected) ... ok
+test_observation_does_not_call_step (test_native.NativeTests.test_observation_does_not_call_step) ... ok
+test_periodic_check_explicitly_skipped (test_native.NativeTests.test_periodic_check_explicitly_skipped) ... ok
+test_record_blob_limit (test_native.NativeTests.test_record_blob_limit) ... ok
+test_record_item_limit (test_native.NativeTests.test_record_item_limit) ... ok
+test_record_payload_limit (test_native.NativeTests.test_record_payload_limit) ... ok
+test_record_replay_and_json_roundtrip (test_native.NativeTests.test_record_replay_and_json_roundtrip) ... ok
+test_replay_restores_checkpoint_not_initial (test_native.NativeTests.test_replay_restores_checkpoint_not_initial) ... ok
+test_trace_false_termination_and_continuation_rejected (test_native.NativeTests.test_trace_false_termination_and_continuation_rejected) ... ok
+test_u64_boundaries (test_native.NativeTests.test_u64_boundaries) ... ok
+test_work_limit_validation_rejects_bool_negative (test_native.NativeTests.test_work_limit_validation_rejects_bool_negative) ... ok
+test_zero_rng_domain_does_not_consume_state (test_native.NativeTests.test_zero_rng_domain_does_not_consume_state) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 0.712s
+
+OK

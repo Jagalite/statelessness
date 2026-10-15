@@ -1,0 +1,11 @@
+
+running 6 tests
+test generic_associated_binding_is_preserved ... ok
+test domain_locals_do_not_capture_application_bindings ... ok
+test generic_function_arrow_does_not_close_parameter_list ... ok
+test primitive_aliases::enum_wire_tag_width_is_not_a_caller_type_alias ... ok
+test shadowed_results::adapter_and_domain_use_standard_result_constructors ... ok
+test shadowed_results::derives_use_standard_result_constructors ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

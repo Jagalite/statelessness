@@ -1,0 +1,18 @@
+{
+  "browser/stateless.wasm": {
+    "path": "/Volumes/seed1/Projects/stateless-abi-v2-wasm-v1-target/wasm32-unknown-unknown/release/stateless.wasm",
+    "sha256": "3e1aa621a313fabaf293003423540b207d6d13ab8d7728df952d10180f4e4a74"
+  },
+  "browser/stateless_v2.wasm": {
+    "path": "/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target/wasm32-unknown-unknown/release/stateless.wasm",
+    "sha256": "484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15"
+  },
+  "native/lib/libstateless.a": {
+    "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/release/libstateless.a",
+    "sha256": "1ec4ab827fe2e1668d68b96b3504239bfa59fc028fee423db4514336d9cc271e"
+  },
+  "native/lib/libstateless.dylib": {
+    "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/release/libstateless.dylib",
+    "sha256": "cbae75cf947b31bd4f173f58e251ee7170545dfc739423428b18c6d1b1c1bbb3"
+  }
+}

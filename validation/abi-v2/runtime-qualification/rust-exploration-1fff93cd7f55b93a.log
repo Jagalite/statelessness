@@ -1,0 +1,33 @@
+
+running 28 tests
+test bfs_checks_transition_to_an_already_visited_state ... ok
+test bfs_checks_a_failing_successor_before_enforcing_state_storage_cap ... ok
+test bfs_exhausts_known_graph_despite_collisions_and_duplicate_paths ... ok
+test bfs_returns_a_shortest_counterexample ... ok
+test cancellation_and_deadline_have_distinct_search_results ... ok
+test cooperative_stops_preserve_a_failure_on_the_just_executed_transition ... ok
+test disabled_generated_inputs_are_adapter_errors_not_findings ... ok
+test cyclic_simplification_hints_terminate_without_a_budget_cutoff ... ok
+test enumeration_hashes_each_candidate_once_and_reuses_check_storage ... ok
+test estimated_state_size_overflow_cannot_bypass_an_admission_budget ... ok
+test fuzz_honors_cancellation_at_terminal_callbacks_and_the_final_planned_step ... ok
+test fuzz_reports_transition_budget_and_does_not_claim_exhaustiveness ... ok
+test fuzz_reused_inputs_are_validated_once_and_exhausted_budget_skips_generation ... ok
+test graph_completion_depth_cutoffs_and_edge_cutoffs_are_distinct ... ok
+test initial_failures_precede_transition_budgets_and_need_no_input ... ok
+test lazy_depth_boundary_probes_one_input_without_materializing_the_domain ... ok
+test passing_transition_checker_preserves_state_failure ... ok
+test pre_cancelled_enumeration_invokes_no_model_callbacks ... ok
+test shrink_budget_counts_validation_and_preserves_unvalidated_original_evidence ... ok
+test shrink_cancellation_keeps_validation_status_and_never_claims_search_complete ... ok
+test shrinking_honors_replay_budget_and_rejects_wrong_or_disabled_originals ... ok
+test shrinking_preserves_causality_failure_identity_and_original_evidence ... ok
+test shrinking_reports_cooperative_deadline_without_claiming_original_validation ... ok
+test skipped_checks_are_counted_and_checker_errors_are_not_violations ... ok
+test state_byte_admission_reports_estimates_and_preserves_failures ... ok
+test terminal_iterator_cancellation_cannot_claim_graph_exhaustion_or_depth_completion ... ok
+test zero_case_fuzz_still_observes_pre_start_controls_without_model_callbacks ... ok
+test fuzz_is_seeded_and_reuses_only_causally_enabled_inputs ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

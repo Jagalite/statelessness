@@ -1,6 +1,6 @@
 # ABI v2 architecture and migration plan
 
-Status: implementation in progress; runtime qualification and measurements explicitly pending. Date: October 12, 2026.
+Status: implementation in draft review; local runtime qualification in progress, measurements pending. Updated: October 14, 2026. See [current evidence](ABI-V2-STATUS.md).
 
 Make Rust the shared production engine behind idiomatic Python, Go, TypeScript,
 Swift, and C interfaces. Replace the byte-only foreign adapter with a versioned

@@ -1,0 +1,80 @@
+{
+  "mutants": 8,
+  "detected": 8,
+  "results": [
+    {
+      "mutation": "omit_initial_checks",
+      "detected_by": [
+        "record-initial-failure-stops-before-invalid-input",
+        "record-preserves-output-and-check-order"
+      ]
+    },
+    {
+      "mutation": "omit_transition_checks",
+      "detected_by": [
+        "failing-edge-to-visited-state",
+        "breadth-first-witness-and-tie-order",
+        "state-failure-before-edge-failure",
+        "skips-counted-on-revisited-state-and-edge",
+        "model-error-transition-check",
+        "model-error-transition-check-after-state-failure",
+        "record-stops-after-first-failure",
+        "record-preserves-output-and-check-order",
+        "replay-failure-reproduced",
+        "failure-can-reproduce-with-detail-divergence",
+        "observation-never-executes-reducer",
+        "observation-periodic-skip",
+        "observation-periodic-due"
+      ]
+    },
+    {
+      "mutation": "ignore_state_cap",
+      "detected_by": [
+        "passing-successor-at-state-cap"
+      ]
+    },
+    {
+      "mutation": "sort_ordered_outputs",
+      "detected_by": [
+        "record-preserves-output-and-check-order"
+      ]
+    },
+    {
+      "mutation": "accept_incompatible_identity",
+      "detected_by": [
+        "replay-rejects-identity-name",
+        "allow-build-does-not-bypass-name",
+        "replay-rejects-identity-model_version",
+        "allow-build-does-not-bypass-model_version",
+        "replay-rejects-identity-properties_version",
+        "allow-build-does-not-bypass-properties_version",
+        "replay-rejects-identity-codec_version",
+        "allow-build-does-not-bypass-codec_version",
+        "replay-rejects-identity-build"
+      ]
+    },
+    {
+      "mutation": "misreport_depth_exhaustion",
+      "detected_by": [
+        "depth-zero-with-unexamined-input",
+        "unexecuted-cycle-edge-at-depth-bound"
+      ]
+    },
+    {
+      "mutation": "rng_modulo_bias",
+      "detected_by": [
+        "splitmix64-seed-zero",
+        "splitmix64-seed-1",
+        "splitmix64-seed-18446744073709551615"
+      ]
+    },
+    {
+      "mutation": "hide_skipped_checks",
+      "detected_by": [
+        "record-preserves-output-and-check-order",
+        "observation-periodic-skip",
+        "observation-disabled-edge-checks"
+      ]
+    }
+  ]
+}
