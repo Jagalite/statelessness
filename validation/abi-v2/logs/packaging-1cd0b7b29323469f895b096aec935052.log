@@ -1,0 +1,27 @@
+npm notice
+npm notice 📦  @jagalite/stateless@0.2.0
+npm notice Tarball Contents
+npm notice 1.1kB LICENSE
+npm notice 3.0kB README.md
+npm notice 1.8kB engine-build.json
+npm notice 749B package.json
+npm notice 464.6kB stateless_v2.wasm
+npm notice 9.1kB stateless.mjs
+npm notice 463.9kB stateless.wasm
+npm notice 9.7kB v2-json.mjs
+npm notice 3.8kB v2-packet.mjs
+npm notice 1.7kB v2-values.mjs
+npm notice 25B v2.d.mts
+npm notice 5.4kB v2.d.ts
+npm notice 23.8kB v2.mjs
+npm notice Tarball Details
+npm notice name: @jagalite/stateless
+npm notice version: 0.2.0
+npm notice filename: jagalite-stateless-0.2.0.tgz
+npm notice package size: 319.5 kB
+npm notice unpacked size: 988.7 kB
+npm notice shasum: fdf130cea52b654976a3f9a9cd8d11c9d99799e6
+npm notice integrity: sha512-fAdA+9tbiEpXR[...]mOsmOPPGi4IWQ==
+npm notice total files: 13
+npm notice
+jagalite-stateless-0.2.0.tgz

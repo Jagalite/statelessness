@@ -1,0 +1,9 @@
+Processing /Volumes/seed1/Projects/stateless-abi-v2-target/python-wheel-source
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: statelessness
+  Building wheel for statelessness (pyproject.toml): started
+  Building wheel for statelessness (pyproject.toml): finished with status 'done'
+  Created wheel for statelessness: filename=statelessness-0.1.0-py3-none-any.whl size=27710 sha256=a93aed3707029efb68d217ac10885a9626dde19b425c2d6370569d235029e6a4
+  Stored in directory: /Users/jagatranvo/Library/Caches/pip/wheels/34/05/cc/9f0577836dd8eac642e2759c5dd0fa3a1c4bc51419234c426f
+Successfully built statelessness

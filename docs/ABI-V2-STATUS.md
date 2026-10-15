@@ -1,6 +1,6 @@
 # ABI v2 implementation status
 
-Date: October 12, 2026. The shared Rust engine, additive C/Wasm ABI, four opt-in
+Date: October 14, 2026. The shared Rust engine, additive C/Wasm ABI, four opt-in
 language adapters and distribution/gate tooling are implemented in source.
 **Runtime qualification and benchmarks remain pending by explicit user choice.**
 No language default has switched, no independent engine or ABI 1 surface has been
@@ -75,7 +75,9 @@ The final Go diagnostic-containment follow-up now passes Kyoto formatting and
 compilation, including the regression test/benchmark binaries and cgo-disabled
 structural helpers. No generated executable was run. Final source/build
 attestation and package restaging still need to include that edit; existing
-package receipts describe the prior candidate.
+package receipts describe the prior candidate. Refreshed native/Wasm artifact
+builds are queued in Kyoto under host memory pressure; the draft PR keeps this
+package gate open.
 
 | Check | Observed result | Qualification boundary |
 | --- | --- | --- |
@@ -91,7 +93,9 @@ The readiness reports remain `default_switch_ready: false`. Runtime tests,
 portable corpus execution, fresh-process replay, ownership behavior, installation,
 platform coverage and measured performance are pending. Benchmark fixtures exist;
 repeated measurements, complete memory accounting and approved numeric budgets
-have not been collected. The worktree changes remain uncommitted.
+have not been collected. The implementation is committed on `abi/v2-foundation`
+for draft review. Runtime workflows skip draft PRs and run when marked ready for
+review; the ABI v2 compile/package workflow remains manual.
 
 Even a complete compile pass does not establish semantic parity, cleanup behavior,
 memory safety under hostile callbacks, throughput, RSS, browser/mobile behavior

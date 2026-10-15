@@ -1,0 +1,367 @@
+{
+  "archive_inspection": "validation/abi-v2/archive-inspection-pre-go-allowlist-fix.json",
+  "benchmark_measurements": "not_run",
+  "final_qualification": "pending_go_format_compile_source_freeze_and_final_reattestation",
+  "final_receipt": "validation/abi-v2/final-packaging-qualification.json",
+  "jobs": [
+    {
+      "command": [
+        "env",
+        "PYTHONPYCACHEPREFIX=/Volumes/seed1/Projects/stateless-abi-v2-target/python-syntax",
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/binding_evidence.py",
+        "scripts/build-bindings.py",
+        "scripts/check-abi-v2-package.py",
+        "scripts/check-abi-v2-gates.py",
+        "scripts/compare-abi-v2-benchmarks.py",
+        "scripts/test_readiness.py",
+        "scripts/test_binding_evidence.py"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791860810.932918,
+      "id": "f87974096d324f359e36e6ca10aac31d",
+      "log": "/Users/jagatranvo/.local/state/kyoto/f87974096d324f359e36e6ca10aac31d.log",
+      "started": 1791860810.689611,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONPYCACHEPREFIX=/Volumes/seed1/Projects/stateless-abi-v2-target/python-syntax",
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/binding_evidence.py",
+        "scripts/build-bindings.py",
+        "scripts/check-abi-v2-package.py",
+        "scripts/check-abi-v2-gates.py",
+        "scripts/compare-abi-v2-benchmarks.py",
+        "scripts/test_readiness.py",
+        "scripts/test_binding_evidence.py"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861086.8190742,
+      "id": "f0431dcb4a574dc2a12f57abe7bb45ab",
+      "log": "/Users/jagatranvo/.local/state/kyoto/f0431dcb4a574dc2a12f57abe7bb45ab.log",
+      "started": 1791861083.5661812,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,sys; from pathlib import Path; sys.path.insert(0,\"scripts\"); b=runpy.run_path(\"scripts/build-bindings.py\"); stage=Path(\"/Volumes/seed1/Projects/stateless-abi-v2-target/source-bundles\"); print(b[\"stage_sources\"](Path.cwd(),stage,\"native\",\"0.2.0\",True))"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861111.407663,
+      "id": "5c90d33c4f26419a9642f10422ec5b7c",
+      "log": "/Users/jagatranvo/.local/state/kyoto/5c90d33c4f26419a9642f10422ec5b7c.log",
+      "started": 1791861109.5503309,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "-c",
+        "import runpy,sys; from pathlib import Path; sys.path.insert(0,\"scripts\"); b=runpy.run_path(\"scripts/build-bindings.py\"); stage=Path(\"/Volumes/seed1/Projects/stateless-abi-v2-target/source-bundles\"); print(b[\"stage_sources\"](Path.cwd(),stage,\"native\",\"0.2.0\",True))"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861243.963283,
+      "id": "5f8a0d1fd5284e2fa076b8f1dcbc42f3",
+      "log": "/Users/jagatranvo/.local/state/kyoto/5f8a0d1fd5284e2fa076b8f1dcbc42f3.log",
+      "started": 1791861242.317569,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONPYCACHEPREFIX=/Volumes/seed1/Projects/stateless-abi-v2-target/python-syntax",
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/binding_evidence.py",
+        "scripts/build-bindings.py",
+        "scripts/check-abi-v2-package.py",
+        "scripts/check-abi-v2-gates.py",
+        "scripts/compare-abi-v2-benchmarks.py",
+        "scripts/test_readiness.py",
+        "scripts/test_binding_evidence.py"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861448.819901,
+      "id": "d10263f8226541b3be6eb33ddcdf5ca2",
+      "log": "/Users/jagatranvo/.local/state/kyoto/d10263f8226541b3be6eb33ddcdf5ca2.log",
+      "started": 1791861446.7075388,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/build-bindings.py",
+        "--kind",
+        "all",
+        "--abi-v2",
+        "--build-receipt",
+        "validation/abi-v2/final-build-receipt.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862108.111735,
+      "id": "28544c510c8a4d27b41052329a051da3",
+      "log": "validation/abi-v2/logs/packaging-28544c510c8a4d27b41052329a051da3.log",
+      "log_sha256": "a7c89e7ae4f11ea33a1a2c96faeb821452f2a7706b5071bae99ba585ff9d02b4",
+      "started": 1791862102.797833,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-abi-v2-package.py",
+        "--package",
+        "target/bindings/native",
+        "--source-root",
+        ".",
+        "--report",
+        "validation/abi-v2/native-package-inspect.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862134.600833,
+      "id": "5a5c4d4a23d44c6293a8ea74c3dbe7a1",
+      "log": "validation/abi-v2/logs/packaging-5a5c4d4a23d44c6293a8ea74c3dbe7a1.log",
+      "log_sha256": "0ace513e391ace954989dc5384557816258cae0e5819bce5edf5c861294750ad",
+      "started": 1791862133.518365,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-abi-v2-package.py",
+        "--package",
+        "target/bindings/browser",
+        "--source-root",
+        ".",
+        "--report",
+        "validation/abi-v2/browser-package-inspect.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862134.8239691,
+      "id": "9339b7b5854d41c7ad1b30ffed9d0216",
+      "log": "validation/abi-v2/logs/packaging-9339b7b5854d41c7ad1b30ffed9d0216.log",
+      "log_sha256": "650dde71bfd47e0c30ddc1d40e52d250b292e48b06b9a93d3c0259afc90bc0ee",
+      "started": 1791862134.628442,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "venv",
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862158.547704,
+      "id": "5ead0a2e1b5a44aca49017f234e2abb0",
+      "log": "validation/abi-v2/logs/packaging-5ead0a2e1b5a44aca49017f234e2abb0.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "started": 1791862149.826648,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "setuptools>=77",
+        "wheel"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862238.193383,
+      "id": "3a02dfa0ea214eacad4672d2159b4998",
+      "log": "validation/abi-v2/logs/packaging-3a02dfa0ea214eacad4672d2159b4998.log",
+      "log_sha256": "1c72dfb2f5b7ea065fd21f6cad468f89dc38ccd891c107e22e3cf6ea700866ab",
+      "started": 1791862176.567534,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "npm",
+        "pack",
+        "./target/bindings/browser",
+        "--ignore-scripts",
+        "--offline",
+        "--pack-destination",
+        "target/bindings/browser-dist"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862167.633943,
+      "id": "1cd0b7b29323469f895b096aec935052",
+      "log": "validation/abi-v2/logs/packaging-1cd0b7b29323469f895b096aec935052.log",
+      "log_sha256": "81b6179976982fdcd3afcc0a09edd737a1a9e73371c02548379b9e1a9fff5813",
+      "started": 1791862166.312712,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-build-isolation",
+        "--no-deps",
+        "--no-index",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/python-wheel-source",
+        "--wheel-dir",
+        "target/bindings/python-dist"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862388.244846,
+      "id": "b12152be4d1c4f938f980456c9eae901",
+      "log": "validation/abi-v2/logs/packaging-b12152be4d1c4f938f980456c9eae901.log",
+      "log_sha256": "cae4e2fa1c13ce058c7b2c406eda7468a81d7cc0fa70fef17823f089a7aae89a",
+      "started": 1791862347.806842,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+        "-c",
+        "from pathlib import Path\nimport hashlib, json, tarfile, zipfile, importlib.metadata, subprocess\nroot=Path.cwd(); bundle=root/\"target/bindings\"\ndef digest(data): return hashlib.sha256(data).hexdigest()\ndef sha(path): return digest(path.read_bytes())\nmanifest=json.loads((bundle/\"manifest-all.json\").read_text())\nfor name, expected in manifest[\"files\"].items():\n    assert sha(bundle/name)==expected, name\narchives={}\nnpm=list((bundle/\"browser-dist\").glob(\"*.tgz\"))\nassert len(npm)==1\nwith tarfile.open(npm[0],\"r:gz\") as archive:\n    members=[m for m in archive.getmembers() if m.isfile()]\n    names=[m.name for m in members]; assert len(names)==len(set(names))\n    files={m.name.removeprefix(\"package/\"):digest(archive.extractfile(m).read()) for m in members}\n    expected={p.relative_to(bundle/\"browser\").as_posix():sha(p) for p in (bundle/\"browser\").rglob(\"*\") if p.is_file()}\n    assert files==expected, \"npm archive differs from staged browser package\"\narchives[\"npm\"]={\"path\":str(npm[0].relative_to(root)),\"sha256\":sha(npm[0]),\"files\":files}\nwheels=list((bundle/\"python-dist\").glob(\"*.whl\"));assert len(wheels)==1\nwith zipfile.ZipFile(wheels[0]) as archive:\n    names=archive.namelist();assert len(names)==len(set(names))\n    files={name:digest(archive.read(name)) for name in names if not name.endswith(\"/\")}\n    source=bundle/\"python/src\"\n    expected={p.relative_to(source).as_posix():sha(p) for p in source.rglob(\"*\") if p.is_file()}\n    assert all(files.get(name)==value for name,value in expected.items()), \"wheel source differs from stage\"\n    assert set(expected)=={name for name in files if name.startswith(\"statelessness/\")}\n    for name in (\"native.py\",\"_native_packet.py\",\"native_conformance.py\",\"trace_json.py\",\"py.typed\"):\n        assert \"statelessness/\"+name in files\narchives[\"wheel\"]={\"path\":str(wheels[0].relative_to(root)),\"sha256\":sha(wheels[0]),\"files\":files}\nreport={\"schema\":\"stateless.archive-inspection.v1\",\"source_sha256\":manifest[\"build\"][\"source\"][\"sha256\"],\"manifest_sha256\":sha(bundle/\"manifest-all.json\"),\"outcome\":\"passed_for_requested_scope\",\"scope\":\"Static archive file inventories and hashes only; package engines are not imported or instantiated.\",\"archive_files\":archives,\"build_dependencies\":{name:importlib.metadata.version(name) for name in (\"pip\",\"setuptools\",\"wheel\",\"packaging\")},\"node\":subprocess.check_output([\"node\",\"--version\"],text=True).strip(),\"npm\":subprocess.check_output([\"npm\",\"--version\"],text=True).strip(),\"runtime_tests\":\"not_run\",\"benchmark_measurements\":\"not_run\"}\n(root/\"validation/abi-v2/archive-inspection.json\").write_text(json.dumps(report,indent=2,sort_keys=True)+\"\\n\")\nprint(\"Static archive inspection passed:\",[(k,v[\"sha256\"]) for k,v in archives.items()])\n"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862452.446765,
+      "id": "e5db454d9b1e47a986144577771c0ce1",
+      "log": "validation/abi-v2/logs/packaging-e5db454d9b1e47a986144577771c0ce1.log",
+      "log_sha256": "6bac130fb3548e1d60d7912aa3db8efd0e9661f657ee4495671f57cbf626f1e5",
+      "started": 1791862451.10531,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONPYCACHEPREFIX=/Volumes/seed1/Projects/stateless-abi-v2-target/python-syntax",
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/build-bindings.py"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862411.440672,
+      "id": "b75a9948385c4c26b3a913ae24b7dbf2",
+      "log": "validation/abi-v2/logs/packaging-b75a9948385c4c26b3a913ae24b7dbf2.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "started": 1791862409.2831092,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/build-bindings.py",
+        "--kind",
+        "all",
+        "--abi-v2",
+        "--build-receipt",
+        "validation/abi-v2/final-build-receipt.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862602.260572,
+      "id": "556faa239b244868baf44777d9f4c678",
+      "log": "validation/abi-v2/logs/packaging-556faa239b244868baf44777d9f4c678.log",
+      "log_sha256": "a5b2c190bcdc50358c8c72a80ae9ae972c2a89e76e782bf4b4695d1c01a6b6de",
+      "scope": "Superseded after Go callback containment source correction; no final qualification claim.",
+      "started": 1791862598.9944499,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-abi-v2-package.py",
+        "--package",
+        "target/bindings/native",
+        "--source-root",
+        ".",
+        "--report",
+        "validation/abi-v2/native-package-inspect.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": null,
+      "finished": 1791862715.82731,
+      "id": "e8734b6a5621409e8b277f0e3249909a",
+      "not_executed_reason": "Cancelled while queued after source freeze was lifted for a Go callback containment fix.",
+      "scope": "Superseded after Go callback containment source correction; no final qualification claim.",
+      "started": null,
+      "status": "cancelled"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-abi-v2-package.py",
+        "--package",
+        "target/bindings/browser",
+        "--source-root",
+        ".",
+        "--report",
+        "validation/abi-v2/browser-package-inspect.json"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": null,
+      "finished": 1791862715.82731,
+      "id": "a9d7c55938b942d9b418691657e21e0d",
+      "not_executed_reason": "Cancelled while queued after source freeze was lifted for a Go callback containment fix.",
+      "scope": "Superseded after Go callback containment source correction; no final qualification claim.",
+      "started": null,
+      "status": "cancelled"
+    },
+    {
+      "command": [
+        "npm",
+        "pack",
+        "./target/bindings/browser",
+        "--ignore-scripts",
+        "--offline",
+        "--pack-destination",
+        "target/bindings/browser-dist"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": null,
+      "finished": 1791862715.82731,
+      "id": "b33a154cbbf14d6fa4a3a2a42b7fde92",
+      "not_executed_reason": "Cancelled while queued after source freeze was lifted for a Go callback containment fix.",
+      "scope": "Superseded after Go callback containment source correction; no final qualification claim.",
+      "started": null,
+      "status": "cancelled"
+    }
+  ],
+  "latest_artifacts_are_historical": true,
+  "packaging_regression_tests": "not_run",
+  "python": "3.13.3 (v3.13.3:6280bb54784, Apr  8 2025, 10:47:54) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "restaging_after_go_fixture_omission": "completed_then_superseded_by_go_containment_fix",
+  "runtime_tests": "not_run",
+  "scope": "Python compilation, allowlisted prebuilt package staging, native/Wasm metadata and hashes, wheel/npm archive creation and static inventory checks. No engine execution.",
+  "source_files": {
+    "scripts/binding_evidence.py": "9d6018e341f32e637a2a8f47c916b7c8dbc2d775691590d64b05c409a6ee4dbc",
+    "scripts/build-bindings.py": "ef84b374db08003d6bcf8ae9ac0fc2dbe4cef6884bd2f06b200c1126e8ba8012",
+    "scripts/check-abi-v2-gates.py": "a7fe45c31244e0545dc698222dce809b23a6e02fbb5bb158587e95c835582301",
+    "scripts/check-abi-v2-package.py": "a086e522e9be22d1231cfc1e92037cfdd04a55bdda115b1897fde4e604126dc2",
+    "scripts/compare-abi-v2-benchmarks.py": "45a83e8dda59e6f1a6e41cc6e639495c557947a8e158e3862378dcbe633252cf",
+    "scripts/test_binding_evidence.py": "8eadf5a99915ba58b30cddc8c59112e0bd38d421522905c8a47dcca50b5867d3",
+    "scripts/test_readiness.py": "6f561a8e569f995c3462675d7802035c36b683a8705b4eb3435006746e9d3a52"
+  },
+  "staged_source_sha256": "2a47534aba92b7957f9551c3e0efc7b01f4eac054528076fc16640ef0e2a3da7"
+}

@@ -1,0 +1,154 @@
+{
+  "benchmark_measurements": "not_run",
+  "benchmarks": "not_run",
+  "default_switch": false,
+  "default_switch_ready": false,
+  "final_candidate_qualification": "pending_final_source_attestation_and_exact_input_comparison",
+  "final_staged_native_libraries": {
+    "native/lib/libstateless.a": "1ec4ab827fe2e1668d68b96b3504239bfa59fc028fee423db4514336d9cc271e",
+    "native/lib/libstateless.dylib": "7582a8dca53dd24228a8d7397e155453bf06e158b07ed1aecf6d270c54b40cad"
+  },
+  "final_staged_release_compile": "passed",
+  "final_staged_source_sha256": "2a47534aba92b7957f9551c3e0efc7b01f4eac054528076fc16640ef0e2a3da7",
+  "installed_runtime": "not_run",
+  "jobs": [
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--build-tests",
+        "--jobs",
+        "1",
+        "--package-path",
+        "bindings/swift-v2",
+        "--scratch-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2",
+        "-Xlinker",
+        "-L/Volumes/seed1/Projects/stateless-abi-v2-target/debug"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791860991.48381,
+      "id": "b0ae6e4fd9c344e19ce32df60c2a35b8",
+      "log": "validation/abi-v2/logs/swift-b0ae6e4fd9c344e19ce32df60c2a35b8.log",
+      "log_sha256": "7e141553cf3858674ff810ef2f0f7a29f83ea4616d1c5bbcf98696497d566773",
+      "started": 1791860933.817343,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--build-tests",
+        "--jobs",
+        "1",
+        "--package-path",
+        "bindings/swift-v2",
+        "--scratch-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2",
+        "-Xlinker",
+        "-L/Volumes/seed1/Projects/stateless-abi-v2-target/debug"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861124.994654,
+      "id": "3fa56634c95a406a8bdb66e3d452eebf",
+      "log": "validation/abi-v2/logs/swift-3fa56634c95a406a8bdb66e3d452eebf.log",
+      "log_sha256": "c8f81b99a0ecadfbd5b3c3bdcc46803913a974a3d1b2af8f78669863997db20a",
+      "started": 1791861045.945471,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--build-tests",
+        "--jobs",
+        "1",
+        "--package-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/source-bundles/swift-v2",
+        "--scratch-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2-relocated",
+        "-Xlinker",
+        "-L/Volumes/seed1/Projects/stateless-abi-v2-target/debug"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861389.852163,
+      "id": "02af223f0aa647b3b5e9f712db882e34",
+      "log": "validation/abi-v2/logs/swift-02af223f0aa647b3b5e9f712db882e34.log",
+      "log_sha256": "05d7c330aa0226cb7e29043e657fe9016e0254b1c4d9749ce774d4d07ef8a4d5",
+      "started": 1791861291.442301,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--build-tests",
+        "--jobs",
+        "1",
+        "--package-path",
+        "bindings/swift-v2",
+        "--scratch-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2",
+        "-Xlinker",
+        "-L/Volumes/seed1/Projects/stateless-abi-v2-target/debug"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791861805.951953,
+      "id": "f846343a85d44489b490ff1bfdcb4886",
+      "log": "validation/abi-v2/logs/swift-f846343a85d44489b490ff1bfdcb4886.log",
+      "log_sha256": "1784c08763cf6c2b8e590e71073682750935eab01f8a6599db1eca23cf87f20a",
+      "source_inputs": "validation/abi-v2/swift-bom-inputs.json",
+      "started": 1791861783.097634,
+      "status": "succeeded",
+      "unchanged_source_inputs": true
+    },
+    {
+      "command": [
+        "/usr/bin/swift",
+        "build",
+        "--build-tests",
+        "--jobs",
+        "1",
+        "--package-path",
+        "target/bindings/swift-v2",
+        "--scratch-path",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2-final-package",
+        "-Xlinker",
+        "-L/Volumes/seed2/Projects/stateless-abi-v2/target/bindings/native/lib"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+      "exit_code": 0,
+      "finished": 1791862311.208562,
+      "id": "7d6da8dc54144d1f8886999c85fc1288",
+      "log": "validation/abi-v2/logs/swift-7d6da8dc54144d1f8886999c85fc1288.log",
+      "log_sha256": "ab9899f315e27243c2bb1b7eaa335a1088b5e222e4bf53dfe46b8cd261951967",
+      "scope": "Final staged package: compile/link wrapper, tests, corpus and benchmark executable against relocated native release library; no execution",
+      "source_inputs": "validation/abi-v2/swift-final-package-inputs-pre-go-allowlist-fix.json",
+      "source_inputs_sha256": "bf62298c05b0d7a2435066db77b01630bc188670fad4bca87d3eb82f39876bd0",
+      "started": 1791862134.845356,
+      "status": "succeeded",
+      "unchanged_source_inputs": true
+    }
+  ],
+  "latest_source_inputs": "validation/abi-v2/swift-final-package-inputs.json",
+  "notes": [
+    "Historical jobs compile/link sources and tests only; no test or benchmark executable was run.",
+    "Job 7d6da8dc54144d1f8886999c85fc1288 successfully compiled the first final staged package against its relocated release library. Its exact inputs are preserved in swift-final-package-inputs-pre-go-allowlist-fix.json.",
+    "A later Go package allowlist and callback-containment correction changed the overall source candidate. The Swift sources have not been changed, but carry-forward qualification requires final restaging and an exact input-file comparison.",
+    "Kyoto memory pressure currently blocks the final Go checks and refreshed source attestation. No final-candidate package compilation or runtime qualification is claimed."
+  ],
+  "portable_profiles": "not_run",
+  "prior_compile_remains_historical": true,
+  "runtime_tests": "not_run",
+  "scope": "Swift compile/link only; final relocated source bundle included",
+  "source_inputs": "validation/abi-v2/swift-build-inputs.json",
+  "toolchain": [
+    "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0\n"
+  ],
+  "unchanged_relocated_inputs": true,
+  "unchanged_source_inputs": true
+}
