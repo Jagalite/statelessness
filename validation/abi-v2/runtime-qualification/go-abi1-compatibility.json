@@ -1,0 +1,14 @@
+{
+  "name": "go-abi1-compatibility",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/go/abi1-release.test",
+    "-test.v"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/bindings/go",
+  "started_at": "2026-10-15T14:56:15.598472+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 4.344909999985248,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/go-abi1-compatibility.log",
+  "log_sha256": "04e245ff620b55af047a6912678e0bf952bcba3f308b6dbb468b129eb4999b4d"
+}

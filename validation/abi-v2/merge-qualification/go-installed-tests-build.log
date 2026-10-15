@@ -1,0 +1,2 @@
+# github.com/Jagalite/statelessness/bindings/go/v2.test
+ld: warning: duplicate -rpath '/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/distribution/native/lib' ignored

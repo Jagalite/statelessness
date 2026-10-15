@@ -1,9 +1,9 @@
 {
   "schema": "stateless.abi-v2-runtime.v1",
-  "recorded_at_utc": "2026-10-15T03:32:17.315635+00:00",
-  "source_snapshot": "final-inputs.json",
-  "source_sha256": "acfe820dca2d35020faa60ee8fe6084b510ec2d624233fb3f6706bb18bef4358",
-  "source_commit_before_fixes": "7a74eaed5bde11479d00ca668515f8f2dcef3a90",
+  "recorded_at_utc": "2026-10-15T14:59:47.814740+00:00",
+  "source_snapshot": "../merge-qualification/build-inputs.json",
+  "source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "source_commit_before_fixes": "39399e7a7de32f2645e576b1d884f1f304275f60",
   "rust_workspace": {
     "binaries": 51,
     "passed": 534,
@@ -64,44 +64,80 @@
       "receipt": "corpus-schema-validation.json"
     },
     "cross-language-conformance": {
-      "status": "failed",
+      "status": "passed",
       "receipt": "cross-language-conformance.json"
     },
     "browser": {
       "status": "passed",
       "cases": 717,
       "receipt": "browser-report.json"
-    }
-  },
-  "queued_builds": {
+    },
     "rust-application-tests": {
-      "job": "affbd784ba764abcbdc251db2e43d682",
-      "status": "queued"
+      "status": "passed",
+      "receipt": "rust-application-tests.json"
     },
     "go-conformance-tests": {
-      "job": "cc34380a01b74d0d88296f6a84a7c033",
-      "status": "queued"
+      "status": "passed",
+      "receipt": "go-conformance-tests.json"
     },
-    "go-conformance-runner": {
-      "job": "5809f17d7ff54c4f9cf96a8cba7b2be7",
-      "status": "queued"
+    "installed-go-v2-tests": {
+      "status": "passed",
+      "receipt": "installed-go-v2-tests.json"
+    },
+    "installed-go-packet-tests": {
+      "status": "passed",
+      "receipt": "installed-go-packet-tests.json"
+    },
+    "installed-swift-v2-tests": {
+      "status": "passed",
+      "receipt": "installed-swift-v2-tests.json"
+    },
+    "go-abi1-compatibility": {
+      "status": "passed",
+      "receipt": "go-abi1-compatibility.json"
+    },
+    "final-package-stage": {
+      "status": "passed",
+      "receipt": "final-package-stage.json"
+    },
+    "final-native-package-runtime": {
+      "status": "passed",
+      "receipt": "final-native-package-runtime.json"
+    },
+    "final-browser-package-inspection": {
+      "status": "passed",
+      "receipt": "final-browser-package-inspection.json"
+    },
+    "final-installed-package-consumers": {
+      "status": "passed",
+      "receipt": "final-installed-package-consumers.json"
+    },
+    "installed-cross-language-conformance": {
+      "status": "passed",
+      "receipt": "installed-cross-language-conformance.json"
     },
     "rust-doctests": {
-      "job": "a03f3c612958414dbcf20442d9a682b7",
-      "status": "queued"
+      "status": "passed",
+      "receipt": "rust-doctests-cargo-env-build.json"
     }
   },
+  "queued_builds": {},
   "fixes": [
     "JavaScript Error.message normalization for coherent portable recording diagnostics",
-    "Go corpus depth_bound termination label; rerun pending",
+    "Go corpus depth_bound termination label; corrected five-runner source and installed-package reruns passed",
     "Canonical artifact path in macOS packaging test"
   ],
   "open_gates": [
-    "Queued application example and doctests",
-    "Corrected Go corpus build and complete rerun",
-    "Final package restaging and installed consumers",
-    "Hosted and remaining platform matrix",
-    "Measured performance, memory accounting and approved budgets"
+    "Hosted checks on latest PR head; tracked live by GitHub",
+    "Default adoption only: remaining deployment targets, repeated performance/memory measurements and approved budgets, migration windows"
   ],
-  "default_switch_ready": false
+  "default_switch_ready": false,
+  "rust_application": {
+    "passed": 3,
+    "failed": 0
+  },
+  "rust_doctests": {
+    "passed": 8,
+    "failed": 0
+  }
 }

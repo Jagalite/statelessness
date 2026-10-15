@@ -2,8 +2,8 @@
   "abi1_removed": false,
   "benchmarks": "not_run",
   "branch": "abi/v2-foundation",
-  "build_qualification": "source_compiler_checks_passed; final_artifact_attestation_pending",
-  "commit_identity_note": "The two unpublished commits were rewritten to the GitHub noreply author address after GH007 rejected the initial push. Source file bytes and their SHA-256 inventory are unchanged. Refreshed build and package qualification remains pending.",
+  "build_qualification": "passed; source-bound native and separate Wasm release artifacts refreshed",
+  "commit_identity_note": "Earlier unpublished author email rewrites preserved source bytes. Current source-bound release builds and package qualification supersede historical candidates.",
   "committed": true,
   "compiler_evidence": "validation/abi-v2/implementation-checks.json",
   "completed_followup_checks": [
@@ -78,40 +78,38 @@
       "status": "succeeded"
     }
   ],
-  "corpus": "browser_717_passed; initial_five_runner_run_two_go_label_failures; 550_cross_producer_replays_passed; corrected_go_rerun_pending",
-  "current_source_sha256": "acfe820dca2d35020faa60ee8fe6084b510ec2d624233fb3f6706bb18bef4358",
+  "corpus": "source_and_installed_five_runner_suites_passed; 717_cases_per_runner_and_550_fresh_process_replays",
+  "current_source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
   "default_switch_ready": false,
   "defaults_changed": false,
-  "engine_tests": "534_rust_workspace_tests_passed; adapter_and_compatibility_suites_passed",
-  "final_candidate": "draft review; local runtime tests executed; remaining runtime/package/platform/performance gates open",
+  "engine_tests": "534_workspace_tests_plus_3_application_tests_and_8_doctests_passed",
+  "final_candidate": "opt-in implementation ready for hosted PR checks; adoption and retirement gates remain separate",
   "final_packaging_receipt": "validation/abi-v2/final-packaging-qualification.json",
   "go_diagnostic_fix_receipt": "validation/abi-v2/go-diagnostic-qualification.json",
-  "hosted_workflow": "not_run",
+  "hosted_workflow": "Current-head results tracked live on PR #6",
   "implementation": "implemented; source compiler checks passed",
   "independent_engines_removed": false,
-  "installed_consumers": "not_run",
+  "installed_consumers": "Python wheel and npm archive tested outside checkout; relocated Go and Swift tests passed",
   "limitations": [
     "Finite runtime suites passed on macOS arm64, Node and Chromium; this does not establish universal memory safety, installed operation on other platforms or performance.",
     "Native compiler/link evidence is macOS arm64; other deployment cells remain pending.",
     "Guided feedback, debugger/composition foreign APIs and arbitrary asynchronous callbacks are outside the first capability set.",
     "Parallel uncommitted roadmap/evidence work from the original checkout is not imported."
   ],
-  "package_qualification": "prior_candidate_passed; current_candidate_pending",
+  "package_qualification": "final_candidate_passed",
   "performance_budgets": "not_approved",
   "prior_build_evidence": "validation/abi-v2/final-build-receipt.json",
   "prior_build_source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
   "published": false,
-  "recorded_at_utc": "2026-10-15T03:32:17.315635+00:00",
+  "recorded_at_utc": "2026-10-15T14:59:47.814740+00:00",
   "remaining_steps": [
-    "Complete queued application/doctest and corrected Go corpus runtime checks.",
-    "Restage and verify final packages against current source identity.",
-    "Execute installed-consumer and platform/hosted matrix.",
-    "Collect repeated performance/memory measurements and approve numeric budgets."
+    "Require current-head hosted PR checks and code review before merging.",
+    "Before any default switch: qualify remaining deployment cells, measure performance/memory against approved budgets, and complete migration gates."
   ],
-  "runtime_qualification": "executed_local_suites; corrected_go_corpus_and_queued_rust_checks_pending",
+  "runtime_qualification": "local_regression_corpus_and_installed_consumers_passed",
   "schema": "stateless.abi-v2-implementation.v1",
-  "scope": "Opt-in ABI v2 implementation with local runtime evidence; platform, installed package and performance gates open",
-  "source_commit": "2792f1fe652a050c0869c7739e8294d6a8912032",
+  "scope": "Additive opt-in ABI v2 implementation with executed local regression, corpus, installed consumer and package qualification",
+  "source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
   "worktree": "/Volumes/seed2/Projects/stateless-abi-v2",
   "runtime_receipt": "validation/abi-v2/runtime-qualification/summary.json",
   "completed_release_refreshes": [
@@ -188,22 +186,6 @@
       "status": "succeeded"
     }
   ],
-  "pending_checks": {
-    "rust-application-tests": {
-      "job": "affbd784ba764abcbdc251db2e43d682",
-      "status": "queued"
-    },
-    "go-conformance-tests": {
-      "job": "cc34380a01b74d0d88296f6a84a7c033",
-      "status": "queued"
-    },
-    "go-conformance-runner": {
-      "job": "5809f17d7ff54c4f9cf96a8cba7b2be7",
-      "status": "queued"
-    },
-    "rust-doctests": {
-      "job": "a03f3c612958414dbcf20442d9a682b7",
-      "status": "queued"
-    }
-  }
+  "pending_checks": {},
+  "source_identity_note": "Build receipts identify the tested implementation commit and source inventory. Later status/evidence commits do not change those inputs."
 }

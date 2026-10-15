@@ -75,14 +75,14 @@
       "protocol_version": 1,
       "spec_version": "1.0.0",
       "command": [
-        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/stateless-corpus-v2-diagnostic-release"
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/stateless-corpus-v2-runtime"
       ],
       "golden_cases": 94,
       "generated_graphs": 530,
       "metamorphic_cases": 32,
       "portability_cases": 38,
       "transport_cases": 23,
-      "failures": 2
+      "failures": 0
     },
     {
       "implementation": "typescript-rust-abi2",
@@ -143,47 +143,6 @@
   "independent_engine_count": 2,
   "engine_attribution": "runner-declared; unknown runners are not counted as independent",
   "fresh_process_replays": 550,
-  "elapsed_seconds": 8.696,
-  "failures": [
-    {
-      "implementation": "go-rust-abi2",
-      "id": "depth-zero-with-unexamined-input",
-      "expected": {
-        "termination": "depth_bound",
-        "states": 1,
-        "transitions": 0,
-        "max_depth_reached": 0,
-        "skipped_checks": 0,
-        "failure": null
-      },
-      "actual": {
-        "failure": null,
-        "max_depth_reached": 0,
-        "skipped_checks": 0,
-        "states": 1,
-        "termination": "depth_limit",
-        "transitions": 0
-      }
-    },
-    {
-      "implementation": "go-rust-abi2",
-      "id": "unexecuted-cycle-edge-at-depth-bound",
-      "expected": {
-        "termination": "depth_bound",
-        "states": 2,
-        "transitions": 1,
-        "max_depth_reached": 1,
-        "skipped_checks": 0,
-        "failure": null
-      },
-      "actual": {
-        "failure": null,
-        "max_depth_reached": 1,
-        "skipped_checks": 0,
-        "states": 2,
-        "termination": "depth_limit",
-        "transitions": 1
-      }
-    }
-  ]
+  "elapsed_seconds": 6.116,
+  "failures": []
 }

@@ -1,0 +1,8 @@
+
+running 3 tests
+test tests::application_regression ... ok
+test tests::regression_gate_rejects_bug_and_incomplete_search ... ok
+test tests::restored_payloads_reject_invalid_values_and_trailing_bytes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,6 +1,6 @@
 # ABI v2 implementation status
 
-Date: October 14, 2026. The shared Rust engine, additive C/Wasm ABI, four opt-in
+Date: October 15, 2026. The shared Rust engine, additive C/Wasm ABI, four opt-in
 language adapters and distribution/gate tooling are implemented in source.
 **Runtime tests are now authorized and have executed on macOS arm64, Node and
 the collaborative Chromium browser. Benchmarks remain unmeasured.**
@@ -25,9 +25,9 @@ execution, measured performance and retirement are separate statuses.
 | P0 | Isolated baseline, compatibility inventory, matched workload fixtures, content identity and measured-budget comparison tooling. | Repeated baseline/candidate execution and approved numeric budgets; no measurements supplied. |
 | P1 | Fallible model/cursor/equality/hash/codec/generation operations; shared checking, BFS, recording/replay, fuzz/shrink, automatic generation and ring paths; unchanged native Rust public adapters. | Native performance budgets and remaining platform coverage; workspace regression executed. |
 | P2 | Versioned C header, capability negotiation, session/value/result ownership, callback builders/errors, bounded results, cancellation, portable conversion, ABI tests and C consumer fixture. | Broader platform and installed-consumer coverage; native ABI regression and both C smoke consumers executed. |
-| P3 | Go v2 cgo adapter and typed TypeScript/Wasm adapter; explicit engine lifetime, snapshots, error containment, recording/reload/replay, fuzz/shrink/ring and corpus adapters. | Corrected Go corpus rerun and remaining browser/platform cells; Go unit, Node and Chromium tests executed. |
-| P4 | Python ctypes and separate Swift package; shared automatic finite generation, codec-less witnesses, structural portable codecs and four-profile fixture adapters. | Final all-runner corpus result and installed-consumer/platform coverage; Python and Swift tests executed. |
-| P5 | Additive package staging, exact source/artifact receipts, package inspector, compile-only workflow, fail-closed readiness and performance comparison tools. | Executed installation/platform/deployment matrix, target artifact verification and measured budgets. |
+| P3 | Go v2 cgo adapter and typed TypeScript/Wasm adapter; explicit engine lifetime, snapshots, error containment, recording/reload/replay, fuzz/shrink/ring and corpus adapters. | Remaining browser/platform adoption cells; Go unit, Node, Chromium and full corpus tests executed. |
+| P4 | Python ctypes and separate Swift package; shared automatic finite generation, codec-less witnesses, structural portable codecs and four-profile fixture adapters. | Remaining deployment/adoption cells; full corpus and local installed consumers executed. |
+| P5 | Additive package staging, exact source/artifact receipts, package inspector, compile-only workflow, fail-closed readiness and performance comparison tools. | Remaining platform/deployment adoption matrix and measured budgets; local package verification/installations executed. |
 | P6 | Existing defaults preserved; pending-gate reports prevent retirement claims. | Per-language adoption gates, distinct migration/cutover releases, rollback windows and explicit retirement decision. |
 
 No phase with an execution or measurement exit gate is declared complete.
@@ -79,27 +79,41 @@ failure receipts. The runtime summary is authoritative for pending jobs.
 
 | Check | Executed result | Qualification boundary |
 | --- | --- | --- |
-| Rust workspace | 534 tests passed across 51 binaries; none failed or ignored. | macOS arm64, Rust 1.90.0; application example and doctests tracked separately. |
+| Rust workspace | 534 tests passed across 51 binaries; none failed or ignored. | macOS arm64, Rust 1.90.0; 3 application tests and 8 doctests also passed. |
 | C | ABI 1 and ABI v2 smoke consumers passed. | Matched native release library on macOS arm64. |
-| Go v2 | 15 top-level tests plus diagnostic subtests passed. | Corrected corpus runner requires compilation and rerun. |
-| Swift v2 | 10 XCTest tests passed. | macOS arm64; 25 staged compilation inputs verified unchanged. |
+| Go v2 | 15 top-level tests plus diagnostic subtests passed. | Corrected corpus, relocated package tests and ABI 1 compatibility tests passed. |
+| Swift v2 | 10 XCTest tests passed, including a fresh relocated package build. | macOS arm64; 25 staged compilation inputs verified unchanged. |
 | Node/Wasm | 17 v2 and 8 v1 tests passed. Independent TypeScript: 30 passed. | Exact separate v1/v2 Wasm artifacts; JavaScript diagnostic fix included. |
 | Python | 43 tests passed, no skips. | Independent and ctypes adapter with explicit native library. |
 | Browser | 717 semantic/transport cases passed; zero retained sessions. | T3 collaborative Chromium browser; not Safari or Firefox. |
-| Infrastructure | 13 evidence, 6 readiness and 7 conformance-harness tests passed. | Does not qualify installed packages. |
-| Cross-language corpus | Initial run passed all 550 fresh-process cross-producer replays; two Go termination-label mismatches found and patched. | Final five-runner rerun pending rebuilt Go executable; wrappers represent two engine families. |
+| Infrastructure | 13 evidence, 6 readiness and 7 conformance-harness tests passed. | Installed packages have additional consumer receipts. |
+| Cross-language corpus | Five runners passed all 717 cases each and 550 fresh-process cross-producer replays, both source and installed-package reruns. | Corrected Go runner included; wrappers represent two engine families. |
 
 Runtime tests exposed and fixed JavaScript error-message normalization and the
 Go corpus depth-bound label. A packaging test also needed canonical paths on
 macOS (`/var` versus `/private/var`). Initial failures are retained in evidence.
 
-Final package restaging/attestation, installed-consumer and deployment matrices,
-measured performance, memory accounting and approved numeric budgets remain
-open. Native and Wasm release refresh builds succeeded, but historical package
-receipts do not cover the latest wrapper edits. No performance improvement or
-regression budget is claimed. The readiness/default-switch gate remains false.
+Final native/Wasm release artifacts were rebuilt through Kyoto against the
+[current source manifest](../validation/abi-v2/merge-qualification/build-inputs.json).
+Packages were restaged, their wheel/npm member hashes checked, and native loading
+and negative loading executed. Python wheel and npm consumers run outside the
+checkout, including fresh-process replay. Relocated Go and Swift packages compile
+and pass runtime tests. Exact input comparison permits reuse after the subsequent
+CI-only TypeScript setup correction; only package build metadata changed.
 
-The implementation remains a draft PR. Runtime workflows skip draft PRs;
-local execution does not replace hosted/platform checks or review. Preserve
-established defaults until their adoption gates pass. ABI 1 deprecation and
-independent-engine retirement require separate migration decisions.
+The [final packaging receipt](../validation/abi-v2/final-packaging-qualification.json)
+and [runtime summary](../validation/abi-v2/runtime-qualification/summary.json)
+record local results. The [PR](https://github.com/Jagalite/statelessness/pull/6)
+is ready for review, with ABI v2 Linux/macOS, portable conformance and existing
+native-port workflows executing on each updated head. Consult its current check
+runs before merging. The new ABI v2 check exercises Rust regression/doctests, C,
+installed Python/npm, relocated Go, Node/Wasm and macOS Swift. A first hosted
+attempt exposed a missing TypeScript helper build in CI; the workflow now builds
+those helpers before running the corpus. The failure log remains in evidence.
+
+Merging the additive opt-in implementation and changing defaults are separate
+decisions. The plan's P5/P6 adoption gates still require remaining deployment
+cells, measured performance/memory, approved numeric budgets and migration
+windows. No performance improvement or budget pass is claimed. No package is
+published and the default-switch gate remains false. ABI 1 deprecation and
+independent-engine retirement require their own migration decisions.

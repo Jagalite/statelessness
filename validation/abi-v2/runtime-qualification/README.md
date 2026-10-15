@@ -21,8 +21,8 @@ Initial failures remain under `before-*`, `*-before-fix`, `*-launcher-failure`
 and `browser-first-result.json`. They include two product/corpus mismatches,
 a macOS path assertion, loader configuration, and a browser fixture missing the
 JSONL framing newline. The final browser fixture matches the normal harness.
-The Go depth-bound fix is not runtime-qualified until its queued build and
-five-runner rerun complete. The initial corpus report must not be read as green.
+The corrected Go depth-bound runner now passes both source and installed
+five-runner reruns. Initial failures remain under the before-go-label-fix prefix.
 
 The browser result is from the shared T3 Chromium/Electron browser, not a Node
 browser mock. Its 717 requests include 694 semantic and 23 transport cases.
@@ -30,5 +30,12 @@ The corpus compares two engine families across five wrappers, and separately
 checks 550 producer/consumer fresh-process replays.
 
 No package publication, default switch, platform-wide pass or performance budget
-is implied. Hosted workflows skip this draft PR. Final packages, installed
-consumers, other platforms and repeated measurements remain separate gates.
+is implied. Hosted workflows skip this draft PR. Final local packages and installed consumers now pass; their receipts are in
+../merge-qualification. Other deployment targets and repeated measurements remain
+adoption gates. Current-head hosted checks are tracked on PR #6.
+
+The first installed-consumer attempt used the system Python without setuptools.
+It failed before loading the engine. The packaging-tool virtual environment
+then built the wheels and completed both qualified and final consumer runs.
+The original doctest launcher omitted Cargo compile-time environment values;
+the corrected rustdoc job preserves those values and passes all eight doctests.

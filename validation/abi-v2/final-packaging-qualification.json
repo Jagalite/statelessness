@@ -1,70 +1,18 @@
 {
-  "archives": null,
+  "schema": "stateless.packaging-runtime-qualification.v1",
+  "status": "passed_for_local_requested_scope",
+  "source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "build_receipt": "validation/abi-v2/merge-qualification/build-receipt.json",
+  "package_manifest": "validation/abi-v2/merge-qualification/package-manifest.json",
+  "native_runtime_report": "validation/abi-v2/merge-qualification/native-package-runtime.json",
+  "browser_inspection_report": "validation/abi-v2/merge-qualification/browser-package-inspection.json",
+  "archive_report": "validation/abi-v2/merge-qualification/archive-inspection.json",
+  "installed_consumers": "validation/abi-v2/merge-qualification/installed-consumers.json",
+  "installed_go_swift_input_reuse": "validation/abi-v2/merge-qualification/installed-compiler-input-reuse.json",
+  "runtime_tests": "passed_on_macos_arm64_and_node",
+  "corpus_report": "validation/abi-v2/merge-qualification/installed-conformance-report.json",
   "benchmark_measurements": "not_run",
-  "blocking_condition": "Final Go formatting and source compiler checks passed. Refreshed native/Wasm release artifact builds are queued in Kyoto under OS memory pressure; final source attestation and package revalidation remain pending.",
-  "build_dependencies": {
-    "packaging": "26.3",
-    "pip": "25.0.1",
-    "setuptools": "84.0.0",
-    "wheel": "0.48.0"
-  },
-  "build_receipt": null,
-  "carry_forward": {
-    "python_wheel": {
-      "build_job": "b12152be4d1c4f938f980456c9eae901",
-      "prior_manifest": "validation/abi-v2/package-manifest-pre-go-allowlist-fix.json",
-      "status": "pending_exact_input_comparison"
-    },
-    "swift": {
-      "compile_job": "7d6da8dc54144d1f8886999c85fc1288",
-      "prior_inputs": "validation/abi-v2/swift-final-package-inputs-pre-go-allowlist-fix.json",
-      "status": "pending_exact_input_comparison"
-    }
-  },
   "default_switch_ready": false,
-  "historical_evidence": {
-    "archive_report": "validation/abi-v2/archive-inspection-pre-go-allowlist-fix.json",
-    "last_build_receipt_source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
-    "last_staged_manifest": "validation/abi-v2/package-manifest-pre-go-containment-fix.json",
-    "prior_archives_directory": "target/bindings-pre-go-allowlist-fix",
-    "qualified_scope": "Compilation/linking and static archive/package inspection only, for prior source candidates. No runtime qualification.",
-    "static_browser_report": "validation/abi-v2/browser-package-inspect-pre-go-allowlist-fix.json",
-    "static_native_report": "validation/abi-v2/native-package-inspect-pre-go-allowlist-fix.json",
-    "swift_compile_report": "validation/abi-v2/swift-qualification.json"
-  },
-  "installed_consumer_runtime": "pending",
-  "jobs": {
-    "archive_inspection": null,
-    "browser_static_inspection": null,
-    "native_static_inspection": null,
-    "npm_pack": null,
-    "stage": null
-  },
-  "node": "v23.5.0",
-  "npm": "10.9.2",
-  "package_manifest": null,
-  "pending_artifact_jobs": {
-    "native": "42ec322a35f348148231615b35373fb1",
-    "wasm-v1": "3d6fe8b304a345e18a57b83348fd2d12",
-    "wasm-v2": "754e3a1be3ae466da027e81e914f1d89"
-  },
-  "remaining_steps": [
-    "Capture final source snapshot, repeat native/Wasm artifact builds through Kyoto, and issue a matching source-bound build receipt.",
-    "Restage all ABI v2 packages from that receipt without hidden builds.",
-    "Run native/browser static package inspectors against the final source snapshot.",
-    "Repack npm because engine-build.json contains the source identity, and inspect final wheel/npm archive member hashes.",
-    "Carry Swift and wheel build evidence forward only after exact input-file-map comparison with successful historical jobs; recompile/rebuild if any relevant input differs.",
-    "Fill final job IDs, log/input/report/artifact hashes and dependency versions; leave runtime, benchmarks, migration and default-switch gates pending."
-  ],
-  "reports": {
-    "archives": null,
-    "browser_static_inspection": null,
-    "native_static_inspection": null,
-    "swift": null
-  },
-  "runtime_tests": "not_run",
-  "schema": "stateless.packaging-build-qualification.v1",
-  "scope": "Prebuilt staging, static native/Wasm package inspection, archive creation/member identity checks, and compilation evidence carried forward only for unchanged inputs. No engine runtime execution.",
-  "source_sha256": null,
-  "status": "pending_final_artifact_builds_and_package_revalidation"
+  "platform_scope": "Local macOS arm64, Node, and prior Chromium qualification. Hosted Linux/macOS and existing Windows compatibility results tracked on PR. No default adoption or publication."
 }

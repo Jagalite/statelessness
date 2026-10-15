@@ -3,5 +3,6 @@
   "rust-workspace-tests": "a20f8d58c3894dddab45ca4cc27c0e29",
   "go-conformance-tests": "cc34380a01b74d0d88296f6a84a7c033",
   "go-conformance-runner": "5809f17d7ff54c4f9cf96a8cba7b2be7",
-  "rust-doctests": "a03f3c612958414dbcf20442d9a682b7"
+  "rust-doctests": "a03f3c612958414dbcf20442d9a682b7",
+  "rust-doctests-cargo-env": "7fb56ccb88fe4cce9a578aa6b7459bc8"
 }

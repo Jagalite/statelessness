@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "prior_source_commit": "4402a1e458a0a1a2ea28099bacd9309f047d80eb",
+  "current_source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "changed_staged_files": [
+    "native/engine-build.json",
+    "browser/engine-build.json"
+  ],
+  "note": "Only package build metadata changed for the TypeScript CI setup correction. All Go/Swift sources, headers and native library bytes match the outside-checkout compilation and runtime tests."
+}
