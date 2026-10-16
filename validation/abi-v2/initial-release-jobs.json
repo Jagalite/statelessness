@@ -1,0 +1,7 @@
+{
+  "native": "8e393c2b81474b2091dcb42cab74692a",
+  "wasm-v1": "44d158bb455d40919957574a9f69ec4f",
+  "wasm-v2": "59f51655db0b45f7b6bbec935979b496",
+  "rustc-version": "289add63d4d34b7092c65572284d0036",
+  "cargo-version": "50c45a419d4348f5b2dbfd0b5377128f"
+}

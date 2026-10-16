@@ -6,6 +6,8 @@
 /.local-experiments/
 /bindings/.build/
 /bindings/.swiftpm/
+/bindings/swift-v2/.build/
+/bindings/swift-v2/.swiftpm/
 __pycache__/
 
 # Portable qualification and Python packaging outputs.

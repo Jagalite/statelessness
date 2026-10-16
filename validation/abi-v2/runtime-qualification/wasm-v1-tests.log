@@ -1,0 +1,16 @@
+✔ large valid input batches do not hit the JavaScript function-argument limit (70.755834ms)
+✔ aggregate input packet limits are checked before copying repeated payloads (3.305208ms)
+✔ non-string model and property identities are rejected instead of coerced (1.546375ms)
+✔ fresh models reproduce traces, changed behavior diverges, identity remains strict (3.898375ms)
+✔ bounded enumeration and recording expose their limits (2.630458ms)
+✔ callback exceptions and reentry cannot escape Wasm or poison the next call (1.043083ms)
+✔ invalid callback tags and async callbacks fail instead of becoming passing checks (1.712958ms)
+✔ owned artifacts survive subsequent memory growth (1.429875ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 263.496583

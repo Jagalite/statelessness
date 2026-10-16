@@ -1,0 +1,24 @@
+
+running 19 tests
+test budget_validation_uses_the_actual_per_job_transition_upper_bound ... ok
+test callback_error_stops_calls_and_drains_workers_with_rendezvous_channel ... ok
+test callback_panics_also_drain_workers ... ok
+test cancellation_from_factory_is_observed_before_search_and_drains_active_jobs ... ok
+test a_blocked_sink_bounds_started_jobs_by_queue_plus_workers_plus_sink ... ok
+test disposing_a_drained_report_cannot_unwind_past_the_original_sink_error ... ok
+test factory_checker_and_panic_outcomes_are_distinct_from_failures ... ok
+test factory_errors_have_known_zero_fuzz_work ... ok
+test factory_panics_are_reported_and_other_jobs_continue ... ok
+test fixed_jobs_have_identical_failures_with_one_or_four_workers ... ok
+test invalid_configuration_has_no_factory_or_sink_side_effects ... ok
+test job_ranges_reproduce_the_same_seeds_and_inputs ... ok
+test deadline_includes_factory_time_and_is_not_reset_per_job ... ok
+test more_workers_than_jobs_and_zero_work_jobs_are_supported ... ok
+test panicking_panic_payload_cleanup_does_not_escape_job_or_sink_reporting ... ok
+test pre_cancelled_or_zero_duration_campaign_does_no_work ... ok
+test serial_execution_stays_on_calling_thread_and_uses_fresh_models ... ok
+test stop_on_failure_finishes_already_claimed_jobs ... ok
+test last_zero_case_job_observes_factory_cancellation_and_expired_deadline ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+

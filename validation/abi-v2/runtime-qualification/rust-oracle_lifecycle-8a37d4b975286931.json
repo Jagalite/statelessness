@@ -1,0 +1,14 @@
+{
+  "name": "rust-oracle_lifecycle-8a37d4b975286931",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/oracle_lifecycle-8a37d4b975286931",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:02.926766+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.28485737496521324,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-oracle_lifecycle-8a37d4b975286931.log",
+  "log_sha256": "cb899114e2323c1a74ef187e923c095dde484b1e8e247e042e5b8f500f5c9848"
+}

@@ -1,0 +1,15 @@
+{
+  "source_before": "90c1670666ca0de5560cb6f6bc5d8adb9c7b2f9711930d0321a6946f835d24be",
+  "source_after": "acfe820dca2d35020faa60ee8fe6084b510ec2d624233fb3f6706bb18bef4358",
+  "changed_inputs": [
+    "bindings/browser/v2.mjs",
+    "bindings/go/v2/README.md",
+    "bindings/go/v2/conformance/runner.go",
+    "bindings/go/v2/conformance/runner_test.go",
+    "bindings/swift-v2/README.md",
+    "docs/ABI-V2-DISTRIBUTION.md",
+    "scripts/test_binding_evidence.py"
+  ],
+  "rust_compile_inputs_changed": false,
+  "note": "Final wrapper fixes were exercised directly for JavaScript. Go corpus rebuild/rerun remains queued. README/distribution documentation edits do not alter compiled programs. Swift staged compilation inputs have a separate exact byte comparison."
+}

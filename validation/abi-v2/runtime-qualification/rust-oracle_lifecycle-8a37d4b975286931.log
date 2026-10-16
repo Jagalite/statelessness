@@ -1,0 +1,9 @@
+
+running 4 tests
+test missing_settlement_is_independently_detected_and_replayed ... ok
+test recording_inspection_and_breakpoints_advance_each_machine_exactly_once ... ok
+test resource_ownership_faults_fail_even_when_application_checks_pass ... ok
+test evicted_composite_checkpoints_preserve_pending_and_completed_branch_history ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

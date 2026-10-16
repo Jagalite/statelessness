@@ -1,0 +1,14 @@
+{
+  "name": "rust-lifecycle_templates-56bb8f5134dfd075",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/lifecycle_templates-56bb8f5134dfd075",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:27.490608+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.18368675000965595,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-lifecycle_templates-56bb8f5134dfd075.log",
+  "log_sha256": "f6e777de29313e24e9fc8af81fc4f73a86a999d27887ae130cd419561e4843a7"
+}

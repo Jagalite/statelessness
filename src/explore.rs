@@ -2,14 +2,17 @@
 //! exploration. These functions execute modeled transitions only: outputs are
 //! data and must never perform external effects.
 
-use std::collections::{HashMap, VecDeque, hash_map::RandomState};
-use std::hash::{BuildHasher, Hash};
+use std::collections::{HashMap, VecDeque};
+use std::hash::Hash;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use crate::CheckSink;
 use crate::model::{Check, CheckStatus, Enumerate, Generate, Model, ModelError, Rng, Transition};
+use crate::operations::{
+    EnumerateOps, GenerateOps, InputCursor, InputIdentityOps, ModelOps, NativeOps,
+};
 
 /// Observation-only hooks over checks emitted by the real search. Hooks cannot
 /// change inputs, state identity, or property results. History is an actual
@@ -35,8 +38,62 @@ pub trait SearchObserver<M: Model> {
     }
 }
 
+/// Kernel-side observer over adapter value types. Native observers reach the
+/// shared kernels through [`Observing`]; foreign adapters may implement it directly.
+pub(crate) trait OpsObserver<M: ModelOps> {
+    fn needs_history(&self) -> bool {
+        false
+    }
+    fn initial(&mut self, _state: &M::State, _checks: &[Check]) {}
+    fn check_error(&mut self, _phase: CheckPhase, _checks: &[Check], _complete: bool) {}
+    fn transition(
+        &mut self,
+        _before: &M::State,
+        _input: &M::Input,
+        _after: &crate::TransitionRef<'_, M::State, M::Output>,
+        _state_checks: &[Check],
+        _transition_checks: &[Check],
+        _history: &[M::Input],
+    ) {
+    }
+}
+
 pub(crate) struct Unobserved;
 impl<M: Model> SearchObserver<M> for Unobserved {}
+impl<M: ModelOps> OpsObserver<M> for Unobserved {}
+
+/// Forwards kernel observations over native adapters to a public observer.
+pub(crate) struct Observing<'o, O>(pub(crate) &'o mut O);
+
+impl<M: Model, H, O: SearchObserver<M>> OpsObserver<NativeOps<'_, M, H>> for Observing<'_, O> {
+    fn needs_history(&self) -> bool {
+        self.0.needs_history()
+    }
+    fn initial(&mut self, state: &M::State, checks: &[Check]) {
+        self.0.initial(state, checks);
+    }
+    fn check_error(&mut self, phase: CheckPhase, checks: &[Check], complete: bool) {
+        self.0.check_error(phase, checks, complete);
+    }
+    fn transition(
+        &mut self,
+        before: &M::State,
+        input: &M::Input,
+        after: &crate::TransitionRef<'_, M::State, M::Output>,
+        state_checks: &[Check],
+        transition_checks: &[Check],
+        history: &[M::Input],
+    ) {
+        self.0.transition(
+            before,
+            input,
+            after,
+            state_checks,
+            transition_checks,
+            history,
+        );
+    }
+}
 
 /// Cooperative limits checked between model callbacks/fully checked transitions.
 /// A callback cannot be interrupted, and allocations inside it cannot be capped.
@@ -191,7 +248,7 @@ struct Node<S, I> {
     state: Rc<S>,
     predecessor: Option<(usize, I)>,
     depth: usize,
-    // Full hashes select a collision chain; Eq decides actual state identity.
+    // Full hashes select a collision chain; semantic equality decides identity.
     same_hash: Option<usize>,
 }
 
@@ -224,7 +281,7 @@ pub fn enumerate_with_limits<M: Enumerate>(
 where
     M::State: Hash,
 {
-    enumerate_observed(model, config, limits, &mut Unobserved)
+    enumerate_ops(&NativeOps::enumerating(model), config, limits)
 }
 
 /// Observe checked states and transitions without changing exploration semantics.
@@ -238,6 +295,30 @@ pub fn enumerate_observed<M: Enumerate, O: SearchObserver<M>>(
 where
     M::State: Hash,
 {
+    enumerate_ops_observed(
+        &NativeOps::enumerating(model),
+        config,
+        limits,
+        &mut Observing(observer),
+    )
+}
+
+/// Shared BFS kernel. Adapter errors stay distinct from graph exhaustion and
+/// budget termination; values need no native equality or hashing traits.
+pub(crate) fn enumerate_ops<M: EnumerateOps>(
+    model: &M,
+    config: SearchConfig,
+    limits: SearchLimits<'_>,
+) -> Result<SearchReport<M::Input>, ModelError> {
+    enumerate_ops_observed(model, config, limits, &mut Unobserved)
+}
+
+fn enumerate_ops_observed<M: EnumerateOps, O: OpsObserver<M>>(
+    model: &M,
+    config: SearchConfig,
+    limits: SearchLimits<'_>,
+    observer: &mut O,
+) -> Result<SearchReport<M::Input>, ModelError> {
     if config.max_states == 0 {
         return Err(ModelError::new(
             "enumeration max_states must be greater than zero",
@@ -262,7 +343,7 @@ where
         .initial_state()
         .map_err(|e| context("initial_state", e))?;
     report.states = 1;
-    let violations = initial_checks_observed(
+    let violations = initial_checks_ops(
         model,
         &state,
         &mut report.skipped_checks,
@@ -281,7 +362,14 @@ where
         report.termination = search_stop(stop);
         return Ok(report);
     }
-    let initial_bytes = model.estimated_state_bytes(&state);
+    let initial_bytes = model
+        .estimated_state_bytes(&state)
+        .map_err(|e| context("estimated_state_bytes", e))?;
+    report.estimated_retained_state_bytes = initial_bytes;
+    if let Some(stop) = control.stop() {
+        report.termination = search_stop(stop);
+        return Ok(report);
+    }
     if let Some(maximum) = limits.max_estimated_state_bytes {
         let bytes = initial_bytes
             .ok_or_else(|| ModelError::new("state byte budget requires estimated_state_bytes"))?;
@@ -292,10 +380,15 @@ where
             return Ok(report);
         }
     }
-    report.estimated_retained_state_bytes = initial_bytes;
-    let hashes = RandomState::new();
     let mut visited = HashMap::new();
-    visited.insert(hashes.hash_one(&state), 0);
+    let initial_hash = model
+        .state_hash(&state)
+        .map_err(|e| context("state_hash", e))?;
+    if let Some(stop) = control.stop() {
+        report.termination = search_stop(stop);
+        return Ok(report);
+    }
+    visited.insert(initial_hash, 0);
     let mut nodes = vec![Node {
         state: Rc::new(state),
         predecessor: None,
@@ -312,7 +405,7 @@ where
         let state = Rc::clone(&nodes[index].state);
         let depth = nodes[index].depth;
         let mut inputs = model
-            .input_iter(&state)
+            .input_cursor(&state)
             .map_err(|e| context("enumerate inputs", e))?;
         if let Some(stop) = control.stop() {
             report.termination = search_stop(stop);
@@ -320,7 +413,10 @@ where
         }
         if depth == config.max_depth {
             // Probe only one item: no transition is executed at the depth boundary.
-            let unexamined = inputs.next().is_some();
+            let unexamined = inputs
+                .next()
+                .map_err(|e| context("enumerate next", e))?
+                .is_some();
             if let Some(stop) = control.stop() {
                 report.termination = search_stop(stop);
                 return Ok(report);
@@ -335,7 +431,7 @@ where
             }
             // One probe is necessary even at the edge cap to distinguish an
             // exhausted graph from an unexamined edge.
-            let next = inputs.next();
+            let next = inputs.next().map_err(|e| context("enumerate next", e))?;
             if let Some(stop) = control.stop() {
                 report.termination = search_stop(stop);
                 return Ok(report);
@@ -357,7 +453,7 @@ where
             } else {
                 Vec::new()
             };
-            let violations = transition_checks_observed(
+            let violations = transition_checks_ops(
                 model,
                 &state,
                 &input,
@@ -378,7 +474,13 @@ where
                 report.termination = search_stop(stop);
                 return Ok(report);
             }
-            let hash = hashes.hash_one(&transition.state);
+            let hash = model
+                .state_hash(&transition.state)
+                .map_err(|e| context("state_hash", e))?;
+            if let Some(stop) = control.stop() {
+                report.termination = search_stop(stop);
+                return Ok(report);
+            }
             let mut candidate = visited.get(&hash).copied();
             let mut duplicate = false;
             while let Some(other) = candidate {
@@ -386,7 +488,14 @@ where
                     report.termination = search_stop(stop);
                     return Ok(report);
                 }
-                if *nodes[other].state == transition.state {
+                let equal = model
+                    .state_equal(&nodes[other].state, &transition.state)
+                    .map_err(|e| context("state_equal", e))?;
+                if let Some(stop) = control.stop() {
+                    report.termination = search_stop(stop);
+                    return Ok(report);
+                }
+                if equal {
                     duplicate = true;
                     break;
                 }
@@ -399,7 +508,13 @@ where
                 report.termination = SearchTermination::StateLimit;
                 return Ok(report);
             }
-            let estimate = model.estimated_state_bytes(&transition.state);
+            let estimate = model
+                .estimated_state_bytes(&transition.state)
+                .map_err(|e| context("estimated_state_bytes", e))?;
+            if let Some(stop) = control.stop() {
+                report.termination = search_stop(stop);
+                return Ok(report);
+            }
             let total = match (report.estimated_retained_state_bytes, estimate) {
                 (Some(retained), Some(bytes)) => retained.checked_add(bytes),
                 _ => None,
@@ -513,7 +628,7 @@ pub fn fuzz_with_limits<M: Generate>(
     fuzz_with_driver(model, config, limits, &mut PreviousSequence)
 }
 
-pub(crate) trait FuzzDriver<M: Generate> {
+pub(crate) trait FuzzDriver<M: ModelOps> {
     fn candidate(
         &mut self,
         previous: &[M::Input],
@@ -536,7 +651,7 @@ pub(crate) trait FuzzDriver<M: Generate> {
     }
 }
 struct PreviousSequence;
-impl<M: Generate> FuzzDriver<M> for PreviousSequence {
+impl<M: ModelOps> FuzzDriver<M> for PreviousSequence {
     fn candidate(
         &mut self,
         previous: &[M::Input],
@@ -556,13 +671,30 @@ impl<M: Generate> FuzzDriver<M> for PreviousSequence {
         (candidate, replacement)
     }
 }
-pub(crate) fn fuzz_with_driver<M: Generate, D: FuzzDriver<M>>(
+pub(crate) fn fuzz_with_driver<'a, M: Generate, D: FuzzDriver<NativeOps<'a, M>>>(
+    model: &'a M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+    driver: &mut D,
+) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_ops_with_driver(&NativeOps::new(model), config, limits, driver)
+}
+
+pub(crate) fn fuzz_ops<M: GenerateOps>(
+    model: &M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_ops_with_driver(model, config, limits, &mut PreviousSequence)
+}
+
+fn fuzz_ops_with_driver<M: GenerateOps, D: FuzzDriver<M>>(
     model: &M,
     config: FuzzConfig,
     limits: RunLimits<'_>,
     driver: &mut D,
 ) -> Result<FuzzReport<M::Input>, ModelError> {
-    fuzz_with_driver_observed(model, config, limits, driver, &mut Unobserved)
+    fuzz_ops_observed(model, config, limits, driver, &mut Unobserved)
 }
 
 /// Observe every checked transition, including one that violates a property.
@@ -575,7 +707,28 @@ pub fn fuzz_observed<M: Generate, O: SearchObserver<M>>(
     fuzz_with_driver_observed(model, config, limits, &mut PreviousSequence, observer)
 }
 
-pub(crate) fn fuzz_with_driver_observed<M: Generate, D: FuzzDriver<M>, O: SearchObserver<M>>(
+pub(crate) fn fuzz_with_driver_observed<
+    'a,
+    M: Generate,
+    D: FuzzDriver<NativeOps<'a, M>>,
+    O: SearchObserver<M>,
+>(
+    model: &'a M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+    driver: &mut D,
+    observer: &mut O,
+) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_ops_observed(
+        &NativeOps::new(model),
+        config,
+        limits,
+        driver,
+        &mut Observing(observer),
+    )
+}
+
+fn fuzz_ops_observed<M: GenerateOps, D: FuzzDriver<M>, O: OpsObserver<M>>(
     model: &M,
     config: FuzzConfig,
     limits: RunLimits<'_>,
@@ -611,7 +764,7 @@ pub(crate) fn fuzz_with_driver_observed<M: Generate, D: FuzzDriver<M>, O: Search
             .initial_state()
             .map_err(|e| context("initial_state", e))?;
         report.cases += 1;
-        let violations = initial_checks_observed(
+        let violations = initial_checks_ops(
             model,
             &state,
             &mut report.skipped_checks,
@@ -697,7 +850,7 @@ pub(crate) fn fuzz_with_driver_observed<M: Generate, D: FuzzDriver<M>, O: Search
             report.transitions += 1;
             inputs.push(input);
             let input = inputs.last().unwrap();
-            let violations = transition_checks_observed(
+            let violations = transition_checks_ops(
                 model,
                 &state,
                 input,
@@ -829,6 +982,15 @@ pub fn shrink_with_limits<M: Generate>(
     config: ShrinkConfig,
     limits: ShrinkLimits<'_>,
 ) -> Result<ShrinkReport<M::Input>, ModelError> {
+    shrink_ops(&NativeOps::new(model), original, config, limits)
+}
+
+pub(crate) fn shrink_ops<M: GenerateOps>(
+    model: &M,
+    original: &Failure<M::Input>,
+    config: ShrinkConfig,
+    limits: ShrinkLimits<'_>,
+) -> Result<ShrinkReport<M::Input>, ModelError> {
     let mut work = ShrinkWork {
         control: Control::new(limits.control)?,
         maximum: limits.max_replayed_transitions,
@@ -908,7 +1070,12 @@ pub fn shrink_with_limits<M: Generate>(
                 let end = start.saturating_add(chunk).min(length);
                 let mut candidate = report.minimized.inputs.clone();
                 candidate.drain(start..end);
-                if seen.contains(&candidate) {
+                let known = seen_sequence(model, &seen, &candidate, &work.control)?;
+                if let Some(stop) = work.control.stop() {
+                    report.termination = shrink_stop(stop);
+                    return Ok(report);
+                }
+                if known {
                     continue;
                 }
                 if !attempt(
@@ -947,26 +1114,51 @@ pub fn shrink_with_limits<M: Generate>(
                 report.termination = shrink_stop(stop);
                 return Ok(report);
             }
-            let alternatives = model.simpler_inputs(&report.minimized.inputs[index]);
+            let mut alternatives = model
+                .simpler_inputs(&report.minimized.inputs[index])
+                .map_err(|e| context("simpler_inputs", e))?;
             if let Some(stop) = work.control.stop() {
                 report.termination = shrink_stop(stop);
                 return Ok(report);
             }
-            for (alternative, input) in alternatives.into_iter().enumerate() {
+            let mut alternative = 0usize;
+            loop {
                 if let Some(stop) = work.control.stop() {
                     report.termination = shrink_stop(stop);
                     return Ok(report);
                 }
+                let input = alternatives
+                    .next()
+                    .map_err(|e| context("simpler_inputs next", e))?;
+                if let Some(stop) = work.control.stop() {
+                    report.termination = shrink_stop(stop);
+                    return Ok(report);
+                }
+                let Some(input) = input else {
+                    break;
+                };
+                let alternative_index = alternative;
+                alternative = alternative
+                    .checked_add(1)
+                    .ok_or_else(|| ModelError::new("simplification index overflow"))?;
                 let mut candidate = report.minimized.inputs.clone();
                 candidate[index] = input;
-                if seen.contains(&candidate) {
+                let known = seen_sequence(model, &seen, &candidate, &work.control)?;
+                if let Some(stop) = work.control.stop() {
+                    report.termination = shrink_stop(stop);
+                    return Ok(report);
+                }
+                if known {
                     continue;
                 }
                 if !attempt(
                     model,
                     target,
                     candidate,
-                    ShrinkOperation::Simplify { index, alternative },
+                    ShrinkOperation::Simplify {
+                        index,
+                        alternative: alternative_index,
+                    },
                     &mut report,
                     &mut seen,
                     &mut work,
@@ -989,7 +1181,7 @@ pub fn shrink_with_limits<M: Generate>(
     }
 }
 
-fn attempt<M: Generate>(
+fn attempt<M: GenerateOps>(
     model: &M,
     target: &PropertyFailure,
     candidate: Vec<M::Input>,
@@ -1018,7 +1210,12 @@ fn attempt<M: Generate>(
         Candidate::Failure(failure) if has_target(&failure, target) => {
             // Replaying can expose the same failure earlier. Avoid returning to
             // an already accepted prefix even when the full candidate is new.
-            if seen.contains(&failure.inputs) {
+            let known = seen_sequence(model, seen, &failure.inputs, &work.control)?;
+            if let Some(stop) = work.control.stop() {
+                report.termination = shrink_stop(stop);
+                stopped = true;
+                ShrinkOutcome::ResourceLimit
+            } else if known {
                 ShrinkOutcome::AlreadySeen
             } else {
                 seen.push(failure.inputs.clone());
@@ -1045,6 +1242,41 @@ struct ShrinkWork<'a> {
     checks: Vec<Check>,
 }
 
+/// Resolve sequence identity through the model. Cancellation is checked between
+/// comparisons; a failed comparison always wins over simultaneous cancellation.
+fn seen_sequence<M: InputIdentityOps>(
+    model: &M,
+    seen: &[Vec<M::Input>],
+    inputs: &[M::Input],
+    control: &Control<'_>,
+) -> Result<bool, ModelError> {
+    for prior in seen {
+        if prior.len() != inputs.len() {
+            continue;
+        }
+        let mut equal = true;
+        for (left, right) in prior.iter().zip(inputs) {
+            if control.stop().is_some() {
+                return Ok(false);
+            }
+            let same = model
+                .input_equal(left, right)
+                .map_err(|e| context("input_equal", e))?;
+            if control.stop().is_some() {
+                return Ok(false);
+            }
+            if !same {
+                equal = false;
+                break;
+            }
+        }
+        if equal {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 enum Candidate<I> {
     Pass,
     Invalid,
@@ -1052,7 +1284,7 @@ enum Candidate<I> {
     Stopped(ShrinkTermination),
 }
 
-fn replay_candidate<M: Generate>(
+fn replay_candidate<M: GenerateOps>(
     model: &M,
     inputs: &[M::Input],
     work: &mut ShrinkWork<'_>,
@@ -1064,7 +1296,13 @@ fn replay_candidate<M: Generate>(
         .initial_state()
         .map_err(|e| context("shrink initial_state", e))?;
     let mut skipped = 0;
-    let violations = initial_checks(model, &state, &mut skipped, &mut work.checks)?;
+    let violations = initial_checks_ops(
+        model,
+        &state,
+        &mut skipped,
+        &mut work.checks,
+        &mut Unobserved,
+    )?;
     if !violations.is_empty() {
         return Ok(Candidate::Failure(Failure {
             inputs: Vec::new(),
@@ -1097,13 +1335,15 @@ fn replay_candidate<M: Generate>(
             .step(&state, input)
             .map_err(|e| context("shrink step", e))?;
         work.transitions += 1;
-        let violations = transition_checks(
+        let violations = transition_checks_ops(
             model,
             &state,
             input,
             &transition,
             &mut skipped,
             &mut work.checks,
+            &mut Unobserved,
+            &[],
         )?;
         if !violations.is_empty() {
             return Ok(Candidate::Failure(Failure {
@@ -1167,16 +1407,7 @@ fn observe(
         .collect()
 }
 
-fn initial_checks<M: Model>(
-    model: &M,
-    state: &M::State,
-    skipped: &mut u64,
-    checks: &mut Vec<Check>,
-) -> Result<Vec<PropertyFailure>, ModelError> {
-    initial_checks_observed(model, state, skipped, checks, &mut Unobserved)
-}
-
-fn initial_checks_observed<M: Model, O: SearchObserver<M>>(
+fn initial_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     model: &M,
     state: &M::State,
     skipped: &mut u64,
@@ -1192,28 +1423,8 @@ fn initial_checks_observed<M: Model, O: SearchObserver<M>>(
     Ok(observe(checks, checks.len(), true, skipped))
 }
 
-fn transition_checks<M: Model>(
-    model: &M,
-    before: &M::State,
-    input: &M::Input,
-    transition: &Transition<M::State, M::Output>,
-    skipped: &mut u64,
-    checks: &mut Vec<Check>,
-) -> Result<Vec<PropertyFailure>, ModelError> {
-    transition_checks_observed(
-        model,
-        before,
-        input,
-        transition,
-        skipped,
-        checks,
-        &mut Unobserved,
-        &[],
-    )
-}
-
 #[allow(clippy::too_many_arguments)]
-fn transition_checks_observed<M: Model, O: SearchObserver<M>>(
+fn transition_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     model: &M,
     before: &M::State,
     input: &M::Input,

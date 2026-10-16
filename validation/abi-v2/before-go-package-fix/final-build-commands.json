@@ -1,0 +1,83 @@
+[
+  {
+    "argv": [
+      "env",
+      "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+      "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+      "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+      "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-target",
+      "CARGO_INCREMENTAL=0",
+      "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+      "build",
+      "--release",
+      "--lib",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "exit_code": 0,
+    "kyoto_job": "6b4ddb45ae11410f95a73cb950de7038",
+    "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+    "started": 1791861836.833794,
+    "finished": 1791861842.3843179,
+    "log": "validation/abi-v2/final-native.log",
+    "log_sha256": "2f2773405ef8bb547610168a79d2a1b1dcfc18a69cac51e891c656f9f430a5de"
+  },
+  {
+    "argv": [
+      "env",
+      "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+      "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+      "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+      "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-wasm-v1-target",
+      "CARGO_INCREMENTAL=0",
+      "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+      "build",
+      "--release",
+      "--lib",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--target",
+      "wasm32-unknown-unknown"
+    ],
+    "exit_code": 0,
+    "kyoto_job": "797d04917046460f85ef2c052e692287",
+    "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+    "started": 1791861832.41856,
+    "finished": 1791861833.935243,
+    "log": "validation/abi-v2/final-wasm-v1.log",
+    "log_sha256": "beaaceb1a6900ec4bec2668d15b8ed774bfbea0b6497b807e6b26a6df32a1d49"
+  },
+  {
+    "argv": [
+      "env",
+      "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+      "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+      "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+      "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target",
+      "CARGO_INCREMENTAL=0",
+      "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+      "build",
+      "--release",
+      "--lib",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--target",
+      "wasm32-unknown-unknown",
+      "--features",
+      "abi-v2-wasm"
+    ],
+    "exit_code": 0,
+    "kyoto_job": "8c1da07847eb472ba267435f6c00adf6",
+    "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+    "started": 1791861830.650806,
+    "finished": 1791861832.3371992,
+    "log": "validation/abi-v2/final-wasm-v2.log",
+    "log_sha256": "a022942a00a1cc174b85b7113c1f5cf63e83a80a85ca819a832318837597ce3e"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "rust-performance_contracts-3feb789ba87d8196",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/performance_contracts-3feb789ba87d8196",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:21.839180+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23902241699397564,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-performance_contracts-3feb789ba87d8196.log",
+  "log_sha256": "4e0cb483d190eb8a54c50984538ea37a7a0e23e5d1e003b14bff3d638609e56b"
+}

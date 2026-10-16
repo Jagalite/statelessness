@@ -1,0 +1,12 @@
+Processing ./distribution/python
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: statelessness
+  Building wheel for statelessness (pyproject.toml): started
+  Building wheel for statelessness (pyproject.toml): finished with status 'done'
+  Created wheel for statelessness: filename=statelessness-0.1.0-py3-none-any.whl size=27710 sha256=be199a7e19386ea3b12fb46334d36409646a4e2885072af9da995e47239fc05f
+  Stored in directory: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/pip-ephem-wheel-cache-t7prsirb/wheels/08/86/af/5ccc8c283214e80d79689a60539d59ac7d7741126e427b94c6
+Successfully built statelessness
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: /Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python -m pip install --upgrade pip

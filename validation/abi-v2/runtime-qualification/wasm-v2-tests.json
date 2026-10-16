@@ -1,0 +1,17 @@
+{
+  "name": "wasm-v2-tests",
+  "command": [
+    "env",
+    "STATELESS_ABI2_WASM=/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target/wasm32-unknown-unknown/release/stateless.wasm",
+    "node",
+    "--test",
+    "bindings/browser/test-v2.mjs"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:19:15.312355+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.5081098749651574,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/wasm-v2-tests.log",
+  "log_sha256": "bb23e60dddbd6e800ab7971f7bf59c413ba19044dc8cf875f7e455d5acc77f87"
+}

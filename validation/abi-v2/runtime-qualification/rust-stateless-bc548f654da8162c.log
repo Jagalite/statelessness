@@ -1,0 +1,57 @@
+
+running 52 tests
+test automatic::tests::candidate_counter_never_wraps_at_usize_max ... ok
+test campaign::lifecycle::codec::tests::input_rejects_unknown_tags_flags_lengths_and_invalid_utf8 ... ok
+test campaign::lifecycle::codec::tests::output_tags_and_ids_are_distinct_and_canonical ... ok
+test campaign::lifecycle::codec::tests::every_input_roundtrips_and_rejects_truncation_or_trailing_data ... ok
+test campaign::lifecycle::codec::tests::state_rejects_bad_tags_counts_order_duplicates_and_invalid_properties ... ok
+test campaign::lifecycle::codec::tests::state_rejects_stop_reasons_without_causal_evidence ... ok
+test campaign::lifecycle::tests::accounting_distinguishes_known_zero_work_and_lost_counters_and_saturates ... ok
+test campaign::lifecycle::tests::active_job_stop_precedence_is_independent_of_completion_order ... ok
+test campaign::lifecycle::tests::controls_are_observed_before_claims_and_do_not_rewrite_completed_campaigns ... ok
+test campaign::lifecycle::codec::tests::state_roundtrips_all_reports_stops_pending_and_delivery_fields ... ok
+test campaign::lifecycle::tests::duplicate_delivery_fault_is_detected_shrunk_recorded_and_replayed ... ok
+test campaign::lifecycle::tests::exhausted_job_range_reports_a_bad_claim_without_panicking_in_the_checker ... ok
+test campaign::lifecycle::tests::first_sink_error_survives_drain_and_worker_failure ... ok
+test campaign::lifecycle::tests::fixed_seed_campaign_protocol_fuzz_uses_independent_ledger ... ok
+test campaign::lifecycle::tests::healthy_campaign_audit_roundtrips_and_replays ... ok
+test campaign::lifecycle::tests::hostile_events_cannot_duplicate_work_delivery_or_mutate_terminal_state ... ok
+test campaign::lifecycle::tests::missing_worker_outcome_requires_explicit_accounting_loss ... ok
+test campaign::lifecycle::tests::persisted_fault_trace_replays_when_supplied ... ok
+test campaign::lifecycle::tests::rejection_of_enabled_lifecycle_events_is_detected ... ok
+test campaign::lifecycle::tests::stale_error_acknowledgement_is_detected_independently ... ok
+test campaign::lifecycle::tests::unobserved_stop_is_detected_before_additional_claims ... ok
+test ffi_v2::portable::tests::exact_roundtrip_includes_run_configuration_and_empty_unicode_checks ... ok
+test ffi_v2::portable::tests::structural_conversion_preserves_invalid_semantics_for_replay_identity_order ... ok
+test operations::production_tests::binary_recording_and_replay_need_no_native_value_equality ... ok
+test operations::production_tests::codec_failure_and_input_error_preserve_only_coherent_prefixes ... ok
+test operations::production_tests::equality_error_wins_over_simultaneous_shrink_cancellation ... ok
+test operations::production_tests::full_width_rng_bound_and_empty_domain_preserve_algorithm_and_state ... ok
+test operations::production_tests::fuzz_and_shrink_use_the_same_foreign_callbacks_without_input_eq ... ok
+test operations::production_tests::generation_and_shrink_callback_failures_are_errors_and_close_cursors ... ok
+test operations::production_tests::replay_classifies_identity_divergence_and_codec_errors_separately ... ok
+test operations::production_tests::ring_codec_failure_freezes_the_previous_checkpoint ... ok
+test operations::production_tests::ring_observation_does_not_execute_the_reducer_and_replays_its_window ... ok
+test operations::tests::a_later_checker_error_does_not_publish_an_earlier_partial_violation ... ok
+test operations::tests::a_started_transition_finishes_checking_and_preserves_failure_on_cancellation ... ok
+test operations::tests::automatic_generation_rolls_back_rng_on_cursor_error_and_releases_values ... ok
+test operations::tests::automatic_membership_uses_fallible_input_comparison ... ok
+test operations::tests::callback_error_wins_over_cancellation_from_the_same_callback ... ok
+test operations::tests::cancellation_before_start_invokes_no_adapter_operation ... ok
+test operations::tests::cancellation_from_callbacks_never_becomes_graph_exhaustion_and_releases_owners ... ok
+test operations::tests::checks_precede_semantic_identity_and_both_state_admission_caps ... ok
+test operations::tests::cursor_errors_at_depth_and_edge_boundary_probes_are_errors_not_cutoffs ... ok
+test operations::tests::cutoffs_release_frontier_snapshots_candidates_outputs_and_open_cursors ... ok
+test operations::tests::every_fallible_operation_aborts_without_manufacturing_success_or_leaking ... ok
+test operations::tests::failure_witness_owns_inputs_after_frontier_cleanup_until_its_last_clone_is_dropped ... ok
+test operations::tests::foreign_owners_exhaust_a_cyclic_graph_despite_total_hash_collision ... ok
+test operations::tests::identity_and_estimate_cancellation_prevents_later_callbacks_and_admission ... ok
+test operations::tests::observation_errors_clear_partial_batches_and_preserve_application_values ... ok
+test operations::tests::observed_sequence_validation_and_skip_policy_require_no_reducer_or_state_identity ... ok
+test operations::tests::observing_foreign_values_borrows_the_existing_transition_without_stepping ... ok
+test trace::crc_tests::standard_crc_and_every_short_split_match_bitwise_reference ... ok
+test trace::crc_tests::unaligned_random_frames_match_bitwise_reference ... ok
+test campaign::lifecycle::tests::finite_campaign_protocol_graph_is_exhausted ... ok
+
+test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.83s
+

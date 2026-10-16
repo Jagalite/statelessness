@@ -1,0 +1,143 @@
+{
+  "schema": "stateless.abi-v2-runtime.v1",
+  "recorded_at_utc": "2026-10-15T14:59:47.814740+00:00",
+  "source_snapshot": "../merge-qualification/build-inputs.json",
+  "source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "source_commit_before_fixes": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "rust_workspace": {
+    "binaries": 51,
+    "passed": 534,
+    "failed": 0,
+    "ignored": 0
+  },
+  "executed_checks": {
+    "python-tests": {
+      "status": "passed",
+      "receipt": "python-tests.json"
+    },
+    "go-v2-tests": {
+      "status": "passed",
+      "receipt": "go-v2-tests.json"
+    },
+    "swift-v2-tests": {
+      "status": "passed",
+      "receipt": "swift-v2-tests.json"
+    },
+    "wasm-v2-tests": {
+      "status": "passed",
+      "receipt": "wasm-v2-tests.json"
+    },
+    "wasm-v1-tests": {
+      "status": "passed",
+      "receipt": "wasm-v1-tests.json"
+    },
+    "typescript-independent-tests": {
+      "status": "passed",
+      "receipt": "typescript-independent-tests.json"
+    },
+    "c-v1-smoke": {
+      "status": "passed",
+      "receipt": "c-v1-smoke.json"
+    },
+    "c-v2-smoke": {
+      "status": "passed",
+      "receipt": "c-v2-smoke.json"
+    },
+    "packaging-tool-tests": {
+      "status": "passed",
+      "receipt": "packaging-tool-tests.json"
+    },
+    "packaging-readiness-tests": {
+      "status": "passed",
+      "receipt": "packaging-readiness-tests.json"
+    },
+    "conformance-harness-tests": {
+      "status": "passed",
+      "receipt": "conformance-harness-tests.json"
+    },
+    "python-mutation-controls": {
+      "status": "passed",
+      "receipt": "python-mutation-controls.json"
+    },
+    "corpus-schema-validation": {
+      "status": "passed",
+      "receipt": "corpus-schema-validation.json"
+    },
+    "cross-language-conformance": {
+      "status": "passed",
+      "receipt": "cross-language-conformance.json"
+    },
+    "browser": {
+      "status": "passed",
+      "cases": 717,
+      "receipt": "browser-report.json"
+    },
+    "rust-application-tests": {
+      "status": "passed",
+      "receipt": "rust-application-tests.json"
+    },
+    "go-conformance-tests": {
+      "status": "passed",
+      "receipt": "go-conformance-tests.json"
+    },
+    "installed-go-v2-tests": {
+      "status": "passed",
+      "receipt": "installed-go-v2-tests.json"
+    },
+    "installed-go-packet-tests": {
+      "status": "passed",
+      "receipt": "installed-go-packet-tests.json"
+    },
+    "installed-swift-v2-tests": {
+      "status": "passed",
+      "receipt": "installed-swift-v2-tests.json"
+    },
+    "go-abi1-compatibility": {
+      "status": "passed",
+      "receipt": "go-abi1-compatibility.json"
+    },
+    "final-package-stage": {
+      "status": "passed",
+      "receipt": "final-package-stage.json"
+    },
+    "final-native-package-runtime": {
+      "status": "passed",
+      "receipt": "final-native-package-runtime.json"
+    },
+    "final-browser-package-inspection": {
+      "status": "passed",
+      "receipt": "final-browser-package-inspection.json"
+    },
+    "final-installed-package-consumers": {
+      "status": "passed",
+      "receipt": "final-installed-package-consumers.json"
+    },
+    "installed-cross-language-conformance": {
+      "status": "passed",
+      "receipt": "installed-cross-language-conformance.json"
+    },
+    "rust-doctests": {
+      "status": "passed",
+      "receipt": "rust-doctests-cargo-env-build.json"
+    }
+  },
+  "queued_builds": {},
+  "fixes": [
+    "JavaScript Error.message normalization for coherent portable recording diagnostics",
+    "Go corpus depth_bound termination label; corrected five-runner source and installed-package reruns passed",
+    "Canonical artifact path in macOS packaging test"
+  ],
+  "open_gates": [
+    "Hosted checks on latest PR head; tracked live by GitHub",
+    "Default adoption only: remaining deployment targets, repeated performance/memory measurements and approved budgets, migration windows"
+  ],
+  "default_switch_ready": false,
+  "rust_application": {
+    "passed": 3,
+    "failed": 0
+  },
+  "rust_doctests": {
+    "passed": 8,
+    "failed": 0
+  }
+}

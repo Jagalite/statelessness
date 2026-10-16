@@ -1,0 +1,191 @@
+{
+  "abi1_removed": false,
+  "benchmarks": "not_run",
+  "branch": "abi/v2-foundation",
+  "build_qualification": "passed; source-bound native and separate Wasm release artifacts refreshed",
+  "commit_identity_note": "Earlier unpublished author email rewrites preserved source bytes. Current source-bound release builds and package qualification supersede historical candidates.",
+  "committed": true,
+  "compiler_evidence": "validation/abi-v2/implementation-checks.json",
+  "completed_followup_checks": [
+    {
+      "command": [
+        "/usr/local/go/bin/gofmt",
+        "-w",
+        "v2/model.go",
+        "v2/session.go",
+        "v2/session_test.go"
+      ],
+      "kind": "go_format",
+      "kyoto_job": "2ff8990f15964f7585235bab7f33df68",
+      "reason": null,
+      "source_compile_only": true,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "CGO_ENABLED=1",
+        "GOCACHE=/Volumes/seed1/Projects/stateless-abi-v2-target/go-cache-cbae75cf947b31bd",
+        "CGO_LDFLAGS=-L/Volumes/seed1/Projects/stateless-abi-v2-target/release -Wl,-rpath,/Volumes/seed1/Projects/stateless-abi-v2-target/release",
+        "/usr/local/go/bin/go",
+        "test",
+        "-c",
+        "-o",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/v2-diagnostic-release.test",
+        "./v2"
+      ],
+      "kind": "go_tests_benchmarks_compile",
+      "kyoto_job": "50941c52632c4bc7819884f861e6c76d",
+      "reason": null,
+      "source_compile_only": true,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "CGO_ENABLED=1",
+        "GOCACHE=/Volumes/seed1/Projects/stateless-abi-v2-target/go-cache-cbae75cf947b31bd",
+        "CGO_LDFLAGS=-L/Volumes/seed1/Projects/stateless-abi-v2-target/release -Wl,-rpath,/Volumes/seed1/Projects/stateless-abi-v2-target/release",
+        "/usr/local/go/bin/go",
+        "build",
+        "-o",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/stateless-corpus-v2-diagnostic-release",
+        "./v2/cmd/stateless-corpus"
+      ],
+      "kind": "go_corpus_compile",
+      "kyoto_job": "1a27001b105641eda9981dd31ff006b9",
+      "reason": null,
+      "source_compile_only": true,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "CGO_ENABLED=0",
+        "GOCACHE=/Volumes/seed1/Projects/stateless-abi-v2-target/go-cache-cbae75cf947b31bd",
+        "CGO_LDFLAGS=-L/Volumes/seed1/Projects/stateless-abi-v2-target/release -Wl,-rpath,/Volumes/seed1/Projects/stateless-abi-v2-target/release",
+        "/usr/local/go/bin/go",
+        "test",
+        "-c",
+        "-o",
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/v2-diagnostic-cgo-off.test",
+        "./v2"
+      ],
+      "kind": "go_without_cgo_compile",
+      "kyoto_job": "82036f38a32a47c5974527e1d3c4d3c1",
+      "reason": null,
+      "source_compile_only": true,
+      "status": "succeeded"
+    }
+  ],
+  "corpus": "source_and_installed_five_runner_suites_passed; 717_cases_per_runner_and_550_fresh_process_replays",
+  "current_source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "default_switch_ready": false,
+  "defaults_changed": false,
+  "engine_tests": "534_workspace_tests_plus_3_application_tests_and_8_doctests_passed",
+  "final_candidate": "opt-in implementation ready for hosted PR checks; adoption and retirement gates remain separate",
+  "final_packaging_receipt": "validation/abi-v2/final-packaging-qualification.json",
+  "go_diagnostic_fix_receipt": "validation/abi-v2/go-diagnostic-qualification.json",
+  "hosted_workflow": "Current-head results tracked live on PR #6",
+  "implementation": "implemented; source compiler checks passed",
+  "independent_engines_removed": false,
+  "installed_consumers": "Python wheel and npm archive tested outside checkout; relocated Go and Swift tests passed",
+  "limitations": [
+    "Finite runtime suites passed on macOS arm64, Node and Chromium; this does not establish universal memory safety, installed operation on other platforms or performance.",
+    "Native compiler/link evidence is macOS arm64; other deployment cells remain pending.",
+    "Guided feedback, debugger/composition foreign APIs and arbitrary asynchronous callbacks are outside the first capability set.",
+    "Parallel uncommitted roadmap/evidence work from the original checkout is not imported."
+  ],
+  "package_qualification": "final_candidate_passed",
+  "performance_budgets": "not_approved",
+  "prior_build_evidence": "validation/abi-v2/final-build-receipt.json",
+  "prior_build_source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
+  "published": false,
+  "recorded_at_utc": "2026-10-15T14:59:47.814740+00:00",
+  "remaining_steps": [
+    "Require current-head hosted PR checks and code review before merging.",
+    "Before any default switch: qualify remaining deployment cells, measure performance/memory against approved budgets, and complete migration gates."
+  ],
+  "runtime_qualification": "local_regression_corpus_and_installed_consumers_passed",
+  "schema": "stateless.abi-v2-implementation.v1",
+  "scope": "Additive opt-in ABI v2 implementation with executed local regression, corpus, installed consumer and package qualification",
+  "source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "worktree": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "runtime_receipt": "validation/abi-v2/runtime-qualification/summary.json",
+  "completed_release_refreshes": [
+    {
+      "command": [
+        "env",
+        "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+        "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+        "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+        "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-target",
+        "CARGO_INCREMENTAL=0",
+        "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+        "build",
+        "--release",
+        "--lib",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1"
+      ],
+      "kind": "native_release_build",
+      "kyoto_job": "42ec322a35f348148231615b35373fb1",
+      "runtime_executed": false,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+        "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+        "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+        "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-wasm-v1-target",
+        "CARGO_INCREMENTAL=0",
+        "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+        "build",
+        "--release",
+        "--lib",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--target",
+        "wasm32-unknown-unknown"
+      ],
+      "kind": "wasm-v1_release_build",
+      "kyoto_job": "3d6fe8b304a345e18a57b83348fd2d12",
+      "runtime_executed": false,
+      "status": "succeeded"
+    },
+    {
+      "command": [
+        "env",
+        "RUSTC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustc",
+        "RUSTDOC=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/rustdoc",
+        "PATH=/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/Users/jagatranvo/.codex_ss/tmp/arg0/codex-arg0qYz4cf:/Users/jagatranvo/.nvm/versions/node/v23.5.0/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jagatranvo/.grok/bin:/Users/jagatranvo/.bun/bin:/Users/jagatranvo/.antigravity/antigravity/bin:/Users/jagatranvo/.local/share/mise/installs/ruby/3.4.2/bin:/opt/homebrew/bin:/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin:/Library/Frameworks/Python.framework/Versions/3.13/bin:/Users/jagatranvo/.local/bin:/Users/jagatranvo/.cargo/bin",
+        "CARGO_TARGET_DIR=/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target",
+        "CARGO_INCREMENTAL=0",
+        "/Users/jagatranvo/.rustup/toolchains/1.90.0-aarch64-apple-darwin/bin/cargo",
+        "build",
+        "--release",
+        "--lib",
+        "--locked",
+        "--offline",
+        "--jobs",
+        "1",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--features",
+        "abi-v2-wasm"
+      ],
+      "kind": "wasm-v2_release_build",
+      "kyoto_job": "754e3a1be3ae466da027e81e914f1d89",
+      "runtime_executed": false,
+      "status": "succeeded"
+    }
+  ],
+  "pending_checks": {},
+  "source_identity_note": "Build receipts identify the tested implementation commit and source inventory. Later status/evidence commits do not change those inputs."
+}

@@ -12,6 +12,7 @@ use crate::model::{
     Check, EncodeBuffer, Enumerate, Generate, Model, ModelCodec, ModelError, ModelMetadata, Rng,
     Transition, TransitionRef,
 };
+use crate::operations::{EnumerateOps, InputCursor, InputIdentityOps, NativeOps};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AutoOptions {
@@ -196,6 +197,26 @@ pub fn sample_enumerated<M: Enumerate + ?Sized>(
     rng: &mut Rng,
     options: AutoOptions,
 ) -> Result<Option<M::Input>, ModelError> {
+    generate_ops(&NativeOps::new(model), state, rng, options)
+}
+
+/// Shared causal membership check. Like Auto, it stops at the first matching
+/// entry and does not claim the unvisited suffix fits the candidate limit.
+pub fn contains_enumerated<M: Enumerate + ?Sized>(
+    model: &M,
+    state: &M::State,
+    input: &M::Input,
+    options: AutoOptions,
+) -> Result<bool, ModelError> {
+    is_enabled_ops(&NativeOps::new(model), state, input, options)
+}
+
+pub(crate) fn generate_ops<M: EnumerateOps>(
+    model: &M,
+    state: &M::State,
+    rng: &mut Rng,
+    options: AutoOptions,
+) -> Result<Option<M::Input>, ModelError> {
     if options.max_candidates == 0 {
         return Err(ModelError::new(
             "automatic generation max_candidates must be positive",
@@ -204,7 +225,8 @@ pub fn sample_enumerated<M: Enumerate + ?Sized>(
     let mut candidate_rng = rng.clone();
     let mut selected = None;
     let mut count = 0;
-    for input in model.input_iter(state)? {
+    let mut inputs = model.input_cursor(state)?;
+    while let Some(input) = inputs.next()? {
         count = next_count(count, options.max_candidates)?;
         if count == 1 || candidate_rng.index(count) == Some(0) {
             selected = Some(input);
@@ -214,9 +236,7 @@ pub fn sample_enumerated<M: Enumerate + ?Sized>(
     Ok(selected)
 }
 
-/// Shared causal membership check. Like Auto, it stops at the first matching
-/// entry and does not claim the unvisited suffix fits the candidate limit.
-pub fn contains_enumerated<M: Enumerate + ?Sized>(
+pub(crate) fn is_enabled_ops<M: EnumerateOps + InputIdentityOps>(
     model: &M,
     state: &M::State,
     input: &M::Input,
@@ -228,9 +248,10 @@ pub fn contains_enumerated<M: Enumerate + ?Sized>(
         ));
     }
     let mut count = 0;
-    for candidate in model.input_iter(state)? {
+    let mut inputs = model.input_cursor(state)?;
+    while let Some(candidate) = inputs.next()? {
         count = next_count(count, options.max_candidates)?;
-        if candidate == *input {
+        if model.input_equal(&candidate, input)? {
             return Ok(true);
         }
     }

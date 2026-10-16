@@ -1,5 +1,5 @@
 /** Finite table adapter. Every operation calls the public native engine. */
-import { type Check, type Disposition, type CodecModel, type EnumerateModel, type Metadata, type Transition, metadata, ModelError, Rng, VERSION, SPEC_VERSION, PROFILES, enumerateStates, checkObserved, record, replay } from './core.js';
+import { type Check, type CheckPolicy, type SearchConfig, type Trace, type Disposition, type CodecModel, type EnumerateModel, type Metadata, type Transition, metadata, ModelError, Rng, VERSION, SPEC_VERSION, PROFILES, enumerateStates, checkObserved, record, replay } from './core.js';
 import { fields, string, integer, array, boolean, fallback, strictParse, FormatError, checkFromData, dispositionFromData, metadataFromData, traceToData, traceFromData } from './json.js';
 export const MAX_LINE = 4 * 1024 * 1024;
 interface Edge { input: string; to: string; outputs: string[]; disposition: Disposition; checks: Check[]; stepError: boolean; checkError: boolean }
@@ -52,14 +52,23 @@ export class TableModel implements CodecModel<string, string, string>, Enumerate
   encodeOutput(s: string): Uint8Array { return new TextEncoder().encode(s); }
 }
 function u64(v: unknown): bigint { const s = string(v); if (!/^(0|[1-9][0-9]{0,19})$/.test(s) || BigInt(s) > (1n << 64n) - 1n) throw new FormatError('invalid decimal u64'); return BigInt(s); }
-export function execute(value: unknown): unknown {
+/** Inject fixture operations without substituting or copying an engine algorithm. */
+export interface ConformanceBackend {
+  readonly identity: Readonly<Record<string, unknown>>;
+  rng(seed: bigint): {nextU64(): bigint; index(upper: bigint): bigint | null};
+  enumerateStates(model: TableModel, config: SearchConfig): unknown;
+  record(model: TableModel, inputs: string[], maxSteps: number): Trace;
+  checkObserved(model: TableModel, before: string, input: string, transition: Transition<string, string>, sequence: number, policy: CheckPolicy): readonly Check[];
+  replay(model: TableModel, trace: Trace, allowBuildMismatch: boolean): unknown;
+}
+export function execute(value: unknown, backend?: ConformanceBackend): unknown {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) throw new FormatError('expected request');
   const request = value as Record<string, unknown>;
   if (integer(request.version) !== 1) return { error: 'unsupported_version' };
   const op = string(request.operation);
-  if (op === 'hello') { fields(value, ['version', 'operation']); return { implementation: 'typescript', package_version: VERSION, spec_version: SPEC_VERSION, profiles: PROFILES, protocol_version: 1 }; }
+  if (op === 'hello') { fields(value, ['version', 'operation']); return { implementation: 'typescript', package_version: VERSION, spec_version: SPEC_VERSION, profiles: PROFILES, protocol_version: 1, ...backend?.identity }; }
   if (op === 'rng') {
-    fields(value, ['version', 'operation', 'seed', 'draws', 'bounds']); const rng = new Rng(u64(request.seed));
+    fields(value, ['version', 'operation', 'seed', 'draws', 'bounds']); const rng = backend ? backend.rng(u64(request.seed)) : new Rng(u64(request.seed));
     const draws = integer(request.draws, 10_000), bounds = array(request.bounds, 10_000).map(u64);
     return { raw: Array.from({ length: draws }, () => rng.nextU64().toString()), indices: bounds.map(b => rng.index(b)?.toString() ?? null), next: rng.nextU64().toString() };
   }
@@ -70,20 +79,20 @@ export function execute(value: unknown): unknown {
     const c = fields(o.config, ['max_states', 'max_transitions', 'max_depth']);
     const maxStates = integer(c.max_states, 100_000), maxTransitions = integer(c.max_transitions, 100_000), maxDepth = integer(c.max_depth, 100_000);
     if (!maxStates) return { error: 'invalid_config' };
-    return enumerateStates(model, { maxStates, maxTransitions, maxDepth });
+    return (backend?.enumerateStates ?? enumerateStates)(model, { maxStates, maxTransitions, maxDepth });
   }
-  if (op === 'record') return { trace: traceToData(record(model, array(o.inputs, 100_000).map(string), integer(o.max_steps, 100_000))) };
+  if (op === 'record') return { trace: traceToData((backend?.record ?? record)(model, array(o.inputs, 100_000).map(string), integer(o.max_steps, 100_000))) };
   if (op === 'observe') {
     const before = string(o.before), input = string(o.input), t = fields(o.transition, ['state', 'outputs', 'disposition']);
     const transition = { state: string(t.state), outputs: array(t.outputs, 4096).map(string), disposition: dispositionFromData(t.disposition) };
     const p = fields(o.policy, ['state_every', 'transition_checks']), sequence = integer(o.sequence, 100_000), stateEvery = integer(p.state_every, 100_000), transitionChecks = boolean(p.transition_checks);
     if (!sequence || !stateEvery) return { error: 'invalid_config' };
-    return { checks: checkObserved(model, before, input, transition, sequence, { stateEvery, transitionChecks }), step_calls: model.stepCalls };
+    return { checks: (backend?.checkObserved ?? checkObserved)(model, before, input, transition, sequence, { stateEvery, transitionChecks }), step_calls: model.stepCalls };
   }
-  return replay(model, traceFromData(o.trace), boolean(o.allow_build_mismatch));
+  return (backend?.replay ?? replay)(model, traceFromData(o.trace), boolean(o.allow_build_mismatch));
 }
-export function rawResponse(raw: Uint8Array): unknown {
-  try { return execute(strictParse(raw, MAX_LINE)); }
+export function rawResponse(raw: Uint8Array, backend?: ConformanceBackend): unknown {
+  try { return execute(strictParse(raw, MAX_LINE), backend); }
   catch (error) {
     if (error instanceof ModelError) return { error: 'model_error' };
     if (error instanceof FormatError || error instanceof TypeError) return { error: 'invalid_request' };

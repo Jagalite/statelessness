@@ -1,0 +1,65 @@
+{
+  "default_switch_ready": false,
+  "gates": {
+    "abi1_compatibility": {
+      "status": "pending"
+    },
+    "bootstrap_negative_loading": {
+      "status": "pending"
+    },
+    "deployment_contract": {
+      "status": "pending"
+    },
+    "fresh_process_replay": {
+      "status": "pending"
+    },
+    "installed_model_consumer": {
+      "status": "pending"
+    },
+    "lifetime": {
+      "status": "pending"
+    },
+    "migration_window": {
+      "status": "pending"
+    },
+    "package_integrity": {
+      "status": "passed"
+    },
+    "performance": {
+      "status": "pending"
+    },
+    "portable_profiles": {
+      "status": "pending"
+    },
+    "runtime_bootstrap": {
+      "status": "pending"
+    },
+    "sdk_negative_loading": {
+      "status": "pending"
+    },
+    "semantic_regression": {
+      "status": "pending"
+    }
+  },
+  "language": "c",
+  "machine": "arm64",
+  "mode": "inspect",
+  "outcome": "passed_for_requested_scope",
+  "package_files": {
+    "ABI-V2.md": "3ed51b03d98a45c2fb4f28c2ef4dac59b5e91bdc8fd5cd8fbb3bc836babcf065",
+    "ABI.md": "aab6a74d6e60df75c069e465a16ae5fb56caf29104d7813826969cc908612280",
+    "LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "README.md": "11d2b7bf09940d18a8d9078851f13268149691b13fa08b3867ef637341e91d09",
+    "include/module.modulemap": "1b705bfd9d3128fe0d54966eb5b1fda6271eecd141bfec6c9367f749bbb01c6b",
+    "include/stateless.h": "30ca4883051350fb9c8f3ef4d4491e23035e97288853661fa439eef64f858c8b",
+    "include/stateless_v2.h": "2bf0c5641945afb55c1e0910ef5d56de8b8ad1a32dcfe1859ee396cdc0f947dc",
+    "lib/libstateless.a": "1ec4ab827fe2e1668d68b96b3504239bfa59fc028fee423db4514336d9cc271e",
+    "lib/libstateless.dylib": "7582a8dca53dd24228a8d7397e155453bf06e158b07ed1aecf6d270c54b40cad"
+  },
+  "package_metadata_sha256": "3aaedb7f5c69fc90bfcfd19e5ff140cf2aa9e6d4f641e48603206b41b37a4edf",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "schema": "stateless.binding-qualification.v1",
+  "source_commit": "0949e7992f1be34d2052b22f12b7cbb0ce6b7a95",
+  "source_sha256": "2a47534aba92b7957f9551c3e0efc7b01f4eac054528076fc16640ef0e2a3da7",
+  "target": "aarch64-apple-darwin"
+}

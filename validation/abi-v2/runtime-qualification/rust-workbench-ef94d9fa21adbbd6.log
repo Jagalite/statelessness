@@ -1,0 +1,10 @@
+
+running 5 tests
+test build_comparison_is_explicit_and_reports_first_divergence ... ok
+test minimization_starts_from_saved_midrun_checkpoint ... ok
+test branch_is_independent_verified_and_preserves_parent ... ok
+test viewing_is_unverified_and_outputs_are_encoded_without_decoder ... ok
+test sidecar_and_exact_continuation_mismatches_are_rejected ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

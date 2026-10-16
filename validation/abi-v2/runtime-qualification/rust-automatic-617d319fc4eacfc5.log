@@ -1,0 +1,11 @@
+
+running 6 tests
+test bounded_codec_errors_are_preserved_by_delegation ... ok
+test candidate_boundary_accepts_complete_domains_but_never_a_truncated_prefix ... ok
+test empty_domains_and_errors_leave_the_rng_unchanged ... ok
+test membership_short_circuits_matches_and_bounds_missing_candidates ... ok
+test enumerated_only_model_fuzzes_shrinks_records_and_replays_through_the_adapter ... ok
+test reservoir_is_repeatable_and_samples_the_whole_lazy_domain ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

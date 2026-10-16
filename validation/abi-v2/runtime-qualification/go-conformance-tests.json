@@ -1,0 +1,14 @@
+{
+  "name": "go-conformance-tests",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/go/v2-runtime-conformance.test",
+    "-test.v"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/bindings/go/v2/conformance",
+  "started_at": "2026-10-15T14:51:41.867577+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.0263079580035992,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/go-conformance-tests.log",
+  "log_sha256": "7f99ca0d4e2038ee26482e53b5e65e213d55a80d523dedfeabd114390284f91a"
+}

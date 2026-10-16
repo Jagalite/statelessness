@@ -1,0 +1,14 @@
+{
+  "name": "rust-observation-40b05acbd9f2b66f",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/observation-40b05acbd9f2b66f",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:24.738960+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23866816697409377,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-observation-40b05acbd9f2b66f.log",
+  "log_sha256": "e7f5ed7cb83738061929ea555f2ed2f8bdfbce98eaea0aaaffbd79b9cd0d4c4e"
+}

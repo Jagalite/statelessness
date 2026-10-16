@@ -1,0 +1,22 @@
+{
+  "/Volumes/seed1/Projects/stateless-abi-v2-target/go/installed-v2-4402a1e.test": {
+    "sha256": "546c62751e6db11d8bbbbecf49892677eec84c996ce35a8b2d3a0dca6912abe7",
+    "bytes": 5059906
+  },
+  "/Volumes/seed1/Projects/stateless-abi-v2-target/go/installed-packet-4402a1e.test": {
+    "sha256": "442e8075c73e63989d864d440dacef9a01b85c8373c7d538d7d42c6638b5ef3f",
+    "bytes": 4376706
+  },
+  "/Volumes/seed1/Projects/stateless-abi-v2-target/go/installed-corpus-4402a1e": {
+    "sha256": "52717af240288dac538ce889deb4f0c8f80cf5893657e7efad409e132d1d1709",
+    "bytes": 3398818
+  },
+  "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-installed-4402a1e/arm64-apple-macosx/debug/StatelessNativeV2PackageTests.xctest/Contents/MacOS/StatelessNativeV2PackageTests": {
+    "sha256": "6e88f7b6c3d8e676b3386d01265174b67a167e7ade66a7bf1c7a8e8803e9043d",
+    "bytes": 867760
+  },
+  "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-installed-4402a1e/arm64-apple-macosx/debug/stateless-v2-corpus": {
+    "sha256": "299eb7ee75c8891c95c531f37b8f49ce0b4281e7548d292a7827cc589e443164",
+    "bytes": 917424
+  }
+}

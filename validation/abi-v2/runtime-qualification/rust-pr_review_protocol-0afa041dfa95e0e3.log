@@ -1,0 +1,16 @@
+
+running 11 tests
+test discovery_is_read_only_and_reconnect_cannot_resurrect_cached_mutation ... ok
+test evicted_candidate_and_snapshot_handles_do_not_alias_replacements ... ok
+test exact_value_permission_cannot_export_raw_trace ... ok
+test every_truncated_prefix_and_oversize_header_closes_without_delivery ... ok
+test fatal_frame_after_committed_turn_disconnects_without_rollback_or_extra_delivery ... ok
+test exposed_probe_sink_redacts_payload_and_never_drains_other_sink ... ok
+test first_failure_identity_survives_check_page_truncation_without_message_leak ... ok
+test minimum_wire_limits_keep_mutation_acks_and_retry_identity ... ok
+test rejected_metric_window_preserves_last_acknowledged_handle ... ok
+test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... ok
+test rejected_new_metric_capture_preserves_last_acknowledged_handle ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

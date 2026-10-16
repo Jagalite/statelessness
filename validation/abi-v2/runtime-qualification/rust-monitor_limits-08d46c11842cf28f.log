@@ -1,0 +1,16 @@
+
+running 11 tests
+test bounded_utf8_error_footer_preserves_full_returned_error_and_exportability ... ok
+test candidate_that_cannot_fit_with_its_checkpoint_does_not_evict_the_prefix ... ok
+test byte_eviction_preserves_replay_and_borrowed_consuming_exports_match ... ok
+test counter_digit_growth_that_exceeds_the_run_frame_freezes_the_old_config ... ok
+test cumulative_frame_budget_stops_outputs_before_collecting_all_of_them ... ok
+test error_footer_respects_a_small_string_limit_and_keeps_utf8_valid ... ok
+test failing_observation_fits_its_complete_terminal_artifact_at_the_exact_byte_limit ... ok
+test initial_checkpoint_and_format_limits_are_enforced_before_capture ... ok
+test initial_property_failure_fits_without_reserving_an_unreachable_future_error ... ok
+test oversized_disposition_is_rejected_before_copying_or_checking_the_candidate ... ok
+test changing_checkpoint_sizes_and_multi_evictions_preserve_exact_history ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

@@ -1,0 +1,14 @@
+{
+  "name": "rust-diagnostic-ec242a600493faf1",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/diagnostic-ec242a600493faf1",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:18.784106+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23399091605097055,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-diagnostic-ec242a600493faf1.log",
+  "log_sha256": "7fda40db2b6583779942075a9d01af8b0b352494ca46efcd52a8c64d87fd93bc"
+}

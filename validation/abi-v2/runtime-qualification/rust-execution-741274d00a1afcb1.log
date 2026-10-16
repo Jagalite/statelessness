@@ -1,0 +1,15 @@
+
+running 10 tests
+test budgets_and_initial_failures_are_reported_honestly ... ok
+test all_observable_fields_are_compared ... ok
+test generator_algorithm_has_a_fixed_known_vector ... ok
+test checker_errors_and_invalid_trace_semantics_cannot_pass ... ok
+test identity_mismatches_cannot_be_overridden_by_the_build_option ... ok
+test malformed_or_noncanonical_payloads_cannot_replay_successfully ... ok
+test records_and_exactly_replays_failure_and_detects_fixed_behavior ... ok
+test replay_observer_sees_first_divergence_and_never_changes_logical_time ... ok
+test runtime_checking_does_not_repeat_transition_and_declares_skips ... ok
+test reproducing_a_failure_is_independent_of_exact_observation_matching ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

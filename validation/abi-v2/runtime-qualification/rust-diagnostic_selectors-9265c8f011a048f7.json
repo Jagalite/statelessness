@@ -1,0 +1,14 @@
+{
+  "name": "rust-diagnostic_selectors-9265c8f011a048f7",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/diagnostic_selectors-9265c8f011a048f7",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:01.773723+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23388887499459088,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-diagnostic_selectors-9265c8f011a048f7.log",
+  "log_sha256": "0b21844fcc6924760d23ba1f584d7a74289b4a38dd91015a1e995b836ad36a7a"
+}

@@ -1,0 +1,7 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-abi-v2)
+    Building [                            ] 0/76: statelessness(build.rs)     
+[Kyoto: stopping for sustained memory/swap pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-abi-v2)
+    Building [                            ] 0/76: statelessness(build.rs)     

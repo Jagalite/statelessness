@@ -1,0 +1,14 @@
+{
+  "name": "rust-pr_review_protocol-0afa041dfa95e0e3",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_protocol-0afa041dfa95e0e3",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:14.864268+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23685574997216463,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-pr_review_protocol-0afa041dfa95e0e3.log",
+  "log_sha256": "057650749b6c41d2331d20a10d5f0ab17085875f84befadbd90a5ffdb7f8e07d"
+}

@@ -1,0 +1,28 @@
+
+running 23 tests
+test admission_backpressure_and_disconnect_return_owned_input_and_bound_queue ... ok
+test bridge_and_controller_origins_continue_correlating_after_client_reconnect ... ok
+test controller_property_stop_and_pause_correlation_are_explicit ... ok
+test coherent_midrun_attach_shares_one_checked_batch_and_exports_exact_suffix ... ok
+test counter_exhaustion_is_atomic_and_keeps_buffered_arrival_owned ... ok
+test default_observation_authority_cannot_escalate_on_reconnect ... ok
+test disconnect_preserves_inflight_result_under_every_detach_policy ... ok
+test duplicate_and_mismatched_tokens_do_not_consume_a_delivery ... ok
+test identity_changes_are_rejected_even_after_capture_freezes ... ok
+test metadata_loss_is_separate_from_exact_retention_and_effect_dispatch_facts ... ok
+test omitted_roundtrip_freezes_before_gap_even_if_before_state_matches ... ok
+test one_turn_is_exactly_one_delivered_input_including_rejection_and_ignore ... ok
+test oversized_output_batch_has_capacity_bounded_diagnostic_work ... ok
+test oversized_outputs_and_host_failure_terminate_without_hidden_retry ... ok
+test pause_racing_with_delivery_or_dispatch_waits_for_a_complete_boundary ... ok
+test permits_are_bound_to_their_controller_and_uncertain_work_is_not_retried ... ok
+test property_failure_freezes_capture_without_stopping_host_or_rewriting_failure ... ok
+test reconnect_retains_dispatch_ownership_and_invalidates_old_commands ... ok
+test recorder_owns_bounded_error_footer_even_for_external_stop ... ok
+test reserved_limits_and_provenance_cannot_be_forged ... ok
+test sampled_checks_end_exact_capture_and_preserve_actual_host_transition ... ok
+test staged_effects_can_resume_or_precede_one_turn_without_duplicate_dispatch ... ok
+test exhaustive_controller::all_finite_controller_interleavings_match_independent_model ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.97s
+

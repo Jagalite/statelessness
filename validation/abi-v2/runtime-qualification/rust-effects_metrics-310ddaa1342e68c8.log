@@ -1,0 +1,33 @@
+
+running 28 tests
+test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+test classifier_fault_cannot_replace_completed_future_value ... ok
+test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+test concurrent_consumer_can_win_publication_confirmation_race ... ok
+test debugger_pause_marks_samples_without_subtracting_time ... ok
+test detail_eviction_does_not_evict_live_accounting ... ok
+test disabled_and_counters_only_do_not_read_clock ... ok
+test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+test gauge_underflow_and_counter_reset_are_explicit ... ok
+test host_baseline_does_not_upgrade_other_label_groups ... ok
+test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+test windows_epochs_schema_and_history_are_honest ... ok
+
+test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

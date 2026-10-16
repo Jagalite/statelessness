@@ -1,0 +1,14 @@
+{
+  "name": "rust-session-e37c8ba264cebd2c",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/session-e37c8ba264cebd2c",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:02.452992+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23961995902936906,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-session-e37c8ba264cebd2c.log",
+  "log_sha256": "a9a29bc57816b860fc76fbb7fb9609deb3fd67c2fa5c7b735bf4c5aa1c4573b8"
+}

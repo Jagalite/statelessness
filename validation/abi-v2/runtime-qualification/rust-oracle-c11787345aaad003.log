@@ -1,0 +1,13 @@
+
+running 8 tests
+test application_checker_cannot_erase_state_checks_and_hide_behind_oracle_checks ... ok
+test automatic_fuzz_shrink_and_enumeration_preserve_oracle_history ... ok
+test checkpoint_is_strict_bounded_and_versions_remain_strict ... ok
+test borrowed_transition_checks_do_not_clone_application_state ... ok
+test failed_runtime_advancement_returns_the_actual_transition_without_copying ... ok
+test oracle_advancement_error_leaves_a_coherent_recorded_prefix ... ok
+test independent_reference_finds_consistent_wrong_state_and_missing_effects ... ok
+test runtime_advances_once_without_reexecuting_and_evicted_checkpoint_replays ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

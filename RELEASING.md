@@ -28,6 +28,24 @@ clean checkout. Build local bindings with `python3 scripts/build-bindings.py`;
 retain its hash manifest with distributed native/Wasm artifacts. Crates.io
 publishing does not also publish an npm package or distribute native binaries.
 
+## ABI v2 distribution gate
+
+ABI v2 remains opt-in while runtime qualification is pending. Follow
+[the distribution guide](docs/ABI-V2-DISTRIBUTION.md) to stage the matching
+headers, SDK sources, native/Wasm artifacts and source-bound receipts. The manual
+`abi-v2.yml` workflow is compile/package inspection only; it is not a release or
+runtime qualification gate. The local workflow continues to use Kyoto and
+`--no-run` test/benchmark compilation.
+
+Before changing any language default, require matching installed-consumer,
+negative-loading, lifetime/error, complete portable-profile, fresh-process replay
+and measured performance evidence for each claimed deployment mode. Use
+`scripts/check-abi-v2-gates.py --require-ready` with the actual receipts; missing
+gates fail. Preserve the old backend through a documented migration release and
+retain rollback instructions. ABI 1 removal requires a separate breaking release
+after its supported consumers migrate. Neither packaging command publishes or
+switches a backend, and no retirement is authorized by a compile-only result.
+
 ## First publication
 
 crates.io requires the crate to exist before configuring trusted publishing.

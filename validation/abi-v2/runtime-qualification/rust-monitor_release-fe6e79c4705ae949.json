@@ -1,0 +1,14 @@
+{
+  "name": "rust-monitor_release-fe6e79c4705ae949",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/monitor_release-fe6e79c4705ae949",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:20:57.403905+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.2281525839935057,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-monitor_release-fe6e79c4705ae949.log",
+  "log_sha256": "968b9fa695d4998911c8e2a9faaf0401c59463e7d5da9ff0a155fc29ed930d7d"
+}

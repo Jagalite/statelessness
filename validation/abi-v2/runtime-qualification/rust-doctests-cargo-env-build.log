@@ -1,0 +1,19 @@
+
+running 3 tests
+test src/model.rs - model::CheckSink (line 93) ... ok
+test src/lib.rs - (line 13) ... ok
+test src/lib.rs - (line 27) ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 5 tests
+test src/model.rs - model::CheckSink (line 117) - compile fail ... ok
+test src/observation.rs - observation::CheckedTurn (line 54) - compile fail ... ok
+test src/observation.rs - observation::CheckedInitial (line 16) - compile fail ... ok
+test src/model.rs - model::CheckSink (line 111) - compile fail ... ok
+test src/model.rs - model::CheckSink (line 104) - compile fail ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+all doctests ran in 1.07s; merged doctests compilation took 0.83s

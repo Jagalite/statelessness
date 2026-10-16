@@ -1,0 +1,58 @@
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+   --> src/campaign/lifecycle.rs:322:20
+    |
+322 |             build: env!("STATELESS_BUILD_ID").into(),
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+  --> src/demo.rs:51:17
+   |
+51 |                 env!("STATELESS_BUILD_ID"),
+   |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: environment variable `CARGO_PKG_VERSION` not defined at compile time
+   --> src/execution.rs:821:9
+    |
+821 |         env!("CARGO_PKG_VERSION").into(),
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: Cargo sets build script variables at run time. Use `std::env::var("CARGO_PKG_VERSION")` instead
+
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+   --> src/execution.rs:825:9
+    |
+825 |         env!("STATELESS_BUILD_ID").into(),
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+   --> src/composition.rs:120:43
+    |
+120 |             build: format!("{builds};{}", env!("STATELESS_BUILD_ID")),
+    |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+   --> src/lifecycle.rs:186:49
+    |
+186 |             .push_str(concat!(";lifecycle-v1:", env!("STATELESS_BUILD_ID")));
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: environment variable `STATELESS_BUILD_ID` not defined at compile time
+ --> src/modeling.rs:7:36
+  |
+7 | pub const RUNTIME_BUILD_ID: &str = env!("STATELESS_BUILD_ID");
+  |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: use `std::env::var("STATELESS_BUILD_ID")` to read the variable at run time
+
+error: aborting due to 7 previous errors
+

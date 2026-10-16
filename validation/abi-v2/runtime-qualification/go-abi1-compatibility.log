@@ -1,0 +1,19 @@
+=== RUN   TestRecordReplayEnumeration
+--- PASS: TestRecordReplayEnumeration (0.00s)
+=== RUN   TestCallbackFailuresAndCleanup
+--- PASS: TestCallbackFailuresAndCleanup (0.00s)
+=== RUN   TestSessionCleanupOnUserPanic
+--- PASS: TestSessionCleanupOnUserPanic (0.00s)
+=== RUN   TestMalformedPackets
+--- PASS: TestMalformedPackets (0.00s)
+=== RUN   TestReentrancy
+--- PASS: TestReentrancy (0.00s)
+=== RUN   TestIncompatibleSchemaAndMalformedTrace
+--- PASS: TestIncompatibleSchemaAndMalformedTrace (0.00s)
+=== RUN   TestWrongThreadAndConcurrentUse
+--- PASS: TestWrongThreadAndConcurrentUse (0.00s)
+=== RUN   TestPacketAggregateBoundAndStickyError
+--- PASS: TestPacketAggregateBoundAndStickyError (0.00s)
+=== RUN   TestZeroSessionIsRejected
+--- PASS: TestZeroSessionIsRejected (0.00s)
+PASS

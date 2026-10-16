@@ -1,0 +1,18 @@
+{
+  "schema": "stateless.packaging-runtime-qualification.v1",
+  "status": "passed_for_local_requested_scope",
+  "source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "build_receipt": "validation/abi-v2/merge-qualification/build-receipt.json",
+  "package_manifest": "validation/abi-v2/merge-qualification/package-manifest.json",
+  "native_runtime_report": "validation/abi-v2/merge-qualification/native-package-runtime.json",
+  "browser_inspection_report": "validation/abi-v2/merge-qualification/browser-package-inspection.json",
+  "archive_report": "validation/abi-v2/merge-qualification/archive-inspection.json",
+  "installed_consumers": "validation/abi-v2/merge-qualification/installed-consumers.json",
+  "installed_go_swift_input_reuse": "validation/abi-v2/merge-qualification/installed-compiler-input-reuse.json",
+  "runtime_tests": "passed_on_macos_arm64_and_node",
+  "corpus_report": "validation/abi-v2/merge-qualification/installed-conformance-report.json",
+  "benchmark_measurements": "not_run",
+  "default_switch_ready": false,
+  "platform_scope": "Local macOS arm64, Node, and prior Chromium qualification. Hosted Linux/macOS and existing Windows compatibility results tracked on PR. No default adoption or publication."
+}

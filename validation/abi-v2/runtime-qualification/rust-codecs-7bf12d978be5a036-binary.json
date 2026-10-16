@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/codecs-7bf12d978be5a036",
+  "sha256": "f5c9d976dad93965659dd5ed8ae4de8d772e4ada10a04f97dd6128670d8d8776",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "codecs",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification/tests/codecs.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/codecs-7bf12d978be5a036"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/codecs-7bf12d978be5a036",
+    "fresh": true
+  }
+}

@@ -1,0 +1,191 @@
+=== RUN   TestPortableCorpus
+=== RUN   TestPortableCorpus/empty-at-zero-work
+=== RUN   TestPortableCorpus/initial-failure-before-inputs
+=== RUN   TestPortableCorpus/initial-skipped-is-counted
+=== RUN   TestPortableCorpus/failing-edge-to-visited-state
+=== RUN   TestPortableCorpus/failure-before-state-admission-cap
+=== RUN   TestPortableCorpus/passing-successor-at-state-cap
+=== RUN   TestPortableCorpus/visited-successor-at-state-cap
+=== RUN   TestPortableCorpus/depth-zero-with-unexamined-input
+=== RUN   TestPortableCorpus/terminal-state-at-depth-bound
+=== RUN   TestPortableCorpus/unexecuted-cycle-edge-at-depth-bound
+=== RUN   TestPortableCorpus/transition-zero-with-input
+=== RUN   TestPortableCorpus/exact-transition-cap-can-exhaust
+=== RUN   TestPortableCorpus/transition-cap-before-next-edge
+=== RUN   TestPortableCorpus/duplicate-inputs-are-executed
+=== RUN   TestPortableCorpus/hash-collisions-keep-distinct-states
+=== RUN   TestPortableCorpus/breadth-first-witness-and-tie-order
+=== RUN   TestPortableCorpus/state-failure-before-edge-failure
+=== RUN   TestPortableCorpus/skips-counted-on-revisited-state-and-edge
+=== RUN   TestPortableCorpus/model-error-initial-callback
+=== RUN   TestPortableCorpus/model-error-initial-check
+=== RUN   TestPortableCorpus/model-error-input-domain
+=== RUN   TestPortableCorpus/model-error-step
+=== RUN   TestPortableCorpus/model-error-successor-check
+=== RUN   TestPortableCorpus/model-error-transition-check
+=== RUN   TestPortableCorpus/model-error-transition-check-after-state-failure
+=== RUN   TestPortableCorpus/record-empty-at-zero-cap
+=== RUN   TestPortableCorpus/record-nonempty-at-zero-cap
+=== RUN   TestPortableCorpus/record-exact-input-budget-is-complete
+=== RUN   TestPortableCorpus/record-extra-input-is-step-limit
+=== RUN   TestPortableCorpus/record-initial-failure-stops-before-invalid-input
+=== RUN   TestPortableCorpus/record-stops-after-first-failure
+=== RUN   TestPortableCorpus/record-preserves-output-and-check-order
+=== RUN   TestPortableCorpus/no-framework-policy-for-rejected
+=== RUN   TestPortableCorpus/no-framework-policy-for-ignored
+=== RUN   TestPortableCorpus/record-error-keeps-only-coherent-prefix
+=== RUN   TestPortableCorpus/record-initial-error-is-not-a-trace
+=== RUN   TestPortableCorpus/replay-exact
+=== RUN   TestPortableCorpus/replay-failure-reproduced
+=== RUN   TestPortableCorpus/replay-initial-failure
+=== RUN   TestPortableCorpus/replay-error-prefix-does-not-execute-error
+=== RUN   TestPortableCorpus/replay-bounded-empty-prefix
+=== RUN   TestPortableCorpus/replay-never-calls-initial-state
+=== RUN   TestPortableCorpus/replay-rejects-identity-name
+=== RUN   TestPortableCorpus/allow-build-does-not-bypass-name
+=== RUN   TestPortableCorpus/replay-rejects-identity-model_version
+=== RUN   TestPortableCorpus/allow-build-does-not-bypass-model_version
+=== RUN   TestPortableCorpus/replay-rejects-identity-properties_version
+=== RUN   TestPortableCorpus/allow-build-does-not-bypass-properties_version
+=== RUN   TestPortableCorpus/replay-rejects-identity-codec_version
+=== RUN   TestPortableCorpus/allow-build-does-not-bypass-codec_version
+=== RUN   TestPortableCorpus/replay-rejects-identity-build
+=== RUN   TestPortableCorpus/explicit-build-mismatch-remains-visible
+=== RUN   TestPortableCorpus/replay-output-order-divergence
+=== RUN   TestPortableCorpus/replay-state-divergence
+=== RUN   TestPortableCorpus/replay-disposition-divergence
+=== RUN   TestPortableCorpus/replay-initial-check-divergence
+=== RUN   TestPortableCorpus/failure-can-reproduce-with-detail-divergence
+=== RUN   TestPortableCorpus/reject-fabricated-initial-failure-continuation
+=== RUN   TestPortableCorpus/reject-fabricated-edge-failure-continuation
+=== RUN   TestPortableCorpus/reject-fabricated-false-failure-termination
+=== RUN   TestPortableCorpus/reject-fabricated-hidden-failure-termination
+=== RUN   TestPortableCorpus/replay-malformed-utf8-input
+=== RUN   TestPortableCorpus/replay-malformed-utf8-checkpoint
+=== RUN   TestPortableCorpus/observation-never-executes-reducer
+=== RUN   TestPortableCorpus/observation-periodic-skip
+=== RUN   TestPortableCorpus/observation-periodic-due
+=== RUN   TestPortableCorpus/observation-disabled-edge-checks
+=== RUN   TestPortableCorpus/splitmix64-seed-zero
+=== RUN   TestPortableCorpus/splitmix64-seed-1
+=== RUN   TestPortableCorpus/splitmix64-seed-18446744073709551615
+=== RUN   TestPortableCorpus/empty-rng-domain-consumes-nothing
+=== RUN   TestPortableCorpus/unsupported-protocol-version
+=== RUN   TestPortableCorpus/unsupported-capability-is-not-pass
+=== RUN   TestPortableCorpus/zero-state-budget
+=== RUN   TestPortableCorpus/zero-observation-sequence
+=== RUN   TestPortableCorpus/zero-check-period
+=== RUN   TestPortableCorpus/unknown-request-field
+=== RUN   TestPortableCorpus/boolean-version
+=== RUN   TestPortableCorpus/boolean-budget
+=== RUN   TestPortableCorpus/negative-budget
+=== RUN   TestPortableCorpus/float-budget
+=== RUN   TestPortableCorpus/bad-seed-leading-zero
+=== RUN   TestPortableCorpus/bad-seed-overflow
+=== RUN   TestPortableCorpus/bad-bound-overflow
+=== RUN   TestPortableCorpus/unknown-initial-state
+=== RUN   TestPortableCorpus/unknown-successor
+=== RUN   TestPortableCorpus/duplicate-state-ID
+=== RUN   TestPortableCorpus/conflicting-input-transition
+=== RUN   TestPortableCorpus/invalid-trace-version
+=== RUN   TestPortableCorpus/invalid-boolean-trace-version
+=== RUN   TestPortableCorpus/invalid-trace-kind
+=== RUN   TestPortableCorpus/invalid-odd-hex
+=== RUN   TestPortableCorpus/invalid-uppercase-hex
+=== RUN   TestPortableCorpus/invalid-unknown-termination
+--- PASS: TestPortableCorpus (0.06s)
+    --- PASS: TestPortableCorpus/empty-at-zero-work (0.05s)
+    --- PASS: TestPortableCorpus/initial-failure-before-inputs (0.00s)
+    --- PASS: TestPortableCorpus/initial-skipped-is-counted (0.00s)
+    --- PASS: TestPortableCorpus/failing-edge-to-visited-state (0.00s)
+    --- PASS: TestPortableCorpus/failure-before-state-admission-cap (0.00s)
+    --- PASS: TestPortableCorpus/passing-successor-at-state-cap (0.00s)
+    --- PASS: TestPortableCorpus/visited-successor-at-state-cap (0.00s)
+    --- PASS: TestPortableCorpus/depth-zero-with-unexamined-input (0.00s)
+    --- PASS: TestPortableCorpus/terminal-state-at-depth-bound (0.00s)
+    --- PASS: TestPortableCorpus/unexecuted-cycle-edge-at-depth-bound (0.00s)
+    --- PASS: TestPortableCorpus/transition-zero-with-input (0.00s)
+    --- PASS: TestPortableCorpus/exact-transition-cap-can-exhaust (0.00s)
+    --- PASS: TestPortableCorpus/transition-cap-before-next-edge (0.00s)
+    --- PASS: TestPortableCorpus/duplicate-inputs-are-executed (0.00s)
+    --- PASS: TestPortableCorpus/hash-collisions-keep-distinct-states (0.00s)
+    --- PASS: TestPortableCorpus/breadth-first-witness-and-tie-order (0.00s)
+    --- PASS: TestPortableCorpus/state-failure-before-edge-failure (0.00s)
+    --- PASS: TestPortableCorpus/skips-counted-on-revisited-state-and-edge (0.00s)
+    --- PASS: TestPortableCorpus/model-error-initial-callback (0.00s)
+    --- PASS: TestPortableCorpus/model-error-initial-check (0.00s)
+    --- PASS: TestPortableCorpus/model-error-input-domain (0.00s)
+    --- PASS: TestPortableCorpus/model-error-step (0.00s)
+    --- PASS: TestPortableCorpus/model-error-successor-check (0.00s)
+    --- PASS: TestPortableCorpus/model-error-transition-check (0.00s)
+    --- PASS: TestPortableCorpus/model-error-transition-check-after-state-failure (0.00s)
+    --- PASS: TestPortableCorpus/record-empty-at-zero-cap (0.00s)
+    --- PASS: TestPortableCorpus/record-nonempty-at-zero-cap (0.00s)
+    --- PASS: TestPortableCorpus/record-exact-input-budget-is-complete (0.00s)
+    --- PASS: TestPortableCorpus/record-extra-input-is-step-limit (0.00s)
+    --- PASS: TestPortableCorpus/record-initial-failure-stops-before-invalid-input (0.00s)
+    --- PASS: TestPortableCorpus/record-stops-after-first-failure (0.00s)
+    --- PASS: TestPortableCorpus/record-preserves-output-and-check-order (0.00s)
+    --- PASS: TestPortableCorpus/no-framework-policy-for-rejected (0.00s)
+    --- PASS: TestPortableCorpus/no-framework-policy-for-ignored (0.00s)
+    --- PASS: TestPortableCorpus/record-error-keeps-only-coherent-prefix (0.00s)
+    --- PASS: TestPortableCorpus/record-initial-error-is-not-a-trace (0.00s)
+    --- PASS: TestPortableCorpus/replay-exact (0.00s)
+    --- PASS: TestPortableCorpus/replay-failure-reproduced (0.00s)
+    --- PASS: TestPortableCorpus/replay-initial-failure (0.00s)
+    --- PASS: TestPortableCorpus/replay-error-prefix-does-not-execute-error (0.00s)
+    --- PASS: TestPortableCorpus/replay-bounded-empty-prefix (0.00s)
+    --- PASS: TestPortableCorpus/replay-never-calls-initial-state (0.00s)
+    --- PASS: TestPortableCorpus/replay-rejects-identity-name (0.00s)
+    --- PASS: TestPortableCorpus/allow-build-does-not-bypass-name (0.00s)
+    --- PASS: TestPortableCorpus/replay-rejects-identity-model_version (0.00s)
+    --- PASS: TestPortableCorpus/allow-build-does-not-bypass-model_version (0.00s)
+    --- PASS: TestPortableCorpus/replay-rejects-identity-properties_version (0.00s)
+    --- PASS: TestPortableCorpus/allow-build-does-not-bypass-properties_version (0.00s)
+    --- PASS: TestPortableCorpus/replay-rejects-identity-codec_version (0.00s)
+    --- PASS: TestPortableCorpus/allow-build-does-not-bypass-codec_version (0.00s)
+    --- PASS: TestPortableCorpus/replay-rejects-identity-build (0.00s)
+    --- PASS: TestPortableCorpus/explicit-build-mismatch-remains-visible (0.00s)
+    --- PASS: TestPortableCorpus/replay-output-order-divergence (0.00s)
+    --- PASS: TestPortableCorpus/replay-state-divergence (0.00s)
+    --- PASS: TestPortableCorpus/replay-disposition-divergence (0.00s)
+    --- PASS: TestPortableCorpus/replay-initial-check-divergence (0.00s)
+    --- PASS: TestPortableCorpus/failure-can-reproduce-with-detail-divergence (0.00s)
+    --- PASS: TestPortableCorpus/reject-fabricated-initial-failure-continuation (0.00s)
+    --- PASS: TestPortableCorpus/reject-fabricated-edge-failure-continuation (0.00s)
+    --- PASS: TestPortableCorpus/reject-fabricated-false-failure-termination (0.00s)
+    --- PASS: TestPortableCorpus/reject-fabricated-hidden-failure-termination (0.00s)
+    --- PASS: TestPortableCorpus/replay-malformed-utf8-input (0.00s)
+    --- PASS: TestPortableCorpus/replay-malformed-utf8-checkpoint (0.00s)
+    --- PASS: TestPortableCorpus/observation-never-executes-reducer (0.00s)
+    --- PASS: TestPortableCorpus/observation-periodic-skip (0.00s)
+    --- PASS: TestPortableCorpus/observation-periodic-due (0.00s)
+    --- PASS: TestPortableCorpus/observation-disabled-edge-checks (0.00s)
+    --- PASS: TestPortableCorpus/splitmix64-seed-zero (0.00s)
+    --- PASS: TestPortableCorpus/splitmix64-seed-1 (0.00s)
+    --- PASS: TestPortableCorpus/splitmix64-seed-18446744073709551615 (0.00s)
+    --- PASS: TestPortableCorpus/empty-rng-domain-consumes-nothing (0.00s)
+    --- PASS: TestPortableCorpus/unsupported-protocol-version (0.00s)
+    --- PASS: TestPortableCorpus/unsupported-capability-is-not-pass (0.00s)
+    --- PASS: TestPortableCorpus/zero-state-budget (0.00s)
+    --- PASS: TestPortableCorpus/zero-observation-sequence (0.00s)
+    --- PASS: TestPortableCorpus/zero-check-period (0.00s)
+    --- PASS: TestPortableCorpus/unknown-request-field (0.00s)
+    --- PASS: TestPortableCorpus/boolean-version (0.00s)
+    --- PASS: TestPortableCorpus/boolean-budget (0.00s)
+    --- PASS: TestPortableCorpus/negative-budget (0.00s)
+    --- PASS: TestPortableCorpus/float-budget (0.00s)
+    --- PASS: TestPortableCorpus/bad-seed-leading-zero (0.00s)
+    --- PASS: TestPortableCorpus/bad-seed-overflow (0.00s)
+    --- PASS: TestPortableCorpus/bad-bound-overflow (0.00s)
+    --- PASS: TestPortableCorpus/unknown-initial-state (0.00s)
+    --- PASS: TestPortableCorpus/unknown-successor (0.00s)
+    --- PASS: TestPortableCorpus/duplicate-state-ID (0.00s)
+    --- PASS: TestPortableCorpus/conflicting-input-transition (0.00s)
+    --- PASS: TestPortableCorpus/invalid-trace-version (0.00s)
+    --- PASS: TestPortableCorpus/invalid-boolean-trace-version (0.00s)
+    --- PASS: TestPortableCorpus/invalid-trace-kind (0.00s)
+    --- PASS: TestPortableCorpus/invalid-odd-hex (0.00s)
+    --- PASS: TestPortableCorpus/invalid-uppercase-hex (0.00s)
+    --- PASS: TestPortableCorpus/invalid-unknown-termination (0.00s)
+PASS

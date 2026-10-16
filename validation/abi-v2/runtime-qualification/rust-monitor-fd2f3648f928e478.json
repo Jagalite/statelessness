@@ -1,0 +1,14 @@
+{
+  "name": "rust-monitor-fd2f3648f928e478",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/monitor-fd2f3648f928e478",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:26.096197+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.1762906250078231,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-monitor-fd2f3648f928e478.log",
+  "log_sha256": "219b4309072dc20df5621f0cd2bdcb0be494be123f041984ada67b173b0ac6af"
+}

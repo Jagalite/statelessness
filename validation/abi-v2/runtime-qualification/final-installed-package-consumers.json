@@ -1,0 +1,16 @@
+{
+  "name": "final-installed-package-consumers",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+    "scripts/check-abi-v2-installed.py",
+    "--output",
+    "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T14:58:33.862349+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 6.067720332997851,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/final-installed-package-consumers.log",
+  "log_sha256": "26f79c87858099f88734488dba89e112f6fcda7b632ea40824d8ea98605a2fc2"
+}

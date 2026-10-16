@@ -1,0 +1,40 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/stateless-bc548f654da8162c",
+  "sha256": "cc1c2f674bfd77dfe89a9aa29bf6be6a8b212e9a5d941211161179a9da549578",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "rlib",
+        "cdylib",
+        "staticlib"
+      ],
+      "crate_types": [
+        "rlib",
+        "cdylib",
+        "staticlib"
+      ],
+      "name": "stateless",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/stateless-bc548f654da8162c"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/stateless-bc548f654da8162c",
+    "fresh": true
+  }
+}

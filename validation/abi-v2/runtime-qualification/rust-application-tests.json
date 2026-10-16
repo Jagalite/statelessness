@@ -1,0 +1,14 @@
+{
+  "name": "rust-application-tests",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/examples/application-6a61bcdc3d48e167",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T14:51:41.867577+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.2008260840084404,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-application-tests.log",
+  "log_sha256": "b0126d5bf4b7d6fade412be8f6488139b76500a72d3a6f274d4099d48b1749e5"
+}

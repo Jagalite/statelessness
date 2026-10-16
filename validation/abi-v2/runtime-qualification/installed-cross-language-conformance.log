@@ -1,0 +1,144 @@
+{
+  "spec_version": "1.0.0",
+  "corpus_sha256": "6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11",
+  "portability_sha256": "9f15a637ac1470d149a32ab483ee402422cb9d58fe9c1ea3cadc923a50b1612e",
+  "source_commit": null,
+  "implementations": [
+    {
+      "implementation": "python",
+      "package_version": "0.1.0",
+      "spec_version": "1.0.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "engine_family": "python-independent",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/venv/bin/python",
+        "-I",
+        "-m",
+        "statelessness.conformance",
+        "--runner"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "implementation": "python-rust-abi2",
+      "package_version": "0.1.0",
+      "spec_version": "1.0.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "engine_family": "rust-shared",
+      "abi_version": 2,
+      "artifact_sha256": "7582a8dca53dd24228a8d7397e155453bf06e158b07ed1aecf6d270c54b40cad",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/venv/bin/python",
+        "-I",
+        "-m",
+        "statelessness.native_conformance",
+        "--library",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/distribution/native/lib/libstateless.dylib"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "abi_version": 2,
+      "engine_family": "rust-shared",
+      "implementation": "go-rust-abi2",
+      "package_version": "0.1.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "spec_version": "1.0.0",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/go/installed-corpus-4402a1e"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "implementation": "typescript-rust-abi2",
+      "package_version": "0.1.0",
+      "spec_version": "1.0.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "engine_family": "rust-shared",
+      "abi_version": 2,
+      "artifact_sha256": "484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15",
+      "command": [
+        "node",
+        "bindings/browser/v2-corpus.mjs",
+        "/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target/wasm32-unknown-unknown/release/stateless.wasm"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "abi_version": 2,
+      "engine_family": "rust-shared",
+      "implementation": "swift-abi-v2",
+      "package_version": "0.1.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "spec_version": "1.0.0",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-installed-4402a1e/arm64-apple-macosx/debug/stateless-v2-corpus"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    }
+  ],
+  "engine_families": [
+    "python-independent",
+    "rust-shared"
+  ],
+  "independent_engine_count": 2,
+  "engine_attribution": "runner-declared; unknown runners are not counted as independent",
+  "fresh_process_replays": 550,
+  "elapsed_seconds": 5.561,
+  "failures": []
+}

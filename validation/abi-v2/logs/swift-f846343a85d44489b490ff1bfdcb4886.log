@@ -1,0 +1,19 @@
+Building for debugging...
+[0/9] Write swift-version--58304C5D6DBC2206.txt
+[1/9] Write sources
+[4/10] Emitting module StatelessNativeV2
+[5/12] Compiling StatelessNativeV2 Native.swift
+[6/12] Compiling StatelessNativeV2 Packet.swift
+[6/13] Write sources
+[8/14] Emitting module NativeV2Tests
+[9/15] Compiling NativeV2Tests NativeV2Tests.swift
+[10/17] Emitting module NativeV2Bench
+[11/18] Compiling NativeV2Bench main.swift
+[11/19] Write Objects.LinkFileList
+[13/19] Linking stateless-v2-corpus
+[14/19] Linking stateless-v2-bench
+[15/19] Applying stateless-v2-corpus
+[16/19] Applying stateless-v2-bench
+[17/19] Write Objects.LinkFileList
+[18/19] Linking StatelessNativeV2PackageTests
+Build complete! (21.30s)

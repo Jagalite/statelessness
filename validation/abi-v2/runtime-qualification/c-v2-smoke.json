@@ -1,0 +1,13 @@
+{
+  "name": "c-v2-smoke",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/c/v2_smoke"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:19:15.312343+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.41238341701682657,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/c-v2-smoke.log",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
