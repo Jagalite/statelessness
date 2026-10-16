@@ -427,7 +427,7 @@ impl Controller {
                     after.state.now += 1;
                 }
             }
-            Some(Mutation::ReorderedEffects) => {
+            Some(Mutation::ReorderedEffects)
                 if after
                     .outputs
                     .iter()
@@ -435,12 +435,11 @@ impl Controller {
                     && after
                         .outputs
                         .iter()
-                        .any(|e| matches!(e, Effect::Start { .. }))
-                {
-                    after.outputs.reverse();
-                }
+                        .any(|e| matches!(e, Effect::Start { .. })) =>
+            {
+                after.outputs.reverse();
             }
-            None => {}
+            Some(Mutation::ReorderedEffects) | None => {}
         }
     }
 }

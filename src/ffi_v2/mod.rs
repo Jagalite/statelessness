@@ -101,6 +101,8 @@ struct ThreadEntry {
 }
 static OWNERS: OnceLock<Mutex<HashMap<u64, ThreadEntry>>> = OnceLock::new();
 static NEXT_HANDLE: AtomicU64 = AtomicU64::new(1);
+// `try_update` replaces `fetch_update` after 1.90 (the MSRV); keep the MSRV spelling.
+#[allow(deprecated)]
 fn next_handle() -> ApiResult<u64> {
     NEXT_HANDLE
         .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {

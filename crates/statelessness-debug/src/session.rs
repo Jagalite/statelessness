@@ -253,6 +253,8 @@ impl<M: Model> DebugSession<M> {
                 "nonempty identity and positive work budgets required".into(),
             ));
         }
+        // `try_update` replaces `fetch_update` after 1.90 (the MSRV).
+        #[allow(deprecated)]
         let epoch = NEXT_SESSION_EPOCH
             .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |n| n.checked_add(1))
             .map_err(|_| DebugError::InvalidCommand("session identity exhausted".into()))?;
