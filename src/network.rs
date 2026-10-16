@@ -5,7 +5,7 @@
 //! the queue. `M` can be an application enum implementing `Model` to represent
 //! heterogeneous machines with checked state/input tags. No dynamic `Any`,
 //! erased byte payloads, hidden scheduler, or partial-order reduction is used.
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use crate::value_codec::{DecodeLimits, Decoder, TraceDecode, TraceEncode};
 use crate::*;
@@ -606,10 +606,12 @@ impl<S: TraceDecode, I: TraceDecode> TraceDecode for State<S, I> {
         if s.machines.windows(2).any(|w| w[0].0 >= w[1].0) {
             return Err(ModelError::new("noncanonical network machine order"));
         }
-        let ids = s.machines.iter().map(|(id, _)| id).collect::<BTreeSet<_>>();
+        // Machines are strictly sorted, so membership needs no further allocation
+        // beyond what the decoder already charged.
+        let known = |id: &_| s.machines.binary_search_by(|(m, _)| m.cmp(id)).is_ok();
         if s.pending
             .iter()
-            .any(|m| !ids.contains(&m.source) || !ids.contains(&m.route.destination))
+            .any(|m| !known(&m.source) || !known(&m.route.destination))
         {
             return Err(ModelError::new("unknown network route machine"));
         }

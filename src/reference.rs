@@ -312,7 +312,11 @@ pub fn reduce(
             state.now = now;
             for job in &mut state.jobs {
                 if matches!(job.phase, Phase::Waiting { deadline } if deadline <= now) {
-                    job.attempt += 1;
+                    // Restored checkpoints are untrusted; never wrap the attempt counter.
+                    job.attempt = job
+                        .attempt
+                        .checked_add(1)
+                        .ok_or_else(|| ModelError::new("retry attempt counter overflow"))?;
                     job.phase = Phase::Running;
                     effects.push(Effect::Start {
                         generation: job.generation,
@@ -489,7 +493,7 @@ impl Model for Controller {
         let valid = state.now <= self.bounds.time && state.jobs.len() as u64 <= self.bounds.generations
             && state.jobs.iter().enumerate().all(|(i, j)| j.generation == i as u64 + 1 && j.attempt > 0 && j.attempt <= self.bounds.attempts
                 && j.resource_owned != matches!(j.phase, Phase::Settled(_))
-                && !matches!(j.phase, Phase::Waiting { deadline } if deadline <= state.now || deadline > self.bounds.time))
+                && !matches!(j.phase, Phase::Waiting { deadline } if deadline <= state.now || deadline > self.bounds.time || j.attempt >= self.bounds.attempts))
             && state.current.is_none_or(|g| state.job(g).is_some_and(|j| matches!(j.phase, Phase::Running | Phase::Waiting { .. })));
         Ok(vec![property(PROPERTY_IDS[0], valid)])
     }
@@ -613,12 +617,14 @@ impl Model for Controller {
             Input::Tick { now } if *now > before.now && *now <= self.bounds.time => {
                 before.jobs.iter().all(|j| match j.phase {
                     Phase::Waiting { deadline } if deadline <= *now => {
-                        after.state.job(j.generation).is_some_and(|new| {
-                            new.attempt == j.attempt + 1 && new.phase == Phase::Running
-                        }) && count(&Effect::Start {
-                            generation: j.generation,
-                            attempt: j.attempt + 1,
-                        }) == 1
+                        j.attempt.checked_add(1).is_some_and(|next| {
+                            after.state.job(j.generation).is_some_and(|new| {
+                                new.attempt == next && new.phase == Phase::Running
+                            }) && count(&Effect::Start {
+                                generation: j.generation,
+                                attempt: next,
+                            }) == 1
+                        })
                     }
                     _ => true,
                 })

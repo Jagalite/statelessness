@@ -373,3 +373,28 @@ fn host_cancellation_waits_for_real_worker_acknowledgment() {
     assert!(host.published.is_empty());
     assert_eq!(host.pending_workers(), 0);
 }
+#[test]
+fn restored_waiting_job_at_attempt_bound_is_invalid_and_never_wraps() {
+    let bounds = reference::Bounds {
+        generations: 1,
+        attempts: u8::MAX,
+        time: 1,
+    };
+    let model = Controller {
+        bounds,
+        mutation: None,
+    };
+    let state = reference::State {
+        now: 0,
+        current: Some(1),
+        jobs: vec![reference::Job {
+            generation: 1,
+            attempt: u8::MAX,
+            phase: Phase::Waiting { deadline: 1 },
+            resource_owned: true,
+        }],
+    };
+    let checks = model.check_state(&state).unwrap();
+    assert!(checks.iter().any(|check| check.is_failure()));
+    assert!(reference::reduce(&state, &Input::Tick { now: 1 }, bounds).is_err());
+}
