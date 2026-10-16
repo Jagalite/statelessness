@@ -1,0 +1,68 @@
+{
+  "default_switch_ready": false,
+  "gates": {
+    "abi1_compatibility": {
+      "status": "pending"
+    },
+    "bootstrap_negative_loading": {
+      "status": "pending"
+    },
+    "deployment_contract": {
+      "status": "pending"
+    },
+    "fresh_process_replay": {
+      "status": "pending"
+    },
+    "installed_model_consumer": {
+      "status": "pending"
+    },
+    "lifetime": {
+      "status": "pending"
+    },
+    "migration_window": {
+      "status": "pending"
+    },
+    "package_integrity": {
+      "status": "passed"
+    },
+    "performance": {
+      "status": "pending"
+    },
+    "portable_profiles": {
+      "status": "pending"
+    },
+    "runtime_bootstrap": {
+      "status": "pending"
+    },
+    "sdk_negative_loading": {
+      "status": "pending"
+    },
+    "semantic_regression": {
+      "status": "pending"
+    }
+  },
+  "language": "typescript",
+  "machine": "arm64",
+  "mode": "inspect",
+  "outcome": "passed_for_requested_scope",
+  "package_files": {
+    "LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "README.md": "962f7d56f09cc2ad18b3b63a6d04824f341cbaf13d74d37088f0601506a0b6f2",
+    "package.json": "8b1601c320f7cf3f2da78c8d40e67197d87b1033f49f9191371676bdddfb1ee1",
+    "stateless.mjs": "d481aefd21a3ff0cbc0b5ed072888e16030e11cf706ae0c7e25234af67ce1631",
+    "stateless.wasm": "3e1aa621a313fabaf293003423540b207d6d13ab8d7728df952d10180f4e4a74",
+    "stateless_v2.wasm": "484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15",
+    "v2-json.mjs": "3b8ce45e194f68996acc8d7e6f7f2879d34f7429464d626ad44656d3fcdd5d18",
+    "v2-packet.mjs": "ccc1b4ce41e5b9c108dd4a8a8351a9b826b66ee77c33c6fc8f1c4a0d247e0165",
+    "v2-values.mjs": "7eef87367502dfc420688946e570fa7bc90e23328e0db2356e6f069e17ed5aaa",
+    "v2.d.mts": "59d36c3c563cd42654627695dc7308addf546ab58d41406c49c6c2808d082dac",
+    "v2.d.ts": "02d511af16b3ca17157ce8c1801ff18100402ee89fdc0b0209de009d05c9413e",
+    "v2.mjs": "9be2b4de5160532795dc0814834633d73aa47518e896c55564c10567fcac1ec2"
+  },
+  "package_metadata_sha256": "b424744396224d16f5c64966a84f45b80f019f120160d62ca49dce5944026e09",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "schema": "stateless.binding-qualification.v1",
+  "source_commit": "39399e7a7de32f2645e576b1d884f1f304275f60",
+  "source_sha256": "faaf4037626887bd933067227380a96336d8cffaef71226b9da0c999507ac91b",
+  "target": "wasm32-unknown-unknown"
+}

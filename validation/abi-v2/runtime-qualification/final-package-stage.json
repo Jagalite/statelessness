@@ -1,0 +1,19 @@
+{
+  "name": "final-package-stage",
+  "command": [
+    "python3",
+    "scripts/build-bindings.py",
+    "--kind",
+    "all",
+    "--abi-v2",
+    "--build-receipt",
+    "validation/abi-v2/merge-qualification/build-receipt.json"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T14:58:09.348275+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.5794612080208026,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/final-package-stage.log",
+  "log_sha256": "7b32c48632dc3348cd8f7404558c74d9ac72c9f28048421efeba0bacef57fbbd"
+}

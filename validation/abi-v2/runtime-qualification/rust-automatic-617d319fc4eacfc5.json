@@ -1,0 +1,14 @@
+{
+  "name": "rust-automatic-617d319fc4eacfc5",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/automatic-617d319fc4eacfc5",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:24.172680+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.1825768330018036,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-automatic-617d319fc4eacfc5.log",
+  "log_sha256": "f5ac542ffbc9bd3a6c28084a7eb776752f0635e8ba4e087dba722aefb4198be2"
+}

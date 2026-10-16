@@ -7,9 +7,10 @@
 //! allocations inside application callbacks and legacy codecs.
 
 use crate::CheckSink;
-use crate::execution::{CheckPolicy, check_observed_count_into};
+use crate::execution::{CheckPolicy, check_observed_count_ops_into};
 use crate::model::{Check, EncodeBuffer, ModelCodec, ModelError, ModelMetadata, Transition};
 use crate::observation::{CheckedInitial, CheckedTurn};
+use crate::operations::{CodecOps, NativeOps};
 use crate::trace::{
     EncodedSize, FILE_HEADER_SIZE, FRAME_OVERHEAD, ReadLimits, RunConfig, Termination, Trace,
     TraceError, TraceStep, TraceView, end_size, error_termination, reserved_end_size, run_size,
@@ -116,6 +117,15 @@ impl Recorder {
         config: RunConfig,
         options: RecorderOptions,
     ) -> Result<Self, ModelError> {
+        Self::with_ops_options(&NativeOps::new(model), initial_state, config, options)
+    }
+
+    pub(crate) fn with_ops_options<M: CodecOps>(
+        model: &M,
+        initial_state: &M::State,
+        config: RunConfig,
+        options: RecorderOptions,
+    ) -> Result<Self, ModelError> {
         Self::with_initial_checks(model, initial_state, config, options, None, 0)
     }
 
@@ -139,7 +149,7 @@ impl Recorder {
         options: RecorderOptions,
     ) -> Result<Self, ModelError> {
         Self::with_initial_checks(
-            initial.model(),
+            &NativeOps::new(initial.model()),
             initial.state(),
             config,
             options,
@@ -148,7 +158,7 @@ impl Recorder {
         )
     }
 
-    fn with_initial_checks<M: ModelCodec>(
+    fn with_initial_checks<M: CodecOps>(
         model: &M,
         initial_state: &M::State,
         config: RunConfig,
@@ -199,7 +209,7 @@ impl Recorder {
         for (_, value) in config.parameters.iter_mut().rev().take(3) {
             value.reserve(20);
         }
-        let metadata = model.metadata();
+        let metadata = model.metadata().map_err(|e| stage("metadata", e))?;
         let reserved_footer = reserved_end_size(&options.limits).map_err(format_error)?;
         let mut encoded = Vec::new();
         let mut encoder = EncodeBuffer::new(&mut encoded, blob_limit(&options));
@@ -269,6 +279,16 @@ impl Recorder {
         input: &M::Input,
         transition: &Transition<M::State, M::Output>,
     ) -> Result<&[Check], ModelError> {
+        self.observe_ops(&NativeOps::new(model), before, input, transition)
+    }
+
+    pub(crate) fn observe_ops<M: CodecOps>(
+        &mut self,
+        model: &M,
+        before: &M::State,
+        input: &M::Input,
+        transition: &Transition<M::State, M::Output>,
+    ) -> Result<&[Check], ModelError> {
         if self.is_frozen() {
             return Err(ModelError::new(
                 "runtime recorder is frozen; export its retained trace",
@@ -308,11 +328,11 @@ impl Recorder {
             )));
         }
         let prepared = self.prepare(
-            checked.model(),
+            &NativeOps::new(checked.model()),
             checked.before(),
             checked.input(),
             checked.transition(),
-            Some(checked),
+            Some((checked.checks(), checked.state_check_count())),
         );
         let observation = match prepared {
             Ok(observation) => observation,
@@ -355,15 +375,15 @@ impl Recorder {
             .checks)
     }
 
-    fn prepare<M: ModelCodec>(
+    fn prepare<M: CodecOps>(
         &mut self,
         model: &M,
         before: &M::State,
         input: &M::Input,
         transition: &Transition<M::State, M::Output>,
-        checked: Option<&CheckedTurn<'_, M>>,
+        checked: Option<(&[Check], usize)>,
     ) -> Result<Observation, ModelError> {
-        if model.metadata() != self.metadata {
+        if model.metadata().map_err(|e| stage("metadata", e))? != self.metadata {
             return Err(ModelError::new("runtime recorder model identity changed"));
         }
         let sequence = self
@@ -420,17 +440,17 @@ impl Recorder {
             .encode_input_into(input, &mut encoder)
             .map_err(|e| stage("encode input", e))?;
         encoder.finish().map_err(|e| stage("encode input", e))?;
-        let state_check_count = if let Some(checked) = checked {
-            let size = crate::trace::checked_batch_size(checked.checks(), &self.options.limits)
+        let state_check_count = if let Some((checks, state_check_count)) = checked {
+            let size = crate::trace::checked_batch_size(checks, &self.options.limits)
                 .map_err(format_error)?;
             if size.bytes > frame_payload_budget {
                 return Err(format_error(TraceError::LimitExceeded("frame bytes")));
             }
             step.checks.clear();
-            step.checks.extend_from_slice(checked.checks());
-            checked.state_check_count()
+            step.checks.extend_from_slice(checks);
+            state_check_count
         } else {
-            check_observed_count_into(
+            check_observed_count_ops_into(
                 model,
                 before,
                 input,

@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/conformance-216f9a31c0f895ae",
+  "sha256": "7972d73f0ef7477f8b84cc25581f6ab51af2bde3f604d1f136e05fde6581b8c7",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "conformance",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/tests/conformance.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/conformance-216f9a31c0f895ae"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/conformance-216f9a31c0f895ae",
+    "fresh": true
+  }
+}

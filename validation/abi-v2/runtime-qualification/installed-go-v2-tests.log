@@ -1,0 +1,41 @@
+=== RUN   TestPortablePacketRoundTrip
+--- PASS: TestPortablePacketRoundTrip (0.00s)
+=== RUN   TestPortableStrictJSON
+--- PASS: TestPortableStrictJSON (0.00s)
+=== RUN   TestPacketOversizedCount
+--- PASS: TestPacketOversizedCount (0.00s)
+=== RUN   TestExpiredCallbackRNG
+--- PASS: TestExpiredCallbackRNG (0.00s)
+=== RUN   TestPacketParametersDoNotConsumePortableItems
+--- PASS: TestPacketParametersDoNotConsumePortableItems (0.00s)
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults/panic
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults/invalid_UTF-8
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults/multibyte_boundary
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults/session_quota
+=== RUN   TestCallbackDiagnosticContainsFormattingFaults/ABI_quota
+--- PASS: TestCallbackDiagnosticContainsFormattingFaults (0.00s)
+    --- PASS: TestCallbackDiagnosticContainsFormattingFaults/panic (0.00s)
+    --- PASS: TestCallbackDiagnosticContainsFormattingFaults/invalid_UTF-8 (0.00s)
+    --- PASS: TestCallbackDiagnosticContainsFormattingFaults/multibyte_boundary (0.00s)
+    --- PASS: TestCallbackDiagnosticContainsFormattingFaults/session_quota (0.00s)
+    --- PASS: TestCallbackDiagnosticContainsFormattingFaults/ABI_quota (0.00s)
+=== RUN   TestCallbackErrorFormatterPanicStaysInsideBoundary
+--- PASS: TestCallbackErrorFormatterPanicStaysInsideBoundary (0.00s)
+=== RUN   TestSessionEnumerationRecordReplayAndShrink
+--- PASS: TestSessionEnumerationRecordReplayAndShrink (0.00s)
+=== RUN   TestObservationAndRingNeverRunReducer
+--- PASS: TestObservationAndRingNeverRunReducer (0.00s)
+=== RUN   TestLazyInputPanicKeepsPrefixAndCloses
+--- PASS: TestLazyInputPanicKeepsPrefixAndCloses (0.00s)
+=== RUN   TestCallbackFaultAndWrongThread
+--- PASS: TestCallbackFaultAndWrongThread (0.00s)
+=== RUN   TestRNGFullWidth
+--- PASS: TestRNGFullWidth (0.00s)
+=== RUN   TestSnapshotsIsolateMutableStateAndCodecIsOptional
+--- PASS: TestSnapshotsIsolateMutableStateAndCodecIsOptional (0.00s)
+=== RUN   TestAutomaticGeneratorUsesSharedSampler
+--- PASS: TestAutomaticGeneratorUsesSharedSampler (0.00s)
+=== RUN   TestPortableRecordingExactItemBoundary
+--- PASS: TestPortableRecordingExactItemBoundary (0.00s)
+PASS

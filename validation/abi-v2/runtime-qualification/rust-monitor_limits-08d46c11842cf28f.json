@@ -1,0 +1,14 @@
+{
+  "name": "rust-monitor_limits-08d46c11842cf28f",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/monitor_limits-08d46c11842cf28f",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:24.433571+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23142595798708498,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-monitor_limits-08d46c11842cf28f.log",
+  "log_sha256": "99ed3977a3113fabc6359fecee353945eac59e4c8c4ce54c9299464983498f4f"
+}

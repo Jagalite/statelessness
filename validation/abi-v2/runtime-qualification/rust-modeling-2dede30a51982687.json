@@ -1,0 +1,14 @@
+{
+  "name": "rust-modeling-2dede30a51982687",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/modeling-2dede30a51982687",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:19.927367+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.18318533297860995,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-modeling-2dede30a51982687.log",
+  "log_sha256": "aaec19404a5177bd4a99a9a377dff25275056f39d6bf4e5bf3689df27ed93a2b"
+}

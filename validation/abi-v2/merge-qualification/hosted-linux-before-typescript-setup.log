@@ -1,0 +1,1582 @@
+﻿2026-10-15T14:54:55.7338994Z Current runner version: '2.337.0'
+2026-10-15T14:54:55.7364378Z ##[group]Runner Image Provisioner
+2026-10-15T14:54:55.7365318Z Hosted Compute Agent
+2026-10-15T14:54:55.7365931Z Version: 20261002.596
+2026-10-15T14:54:55.7366704Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-15T14:54:55.7367456Z Build Date: 2026-10-02T22:28:27Z
+2026-10-15T14:54:55.7368628Z Worker ID: {3dc4b54e-4b7c-4a24-bc6d-3855858313a8}
+2026-10-15T14:54:55.7369519Z Region: westcentralus
+2026-10-15T14:54:55.7370133Z Cloud: Azure
+2026-10-15T14:54:55.7370792Z ##[endgroup]
+2026-10-15T14:54:55.7372368Z ##[group]Operating System
+2026-10-15T14:54:55.7373154Z Ubuntu
+2026-10-15T14:54:55.7373732Z 22.04.5
+2026-10-15T14:54:55.7374268Z LTS
+2026-10-15T14:54:55.7374897Z ##[endgroup]
+2026-10-15T14:54:55.7375480Z ##[group]Runner Image
+2026-10-15T14:54:55.7376160Z Image: ubuntu-22.04
+2026-10-15T14:54:55.7376896Z Version: 20261004.315.1
+2026-10-15T14:54:55.7378484Z Included Software: https://github.com/actions/runner-images/blob/ubuntu22/20261004.315/images/ubuntu/Ubuntu2204-Readme.md
+2026-10-15T14:54:55.7380301Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu22%2F20261004.315
+2026-10-15T14:54:55.7381305Z ##[endgroup]
+2026-10-15T14:54:55.7382561Z ##[group]GITHUB_TOKEN Permissions
+2026-10-15T14:54:55.7384414Z Contents: read
+2026-10-15T14:54:55.7385215Z Metadata: read
+2026-10-15T14:54:55.7385889Z ##[endgroup]
+2026-10-15T14:54:55.7388343Z Secret source: Actions
+2026-10-15T14:54:55.7389389Z Cache mode: write
+2026-10-15T14:54:55.7390193Z Prepare workflow directory
+2026-10-15T14:54:55.7806413Z Prepare all required actions
+2026-10-15T14:54:55.7854148Z Getting action download info
+2026-10-15T14:54:56.1523378Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-15T14:54:56.2583076Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-10-15T14:54:56.3443043Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-15T14:54:56.4478015Z Download action repository 'actions/setup-go@v5' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-10-15T14:54:57.0215539Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-15T14:54:57.2481707Z Complete job name: ABI v2 runtime (ubuntu-22.04)
+2026-10-15T14:54:57.3322832Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-10-15T14:54:57.3323917Z with:
+2026-10-15T14:54:57.3324367Z   persist-credentials: false
+2026-10-15T14:54:57.3324911Z   repository: Jagalite/statelessness
+2026-10-15T14:54:57.3329215Z   token: ***
+2026-10-15T14:54:57.3329662Z   ssh-strict: true
+2026-10-15T14:54:57.3330101Z   ssh-user: git
+2026-10-15T14:54:57.3330522Z   clean: true
+2026-10-15T14:54:57.3330966Z   sparse-checkout-cone-mode: true
+2026-10-15T14:54:57.3331488Z   fetch-depth: 1
+2026-10-15T14:54:57.3331912Z   fetch-tags: false
+2026-10-15T14:54:57.3332355Z   show-progress: true
+2026-10-15T14:54:57.3332835Z   lfs: false
+2026-10-15T14:54:57.3333257Z   submodules: false
+2026-10-15T14:54:57.3333705Z   set-safe-directory: true
+2026-10-15T14:54:57.3334204Z   allow-unsafe-pr-checkout: false
+2026-10-15T14:54:57.3335007Z ##[endgroup]
+2026-10-15T14:54:57.4408550Z Syncing repository: Jagalite/statelessness
+2026-10-15T14:54:57.4410629Z ##[group]Getting Git version info
+2026-10-15T14:54:57.4411450Z Working directory is '/home/runner/work/statelessness/statelessness'
+2026-10-15T14:54:57.4412521Z [command]/usr/bin/git version
+2026-10-15T14:54:57.4550410Z git version 2.55.0
+2026-10-15T14:54:57.4591664Z ##[endgroup]
+2026-10-15T14:54:57.4601756Z Temporarily overriding HOME='/home/runner/work/_temp/e9107f14-cd17-4e10-9915-06f5a3d378dc' before making global git config changes
+2026-10-15T14:54:57.4603810Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-15T14:54:57.4605828Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/statelessness/statelessness
+2026-10-15T14:54:57.4652067Z Deleting the contents of '/home/runner/work/statelessness/statelessness'
+2026-10-15T14:54:57.4657044Z ##[group]Determining repository object format
+2026-10-15T14:54:57.4665643Z ##[endgroup]
+2026-10-15T14:54:57.4666560Z ##[group]Initializing the repository
+2026-10-15T14:54:57.4668351Z [command]/usr/bin/git init /home/runner/work/statelessness/statelessness
+2026-10-15T14:54:57.4795887Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-15T14:54:57.4797846Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-15T14:54:57.4800481Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-15T14:54:57.4802100Z hint: call:
+2026-10-15T14:54:57.4802817Z hint:
+2026-10-15T14:54:57.4803537Z hint: 	git config --global init.defaultBranch <name>
+2026-10-15T14:54:57.4804336Z hint:
+2026-10-15T14:54:57.4805105Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-15T14:54:57.4806286Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-15T14:54:57.4807265Z hint:
+2026-10-15T14:54:57.4809252Z hint: 	git branch -m <name>
+2026-10-15T14:54:57.4809976Z hint:
+2026-10-15T14:54:57.4810788Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-15T14:54:57.4812201Z Initialized empty Git repository in /home/runner/work/statelessness/statelessness/.git/
+2026-10-15T14:54:57.4814925Z [command]/usr/bin/git remote add origin https://github.com/Jagalite/statelessness
+2026-10-15T14:54:57.4886746Z ##[endgroup]
+2026-10-15T14:54:57.4888036Z ##[group]Disabling automatic garbage collection
+2026-10-15T14:54:57.4892101Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-15T14:54:57.4930301Z ##[endgroup]
+2026-10-15T14:54:57.4931913Z ##[group]Setting up auth
+2026-10-15T14:54:57.4933275Z Removing SSH command configuration
+2026-10-15T14:54:57.4937939Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-15T14:54:57.4977179Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-15T14:54:57.5433573Z Removing HTTP extra header
+2026-10-15T14:54:57.5435716Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-15T14:54:57.5480006Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-15T14:54:57.5740466Z Removing includeIf entries pointing to credentials config files
+2026-10-15T14:54:57.5747387Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-15T14:54:57.5788710Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-15T14:54:57.6053994Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-15T14:54:57.6100334Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/statelessness/statelessness/.git.path /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:57.6141989Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/statelessness/statelessness/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:57.6192202Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:57.6231083Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:57.6265606Z ##[endgroup]
+2026-10-15T14:54:57.6266818Z ##[group]Fetching the repository
+2026-10-15T14:54:57.6273749Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b0600c81b2c9db7686c82a8514924374e019b272:refs/remotes/pull/6/merge
+2026-10-15T14:54:58.4168644Z From https://github.com/Jagalite/statelessness
+2026-10-15T14:54:58.4171373Z  * [new ref]         b0600c81b2c9db7686c82a8514924374e019b272 -> pull/6/merge
+2026-10-15T14:54:58.4177074Z ##[endgroup]
+2026-10-15T14:54:58.4179602Z ##[group]Determining the checkout info
+2026-10-15T14:54:58.4182076Z ##[endgroup]
+2026-10-15T14:54:58.4183969Z [command]/usr/bin/git sparse-checkout disable
+2026-10-15T14:54:58.4239369Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-15T14:54:58.4277301Z ##[group]Checking out the ref
+2026-10-15T14:54:58.4280843Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/6/merge
+2026-10-15T14:54:58.4845773Z Note: switching to 'refs/remotes/pull/6/merge'.
+2026-10-15T14:54:58.4846722Z 
+2026-10-15T14:54:58.4847440Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-15T14:54:58.4849683Z changes and commit them, and you can discard any commits you make in this
+2026-10-15T14:54:58.4852500Z state without impacting any branches by switching back to a branch.
+2026-10-15T14:54:58.4854086Z 
+2026-10-15T14:54:58.4855100Z If you want to create a new branch to retain commits you create, you may
+2026-10-15T14:54:58.4857609Z do so (now or later) by using -c with the switch command. Example:
+2026-10-15T14:54:58.4859430Z 
+2026-10-15T14:54:58.4860012Z   git switch -c <new-branch-name>
+2026-10-15T14:54:58.4861063Z 
+2026-10-15T14:54:58.4861719Z Or undo this operation with:
+2026-10-15T14:54:58.4862783Z 
+2026-10-15T14:54:58.4863406Z   git switch -
+2026-10-15T14:54:58.4864210Z 
+2026-10-15T14:54:58.4865384Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-15T14:54:58.4867209Z 
+2026-10-15T14:54:58.4869608Z HEAD is now at b0600c8 Merge 4402a1e458a0a1a2ea28099bacd9309f047d80eb into 0949e7992f1be34d2052b22f12b7cbb0ce6b7a95
+2026-10-15T14:54:58.4875722Z ##[endgroup]
+2026-10-15T14:54:58.4908718Z [command]/usr/bin/git log -1 --format=%H
+2026-10-15T14:54:58.4941562Z b0600c81b2c9db7686c82a8514924374e019b272
+2026-10-15T14:54:58.4954573Z ##[group]Removing auth
+2026-10-15T14:54:58.4956270Z Removing SSH command configuration
+2026-10-15T14:54:58.4959223Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-15T14:54:58.4998814Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-15T14:54:58.5267672Z Removing HTTP extra header
+2026-10-15T14:54:58.5271226Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-15T14:54:58.5313804Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-15T14:54:58.5586042Z Removing includeIf entries pointing to credentials config files
+2026-10-15T14:54:58.5589279Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-15T14:54:58.5623588Z includeif.gitdir:/home/runner/work/statelessness/statelessness/.git.path
+2026-10-15T14:54:58.5627470Z includeif.gitdir:/home/runner/work/statelessness/statelessness/.git/worktrees/*.path
+2026-10-15T14:54:58.5631632Z includeif.gitdir:/github/workspace/.git.path
+2026-10-15T14:54:58.5634164Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-15T14:54:58.5638775Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/statelessness/statelessness/.git.path
+2026-10-15T14:54:58.5666551Z /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5678744Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/statelessness/statelessness/.git.path /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5720271Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/statelessness/statelessness/.git/worktrees/*.path
+2026-10-15T14:54:58.5749568Z /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5760836Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/statelessness/statelessness/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5801838Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-15T14:54:58.5831141Z /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5843615Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5895613Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-15T14:54:58.5926987Z /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5941673Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config
+2026-10-15T14:54:58.5981560Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-15T14:54:58.6256618Z Removing credentials config '/home/runner/work/_temp/git-credentials-6c8148de-dbb4-417e-9f8f-c8b13849165e.config'
+2026-10-15T14:54:58.6261214Z ##[endgroup]
+2026-10-15T14:54:58.6612277Z ##[group]Run actions/setup-python@v5
+2026-10-15T14:54:58.6613394Z with:
+2026-10-15T14:54:58.6614131Z   python-version: 3.13
+2026-10-15T14:54:58.6615017Z   check-latest: false
+2026-10-15T14:54:58.6625040Z   token: ***
+2026-10-15T14:54:58.6625856Z   update-environment: true
+2026-10-15T14:54:58.6626813Z   allow-prereleases: false
+2026-10-15T14:54:58.6627735Z   freethreaded: false
+2026-10-15T14:54:58.6628712Z ##[endgroup]
+2026-10-15T14:54:58.8126398Z ##[group]Installed versions
+2026-10-15T14:54:58.8250700Z (node:2175) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-15T14:54:58.8254967Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-15T14:54:58.8257370Z Successfully set up CPython (3.13.16)
+2026-10-15T14:54:58.8260138Z ##[endgroup]
+2026-10-15T14:54:58.8562288Z ##[group]Run actions/setup-node@v4
+2026-10-15T14:54:58.8563371Z with:
+2026-10-15T14:54:58.8564109Z   node-version: 22.16.0
+2026-10-15T14:54:58.8565028Z   always-auth: false
+2026-10-15T14:54:58.8565881Z   check-latest: false
+2026-10-15T14:54:58.8576122Z   token: ***
+2026-10-15T14:54:58.8576891Z env:
+2026-10-15T14:54:58.8578390Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:54:58.8581132Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:54:58.8583747Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:54:58.8586231Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:54:58.8588980Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:54:58.8590649Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:54:58.8591997Z ##[endgroup]
+2026-10-15T14:54:59.0148623Z Attempting to download 22.16.0...
+2026-10-15T14:54:59.0261216Z (node:2184) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-15T14:54:59.0264444Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-15T14:55:00.0870129Z Acquiring 22.16.0 - x64 from https://github.com/actions/node-versions/releases/download/22.16.0-15177438473/node-22.16.0-linux-x64.tar.gz
+2026-10-15T14:55:00.7890922Z Extracting ...
+2026-10-15T14:55:00.8034428Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/2a443351-445b-487e-a2ae-9b8bfac0ea14 -f /home/runner/work/_temp/f1bb715f-3e76-48b1-b761-9428eefad220
+2026-10-15T14:55:01.9963268Z Adding to the cache ...
+2026-10-15T14:55:03.9019857Z ##[group]Environment details
+2026-10-15T14:55:04.1630058Z node: v22.16.0
+2026-10-15T14:55:04.1630517Z npm: 10.9.2
+2026-10-15T14:55:04.1630834Z yarn: 1.22.22
+2026-10-15T14:55:04.1636360Z ##[endgroup]
+2026-10-15T14:55:04.1837042Z ##[group]Run actions/setup-go@v5
+2026-10-15T14:55:04.1837344Z with:
+2026-10-15T14:55:04.1837543Z   go-version: 1.24.0
+2026-10-15T14:55:04.1837755Z   cache: false
+2026-10-15T14:55:04.1837958Z   check-latest: false
+2026-10-15T14:55:04.1840936Z   token: ***
+2026-10-15T14:55:04.1841168Z env:
+2026-10-15T14:55:04.1841430Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:04.1841867Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:55:04.1842289Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:04.1842670Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:04.1843050Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:04.1843427Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:55:04.1843751Z ##[endgroup]
+2026-10-15T14:55:04.3277217Z Setup go version spec 1.24.0
+2026-10-15T14:55:04.3292517Z Attempting to download 1.24.0...
+2026-10-15T14:55:04.3406239Z (node:2223) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-15T14:55:04.3407519Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-15T14:55:05.2681844Z matching 1.24.0...
+2026-10-15T14:55:05.2741522Z Acquiring 1.24.0 from https://github.com/actions/go-versions/releases/download/1.24.0-13277276272/go-1.24.0-linux-x64.tar.gz
+2026-10-15T14:55:06.0508500Z Extracting Go...
+2026-10-15T14:55:06.0673727Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/91e4d1a1-c692-4854-80f7-bb1e252fbc43 -f /home/runner/work/_temp/ae88db08-cb01-4a16-aa4f-cb041198d31d
+2026-10-15T14:55:07.8675763Z Successfully extracted go to /home/runner/work/_temp/91e4d1a1-c692-4854-80f7-bb1e252fbc43
+2026-10-15T14:55:07.8676696Z Adding to the cache ...
+2026-10-15T14:55:12.8747728Z Successfully cached go to /opt/hostedtoolcache/go/1.24.0/x64
+2026-10-15T14:55:12.8751042Z Added go to the path
+2026-10-15T14:55:12.8754121Z Successfully set up Go version 1.24.0
+2026-10-15T14:55:12.8988934Z go version go1.24.0 linux/amd64
+2026-10-15T14:55:12.8989162Z 
+2026-10-15T14:55:12.8991294Z ##[group]go env
+2026-10-15T14:55:13.0457195Z AR='ar'
+2026-10-15T14:55:13.0457627Z CC='gcc'
+2026-10-15T14:55:13.0458024Z CGO_CFLAGS='-O2 -g'
+2026-10-15T14:55:13.0458683Z CGO_CPPFLAGS=''
+2026-10-15T14:55:13.0458997Z CGO_CXXFLAGS='-O2 -g'
+2026-10-15T14:55:13.0459237Z CGO_ENABLED='1'
+2026-10-15T14:55:13.0459527Z CGO_FFLAGS='-O2 -g'
+2026-10-15T14:55:13.0459783Z CGO_LDFLAGS='-O2 -g'
+2026-10-15T14:55:13.0460006Z CXX='g++'
+2026-10-15T14:55:13.0460207Z GCCGO='gccgo'
+2026-10-15T14:55:13.0460415Z GO111MODULE=''
+2026-10-15T14:55:13.0460622Z GOAMD64='v1'
+2026-10-15T14:55:13.0460841Z GOARCH='amd64'
+2026-10-15T14:55:13.0461040Z GOAUTH='netrc'
+2026-10-15T14:55:13.0461236Z GOBIN=''
+2026-10-15T14:55:13.0461515Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-15T14:55:13.0461808Z GOCACHEPROG=''
+2026-10-15T14:55:13.0462024Z GODEBUG=''
+2026-10-15T14:55:13.0462291Z GOENV='/home/runner/.config/go/env'
+2026-10-15T14:55:13.0462613Z GOEXE=''
+2026-10-15T14:55:13.0462813Z GOEXPERIMENT=''
+2026-10-15T14:55:13.0463020Z GOFIPS140='off'
+2026-10-15T14:55:13.0463216Z GOFLAGS=''
+2026-10-15T14:55:13.0464321Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build2472981372=/tmp/go-build -gno-record-gcc-switches'
+2026-10-15T14:55:13.0465027Z GOHOSTARCH='amd64'
+2026-10-15T14:55:13.0465245Z GOHOSTOS='linux'
+2026-10-15T14:55:13.0465451Z GOINSECURE=''
+2026-10-15T14:55:13.0465674Z GOMOD='/dev/null'
+2026-10-15T14:55:13.0465963Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-15T14:55:13.0466235Z GONOPROXY=''
+2026-10-15T14:55:13.0466437Z GONOSUMDB=''
+2026-10-15T14:55:13.0466640Z GOOS='linux'
+2026-10-15T14:55:13.0466890Z GOPATH='/home/runner/go'
+2026-10-15T14:55:13.0467139Z GOPRIVATE=''
+2026-10-15T14:55:13.0467451Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-15T14:55:13.0468046Z GOROOT='/opt/hostedtoolcache/go/1.24.0/x64'
+2026-10-15T14:55:13.0468682Z GOSUMDB='sum.golang.org'
+2026-10-15T14:55:13.0468960Z GOTELEMETRY='local'
+2026-10-15T14:55:13.0469298Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-15T14:55:13.0469624Z GOTMPDIR=''
+2026-10-15T14:55:13.0469855Z GOTOOLCHAIN='auto'
+2026-10-15T14:55:13.0470272Z GOTOOLDIR='/opt/hostedtoolcache/go/1.24.0/x64/pkg/tool/linux_amd64'
+2026-10-15T14:55:13.0470641Z GOVCS=''
+2026-10-15T14:55:13.0470859Z GOVERSION='go1.24.0'
+2026-10-15T14:55:13.0471079Z GOWORK=''
+2026-10-15T14:55:13.0471305Z PKG_CONFIG='pkg-config'
+2026-10-15T14:55:13.0471460Z 
+2026-10-15T14:55:13.0471788Z ##[endgroup]
+2026-10-15T14:55:13.0673597Z ##[group]Run rustup toolchain install 1.90.0 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown
+2026-10-15T14:55:13.0674519Z [36;1mrustup toolchain install 1.90.0 --profile minimal --component clippy,rustfmt --target wasm32-unknown-unknown[0m
+2026-10-15T14:55:13.0675066Z [36;1mrustup default 1.90.0[0m
+2026-10-15T14:55:13.0675371Z [36;1mpython -m pip install 'setuptools>=77' wheel[0m
+2026-10-15T14:55:13.1096442Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-15T14:55:13.1096821Z env:
+2026-10-15T14:55:13.1097107Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:13.1097620Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:55:13.1098398Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:13.1098905Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:13.1099335Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:13.1099803Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:55:13.1100153Z ##[endgroup]
+2026-10-15T14:55:13.1635778Z info: syncing channel updates for 1.90.0-x86_64-unknown-linux-gnu
+2026-10-15T14:55:13.4393460Z info: latest update on 2025-09-18 for version 1.90.0 (1159e78c4 2025-09-14)
+2026-10-15T14:55:13.4396890Z info: downloading 6 components
+2026-10-15T14:55:23.4050966Z 
+2026-10-15T14:55:23.4156258Z   1.90.0-x86_64-unknown-linux-gnu installed - rustc 1.90.0 (1159e78c4 2025-09-14)
+2026-10-15T14:55:23.4156784Z 
+2026-10-15T14:55:23.4396527Z info: using existing install for 1.90.0-x86_64-unknown-linux-gnu
+2026-10-15T14:55:23.4401884Z info: default toolchain set to 1.90.0-x86_64-unknown-linux-gnu
+2026-10-15T14:55:23.4402430Z 
+2026-10-15T14:55:23.4505101Z   1.90.0-x86_64-unknown-linux-gnu unchanged - rustc 1.90.0 (1159e78c4 2025-09-14)
+2026-10-15T14:55:23.4505529Z 
+2026-10-15T14:55:25.4935461Z Collecting setuptools>=77
+2026-10-15T14:55:25.5779087Z   Downloading setuptools-84.0.0-py3-none-any.whl.metadata (6.6 kB)
+2026-10-15T14:55:25.6232373Z Collecting wheel
+2026-10-15T14:55:25.6424305Z   Downloading wheel-0.48.0-py3-none-any.whl.metadata (2.3 kB)
+2026-10-15T14:55:25.6744020Z Collecting packaging>=24.0 (from wheel)
+2026-10-15T14:55:25.6937508Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-10-15T14:55:25.7168530Z Downloading setuptools-84.0.0-py3-none-any.whl (818 kB)
+2026-10-15T14:55:25.7939430Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 818.2/818.2 kB 18.9 MB/s  0:00:00
+2026-10-15T14:55:25.8129702Z Downloading wheel-0.48.0-py3-none-any.whl (33 kB)
+2026-10-15T14:55:25.8339540Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-10-15T14:55:25.9381228Z Installing collected packages: setuptools, packaging, wheel
+2026-10-15T14:55:26.5662589Z 
+2026-10-15T14:55:26.5676058Z Successfully installed packaging-26.3 setuptools-84.0.0 wheel-0.48.0
+2026-10-15T14:55:26.6256267Z ##[group]Run cargo fmt --all --check
+2026-10-15T14:55:26.6256621Z [36;1mcargo fmt --all --check[0m
+2026-10-15T14:55:26.6256923Z [36;1mcargo test --locked --offline --workspace[0m
+2026-10-15T14:55:26.6257298Z [36;1mcargo test --locked --offline --example application[0m
+2026-10-15T14:55:26.6257770Z [36;1mcargo clippy --locked --offline --workspace --all-targets -- -D warnings[0m
+2026-10-15T14:55:26.6331778Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-15T14:55:26.6332122Z env:
+2026-10-15T14:55:26.6332404Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:26.6332845Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:55:26.6333296Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:26.6333675Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:26.6334062Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:55:26.6334476Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:55:26.6334809Z ##[endgroup]
+2026-10-15T14:55:27.3179812Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:55:27.3182280Z    Compiling statelessness-macros v0.2.0 (/home/runner/work/statelessness/statelessness/crates/statelessness-macros)
+2026-10-15T14:55:31.5127840Z    Compiling statelessness-debug v0.2.0 (/home/runner/work/statelessness/statelessness/crates/statelessness-debug)
+2026-10-15T14:55:31.5157509Z    Compiling macro-qualification v0.0.0 (/home/runner/work/statelessness/statelessness/crates/macro-qualification)
+2026-10-15T14:55:50.7577078Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 23.49s
+2026-10-15T14:55:50.7645591Z      Running unittests src/lib.rs (target/debug/deps/macro_qualification-8399033bce4fc05d)
+2026-10-15T14:55:50.7659582Z 
+2026-10-15T14:55:50.7663707Z running 3 tests
+2026-10-15T14:55:50.7664263Z test tests::golden ... ok
+2026-10-15T14:55:50.7664662Z test tests::adapter ... ok
+2026-10-15T14:55:50.7667210Z test jobs::tests::missing_effect_and_healthy_graph ... ok
+2026-10-15T14:55:50.7667497Z 
+2026-10-15T14:55:50.7668029Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7668797Z 
+2026-10-15T14:55:50.7671051Z      Running unittests src/bin/jobs.rs (target/debug/deps/jobs-957d364f9a92f964)
+2026-10-15T14:55:50.7687587Z 
+2026-10-15T14:55:50.7687765Z running 0 tests
+2026-10-15T14:55:50.7688372Z 
+2026-10-15T14:55:50.7689111Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7689765Z 
+2026-10-15T14:55:50.7692439Z      Running tests/behavior.rs (target/debug/deps/behavior-5ab631fa452f4caa)
+2026-10-15T14:55:50.7705536Z 
+2026-10-15T14:55:50.7705879Z running 5 tests
+2026-10-15T14:55:50.7720450Z test exactly_once_partial_error_and_lazy_details ... ok
+2026-10-15T14:55:50.7722985Z test observing_generated_model_does_not_execute_reducer_again ... ok
+2026-10-15T14:55:50.7726305Z test every_request_state_matches_handwritten_and_preserves_stale_delivery ... ok
+2026-10-15T14:55:50.7727587Z test campaigns_use_generated_adapter ... ok
+2026-10-15T14:55:50.7729704Z test macro_search_fuzz_shrink_guidance_and_replay ... ok
+2026-10-15T14:55:50.7730332Z 
+2026-10-15T14:55:50.7731201Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7731870Z 
+2026-10-15T14:55:50.7732844Z      Running tests/codecs.rs (target/debug/deps/codecs-12122e5603b8707e)
+2026-10-15T14:55:50.7745140Z 
+2026-10-15T14:55:50.7745368Z running 2 tests
+2026-10-15T14:55:50.7748504Z test custom_adapter_and_limits ... ok
+2026-10-15T14:55:50.7752665Z test legacy_request_bytes_and_property_failing_snapshots ... ok
+2026-10-15T14:55:50.7753591Z 
+2026-10-15T14:55:50.7754275Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7754885Z 
+2026-10-15T14:55:50.7755951Z      Running tests/monitor_release.rs (target/debug/deps/monitor_release-0f7d6a5bfb1d00ce)
+2026-10-15T14:55:50.7767019Z 
+2026-10-15T14:55:50.7767229Z running 2 tests
+2026-10-15T14:55:50.7775578Z test attached_history_and_serialized_monitor_trace_replay ... ok
+2026-10-15T14:55:50.7778809Z test composed_monitor_histories_affect_equality_and_serialized_replay ... ok
+2026-10-15T14:55:50.7779155Z 
+2026-10-15T14:55:50.7779547Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7779895Z 
+2026-10-15T14:55:50.7782049Z      Running tests/review_regressions.rs (target/debug/deps/review_regressions-d8468047adc52f2c)
+2026-10-15T14:55:50.7794401Z 
+2026-10-15T14:55:50.7794559Z running 6 tests
+2026-10-15T14:55:50.7798795Z test domain_locals_do_not_capture_application_bindings ... ok
+2026-10-15T14:55:50.7799674Z test generic_associated_binding_is_preserved ... ok
+2026-10-15T14:55:50.7800553Z test generic_function_arrow_does_not_close_parameter_list ... ok
+2026-10-15T14:55:50.7801375Z test primitive_aliases::enum_wire_tag_width_is_not_a_caller_type_alias ... ok
+2026-10-15T14:55:50.7802397Z test shadowed_results::derives_use_standard_result_constructors ... ok
+2026-10-15T14:55:50.7803530Z test shadowed_results::adapter_and_domain_use_standard_result_constructors ... ok
+2026-10-15T14:55:50.7803871Z 
+2026-10-15T14:55:50.7804273Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:50.7804619Z 
+2026-10-15T14:55:50.7805179Z      Running unittests src/lib.rs (target/debug/deps/stateless-136312f18adac96a)
+2026-10-15T14:55:50.7815817Z 
+2026-10-15T14:55:50.7816009Z running 52 tests
+2026-10-15T14:55:50.7821057Z test automatic::tests::candidate_counter_never_wraps_at_usize_max ... ok
+2026-10-15T14:55:50.7822479Z test campaign::lifecycle::codec::tests::input_rejects_unknown_tags_flags_lengths_and_invalid_utf8 ... ok
+2026-10-15T14:55:50.7824032Z test campaign::lifecycle::codec::tests::output_tags_and_ids_are_distinct_and_canonical ... ok
+2026-10-15T14:55:50.7825572Z test campaign::lifecycle::codec::tests::every_input_roundtrips_and_rejects_truncation_or_trailing_data ... ok
+2026-10-15T14:55:50.7827255Z test campaign::lifecycle::codec::tests::state_rejects_bad_tags_counts_order_duplicates_and_invalid_properties ... ok
+2026-10-15T14:55:50.7829235Z test campaign::lifecycle::tests::accounting_distinguishes_known_zero_work_and_lost_counters_and_saturates ... ok
+2026-10-15T14:55:50.7830789Z test campaign::lifecycle::codec::tests::state_rejects_stop_reasons_without_causal_evidence ... ok
+2026-10-15T14:55:50.7845428Z test campaign::lifecycle::tests::controls_are_observed_before_claims_and_do_not_rewrite_completed_campaigns ... ok
+2026-10-15T14:55:50.7847128Z test campaign::lifecycle::tests::active_job_stop_precedence_is_independent_of_completion_order ... ok
+2026-10-15T14:55:50.7849639Z test campaign::lifecycle::codec::tests::state_roundtrips_all_reports_stops_pending_and_delivery_fields ... ok
+2026-10-15T14:55:50.7856700Z test campaign::lifecycle::tests::exhausted_job_range_reports_a_bad_claim_without_panicking_in_the_checker ... ok
+2026-10-15T14:55:50.7858552Z test campaign::lifecycle::tests::first_sink_error_survives_drain_and_worker_failure ... ok
+2026-10-15T14:55:50.7897573Z test campaign::lifecycle::tests::healthy_campaign_audit_roundtrips_and_replays ... ok
+2026-10-15T14:55:50.7904604Z test campaign::lifecycle::tests::hostile_events_cannot_duplicate_work_delivery_or_mutate_terminal_state ... ok
+2026-10-15T14:55:50.7910139Z test campaign::lifecycle::tests::missing_worker_outcome_requires_explicit_accounting_loss ... ok
+2026-10-15T14:55:50.7911650Z test campaign::lifecycle::tests::persisted_fault_trace_replays_when_supplied ... ok
+2026-10-15T14:55:50.7913107Z test campaign::lifecycle::tests::rejection_of_enabled_lifecycle_events_is_detected ... ok
+2026-10-15T14:55:50.7914884Z test campaign::lifecycle::tests::stale_error_acknowledgement_is_detected_independently ... ok
+2026-10-15T14:55:50.7936537Z test campaign::lifecycle::tests::unobserved_stop_is_detected_before_additional_claims ... ok
+2026-10-15T14:55:50.7943001Z test ffi_v2::portable::tests::exact_roundtrip_includes_run_configuration_and_empty_unicode_checks ... ok
+2026-10-15T14:55:50.7944940Z test campaign::lifecycle::tests::duplicate_delivery_fault_is_detected_shrunk_recorded_and_replayed ... ok
+2026-10-15T14:55:50.7948916Z test operations::production_tests::binary_recording_and_replay_need_no_native_value_equality ... ok
+2026-10-15T14:55:50.7952512Z test ffi_v2::portable::tests::structural_conversion_preserves_invalid_semantics_for_replay_identity_order ... ok
+2026-10-15T14:55:50.7954510Z test operations::production_tests::equality_error_wins_over_simultaneous_shrink_cancellation ... ok
+2026-10-15T14:55:50.7956360Z test operations::production_tests::codec_failure_and_input_error_preserve_only_coherent_prefixes ... ok
+2026-10-15T14:55:50.7967366Z test operations::production_tests::full_width_rng_bound_and_empty_domain_preserve_algorithm_and_state ... ok
+2026-10-15T14:55:50.7970516Z test operations::production_tests::fuzz_and_shrink_use_the_same_foreign_callbacks_without_input_eq ... ok
+2026-10-15T14:55:50.7976995Z test operations::production_tests::generation_and_shrink_callback_failures_are_errors_and_close_cursors ... ok
+2026-10-15T14:55:50.7979231Z test operations::production_tests::replay_classifies_identity_divergence_and_codec_errors_separately ... ok
+2026-10-15T14:55:50.7980969Z test operations::production_tests::ring_codec_failure_freezes_the_previous_checkpoint ... ok
+2026-10-15T14:55:50.7982581Z test operations::tests::a_later_checker_error_does_not_publish_an_earlier_partial_violation ... ok
+2026-10-15T14:55:50.7984321Z test operations::tests::a_started_transition_finishes_checking_and_preserves_failure_on_cancellation ... ok
+2026-10-15T14:55:50.7986159Z test operations::production_tests::ring_observation_does_not_execute_the_reducer_and_replays_its_window ... ok
+2026-10-15T14:55:50.7987771Z test operations::tests::automatic_membership_uses_fallible_input_comparison ... ok
+2026-10-15T14:55:50.7990123Z test operations::tests::automatic_generation_rolls_back_rng_on_cursor_error_and_releases_values ... ok
+2026-10-15T14:55:50.7991743Z test operations::tests::callback_error_wins_over_cancellation_from_the_same_callback ... ok
+2026-10-15T14:55:50.7993229Z test operations::tests::cancellation_before_start_invokes_no_adapter_operation ... ok
+2026-10-15T14:55:50.7994742Z test operations::tests::checks_precede_semantic_identity_and_both_state_admission_caps ... ok
+2026-10-15T14:55:50.7996460Z test operations::tests::cancellation_from_callbacks_never_becomes_graph_exhaustion_and_releases_owners ... ok
+2026-10-15T14:55:50.7998368Z test operations::tests::cursor_errors_at_depth_and_edge_boundary_probes_are_errors_not_cutoffs ... ok
+2026-10-15T14:55:50.8000111Z test operations::tests::every_fallible_operation_aborts_without_manufacturing_success_or_leaking ... ok
+2026-10-15T14:55:50.8001869Z test operations::tests::cutoffs_release_frontier_snapshots_candidates_outputs_and_open_cursors ... ok
+2026-10-15T14:55:50.8003678Z test operations::tests::failure_witness_owns_inputs_after_frontier_cleanup_until_its_last_clone_is_dropped ... ok
+2026-10-15T14:55:50.8005578Z test operations::tests::identity_and_estimate_cancellation_prevents_later_callbacks_and_admission ... ok
+2026-10-15T14:55:50.8007268Z test operations::tests::foreign_owners_exhaust_a_cyclic_graph_despite_total_hash_collision ... ok
+2026-10-15T14:55:50.8009135Z test operations::tests::observation_errors_clear_partial_batches_and_preserve_application_values ... ok
+2026-10-15T14:55:50.8010863Z test operations::tests::observed_sequence_validation_and_skip_policy_require_no_reducer_or_state_identity ... ok
+2026-10-15T14:55:50.8012541Z test operations::tests::observing_foreign_values_borrows_the_existing_transition_without_stepping ... ok
+2026-10-15T14:55:51.0874320Z test trace::crc_tests::standard_crc_and_every_short_split_match_bitwise_reference ... ok
+2026-10-15T14:55:51.4780624Z test campaign::lifecycle::tests::fixed_seed_campaign_protocol_fuzz_uses_independent_ledger ... ok
+2026-10-15T14:55:51.6576462Z test trace::crc_tests::unaligned_random_frames_match_bitwise_reference ... ok
+2026-10-15T14:55:55.5216443Z test campaign::lifecycle::tests::finite_campaign_protocol_graph_is_exhausted ... ok
+2026-10-15T14:55:55.5217387Z 
+2026-10-15T14:55:55.5218341Z test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.74s
+2026-10-15T14:55:55.5218992Z 
+2026-10-15T14:55:55.5222221Z      Running unittests src/main.rs (target/debug/deps/stateless-4e7469091019fb4a)
+2026-10-15T14:55:55.5236400Z 
+2026-10-15T14:55:55.5236629Z running 0 tests
+2026-10-15T14:55:55.5236950Z 
+2026-10-15T14:55:55.5237787Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.5238758Z 
+2026-10-15T14:55:55.5240358Z      Running tests/automatic.rs (target/debug/deps/automatic-022f4f6f941defc2)
+2026-10-15T14:55:55.5253417Z 
+2026-10-15T14:55:55.5253636Z running 6 tests
+2026-10-15T14:55:55.5257987Z test bounded_codec_errors_are_preserved_by_delegation ... ok
+2026-10-15T14:55:55.5260253Z test candidate_boundary_accepts_complete_domains_but_never_a_truncated_prefix ... ok
+2026-10-15T14:55:55.5261326Z test empty_domains_and_errors_leave_the_rng_unchanged ... ok
+2026-10-15T14:55:55.5262366Z test membership_short_circuits_matches_and_bounds_missing_candidates ... ok
+2026-10-15T14:55:55.5263582Z test enumerated_only_model_fuzzes_shrinks_records_and_replays_through_the_adapter ... ok
+2026-10-15T14:55:55.5404500Z test reservoir_is_repeatable_and_samples_the_whole_lazy_domain ... ok
+2026-10-15T14:55:55.5405066Z 
+2026-10-15T14:55:55.5405760Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-10-15T14:55:55.5406356Z 
+2026-10-15T14:55:55.5407440Z      Running tests/campaign.rs (target/debug/deps/campaign-a2f13e6a6a40a19a)
+2026-10-15T14:55:55.5421542Z 
+2026-10-15T14:55:55.5421905Z running 19 tests
+2026-10-15T14:55:55.5427727Z test budget_validation_uses_the_actual_per_job_transition_upper_bound ... ok
+2026-10-15T14:55:55.5443033Z test cancellation_from_factory_is_observed_before_search_and_drains_active_jobs ... ok
+2026-10-15T14:55:55.5446184Z test callback_panics_also_drain_workers ... ok
+2026-10-15T14:55:55.5450308Z test callback_error_stops_calls_and_drains_workers_with_rendezvous_channel ... ok
+2026-10-15T14:55:55.5451725Z test disposing_a_drained_report_cannot_unwind_past_the_original_sink_error ... ok
+2026-10-15T14:55:55.5457750Z test factory_checker_and_panic_outcomes_are_distinct_from_failures ... ok
+2026-10-15T14:55:55.5460064Z test factory_errors_have_known_zero_fuzz_work ... ok
+2026-10-15T14:55:55.5462800Z test factory_panics_are_reported_and_other_jobs_continue ... ok
+2026-10-15T14:55:55.5464221Z test invalid_configuration_has_no_factory_or_sink_side_effects ... ok
+2026-10-15T14:55:55.5474567Z test fixed_jobs_have_identical_failures_with_one_or_four_workers ... ok
+2026-10-15T14:55:55.5477251Z test job_ranges_reproduce_the_same_seeds_and_inputs ... ok
+2026-10-15T14:55:55.5480184Z test more_workers_than_jobs_and_zero_work_jobs_are_supported ... ok
+2026-10-15T14:55:55.5487049Z test panicking_panic_payload_cleanup_does_not_escape_job_or_sink_reporting ... ok
+2026-10-15T14:55:55.5487869Z test pre_cancelled_or_zero_duration_campaign_does_no_work ... ok
+2026-10-15T14:55:55.5492320Z test serial_execution_stays_on_calling_thread_and_uses_fresh_models ... ok
+2026-10-15T14:55:55.5496933Z test stop_on_failure_finishes_already_claimed_jobs ... ok
+2026-10-15T14:55:55.5689923Z test a_blocked_sink_bounds_started_jobs_by_queue_plus_workers_plus_sink ... ok
+2026-10-15T14:55:55.6195805Z test deadline_includes_factory_time_and_is_not_reset_per_job ... ok
+2026-10-15T14:55:55.6982652Z test last_zero_case_job_observes_factory_cancellation_and_expired_deadline ... ok
+2026-10-15T14:55:55.6983914Z 
+2026-10-15T14:55:55.6984834Z test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+2026-10-15T14:55:55.6985636Z 
+2026-10-15T14:55:55.6990380Z      Running tests/checked_replay.rs (target/debug/deps/checked_replay-3d4289ba46f8cc92)
+2026-10-15T14:55:55.7004623Z 
+2026-10-15T14:55:55.7004855Z running 14 tests
+2026-10-15T14:55:55.7010447Z test checked_attachment_accepts_global_host_sequence_and_rejects_overflow_or_gaps ... ok
+2026-10-15T14:55:55.7012363Z test external_check_error_freezes_coherent_prefix_and_cannot_overwrite_failure ... ok
+2026-10-15T14:55:55.7014201Z test initial_checker_error_retains_state_and_error_observer_cannot_mask_it ... ok
+2026-10-15T14:55:55.7015373Z test initial_divergence_is_visible_only_to_rich_observer ... ok
+2026-10-15T14:55:55.7016392Z test initial_failure_freezes_recorder_without_rechecking ... ok
+2026-10-15T14:55:55.7017491Z test observer_errors_keep_the_complete_result_and_verified_prefix ... ok
+2026-10-15T14:55:55.7018935Z test non_full_and_out_of_order_tokens_cannot_bypass_recording_checks ... ok
+2026-10-15T14:55:55.7020095Z test plain_model_check_tokens_require_no_codec_debug_send_or_sync ... ok
+2026-10-15T14:55:55.7021408Z test reducer_error_has_no_invented_transition_and_identity_rejection_has_no_events ... ok
+2026-10-15T14:55:55.7022775Z test replay_checker_and_codec_errors_retain_actual_and_do_not_repeat_delivery ... ok
+2026-10-15T14:55:55.7024042Z test replay_initial_observer_failure_keeps_checked_state_without_delivery ... ok
+2026-10-15T14:55:55.7025318Z test rich_replay_exposes_every_difference_but_preserves_primary_and_legacy_timing ... ok
+2026-10-15T14:55:55.7026628Z test checked_recorder_bytes_match_legacy_including_eviction_and_freeze ... ok
+2026-10-15T14:55:55.7027824Z test shared_tokens_record_and_observe_one_reducer_check_and_oracle_advance ... ok
+2026-10-15T14:55:55.7028674Z 
+2026-10-15T14:55:55.7029359Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7030001Z 
+2026-10-15T14:55:55.7030644Z      Running tests/cli.rs (target/debug/deps/cli-50d66b61a4aa3638)
+2026-10-15T14:55:55.7041172Z 
+2026-10-15T14:55:55.7041391Z running 13 tests
+2026-10-15T14:55:55.7141755Z test campaign_deadline_and_automatic_domain_error_are_not_successes ... ok
+2026-10-15T14:55:55.7162645Z test automatic_single_fuzz_persists_replayable_failure_and_engine_errors ... ok
+2026-10-15T14:55:55.7257027Z test campaigns_default_to_the_custom_generator ... ok
+2026-10-15T14:55:55.7303787Z test campaign_rejects_bad_configuration_before_creating_any_directory ... ok
+2026-10-15T14:55:55.7392937Z test fresh_process_record_replay_and_fixed_divergence ... ok
+2026-10-15T14:55:55.7477952Z test automatic_fixed_campaign_jobs_are_identical_with_one_or_four_workers ... ok
+2026-10-15T14:55:55.7484853Z test guided_cli_validates_before_creating_artifacts_and_reports_retention_limits ... ok
+2026-10-15T14:55:55.7500128Z test guided_campaign_cli_jobs_are_identical_across_worker_counts ... ok
+2026-10-15T14:55:55.7544451Z test invalid_options_and_truncated_artifacts_fail ... ok
+2026-10-15T14:55:55.7646848Z test guided_fuzz_records_feedback_and_replays_original_and_shrunk_failures ... ok
+2026-10-15T14:55:55.7679428Z test automatic_campaign_failure_artifacts_replay_in_new_processes ... ok
+2026-10-15T14:55:55.7694378Z test zero_case_and_step_budgets_retain_existing_fuzz_semantics ... ok
+2026-10-15T14:55:55.7724804Z test search_failures_are_saved_and_fixed_model_exhausts ... ok
+2026-10-15T14:55:55.7725286Z 
+2026-10-15T14:55:55.7725979Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+2026-10-15T14:55:55.7726593Z 
+2026-10-15T14:55:55.7729596Z      Running tests/composition.rs (target/debug/deps/composition-b110e0757c0c30dd)
+2026-10-15T14:55:55.7741106Z 
+2026-10-15T14:55:55.7741307Z running 3 tests
+2026-10-15T14:55:55.7745594Z test registry_collisions_are_errors_and_prior_checks_survive ... ok
+2026-10-15T14:55:55.7746797Z test delayed_delivery_cancellation_namespaces_and_replay ... ok
+2026-10-15T14:55:55.7748491Z test routing_matches_handwritten_for_bounded_interleavings ... ok
+2026-10-15T14:55:55.7749001Z 
+2026-10-15T14:55:55.7749944Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7750474Z 
+2026-10-15T14:55:55.7751022Z      Running tests/conformance.rs (target/debug/deps/conformance-9aed7f85f0d2a0dc)
+2026-10-15T14:55:55.7764097Z 
+2026-10-15T14:55:55.7764388Z running 3 tests
+2026-10-15T14:55:55.7768261Z test paired_history_preserves_bounded_codec_hook ... ok
+2026-10-15T14:55:55.7769633Z test reference_history_is_not_reconstructed_from_actual ... ok
+2026-10-15T14:55:55.7770645Z test semantic_comparison_is_independent_of_layout_and_encoding ... ok
+2026-10-15T14:55:55.7771164Z 
+2026-10-15T14:55:55.7771708Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7772280Z 
+2026-10-15T14:55:55.7772686Z      Running tests/execution.rs (target/debug/deps/execution-f0709763a57a89f7)
+2026-10-15T14:55:55.7785144Z 
+2026-10-15T14:55:55.7785318Z running 10 tests
+2026-10-15T14:55:55.7790619Z test generator_algorithm_has_a_fixed_known_vector ... ok
+2026-10-15T14:55:55.7791939Z test checker_errors_and_invalid_trace_semantics_cannot_pass ... ok
+2026-10-15T14:55:55.7793210Z test all_observable_fields_are_compared ... ok
+2026-10-15T14:55:55.7794106Z test budgets_and_initial_failures_are_reported_honestly ... ok
+2026-10-15T14:55:55.7795166Z test identity_mismatches_cannot_be_overridden_by_the_build_option ... ok
+2026-10-15T14:55:55.7796253Z test records_and_exactly_replays_failure_and_detects_fixed_behavior ... ok
+2026-10-15T14:55:55.7797361Z test reproducing_a_failure_is_independent_of_exact_observation_matching ... ok
+2026-10-15T14:55:55.7798759Z test replay_observer_sees_first_divergence_and_never_changes_logical_time ... ok
+2026-10-15T14:55:55.7799868Z test malformed_or_noncanonical_payloads_cannot_replay_successfully ... ok
+2026-10-15T14:55:55.7800948Z test runtime_checking_does_not_repeat_transition_and_declares_skips ... ok
+2026-10-15T14:55:55.7802254Z      Running tests/exploration.rs (target/debug/deps/exploration-d2273bd248e5756a)
+2026-10-15T14:55:55.7802837Z 
+2026-10-15T14:55:55.7803524Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7803929Z 
+2026-10-15T14:55:55.7812461Z 
+2026-10-15T14:55:55.7812622Z running 28 tests
+2026-10-15T14:55:55.7817122Z test bfs_checks_a_failing_successor_before_enforcing_state_storage_cap ... ok
+2026-10-15T14:55:55.7820048Z test bfs_checks_transition_to_an_already_visited_state ... ok
+2026-10-15T14:55:55.7821206Z test bfs_returns_a_shortest_counterexample ... ok
+2026-10-15T14:55:55.7822442Z test cancellation_and_deadline_have_distinct_search_results ... ok
+2026-10-15T14:55:55.7823822Z test bfs_exhausts_known_graph_despite_collisions_and_duplicate_paths ... ok
+2026-10-15T14:55:55.7825373Z test cooperative_stops_preserve_a_failure_on_the_just_executed_transition ... ok
+2026-10-15T14:55:55.7826837Z test cyclic_simplification_hints_terminate_without_a_budget_cutoff ... ok
+2026-10-15T14:55:55.7828463Z test disabled_generated_inputs_are_adapter_errors_not_findings ... ok
+2026-10-15T14:55:55.7829928Z test enumeration_hashes_each_candidate_once_and_reuses_check_storage ... ok
+2026-10-15T14:55:55.7831126Z test estimated_state_size_overflow_cannot_bypass_an_admission_budget ... ok
+2026-10-15T14:55:55.7832371Z test fuzz_honors_cancellation_at_terminal_callbacks_and_the_final_planned_step ... ok
+2026-10-15T14:55:55.7833623Z test fuzz_reports_transition_budget_and_does_not_claim_exhaustiveness ... ok
+2026-10-15T14:55:55.7834756Z test graph_completion_depth_cutoffs_and_edge_cutoffs_are_distinct ... ok
+2026-10-15T14:55:55.7835859Z test initial_failures_precede_transition_budgets_and_need_no_input ... ok
+2026-10-15T14:55:55.7837084Z test fuzz_reused_inputs_are_validated_once_and_exhausted_budget_skips_generation ... ok
+2026-10-15T14:55:55.7839092Z test lazy_depth_boundary_probes_one_input_without_materializing_the_domain ... ok
+2026-10-15T14:55:55.7840520Z test pre_cancelled_enumeration_invokes_no_model_callbacks ... ok
+2026-10-15T14:55:55.7841499Z test passing_transition_checker_preserves_state_failure ... ok
+2026-10-15T14:55:55.7842961Z test shrinking_honors_replay_budget_and_rejects_wrong_or_disabled_originals ... ok
+2026-10-15T14:55:55.7844250Z test shrinking_preserves_causality_failure_identity_and_original_evidence ... ok
+2026-10-15T14:55:55.7845552Z test shrinking_reports_cooperative_deadline_without_claiming_original_validation ... ok
+2026-10-15T14:55:55.7846792Z test skipped_checks_are_counted_and_checker_errors_are_not_violations ... ok
+2026-10-15T14:55:55.7847923Z test state_byte_admission_reports_estimates_and_preserves_failures ... ok
+2026-10-15T14:55:55.7849404Z test terminal_iterator_cancellation_cannot_claim_graph_exhaustion_or_depth_completion ... ok
+2026-10-15T14:55:55.7850747Z test zero_case_fuzz_still_observes_pre_start_controls_without_model_callbacks ... ok
+2026-10-15T14:55:55.7852081Z test shrink_cancellation_keeps_validation_status_and_never_claims_search_complete ... ok
+2026-10-15T14:55:55.7853433Z test shrink_budget_counts_validation_and_preserves_unvalidated_original_evidence ... ok
+2026-10-15T14:55:55.7863268Z test fuzz_is_seeded_and_reuses_only_causally_enabled_inputs ... ok
+2026-10-15T14:55:55.7863773Z 
+2026-10-15T14:55:55.7864446Z test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-15T14:55:55.7865059Z 
+2026-10-15T14:55:55.7866609Z      Running tests/ffi.rs (target/debug/deps/ffi-8188558037e14ae7)
+2026-10-15T14:55:55.7878684Z 
+2026-10-15T14:55:55.7878892Z running 6 tests
+2026-10-15T14:55:55.7884238Z test abi_and_callback_errors_cannot_become_successful_artifacts ... ok
+2026-10-15T14:55:55.7885460Z test buffer_assignment_permits_its_own_borrowed_contents ... ok
+2026-10-15T14:55:55.7886589Z test errors_after_a_valid_prefix_are_errors_and_preserve_output_buffer ... ok
+2026-10-15T14:55:55.7887543Z test malformed_callback_packets_are_model_errors ... ok
+2026-10-15T14:55:55.7888694Z test enumeration_reports_budgets_and_emits_a_replayable_failure ... ok
+2026-10-15T14:55:55.7893572Z test records_normal_trace_and_replays_with_a_fresh_foreign_model ... ok
+2026-10-15T14:55:55.7893929Z 
+2026-10-15T14:55:55.7894333Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7894693Z 
+2026-10-15T14:55:55.7896485Z      Running tests/ffi_v2.rs (target/debug/deps/ffi_v2-b465a63c24dbaa52)
+2026-10-15T14:55:55.7909628Z 
+2026-10-15T14:55:55.7909847Z running 15 tests
+2026-10-15T14:55:55.7919632Z test cursor_cancellation_cannot_report_exhaustion_and_can_be_reset ... ok
+2026-10-15T14:55:55.7921373Z test callback_failure_after_partial_publication_and_boundary_probe_never_publish_success ... ok
+2026-10-15T14:55:55.7925910Z test endless_duplicate_simplifications_fail_instead_of_bypassing_work_limits ... ok
+2026-10-15T14:55:55.7927385Z test automatic_generation_uses_shared_cursor_sampling_and_fails_on_incomplete_domains ... ok
+2026-10-15T14:55:55.7929174Z test full_width_rng_and_trace_packet_conversion_match_the_shared_engine ... ok
+2026-10-15T14:55:55.7935622Z test ignored_builder_failures_are_sticky_and_partial_checks_are_not_results ... ok
+2026-10-15T14:55:55.7937226Z test observed_checks_preserve_supplied_values_and_never_call_initial_or_step ... ok
+2026-10-15T14:55:55.7939378Z test fuzz_and_shrink_keep_owned_witnesses_and_use_semantic_input_callbacks ... ok
+2026-10-15T14:55:55.7940982Z test lazy_record_error_retains_a_coherent_prefix_and_exact_replay_uses_the_codec ... ok
+2026-10-15T14:55:55.7942657Z test nested_runs_and_close_are_rejected_without_damaging_the_outer_session ... ok
+2026-10-15T14:55:55.7944052Z test v2_keeps_v1_and_negotiates_session_capabilities ... ok
+2026-10-15T14:55:55.7945510Z test snapshot_witness_handles_outlive_result_and_close_releases_them_once ... ok
+2026-10-15T14:55:55.7947063Z test wrong_thread_wrong_session_wrong_kind_and_stale_handles_are_rejected ... ok
+2026-10-15T14:55:55.7949444Z test ring_records_actual_transitions_and_exports_a_replayable_checkpoint ... ok
+2026-10-15T14:55:55.7950568Z test portable_record_limits_apply_before_commit_and_exclude_binary_provenance ... ok
+2026-10-15T14:55:55.7951124Z 
+2026-10-15T14:55:55.7951599Z test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.7952248Z 
+2026-10-15T14:55:55.7952887Z      Running tests/guided.rs (target/debug/deps/guided-4e13a69e6e65aaa3)
+2026-10-15T14:55:55.7966347Z 
+2026-10-15T14:55:55.7966610Z running 12 tests
+2026-10-15T14:55:55.7971933Z test a_shorter_witness_recovers_a_feature_from_a_dropped_prefix_even_at_feature_cap ... ok
+2026-10-15T14:55:55.7973282Z test a_full_corpus_replaces_oldest_paths_and_accounts_for_stored_inputs ... ok
+2026-10-15T14:55:55.7974482Z test cancellation_from_feedback_is_observed_before_the_next_transition ... ok
+2026-10-15T14:55:55.7999531Z test failing_property_precedes_feedback_error_and_pre_cancel_invokes_no_execution ... ok
+2026-10-15T14:55:55.8001048Z test ignored_feedback_limits_and_callback_errors_are_engine_errors ... ok
+2026-10-15T14:55:55.8002607Z test invalid_guidance_rejected_before_campaign_factories_or_sinks ... ok
+2026-10-15T14:55:55.8122523Z test campaign_deadline_includes_feedback_factory_time_in_the_last_job ... ok
+2026-10-15T14:55:55.8154110Z test metadata_time_is_included_and_exact_state_feedback_is_available ... ok
+2026-10-15T14:55:55.8162334Z test retention_saturates_without_stopping_execution_or_growing_past_limits ... ok
+2026-10-15T14:55:55.8360211Z test fixed_seed_repeats_inputs_and_collision_safe_corpus_evidence ... ok
+2026-10-15T14:55:55.8414004Z test novel_prefixes_find_a_deep_failure_and_remain_shrinkable_and_replayable ... ok
+2026-10-15T14:55:55.8574303Z test guided_campaign_jobs_match_across_workers_with_local_non_send_feature_keys ... ok
+2026-10-15T14:55:55.8574673Z 
+2026-10-15T14:55:55.8575073Z test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-10-15T14:55:55.8575450Z 
+2026-10-15T14:55:55.8578599Z      Running tests/lifecycle_templates.rs (target/debug/deps/lifecycle_templates-940675e8f1ae2d60)
+2026-10-15T14:55:55.8590785Z 
+2026-10-15T14:55:55.8590942Z running 5 tests
+2026-10-15T14:55:55.8594862Z test bounded_history_persistence_and_observation_error ... ok
+2026-10-15T14:55:55.8596688Z test missing_duplicate_stale_and_resource_faults ... ok
+2026-10-15T14:55:55.8597207Z test overdue_cancellation_cannot_erase_a_missed_deadline ... ok
+2026-10-15T14:55:55.8597799Z test restored_overdue_history_is_a_failure_without_reconstructed_events ... ok
+2026-10-15T14:55:55.8598867Z test past_due_creation_cannot_be_hidden_by_immediate_cancellation ... ok
+2026-10-15T14:55:55.8600094Z      Running tests/modeling.rs (target/debug/deps/modeling-c38573f2f568a992)
+2026-10-15T14:55:55.8600604Z 
+2026-10-15T14:55:55.8600997Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.8601352Z 
+2026-10-15T14:55:55.8612243Z 
+2026-10-15T14:55:55.8612442Z running 2 tests
+2026-10-15T14:55:55.8615347Z test ordered_weighted_bounded_domains ... ok
+2026-10-15T14:55:55.8615853Z test product_cardinality_overflow_is_rejected_before_mapping ... ok
+2026-10-15T14:55:55.8616154Z 
+2026-10-15T14:55:55.8616529Z test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.8617069Z 
+2026-10-15T14:55:55.8618025Z      Running tests/monitor.rs (target/debug/deps/monitor-8909597bc29b9d94)
+2026-10-15T14:55:55.8630684Z 
+2026-10-15T14:55:55.8630851Z running 10 tests
+2026-10-15T14:55:55.8639793Z test a_missing_observation_freezes_the_coherent_prefix_and_declares_the_gap ... ok
+2026-10-15T14:55:55.8640962Z test checker_and_codec_errors_do_not_evict_the_last_coherent_window ... ok
+2026-10-15T14:55:55.8642034Z test capacity_one_and_midrun_start_replay_after_repeated_eviction ... ok
+2026-10-15T14:55:55.8643173Z test evicted_history_keeps_an_exact_replayable_checkpoint_without_rechecking ... ok
+2026-10-15T14:55:55.8644482Z test freeze_on_failure_preserves_last_window_and_reproduces_failure ... ok
+2026-10-15T14:55:55.8645135Z test ignored_inputs_are_still_recorded_and_snapshots_do_not_stop_recording ... ok
+2026-10-15T14:55:55.8646130Z test initial_failure_freezes_without_executing_a_transition ... ok
+2026-10-15T14:55:55.8646700Z test invalid_limits_and_reserved_audit_keys_are_rejected ... ok
+2026-10-15T14:55:55.8647296Z test recorder_checks_actual_outputs_instead_of_recomputing_the_transition ... ok
+2026-10-15T14:55:55.8647979Z test too_many_checks_freezes_before_evicting_the_previous_observation ... ok
+2026-10-15T14:55:55.8648842Z 
+2026-10-15T14:55:55.8649549Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.8650106Z 
+2026-10-15T14:55:55.8650553Z      Running tests/monitor_limits.rs (target/debug/deps/monitor_limits-21432b88bb17608a)
+2026-10-15T14:55:55.8661756Z 
+2026-10-15T14:55:55.8661915Z running 11 tests
+2026-10-15T14:55:55.8679713Z test candidate_that_cannot_fit_with_its_checkpoint_does_not_evict_the_prefix ... ok
+2026-10-15T14:55:55.8681320Z test bounded_utf8_error_footer_preserves_full_returned_error_and_exportability ... ok
+2026-10-15T14:55:55.8691781Z test counter_digit_growth_that_exceeds_the_run_frame_freezes_the_old_config ... ok
+2026-10-15T14:55:55.8693365Z test cumulative_frame_budget_stops_outputs_before_collecting_all_of_them ... ok
+2026-10-15T14:55:55.8705754Z test error_footer_respects_a_small_string_limit_and_keeps_utf8_valid ... ok
+2026-10-15T14:55:55.8707372Z test failing_observation_fits_its_complete_terminal_artifact_at_the_exact_byte_limit ... ok
+2026-10-15T14:55:55.8714204Z test initial_checkpoint_and_format_limits_are_enforced_before_capture ... ok
+2026-10-15T14:55:55.8715712Z test initial_property_failure_fits_without_reserving_an_unreachable_future_error ... ok
+2026-10-15T14:55:55.8723843Z test oversized_disposition_is_rejected_before_copying_or_checking_the_candidate ... ok
+2026-10-15T14:55:55.8860851Z test byte_eviction_preserves_replay_and_borrowed_consuming_exports_match ... ok
+2026-10-15T14:55:55.9097838Z test changing_checkpoint_sizes_and_multi_evictions_preserve_exact_history ... ok
+2026-10-15T14:55:55.9098633Z 
+2026-10-15T14:55:55.9099150Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-10-15T14:55:55.9099600Z 
+2026-10-15T14:55:55.9100840Z      Running tests/monitor_review.rs (target/debug/deps/monitor_review-2272989e024f16b8)
+2026-10-15T14:55:55.9115436Z 
+2026-10-15T14:55:55.9115738Z running 3 tests
+2026-10-15T14:55:55.9121333Z test failure_after_eviction_retains_the_failing_edge_and_freezes_it ... ok
+2026-10-15T14:55:55.9122663Z test encoding_error_at_full_capacity_freezes_without_evicting_valid_evidence ... ok
+2026-10-15T14:55:55.9209122Z test every_rolling_checkpoint_replays_with_variable_check_counts ... ok
+2026-10-15T14:55:55.9209701Z 
+2026-10-15T14:55:55.9210186Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-15T14:55:55.9210569Z 
+2026-10-15T14:55:55.9212477Z      Running tests/observation.rs (target/debug/deps/observation-85b8396a0c7c8494)
+2026-10-15T14:55:55.9226548Z 
+2026-10-15T14:55:55.9226716Z running 13 tests
+2026-10-15T14:55:55.9231763Z test codec_errors_identify_the_failed_payload ... ok
+2026-10-15T14:55:55.9232899Z test failures_and_skips_are_visible_at_their_severity_and_strings_are_escaped ... ok
+2026-10-15T14:55:55.9234068Z test diagnostic_logging_requires_neither_codec_nor_debug ... ok
+2026-10-15T14:55:55.9238027Z test filtering_never_encodes_below_trace_and_does_not_run_model_or_checks ... ok
+2026-10-15T14:55:55.9239711Z test formatting_and_codec_limits_never_publish_partial_records ... ok
+2026-10-15T14:55:55.9241075Z test interrupted_and_short_writes_deliver_complete_records_with_exact_limit ... ok
+2026-10-15T14:55:55.9242471Z test full_text_includes_actual_outputs_disposition_checks_and_snapshot ... ok
+2026-10-15T14:55:55.9243839Z test periodic_and_explicit_snapshots_and_runtime_level_changes ... ok
+2026-10-15T14:55:55.9245356Z      Running tests/oracle.rs (target/debug/deps/oracle-2bca9f0816509382)
+2026-10-15T14:55:55.9246309Z test lifecycle_and_explicit_messages_follow_the_threshold ... ok
+2026-10-15T14:55:55.9247071Z test partial_writes_and_flush_errors_permanently_disable_the_sink ... ok
+2026-10-15T14:55:55.9247936Z test swallowed_formatter_write_errors_cannot_publish_partial_records ... ok
+2026-10-15T14:55:55.9248957Z test recorder_and_logging_share_checks_preserve_failure_and_allow_later_diagnostics ... ok
+2026-10-15T14:55:55.9249599Z test verbosity_does_not_change_execution_checks_or_replay_evidence ... ok
+2026-10-15T14:55:55.9249894Z 
+2026-10-15T14:55:55.9250272Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.9250617Z 
+2026-10-15T14:55:55.9257687Z 
+2026-10-15T14:55:55.9257840Z running 8 tests
+2026-10-15T14:55:55.9262760Z test application_checker_cannot_erase_state_checks_and_hide_behind_oracle_checks ... ok
+2026-10-15T14:55:55.9269752Z test automatic_fuzz_shrink_and_enumeration_preserve_oracle_history ... ok
+2026-10-15T14:55:55.9270622Z test checkpoint_is_strict_bounded_and_versions_remain_strict ... ok
+2026-10-15T14:55:55.9271289Z test failed_runtime_advancement_returns_the_actual_transition_without_copying ... ok
+2026-10-15T14:55:55.9271917Z test oracle_advancement_error_leaves_a_coherent_recorded_prefix ... ok
+2026-10-15T14:55:55.9272543Z test independent_reference_finds_consistent_wrong_state_and_missing_effects ... ok
+2026-10-15T14:55:55.9273207Z test runtime_advances_once_without_reexecuting_and_evicted_checkpoint_replays ... ok
+2026-10-15T14:55:55.9287248Z test borrowed_transition_checks_do_not_clone_application_state ... ok
+2026-10-15T14:55:55.9289016Z      Running tests/performance_contracts.rs (target/debug/deps/performance_contracts-f47b5d79c6bfe5ad)
+2026-10-15T14:55:55.9289636Z 
+2026-10-15T14:55:55.9290028Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.9290407Z 
+2026-10-15T14:55:55.9290694Z 
+2026-10-15T14:55:55.9290877Z running 9 tests
+2026-10-15T14:55:55.9299615Z test borrowed_and_shared_property_ids_have_identical_identity ... ok
+2026-10-15T14:55:55.9309272Z test bounded_encoder_rejects_before_growth_and_keeps_errors_sticky ... ok
+2026-10-15T14:55:55.9310418Z test capture_rejects_oversized_successor_and_exports_coherent_prefix ... ok
+2026-10-15T14:55:55.9311417Z test output_encoding_stops_at_cumulative_frame_budget ... ok
+2026-10-15T14:55:55.9312315Z test checker_error_preserves_already_recorded_evidence ... ok
+2026-10-15T14:55:55.9313350Z test reusable_checking_preserves_order_capacity_and_clears_partial_errors ... ok
+2026-10-15T14:55:55.9313979Z test transition_checker_cannot_silently_discard_state_observations ... ok
+2026-10-15T14:55:55.9314522Z test total_budget_terminates_before_export_would_fail ... ok
+2026-10-15T14:55:55.9327310Z test terminal_property_failures_use_their_actual_footer_at_exact_byte_limit ... ok
+2026-10-15T14:55:55.9327898Z 
+2026-10-15T14:55:55.9328783Z test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:55.9329403Z 
+2026-10-15T14:55:55.9331974Z      Running tests/pr_review_core.rs (target/debug/deps/pr_review_core-79b9a63d68552572)
+2026-10-15T14:55:55.9344993Z 
+2026-10-15T14:55:55.9345277Z running 6 tests
+2026-10-15T14:55:55.9355869Z test bounded_replay_validates_artifact_before_any_model_decode ... ok
+2026-10-15T14:55:55.9357371Z test actual_output_overflow_retains_checks_without_starting_output_encoding ... ok
+2026-10-15T14:55:55.9399131Z test checker_failure_retains_actual_once_and_secondary_observer_error ... ok
+2026-10-15T14:55:55.9423954Z test sealed_checked_recording_never_rechecks_and_rejects_sampling_policy ... ok
+2026-10-15T14:55:55.9454937Z test legacy_and_rich_replay_agree_on_every_nonempty_difference_combination ... ok
+2026-10-15T14:55:56.3670212Z test every_single_bit_artifact_corruption_is_rejected_under_finite_limits ... ok
+2026-10-15T14:55:56.3671593Z 
+2026-10-15T14:55:56.3672418Z test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+2026-10-15T14:55:56.3673252Z 
+2026-10-15T14:55:56.3678870Z      Running tests/review_replay_bounds.rs (target/debug/deps/review_replay_bounds-06200205e8a39a55)
+2026-10-15T14:55:56.3692391Z 
+2026-10-15T14:55:56.3692547Z running 9 tests
+2026-10-15T14:55:56.3700470Z test excessive_actual_checks_are_retained_without_encoding_outputs ... ok
+2026-10-15T14:55:56.3701726Z test actual_reason_limits_are_checked_before_encoding_outputs ... ok
+2026-10-15T14:55:56.3702873Z test actual_observations_respect_aggregate_total_and_item_limits ... ok
+2026-10-15T14:55:56.3706381Z test exact_artifact_total_budget_and_between_turn_cancellation_are_preserved ... ok
+2026-10-15T14:55:56.3707636Z test huge_zero_sized_output_count_is_rejected_before_encoded_vector_allocation ... ok
+2026-10-15T14:55:56.3708949Z test finite_replay_preserves_exact_report_and_callbacks ... ok
+2026-10-15T14:55:56.3709926Z test initial_and_post_state_encoders_have_finite_blob_budgets ... ok
+2026-10-15T14:55:56.3710902Z test oversized_source_rejected_before_decode_or_execution ... ok
+2026-10-15T14:55:56.3711706Z test output_bodies_share_one_frame_budget ... ok
+2026-10-15T14:55:56.3712098Z 
+2026-10-15T14:55:56.3712776Z test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:56.3713404Z 
+2026-10-15T14:55:56.3714138Z      Running tests/trace_format.rs (target/debug/deps/trace_format-c4c826bc917e10f6)
+2026-10-15T14:55:56.3724945Z 
+2026-10-15T14:55:56.3725165Z running 13 tests
+2026-10-15T14:55:56.3737319Z test empty_runs_and_all_termination_kinds_round_trip ... ok
+2026-10-15T14:55:56.3738978Z test aggregate_item_limit_catches_many_small_records ... ok
+2026-10-15T14:55:56.3744428Z test hostile_frame_length_hits_limit_without_reading_payload ... ok
+2026-10-15T14:55:56.3746039Z test invalid_utf8_and_impossible_nested_count_are_rejected_before_allocation ... ok
+2026-10-15T14:55:56.3760147Z test read_and_write_enforce_all_limits_and_validation_precedes_writes ... ok
+2026-10-15T14:55:56.3761428Z test round_trip_preserves_all_evidence_and_is_deterministic ... ok
+2026-10-15T14:55:56.3769865Z test short_and_interrupted_reads_are_supported ... ok
+2026-10-15T14:55:56.3776214Z test underlying_io_errors_are_preserved ... ok
+2026-10-15T14:55:56.3782838Z test unknown_records_reordered_steps_and_wrong_footer_count_are_rejected ... ok
+2026-10-15T14:55:56.3784162Z test unsupported_versions_flags_and_trailing_artifacts_are_rejected ... ok
+2026-10-15T14:55:56.3785496Z test version_one_golden_bytes_preserve_the_existing_wire_format ... ok
+2026-10-15T14:55:56.3856913Z test every_truncated_prefix_is_rejected_including_missing_footer ... ok
+2026-10-15T14:55:56.7794993Z test every_single_bit_corruption_is_rejected ... ok
+2026-10-15T14:55:56.7795557Z 
+2026-10-15T14:55:56.7796420Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.41s
+2026-10-15T14:55:56.7797342Z 
+2026-10-15T14:55:56.7803290Z      Running tests/value_codec.rs (target/debug/deps/value_codec-aa7657de33959d67)
+2026-10-15T14:55:56.7816944Z 
+2026-10-15T14:55:56.7817100Z running 4 tests
+2026-10-15T14:55:56.7822812Z test aggregate_depth_work_and_allocation_bounds ... ok
+2026-10-15T14:55:56.7823708Z test allocation_overflow_and_encoder_limit_are_errors ... ok
+2026-10-15T14:55:56.7824312Z test swallowed_reader_errors_never_become_successful_values ... ok
+2026-10-15T14:55:56.7824876Z test independent_golden_and_strict_failures ... ok
+2026-10-15T14:55:56.7825298Z 
+2026-10-15T14:55:56.7825972Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:56.7826384Z 
+2026-10-15T14:55:56.7826827Z      Running unittests src/lib.rs (target/debug/deps/statelessness_debug-bd7557d932dc23d1)
+2026-10-15T14:55:56.7837884Z 
+2026-10-15T14:55:56.7838075Z running 7 tests
+2026-10-15T14:55:56.7844269Z test effects::drop_tests::completed_effect_drop_does_not_report_an_unnecessary_contended_hook ... ok
+2026-10-15T14:55:56.7846515Z test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+2026-10-15T14:55:56.7848620Z test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+2026-10-15T14:55:56.7850606Z test effects::drop_tests::raw_attempt_drop_never_blocks_or_invents_termination ... ok
+2026-10-15T14:55:56.7851842Z test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+2026-10-15T14:55:56.7852737Z test effects::drop_tests::rejected_snapshot_queries_preserve_revision_and_acknowledged_history ... ok
+2026-10-15T14:55:56.7854124Z test effects::drop_tests::raw_delivery_drop_never_blocks_or_invents_consumption ... ok
+2026-10-15T14:55:56.7854745Z 
+2026-10-15T14:55:56.7855152Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:56.7855907Z      Running tests/diagnostic.rs (target/debug/deps/diagnostic-cac9b8ee1cfda228)
+2026-10-15T14:55:56.7856253Z 
+2026-10-15T14:55:56.7865700Z 
+2026-10-15T14:55:56.7865869Z running 14 tests
+2026-10-15T14:55:56.7871828Z test disabled_probe_never_evaluates_closure_or_inspector ... ok
+2026-10-15T14:55:56.7872751Z test delivery_sampling_preserves_change_baseline ... ok
+2026-10-15T14:55:56.7873779Z test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+2026-10-15T14:55:56.7874834Z test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+2026-10-15T14:55:56.7875957Z test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+2026-10-15T14:55:56.7877103Z test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+2026-10-15T14:55:56.7878534Z test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+2026-10-15T14:55:56.7879764Z test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+2026-10-15T14:55:56.7880946Z test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+2026-10-15T14:55:56.7882342Z test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+2026-10-15T14:55:56.7883491Z test threshold_crossing_has_hysteresis_and_cooldown ... ok
+2026-10-15T14:55:56.7884325Z test privacy_survives_text_jsonl_and_custom_sinks ... ok
+2026-10-15T14:55:56.7885292Z test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+2026-10-15T14:55:56.7886421Z test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+2026-10-15T14:55:56.7887003Z 
+2026-10-15T14:55:56.7887681Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:55:56.7888526Z 
+2026-10-15T14:55:56.7889574Z      Running tests/diagnostic_controller_model.rs (target/debug/deps/diagnostic_controller_model-2eaf9132254b7146)
+2026-10-15T14:55:56.7900256Z 
+2026-10-15T14:55:56.7900831Z running 1 test
+2026-10-15T14:56:11.1533680Z test bounded_two_producer_subscription_interleavings_match_reference ... ok
+2026-10-15T14:56:11.1534061Z 
+2026-10-15T14:56:11.1534512Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 14.36s
+2026-10-15T14:56:11.1534869Z 
+2026-10-15T14:56:11.1542228Z      Running tests/diagnostic_selectors.rs (target/debug/deps/diagnostic_selectors-1a0d958518a41e04)
+2026-10-15T14:56:11.1555933Z 
+2026-10-15T14:56:11.1556147Z running 13 tests
+2026-10-15T14:56:11.1563417Z test combined_scope_is_conjunctive_and_context_is_not_implicitly_exported ... ok
+2026-10-15T14:56:11.1564342Z test configuration_is_stale_safe_and_applied_per_producer_at_explicit_boundaries ... ok
+2026-10-15T14:56:11.1565391Z test context_byte_limits_reject_before_advancing_producer_boundary ... ok
+2026-10-15T14:56:11.1566913Z test invalid_selector_labels_and_aggregate_metadata_budget_do_not_change_revision ... ok
+2026-10-15T14:56:11.1568610Z test every_declared_label_filters_match_mismatch_and_unknown_before_closure ... ok
+2026-10-15T14:56:11.1570689Z test producer_and_origin_selectors_are_independent_exact_filters ... ok
+2026-10-15T14:56:11.1572370Z test multiple_matching_scopes_share_closure_and_authorized_projection ... ok
+2026-10-15T14:56:11.1573604Z test property_outcome_selection_does_not_treat_unknown_as_nonfailure ... ok
+2026-10-15T14:56:11.1574878Z test scope_filters_preserve_field_redaction_in_all_sinks ... ok
+2026-10-15T14:56:11.1575939Z test scoped_configuration_cannot_expand_sink_projection_permissions ... ok
+2026-10-15T14:56:11.1576771Z test scope_selection_does_not_bypass_site_kind_or_severity_filters ... ok
+2026-10-15T14:56:11.1577817Z test selector_gap_resets_threshold_hysteresis_and_cooldown_as_unknown ... ok
+2026-10-15T14:56:11.1578931Z test selector_gaps_invalidate_change_baselines_without_evaluating_filtered_values ... ok
+2026-10-15T14:56:11.1579288Z 
+2026-10-15T14:56:11.1579663Z test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:11.1579998Z 
+2026-10-15T14:56:11.1580500Z      Running tests/effect_ledger_model.rs (target/debug/deps/effect_ledger_model-f51dcd8ec934c3b9)
+2026-10-15T14:56:11.1590303Z 
+2026-10-15T14:56:11.1590446Z running 1 test
+2026-10-15T14:56:11.7981627Z test exhaustive_independent_ledger_preserves_counts_and_physical_work ... ok
+2026-10-15T14:56:11.7982276Z 
+2026-10-15T14:56:11.7982985Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s
+2026-10-15T14:56:11.7983411Z 
+2026-10-15T14:56:11.7984379Z      Running tests/effects_metrics.rs (target/debug/deps/effects_metrics-0a19206386866c1a)
+2026-10-15T14:56:11.7999346Z 
+2026-10-15T14:56:11.7999819Z running 28 tests
+2026-10-15T14:56:11.8004534Z test aggregate_cardinality_and_bytes_reject_with_independent_health ... ok
+2026-10-15T14:56:11.8006081Z test byte_budgeted_snapshots_invalid_schema_and_wrong_instrument_are_visible ... ok
+2026-10-15T14:56:11.8009122Z test cancellation_and_resolution_do_not_terminate_running_attempts ... ok
+2026-10-15T14:56:11.8010395Z test classifier_fault_cannot_replace_completed_future_value ... ok
+2026-10-15T14:56:11.8012006Z test admission_retry_eligibility_queue_and_delayed_post_are_not_collapsed ... ok
+2026-10-15T14:56:11.8013500Z test completed_slow_queries_distinguish_kind_queue_execution_and_delivery ... ok
+2026-10-15T14:56:11.8015021Z test debugger_pause_marks_samples_without_subtracting_time ... ok
+2026-10-15T14:56:11.8016135Z test custom_metric_sink_receives_cumulative_schema_and_population ... ok
+2026-10-15T14:56:11.8017234Z test concurrent_consumer_can_win_publication_confirmation_race ... ok
+2026-10-15T14:56:11.8018634Z test detail_eviction_does_not_evict_live_accounting ... ok
+2026-10-15T14:56:11.8019493Z test disabled_and_counters_only_do_not_read_clock ... ok
+2026-10-15T14:56:11.8022631Z test gauge_underflow_and_counter_reset_are_explicit ... ok
+2026-10-15T14:56:11.8023673Z test dropped_pending_future_is_abandoned_not_confirmed_cancelled ... ok
+2026-10-15T14:56:11.8024774Z test duplicates_distinguish_notifications_from_real_completion_deliveries ... ok
+2026-10-15T14:56:11.8025401Z test host_snapshot_is_explicit_and_default_is_observed_since_attach ... ok
+2026-10-15T14:56:11.8025979Z test host_baseline_does_not_upgrade_other_label_groups ... ok
+2026-10-15T14:56:11.8027820Z test metric_only_capture_and_imports_are_independent_from_log_delivery ... ok
+2026-10-15T14:56:11.8029782Z test merges_enforce_family_limit_and_invalid_snapshot_clocks_are_unknown ... ok
+2026-10-15T14:56:11.8031035Z test publication_failure_invalidates_reservation_without_invented_post_sample ... ok
+2026-10-15T14:56:11.8032266Z test pause_interval_retention_is_bounded_and_completed_durations_unchanged ... ok
+2026-10-15T14:56:11.8033292Z test quantiles_merge_buckets_and_zero_is_unavailable ... ok
+2026-10-15T14:56:11.8034269Z test real_std_future_first_poll_pending_ready_and_never_polled_drop ... ok
+2026-10-15T14:56:11.8035303Z test rejected_and_fire_and_forget_have_no_invented_completion ... ok
+2026-10-15T14:56:11.8036341Z test reversed_cross_domain_and_failed_clocks_never_make_zero_samples ... ok
+2026-10-15T14:56:11.8040020Z test slow_query_population_requires_explicit_debugger_and_origin_inclusion ... ok
+2026-10-15T14:56:11.8041609Z test synthetic_12_plus_84_plus_4_has_distinct_endpoints ... ok
+2026-10-15T14:56:11.8042804Z test slow_queries_bound_results_and_report_retention_gaps_unknowns_and_disabled_capture ... ok
+2026-10-15T14:56:11.8043977Z test windows_epochs_schema_and_history_are_honest ... ok
+2026-10-15T14:56:11.8044469Z 
+2026-10-15T14:56:11.8045156Z test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:11.8045661Z 
+2026-10-15T14:56:11.8046091Z      Running tests/inspect_derive.rs (target/debug/deps/inspect_derive-e4eefc631654566e)
+2026-10-15T14:56:11.8057674Z 
+2026-10-15T14:56:11.8057877Z running 11 tests
+2026-10-15T14:56:11.8063175Z test default_schema_names_distinguish_qualified_types_and_generics ... ok
+2026-10-15T14:56:11.8064390Z test derive_metadata_coexists_with_exact_codecs_without_redacting_trace_bytes ... ok
+2026-10-15T14:56:11.8065084Z test generated_bindings_do_not_shadow_caller_identifiers ... ok
+2026-10-15T14:56:11.8065672Z test generics_lifetimes_consts_qualified_types_and_where_clauses ... ok
+2026-10-15T14:56:11.8067737Z test named_fields_have_stable_ids_labels_version_and_source ... ok
+2026-10-15T14:56:11.8069159Z test redacted_paths_never_invoke_or_require_an_inspector ... ok
+2026-10-15T14:56:11.8069961Z test rust_cfg_is_respected ... ok
+2026-10-15T14:56:11.8070796Z test runtime_paths_and_escaped_or_raw_metadata_are_supported ... ok
+2026-10-15T14:56:11.8071737Z test tuple_unit_and_empty_shapes_compile_and_inspect ... ok
+2026-10-15T14:56:11.8072687Z test unsized_generic_tail_uses_reference_inspection ... ok
+2026-10-15T14:56:11.8073582Z test variants_support_each_shape_and_structural_paths ... ok
+2026-10-15T14:56:11.8074042Z 
+2026-10-15T14:56:11.8074715Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:11.8075126Z 
+2026-10-15T14:56:11.8075538Z      Running tests/inspection.rs (target/debug/deps/inspection-5f5247f3529d684f)
+2026-10-15T14:56:11.8086760Z 
+2026-10-15T14:56:11.8086932Z running 10 tests
+2026-10-15T14:56:11.8091247Z test float_payload_bits_prevent_false_nan_equality ... ok
+2026-10-15T14:56:11.8092337Z test large_integers_keep_type_and_exact_decimal ... ok
+2026-10-15T14:56:11.8094876Z test maps_preserve_typed_keys_order_and_selection ... ok
+2026-10-15T14:56:11.8099377Z test handwritten_and_generated_inspectors_have_the_same_projection ... ok
+2026-10-15T14:56:11.8101116Z test nested_path_is_structural_and_does_not_traverse_siblings ... ok
+2026-10-15T14:56:11.8102450Z test opaque_unavailable_truncated_and_schema_mismatch_never_equal ... ok
+2026-10-15T14:56:11.8103552Z test missing_map_keys_and_far_pages_have_explicit_work_bounds ... ok
+2026-10-15T14:56:11.8104482Z test utf8_bytes_depth_and_aggregate_budgets_are_honest ... ok
+2026-10-15T14:56:11.8105356Z test huge_map_key_is_bounded_before_owned_key_capture ... ok
+2026-10-15T14:56:11.8106241Z test paging_allocates_and_evaluates_only_requested_values ... ok
+2026-10-15T14:56:11.8106530Z 
+2026-10-15T14:56:11.8106898Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:11.8107512Z 
+2026-10-15T14:56:11.8108320Z      Running tests/live.rs (target/debug/deps/live-0447049bd42b8df1)
+2026-10-15T14:56:11.8120221Z 
+2026-10-15T14:56:11.8120385Z running 23 tests
+2026-10-15T14:56:11.8125322Z test admission_backpressure_and_disconnect_return_owned_input_and_bound_queue ... ok
+2026-10-15T14:56:11.8126764Z test controller_property_stop_and_pause_correlation_are_explicit ... ok
+2026-10-15T14:56:11.8127816Z test bridge_and_controller_origins_continue_correlating_after_client_reconnect ... ok
+2026-10-15T14:56:11.8129380Z test coherent_midrun_attach_shares_one_checked_batch_and_exports_exact_suffix ... ok
+2026-10-15T14:56:11.8130617Z test default_observation_authority_cannot_escalate_on_reconnect ... ok
+2026-10-15T14:56:11.8131805Z test counter_exhaustion_is_atomic_and_keeps_buffered_arrival_owned ... ok
+2026-10-15T14:56:11.8132970Z test disconnect_preserves_inflight_result_under_every_detach_policy ... ok
+2026-10-15T14:56:11.8134555Z test duplicate_and_mismatched_tokens_do_not_consume_a_delivery ... ok
+2026-10-15T14:56:11.8135615Z test identity_changes_are_rejected_even_after_capture_freezes ... ok
+2026-10-15T14:56:11.8137023Z test one_turn_is_exactly_one_delivered_input_including_rejection_and_ignore ... ok
+2026-10-15T14:56:11.8138582Z test oversized_output_batch_has_capacity_bounded_diagnostic_work ... ok
+2026-10-15T14:56:11.8139761Z test oversized_outputs_and_host_failure_terminate_without_hidden_retry ... ok
+2026-10-15T14:56:11.8140971Z test pause_racing_with_delivery_or_dispatch_waits_for_a_complete_boundary ... ok
+2026-10-15T14:56:11.8142209Z test permits_are_bound_to_their_controller_and_uncertain_work_is_not_retried ... ok
+2026-10-15T14:56:11.8143526Z test property_failure_freezes_capture_without_stopping_host_or_rewriting_failure ... ok
+2026-10-15T14:56:11.8144785Z test reconnect_retains_dispatch_ownership_and_invalidates_old_commands ... ok
+2026-10-15T14:56:11.8148047Z test recorder_owns_bounded_error_footer_even_for_external_stop ... ok
+2026-10-15T14:56:11.8151906Z test omitted_roundtrip_freezes_before_gap_even_if_before_state_matches ... ok
+2026-10-15T14:56:11.8152973Z test reserved_limits_and_provenance_cannot_be_forged ... ok
+2026-10-15T14:56:11.8154072Z test sampled_checks_end_exact_capture_and_preserve_actual_host_transition ... ok
+2026-10-15T14:56:11.8155331Z test staged_effects_can_resume_or_precede_one_turn_without_duplicate_dispatch ... ok
+2026-10-15T14:56:11.8156768Z test metadata_loss_is_separate_from_exact_retention_and_effect_dispatch_facts ... ok
+2026-10-15T14:56:14.2235197Z test exhaustive_controller::all_finite_controller_interleavings_match_independent_model ... ok
+2026-10-15T14:56:14.2235639Z 
+2026-10-15T14:56:14.2236031Z test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.41s
+2026-10-15T14:56:14.2236515Z 
+2026-10-15T14:56:14.2239021Z      Running tests/oracle_lifecycle.rs (target/debug/deps/oracle_lifecycle-a1096e2eaf822a72)
+2026-10-15T14:56:14.2253145Z 
+2026-10-15T14:56:14.2253396Z running 4 tests
+2026-10-15T14:56:14.2279608Z test missing_settlement_is_independently_detected_and_replayed ... ok
+2026-10-15T14:56:14.2280802Z test recording_inspection_and_breakpoints_advance_each_machine_exactly_once ... ok
+2026-10-15T14:56:14.2286353Z test resource_ownership_faults_fail_even_when_application_checks_pass ... ok
+2026-10-15T14:56:14.2306603Z test evicted_composite_checkpoints_preserve_pending_and_completed_branch_history ... ok
+2026-10-15T14:56:14.2307269Z 
+2026-10-15T14:56:14.2307964Z test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-15T14:56:14.2308784Z 
+2026-10-15T14:56:14.2309799Z      Running tests/pr_review_inspection.rs (target/debug/deps/pr_review_inspection-bb48d1b0bf3bf84e)
+2026-10-15T14:56:14.2322445Z 
+2026-10-15T14:56:14.2322663Z running 15 tests
+2026-10-15T14:56:14.2327585Z test disabled_filtered_and_unauthorized_paths_do_not_call_callbacks ... ok
+2026-10-15T14:56:14.2329349Z test display_metadata_changes_do_not_change_struct_or_enum_exact_bytes ... ok
+2026-10-15T14:56:14.2330705Z test diagnostic_errors_never_capture_callback_error_text_or_change_other_sinks ... ok
+2026-10-15T14:56:14.2332316Z test callback_panics_unwind_explicitly_and_partial_batches_stay_honest ... ok
+2026-10-15T14:56:14.2333833Z test failed_projection_and_stale_boundary_do_not_retain_a_baseline ... ok
+2026-10-15T14:56:14.2335375Z test failure_relabeling_preserves_sampled_completeness_and_unknown_diff ... ok
+2026-10-15T14:56:14.2336791Z test inconsistent_paging_counts_and_partial_descendants_never_certify_equality ... ok
+2026-10-15T14:56:14.2337902Z test failure_relabeling_keeps_initial_and_gap_differences_unknown ... ok
+2026-10-15T14:56:14.2339130Z test intrinsically_incomplete_kinds_cannot_claim_equality ... ok
+2026-10-15T14:56:14.2340231Z test probe_machine_and_entity_context_changes_reset_unscoped_comparisons ... ok
+2026-10-15T14:56:14.2341311Z test value_match_relabeling_does_not_invent_an_initial_addition ... ok
+2026-10-15T14:56:14.2342340Z test inspector_and_exporter_panics_propagate_at_the_documented_host_boundary ... ok
+2026-10-15T14:56:14.2343361Z test watch_origin_changes_reset_comparison_before_failure_capture ... ok
+2026-10-15T14:56:14.2344546Z test selected_subscribers_share_access_but_never_share_unauthorized_fields ... ok
+2026-10-15T14:56:14.2345366Z test probe_run_and_origin_changes_do_not_reuse_another_stream_baseline ... ok
+2026-10-15T14:56:14.2345675Z 
+2026-10-15T14:56:14.2346050Z test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2346488Z 
+2026-10-15T14:56:14.2347155Z      Running tests/pr_review_live_effects.rs (target/debug/deps/pr_review_live_effects-d49743e7938d438e)
+2026-10-15T14:56:14.2357538Z 
+2026-10-15T14:56:14.2357742Z running 20 tests
+2026-10-15T14:56:14.2363295Z test constructor_clock_failure_is_visible_without_inventing_an_epoch_start ... ok
+2026-10-15T14:56:14.2364954Z test current_metrics_do_not_reuse_a_timestamp_from_before_new_observations ... ok
+2026-10-15T14:56:14.2366620Z test abandoned_or_resolved_attempt_cannot_be_scheduled_as_a_retry ... ok
+2026-10-15T14:56:14.2367989Z test diagnostic_encoder_failure_preserves_actual_state_requested_outputs_and_dispatch ... ok
+2026-10-15T14:56:14.2369180Z test dropping_request_before_admission_keeps_the_missing_decision_visible ... ok
+2026-10-15T14:56:14.2376460Z test foreign_future_adapter_cannot_write_another_observers_accounting ... ok
+2026-10-15T14:56:14.2377576Z test concurrently_dropped_raw_clones_report_one_missing_endpoint ... ok
+2026-10-15T14:56:14.2379119Z test health_overflow_during_merge_is_atomic ... ok
+2026-10-15T14:56:14.2380422Z test integrated_actual_host_pause_cancellation_late_delivery_and_replay ... ok
+2026-10-15T14:56:14.2381948Z test invalid_snapshot_clock_does_not_erase_the_previous_valid_watermark ... ok
+2026-10-15T14:56:14.2383130Z test merging_disjoint_producers_preserves_loss_health ... ok
+2026-10-15T14:56:14.2384192Z test pause_ack_with_staged_outputs_requires_new_authority_before_dispatch ... ok
+2026-10-15T14:56:14.2385287Z test last_raw_attempt_handle_loss_marks_running_evidence_incomplete ... ok
+2026-10-15T14:56:14.2386422Z test last_raw_delivery_handle_loss_marks_unobserved_publication_incomplete ... ok
+2026-10-15T14:56:14.2387409Z test rejected_admission_is_not_censored_pending_work ... ok
+2026-10-15T14:56:14.2388758Z test rejected_publication_and_finished_attempt_drops_do_not_invent_abandonment ... ok
+2026-10-15T14:56:14.2389922Z test retry_scheduled_during_pause_never_enters_production_histograms ... ok
+2026-10-15T14:56:14.2390989Z test safe_point_waits_for_every_reserved_output_across_disconnect ... ok
+2026-10-15T14:56:14.2392102Z test snapshot_timestamp_never_predates_a_concurrently_included_measurement ... ok
+2026-10-15T14:56:14.2461694Z test publication_commit_and_consumer_race_counts_boundaries_once ... ok
+2026-10-15T14:56:14.2462244Z 
+2026-10-15T14:56:14.2462941Z test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+2026-10-15T14:56:14.2463578Z 
+2026-10-15T14:56:14.2465658Z      Running tests/pr_review_protocol.rs (target/debug/deps/pr_review_protocol-b144bad9fb0afc78)
+2026-10-15T14:56:14.2478321Z 
+2026-10-15T14:56:14.2478815Z running 11 tests
+2026-10-15T14:56:14.2485255Z test exact_value_permission_cannot_export_raw_trace ... ok
+2026-10-15T14:56:14.2486619Z test discovery_is_read_only_and_reconnect_cannot_resurrect_cached_mutation ... ok
+2026-10-15T14:56:14.2491864Z test evicted_candidate_and_snapshot_handles_do_not_alias_replacements ... ok
+2026-10-15T14:56:14.2492984Z test every_truncated_prefix_and_oversize_header_closes_without_delivery ... ok
+2026-10-15T14:56:14.2497946Z test fatal_frame_after_committed_turn_disconnects_without_rollback_or_extra_delivery ... ok
+2026-10-15T14:56:14.2499404Z test exposed_probe_sink_redacts_payload_and_never_drains_other_sink ... ok
+2026-10-15T14:56:14.2500021Z test minimum_wire_limits_keep_mutation_acks_and_retry_identity ... ok
+2026-10-15T14:56:14.2507078Z test first_failure_identity_survives_check_page_truncation_without_message_leak ... ok
+2026-10-15T14:56:14.2508643Z test rejected_metric_captures_cannot_evict_acknowledged_window_endpoints ... ok
+2026-10-15T14:56:14.2510058Z test rejected_metric_window_preserves_last_acknowledged_handle ... ok
+2026-10-15T14:56:14.2511202Z test rejected_new_metric_capture_preserves_last_acknowledged_handle ... ok
+2026-10-15T14:56:14.2511743Z 
+2026-10-15T14:56:14.2512127Z test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2512484Z 
+2026-10-15T14:56:14.2513967Z      Running tests/pr_review_sessions.rs (target/debug/deps/pr_review_sessions-31e526511214792a)
+2026-10-15T14:56:14.2527329Z 
+2026-10-15T14:56:14.2527600Z running 12 tests
+2026-10-15T14:56:14.2535395Z test invalid_minimization_attempt_budget_and_target_do_not_execute_model ... ok
+2026-10-15T14:56:14.2536832Z test initial_failure_minimization_needs_no_transition_budget ... ok
+2026-10-15T14:56:14.2537984Z test cancellation_raised_by_policy_prevents_candidate_delivery ... ok
+2026-10-15T14:56:14.2539483Z test legacy_minimization_rejects_recorded_strict_policy_without_execution ... ok
+2026-10-15T14:56:14.2540755Z test explicit_policy_can_shrink_without_leaving_the_recorded_domain ... ok
+2026-10-15T14:56:14.2542139Z test mismatched_ambiguous_and_incomplete_policy_provenance_is_rejected ... ok
+2026-10-15T14:56:14.2543278Z test minimization_admission_has_finite_enumeration_work ... ok
+2026-10-15T14:56:14.2544321Z test minimization_preserves_recorded_enumerated_environment ... ok
+2026-10-15T14:56:14.2545600Z test nonstatic_non_debug_non_send_values_remain_source_compatible ... ok
+2026-10-15T14:56:14.2547060Z test simultaneous_property_capture_and_frontend_failures_preserve_actual_and_prefix ... ok
+2026-10-15T14:56:14.2549136Z test unrestricted_and_legacy_traces_retain_explicit_generate_causality ... ok
+2026-10-15T14:56:14.2553617Z test verified_fork_and_parent_binding_remain_independent ... ok
+2026-10-15T14:56:14.2553930Z 
+2026-10-15T14:56:14.2554316Z test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2554663Z 
+2026-10-15T14:56:14.2557017Z      Running tests/protocol.rs (target/debug/deps/protocol-f5f36682ba901ea6)
+2026-10-15T14:56:14.2570449Z 
+2026-10-15T14:56:14.2570649Z running 30 tests
+2026-10-15T14:56:14.2581240Z test duplicate_request_delivers_once_conflicts_reject_and_retired_ids_do_not_retry ... ok
+2026-10-15T14:56:14.2582505Z test diagnostics_configuration_does_not_change_exact_trace_bytes ... ok
+2026-10-15T14:56:14.2599366Z test events_are_bounded_and_loss_survives_saturated_queue ... ok
+2026-10-15T14:56:14.2629053Z test framed_server_is_linked_to_model_and_exposes_explicit_disconnect ... ok
+2026-10-15T14:56:14.2630361Z test bounded_parser_corpus_is_panic_free_and_roundtrips_every_accepted_record ... ok
+2026-10-15T14:56:14.2649361Z test metric_pages_bind_to_immutable_snapshot_and_metric_revision_is_separate ... ok
+2026-10-15T14:56:14.2669087Z test oversized_probe_payload_is_not_consumed_and_summary_fits_smallest_frame ... ok
+2026-10-15T14:56:14.2681061Z test partial_oversize_invalid_utf8_escape_and_unknown_commands_reject ... ok
+2026-10-15T14:56:14.2682529Z test probe_profile_stale_unknown_denied_and_busy_paths_do_not_mutate_capture ... ok
+2026-10-15T14:56:14.2684004Z test probe_wire_roundtrip_and_framed_configuration_leave_workers_pending ... ok
+2026-10-15T14:56:14.2685330Z test queued_response_write_failure_does_not_rerun_or_rollback_delivery ... ok
+2026-10-15T14:56:14.2686687Z test raw_export_authority_is_independent_and_stale_handles_offsets_reject ... ok
+2026-10-15T14:56:14.2687968Z test reconnect_invalidates_epochs_handles_and_never_grants_authority ... ok
+2026-10-15T14:56:14.2689614Z test recreating_same_display_id_cannot_accept_old_incarnation_commands ... ok
+2026-10-15T14:56:14.2690906Z test lifecycle_timeline_and_histogram_metadata_remain_host_measured ... ok
+2026-10-15T14:56:14.2692306Z test rejected_watch_stale_schema_and_unknown_path_leave_configuration_unchanged ... ok
+2026-10-15T14:56:14.2706205Z test response_and_candidate_caps_reject_without_excess_or_hidden_delivery ... ok
+2026-10-15T14:56:14.2713452Z test bounded_raw_export_reconstructs_and_replays_exact_failure_across_chunks ... ok
+2026-10-15T14:56:14.2715073Z test runtime_probe_profiles_require_separate_authority_and_real_producer_acknowledgement ... ok
+2026-10-15T14:56:14.2717109Z test maximum_probe_catalog_and_producer_status_can_be_paged_under_small_frame ... ok
+2026-10-15T14:56:14.2718762Z test snapshot_and_candidate_handles_are_revision_bound ... ok
+2026-10-15T14:56:14.2720225Z test runtime_watch_authority_is_separate_and_configuration_is_revisioned ... ok
+2026-10-15T14:56:14.2721738Z test stale_version_epoch_unauthorized_and_malformed_input_never_deliver ... ok
+2026-10-15T14:56:14.2728450Z test telemetry_queries_need_explicit_adapter_and_never_grant_model_authority ... ok
+2026-10-15T14:56:14.2729929Z test structured_inspection_preserves_large_integers_and_only_one_turn_check_runs ... ok
+2026-10-15T14:56:14.2731367Z test telemetry_query_wire_roundtrip_and_missing_history_remain_explicit ... ok
+2026-10-15T14:56:14.2732766Z test watch_admission_ack_cannot_fail_after_mutation_when_schema_metadata_is_large ... ok
+2026-10-15T14:56:14.2734059Z test wire_roundtrip_preserves_128_bit_keys_and_terminal_escaping ... ok
+2026-10-15T14:56:14.2735301Z test watches_observe_actual_turns_and_do_not_change_exact_model_state ... ok
+2026-10-15T14:56:14.2772802Z test repeated_interrupted_reads_do_not_recurse_and_limits_validate_before_work ... ok
+2026-10-15T14:56:14.2773609Z 
+2026-10-15T14:56:14.2774457Z test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+2026-10-15T14:56:14.2775211Z 
+2026-10-15T14:56:14.2779369Z      Running tests/review_debugger.rs (target/debug/deps/review_debugger-918fd20d3496f36d)
+2026-10-15T14:56:14.2794264Z 
+2026-10-15T14:56:14.2794495Z running 7 tests
+2026-10-15T14:56:14.2802104Z test diagnostic_gap_invalidates_threshold_crossing_baseline ... ok
+2026-10-15T14:56:14.2802728Z test candidate_revalidation_respects_session_work_budget ... ok
+2026-10-15T14:56:14.2803222Z test cancel_preserves_terminal_property_failure ... ok
+2026-10-15T14:56:14.2809252Z test diagnostic_inspection_failure_invalidates_threshold_crossing_baseline ... ok
+2026-10-15T14:56:14.2810615Z test simulation_provenance_cannot_be_shadowed_by_user_config ... ok
+2026-10-15T14:56:14.2812062Z test diagnostic_permission_entries_consume_configuration_budget ... ok
+2026-10-15T14:56:14.2813334Z test minimization_honors_cancellation_raised_during_verification ... ok
+2026-10-15T14:56:14.2814126Z 
+2026-10-15T14:56:14.2814560Z test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2814989Z 
+2026-10-15T14:56:14.2815869Z      Running tests/session.rs (target/debug/deps/session-e5440e4fd4ad1f04)
+2026-10-15T14:56:14.2828774Z 
+2026-10-15T14:56:14.2828981Z running 14 tests
+2026-10-15T14:56:14.2834232Z test admission_and_pre_breakpoint_panics_poison_the_controller ... ok
+2026-10-15T14:56:14.2835270Z test bounded_continue_reports_budget_not_success ... ok
+2026-10-15T14:56:14.2836314Z test admission_stale_invalid_payload_and_candidates_do_not_deliver ... ok
+2026-10-15T14:56:14.2837538Z test candidate_tokens_do_not_cross_sessions_with_identical_display_ids ... ok
+2026-10-15T14:56:14.2838989Z test checker_error_retains_actual_state_and_is_not_property_failure ... ok
+2026-10-15T14:56:14.2839941Z test initial_failure_is_sequence_zero ... ok
+2026-10-15T14:56:14.2840765Z test codec_debug_and_thread_bounds_are_optional ... ok
+2026-10-15T14:56:14.2841624Z test history_eviction_is_visible_and_replayable ... ok
+2026-10-15T14:56:14.2842603Z test observer_error_cannot_roll_back_or_hide_property_failure ... ok
+2026-10-15T14:56:14.2843574Z test observer_panic_leaves_controlled_session_ended ... ok
+2026-10-15T14:56:14.2844446Z test lifecycle_failure_is_exact_and_cannot_continue ... ok
+2026-10-15T14:56:14.2845392Z test pre_breakpoint_stops_before_delivery_and_bypasses_exact_pending_once ... ok
+2026-10-15T14:56:14.2846841Z test post_breakpoint_observes_completed_turn ... ok
+2026-10-15T14:56:14.2847489Z test rejected_inputs_are_deliveries_in_explicit_injection_mode ... ok
+2026-10-15T14:56:14.2847949Z 
+2026-10-15T14:56:14.2848773Z test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2849171Z 
+2026-10-15T14:56:14.2849545Z      Running tests/watches.rs (target/debug/deps/watches-0f456112ed8d28f8)
+2026-10-15T14:56:14.2859451Z 
+2026-10-15T14:56:14.2859606Z running 16 tests
+2026-10-15T14:56:14.2865903Z test committed_boundary_watch_cannot_invent_internal_reverted_changes ... ok
+2026-10-15T14:56:14.2867117Z test admission_authorization_redaction_and_unknown_paths_are_checked ... ok
+2026-10-15T14:56:14.2868455Z test count_byte_baseline_and_failure_budgets_are_independent ... ok
+2026-10-15T14:56:14.2869625Z test boundary_reconfiguration_cannot_change_an_in_progress_generation ... ok
+2026-10-15T14:56:14.2870882Z test disabled_and_static_filtered_paths_do_not_read_schema_or_payload ... ok
+2026-10-15T14:56:14.2872140Z test inspection_errors_are_diagnostic_and_preserve_metadata ... ok
+2026-10-15T14:56:14.2874785Z test explicit_snapshot_returns_type_and_does_not_replace_change_baseline ... ok
+2026-10-15T14:56:14.2875895Z test lazy_post_turn_marker_skips_disabled_and_full_payloads ... ok
+2026-10-15T14:56:14.2876943Z test live_identity_and_machine_changes_never_claim_cross_machine_change ... ok
+2026-10-15T14:56:14.2877984Z test lifecycle_reenable_and_expiry_boundaries_are_explicit ... ok
+2026-10-15T14:56:14.2879221Z test failure_annotation_is_bounded_and_cannot_hide_an_inspector_error ... ok
+2026-10-15T14:56:14.2880014Z test missing_observations_and_expired_baselines_start_unknown ... ok
+2026-10-15T14:56:14.2880615Z test matching_queries_are_shared_and_event_loss_does_not_reset_baselines ... ok
+2026-10-15T14:56:14.2881247Z test exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on ... ok
+2026-10-15T14:56:14.2881882Z test sampled_evaluation_and_delivery_loss_have_different_meanings ... ok
+2026-10-15T14:56:14.2882659Z test schema_changes_pause_before_selected_value_access ... ok
+2026-10-15T14:56:14.2882926Z 
+2026-10-15T14:56:14.2883305Z test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2883967Z 
+2026-10-15T14:56:14.2884649Z      Running tests/workbench.rs (target/debug/deps/workbench-02a0f0fae3ce3c6c)
+2026-10-15T14:56:14.2896366Z 
+2026-10-15T14:56:14.2896523Z running 5 tests
+2026-10-15T14:56:14.2907820Z test minimization_starts_from_saved_midrun_checkpoint ... ok
+2026-10-15T14:56:14.2909178Z test build_comparison_is_explicit_and_reports_first_divergence ... ok
+2026-10-15T14:56:14.2910280Z test sidecar_and_exact_continuation_mismatches_are_rejected ... ok
+2026-10-15T14:56:14.2911408Z test viewing_is_unverified_and_outputs_are_encoded_without_decoder ... ok
+2026-10-15T14:56:14.2912448Z test branch_is_independent_verified_and_preserves_parent ... ok
+2026-10-15T14:56:14.2912938Z 
+2026-10-15T14:56:14.2913612Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2914250Z 
+2026-10-15T14:56:14.2915011Z      Running unittests src/lib.rs (target/debug/deps/statelessness_macros-66335834eb0d57ce)
+2026-10-15T14:56:14.2932576Z 
+2026-10-15T14:56:14.2932743Z running 0 tests
+2026-10-15T14:56:14.2933047Z 
+2026-10-15T14:56:14.2933810Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.2934456Z 
+2026-10-15T14:56:14.2936237Z    Doc-tests macro_qualification
+2026-10-15T14:56:14.3249196Z 
+2026-10-15T14:56:14.3249891Z running 0 tests
+2026-10-15T14:56:14.3250218Z 
+2026-10-15T14:56:14.3251116Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.3251901Z 
+2026-10-15T14:56:14.3280411Z    Doc-tests stateless
+2026-10-15T14:56:14.7598996Z 
+2026-10-15T14:56:14.7599953Z running 3 tests
+2026-10-15T14:56:14.7619586Z test src/lib.rs - (line 13) ... ok
+2026-10-15T14:56:14.7620396Z test src/model.rs - model::CheckSink (line 93) ... ok
+2026-10-15T14:56:14.7621524Z test src/lib.rs - (line 27) ... ok
+2026-10-15T14:56:14.7621854Z 
+2026-10-15T14:56:14.7622852Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.7623511Z 
+2026-10-15T14:56:14.7653961Z 
+2026-10-15T14:56:14.7654172Z running 5 tests
+2026-10-15T14:56:14.7974041Z test src/model.rs - model::CheckSink (line 117) - compile fail ... ok
+2026-10-15T14:56:14.8020257Z test src/observation.rs - observation::CheckedInitial (line 16) - compile fail ... ok
+2026-10-15T14:56:14.8029808Z test src/model.rs - model::CheckSink (line 111) - compile fail ... ok
+2026-10-15T14:56:14.8156035Z test src/model.rs - model::CheckSink (line 104) - compile fail ... ok
+2026-10-15T14:56:14.8271475Z test src/observation.rs - observation::CheckedTurn (line 54) - compile fail ... ok
+2026-10-15T14:56:14.8272115Z 
+2026-10-15T14:56:14.8272797Z test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+2026-10-15T14:56:14.8273408Z 
+2026-10-15T14:56:14.8273890Z all doctests ran in 0.37s; merged doctests compilation took 0.30s
+2026-10-15T14:56:14.8304200Z    Doc-tests statelessness_debug
+2026-10-15T14:56:14.9811807Z 
+2026-10-15T14:56:14.9812279Z running 0 tests
+2026-10-15T14:56:14.9812459Z 
+2026-10-15T14:56:14.9812900Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:14.9813279Z 
+2026-10-15T14:56:14.9842863Z    Doc-tests statelessness_macros
+2026-10-15T14:56:15.0187809Z 
+2026-10-15T14:56:15.0188571Z running 0 tests
+2026-10-15T14:56:15.0188871Z 
+2026-10-15T14:56:15.0189321Z test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:15.0189773Z 
+2026-10-15T14:56:15.0446297Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:56:15.3126909Z     Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+2026-10-15T14:56:15.3130199Z      Running unittests examples/application.rs (target/debug/examples/application-68c3b6cdc795a543)
+2026-10-15T14:56:15.3143700Z 
+2026-10-15T14:56:15.3143919Z running 3 tests
+2026-10-15T14:56:15.3147952Z test tests::application_regression ... ok
+2026-10-15T14:56:15.3149151Z test tests::restored_payloads_reject_invalid_values_and_trailing_bytes ... ok
+2026-10-15T14:56:15.3150189Z test tests::regression_gate_rejects_bug_and_incomplete_search ... ok
+2026-10-15T14:56:15.3150477Z 
+2026-10-15T14:56:15.3150866Z test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+2026-10-15T14:56:15.3151209Z 
+2026-10-15T14:56:15.4114136Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:56:15.4115474Z    Compiling statelessness-macros v0.2.0 (/home/runner/work/statelessness/statelessness/crates/statelessness-macros)
+2026-10-15T14:56:17.8054965Z     Checking statelessness-debug v0.2.0 (/home/runner/work/statelessness/statelessness/crates/statelessness-debug)
+2026-10-15T14:56:17.8056847Z     Checking macro-qualification v0.0.0 (/home/runner/work/statelessness/statelessness/crates/macro-qualification)
+2026-10-15T14:56:22.6961137Z     Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.34s
+2026-10-15T14:56:22.7118921Z ##[group]Run python scripts/build-bindings.py --kind all --abi-v2 --toolchain 1.90.0
+2026-10-15T14:56:22.7120091Z [36;1mpython scripts/build-bindings.py --kind all --abi-v2 --toolchain 1.90.0[0m
+2026-10-15T14:56:22.7121596Z [36;1mpython scripts/check-abi-v2-package.py --package target/bindings/native --mode runtime --source-root . --report target/abi-v2/native-runtime.json[0m
+2026-10-15T14:56:22.7123602Z [36;1mpython scripts/check-abi-v2-package.py --package target/bindings/browser --source-root . --report target/abi-v2/browser-inspection.json[0m
+2026-10-15T14:56:22.7125200Z [36;1mpython scripts/check-abi-v2-installed.py --output "$RUNNER_TEMP/abi-v2-installed"[0m
+2026-10-15T14:56:22.7221409Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-15T14:56:22.7221760Z env:
+2026-10-15T14:56:22.7222029Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:22.7222477Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:56:22.7222975Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:22.7223370Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:22.7223753Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:22.7224139Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:56:22.7224461Z ##[endgroup]
+2026-10-15T14:56:22.9206434Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:56:27.5817603Z     Finished `release` profile [optimized] target(s) in 4.72s
+2026-10-15T14:56:27.6215014Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:56:31.4539109Z     Finished `release` profile [optimized] target(s) in 3.86s
+2026-10-15T14:56:31.5266326Z    Compiling statelessness v0.2.0 (/home/runner/work/statelessness/statelessness)
+2026-10-15T14:56:35.4310715Z     Finished `release` profile [optimized] target(s) in 3.97s
+2026-10-15T14:56:35.6015713Z /home/runner/work/statelessness/statelessness/target/bindings
+2026-10-15T14:56:35.7044457Z runtime package checks passed; remaining runtime/migration gates are pending: target/abi-v2/native-runtime.json
+2026-10-15T14:56:35.7847581Z inspect package checks passed; remaining runtime/migration gates are pending: target/abi-v2/browser-inspection.json
+2026-10-15T14:56:41.1106538Z {
+2026-10-15T14:56:41.1107117Z   "schema": "stateless.abi-v2-installed.v1",
+2026-10-15T14:56:41.1107659Z   "checks": [
+2026-10-15T14:56:41.1107969Z     {
+2026-10-15T14:56:41.1108572Z       "name": "wheel-build",
+2026-10-15T14:56:41.1109027Z       "command": [
+2026-10-15T14:56:41.1109800Z         "/opt/hostedtoolcache/Python/3.13.16/x64/bin/python",
+2026-10-15T14:56:41.1110378Z         "-m",
+2026-10-15T14:56:41.1110736Z         "pip",
+2026-10-15T14:56:41.1111102Z         "wheel",
+2026-10-15T14:56:41.1111597Z         "--no-build-isolation",
+2026-10-15T14:56:41.1112078Z         "--no-deps",
+2026-10-15T14:56:41.1112941Z         "/home/runner/work/_temp/abi-v2-installed/distribution/python",
+2026-10-15T14:56:41.1113645Z         "--wheel-dir",
+2026-10-15T14:56:41.1114352Z         "/home/runner/work/_temp/abi-v2-installed/wheels"
+2026-10-15T14:56:41.1114880Z       ],
+2026-10-15T14:56:41.1115493Z       "cwd": "/home/runner/work/_temp/abi-v2-installed",
+2026-10-15T14:56:41.1116067Z       "exit_code": 0,
+2026-10-15T14:56:41.1117017Z       "log_sha256": "89bee632df35d1038c378b3b68b77b09153abff785ccde322b0efb96c789621d"
+2026-10-15T14:56:41.1117736Z     },
+2026-10-15T14:56:41.1118019Z     {
+2026-10-15T14:56:41.1118632Z       "name": "wheel-install",
+2026-10-15T14:56:41.1119102Z       "command": [
+2026-10-15T14:56:41.1119897Z         "/home/runner/work/_temp/abi-v2-installed/venv/bin/python",
+2026-10-15T14:56:41.1120512Z         "-m",
+2026-10-15T14:56:41.1120875Z         "pip",
+2026-10-15T14:56:41.1121249Z         "install",
+2026-10-15T14:56:41.1121669Z         "--no-index",
+2026-10-15T14:56:41.1122086Z         "--no-deps",
+2026-10-15T14:56:41.1123687Z         "/home/runner/work/_temp/abi-v2-installed/wheels/statelessness-0.1.0-py3-none-any.whl"
+2026-10-15T14:56:41.1124500Z       ],
+2026-10-15T14:56:41.1125101Z       "cwd": "/home/runner/work/_temp/abi-v2-installed",
+2026-10-15T14:56:41.1125715Z       "exit_code": 0,
+2026-10-15T14:56:41.1126647Z       "log_sha256": "71392733fc4d8f46627c1629665ee24e9b1d941ba9410e4422e150bb941458b6"
+2026-10-15T14:56:41.1127347Z     },
+2026-10-15T14:56:41.1127625Z     {
+2026-10-15T14:56:41.1128022Z       "name": "wheel-origin",
+2026-10-15T14:56:41.1128869Z       "command": [
+2026-10-15T14:56:41.1129659Z         "/home/runner/work/_temp/abi-v2-installed/venv/bin/python",
+2026-10-15T14:56:41.1130700Z         "-I",
+2026-10-15T14:56:41.1131049Z         "-c",
+2026-10-15T14:56:41.1133153Z         "import statelessness; from pathlib import Path; assert Path('/home/runner/work/_temp/abi-v2-installed') in Path(statelessness.__file__).parents; print(statelessness.__file__)"
+2026-10-15T14:56:41.1134506Z       ],
+2026-10-15T14:56:41.1135130Z       "cwd": "/home/runner/work/_temp/abi-v2-installed",
+2026-10-15T14:56:41.1135719Z       "exit_code": 0,
+2026-10-15T14:56:41.1136670Z       "log_sha256": "f825aa605df46ec316df4932b5fb6e49a49511f4a303b8979a67030eaaae0621"
+2026-10-15T14:56:41.1137383Z     },
+2026-10-15T14:56:41.1137663Z     {
+2026-10-15T14:56:41.1138509Z       "name": "installed-python-tests",
+2026-10-15T14:56:41.1139033Z       "command": [
+2026-10-15T14:56:41.1139840Z         "/home/runner/work/_temp/abi-v2-installed/venv/bin/python",
+2026-10-15T14:56:41.1140470Z         "-I",
+2026-10-15T14:56:41.1140819Z         "-m",
+2026-10-15T14:56:41.1141191Z         "unittest",
+2026-10-15T14:56:41.1141604Z         "discover",
+2026-10-15T14:56:41.1141972Z         "-s",
+2026-10-15T14:56:41.1142778Z         "/home/runner/work/statelessness/statelessness/python/tests",
+2026-10-15T14:56:41.1143411Z         "-v"
+2026-10-15T14:56:41.1143734Z       ],
+2026-10-15T14:56:41.1144342Z       "cwd": "/home/runner/work/_temp/abi-v2-installed",
+2026-10-15T14:56:41.1144931Z       "exit_code": 0,
+2026-10-15T14:56:41.1145887Z       "log_sha256": "848006fc82d57c4dfa0aadc02ecc9de980814b6e2d386bd0156961cdb67124de"
+2026-10-15T14:56:41.1146677Z     },
+2026-10-15T14:56:41.1146959Z     {
+2026-10-15T14:56:41.1147378Z       "name": "npm-pack",
+2026-10-15T14:56:41.1147825Z       "command": [
+2026-10-15T14:56:41.1148736Z         "/opt/hostedtoolcache/node/22.16.0/x64/bin/npm",
+2026-10-15T14:56:41.1149302Z         "pack",
+2026-10-15T14:56:41.1149707Z         "--offline",
+2026-10-15T14:56:41.1150169Z         "--ignore-scripts",
+2026-10-15T14:56:41.1150613Z         "--json",
+2026-10-15T14:56:41.1151078Z         "--pack-destination",
+2026-10-15T14:56:41.1151790Z         "/home/runner/work/_temp/abi-v2-installed"
+2026-10-15T14:56:41.1152317Z       ],
+2026-10-15T14:56:41.1153144Z       "cwd": "/home/runner/work/_temp/abi-v2-installed/distribution/browser",
+2026-10-15T14:56:41.1153883Z       "exit_code": 0,
+2026-10-15T14:56:41.1154865Z       "log_sha256": "a6d3e7f3ad576f587b27144c756cf93b98850746e6743b659ee74abfc137cc1c"
+2026-10-15T14:56:41.1155601Z     },
+2026-10-15T14:56:41.1155892Z     {
+2026-10-15T14:56:41.1156294Z       "name": "npm-install",
+2026-10-15T14:56:41.1156755Z       "command": [
+2026-10-15T14:56:41.1157452Z         "/opt/hostedtoolcache/node/22.16.0/x64/bin/npm",
+2026-10-15T14:56:41.1170188Z         "install",
+2026-10-15T14:56:41.1170655Z         "--offline",
+2026-10-15T14:56:41.1171166Z         "--ignore-scripts",
+2026-10-15T14:56:41.1171670Z         "--no-audit",
+2026-10-15T14:56:41.1172119Z         "--no-fund",
+2026-10-15T14:56:41.1173103Z         "/home/runner/work/_temp/abi-v2-installed/jagalite-stateless-0.2.0.tgz"
+2026-10-15T14:56:41.1173838Z       ],
+2026-10-15T14:56:41.1174608Z       "cwd": "/home/runner/work/_temp/abi-v2-installed/node-consumer",
+2026-10-15T14:56:41.1175307Z       "exit_code": 0,
+2026-10-15T14:56:41.1176293Z       "log_sha256": "5e73de2afe9cd6be1a934f84387bff8f6f943f5882c301d90da1a62709cdf3b6"
+2026-10-15T14:56:41.1177047Z     },
+2026-10-15T14:56:41.1177652Z     {
+2026-10-15T14:56:41.1178414Z       "name": "installed-node-record",
+2026-10-15T14:56:41.1178948Z       "command": [
+2026-10-15T14:56:41.1179675Z         "/opt/hostedtoolcache/node/22.16.0/x64/bin/node",
+2026-10-15T14:56:41.1180285Z         "check.mjs",
+2026-10-15T14:56:41.1180709Z         "record"
+2026-10-15T14:56:41.1181067Z       ],
+2026-10-15T14:56:41.1181826Z       "cwd": "/home/runner/work/_temp/abi-v2-installed/node-consumer",
+2026-10-15T14:56:41.1182518Z       "exit_code": 0,
+2026-10-15T14:56:41.1183490Z       "log_sha256": "63d73d3430c1499c94529b9fcaf0174973c6ff2b74a9372d2394a2effd8d8c7c"
+2026-10-15T14:56:41.1184491Z     },
+2026-10-15T14:56:41.1184802Z     {
+2026-10-15T14:56:41.1185354Z       "name": "installed-node-fresh-replay",
+2026-10-15T14:56:41.1185914Z       "command": [
+2026-10-15T14:56:41.1186623Z         "/opt/hostedtoolcache/node/22.16.0/x64/bin/node",
+2026-10-15T14:56:41.1187159Z         "check.mjs",
+2026-10-15T14:56:41.1187573Z         "replay"
+2026-10-15T14:56:41.1187931Z       ],
+2026-10-15T14:56:41.1188919Z       "cwd": "/home/runner/work/_temp/abi-v2-installed/node-consumer",
+2026-10-15T14:56:41.1189604Z       "exit_code": 0,
+2026-10-15T14:56:41.1190540Z       "log_sha256": "1723a451ae949fb15c22a583f588e47f172871c82686c15980f3e359e9f8592f"
+2026-10-15T14:56:41.1191229Z     }
+2026-10-15T14:56:41.1191517Z   ],
+2026-10-15T14:56:41.1191856Z   "status": "passed",
+2026-10-15T14:56:41.1192751Z   "native_library_sha256": "5cb11311875d8b1c0ccec5e0f1824223ad47d7ef29af7702d38515c2c31cf321",
+2026-10-15T14:56:41.1193975Z   "wheel_sha256": "56d781abf94189611e39d8806be5daf83d1907c6862295099744698990b25bc7",
+2026-10-15T14:56:41.1195232Z   "npm_archive_sha256": "5bfa2b3b5400a7d4944ab47859b83599334beca1da1fdcd830537480d117c585"
+2026-10-15T14:56:41.1196001Z }
+2026-10-15T14:56:41.1254984Z ##[group]Run export CGO_ENABLED=1
+2026-10-15T14:56:41.1255378Z [36;1mexport CGO_ENABLED=1[0m
+2026-10-15T14:56:41.1256025Z [36;1mexport CGO_LDFLAGS="-L$RUNNER_TEMP/abi-v2-installed/distribution/native/lib -Wl,-rpath,$RUNNER_TEMP/abi-v2-installed/distribution/native/lib"[0m
+2026-10-15T14:56:41.1257165Z [36;1mcc -std=c11 -I target/bindings/native/include bindings/c/v2_smoke.c $CGO_LDFLAGS -lstateless -o target/abi-v2/c-v2[0m
+2026-10-15T14:56:41.1257879Z [36;1mtarget/abi-v2/c-v2[0m
+2026-10-15T14:56:41.1258876Z [36;1mcc -std=c11 -I target/bindings/native/include bindings/c/smoke.c $CGO_LDFLAGS -lstateless -o target/abi-v2/c-v1[0m
+2026-10-15T14:56:41.1259626Z [36;1mtarget/abi-v2/c-v1[0m
+2026-10-15T14:56:41.1260090Z [36;1mgo -C "$RUNNER_TEMP/abi-v2-installed/distribution/go-v2" test ./v2 ./v2/internal/portablejson[0m
+2026-10-15T14:56:41.1260924Z [36;1mgo -C "$RUNNER_TEMP/abi-v2-installed/distribution/go-v2" build -o "$PWD/target/abi-v2/go-corpus" ./v2/cmd/stateless-corpus[0m
+2026-10-15T14:56:41.1261769Z [36;1mSTATELESS_ABI2_WASM="$PWD/target/bindings/browser/stateless_v2.wasm" node --test bindings/browser/test-v2.mjs[0m
+2026-10-15T14:56:41.1262332Z [36;1mnode --test bindings/browser/test.mjs[0m
+2026-10-15T14:56:41.1262685Z [36;1mPYTHONPATH=python/src python conformance/run.py \[0m
+2026-10-15T14:56:41.1263132Z [36;1m  --runner '["python","-m","statelessness.conformance","--runner"]' \[0m
+2026-10-15T14:56:41.1264008Z [36;1m  --runner "[\"python\",\"-m\",\"statelessness.native_conformance\",\"--library\",\"$PWD/target/bindings/native/lib/libstateless.$([[ $RUNNER_OS == macOS ]] && echo dylib || echo so)\"]" \[0m
+2026-10-15T14:56:41.1264824Z [36;1m  --runner "[\"$PWD/target/abi-v2/go-corpus\"]" \[0m
+2026-10-15T14:56:41.1265378Z [36;1m  --runner "[\"node\",\"bindings/browser/v2-corpus.mjs\",\"$PWD/target/bindings/browser/stateless_v2.wasm\"]" \[0m
+2026-10-15T14:56:41.1265929Z [36;1m  --report target/abi-v2/conformance.json[0m
+2026-10-15T14:56:41.1344195Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-15T14:56:41.1344550Z env:
+2026-10-15T14:56:41.1344822Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:41.1345264Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:56:41.1345697Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:41.1346075Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:41.1346533Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:41.1346923Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:56:41.1347241Z ##[endgroup]
+2026-10-15T14:56:41.2673549Z C header/library ABI smoke passed
+2026-10-15T14:56:49.6712551Z ok  	github.com/Jagalite/statelessness/bindings/go/v2	0.006s
+2026-10-15T14:56:49.6713696Z ok  	github.com/Jagalite/statelessness/bindings/go/v2/internal/portablejson	0.002s
+2026-10-15T14:56:50.9299179Z TAP version 13
+2026-10-15T14:56:51.0149973Z # Subtest: packet reader accepts a nonzero-offset Buffer and owns its decoded blobs
+2026-10-15T14:56:51.0179467Z ok 1 - packet reader accepts a nonzero-offset Buffer and owns its decoded blobs
+2026-10-15T14:56:51.0180378Z   ---
+2026-10-15T14:56:51.0180846Z   duration_ms: 5.249291
+2026-10-15T14:56:51.0181311Z   type: 'test'
+2026-10-15T14:56:51.0181696Z   ...
+2026-10-15T14:56:51.0182577Z # Subtest: every truncated packet, trailing data and aggregate bounds are rejected
+2026-10-15T14:56:51.0184052Z ok 2 - every truncated packet, trailing data and aggregate bounds are rejected
+2026-10-15T14:56:51.0184675Z   ---
+2026-10-15T14:56:51.0185029Z   duration_ms: 4.929852
+2026-10-15T14:56:51.0185514Z   type: 'test'
+2026-10-15T14:56:51.0185899Z   ...
+2026-10-15T14:56:51.0186729Z # Subtest: discarded binary parameters do not consume the portable item budget
+2026-10-15T14:56:51.0187931Z ok 3 - discarded binary parameters do not consume the portable item budget
+2026-10-15T14:56:51.0188942Z   ---
+2026-10-15T14:56:51.0190092Z   duration_ms: 0.508455
+2026-10-15T14:56:51.0190602Z   type: 'test'
+2026-10-15T14:56:51.0190979Z   ...
+2026-10-15T14:56:51.0191833Z # Subtest: owned witness copies outlive results and sessions without retained roots
+2026-10-15T14:56:51.0193052Z ok 4 - owned witness copies outlive results and sessions without retained roots
+2026-10-15T14:56:51.0193814Z   ---
+2026-10-15T14:56:51.0194226Z   duration_ms: 7.028253
+2026-10-15T14:56:51.0194676Z   type: 'test'
+2026-10-15T14:56:51.0195032Z   ...
+2026-10-15T14:56:51.0195897Z # Subtest: lazy callback failure preserves a replayable prefix and closes its cursor
+2026-10-15T14:56:51.0197166Z ok 5 - lazy callback failure preserves a replayable prefix and closes its cursor
+2026-10-15T14:56:51.0197851Z   ---
+2026-10-15T14:56:51.0198488Z   duration_ms: 5.660664
+2026-10-15T14:56:51.0198902Z   type: 'test'
+2026-10-15T14:56:51.0199237Z   ...
+2026-10-15T14:56:51.0200031Z # Subtest: partial callback check batches fail without publishing passing results
+2026-10-15T14:56:51.0219362Z ok 6 - partial callback check batches fail without publishing passing results
+2026-10-15T14:56:51.0220354Z   ---
+2026-10-15T14:56:51.0221041Z   duration_ms: 0.856459
+2026-10-15T14:56:51.0221740Z   type: 'test'
+2026-10-15T14:56:51.0222363Z   ...
+2026-10-15T14:56:51.0223485Z # Subtest: observation uses supplied values and never calls initialState or step
+2026-10-15T14:56:51.0225031Z ok 7 - observation uses supplied values and never calls initialState or step
+2026-10-15T14:56:51.0226043Z   ---
+2026-10-15T14:56:51.0226718Z   duration_ms: 1.236172
+2026-10-15T14:56:51.0227435Z   type: 'test'
+2026-10-15T14:56:51.0228058Z   ...
+2026-10-15T14:56:51.0229340Z # Subtest: unpublished cursors close exactly once when host roots reach quota
+2026-10-15T14:56:51.0230721Z ok 8 - unpublished cursors close exactly once when host roots reach quota
+2026-10-15T14:56:51.0231626Z   ---
+2026-10-15T14:56:51.0232227Z   duration_ms: 0.418386
+2026-10-15T14:56:51.0232861Z   type: 'test'
+2026-10-15T14:56:51.0233408Z   ...
+2026-10-15T14:56:51.0234359Z # Subtest: portable payload limits stop before candidate checkpoint commit
+2026-10-15T14:56:51.0235677Z ok 9 - portable payload limits stop before candidate checkpoint commit
+2026-10-15T14:56:51.0236543Z   ---
+2026-10-15T14:56:51.0237145Z   duration_ms: 1.471124
+2026-10-15T14:56:51.0237775Z   type: 'test'
+2026-10-15T14:56:51.0238629Z   ...
+2026-10-15T14:56:51.0239731Z # Subtest: cross-session shrink rejects a foreign result without consuming it
+2026-10-15T14:56:51.0241098Z ok 10 - cross-session shrink rejects a foreign result without consuming it
+2026-10-15T14:56:51.0241796Z   ---
+2026-10-15T14:56:51.0242138Z   duration_ms: 3.16192
+2026-10-15T14:56:51.0242378Z   type: 'test'
+2026-10-15T14:56:51.0242587Z   ...
+2026-10-15T14:56:51.0243006Z # Subtest: cursor cleanup rejects reentry and leaves the outer session usable
+2026-10-15T14:56:51.0243600Z ok 11 - cursor cleanup rejects reentry and leaves the outer session usable
+2026-10-15T14:56:51.0244264Z   ---
+2026-10-15T14:56:51.0244480Z   duration_ms: 0.780025
+2026-10-15T14:56:51.0244720Z   type: 'test'
+2026-10-15T14:56:51.0244919Z   ...
+2026-10-15T14:56:51.0245356Z # Subtest: unsupported persistence rejects before cloning or opening an iterator
+2026-10-15T14:56:51.0245995Z ok 12 - unsupported persistence rejects before cloning or opening an iterator
+2026-10-15T14:56:51.0246375Z   ---
+2026-10-15T14:56:51.0246584Z   duration_ms: 0.563209
+2026-10-15T14:56:51.0246813Z   type: 'test'
+2026-10-15T14:56:51.0247003Z   ...
+2026-10-15T14:56:51.0300138Z # Subtest: fixture corpus explicitly dispatches to Rust and recovers after invalid UTF-8
+2026-10-15T14:56:51.0310128Z not ok 13 - fixture corpus explicitly dispatches to Rust and recovers after invalid UTF-8
+2026-10-15T14:56:51.0311213Z   ---
+2026-10-15T14:56:51.0311711Z   duration_ms: 14.806846
+2026-10-15T14:56:51.0312189Z   type: 'test'
+2026-10-15T14:56:51.0313242Z   location: '/home/runner/work/statelessness/statelessness/bindings/browser/test-v2.mjs:11:32'
+2026-10-15T14:56:51.0314265Z   failureType: 'testCodeFailure'
+2026-10-15T14:56:51.0316511Z   error: "Cannot find module '/home/runner/work/statelessness/statelessness/typescript/dist/core.js' imported from /home/runner/work/statelessness/statelessness/bindings/browser/v2-conformance.mjs"
+2026-10-15T14:56:51.0317971Z   code: 'ERR_MODULE_NOT_FOUND'
+2026-10-15T14:56:51.0318692Z   stack: |-
+2026-10-15T14:56:51.0319394Z     finalizeResolution (node:internal/modules/esm/resolve:275:11)
+2026-10-15T14:56:51.0320332Z     moduleResolve (node:internal/modules/esm/resolve:860:10)
+2026-10-15T14:56:51.0321187Z     defaultResolve (node:internal/modules/esm/resolve:984:11)
+2026-10-15T14:56:51.0322192Z     ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+2026-10-15T14:56:51.0323302Z     #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+2026-10-15T14:56:51.0324309Z     ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+2026-10-15T14:56:51.0325451Z     ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+2026-10-15T14:56:51.0326519Z     ModuleJob._link (node:internal/modules/esm/module_job:137:49)
+2026-10-15T14:56:51.0327095Z   ...
+2026-10-15T14:56:51.0327908Z # Subtest: Wasm memory growth during callbacks preserves copied buffers and result reads
+2026-10-15T14:56:51.0329343Z ok 14 - Wasm memory growth during callbacks preserves copied buffers and result reads
+2026-10-15T14:56:51.0330029Z   ---
+2026-10-15T14:56:51.0330385Z   duration_ms: 2.207477
+2026-10-15T14:56:51.0330781Z   type: 'test'
+2026-10-15T14:56:51.0331108Z   ...
+2026-10-15T14:56:51.0331988Z # Subtest: cooperative callback cancellation is resettable and clock limits fail explicitly
+2026-10-15T14:56:51.0333301Z ok 15 - cooperative callback cancellation is resettable and clock limits fail explicitly
+2026-10-15T14:56:51.0334049Z   ---
+2026-10-15T14:56:51.0334407Z   duration_ms: 1.540324
+2026-10-15T14:56:51.0334795Z   type: 'test'
+2026-10-15T14:56:51.0335131Z   ...
+2026-10-15T14:56:51.0335825Z # Subtest: packet strings preserve a leading Unicode byte-order mark
+2026-10-15T14:56:51.0336825Z ok 16 - packet strings preserve a leading Unicode byte-order mark
+2026-10-15T14:56:51.0337409Z   ---
+2026-10-15T14:56:51.0337765Z   duration_ms: 0.542489
+2026-10-15T14:56:51.0338362Z   type: 'test'
+2026-10-15T14:56:51.0338692Z   ...
+2026-10-15T14:56:51.0339308Z # Subtest: native result text preserves leading BOM code points
+2026-10-15T14:56:51.0340171Z ok 17 - native result text preserves leading BOM code points
+2026-10-15T14:56:51.0340781Z   ---
+2026-10-15T14:56:51.0341139Z   duration_ms: 0.322085
+2026-10-15T14:56:51.0341525Z   type: 'test'
+2026-10-15T14:56:51.0341885Z   ...
+2026-10-15T14:56:51.0412348Z 1..17
+2026-10-15T14:56:51.0419174Z # tests 17
+2026-10-15T14:56:51.0419724Z # suites 0
+2026-10-15T14:56:51.0420075Z # pass 16
+2026-10-15T14:56:51.0420402Z # fail 1
+2026-10-15T14:56:51.0420730Z # cancelled 0
+2026-10-15T14:56:51.0421078Z # skipped 0
+2026-10-15T14:56:51.0421663Z # todo 0
+2026-10-15T14:56:51.0421900Z # duration_ms 123.570706
+2026-10-15T14:56:51.0512119Z ##[error]Process completed with exit code 1.
+2026-10-15T14:56:51.0640626Z ##[group]Run actions/upload-artifact@v4
+2026-10-15T14:56:51.0640924Z with:
+2026-10-15T14:56:51.0641133Z   name: abi-v2-runtime-ubuntu-22.04
+2026-10-15T14:56:51.0641663Z   path: target/abi-v2/
+/home/runner/work/_temp/abi-v2-installed/*.json
+/home/runner/work/_temp/abi-v2-installed/*.log
+
+2026-10-15T14:56:51.0642189Z   retention-days: 14
+2026-10-15T14:56:51.0642409Z   if-no-files-found: warn
+2026-10-15T14:56:51.0642641Z   compression-level: 6
+2026-10-15T14:56:51.0642850Z   overwrite: false
+2026-10-15T14:56:51.0643062Z   include-hidden-files: false
+2026-10-15T14:56:51.0643299Z env:
+2026-10-15T14:56:51.0643550Z   pythonLocation: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:51.0644126Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib/pkgconfig
+2026-10-15T14:56:51.0644570Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:51.0644962Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:51.0645374Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.13.16/x64
+2026-10-15T14:56:51.0645756Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.13.16/x64/lib
+2026-10-15T14:56:51.0646074Z ##[endgroup]
+2026-10-15T14:56:51.2488785Z (node:12595) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-15T14:56:51.2489662Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-15T14:56:51.2638751Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-15T14:56:51.2641179Z The least common ancestor is /home/runner/work. This will be the root directory of the artifact
+2026-10-15T14:56:51.2642401Z With the provided path, there will be 14 files uploaded
+2026-10-15T14:56:51.2643521Z Artifact name is valid!
+2026-10-15T14:56:51.2644414Z Root directory input is valid!
+2026-10-15T14:56:51.5815751Z Beginning upload of artifact content to blob storage
+2026-10-15T14:56:51.7249562Z (node:12595) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-15T14:56:52.2610423Z Uploaded bytes 1821527
+2026-10-15T14:56:52.3198450Z Finished uploading artifact content to blob storage!
+2026-10-15T14:56:52.3199391Z SHA256 digest of uploaded artifact zip is ae26e86d407a9a8ebfae9efe4a16891e58d87b98e0af440ff7ec9786d8bf6244
+2026-10-15T14:56:52.3201372Z Finalizing artifact upload
+2026-10-15T14:56:52.5692040Z Artifact abi-v2-runtime-ubuntu-22.04.zip successfully finalized. Artifact ID 11984140153
+2026-10-15T14:56:52.5693785Z Artifact abi-v2-runtime-ubuntu-22.04 has been successfully uploaded! Final size is 1821527 bytes. Artifact ID is 11984140153
+2026-10-15T14:56:52.5699217Z Artifact download URL: https://github.com/Jagalite/statelessness/actions/runs/38755650397/artifacts/11984140153
+2026-10-15T14:56:52.5913395Z Post job cleanup.
+2026-10-15T14:56:52.6873615Z [command]/usr/bin/git version
+2026-10-15T14:56:52.6954617Z git version 2.55.0
+2026-10-15T14:56:52.7003345Z Temporarily overriding HOME='/home/runner/work/_temp/cac3c23b-a0a6-42ac-984a-e1d977b6e019' before making global git config changes
+2026-10-15T14:56:52.7005109Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-15T14:56:52.7009690Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/statelessness/statelessness
+2026-10-15T14:56:52.7045605Z Removing SSH command configuration
+2026-10-15T14:56:52.7053027Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-15T14:56:52.7095295Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-15T14:56:52.7391969Z Removing HTTP extra header
+2026-10-15T14:56:52.7400091Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-15T14:56:52.7442564Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-15T14:56:52.7744799Z Removing includeIf entries pointing to credentials config files
+2026-10-15T14:56:52.7751963Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-15T14:56:52.7799246Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-15T14:56:52.8344959Z Cleaning up orphan processes
+2026-10-15T14:56:52.8645762Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/setup-go@v5, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

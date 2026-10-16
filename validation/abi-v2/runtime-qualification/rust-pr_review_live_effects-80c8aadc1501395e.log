@@ -1,0 +1,25 @@
+
+running 20 tests
+test abandoned_or_resolved_attempt_cannot_be_scheduled_as_a_retry ... ok
+test constructor_clock_failure_is_visible_without_inventing_an_epoch_start ... ok
+test concurrently_dropped_raw_clones_report_one_missing_endpoint ... ok
+test current_metrics_do_not_reuse_a_timestamp_from_before_new_observations ... ok
+test dropping_request_before_admission_keeps_the_missing_decision_visible ... ok
+test diagnostic_encoder_failure_preserves_actual_state_requested_outputs_and_dispatch ... ok
+test health_overflow_during_merge_is_atomic ... ok
+test foreign_future_adapter_cannot_write_another_observers_accounting ... ok
+test invalid_snapshot_clock_does_not_erase_the_previous_valid_watermark ... ok
+test last_raw_attempt_handle_loss_marks_running_evidence_incomplete ... ok
+test last_raw_delivery_handle_loss_marks_unobserved_publication_incomplete ... ok
+test merging_disjoint_producers_preserves_loss_health ... ok
+test pause_ack_with_staged_outputs_requires_new_authority_before_dispatch ... ok
+test integrated_actual_host_pause_cancellation_late_delivery_and_replay ... ok
+test rejected_admission_is_not_censored_pending_work ... ok
+test rejected_publication_and_finished_attempt_drops_do_not_invent_abandonment ... ok
+test retry_scheduled_during_pause_never_enters_production_histograms ... ok
+test safe_point_waits_for_every_reserved_output_across_disconnect ... ok
+test snapshot_timestamp_never_predates_a_concurrently_included_measurement ... ok
+test publication_commit_and_consumer_race_counts_boundaries_once ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+

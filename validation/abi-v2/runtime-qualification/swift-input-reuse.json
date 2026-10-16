@@ -1,0 +1,7 @@
+{
+  "previous_manifest": "validation/abi-v2/swift-final-package-inputs-pre-go-allowlist-fix.json",
+  "compilation_job": "7d6da8dc54144d1f8886999c85fc1288",
+  "checked_files": 25,
+  "mismatches": [],
+  "status": "passed"
+}

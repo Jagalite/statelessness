@@ -1,0 +1,14 @@
+{
+  "name": "installed-swift-v2-tests",
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/xctest",
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-installed-4402a1e/arm64-apple-macosx/debug/StatelessNativeV2PackageTests.xctest"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T14:56:43.096542+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.952900791016873,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/installed-swift-v2-tests.log",
+  "log_sha256": "90439d6b8bda9d8b08a577dba81df6d9a7490e6cea923513e19574b77fc089b1"
+}

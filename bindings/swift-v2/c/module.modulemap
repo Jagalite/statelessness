@@ -1,0 +1,4 @@
+module StatelessV2C {
+    header "shim.h"
+    export *
+}

@@ -12,6 +12,7 @@ use crate::model::{
     Check, EncodeBuffer, Enumerate, Generate, Model, ModelCodec, ModelError, ModelMetadata, Rng,
     Transition, TransitionRef,
 };
+use crate::operations::{EnumerateOps, InputCursor, InputIdentityOps, NativeOps};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AutoOptions {
@@ -177,32 +178,52 @@ impl<M: Enumerate> Generate for Auto<M> {
         state: &Self::State,
         rng: &mut Rng,
     ) -> Result<Option<Self::Input>, ModelError> {
-        let mut candidate_rng = rng.clone();
-        let mut selected = None;
-        let mut count = 0;
-        for input in self.model.input_iter(state)? {
-            count = next_count(count, self.options.max_candidates)?;
-            if count == 1 || candidate_rng.index(count) == Some(0) {
-                selected = Some(input);
-            }
-        }
-        *rng = candidate_rng;
-        Ok(selected)
+        generate_ops(&NativeOps::new(&self.model), state, rng, self.options)
     }
 
     /// Membership is checked in declared order and stops at the first match.
     /// Its candidate cap bounds the inspected prefix; a match within the cap
     /// does not require validating the size of the rest of the domain.
     fn is_enabled(&self, state: &Self::State, input: &Self::Input) -> Result<bool, ModelError> {
-        let mut count = 0;
-        for candidate in self.model.input_iter(state)? {
-            count = next_count(count, self.options.max_candidates)?;
-            if candidate == *input {
-                return Ok(true);
-            }
-        }
-        Ok(false)
+        is_enabled_ops(&NativeOps::new(&self.model), state, input, self.options)
     }
+}
+
+pub(crate) fn generate_ops<M: EnumerateOps>(
+    model: &M,
+    state: &M::State,
+    rng: &mut Rng,
+    options: AutoOptions,
+) -> Result<Option<M::Input>, ModelError> {
+    let mut candidate_rng = rng.clone();
+    let mut selected = None;
+    let mut count = 0;
+    let mut inputs = model.input_cursor(state)?;
+    while let Some(input) = inputs.next()? {
+        count = next_count(count, options.max_candidates)?;
+        if count == 1 || candidate_rng.index(count) == Some(0) {
+            selected = Some(input);
+        }
+    }
+    *rng = candidate_rng;
+    Ok(selected)
+}
+
+pub(crate) fn is_enabled_ops<M: EnumerateOps + InputIdentityOps>(
+    model: &M,
+    state: &M::State,
+    input: &M::Input,
+    options: AutoOptions,
+) -> Result<bool, ModelError> {
+    let mut count = 0;
+    let mut inputs = model.input_cursor(state)?;
+    while let Some(candidate) = inputs.next()? {
+        count = next_count(count, options.max_candidates)?;
+        if model.input_equal(&candidate, input)? {
+            return Ok(true);
+        }
+    }
+    Ok(false)
 }
 
 fn next_count(count: usize, maximum: usize) -> Result<usize, ModelError> {

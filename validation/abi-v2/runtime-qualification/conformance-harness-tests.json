@@ -1,0 +1,23 @@
+{
+  "name": "conformance-harness-tests",
+  "command": [
+    "env",
+    "PYTHONPATH=python/src",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "conformance",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:22:36.986782+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.3446711669676006,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/conformance-harness-tests.log",
+  "log_sha256": "250aff2dca5122410534ce45f637f7b7120d5bf5fd270caee972d74c7d591554"
+}

@@ -1,0 +1,12 @@
+
+running 7 tests
+test candidate_revalidation_respects_session_work_budget ... ok
+test cancel_preserves_terminal_property_failure ... ok
+test diagnostic_gap_invalidates_threshold_crossing_baseline ... ok
+test diagnostic_inspection_failure_invalidates_threshold_crossing_baseline ... ok
+test diagnostic_permission_entries_consume_configuration_budget ... ok
+test simulation_provenance_cannot_be_shadowed_by_user_config ... ok
+test minimization_honors_cancellation_raised_during_verification ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

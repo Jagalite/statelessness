@@ -1,0 +1,14 @@
+
+running 9 tests
+test borrowed_and_shared_property_ids_have_identical_identity ... ok
+test bounded_encoder_rejects_before_growth_and_keeps_errors_sticky ... ok
+test checker_error_preserves_already_recorded_evidence ... ok
+test capture_rejects_oversized_successor_and_exports_coherent_prefix ... ok
+test reusable_checking_preserves_order_capacity_and_clears_partial_errors ... ok
+test output_encoding_stops_at_cumulative_frame_budget ... ok
+test total_budget_terminates_before_export_would_fail ... ok
+test transition_checker_cannot_silently_discard_state_observations ... ok
+test terminal_property_failures_use_their_actual_footer_at_exact_byte_limit ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

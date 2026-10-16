@@ -1,0 +1,12 @@
+
+running 7 tests
+test effects::drop_tests::completed_effect_drop_does_not_report_an_unnecessary_contended_hook ... ok
+test effects::drop_tests::future_drop_never_blocks_and_reports_lost_hook ... ok
+test effects::drop_tests::last_effect_drop_never_blocks_and_marks_contended_accounting_unknown ... ok
+test effects::drop_tests::last_arc_drop_counts_once_under_concurrent_drops ... ok
+test effects::drop_tests::raw_attempt_drop_never_blocks_or_invents_termination ... ok
+test effects::drop_tests::raw_delivery_drop_never_blocks_or_invents_consumption ... ok
+test effects::drop_tests::rejected_snapshot_queries_preserve_revision_and_acknowledged_history ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

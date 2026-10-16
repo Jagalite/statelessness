@@ -1,0 +1,20 @@
+
+running 15 tests
+test callback_failure_after_partial_publication_and_boundary_probe_never_publish_success ... ok
+test cursor_cancellation_cannot_report_exhaustion_and_can_be_reset ... ok
+test automatic_generation_uses_shared_cursor_sampling_and_fails_on_incomplete_domains ... ok
+test endless_duplicate_simplifications_fail_instead_of_bypassing_work_limits ... ok
+test full_width_rng_and_trace_packet_conversion_match_the_shared_engine ... ok
+test ignored_builder_failures_are_sticky_and_partial_checks_are_not_results ... ok
+test fuzz_and_shrink_keep_owned_witnesses_and_use_semantic_input_callbacks ... ok
+test nested_runs_and_close_are_rejected_without_damaging_the_outer_session ... ok
+test observed_checks_preserve_supplied_values_and_never_call_initial_or_step ... ok
+test lazy_record_error_retains_a_coherent_prefix_and_exact_replay_uses_the_codec ... ok
+test ring_records_actual_transitions_and_exports_a_replayable_checkpoint ... ok
+test snapshot_witness_handles_outlive_result_and_close_releases_them_once ... ok
+test portable_record_limits_apply_before_commit_and_exclude_binary_provenance ... ok
+test v2_keeps_v1_and_negotiates_session_capabilities ... ok
+test wrong_thread_wrong_session_wrong_kind_and_stale_handles_are_rejected ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

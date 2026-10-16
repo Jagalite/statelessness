@@ -1,0 +1,10 @@
+
+running 5 tests
+test every_request_state_matches_handwritten_and_preserves_stale_delivery ... ok
+test exactly_once_partial_error_and_lazy_details ... ok
+test campaigns_use_generated_adapter ... ok
+test observing_generated_model_does_not_execute_reducer_again ... ok
+test macro_search_fuzz_shrink_guidance_and_replay ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

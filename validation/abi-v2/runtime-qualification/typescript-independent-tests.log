@@ -1,0 +1,38 @@
+✔ application classes, collision chains, and failure witnesses (2.021083ms)
+✔ record, portable JSON roundtrip, replay (2.206625ms)
+✔ observation does not invoke reducer (0.135708ms)
+✔ periodic and disabled checks remain visible (0.420375ms)
+✔ checker error discards partial batch (0.319708ms)
+✔ lazy iterator errors are model errors (0.335916ms)
+✔ depth boundary probes at most one candidate (0.189833ms)
+✔ initial callback error does not produce a trace (0.065209ms)
+✔ later callback error retains only coherent prefix (0.398167ms)
+✔ invalid codec results are model errors (0.315875ms)
+✔ canonical initial bytes are enforced (0.193708ms)
+✔ canonical input bytes are enforced (0.151ms)
+✔ replay never reconstructs the initial state (0.189375ms)
+✔ only explicit build mismatches may be bypassed (0.08825ms)
+✔ duplicate failure IDs and order are retained (0.069125ms)
+✔ mutable branches and caller-owned data stay independent (0.147625ms)
+✔ checker mutations cannot change application state or observations (0.049958ms)
+✔ codec buffers are owned copies including Node Buffer subclasses (0.217125ms)
+✔ invalid numeric work limits are rejected (0.192792ms)
+✔ zero random domain consumes no state (0.07675ms)
+✔ u64 bounds and vector (0.076ms)
+✔ native retention limits are enforced (0.118833ms)
+✔ JSON byte and aggregate limits (0.365125ms)
+✔ malformed JSON and scalars are not silently normalized (0.747209ms)
+✔ false termination and continuation after failures are rejected (0.189541ms)
+✔ reason strings and check details are exact Unicode scalars (0.096ms)
+✔ zero and exact step limits distinguish completed from bounded prefix (0.072959ms)
+✔ invalid checks do not become passing observations (0.34ms)
+✔ all trace entry points reject invalid custom limits before touching input (2.127041ms)
+✔ zero and exact custom trace limits remain valid (0.13825ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 124.030375

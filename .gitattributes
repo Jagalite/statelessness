@@ -6,3 +6,6 @@ go/** text eol=lf
 swift/** text eol=lf
 typescript/** text eol=lf
 Package.swift text eol=lf
+
+# Preserve captured compiler output byte-for-byte, including terminal whitespace.
+validation/abi-v2/**/*.log -text -whitespace

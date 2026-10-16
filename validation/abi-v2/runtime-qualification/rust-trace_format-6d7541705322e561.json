@@ -1,0 +1,14 @@
+{
+  "name": "rust-trace_format-6d7541705322e561",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/trace_format-6d7541705322e561",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:26.569924+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.5032144169672392,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-trace_format-6d7541705322e561.log",
+  "log_sha256": "98c2938b8fe1976867f380e0148cedeee410e259a53a23f8edf2007ce9c2bbae"
+}

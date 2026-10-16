@@ -1,0 +1,22 @@
+{
+  "name": "final-native-package-runtime",
+  "command": [
+    "python3",
+    "scripts/check-abi-v2-package.py",
+    "--package",
+    "target/bindings/native",
+    "--mode",
+    "runtime",
+    "--source-root",
+    ".",
+    "--report",
+    "validation/abi-v2/merge-qualification/native-package-runtime.json"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T14:58:33.862379+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.32069870800478384,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/final-native-package-runtime.log",
+  "log_sha256": "816dc65666ca974813a2b892d92321b65f252a45dc5ad57362149cd811aeaa6f"
+}

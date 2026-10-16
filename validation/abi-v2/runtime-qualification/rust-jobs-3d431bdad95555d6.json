@@ -1,0 +1,14 @@
+{
+  "name": "rust-jobs-3d431bdad95555d6",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/jobs-3d431bdad95555d6",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:20:58.034409+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.17844587500439957,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-jobs-3d431bdad95555d6.log",
+  "log_sha256": "df166913f47ff1f04202cae9b31df67ed272d692d99a0023a8117dc3029100dd"
+}

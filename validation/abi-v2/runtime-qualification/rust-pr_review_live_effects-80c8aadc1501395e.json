@@ -1,0 +1,14 @@
+{
+  "name": "rust-pr_review_live_effects-80c8aadc1501395e",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_live_effects-80c8aadc1501395e",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:00.171404+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.5472616250044666,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-pr_review_live_effects-80c8aadc1501395e.log",
+  "log_sha256": "57fb34055c283e604a0dee13e9bbc618e8344e02c7ddf9240d935f69f0393d54"
+}

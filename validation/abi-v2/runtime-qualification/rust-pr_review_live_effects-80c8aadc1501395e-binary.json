@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_live_effects-80c8aadc1501395e",
+  "sha256": "3234d35c6c7592a6648237332de294a0a660c909c7a101c597bddfde66861a93",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_live_effects",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/tests/pr_review_live_effects.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_live_effects-80c8aadc1501395e"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_live_effects-80c8aadc1501395e",
+    "fresh": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "rust-codecs-7bf12d978be5a036",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/codecs-7bf12d978be5a036",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:20:57.729939+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.17779754102230072,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-codecs-7bf12d978be5a036.log",
+  "log_sha256": "d5b4096abb8e41f0e091fe9dc2b126b2de2da25e920fbc94bb10c94289c39ad7"
+}

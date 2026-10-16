@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>ABI v2 browser conformance</title><pre id="result">Running...</pre><script type="module">
+import {createEngine} from '/bindings/browser/v2.mjs';
+import {conformanceBackend} from '/bindings/browser/v2-conformance.mjs';
+import {rawResponse} from '/typescript/dist/conformance.js';
+const canonical=x=>JSON.stringify(x&&typeof x==='object' ? Array.isArray(x)?x.map(v=>JSON.parse(canonical(v))):Object.fromEntries(Object.keys(x).sort().map(k=>[k,JSON.parse(canonical(x[k]))])):x);
+window.qualification=(async()=>{
+ const wasm=new Uint8Array(await (await fetch('./stateless_v2.wasm')).arrayBuffer());
+ const engine=await createEngine(wasm,{expectedSHA256:'484313d03addd658d69c6c3c3926a8a240f004862bf3509db662a63324fe7b15'}),backend=conformanceBackend(engine);
+ const cases=await (await fetch('./requests.json',{cache:'no-store'})).json(),failures=[];
+ for(const c of cases){const raw=Uint8Array.from(atob(c.raw)+'\n',ch=>ch.charCodeAt(0)); const actual=rawResponse(raw,backend);if(canonical(actual)!==canonical(c.expected))failures.push({id:c.id,actual,expected:c.expected});}
+ const hello=rawResponse(new TextEncoder().encode('{"version":1,"operation":"hello"}'),backend);
+ if(hello.engine_family!=='rust-shared'||engine.sessions.size!==0)failures.push({id:'engine-identity-or-session-cleanup'});
+ const report={status:failures.length?'failed':'passed',cases:cases.length,failures,artifact_sha256:engine.sha256,user_agent:navigator.userAgent,hello,retained_sessions:engine.sessions.size};
+ document.getElementById('result').textContent=JSON.stringify(report,null,2);return report;
+})().catch(error=>{const report={status:'failed',error:String(error),stack:error.stack};document.getElementById('result').textContent=JSON.stringify(report);return report;});
+</script>

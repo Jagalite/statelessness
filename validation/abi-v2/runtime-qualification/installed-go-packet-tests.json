@@ -1,0 +1,14 @@
+{
+  "name": "installed-go-packet-tests",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/go/installed-packet-4402a1e.test",
+    "-test.v"
+  ],
+  "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/distribution/go-v2",
+  "started_at": "2026-10-15T14:56:15.598472+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 3.2748958750162274,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/installed-go-packet-tests.log",
+  "log_sha256": "8e48b43a5e5782e34eee62095dc0499b00e588bdb1a770277e5d1aa66877c14d"
+}

@@ -50,6 +50,11 @@ application callbacks.
 
 ## Deferred work
 
+The [ABI v2 implementation status](docs/ABI-V2-STATUS.md) tracks the isolated
+shared engine, opt-in language adapters and their pending runtime qualification. The broader
+[architecture and migration plan](docs/ABI-V2-PLAN.md) keeps ABI 1 and native
+language APIs available while replacement capabilities are developed.
+
 Experimental ABI 1 source packages cover C, Swift and JavaScript recording,
 replay and enumeration. Foreign fuzzing/shrinking, live recording and additional
 platform qualification follow stabilization of the Rust API.

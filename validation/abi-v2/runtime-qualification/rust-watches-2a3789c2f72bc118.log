@@ -1,0 +1,21 @@
+
+running 16 tests
+test admission_authorization_redaction_and_unknown_paths_are_checked ... ok
+test boundary_reconfiguration_cannot_change_an_in_progress_generation ... ok
+test committed_boundary_watch_cannot_invent_internal_reverted_changes ... ok
+test disabled_and_static_filtered_paths_do_not_read_schema_or_payload ... ok
+test count_byte_baseline_and_failure_budgets_are_independent ... ok
+test explicit_snapshot_returns_type_and_does_not_replace_change_baseline ... ok
+test failure_annotation_is_bounded_and_cannot_hide_an_inspector_error ... ok
+test inspection_errors_are_diagnostic_and_preserve_metadata ... ok
+test lazy_post_turn_marker_skips_disabled_and_full_payloads ... ok
+test lifecycle_reenable_and_expiry_boundaries_are_explicit ... ok
+test live_identity_and_machine_changes_never_claim_cross_machine_change ... ok
+test matching_queries_are_shared_and_event_loss_does_not_reset_baselines ... ok
+test exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on ... ok
+test missing_observations_and_expired_baselines_start_unknown ... ok
+test sampled_evaluation_and_delivery_loss_have_different_meanings ... ok
+test schema_changes_pause_before_selected_value_access ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

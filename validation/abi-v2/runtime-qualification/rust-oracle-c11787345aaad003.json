@@ -1,0 +1,14 @@
+{
+  "name": "rust-oracle-c11787345aaad003",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/oracle-c11787345aaad003",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:25.505543+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.23828991601476446,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-oracle-c11787345aaad003.log",
+  "log_sha256": "9184d24364bf220b3ef3ba4660530b7a98adf557ba1e39899e3823c864b4bd8c"
+}

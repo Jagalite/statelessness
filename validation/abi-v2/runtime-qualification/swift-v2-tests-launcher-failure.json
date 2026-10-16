@@ -1,0 +1,17 @@
+{
+  "name": "swift-v2-tests",
+  "command": [
+    "env",
+    "DYLD_LIBRARY_PATH=/Volumes/seed2/Projects/stateless-abi-v2/target/bindings/native/lib",
+    "xcrun",
+    "xctest",
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2-final-package/arm64-apple-macosx/debug/StatelessNativeV2PackageTests.xctest"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:19:15.312353+00:00",
+  "status": "failed",
+  "exit_code": 83,
+  "seconds": 1.229518125008326,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/swift-v2-tests.log",
+  "log_sha256": "b05e728ebafb6be9ff3adca19004b7b1ec6cb8f1d08724fd6e423fe716edce88"
+}

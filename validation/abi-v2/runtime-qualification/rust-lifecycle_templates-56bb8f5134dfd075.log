@@ -1,0 +1,10 @@
+
+running 5 tests
+test bounded_history_persistence_and_observation_error ... ok
+test missing_duplicate_stale_and_resource_faults ... ok
+test overdue_cancellation_cannot_erase_a_missed_deadline ... ok
+test past_due_creation_cannot_be_hidden_by_immediate_cancellation ... ok
+test restored_overdue_history_is_a_failure_without_reconstructed_events ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

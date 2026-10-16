@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/inspect_derive-5cdcd9d2263b305c",
+  "sha256": "ea4a39079da84e933a3efd066ac86146e43d852a60bd9596640ecce936efdc6b",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "inspect_derive",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/tests/inspect_derive.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/inspect_derive-5cdcd9d2263b305c"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/inspect_derive-5cdcd9d2263b305c",
+    "fresh": true
+  }
+}

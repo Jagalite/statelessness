@@ -1,0 +1,81 @@
+[
+  {
+    "id": "@jagalite/stateless@0.2.0",
+    "name": "@jagalite/stateless",
+    "version": "0.2.0",
+    "size": 319495,
+    "unpackedSize": 988733,
+    "shasum": "0151b869868fda19870535ee0c1f5e3d7f8308d5",
+    "integrity": "sha512-Of+TRtohnMs/HMpeiP12xPBw/x2caFJNTjiU27ihjMHnE4Y7lZ4RusyLbyBY0qqtKaHzXwIDV9NRGs3RK4EjFA==",
+    "filename": "jagalite-stateless-0.2.0.tgz",
+    "files": [
+      {
+        "path": "LICENSE",
+        "size": 1068,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 3006,
+        "mode": 420
+      },
+      {
+        "path": "engine-build.json",
+        "size": 1769,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 749,
+        "mode": 420
+      },
+      {
+        "path": "stateless_v2.wasm",
+        "size": 464577,
+        "mode": 448
+      },
+      {
+        "path": "stateless.mjs",
+        "size": 9134,
+        "mode": 420
+      },
+      {
+        "path": "stateless.wasm",
+        "size": 463897,
+        "mode": 448
+      },
+      {
+        "path": "v2-json.mjs",
+        "size": 9730,
+        "mode": 384
+      },
+      {
+        "path": "v2-packet.mjs",
+        "size": 3828,
+        "mode": 420
+      },
+      {
+        "path": "v2-values.mjs",
+        "size": 1703,
+        "mode": 420
+      },
+      {
+        "path": "v2.d.mts",
+        "size": 25,
+        "mode": 420
+      },
+      {
+        "path": "v2.d.ts",
+        "size": 5449,
+        "mode": 420
+      },
+      {
+        "path": "v2.mjs",
+        "size": 23798,
+        "mode": 420
+      }
+    ],
+    "entryCount": 13,
+    "bundled": []
+  }
+]

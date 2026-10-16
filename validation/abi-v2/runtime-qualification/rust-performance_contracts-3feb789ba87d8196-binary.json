@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/performance_contracts-3feb789ba87d8196",
+  "sha256": "11d6ae470a84696e814756cd025d0d57e7b0d1884ab57fde462710b5d17f6aca",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "performance_contracts",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/tests/performance_contracts.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/performance_contracts-3feb789ba87d8196"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/performance_contracts-3feb789ba87d8196",
+    "fresh": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "rust-watches-2a3789c2f72bc118",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/watches-2a3789c2f72bc118",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:14.469090+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.28968066698871553,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-watches-2a3789c2f72bc118.log",
+  "log_sha256": "08f32b4426415053fd7ca556cf80cded3d3701fe7f652b81c33a8f00020093a2"
+}

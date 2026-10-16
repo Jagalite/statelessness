@@ -1,0 +1,14 @@
+{
+  "name": "rust-composition-5d519e05dac2cce3",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/composition-5d519e05dac2cce3",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:25.832458+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.18426979100331664,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-composition-5d519e05dac2cce3.log",
+  "log_sha256": "16d88436bb69e539f2230313a2be1f810e4fc35ea6e4ec686638d33f528ba64d"
+}

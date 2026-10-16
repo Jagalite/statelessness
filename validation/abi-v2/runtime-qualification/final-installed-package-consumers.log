@@ -1,0 +1,121 @@
+{
+  "schema": "stateless.abi-v2-installed.v1",
+  "checks": [
+    {
+      "name": "wheel-build",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-build-isolation",
+        "--no-deps",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/distribution/python",
+        "--wheel-dir",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/wheels"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7",
+      "exit_code": 0,
+      "log_sha256": "ed362cb62449f16618bebe23962c42f71a37f93c53ec22bf0e6473cc36770c50"
+    },
+    {
+      "name": "wheel-install",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/wheels/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7",
+      "exit_code": 0,
+      "log_sha256": "71392733fc4d8f46627c1629665ee24e9b1d941ba9410e4422e150bb941458b6"
+    },
+    {
+      "name": "wheel-origin",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/venv/bin/python",
+        "-I",
+        "-c",
+        "import statelessness; from pathlib import Path; assert Path('/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7') in Path(statelessness.__file__).parents; print(statelessness.__file__)"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7",
+      "exit_code": 0,
+      "log_sha256": "776d3a6d8eeaee09e4220dd12f894796b756e8b4d54502efe0a48fd7948425a9"
+    },
+    {
+      "name": "installed-python-tests",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/venv/bin/python",
+        "-I",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/Volumes/seed2/Projects/stateless-abi-v2/python/tests",
+        "-v"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7",
+      "exit_code": 0,
+      "log_sha256": "0212fb807a79e5aac1f453f221092ddbdd1ddddf0dba1249b52b10dbbf287762"
+    },
+    {
+      "name": "npm-pack",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "pack",
+        "--offline",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/distribution/browser",
+      "exit_code": 0,
+      "log_sha256": "82fcc8ec9df933c5c673063872f62094276c3722555bcab99d56bf7d95eefdef"
+    },
+    {
+      "name": "npm-install",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "install",
+        "--offline",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/jagalite-stateless-0.2.0.tgz"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "a429c20d02023fa0724defe9acbd4382444c2e972fd35aecbdc7b59bcde95228"
+    },
+    {
+      "name": "installed-node-record",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "check.mjs",
+        "record"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "63d73d3430c1499c94529b9fcaf0174973c6ff2b74a9372d2394a2effd8d8c7c"
+    },
+    {
+      "name": "installed-node-fresh-replay",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "check.mjs",
+        "replay"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-39399e7/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "1723a451ae949fb15c22a583f588e47f172871c82686c15980f3e359e9f8592f"
+    }
+  ],
+  "status": "passed",
+  "native_library_sha256": "7582a8dca53dd24228a8d7397e155453bf06e158b07ed1aecf6d270c54b40cad",
+  "wheel_sha256": "be199a7e19386ea3b12fb46334d36409646a4e2885072af9da995e47239fc05f",
+  "npm_archive_sha256": "e9e5ce0784df14cba5d9919e7eb1489d4b2c97b9987d6cb36525e1a86a61d718"
+}

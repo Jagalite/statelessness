@@ -41,6 +41,47 @@ class Bundles(unittest.TestCase):
         self.assertFalse((stage / "swift/swift/Sources/private-notes.swift").exists())
         self.assertFalse((stage / "swift/c/.DS_Store").exists())
 
+    def test_v2_is_an_explicit_additive_distribution(self):
+        self.stage()
+        self.write("source/bindings/c/stateless_v2.h")
+        self.write("source/docs/ABI-V2.md")
+        for name in builder["PYTHON_FILES"]:
+            self.write("source/python/" + name)
+        for name in builder["BROWSER_V2_FILES"]:
+            self.write("source/bindings/browser/" + name)
+        for name in builder["SWIFT_V2_FILES"]:
+            self.write("source/bindings/swift-v2/" + name)
+        self.write("source/bindings/swift-v2/Package.swift", '.package(name: "Statelessness", path: "../..")')
+        for name in builder["PORTABLE_SWIFT_FILES"]:
+            self.write("source/" + name)
+        for name in builder["GO_V2_FILES"]:
+            self.write("source/bindings/go/v2/" + name)
+        self.write("source/bindings/go/go.mod", "module github.com/Jagalite/statelessness/bindings/go\n\ngo 1.24\n")
+        self.write("source/bindings/go/v2/bridge.h", '#include "../../c/stateless_v2.h"')
+        stage = self.root / "v2-stage"
+        components = builder["stage_sources"](self.root / "source", stage, "all", "9.8.7", True)
+        metadata = json.loads((stage / "browser/package.json").read_text())
+        self.assertEqual(metadata["exports"]["./v2"], {"types": "./v2.d.ts", "import": "./v2.mjs"})
+        self.assertIn("python", components)
+        self.assertTrue((stage / "native/include/stateless.h").exists())
+        self.assertTrue((stage / "native/include/stateless_v2.h").exists())
+        self.assertTrue((stage / "python/src/statelessness/native.py").exists())
+        self.assertIn('path: "../portable-swift"', (stage / "swift-v2/Package.swift").read_text())
+        self.assertIn('#include "stateless_v2.h"', (stage / "swift-v2/c/shim.h").read_text())
+        self.assertTrue((stage / "portable-swift/swift/Sources/StatelessConformance/Conformance.swift").exists())
+        self.assertIn('#include "../include/stateless_v2.h"', (stage / "go-v2/v2/bridge.h").read_text())
+        self.assertTrue((stage / "go-v2/include/stateless_v2.h").exists())
+        self.assertFalse((self.root / "stage/native/include/stateless_v2.h").exists())
+
+    def test_native_rebuild_retires_only_previously_managed_optional_sources(self):
+        stage, _ = self.stage()
+        self.write("output/python/old-native.py")
+        self.write("output/local-notes/keep")
+        self.write("output/manifest-native.json", json.dumps({"components": ["native", "swift", "python"]}))
+        builder["publish"](stage, self.root / "output", ["native", "swift"], "native", "9.8.7", "host")
+        self.assertFalse((self.root / "output/python").exists())
+        self.assertTrue((self.root / "output/local-notes/keep").exists())
+
     def test_full_publish_removes_obsolete_files_and_partial_manifests(self):
         stage, components = self.stage()
         self.write("output/swift/swift/Sources/obsolete.swift")

@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/diagnostic_controller_model-ad0b8b3e8fe60971",
+  "sha256": "28654b02ecaa45933c7c35741a1c821be9fd653e8091e03ad1c063a708d341b8",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "diagnostic_controller_model",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/tests/diagnostic_controller_model.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/diagnostic_controller_model-ad0b8b3e8fe60971"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/diagnostic_controller_model-ad0b8b3e8fe60971",
+    "fresh": true
+  }
+}

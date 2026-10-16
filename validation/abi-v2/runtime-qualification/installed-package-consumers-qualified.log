@@ -1,0 +1,121 @@
+{
+  "schema": "stateless.abi-v2-installed.v1",
+  "checks": [
+    {
+      "name": "wheel-build",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-packaging-venv/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-build-isolation",
+        "--no-deps",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/distribution/python",
+        "--wheel-dir",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/wheels"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified",
+      "exit_code": 0,
+      "log_sha256": "929cf8a2ac79869917581e9e20fa086e4495f5a8e1de61f80c69d9e7d31feff2"
+    },
+    {
+      "name": "wheel-install",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/wheels/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified",
+      "exit_code": 0,
+      "log_sha256": "71392733fc4d8f46627c1629665ee24e9b1d941ba9410e4422e150bb941458b6"
+    },
+    {
+      "name": "wheel-origin",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/venv/bin/python",
+        "-I",
+        "-c",
+        "import statelessness; from pathlib import Path; assert Path('/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified') in Path(statelessness.__file__).parents; print(statelessness.__file__)"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified",
+      "exit_code": 0,
+      "log_sha256": "95859385e9d470301a4373fd578043ee83b8f574d3bd1b65adedbddf34d17b21"
+    },
+    {
+      "name": "installed-python-tests",
+      "command": [
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/venv/bin/python",
+        "-I",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/Volumes/seed2/Projects/stateless-abi-v2/python/tests",
+        "-v"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified",
+      "exit_code": 0,
+      "log_sha256": "f8b47b8ad23e423f016b1a75a064b3a75051d2e0337c3d81a9125667332bda6c"
+    },
+    {
+      "name": "npm-pack",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "pack",
+        "--offline",
+        "--ignore-scripts",
+        "--json",
+        "--pack-destination",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/distribution/browser",
+      "exit_code": 0,
+      "log_sha256": "705530b0bfc33fea9d1a9f3f4f1d3cda25064cf5a0bf1c5f99b8224981ceb586"
+    },
+    {
+      "name": "npm-install",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "install",
+        "--offline",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/jagalite-stateless-0.2.0.tgz"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "08ddf41bb96873d9db1b55fb2b623024b5f84383093df7ff6e81c2bb7a0dcc5d"
+    },
+    {
+      "name": "installed-node-record",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "check.mjs",
+        "record"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "63d73d3430c1499c94529b9fcaf0174973c6ff2b74a9372d2394a2effd8d8c7c"
+    },
+    {
+      "name": "installed-node-fresh-replay",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "check.mjs",
+        "replay"
+      ],
+      "cwd": "/Volumes/seed1/Projects/stateless-abi-v2-installed-4402a1e-qualified/node-consumer",
+      "exit_code": 0,
+      "log_sha256": "1723a451ae949fb15c22a583f588e47f172871c82686c15980f3e359e9f8592f"
+    }
+  ],
+  "status": "passed",
+  "native_library_sha256": "7582a8dca53dd24228a8d7397e155453bf06e158b07ed1aecf6d270c54b40cad",
+  "wheel_sha256": "8630c19a4f6c0691a8b023c963ebd3ab89a2b842e96526b7bc1d54e68db5eb1c",
+  "npm_archive_sha256": "838fad64a992184dc5f74649ba4dbce8b5d606ea8ecd66747ab41a100f40edb7"
+}

@@ -1,5 +1,11 @@
 # Installation and support status
 
+ABI v2 is an explicit opt-in development surface. The
+[distribution guide](docs/ABI-V2-DISTRIBUTION.md) documents additive packages,
+source-bound build receipts and pending qualification. Independent language
+backends and ABI 1 remain available. Compile-only checks, staged artifacts and
+configured workflow jobs do not qualify v2 runtime behavior or performance.
+
 Stateless is pre-1.0: API stability is not yet promised across minor versions.
 The Rust library is the complete interface; binding packages expose the ABI 1
 subset. A release qualifies the documented operations on the tested platforms;

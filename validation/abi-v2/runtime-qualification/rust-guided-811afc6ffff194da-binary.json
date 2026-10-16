@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/guided-811afc6ffff194da",
+  "sha256": "8cc36a56a4e7f43b1b4b58feabf6282ef26d2214f14a33cc9e035fedee9aed72",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "guided",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/tests/guided.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/guided-811afc6ffff194da"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/guided-811afc6ffff194da",
+    "fresh": true
+  }
+}

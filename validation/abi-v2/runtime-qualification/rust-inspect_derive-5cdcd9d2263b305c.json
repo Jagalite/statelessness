@@ -1,0 +1,14 @@
+{
+  "name": "rust-inspect_derive-5cdcd9d2263b305c",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/inspect_derive-5cdcd9d2263b305c",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:00.980623+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.47793891601031646,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-inspect_derive-5cdcd9d2263b305c.log",
+  "log_sha256": "1ca6cc6a75d2bd3b8182d2d7655fc569e104386f1d786f39b8036d4082adc9dd"
+}

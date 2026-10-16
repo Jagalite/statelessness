@@ -1,0 +1,14 @@
+{
+  "name": "rust-cli-5c93822d5b3f419c",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/cli-5c93822d5b3f419c",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:20.179102+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.167102082981728,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-cli-5c93822d5b3f419c.log",
+  "log_sha256": "d5087360e140df9dbcc88872c518387f6c312893a8daec6865af1486eadfa827"
+}

@@ -1,0 +1,18 @@
+test_compilation_cannot_satisfy_a_runtime_gate (test_binding_evidence.Evidence.test_compilation_cannot_satisfy_a_runtime_gate) ... ok
+test_different_artifact_receipts_cannot_be_combined (test_binding_evidence.Evidence.test_different_artifact_receipts_cannot_be_combined) ... ok
+test_failed_build_cannot_be_attested (test_binding_evidence.Evidence.test_failed_build_cannot_be_attested) ... ok
+test_failed_gate_cannot_be_hidden_by_another_pass (test_binding_evidence.Evidence.test_failed_gate_cannot_be_hidden_by_another_pass) ... ok
+test_load_rejects_missing_or_wrong_bytes_before_any_dynamic_loading (test_binding_evidence.Evidence.test_load_rejects_missing_or_wrong_bytes_before_any_dynamic_loading) ... ok
+test_missing_runtime_gates_cannot_become_a_ready_default (test_binding_evidence.Evidence.test_missing_runtime_gates_cannot_become_a_ready_default) ... ok
+test_missing_symbols_and_wrong_versions_fail_explicitly (test_binding_evidence.Evidence.test_missing_symbols_and_wrong_versions_fail_explicitly) ... ok
+test_package_inspection_rejects_escaping_and_tampered_files (test_binding_evidence.Evidence.test_package_inspection_rejects_escaping_and_tampered_files) ... ok
+test_performance_requires_complete_executed_matrix_and_comparable_inputs (test_binding_evidence.Evidence.test_performance_requires_complete_executed_matrix_and_comparable_inputs) ... ok
+test_prebuilt_staging_requires_both_source_and_binary_identity (test_binding_evidence.Evidence.test_prebuilt_staging_requires_both_source_and_binary_identity) ... ok
+test_snapshot_inventory_cannot_be_changed_without_its_digest (test_binding_evidence.Evidence.test_snapshot_inventory_cannot_be_changed_without_its_digest) ... ok
+test_unsupported_independent_baseline_is_not_filled_with_fake_measurements (test_binding_evidence.Evidence.test_unsupported_independent_baseline_is_not_filled_with_fake_measurements) ... ok
+test_wasm_metadata_distinguishes_legacy_and_v2_host_imports (test_binding_evidence.Evidence.test_wasm_metadata_distinguishes_legacy_and_v2_host_imports) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.012s
+
+OK

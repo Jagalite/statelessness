@@ -1,0 +1,8 @@
+
+running 3 tests
+test registry_collisions_are_errors_and_prior_checks_survive ... ok
+test delayed_delivery_cancellation_namespaces_and_replay ... ok
+test routing_matches_handwritten_for_bounded_interleavings ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

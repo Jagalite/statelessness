@@ -159,6 +159,10 @@ def main():
         records = [(case, response["trace"]) for case, response in zip(cases, actual)
                    if case["request"]["operation"] == "record" and "trace" in response]
         recordings.append((hello["implementation"], records))
+        hello.setdefault("engine_family", {"rust": "rust-shared",
+                         "python": "python-independent", "go": "go-independent",
+                         "swift": "swift-independent", "typescript": "typescript-independent"}
+                         .get(hello["implementation"], "unattributed"))
         summaries.append(dict(**hello, command=command, golden_cases=len(golden), generated_graphs=len(generated),
                               metamorphic_cases=len(reordered), portability_cases=len(portable_cases), transport_cases=len(transport), failures=len(local_failures)))
         failures.extend(dict(implementation=hello["implementation"], **f) for f in local_failures)
@@ -179,6 +183,9 @@ def main():
     result = dict(spec_version=corpus["spec_version"], corpus_sha256=hashlib.sha256(corpus_bytes).hexdigest(),
                   portability_sha256=hashlib.sha256((ROOT / "portability.py").read_bytes()).hexdigest(),
                   source_commit=os.environ.get("GITHUB_SHA"), implementations=summaries,
+                  engine_families=sorted({s["engine_family"] for s in summaries}),
+                  independent_engine_count=len({s["engine_family"] for s in summaries} - {"unattributed"}),
+                  engine_attribution="runner-declared; unknown runners are not counted as independent",
                   fresh_process_replays=cross_count, elapsed_seconds=round(time.monotonic()-started, 3),
                   failures=failures)
     rendered = json.dumps(result, indent=2)

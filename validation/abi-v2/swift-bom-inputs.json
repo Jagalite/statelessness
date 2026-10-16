@@ -1,0 +1,24 @@
+{
+  "files": {
+    "Package.swift": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+    "bindings/c/stateless_v2.h": "2bf0c5641945afb55c1e0910ef5d56de8b8ad1a32dcfe1859ee396cdc0f947dc",
+    "bindings/swift-v2/Benchmarks/main.swift": "ee5072e8428fd62e157399d3dcf0e7e0147216a7de57c67b02a9acbba87bdda5",
+    "bindings/swift-v2/Corpus/main.swift": "04ce9c3b5b8aa47e62bbaa16c5ea094e1cde131a070df42ba094273c9783950c",
+    "bindings/swift-v2/Package.swift": "2ad2367749e48fbe074762749b4611d6710d5ebf55a7315b20aaf544a45fbed8",
+    "bindings/swift-v2/README.md": "3a6f7065f19ae95b9281f92a3aaba89d88939b4123b8e978922778d945589fa3",
+    "bindings/swift-v2/Sources/Native.swift": "39a7bbdb991d3bfbc6a3eb55eefb32aa8741dd4fd2e732f1a0301cb29a0541b6",
+    "bindings/swift-v2/Sources/Packet.swift": "b00ebf8948705e18979c2bbc24df3c91f44f1ad12890ded2b04eba2ef89869b3",
+    "bindings/swift-v2/Tests/NativeV2Tests.swift": "b7717b1022708a8b212090b8c45e91bb094210739fa5d511f7d939a916cf3295",
+    "bindings/swift-v2/c/module.modulemap": "5eb2fb836526c2ad4c665957fae4519cedd5dad5946080a5287d6753fc0a45d8",
+    "bindings/swift-v2/c/shim.h": "1c94aea9e1e15d67518bbe7ecbf9cb2399f1a7416c0be647a693e2fb434cbb27",
+    "swift/Sources/StatelessConformance/Conformance.swift": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "swift/Sources/StatelessCorpus/main.swift": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+    "swift/Sources/Statelessness/Execution.swift": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21",
+    "swift/Sources/Statelessness/Explore.swift": "1ef67359ed5094aa59d67b45c1a15b4e140b559478853e3cfac4d95c2285d235",
+    "swift/Sources/Statelessness/JSON.swift": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "swift/Sources/Statelessness/Model.swift": "66fe702f4c31fe6edad6e23fd41b1e55ed47498ecc3b46aa548592913e45c169",
+    "swift/Sources/Statelessness/Rng.swift": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "swift/Sources/Statelessness/TraceJSON.swift": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
+  },
+  "scope": "Swift exact UTF-8 text follow-up; awaiting compile-only job f846343a85d44489b490ff1bfdcb4886"
+}

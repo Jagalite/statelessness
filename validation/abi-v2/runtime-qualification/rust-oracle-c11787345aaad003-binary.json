@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/oracle-c11787345aaad003",
+  "sha256": "f11e51813961ac9d9464f4173d34541d6d212332b9744df30a29f8e0c5f1446f",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "oracle",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/tests/oracle.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/oracle-c11787345aaad003"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/oracle-c11787345aaad003",
+    "fresh": true
+  }
+}

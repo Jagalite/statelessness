@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/ffi_v2-41344f90621c1e7a",
+  "sha256": "8cb148e41dbbea39f27766290b733b4eca07912b3b1dee5687ef28131934f157",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2#statelessness@0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "ffi_v2",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/tests/ffi_v2.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/ffi_v2-41344f90621c1e7a"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/ffi_v2-41344f90621c1e7a",
+    "fresh": true
+  }
+}

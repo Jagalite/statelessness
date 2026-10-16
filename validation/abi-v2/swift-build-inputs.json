@@ -1,0 +1,50 @@
+{
+  "files": {
+    "Package.swift": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+    "bindings/c/stateless_v2.h": "2bf0c5641945afb55c1e0910ef5d56de8b8ad1a32dcfe1859ee396cdc0f947dc",
+    "bindings/swift-v2/Benchmarks/main.swift": "ee5072e8428fd62e157399d3dcf0e7e0147216a7de57c67b02a9acbba87bdda5",
+    "bindings/swift-v2/Corpus/main.swift": "04ce9c3b5b8aa47e62bbaa16c5ea094e1cde131a070df42ba094273c9783950c",
+    "bindings/swift-v2/Package.swift": "2ad2367749e48fbe074762749b4611d6710d5ebf55a7315b20aaf544a45fbed8",
+    "bindings/swift-v2/README.md": "3a6f7065f19ae95b9281f92a3aaba89d88939b4123b8e978922778d945589fa3",
+    "bindings/swift-v2/Sources/Native.swift": "0000e746246de119c9d99358d418d91ac2c820cc48c2666f563b18fe222b57a4",
+    "bindings/swift-v2/Sources/Packet.swift": "147e658eed0174230ad3a8cc199b388a56b11f99cadc4f176e2faee850f54703",
+    "bindings/swift-v2/Tests/NativeV2Tests.swift": "af8df7fb60caccb7fb80d94698b8efd6b64669a6e020bda2f153d594a977539c",
+    "bindings/swift-v2/c/module.modulemap": "5eb2fb836526c2ad4c665957fae4519cedd5dad5946080a5287d6753fc0a45d8",
+    "bindings/swift-v2/c/shim.h": "1c94aea9e1e15d67518bbe7ecbf9cb2399f1a7416c0be647a693e2fb434cbb27",
+    "swift/Sources/StatelessConformance/Conformance.swift": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "swift/Sources/StatelessCorpus/main.swift": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+    "swift/Sources/Statelessness/Execution.swift": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21",
+    "swift/Sources/Statelessness/Explore.swift": "1ef67359ed5094aa59d67b45c1a15b4e140b559478853e3cfac4d95c2285d235",
+    "swift/Sources/Statelessness/JSON.swift": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "swift/Sources/Statelessness/Model.swift": "66fe702f4c31fe6edad6e23fd41b1e55ed47498ecc3b46aa548592913e45c169",
+    "swift/Sources/Statelessness/Rng.swift": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "swift/Sources/Statelessness/TraceJSON.swift": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
+  },
+  "libraries": {
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/libstateless.a": "959c8b84efb67b2c0d9510e0be273228185e7398e68435b93fe7e0109dda2165",
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/libstateless.dylib": "ce5ccb653eaf0b9bc8fabe127a7263617400391c34263d4c6e20e27ea753ba08"
+  },
+  "relocated_source_files": {
+    "portable-swift/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "portable-swift/Package.swift": "79e683b227caa5fa4a3a5c736c066d9fd6b773042a4d080841d7ebf7f3838972",
+    "portable-swift/swift/Sources/StatelessConformance/Conformance.swift": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "portable-swift/swift/Sources/Statelessness/Execution.swift": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21",
+    "portable-swift/swift/Sources/Statelessness/Explore.swift": "1ef67359ed5094aa59d67b45c1a15b4e140b559478853e3cfac4d95c2285d235",
+    "portable-swift/swift/Sources/Statelessness/JSON.swift": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "portable-swift/swift/Sources/Statelessness/Model.swift": "66fe702f4c31fe6edad6e23fd41b1e55ed47498ecc3b46aa548592913e45c169",
+    "portable-swift/swift/Sources/Statelessness/Rng.swift": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "portable-swift/swift/Sources/Statelessness/TraceJSON.swift": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+    "swift-v2/Benchmarks/main.swift": "ee5072e8428fd62e157399d3dcf0e7e0147216a7de57c67b02a9acbba87bdda5",
+    "swift-v2/Corpus/main.swift": "04ce9c3b5b8aa47e62bbaa16c5ea094e1cde131a070df42ba094273c9783950c",
+    "swift-v2/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "swift-v2/Package.swift": "0d108c36a1db0beff161420806b4f01e9d048f867d8ca6fb70423ba6a8cb0241",
+    "swift-v2/README.md": "3a6f7065f19ae95b9281f92a3aaba89d88939b4123b8e978922778d945589fa3",
+    "swift-v2/Sources/Native.swift": "0000e746246de119c9d99358d418d91ac2c820cc48c2666f563b18fe222b57a4",
+    "swift-v2/Sources/Packet.swift": "147e658eed0174230ad3a8cc199b388a56b11f99cadc4f176e2faee850f54703",
+    "swift-v2/Tests/NativeV2Tests.swift": "af8df7fb60caccb7fb80d94698b8efd6b64669a6e020bda2f153d594a977539c",
+    "swift-v2/c/module.modulemap": "5eb2fb836526c2ad4c665957fae4519cedd5dad5946080a5287d6753fc0a45d8",
+    "swift-v2/c/shim.h": "b181a7e4430802fd5a9d6849cccc447289fc3b23761880155cd90876e4f68740",
+    "swift-v2/c/stateless_v2.h": "2bf0c5641945afb55c1e0910ef5d56de8b8ad1a32dcfe1859ee396cdc0f947dc"
+  },
+  "scope": "Final Swift source and relocated-package compilation inputs; runtime pending"
+}

@@ -1,0 +1,7 @@
+=== RUN   TestRejectMalformed
+--- PASS: TestRejectMalformed (0.00s)
+=== RUN   TestSurrogatesAndLiteralBackslash
+--- PASS: TestSurrogatesAndLiteralBackslash (0.00s)
+=== RUN   TestBooleanNotInteger
+--- PASS: TestBooleanNotInteger (0.00s)
+PASS

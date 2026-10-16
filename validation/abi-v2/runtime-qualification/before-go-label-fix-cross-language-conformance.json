@@ -1,0 +1,28 @@
+{
+  "name": "cross-language-conformance",
+  "command": [
+    "python3",
+    "conformance/run.py",
+    "--report",
+    "validation/abi-v2/runtime-qualification/conformance-report.json",
+    "--timeout",
+    "90",
+    "--runner",
+    "[\"env\", \"PYTHONPATH=/Volumes/seed2/Projects/stateless-abi-v2/python/src\", \"python3\", \"-m\", \"statelessness.conformance\", \"--runner\"]",
+    "--runner",
+    "[\"env\", \"PYTHONPATH=/Volumes/seed2/Projects/stateless-abi-v2/python/src\", \"python3\", \"-m\", \"statelessness.native_conformance\", \"--library\", \"/Volumes/seed1/Projects/stateless-abi-v2-target/release/libstateless.dylib\"]",
+    "--runner",
+    "[\"/Volumes/seed1/Projects/stateless-abi-v2-target/go/stateless-corpus-v2-diagnostic-release\"]",
+    "--runner",
+    "[\"node\", \"bindings/browser/v2-corpus.mjs\", \"/Volumes/seed1/Projects/stateless-abi-v2-wasm-v2-target/wasm32-unknown-unknown/release/stateless.wasm\"]",
+    "--runner",
+    "[\"env\", \"DYLD_LIBRARY_PATH=/Volumes/seed2/Projects/stateless-abi-v2/target/bindings/native/lib\", \"/Volumes/seed1/Projects/stateless-abi-v2-target/swift-v2-final-package/arm64-apple-macosx/debug/stateless-v2-corpus\"]"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:20:29.743433+00:00",
+  "status": "failed",
+  "exit_code": 1,
+  "seconds": 8.899868207983673,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/cross-language-conformance.log",
+  "log_sha256": "67bcc31b6ab3e9f9672350e5991bfee47da0df1675b0399c3532780b35416e6b"
+}

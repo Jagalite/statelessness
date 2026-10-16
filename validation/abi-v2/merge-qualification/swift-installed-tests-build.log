@@ -1,0 +1,37 @@
+Building for debugging...
+[0/19] /Volumes/seed1/Projects/stateless-abi-v2-target/swift-installed-4402a1e/arm64-apple-macosx/debug/StatelessNativeV2PackageTests.derived/runner.swift
+[1/19] Write sources
+[3/19] Write stateless-v2-corpus-entitlement.plist
+[4/19] Write sources
+[5/19] Write stateless-v2-bench-entitlement.plist
+[6/19] Write sources
+[10/19] Write swift-version--58304C5D6DBC2206.txt
+[12/26] Compiling Statelessness Rng.swift
+[13/26] Compiling Statelessness TraceJSON.swift
+[14/26] Compiling Statelessness Model.swift
+[15/26] Compiling Statelessness Explore.swift
+[16/26] Compiling Statelessness Execution.swift
+[17/26] Compiling Statelessness JSON.swift
+[18/26] Emitting module Statelessness
+[19/31] Emitting module StatelessConformance
+[20/31] Compiling StatelessConformance Conformance.swift
+[21/31] Compiling StatelessNativeV2 Native.swift
+[22/31] Emitting module StatelessNativeV2
+[23/31] Compiling StatelessNativeV2 Packet.swift
+[24/37] Emitting module NativeV2Corpus
+[25/37] Compiling NativeV2Corpus main.swift
+[25/37] Write Objects.LinkFileList
+[27/37] Emitting module NativeV2Bench
+[28/37] Compiling NativeV2Bench main.swift
+[28/37] Write Objects.LinkFileList
+[29/37] Linking stateless-v2-corpus
+[30/37] Applying stateless-v2-corpus
+[31/37] Linking stateless-v2-bench
+[32/37] Applying stateless-v2-bench
+[34/37] Emitting module NativeV2Tests
+[35/37] Compiling NativeV2Tests NativeV2Tests.swift
+[36/39] Emitting module StatelessNativeV2PackageTests
+[37/39] Compiling StatelessNativeV2PackageTests runner.swift
+[37/39] Write Objects.LinkFileList
+[38/39] Linking StatelessNativeV2PackageTests
+Build complete! (16.06s)

@@ -1,0 +1,19 @@
+
+running 14 tests
+test disabled_probe_never_evaluates_closure_or_inspector ... ok
+test delivery_sampling_preserves_change_baseline ... ok
+test drop_is_per_sink_and_health_survives_a_saturated_queue ... ok
+test incomplete_turn_and_export_failure_do_not_change_application_result ... ok
+test inspector_errors_are_diagnostic_and_do_not_masquerade_as_successful_values ... ok
+test macros_have_an_explicit_scoped_sink_and_disabled_build_skips_arguments ... ok
+test json_paths_and_pages_are_structural_without_rust_debug_parsing ... ok
+test multiple_destinations_evaluate_once_and_do_not_rerun_application_work ... ok
+test nonnumeric_complete_value_cannot_preserve_threshold_crossing_state ... ok
+test privacy_survives_text_jsonl_and_custom_sinks ... ok
+test revisions_are_per_producer_and_acknowledged_at_boundaries ... ok
+test optional_sidecar_is_versioned_bounded_and_bound_to_exact_artifact ... ok
+test unauthorized_projection_is_rejected_before_closure_or_queueing ... ok
+test threshold_crossing_has_hysteresis_and_cooldown ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

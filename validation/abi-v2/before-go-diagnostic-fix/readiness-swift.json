@@ -1,0 +1,61 @@
+{
+  "action": "report_only",
+  "default_switch_ready": false,
+  "gates": {
+    "abi1_compatibility": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "deployment_contract": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "fresh_process_replay": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "installed_model_consumer": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "lifetime": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "migration_window": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "package_integrity": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "performance": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "portable_profiles": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "runtime_bootstrap": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "sdk_negative_loading": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    },
+    "semantic_regression": {
+      "reason": "no completed matching evidence",
+      "status": "pending"
+    }
+  },
+  "language": "swift",
+  "package_sha256": null,
+  "receipts": [],
+  "schema": "stateless.binding-readiness.v1",
+  "source_commit": "0949e7992f1be34d2052b22f12b7cbb0ce6b7a95",
+  "source_sha256": "08237c685a8ff6c3ce1c9d42c0b27f21feed8f95e8a38dd38d6964cd64ebcf27",
+  "target": "aarch64-apple-darwin"
+}

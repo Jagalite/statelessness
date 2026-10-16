@@ -1,0 +1,14 @@
+{
+  "name": "rust-review_regressions-8d3d43670077a273",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/review_regressions-8d3d43670077a273",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/macro-qualification",
+  "started_at": "2026-10-15T03:20:55.326658+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 1.029332542035263,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-review_regressions-8d3d43670077a273.log",
+  "log_sha256": "b827a693a155eb7aafe0088703a2f9be807f0b355f407d9a2796331769e327e1"
+}

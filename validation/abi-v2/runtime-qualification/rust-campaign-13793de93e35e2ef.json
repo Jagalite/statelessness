@@ -1,0 +1,14 @@
+{
+  "name": "rust-campaign-13793de93e35e2ef",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/campaign-13793de93e35e2ef",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2",
+  "started_at": "2026-10-15T03:21:28.074463+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.45656775002134964,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-campaign-13793de93e35e2ef.log",
+  "log_sha256": "51a29439feaa91fa48f8d1bed63a65eb2e634f22a7bd7b7f6185c558bbe5d694"
+}

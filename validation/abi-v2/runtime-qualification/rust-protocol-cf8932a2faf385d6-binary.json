@@ -1,0 +1,36 @@
+{
+  "path": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/protocol-cf8932a2faf385d6",
+  "sha256": "63f391f731b0a49d295723bc0c33483118943b5a2281798ba5650bf6c0dc1439",
+  "compiler_artifact": {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "protocol",
+      "src_path": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug/tests/protocol.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/protocol-cf8932a2faf385d6"
+    ],
+    "executable": "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/protocol-cf8932a2faf385d6",
+    "fresh": true
+  }
+}

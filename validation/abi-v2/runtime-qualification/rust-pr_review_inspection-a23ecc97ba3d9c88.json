@@ -1,0 +1,14 @@
+{
+  "name": "rust-pr_review_inspection-a23ecc97ba3d9c88",
+  "command": [
+    "/Volumes/seed1/Projects/stateless-abi-v2-target/debug/deps/pr_review_inspection-a23ecc97ba3d9c88",
+    "--test-threads=2"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-abi-v2/crates/statelessness-debug",
+  "started_at": "2026-10-15T03:21:03.352465+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "seconds": 0.3425132500124164,
+  "log": "/Volumes/seed2/Projects/stateless-abi-v2/validation/abi-v2/runtime-qualification/rust-pr_review_inspection-a23ecc97ba3d9c88.log",
+  "log_sha256": "05871e985a5e45d95c6c8456acd8c2a7c63facdcf67e037b73c592f456a239b1"
+}
