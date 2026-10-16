@@ -10,9 +10,11 @@ The checkout now contains implementation work across A01–A16 and M0–M5.
 **This is an implementation ledger, not a declaration that every roadmap
 acceptance criterion has passed.** In particular, A04/A05 contain measurement
 infrastructure and benchmark-only candidates, with no adopted unmeasured
-optimization. Rust runtime verification, mutation kills, measured performance,
-independent human requirements review, and hosted qualification remain separate
-open gates.
+optimization. After the ABI v2 merge, the [merge qualification
+receipt](../../validation/improvement/2026-10-16-merge/README.md) records executed
+Rust runtime tests, reference assurance, mutation kills with fresh-process replay,
+live replay and all macro diagnostics. Measured performance and independent human
+requirements review remain separate open gates.
 
 ## A01–A16 source implementation matrix
 
