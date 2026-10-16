@@ -41,6 +41,11 @@ class Bundles(unittest.TestCase):
         self.assertFalse((stage / "swift/swift/Sources/private-notes.swift").exists())
         self.assertFalse((stage / "swift/c/.DS_Store").exists())
 
+    def test_python_distribution_lists_every_package_module(self):
+        package = builder["ROOT"] / "python/src/statelessness"
+        modules = {"src/statelessness/" + path.name for path in package.glob("*.py")}
+        self.assertLessEqual(modules, set(builder["PYTHON_FILES"]))
+
     def test_v2_is_an_explicit_additive_distribution(self):
         self.stage()
         self.write("source/bindings/c/stateless_v2.h")

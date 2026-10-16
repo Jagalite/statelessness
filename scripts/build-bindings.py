@@ -24,7 +24,7 @@ PYTHON_FILES = (
     "src/statelessness/trace_json.py", "src/statelessness/conformance.py",
     "src/statelessness/py.typed", "src/statelessness/native.py",
     "src/statelessness/_native_packet.py",
-    "src/statelessness/native_conformance.py",
+    "src/statelessness/native_conformance.py", "src/statelessness/oracle.py",
 )
 BROWSER_V2_FILES = ("v2.mjs", "v2.d.ts", "v2.d.mts", "v2-values.mjs", "v2-packet.mjs", "v2-json.mjs")
 SWIFT_V2_FILES = (
