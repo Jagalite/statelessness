@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased source improvements
+
+These changes are newer than the published 0.2.0 artifacts. Rust compilation is
+permitted locally; runtime and performance qualification must have their own
+current-source receipts. Independent requirements review remains pending.
+
+- Add optional assurance catalogs, coverage observations and fail-closed adequacy
+  reports integrated with the existing search engines and campaigns.
+- Add an application-owned controller, ordered background effect host, independent
+  requirement catalog, seeded fault controls, retained regression cases and fresh
+  process replay gates; add explicit requirement/domain/bound review reports.
+- Add explicit multi-machine scheduling, bounded lifecycle retention and tests for
+  stale, duplicate, cancellation and eviction boundaries.
+- Add a versioned causal evidence envelope preserving exact v1 traces, phase-aware
+  replay/minimization, bounded redacted diagnostics, and passive metric reports.
+- Add macro defaults, bounded generation, typed property metadata, opt-in codec
+  adapters and expanded renamed-consumer/compile-fail fixtures.
+- Add candidate native paired/oracle APIs in Python and TypeScript with a shared
+  Rust/Python/TypeScript corpus. Keep the established portable profiles unchanged.
+- Extend source-bound qualification and benchmark fixtures. Retain conservative
+  production storage/equality defaults until measured experiments qualify a change.
+
 ## 0.2.0
 
 Broad performance qualification and M7 language/pruning

@@ -1,0 +1,322 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assurance_version",
+    "manifest",
+    "metadata",
+    "search",
+    "properties",
+    "families",
+    "coverage",
+    "observed_properties",
+    "observed_families",
+    "observed_goals",
+    "callback_errors",
+    "unclassified_transitions"
+  ],
+  "properties": {
+    "assurance_version": {
+      "const": 1
+    },
+    "manifest": {
+      "$ref": "assurance-v1.schema.json"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "model_version",
+        "properties_version",
+        "codec_version",
+        "build"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "properties_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "codec_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "build": {
+          "type": "string"
+        }
+      }
+    },
+    "search": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "termination",
+        "budgets",
+        "checked_transitions"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": [
+            "GraphExhausted",
+            "CasesCompleted",
+            "DepthLimited",
+            "BudgetLimited",
+            "Interrupted",
+            "TimedOut",
+            "Failed",
+            "NotStarted"
+          ]
+        },
+        "termination": {
+          "type": "string",
+          "minLength": 1
+        },
+        "budgets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "checked_transitions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "property",
+          "status",
+          "counts"
+        ],
+        "properties": {
+          "property": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "phase"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "phase": {
+                "enum": [
+                  "state",
+                  "transition"
+                ]
+              }
+            }
+          },
+          "status": {
+            "enum": [
+              "Passed",
+              "Failed",
+              "Skipped",
+              "Missing"
+            ]
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "passed",
+              "failed",
+              "skipped",
+              "missing"
+            ],
+            "properties": {
+              "passed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "skipped": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "families": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "Observed",
+              "Missing",
+              "Excluded",
+              "ExclusionViolated"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "goal",
+          "status"
+        ],
+        "properties": {
+          "goal": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "scope"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "scope": {
+                "enum": [
+                  "transition",
+                  "history"
+                ]
+              }
+            }
+          },
+          "status": {
+            "enum": [
+              "Observed",
+              "UnreachableUnderDeclaredModel",
+              "NotReachedBeforeStop"
+            ]
+          }
+        }
+      }
+    },
+    "observed_properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "property",
+          "counts"
+        ],
+        "properties": {
+          "property": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "phase"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "phase": {
+                "enum": [
+                  "state",
+                  "transition"
+                ]
+              }
+            }
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "passed",
+              "failed",
+              "skipped",
+              "missing"
+            ],
+            "properties": {
+              "passed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "failed": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "skipped": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "missing": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "observed_families": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "observed_goals": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "callback_errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unclassified_transitions": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://statelessness.dev/spec/assurance-report-v1.schema.json",
+  "title": "Statelessness assurance run report v1"
+}

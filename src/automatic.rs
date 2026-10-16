@@ -178,15 +178,37 @@ impl<M: Enumerate> Generate for Auto<M> {
         state: &Self::State,
         rng: &mut Rng,
     ) -> Result<Option<Self::Input>, ModelError> {
-        generate_ops(&NativeOps::new(&self.model), state, rng, self.options)
+        sample_enumerated(&self.model, state, rng, self.options)
     }
 
     /// Membership is checked in declared order and stops at the first match.
     /// Its candidate cap bounds the inspected prefix; a match within the cap
     /// does not require validating the size of the rest of the domain.
     fn is_enabled(&self, state: &Self::State, input: &Self::Input) -> Result<bool, ModelError> {
-        is_enabled_ops(&NativeOps::new(&self.model), state, input, self.options)
+        contains_enumerated(&self.model, state, input, self.options)
     }
+}
+
+/// Shared reservoir sampler for handwritten and generated adapters. Its seed,
+/// complete-domain validation and RNG rollback semantics are identical to Auto.
+pub fn sample_enumerated<M: Enumerate + ?Sized>(
+    model: &M,
+    state: &M::State,
+    rng: &mut Rng,
+    options: AutoOptions,
+) -> Result<Option<M::Input>, ModelError> {
+    generate_ops(&NativeOps::new(model), state, rng, options)
+}
+
+/// Shared causal membership check. Like Auto, it stops at the first matching
+/// entry and does not claim the unvisited suffix fits the candidate limit.
+pub fn contains_enumerated<M: Enumerate + ?Sized>(
+    model: &M,
+    state: &M::State,
+    input: &M::Input,
+    options: AutoOptions,
+) -> Result<bool, ModelError> {
+    is_enabled_ops(&NativeOps::new(model), state, input, options)
 }
 
 pub(crate) fn generate_ops<M: EnumerateOps>(
@@ -195,6 +217,11 @@ pub(crate) fn generate_ops<M: EnumerateOps>(
     rng: &mut Rng,
     options: AutoOptions,
 ) -> Result<Option<M::Input>, ModelError> {
+    if options.max_candidates == 0 {
+        return Err(ModelError::new(
+            "automatic generation max_candidates must be positive",
+        ));
+    }
     let mut candidate_rng = rng.clone();
     let mut selected = None;
     let mut count = 0;
@@ -215,6 +242,11 @@ pub(crate) fn is_enabled_ops<M: EnumerateOps + InputIdentityOps>(
     input: &M::Input,
     options: AutoOptions,
 ) -> Result<bool, ModelError> {
+    if options.max_candidates == 0 {
+        return Err(ModelError::new(
+            "automatic generation max_candidates must be positive",
+        ));
+    }
     let mut count = 0;
     let mut inputs = model.input_cursor(state)?;
     while let Some(candidate) = inputs.next()? {

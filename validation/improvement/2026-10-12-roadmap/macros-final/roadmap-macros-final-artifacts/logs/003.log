@@ -1,0 +1,26 @@
+[===========>                 ] 3/7: statelessness-macros(buil...
+[===============>             ] 4/7: statelessness-macros(build) 
+[===================>         ] 5/7: statelessness-macros        
+[=======================>     ] 6/7: macro-consumer(bin)         
+warning: unused import: `input_domain`
+ --> src/main.rs:1:47
+  |
+1 | use macros::{model, TraceEncode, TraceDecode, input_domain};
+  |                                               ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: struct `Callable` is never constructed
+  --> src/main.rs:31:8
+   |
+31 | struct Callable<F> where F: Fn() { callback:F }
+   |        ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: struct `UnitWhere` is never constructed
+  --> src/main.rs:40:8
+   |
+40 | struct UnitWhere where fn(): Fn();
+   |        ^^^^^^^^^
+

@@ -9,10 +9,91 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use crate::CheckSink;
-use crate::model::{Check, CheckStatus, Enumerate, Generate, ModelError, Rng, Transition};
+use crate::model::{Check, CheckStatus, Enumerate, Generate, Model, ModelError, Rng, Transition};
 use crate::operations::{
     EnumerateOps, GenerateOps, InputCursor, InputIdentityOps, ModelOps, NativeOps,
 };
+
+/// Observation-only hooks over checks emitted by the real search. Hooks cannot
+/// change inputs, state identity, or property results. History is an actual
+/// initial-state prefix (including the current input), never traversal order.
+pub trait SearchObserver<M: Model> {
+    fn needs_history(&self) -> bool {
+        false
+    }
+    fn initial(&mut self, _state: &M::State, _checks: &[Check]) {}
+    /// Check observations before an edge/initial-check callback error. A state
+    /// batch may have completed before a transition checker failed; `complete`
+    /// distinguishes it from a partial batch. Neither certifies a covered edge.
+    fn check_error(&mut self, _phase: CheckPhase, _checks: &[Check], _complete: bool) {}
+    fn transition(
+        &mut self,
+        _before: &M::State,
+        _input: &M::Input,
+        _after: &crate::TransitionRef<'_, M::State, M::Output>,
+        _state_checks: &[Check],
+        _transition_checks: &[Check],
+        _history: &[M::Input],
+    ) {
+    }
+}
+
+/// Kernel-side observer over adapter value types. Native observers reach the
+/// shared kernels through [`Observing`]; foreign adapters may implement it directly.
+pub(crate) trait OpsObserver<M: ModelOps> {
+    fn needs_history(&self) -> bool {
+        false
+    }
+    fn initial(&mut self, _state: &M::State, _checks: &[Check]) {}
+    fn check_error(&mut self, _phase: CheckPhase, _checks: &[Check], _complete: bool) {}
+    fn transition(
+        &mut self,
+        _before: &M::State,
+        _input: &M::Input,
+        _after: &crate::TransitionRef<'_, M::State, M::Output>,
+        _state_checks: &[Check],
+        _transition_checks: &[Check],
+        _history: &[M::Input],
+    ) {
+    }
+}
+
+pub(crate) struct Unobserved;
+impl<M: Model> SearchObserver<M> for Unobserved {}
+impl<M: ModelOps> OpsObserver<M> for Unobserved {}
+
+/// Forwards kernel observations over native adapters to a public observer.
+pub(crate) struct Observing<'o, O>(pub(crate) &'o mut O);
+
+impl<M: Model, H, O: SearchObserver<M>> OpsObserver<NativeOps<'_, M, H>> for Observing<'_, O> {
+    fn needs_history(&self) -> bool {
+        self.0.needs_history()
+    }
+    fn initial(&mut self, state: &M::State, checks: &[Check]) {
+        self.0.initial(state, checks);
+    }
+    fn check_error(&mut self, phase: CheckPhase, checks: &[Check], complete: bool) {
+        self.0.check_error(phase, checks, complete);
+    }
+    fn transition(
+        &mut self,
+        before: &M::State,
+        input: &M::Input,
+        after: &crate::TransitionRef<'_, M::State, M::Output>,
+        state_checks: &[Check],
+        transition_checks: &[Check],
+        history: &[M::Input],
+    ) {
+        self.0.transition(
+            before,
+            input,
+            after,
+            state_checks,
+            transition_checks,
+            history,
+        );
+    }
+}
 
 /// Cooperative limits checked between model callbacks/fully checked transitions.
 /// A callback cannot be interrupted, and allocations inside it cannot be capped.
@@ -203,12 +284,40 @@ where
     enumerate_ops(&NativeOps::enumerating(model), config, limits)
 }
 
+/// Observe checked states and transitions without changing exploration semantics.
+/// Errors retain observations already delivered to the caller-owned observer.
+pub fn enumerate_observed<M: Enumerate, O: SearchObserver<M>>(
+    model: &M,
+    config: SearchConfig,
+    limits: SearchLimits<'_>,
+    observer: &mut O,
+) -> Result<SearchReport<M::Input>, ModelError>
+where
+    M::State: Hash,
+{
+    enumerate_ops_observed(
+        &NativeOps::enumerating(model),
+        config,
+        limits,
+        &mut Observing(observer),
+    )
+}
+
 /// Shared BFS kernel. Adapter errors stay distinct from graph exhaustion and
 /// budget termination; values need no native equality or hashing traits.
 pub(crate) fn enumerate_ops<M: EnumerateOps>(
     model: &M,
     config: SearchConfig,
     limits: SearchLimits<'_>,
+) -> Result<SearchReport<M::Input>, ModelError> {
+    enumerate_ops_observed(model, config, limits, &mut Unobserved)
+}
+
+fn enumerate_ops_observed<M: EnumerateOps, O: OpsObserver<M>>(
+    model: &M,
+    config: SearchConfig,
+    limits: SearchLimits<'_>,
+    observer: &mut O,
 ) -> Result<SearchReport<M::Input>, ModelError> {
     if config.max_states == 0 {
         return Err(ModelError::new(
@@ -234,7 +343,13 @@ pub(crate) fn enumerate_ops<M: EnumerateOps>(
         .initial_state()
         .map_err(|e| context("initial_state", e))?;
     report.states = 1;
-    let violations = initial_checks_ops(model, &state, &mut report.skipped_checks, &mut checks)?;
+    let violations = initial_checks_ops(
+        model,
+        &state,
+        &mut report.skipped_checks,
+        &mut checks,
+        observer,
+    )?;
     if !violations.is_empty() {
         report.termination = SearchTermination::FailureFound;
         report.failure = Some(Failure {
@@ -331,6 +446,13 @@ pub(crate) fn enumerate_ops<M: EnumerateOps>(
             let transition = model.step(&state, &input).map_err(|e| context("step", e))?;
             report.transitions += 1;
             report.max_depth_reached = report.max_depth_reached.max(depth + 1);
+            let history = if observer.needs_history() {
+                let mut history = path(&nodes, index);
+                history.push(input.clone());
+                history
+            } else {
+                Vec::new()
+            };
             let violations = transition_checks_ops(
                 model,
                 &state,
@@ -338,6 +460,8 @@ pub(crate) fn enumerate_ops<M: EnumerateOps>(
                 &transition,
                 &mut report.skipped_checks,
                 &mut checks,
+                observer,
+                &history,
             )?;
             if !violations.is_empty() {
                 let mut inputs = path(&nodes, index);
@@ -570,6 +694,47 @@ fn fuzz_ops_with_driver<M: GenerateOps, D: FuzzDriver<M>>(
     limits: RunLimits<'_>,
     driver: &mut D,
 ) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_ops_observed(model, config, limits, driver, &mut Unobserved)
+}
+
+/// Observe every checked transition, including one that violates a property.
+pub fn fuzz_observed<M: Generate, O: SearchObserver<M>>(
+    model: &M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+    observer: &mut O,
+) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_with_driver_observed(model, config, limits, &mut PreviousSequence, observer)
+}
+
+pub(crate) fn fuzz_with_driver_observed<
+    'a,
+    M: Generate,
+    D: FuzzDriver<NativeOps<'a, M>>,
+    O: SearchObserver<M>,
+>(
+    model: &'a M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+    driver: &mut D,
+    observer: &mut O,
+) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_ops_observed(
+        &NativeOps::new(model),
+        config,
+        limits,
+        driver,
+        &mut Observing(observer),
+    )
+}
+
+fn fuzz_ops_observed<M: GenerateOps, D: FuzzDriver<M>, O: OpsObserver<M>>(
+    model: &M,
+    config: FuzzConfig,
+    limits: RunLimits<'_>,
+    driver: &mut D,
+    observer: &mut O,
+) -> Result<FuzzReport<M::Input>, ModelError> {
     let control = Control::new(limits)?;
     let mut checks = Vec::new();
     if config.mutation_percent > 100 {
@@ -599,8 +764,13 @@ fn fuzz_ops_with_driver<M: GenerateOps, D: FuzzDriver<M>>(
             .initial_state()
             .map_err(|e| context("initial_state", e))?;
         report.cases += 1;
-        let violations =
-            initial_checks_ops(model, &state, &mut report.skipped_checks, &mut checks)?;
+        let violations = initial_checks_ops(
+            model,
+            &state,
+            &mut report.skipped_checks,
+            &mut checks,
+            observer,
+        )?;
         if !violations.is_empty() {
             report.failure = Some(Failure {
                 inputs: Vec::new(),
@@ -678,15 +848,18 @@ fn fuzz_ops_with_driver<M: GenerateOps, D: FuzzDriver<M>>(
             }
             let transition = model.step(&state, &input).map_err(|e| context("step", e))?;
             report.transitions += 1;
+            inputs.push(input);
+            let input = inputs.last().unwrap();
             let violations = transition_checks_ops(
                 model,
                 &state,
-                &input,
+                input,
                 &transition,
                 &mut report.skipped_checks,
                 &mut checks,
+                observer,
+                &inputs,
             )?;
-            inputs.push(input);
             if !violations.is_empty() {
                 report.failure = Some(Failure { inputs, violations });
                 report.termination = FuzzTermination::FailureFound;
@@ -1123,7 +1296,13 @@ fn replay_candidate<M: GenerateOps>(
         .initial_state()
         .map_err(|e| context("shrink initial_state", e))?;
     let mut skipped = 0;
-    let violations = initial_checks_ops(model, &state, &mut skipped, &mut work.checks)?;
+    let violations = initial_checks_ops(
+        model,
+        &state,
+        &mut skipped,
+        &mut work.checks,
+        &mut Unobserved,
+    )?;
     if !violations.is_empty() {
         return Ok(Candidate::Failure(Failure {
             inputs: Vec::new(),
@@ -1163,6 +1342,8 @@ fn replay_candidate<M: GenerateOps>(
             &transition,
             &mut skipped,
             &mut work.checks,
+            &mut Unobserved,
+            &[],
         )?;
         if !violations.is_empty() {
             return Ok(Candidate::Failure(Failure {
@@ -1226,39 +1407,56 @@ fn observe(
         .collect()
 }
 
-fn initial_checks_ops<M: ModelOps>(
+fn initial_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     model: &M,
     state: &M::State,
     skipped: &mut u64,
     checks: &mut Vec<Check>,
+    observer: &mut O,
 ) -> Result<Vec<PropertyFailure>, ModelError> {
     checks.clear();
-    model
-        .check_state_into(state, &mut CheckSink::new(checks))
-        .map_err(|e| context("initial check_state", e))?;
+    if let Err(error) = model.check_state_into(state, &mut CheckSink::new(checks)) {
+        observer.check_error(CheckPhase::InitialState, checks, false);
+        return Err(context("initial check_state", error));
+    }
+    observer.initial(state, checks);
     Ok(observe(checks, checks.len(), true, skipped))
 }
 
-fn transition_checks_ops<M: ModelOps>(
+#[allow(clippy::too_many_arguments)]
+fn transition_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     model: &M,
     before: &M::State,
     input: &M::Input,
     transition: &Transition<M::State, M::Output>,
     skipped: &mut u64,
     checks: &mut Vec<Check>,
+    observer: &mut O,
+    history: &[M::Input],
 ) -> Result<Vec<PropertyFailure>, ModelError> {
     checks.clear();
-    model
-        .check_state_into(&transition.state, &mut CheckSink::new(checks))
-        .map_err(|e| context("check_state", e))?;
+    if let Err(error) = model.check_state_into(&transition.state, &mut CheckSink::new(checks)) {
+        observer.check_error(CheckPhase::State, checks, false);
+        return Err(context("check_state", error));
+    }
     let state_count = checks.len();
-    model
-        .check_transition_into(
-            before,
-            input,
-            &transition.as_ref(),
-            &mut CheckSink::new(checks),
-        )
-        .map_err(|e| context("check_transition", e))?;
+    if let Err(error) = model.check_transition_into(
+        before,
+        input,
+        &transition.as_ref(),
+        &mut CheckSink::new(checks),
+    ) {
+        observer.check_error(CheckPhase::State, &checks[..state_count], true);
+        observer.check_error(CheckPhase::Transition, &checks[state_count..], false);
+        return Err(context("check_transition", error));
+    }
+    observer.transition(
+        before,
+        input,
+        &transition.as_ref(),
+        &checks[..state_count],
+        &checks[state_count..],
+        history,
+    );
     Ok(observe(checks, state_count, false, skipped))
 }

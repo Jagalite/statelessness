@@ -1,0 +1,3 @@
+   Compiling statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [====================>        ] 6/8: statelessness-debug             Building [========================>    ] 7/8: diagnostics(bench)              Finished `bench` profile [optimized] target(s) in 13.26s
+  Executable benches/diagnostics.rs (target/roadmap-bench-build/release/deps/diagnostics-1cfe00e04a58b28c)

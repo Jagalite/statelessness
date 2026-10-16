@@ -3,6 +3,7 @@ extern crate proc_macro;
 mod adapter;
 mod codec;
 mod inspect;
+mod model_codec;
 mod parse;
 use proc_macro::{Delimiter, Group, Ident, Literal, Punct, Spacing, TokenStream, TokenTree};
 fn finish(result: parse::Result<String>) -> TokenStream {
@@ -72,4 +73,14 @@ pub fn macro_build_id(input: TokenStream) -> TokenStream {
         env!("STATELESS_BUILD_ID")
     )))
     .into()
+}
+
+/// Generate the optional codec adapter for a handwritten Model implementation.
+/// `#[model_codec(crate = "::engine", version = 1, decode_limits = expression)]`
+/// configures runtime path, asserted model codec version, and bounded decoding.
+/// Associated State/Input implement TraceEncode + TraceDecode; Output only encodes.
+/// No properties or application identity are inferred.
+#[proc_macro_derive(ModelCodec, attributes(model_codec))]
+pub fn model_codec(item: TokenStream) -> TokenStream {
+    finish(model_codec::expand(item))
 }

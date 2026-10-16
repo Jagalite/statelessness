@@ -1,0 +1,3 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [====================>        ] 3/4: application(example test)       Finished `test` profile [unoptimized + debuginfo] target(s) in 1.23s
+  Executable unittests examples/application.rs (target/debug/examples/application-d14a4b35b9dd0714)

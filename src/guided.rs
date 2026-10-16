@@ -177,6 +177,25 @@ pub fn fuzz_with_limits<M: Generate, F: Feedback<M>>(
     feedback: F,
     limits: RunLimits<'_>,
 ) -> Result<FuzzReport<M::Input>, ModelError> {
+    fuzz_observed(
+        model,
+        config,
+        guidance,
+        feedback,
+        limits,
+        &mut explore::Unobserved,
+    )
+}
+
+/// Observation and guidance are independent: coverage cannot select the corpus.
+pub fn fuzz_observed<M: Generate, F: Feedback<M>, O: explore::SearchObserver<M>>(
+    model: &M,
+    config: FuzzConfig,
+    guidance: GuidanceConfig,
+    feedback: F,
+    limits: RunLimits<'_>,
+    observer: &mut O,
+) -> Result<FuzzReport<M::Input>, ModelError> {
     guidance.validate()?;
     if config.mutation_percent > 100 {
         return Err(ModelError::new("mutation_percent must be in 0..=100"));
@@ -201,7 +220,13 @@ pub fn fuzz_with_limits<M: Generate, F: Feedback<M>>(
         scratch: Vec::new(),
         corpus: VecDeque::new(),
     };
-    let mut report = explore::fuzz_with_driver(model, config, control.remaining(), &mut driver)?;
+    let mut report = explore::fuzz_with_driver_observed(
+        model,
+        config,
+        control.remaining(),
+        &mut driver,
+        observer,
+    )?;
     driver.report.corpus = driver.corpus.into();
     report.guidance = Some(Box::new(driver.report));
     Ok(report)

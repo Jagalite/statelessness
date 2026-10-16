@@ -4,6 +4,8 @@
 use crate::value_codec::{DecodeLimits, Decoder, TraceDecode, TraceEncode};
 use crate::*;
 
+pub mod indexed;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Event<K> {
     /// One settlement is required no later than the explicit logical deadline.

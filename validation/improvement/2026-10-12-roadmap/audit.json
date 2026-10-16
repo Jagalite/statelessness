@@ -1,0 +1,16 @@
+{
+  "recorded_at": "2026-10-13T04:05:55.814511+00:00",
+  "status": "source_implemented_qualification_blocked",
+  "source_manifest_sha256": "1a0e0225cf036a9cdfaac281a27180c1ae65688bd9a966ce66b678f2b29c76d3",
+  "head": "0949e7992f1be34d2052b22f12b7cbb0ce6b7a95",
+  "origin_main": "0949e7992f1be34d2052b22f12b7cbb0ce6b7a95",
+  "branch": "improvement/m0-qualification",
+  "staged_files": [],
+  "supplied_plan_sha256": "3dad2d872a83a66905dce42592cd625175b2b490c747dfc91b792eb8307e2543",
+  "plan_preserved_verbatim": true,
+  "existing_abi_plan_unchanged": true,
+  "shared_policy_changed_by_task": false,
+  "rust_runtime_executed": false,
+  "blocked_jobs_confirmed_terminal": true,
+  "blocker": "Kyoto admitted no builds while host memory pressure remained warning; incomplete coordinators interrupted and only their jobs cancelled."
+}

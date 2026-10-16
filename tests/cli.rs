@@ -64,6 +64,64 @@ fn fresh_process_record_replay_and_fixed_divergence() {
 }
 
 #[test]
+fn v2_inspection_and_default_redacted_export_are_offline_and_create_new() {
+    use stateless::evidence::{EvidenceLimits, Provenance, TraceV2};
+    use stateless::execution::{ReplayOptions, record};
+    let s = Scratch::new();
+    let model = stateless::demo::RequestModel::buggy();
+    let trace = record(
+        &model,
+        [
+            stateless::demo::Input::Start,
+            stateless::demo::Input::Cancel,
+            stateless::demo::Input::Complete(1),
+        ],
+        Default::default(),
+        3,
+    )
+    .unwrap();
+    let value = TraceV2::verify_upgrade(
+        &model,
+        trace,
+        Provenance {
+            run: "SECRET_RUN_LABEL".into(),
+            ..Default::default()
+        },
+        0,
+        ReplayOptions::default(),
+        &EvidenceLimits::default(),
+    )
+    .unwrap();
+    value
+        .write_raw_new(&s.0.join("capture.sttrace2"), &EvidenceLimits::default())
+        .unwrap();
+    let result = s.run(&["inspect", "capture.sttrace2"]);
+    assert_eq!(result.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&result.stdout).contains("evidence version: 2"));
+    let result = s.run(&["export-diagnostic", "capture.sttrace2", "safe.json"]);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let bytes = fs::read(s.0.join("safe.json")).unwrap();
+    let text = String::from_utf8_lossy(&bytes);
+    assert!(text.contains("\"replayable\":false"));
+    assert!(text.contains("\"phase\":\"transition\""));
+    assert!(!text.contains("SECRET_RUN_LABEL"));
+    assert!(!text.contains("stale_completion_is_cleanup_only"));
+    assert_eq!(
+        s.run(&["export-diagnostic", "capture.sttrace2", "safe.json"])
+            .status
+            .code(),
+        Some(2)
+    );
+    assert_eq!(fs::read(s.0.join("safe.json")).unwrap(), bytes);
+    assert_eq!(s.run(&["inspect", "safe.json"]).status.code(), Some(2));
+}
+
+#[test]
 fn search_failures_are_saved_and_fixed_model_exhausts() {
     let s = Scratch::new();
     for command in ["fuzz", "enumerate"] {

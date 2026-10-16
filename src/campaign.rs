@@ -454,7 +454,7 @@ where
     })
 }
 
-fn run_campaign_using<M, F, C, R>(
+pub(crate) fn run_campaign_using<M, F, C, R>(
     config: CampaignConfig,
     limits: RunLimits<'_>,
     factory: F,

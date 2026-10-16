@@ -1,0 +1,8 @@
+    Checking statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [========>                   ] 4/12: statelessness                   Checking macro-qualification v0.0.0 (/Volumes/seed2/Projects/stateless/crates/macro-qualification)
+    Building [=============>              ] 6/12: macro-qualification          Documenting macro-qualification v0.0.0 (/Volumes/seed2/Projects/stateless/crates/macro-qualification)
+    Building [===============>            ] 7/12: macro-qualification(doc)        Building [=================>          ] 8/12: macro-qualification(doc)     Documenting statelessness-debug v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-debug)
+    Building [====================>       ] 9/12: statelessness-debug(doc)     Documenting statelessness-macros v0.2.0 (/Volumes/seed2/Projects/stateless/crates/statelessness-macros)
+    Building [=====================>     ] 10/12: statelessness-macros(doc)    Documenting statelessness v0.2.0 (/Volumes/seed2/Projects/stateless)
+    Building [=======================>   ] 11/12: statelessness(doc)              Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.92s
+   Generated /Volumes/seed2/Projects/stateless/target/doc/macro_qualification/index.html and 4 other files

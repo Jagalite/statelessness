@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jagalite.github.io/statelessness/spec/diagnostic-export.schema.json",
+  "title": "Diagnostic-only export, never exact replay",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "replayable",
+    "redaction_policy",
+    "raw_payloads_included",
+    "termination",
+    "truncated",
+    "observations",
+    "checkpoint_after",
+    "omitted_prefix"
+  ],
+  "properties": {
+    "schema": {
+      "const": "statelessness.diagnostic-export/1"
+    },
+    "replayable": {
+      "const": false
+    },
+    "redaction_policy": {
+      "const": "omit-payloads-v1"
+    },
+    "raw_payloads_included": {
+      "const": false
+    },
+    "termination": {
+      "enum": [
+        "completed_sequence",
+        "property_failure",
+        "step_limit",
+        "interrupted",
+        "model_error"
+      ]
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sequence",
+          "checks"
+        ],
+        "properties": {
+          "sequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "phase",
+                "id"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "passed",
+                    "failed",
+                    "skipped"
+                  ]
+                },
+                "phase": {
+                  "enum": [
+                    "initial_state",
+                    "state",
+                    "transition",
+                    "unknown_legacy"
+                  ]
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "checkpoint_after": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "Absolute host sequence before the retained checkpoint; null for unknown legacy origin."
+    },
+    "omitted_prefix": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "True for a retained v2 suffix, false for v2 run start, null for unknown legacy origin."
+    }
+  }
+}

@@ -24,6 +24,8 @@ use std::io::{self, Read, Write};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicU64, Ordering};
 static NEXT_CONNECTION_EPOCH: AtomicU64 = AtomicU64::new(1);
+// `try_update` replaces `fetch_update` after 1.90 (the MSRV); keep the MSRV spelling.
+#[allow(deprecated)]
 fn fresh_epoch() -> Result<u64, ProtocolError> {
     NEXT_CONNECTION_EPOCH
         .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
@@ -2074,7 +2076,9 @@ fn unhex(value: &str, maximum: usize) -> Result<Vec<u8>, ProtocolError> {
     }
     value
         .as_bytes()
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|b| Ok((nibble(b[0])? << 4) | nibble(b[1])?))
         .collect()
 }
@@ -2620,7 +2624,9 @@ pub fn decode_response(bytes: &[u8], limits: &ProtocolLimits) -> Result<Response
         configuration: numeric(&fields[7])?,
         result,
         fields: fields[11..]
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|pair| (pair[0].clone(), pair[1].clone()))
             .collect(),
     })

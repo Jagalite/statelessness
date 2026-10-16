@@ -1,0 +1,12 @@
+case	mutation	max_states	max_transitions	max_depth	termination	states	transitions	failed_ids	witness	failed_phases	skipped_checks
+queue-exhausted	none	100	100	10	graph_exhausted	7	21	-	-	-	0
+queue-exact-edge-budget	none	100	21	10	graph_exhausted	7	21	-	-	-	0
+queue-depth-zero	none	100	100	0	depth_bound	1	0	-	-	-	0
+queue-depth-one	none	100	100	1	depth_bound	3	3	-	-	-	0
+queue-state-cap	none	2	100	10	state_limit	2	2	-	-	-	0
+queue-edge-cap	none	100	2	10	transition_limit	3	2	-	-	-	0
+wrong-next-state	state	100	100	10	failure_found	1	1	pair.state	0	state	0
+effect-reordering	order	100	100	10	failure_found	1	1	pair.effects	0	transition	0
+effect-omission	omit	100	100	10	failure_found	1	1	pair.effects	0	transition	0
+reason-mismatch	reason	100	100	10	failure_found	3	3	pair.outcome	2	transition	0
+initial-mismatch	initial	100	100	10	failure_found	1	0	pair.state	-	initial_state	0

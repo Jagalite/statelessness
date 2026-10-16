@@ -1,0 +1,30 @@
+{
+  "status": "failed",
+  "exit_code": 101,
+  "kyoto_job": "d0dfd5fdec764722bf93496812b93a68",
+  "kyoto_status": "failed",
+  "error": null,
+  "name": "clippy",
+  "command": [
+    "rustup",
+    "run",
+    "1.90.0",
+    "cargo",
+    "clippy",
+    "--locked",
+    "--offline",
+    "--workspace",
+    "--all-targets",
+    "--all-features",
+    "-j",
+    "1",
+    "--",
+    "-D",
+    "warnings"
+  ],
+  "expected_exit": 0,
+  "runtime_executed": false,
+  "seconds": 178.02,
+  "log": "logs/clippy.log",
+  "log_sha256": "f8df6da16e202279cd4ecba2650a985e36fc4bc03ead45b4a252130dff4ea52e"
+}

@@ -1,0 +1,111 @@
+{
+  "config": {
+    "mode": "smart",
+    "max_running": "auto",
+    "cpu_budget": 8,
+    "memory_budget_mb": 0,
+    "aging_seconds": 300,
+    "min_available_memory_mb": 0,
+    "pressure_aware": true,
+    "auto_defer": true,
+    "paused": false
+  },
+  "runtime": {
+    "sampled_at": 1791864350.6983948,
+    "sample_monotonic": 188694.991848416,
+    "cpu_count": 8,
+    "cpu_ticks": [
+      17992088,
+      8436334,
+      124031420,
+      0
+    ],
+    "cpu_idle_indices": [
+      2
+    ],
+    "load_average_1m": 4.37646484375,
+    "available_mb": 1738.03125,
+    "swap_in_mb": 53861.03125,
+    "swap_out_mb": 66988.5625,
+    "total_mb": 8192.0,
+    "pressure": "warning",
+    "swap_used_mb": 2526.56,
+    "valid": true,
+    "disk_io": {
+      "valid": true,
+      "devices": {
+        "disk0": {
+          "read_mib_s": 10.098531774505167,
+          "read_iops": 618.0404431612435,
+          "read_ms": 0.14703481542247743,
+          "write_mib_s": 4.264000570800084,
+          "write_iops": 330.5679810837824,
+          "write_ms": 0.02626948006134969,
+          "io_time_per_second": 0.09955731147184065
+        },
+        "disk6": {
+          "read_mib_s": 1.0813489603608202,
+          "read_iops": 64.89678156246035,
+          "read_ms": 4.4060921015625,
+          "write_mib_s": 0.22181517135606565,
+          "write_iops": 2.028024423826886,
+          "write_ms": 3.91504125,
+          "io_time_per_second": 0.2938809959344732
+        },
+        "disk7": {
+          "read_mib_s": 0.08318068925852462,
+          "read_iops": 8.619103801264266,
+          "read_ms": 7.344531588235294,
+          "write_mib_s": 0.0,
+          "write_iops": 0.0,
+          "write_ms": null,
+          "io_time_per_second": 0.0633032801306643
+        },
+        "disk4": {
+          "read_mib_s": 0.0,
+          "read_iops": 0.0,
+          "read_ms": null,
+          "write_mib_s": 0.0,
+          "write_iops": 0.0,
+          "write_ms": null,
+          "io_time_per_second": 0.0
+        }
+      },
+      "error": null,
+      "state": "measured",
+      "interval_seconds": 1.9723628339997958
+    },
+    "pressured_disks": [],
+    "disk_pressure": false,
+    "swap_in_mb_per_second": 0.09349426979954051,
+    "swap_out_mb_per_second": 0.0,
+    "cpu_percent": 36.8,
+    "effective_max_running": 0,
+    "concurrency_ceiling": 3,
+    "admission_reason": "OS memory pressure: warning",
+    "effective_memory_reserve_mb": 0,
+    "automatic": true,
+    "pressure_aware": true,
+    "accounted_rss_mb": {},
+    "config": {
+      "mode": "smart",
+      "max_running": "auto",
+      "cpu_budget": 8,
+      "memory_budget_mb": 0,
+      "aging_seconds": 300,
+      "min_available_memory_mb": 0,
+      "pressure_aware": true,
+      "auto_defer": true,
+      "paused": false
+    },
+    "worker_pid": 12755,
+    "worker_session": "8f8a7a4f982241fabd217c939baaf2cc",
+    "supports_auto_defer": true,
+    "supports_command_policy": true,
+    "supports_recovery": true,
+    "supports_restart": true,
+    "signal_errors": {},
+    "recovery_ready": true
+  },
+  "sample_fresh": true
+}

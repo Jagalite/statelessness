@@ -1,5 +1,11 @@
 # Macro implementation status — 2026-10-08
 
+This is a historical 0.2.0 implementation and qualification record. Its receipts
+do not qualify newer source additions, including the V2 adapter protocol, default
+initialization, generation, property metadata or `ModelCodec` derive. See the
+[current improvement ledger](improvement/STATUS.md) and
+[capability matrix](CAPABILITIES.md) for current source and open runtime gates.
+
 Implementation is based on checkout `6c8aed126977204f8cf35248947c4f78dd00bb54`,
 which is newer than the supplied roadmap's pinned baseline. This work is released as 0.2.0.
 Source SHA-256 manifests identify the snapshots covered by local evidence.

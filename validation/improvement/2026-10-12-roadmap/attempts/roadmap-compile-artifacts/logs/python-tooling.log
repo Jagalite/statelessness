@@ -1,0 +1,17 @@
+...........................................PASSED success
+FAILED failure
+BLOCKED dependent
+FAILED: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/tmpiye_qdn3/evidence.json
+.......usage: python -m unittest [-h] [--profile {pr,full}] [--evidence EVIDENCE]
+                          [--compile-only] [--toolchain TOOLCHAIN]
+                          [--kyoto KYOTO] [--portable] [--allow-dirty]
+                          [--requirements-review-receipt REQUIREMENTS_REVIEW_RECEIPT]
+                          [--timeout TIMEOUT] [--list]
+python -m unittest: error: --kyoto requires --compile-only; runtime qualification must not bypass shared queue policy through scripts
+.NOT_RUN skipped
+INCOMPLETE: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/tmp191ffpck/report.json
+....................
+----------------------------------------------------------------------
+Ran 71 tests in 0.973s
+
+OK
