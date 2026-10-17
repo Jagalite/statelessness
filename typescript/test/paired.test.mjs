@@ -158,3 +158,89 @@ test('exact paired replay rejects noncanonical components accepted by a permissi
   assert.deepEqual(model.decodeState(bytes), model.initialState());
   assert.throws(() => replay(model, { ...trace, initialState: bytes }), /not canonical/);
 });
+
+function reusableCheckpointModel(scratch) {
+  const encode = value => { scratch[0] = value; return scratch; };
+  const decode = bytes => {
+    if (bytes.length !== 1) throw new ModelError('expected one checkpoint byte');
+    return bytes[0];
+  };
+  return new WithOracle({
+    metadata: () => metadata('buffer-actual'), initialState: () => 3,
+    cloneState: s => s, cloneInput: i => i, cloneOutput: o => o,
+    step: (s, i) => accepted(s + i), checkState: () => [],
+    encodeState: encode, decodeState: decode,
+    encodeInput: i => Uint8Array.of(i), decodeInput: decode, encodeOutput: encode,
+  }, {
+    metadata: () => metadata('buffer-oracle'), initialState: () => 7,
+    cloneHistory: h => h, equalHistory: (a, b) => a === b,
+    advance: (h, i) => h + i, checkState: () => [],
+    encodeHistory: encode, decodeHistory: decode,
+  });
+}
+
+for (const [name, allocate] of [['Uint8Array', () => new Uint8Array(8)], ['Buffer', () => Buffer.alloc(8)]]) {
+  test(`oracle checkpoints preserve independent components with reusable ${name} views`, () => {
+    const backing = allocate(), model = reusableCheckpointModel(backing.subarray(2, 3));
+    const initial = model.initialState(), checkpoint = model.encodeState(initial);
+    backing.fill(255);
+    assert.equal(Buffer.from(checkpoint).toString('hex'), '4f524331010000000000000003010000000000000007');
+    assert.deepEqual(model.decodeState(checkpoint), initial);
+
+    const trace = record(model, [1, 2]);
+    backing.fill(255);
+    assert.equal(trace.termination, 'completed');
+    assert.deepEqual([trace.initialState, ...trace.steps.map(s => s.postState)].map(bytes => model.decodeState(bytes)), [
+      { model: 3, oracle: 7 }, { model: 4, oracle: 8 }, { model: 6, oracle: 10 },
+    ]);
+    assert.equal(replay(model, parseTrace(stringifyTrace(trace))).outcome, 'exact');
+  });
+
+  test(`oracle checkpoints preserve unequal components in overlapping ${name} views`, () => {
+    const backing = allocate(), model = paired(), state = model.attach([1], 2);
+    const encodeActual = model.model.encodeState.bind(model.model);
+    const encodeReference = model.oracle.encodeHistory.bind(model.oracle);
+    model.model.encodeState = value => {
+      const bytes = encodeActual(value); backing.set(bytes, 3);
+      return backing.subarray(3, 3 + bytes.length);
+    };
+    model.oracle.encodeHistory = value => {
+      const bytes = encodeReference(value); backing.set(bytes, 4);
+      return backing.subarray(4, 4 + bytes.length);
+    };
+    const checkpoint = model.encodeState(state);
+    backing.fill(255);
+    assert.deepEqual(model.decodeState(checkpoint), state);
+  });
+
+  test(`oracle replay detects changed actual state with reusable ${name} views`, () => {
+    const model = reusableCheckpointModel(allocate().subarray(2, 3));
+    const trace = record(model, [1, 2]);
+    assert.equal(replay(model, trace).outcome, 'exact');
+    model.model.step = (s, i) => accepted(s + i + 1);
+    assert.deepEqual(replay(model, trace), {
+      outcome: 'diverged', steps_verified: 0, failure_reproduced: false,
+      build_matches: true, step: 1, field: 'state',
+    });
+  });
+}
+
+test('oracle checkpoint codecs reject non-byte results', () => {
+  for (const invalid of [undefined, null, '3', [3]]) {
+    for (const component of ['actual', 'oracle']) {
+      const model = reusableCheckpointModel(new Uint8Array(1));
+      if (component === 'actual') {
+        model.model.encodeState = () => invalid;
+        model.oracle.encodeHistory = () => { throw new Error('must not encode after an invalid actual checkpoint'); };
+      } else model.oracle.encodeHistory = () => invalid;
+      assert.throws(() => model.encodeState(model.initialState()), error => error instanceof ModelError && /codec must return bytes/.test(error.message));
+    }
+  }
+});
+
+test('oracle checkpoint callback errors remain model errors during recording', () => {
+  const model = reusableCheckpointModel(new Uint8Array(1));
+  model.oracle.encodeHistory = () => { throw new Error('oracle encode failed'); };
+  assert.throws(() => model.encodeState(model.initialState()), /oracle encode failed/);
+  assert.throws(() => record(model, []), error => error instanceof ModelError && /oracle encode failed/.test(error.message));
+});
