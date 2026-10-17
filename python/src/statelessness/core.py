@@ -331,7 +331,8 @@ def replay(model: ModelCodec[S, I, O], trace: Trace, *, allow_build_mismatch: bo
             not build_matches and not allow_build_mismatch):
         return ReplayReport("incompatible", build_matches=build_matches)
     validate_recording(trace)
-    state = _call("decode initial state", model.decode_state, trace.initial_state)
+    # Own decoder results before another callback can reuse their storage.
+    state = _copy(_call("decode initial state", model.decode_state, trace.initial_state))
     if _encode("encode initial state", model.encode_state, state) != trace.initial_state:
         raise ModelError("initial state encoding is not canonical")
     checks = _checks("initial check", model.check_state, _copy(state))
@@ -339,7 +340,7 @@ def replay(model: ModelCodec[S, I, O], trace: Trace, *, allow_build_mismatch: bo
     if checks != trace.initial_checks:
         return ReplayReport("diverged", 0, reproduced, build_matches, None, "initial checks")
     for index, expected in enumerate(trace.steps, 1):
-        input = _call("decode input", model.decode_input, expected.input)
+        input = _copy(_call("decode input", model.decode_input, expected.input))
         if _encode("encode input", model.encode_input, input) != expected.input:
             raise ModelError(f"input {index} encoding is not canonical")
         actual = _step(model, state, input)

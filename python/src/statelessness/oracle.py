@@ -123,7 +123,10 @@ class WithOracle(Generic[S, H, I, O]):
             offset += size
         if offset != len(data):
             raise ModelError("trailing oracle checkpoint bytes")
-        return OracleState(self.model.decode_state(parts[0]), self.oracle.decode_history(parts[1]))
+        # Snapshot each result before the next decoder can reuse shared storage.
+        model = _copy(self.model.decode_state(parts[0]))
+        history = _copy(self.oracle.decode_history(parts[1]))
+        return OracleState(model, history)
 
     def encode_input(self, input: I) -> bytes:
         return self.model.encode_input(input)
