@@ -232,7 +232,8 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
 
     Errors before the initial checkpoint raise. Later callback/codec/limit errors
     retain only the coherent prefix with model_error termination. Replaying such
-    a prefix does not validate its unrecorded terminal error.
+    a prefix does not validate its unrecorded terminal error. Input iterator
+    creation is covered once the initial checkpoint is valid.
     """
     _natural(max_steps, "max_steps")
     state = _copy(_call("initial state", model.initial_state))
@@ -248,7 +249,10 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     termination, error = "completed", ""
     if _failed(initial_checks):
         return Trace(metadata, initial_state, initial_checks, (), "property_failed")
-    iterator = _call("inputs", iter, inputs)
+    try:
+        iterator = _call("inputs", iter, inputs)
+    except ModelError as cause:
+        return Trace(metadata, initial_state, initial_checks, (), "model_error", str(cause))
     while True:
         try:
             try:
