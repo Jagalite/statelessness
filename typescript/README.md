@@ -38,7 +38,9 @@ semantics. Optional hashing accelerates equality buckets but never replaces exac
 equality. State, input, and property history must make callbacks deterministic.
 
 `record` preserves codec bytes in new Uint8Arrays, including copies of Node Buffer
-results. `parseTrace`/`stringifyTrace` serialize the portable JSON envelope.
+results. `replay` snapshots decoded state and inputs through the model's clone
+hooks before invoking further callbacks, so decoders can reuse mutable scratch
+storage. `parseTrace`/`stringifyTrace` serialize the portable JSON envelope.
 `replay` restores the checkpoint, enforces identities/canonical bytes, and compares
 all ordered observations. `checkObserved` never calls the reducer. Exceptions from
 callbacks are `ModelError`, not property failures. Declared limits bound retained
@@ -66,6 +68,11 @@ equality hooks. `EXPERIMENTAL_PROFILES` lists this separately from the four
 qualified `PROFILES`. Rust runtime parity and independent specification review
 remain pending. `test/paired.test.mjs` exercises independent bounded-queue reducers,
 shared golden results, fail-fast recording, checkpoint restart, and exact replay.
+`WithOracle` copies model checkpoint bytes before encoding history and snapshots
+each decoded component before decoding the next. Component decoders receive
+independent Uint8Array copies, including when the input checkpoint is a Node
+Buffer. The supplied `cloneState` and `cloneHistory` hooks must isolate mutable
+values.
 
 Not implemented: Rust's advanced fuzzing/shrinking, guided/campaign/
 composition helpers, ring recording, and binary `.sttrace` audit format.

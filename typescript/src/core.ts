@@ -233,14 +233,14 @@ export function replay<S, I, O>(m: CodecModel<S, I, O>, trace: Trace, allowBuild
   const r: ReplayReport = { outcome: 'exact', steps_verified: 0, failure_reproduced: false, build_matches: identity.build === trace.metadata.build, step: null, field: null };
   if (['name', 'model_version', 'properties_version', 'codec_version'].some(k => identity[k as keyof Metadata] !== trace.metadata[k as keyof Metadata]) || (!r.build_matches && !allowBuildMismatch)) { r.outcome = 'incompatible'; return r; }
   validateRecording(trace);
-  let state = call('decode initial state', () => m.decodeState(new Uint8Array(trace.initialState)));
+  let state = copyState(m, call('decode initial state', () => m.decodeState(new Uint8Array(trace.initialState))));
   if (!bytesEqual(encode('encode initial state', () => m.encodeState(copyState(m, state))), trace.initialState)) throw new ModelError('initial state encoding is not canonical');
   const initial = collect('initial check', () => m.checkState(copyState(m, state)));
   r.failure_reproduced = sameFailure(trace.initialChecks, initial);
   if (!checksEqual(initial, trace.initialChecks)) { r.outcome = 'diverged'; r.field = 'initial checks'; return r; }
   for (let index = 0; index < trace.steps.length; index++) {
     const expected = trace.steps[index];
-    const input = call('decode input', () => m.decodeInput(new Uint8Array(expected.input)));
+    const input = copyInput(m, call('decode input', () => m.decodeInput(new Uint8Array(expected.input))));
     if (!bytesEqual(encode('encode input', () => m.encodeInput(copyInput(m, input))), expected.input)) throw new ModelError(`input ${index + 1} encoding is not canonical`);
     const actual = step(m, state, input), checks = checkObserved(m, state, input, actual, index + 1);
     r.failure_reproduced ||= sameFailure(expected.checks, checks);

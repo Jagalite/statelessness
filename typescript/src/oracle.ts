@@ -72,9 +72,12 @@ export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>,
     return result;
   }
   encodeState(s: OracleState<S, H>): Uint8Array {
-    const a = need(this.model.encodeState, 'encodeState').call(this.model, this.model.cloneState(s.model));
+    const actual = need(this.model.encodeState, 'encodeState').call(this.model, this.model.cloneState(s.model));
+    if (!(actual instanceof Uint8Array)) throw new ModelError('oracle codec must return bytes');
+    // History callbacks may reuse the model encoder's storage, including Buffer views.
+    const a = new Uint8Array(actual);
     const b = need(this.oracle.encodeHistory, 'encodeHistory').call(this.oracle, this.oracle.cloneHistory(s.oracle));
-    if (!(a instanceof Uint8Array) || !(b instanceof Uint8Array)) throw new ModelError('oracle codec must return bytes');
+    if (!(b instanceof Uint8Array)) throw new ModelError('oracle codec must return bytes');
     const bytes = new Uint8Array(20 + a.length + b.length), view = new DataView(bytes.buffer);
     bytes.set([79, 82, 67, 49]); view.setBigUint64(4, BigInt(a.length), true); bytes.set(a, 12);
     view.setBigUint64(12 + a.length, BigInt(b.length), true); bytes.set(b, 20 + a.length); return bytes;
@@ -87,11 +90,13 @@ export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>,
       if (bytes.length - offset < 8) throw new ModelError('truncated oracle checkpoint length');
       const size = view.getBigUint64(offset, true); offset += 8;
       if (size > BigInt(bytes.length - offset)) throw new ModelError('truncated oracle checkpoint component');
-      parts.push(bytes.slice(offset, offset + Number(size))); offset += Number(size);
+      parts.push(new Uint8Array(bytes.subarray(offset, offset + Number(size)))); offset += Number(size);
     }
     if (offset !== bytes.length) throw new ModelError('trailing oracle checkpoint bytes');
-    return this.attach(need(this.model.decodeState, 'decodeState').call(this.model, parts[0]),
-      need(this.oracle.decodeHistory, 'decodeHistory').call(this.oracle, parts[1]));
+    // Snapshot each result before another decoder can reuse its mutable storage.
+    const model = this.model.cloneState(need(this.model.decodeState, 'decodeState').call(this.model, parts[0]));
+    const oracle = this.oracle.cloneHistory(need(this.oracle.decodeHistory, 'decodeHistory').call(this.oracle, parts[1]));
+    return { model, oracle };
   }
   encodeInput(i: I): Uint8Array { return need(this.model.encodeInput, 'encodeInput').call(this.model, i); }
   decodeInput(b: Uint8Array): I { return need(this.model.decodeInput, 'decodeInput').call(this.model, b); }
