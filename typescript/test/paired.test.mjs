@@ -158,3 +158,104 @@ test('exact paired replay rejects noncanonical components accepted by a permissi
   assert.deepEqual(model.decodeState(bytes), model.initialState());
   assert.throws(() => replay(model, { ...trace, initialState: bytes }), /not canonical/);
 });
+
+function reusableCodecModel(actualBytes, historyBytes) {
+  const encode = (bytes, value) => { bytes.set([value, value ^ 255]); return bytes; };
+  const decode = bytes => {
+    if (bytes.length !== 2 || bytes[1] !== (bytes[0] ^ 255)) throw new ModelError('invalid component bytes');
+    return bytes[0];
+  };
+  const actual = {
+    metadata: () => metadata('reusable-buffer-actual'), initialState: () => 7,
+    cloneState: s => s, cloneInput: i => i, cloneOutput: o => o,
+    step: (s, i) => accepted(s + i, [s + i]), checkState: () => [],
+    encodeState: s => encode(actualBytes, s), decodeState: decode,
+    encodeInput: i => Uint8Array.of(i), decodeInput: bytes => bytes[0],
+    encodeOutput: o => Uint8Array.of(o),
+  };
+  const oracle = {
+    metadata: () => metadata('reusable-buffer-history'), initialState: () => 42,
+    cloneHistory: h => h, equalHistory: (a, b) => a === b,
+    advance: (h, i) => h + i,
+    checkState: (h, s) => [h === s + 35 ? check('history.offset') : check('history.offset', 'failed', 'history offset changed')],
+    encodeHistory: h => encode(historyBytes, h), decodeHistory: decode,
+  };
+  return new WithOracle(actual, oracle);
+}
+
+for (const [name, buffers] of [
+  ['shared Uint8Array', () => { const bytes = new Uint8Array(2); return [bytes, bytes]; }],
+  ['shared Node Buffer', () => { const bytes = Buffer.alloc(8).subarray(3, 5); return [bytes, bytes]; }],
+  ['overlapping nonzero-offset views', () => { const bytes = new Uint8Array(8); return [bytes.subarray(2, 4), bytes.subarray(3, 5)]; }],
+]) test(`oracle checkpoints preserve component bytes from ${name}`, () => {
+  const [actualBytes, historyBytes] = buffers(), model = reusableCodecModel(actualBytes, historyBytes);
+  const initial = model.initialState(), checkpoint = model.encodeState(initial);
+  assert.equal(Buffer.from(checkpoint).toString('hex'), '4f524331020000000000000007f802000000000000002ad5');
+  model.encodeState({ model: 11, oracle: 46 });
+  assert.deepEqual(model.decodeState(checkpoint), { model: 7, oracle: 42 });
+
+  const trace = record(model, [1, 2]);
+  assert.equal(trace.termination, 'completed');
+  assert.equal(trace.steps.length, 2);
+  actualBytes.fill(204); historyBytes.fill(170);
+  const restored = parseTrace(stringifyTrace(trace));
+  assert.deepEqual(restored, trace);
+  assert.deepEqual([restored.initialState, ...restored.steps.map(s => s.postState)].map(bytes => model.decodeState(bytes)),
+    [{ model: 7, oracle: 42 }, { model: 8, oracle: 43 }, { model: 10, oracle: 45 }]);
+  assert.deepEqual(restored.steps.map(s => [...s.outputs[0]]), [[8], [10]]);
+  const result = replay(model, restored);
+  assert.equal(result.outcome, 'exact');
+  assert.equal(result.steps_verified, 2);
+});
+
+test('oracle encoding snapshots actual bytes before cloning history', () => {
+  const actualBytes = new Uint8Array(2), model = reusableCodecModel(actualBytes, new Uint8Array(2));
+  const initial = model.initialState();
+  model.oracle.cloneHistory = h => { actualBytes.fill(0); return h; };
+  const checkpoint = model.encodeState(initial);
+  assert.equal(Buffer.from(checkpoint).toString('hex'), '4f524331020000000000000007f802000000000000002ad5');
+  assert.deepEqual(model.decodeState(checkpoint), { model: 7, oracle: 42 });
+});
+
+test('oracle encoding rejects invalid actual bytes before invoking history callbacks', () => {
+  for (const invalid of [undefined, null, 'not bytes', [7, 248], new Uint16Array([7, 248])]) {
+    const model = reusableCodecModel(new Uint8Array(2), new Uint8Array(2));
+    const initial = model.initialState(), historyCalls = [];
+    model.model.encodeState = () => invalid;
+    model.oracle.cloneHistory = h => { historyCalls.push('clone'); return h; };
+    model.oracle.encodeHistory = () => { historyCalls.push('encode'); return Uint8Array.of(42, 213); };
+    assert.throws(() => model.encodeState(initial), error => error instanceof ModelError && /oracle codec must return bytes/.test(error.message));
+    assert.deepEqual(historyCalls, []);
+  }
+});
+
+for (const [name, wrap] of [
+  ['Uint8Array', bytes => bytes],
+  ['Node Buffer subarray', bytes => {
+    const backing = Buffer.alloc(bytes.length + 8);
+    backing.set(bytes, 3);
+    return backing.subarray(3, 3 + bytes.length);
+  }],
+]) test(`oracle decoders cannot mutate the caller's ${name} checkpoint`, () => {
+  const model = reusableCodecModel(new Uint8Array(2), new Uint8Array(2));
+  const checkpoint = wrap(model.encodeState(model.initialState())), original = Uint8Array.from(checkpoint);
+  const decodeActual = model.model.decodeState, decodeHistory = model.oracle.decodeHistory;
+  model.model.decodeState = bytes => { const value = decodeActual(bytes); bytes.fill(255); return value; };
+  model.oracle.decodeHistory = bytes => { const value = decodeHistory(bytes); bytes.fill(0); return value; };
+  assert.deepEqual(model.decodeState(checkpoint), { model: 7, oracle: 42 });
+  assert.deepEqual(Uint8Array.from(checkpoint), original);
+});
+
+test('oracle decoding snapshots actual state before reusing decoder scratch storage', () => {
+  const shared = { value: 0 };
+  const decode = bytes => { shared.value = bytes[0]; return shared; };
+  const model = new WithOracle(
+    { decodeState: decode, cloneState: state => ({ ...state }) },
+    { decodeHistory: decode, cloneHistory: history => ({ ...history }) },
+  );
+  const checkpoint = Uint8Array.from(Buffer.from('4f524331020000000000000007f802000000000000002ad5', 'hex'));
+  const restored = model.decodeState(checkpoint);
+  assert.deepEqual(restored, { model: { value: 7 }, oracle: { value: 42 } });
+  shared.value = 99;
+  assert.deepEqual(restored, { model: { value: 7 }, oracle: { value: 42 } });
+});

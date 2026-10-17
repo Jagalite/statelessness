@@ -25,6 +25,16 @@ class Counter {
   decodeInput(b) { return new TextDecoder('utf-8', { fatal: true }).decode(b); }
   encodeOutput(o) { return new TextEncoder().encode(o); }
 }
+class NumericCounter extends Counter {
+  metadata() { return metadata('numeric-counter', 'native-test-v1'); }
+  cloneInput(i) { return new CounterState(i.value); }
+  step(state, input) { return accepted(new CounterState(state.value + input.value), [input.value]); }
+  encodeState(s) { return Uint8Array.of(s.value); }
+  decodeState(b) { return new CounterState(b[0]); }
+  encodeInput(i) { return Uint8Array.of(i.value); }
+  decodeInput(b) { return new CounterState(b[0]); }
+  encodeOutput(o) { return Uint8Array.of(o); }
+}
 const config = { maxStates: 10, maxTransitions: 20, maxDepth: 10 };
 test('application classes, collision chains, and failure witnesses', () => {
   const r = enumerateStates(new Counter(), config);
@@ -108,6 +118,30 @@ test('codec buffers are owned copies including Node Buffer subclasses', () => {
   const t = record(m, ['increment', 'increment']); shared[0] = 255;
   assert.deepEqual([...t.initialState], [48]); assert.deepEqual([...t.steps[0].postState], [49]);
   assert.deepEqual([...t.steps[0].outputs[0]], [120]); assert.equal(replay(m, t).outcome, 'exact');
+});
+test('replay snapshots decoded state before another decoder reuses its scratch object', () => {
+  const trace = parseTrace(stringifyTrace(record(new NumericCounter(), [new CounterState(1), new CounterState(1)])));
+  assert.deepEqual([trace.initialState, ...trace.steps.map(s => s.postState)].map(b => [...b]), [[0], [1], [2]]);
+  assert.equal(trace.termination, 'completed');
+  const m = new NumericCounter(), scratch = new CounterState();
+  const decode = bytes => { scratch.value = bytes[0]; return scratch; };
+  m.decodeState = decode; m.decodeInput = decode;
+  const result = replay(m, trace);
+  assert.equal(result.outcome, 'exact'); assert.equal(result.steps_verified, 2);
+});
+test('replay snapshots decoded input before its encoder reuses the scratch object', () => {
+  const trace = parseTrace(stringifyTrace(record(new NumericCounter(), [new CounterState(1), new CounterState(1)])));
+  assert.deepEqual(trace.steps.map(s => ({ input: [...s.input], state: [...s.postState], outputs: s.outputs.map(b => [...b]) })),
+    [{ input: [1], state: [1], outputs: [[1]] }, { input: [1], state: [2], outputs: [[1]] }]);
+  const m = new NumericCounter(), scratch = new CounterState();
+  m.decodeInput = bytes => { scratch.value = bytes[0]; return scratch; };
+  m.encodeInput = input => {
+    const bytes = Uint8Array.of(input.value);
+    scratch.value = 99;
+    return bytes;
+  };
+  const result = replay(m, trace);
+  assert.equal(result.outcome, 'exact'); assert.equal(result.steps_verified, 2);
 });
 test('invalid numeric work limits are rejected', () => {
   for (const n of [true, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, 0]) assert.throws(() => enumerateStates(new Counter(), { ...config, maxStates: n }), ConfigError);
