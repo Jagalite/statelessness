@@ -8,7 +8,7 @@ import (
 
 // ExperimentalProfiles names candidates; these are not qualified Profiles.
 func ExperimentalProfiles() []string {
-	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1", "encode-buffers-v1", "replay-evidence-v1", "checked-results-v1", "causal-evidence-v2"}
+	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1", "encode-buffers-v1", "replay-evidence-v1", "checked-results-v1", "causal-evidence-v2", "canonical-value-codec-v1"}
 }
 
 type OracleState[S, H any] struct {

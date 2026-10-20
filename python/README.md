@@ -408,3 +408,51 @@ without overwriting, request Unix mode0600 and fsync the new file. An error afte
 creation may leave an incomplete file and reports that explicitly. There is no
 rename-atomic publication or directory-fsync claim. `causal-evidence-v2` remains
 experimental and does not promote the four qualified portable profiles.
+
+Candidate `canonical-value-codec-v1` provides native canonical value codecs through
+`statelessness.value_codec`: strict fixed-width integers, bool, unit `()`, UTF-8
+strings, `Some(value)`/`None` options, vectors, arrays, tuples and `OracleState`.
+`encode_canonical(schema, value, maximum=...)` uses bounded `EncodeBuffer` leases;
+`encode_into(schema, value, sink)` composes with preferred model codec hooks.
+`decode_canonical(schema, data, limits=DecodeLimits(...))` freezes mutable byte
+inputs after checking their byte quota. `Decoder.value(schema_or_callback)` guards
+work and nesting; raw `schema.decode(reader)` and direct string/vector
+`decode_length(width, reader)` deliberately do not add an outer guard. Length
+widths are 1, 2 or 4 bytes. `reader.finish()` rejects trailing bytes.
+
+The five independent decoder budgets are bytes, allocation, elements, depth and
+work. Allocation counts logical Rust64 requests, not Python heap usage or RSS.
+Collections require the element schema's explicit `Rust64Layout(size,
+alignment=None, profile='explicit-cooperative-weight')`; unknown compound layouts
+are never guessed. An explicit size-only descriptor is a cooperative accounting
+weight, not a measured Rust layout claim. Top-level tuples and options do not
+require an otherwise unused layout. Custom schemas may implement encoding and
+decoding independently, and diagnostics `trace_schema()`/`trace_variant()` do not
+establish model compatibility. These candidate APIs do not alter qualified
+`PROFILES` or generate model codecs automatically.
+
+`encode_raw(schema, value, sink)` and `encode_length_raw(schema, value, width,
+sink)` expose the raw trait boundary with revocable leases: a returned validation
+or callback error leaves accepted prefix bytes usable if the caller catches it.
+Rejected buffer writes remain sticky. Built-in composition uses this raw boundary.
+The stronger `encode_into` helper additionally poisons the buffer on callback
+failure; this is an explicit native callback-lifetime extension. Top-level
+`encode_canonical` never returns partial bytes on error.
+
+Schemas expose `supports_encode` and `supports_decode` independently; compositions
+propagate each direction from every field even for absent options, empty vectors
+and zero-length arrays. A missing direction fails before encoding/decoding bytes.
+Plain custom objects infer availability from their callable methods and may
+explicitly declare boolean direction metadata; inherited `Schema` placeholders
+confer no support. Length overrides also expose independent
+`supports_encode_length`/`supports_decode_length`. Encoding never requires an
+unused decoder or allocation descriptor. Custom schema capabilities must remain
+stable after a composition is constructed.
+Vector and array descriptors snapshot the optional element allocation weight at
+construction. Rebinding a custom element's layout later cannot weaken an existing
+collection's quota; a missing or invalid captured weight fails only when decoding
+that collection. Encoding remains available without allocation metadata.
+`encode_length_raw` and `decode_length_raw(schema, width, reader)` admit an exact
+unsigned-byte width before any custom callback. Custom length codecs can accept
+width 3; built-in string/vector codecs continue to accept only 1, 2 and 4. Raw
+decoding adds no outer value guard and does not call `finish` automatically.

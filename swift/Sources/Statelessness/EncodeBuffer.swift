@@ -17,6 +17,14 @@ public final class EncodeBuffer {
     public func finish() throws {
         if try storage().failed { throw ModelError("encoded blob exceeds byte or allocation limit") }
     }
+    /// Internal no-growth admission for codecs that acquire owned payloads later.
+    func requireAdditional(_ count: UInt64) throws {
+        let storage = try storage()
+        guard !storage.failed, storage.bytes.count <= storage.maximum,
+              count <= UInt64(storage.maximum - storage.bytes.count) else {
+            storage.failed = true; throw ModelError("encoded blob exceeds byte limit")
+        }
+    }
     public func extend(_ bytes: [UInt8]) throws {
         let storage = try storage()
         let (length, overflow) = storage.bytes.count.addingReportingOverflow(bytes.count)
@@ -36,6 +44,13 @@ public final class EncodeBuffer {
             let length = UInt64(storage.bytes.count - start - 8)
             for shift in 0..<8 { storage.bytes[start + shift] = UInt8(truncatingIfNeeded: length >> (shift * 8)) }
         } catch { storage.failed = true; throw error }
+    }
+    /// Direct trait-style callback lease: returned errors alone do not poison.
+    /// Rejected writes and framed callbacks retain their existing sticky state.
+    func rawSublease(_ encode: (EncodeBuffer) throws -> Void) throws {
+        let child = EncodeBuffer(try storage())
+        defer { child.owner = nil }
+        try encode(child)
     }
     func sublease(_ encode: (EncodeBuffer) throws -> Void) throws {
         let storage = try storage()

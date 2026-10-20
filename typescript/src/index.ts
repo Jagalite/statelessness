@@ -16,3 +16,5 @@ export type {RecorderOptions} from './runtime_recorder.js';
 export {DEFAULT_EVIDENCE_LIMITS,resolveEvidenceLimits,emptyCausalContext,validateTraceV2,snapshotTraceV2,writeTraceV2,writeTraceV2To,readArtifact,artifactTrace,checkPhase,replayTraceV2,verifyUpgrade,diagnosticJSON} from './evidence.js';
 export type {Provenance,OutputOrigin,CausalContext,StepEvidence,TraceV2,Artifact,EvidenceLimits,EvidenceLimitOptions,EvidenceCheckPhase,ExportPolicy} from './evidence.js';
 export {EvidenceRecorder} from './evidence_recorder.js';
+export {Decoder,DEFAULT_DECODE_LIMITS,resolveDecodeLimits,logicalLayout,customValueSchema,encodeValue,decodeValue,UNIT,NONE,some,withLength,encodeLengthValue,valueCodecs} from './value_codec.js';
+export type {DecodeLimits,ResolvedDecodeLimits,LogicalLayout,ValueSchema,LengthSchema,CustomValueSchema,Unit,Option,SchemaValue,TupleValue} from './value_codec.js';

@@ -1,0 +1,42 @@
+{
+  "captured": 1792538781.038145,
+  "job": "2f7e702f48c440769c2ba54bd67f12fc",
+  "status": "queued, execution unqualified",
+  "files": {
+    "python/src/statelessness/value_codec.py": {
+      "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735",
+      "size": 18057,
+      "mtime": 1792538720.0
+    },
+    "python/src/statelessness/codec.py": {
+      "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a",
+      "size": 5746,
+      "mtime": 1792537783.0
+    },
+    "python/src/statelessness/__init__.py": {
+      "sha256": "397a1ea891572fbfe6de2d3ba2a5b2e835be2ef3c5751450ef08c7d100d56f72",
+      "size": 4618,
+      "mtime": 1792538720.0
+    },
+    "python/tests/test_value_codec.py": {
+      "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b",
+      "size": 38835,
+      "mtime": 1792538720.0
+    },
+    "python/README.md": {
+      "sha256": "de5e633cad838ef0e0bccc8bed55a9d0288be900d95df53a2100151edfc71e7c",
+      "size": 28400,
+      "mtime": 1792538720.0
+    },
+    "conformance/canonical-value-codec-v1.json": {
+      "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+      "size": 83638,
+      "mtime": 1792537769.0
+    },
+    "spec/canonical-value-codec-v1.md": {
+      "sha256": "c94ea1d77a51d66c1da3e7ff73d146fd35011d2c5519ef8060bd9f2d89393867",
+      "size": 18911,
+      "mtime": 1792538441.0
+    }
+  }
+}

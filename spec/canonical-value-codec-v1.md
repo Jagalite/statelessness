@@ -1,12 +1,13 @@
 # canonical-value-codec-v1 (design candidate)
 
-This is a normative design draft from Rust `src/value_codec.rs`, not an
-implementation or qualification result. The companion corpus is independently
-hand-authored wire arithmetic and source-derived budget expectations. No Rust or
-native execution has qualified this draft, no target/layout is newly qualified,
-and no existing codec, default, portable profile or causal-evidence qualification
-is changed. General value codecs are an N11 building block; derive/model glue
-remains a separate N13 gate.
+This normative contract was authored as a design draft from Rust
+`src/value_codec.rs`, with independently hand-authored wire arithmetic and
+source-derived budget expectations. The finite Rust reference and four native
+suites have since passed; exact tested inputs and qualification boundaries are
+recorded in the [candidate receipts](../validation/native-parity/value-codec-slice/README.md).
+Installed-package qualification remains separate. No existing default or
+portable profile is promoted. General value codecs are an N11 building block;
+derive/model glue remains a separate N13 gate.
 
 ## Schema and API boundary
 
@@ -16,6 +17,22 @@ Names may follow each language's conventions. In particular, this design does
 not require Go to reuse its existing unrelated Codec name, Swift to raise its OS
 deployment target, or TypeScript to encode exact 64/128-bit values as Number.
 Retain existing application ModelCodec hooks; adopting descriptors is explicit.
+
+Encoding and decoding are independent capabilities, as Rust's `TraceEncode` and
+`TraceDecode` traits are independent. A custom descriptor may provide either or
+both; `LengthEncode` and `LengthDecode` are also independent capabilities with no
+ordinary encode/decode supertrait. A custom factory rejects a declaration
+providing none of these four capabilities. Composition
+preserves each capability separately: options, vectors, arrays, tuples,
+OracleState support a direction only when every required
+component supports it. This applies even to None, empty vectors and zero-length
+arrays; their data cannot bypass a missing component capability. A mixed
+composition may exist as a descriptor with neither direction, but both
+operations reject it. Capability metadata is immutable and unavailable
+operations fail before emitting or consuming bytes. Encoding never requires a
+decoder or collection allocation descriptor. A fixed-width length wrapper derives
+ordinary directions from the corresponding length override capabilities. An unknown element layout is
+required only when decoding its collection storage request.
 
 Provide distinct operations corresponding to guarded `Decoder.value`, concrete
 raw `TraceDecode::trace_decode`, and direct `LengthDecode::decode_length`. They
@@ -121,6 +138,31 @@ terminal lifecycle must be documented rather than claiming that trailing bytes
 are a recorded structural failure. The corpus marks the reusable-Rust-reader
 witness separately from mandatory guarded-reader failures.
 
+## Raw/custom encode boundary
+
+A direct TraceEncode/LengthEncode call returning Err does not automatically set
+EncodeBuffer failure. Unsupported width and length overflow can fail before any
+write. A custom encoder may append a prefix and return an error; if an outer
+encoder explicitly catches that returned error, it may continue writing and
+finish successfully. A raw callback that ignores a rejected write and returns
+Ok must still return Ok from that RAW call; only a later finish reports the
+sticky buffer failure. If that callback instead returns a different error, its
+returned error stays primary for the direct call while the write failure remains
+for later finish. Raw operations must not automatically finish on success or
+replace callback errors with stored writer errors. An actual rejected buffer
+write remains sticky even if its returned error was ignored. Explicit framed callbacks also poison on their
+returned error, as specified by encode-buffers-v1.
+
+Existing native whole-callback poisoning helpers are intentionally stronger
+policies and must not be weakened. Expose a separate clearly distinguished raw
+encode/length call, with revocable callback access, when claiming equivalence to
+these direct public Rust traits. Do not silently route raw calls through a
+helper that poisons on every returned callback error. Top-level encode helpers
+still propagate a callback failure and check finish; this distinction matters
+when a handwritten outer encoder catches the error. Native exceptions and
+malformed native-only arguments can have separately documented stronger policy;
+they must not be mislabeled as identical raw Rust Result behavior.
+
 ## Raw/custom decode boundary
 
 Raw concrete decoding and direct length overrides are cooperative APIs. Only
@@ -213,6 +255,15 @@ around the direct override, and `direct_length` omits that wrapper. All require
 finish. `decode_error_cases` carry exact failure strings and selected independent
 limits. `encode_error_cases` use one-under caps and the direct first encoder error;
 ignored-error/sticky finish behavior remains governed by encode-buffers-v1.
+`encoder_cases` exercise direct public encode/length calls against one buffer,
+catch each returned error, continue with later actions and compare finish and
+retained bytes. They distinguish nonsticky returned validation/custom errors
+from sticky rejected writes, and direct callback return from later finish. Rust
+reference checks retain exact error strings. Native assertions may normalize only
+the encode-limit message family: existing helpers may retain the first byte-limit
+wording while Rust finish says byte-or-allocation limit. This presentation rule
+does not permit adapter-only semantic recovery or changes to callback result,
+finish result, sticky state, failure category or bytes.
 `native_admission_cases` are explicitly native-only, including adjacent128-bit
 range failures, bool/integer distinction, unsafe Number, surrogate and array length.
 

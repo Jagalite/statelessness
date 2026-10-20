@@ -3667,5 +3667,238 @@
     "owned_results": "Decode from an admitted mutable input view, mutate the caller view afterward, and require returned owned values unchanged; use native-only tests where immutable input types make aliasing unrepresentable.",
     "exact_subviews": "Decode a bounded typed byte subview with unrelated prefix/suffix storage; only the selected view participates."
   },
-  "native_admission_policy": "Qualify a rejection at the actual public native boundary when the host value is representable. A statically impossible input may be recorded as a documented type exclusion, not fabricated by a narrowing cast. Fixture-adapter-only validation is not runtime codec evidence."
+  "native_admission_policy": "Qualify a rejection at the actual public native boundary when the host value is representable. A statically impossible input may be recorded as a documented type exclusion, not fabricated by a narrowing cast. Fixture-adapter-only validation is not runtime codec evidence.",
+  "encoder_cases": [
+    {
+      "case": "direct-length-unsupported-error-caught-does-not-poison",
+      "max_bytes": "8",
+      "actions": [
+        {
+          "kind": "direct_length",
+          "schema": {
+            "kind": "string"
+          },
+          "width": 3,
+          "value": ""
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "aa"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "unsupported length width",
+            "error_family": "unsupported_length_width"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "aa"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-length-overflow-caught-does-not-poison",
+      "max_bytes": "512",
+      "actions": [
+        {
+          "kind": "direct_length",
+          "schema": {
+            "kind": "string"
+          },
+          "width": 1,
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "bb"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "length overflow",
+            "error_family": "length_overflow"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "bb"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-custom-return-error-retains-prefix-without-poison",
+      "max_bytes": "4",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "aa",
+          "returns_error": "custom encode failure"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "bb"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "custom encode failure",
+            "error_family": "custom_callback"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "aabb"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-write-rejection-stays-sticky",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode",
+          "schema": {
+            "kind": "u16"
+          },
+          "value": "1"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "ff"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte limit",
+            "error_family": "encode_limit"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte limit",
+            "error_family": "encode_limit"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "raw-custom-swallowed-write-failure-returns-ok-before-finish",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "0102",
+          "ignore_prefix_error": true,
+          "returns_error": null
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "raw-custom-callback-error-primary-over-sticky-write",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "0102",
+          "ignore_prefix_error": true,
+          "returns_error": "different callback error"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "different callback error",
+            "error_family": "custom_callback"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    }
+  ],
+  "encoder_error_policy": {
+    "rust_reference": "Assert exact Rust error strings as well as family.",
+    "native": "Only encode-limit message presentation may normalize between the first sticky byte/allocation limit wording and Rust finish generic byte-or-allocation wording. Preserve the actual direct callback result, subsequent finish result, failure family, sticky state and retained bytes.",
+    "forbidden": "Do not auto-finish a raw successful callback, replace a callback error with an earlier writer error, clear sticky failures, or fabricate success/recovery in the fixture adapter."
+  }
 }

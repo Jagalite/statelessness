@@ -15,7 +15,7 @@ interface Root {
     state: StorageState;
     maximum: bigint;
     failed: boolean;
-    error?: ModelError;
+    error?: string;
 }
 interface Lease {
     root: Root | null;
@@ -33,26 +33,39 @@ function active(buffer: EncodeBuffer): Lease & {
         if (!p.active)
             throw new ModelError('encode buffer lease expired');
     if (lease.root.failed)
-        throw lease.root.error;
+        throw new ModelError(lease.root.error!);
     return lease as Lease & {
         root: Root;
     };
 }
+function ownedError(error: unknown): ModelError {
+    try {
+        return new ModelError(error instanceof Error ? String(error.message) : String(error));
+    }
+    catch {
+        return new ModelError('codec callback failed');
+    }
+}
 function failure(root: Root, error: unknown): ModelError {
     if (!root.failed) {
         root.failed = true;
-        root.error = error instanceof ModelError ? error : new ModelError(error instanceof Error ? error.message : String(error));
+        // Publish a defined immutable diagnostic before invoking application formatters.
+        root.error = 'codec callback failed';
+        root.error = ownedError(error).message;
     }
-    return root.error!;
+    return new ModelError(root.error!);
 }
-function operation<T>(buffer: EncodeBuffer, fn: (root: Root) => T): T { const l = active(buffer); try {
-    return fn(l.root);
+function operation<T>(buffer: EncodeBuffer, fn: (root: Root) => T): T {
+    const l = active(buffer);
+    try {
+        return fn(l.root);
+    }
+    catch (e) {
+        if (!l.root.failed)
+            throw failure(l.root, e);
+        throw ownedError(e);
+    }
 }
-catch (e) {
-    if (!l.root.failed)
-        failure(l.root, e);
-    throw e instanceof ModelError ? e : new ModelError(e instanceof Error ? e.message : String(e));
-} }
 function bytesView(value: Uint8Array): Uint8Array {
     if (!(value instanceof Uint8Array))
         throw new ModelError('codec must supply Uint8Array');
@@ -72,12 +85,12 @@ function invoke(root: Root, parent: Lease | undefined, callback: (buffer: Encode
     try {
         requireSynchronousCodecReturn(callback(buffer));
         if (root.failed)
-            throw root.error;
+            throw new ModelError(root.error!);
     }
     catch (e) {
         if (!root.failed)
-            failure(root, e);
-        throw e instanceof ModelError ? e : new ModelError(e instanceof Error ? e.message : String(e));
+            throw failure(root, e);
+        throw ownedError(e);
     }
     finally {
         lease.active = false;
@@ -122,7 +135,7 @@ export class EncodeBuffer {
             this.extend(new Uint8Array(8));
             invoke(root, active(this), callback);
             if (root.failed)
-                throw root.error;
+                throw new ModelError(root.error!);
             const length = root.state.length - start - 8;
             new DataView(root.state.bytes.buffer, root.state.bytes.byteOffset, root.state.bytes.byteLength).setBigUint64(start, BigInt(length), true);
         });
@@ -161,4 +174,38 @@ export function appendModelEncoding<S, I, O>(m: CodecModel<S, I, O>, kind: Encod
 export function encodeModel<S, I, O>(m: CodecModel<S, I, O>, kind: EncodingKind, value: S | I | O, storage: EncodeStorage, maximum: number | bigint = Number.MAX_SAFE_INTEGER): Uint8Array {
     withEncodeBuffer(storage, maximum, buffer => appendModelEncoding(m, kind, value, buffer));
     return storage.snapshot();
+}
+/** Internal codec admission: preserve Rust's whole-chunk rejection before UTF8 scratch/copy.
+ * Shares sticky failure state and never grows or mutates destination bytes.
+ */
+export function preflightEncodeAppend(buffer: EncodeBuffer, count: bigint): void {
+    operation(buffer, root => {
+        if (typeof count !== 'bigint' || count < 0n || count > ((1n << 64n) - 1n))
+            throw new ModelError('append count must be u64');
+        if (BigInt(root.state.length) + count > root.maximum)
+            throw new ModelError('encoded blob exceeds byte limit');
+    });
+}
+/** Internal direct-trait scope: returned callback errors do not poison the sink.
+ * Actual writer operations and framed callbacks retain their existing sticky behavior.
+ * A callback can run after an earlier writer failure, but any attempted sink operation
+ * still returns that failure. Every raw child lease expires on success or exception.
+ */
+export function withRawChildEncodeBuffer(buffer: EncodeBuffer, callback: (child: EncodeBuffer) => void): void {
+    const parent = leases.get(buffer);
+    if (!parent?.active || !parent.root)
+        throw new ModelError('encode buffer lease expired');
+    for (let p: Lease | undefined = parent; p; p = p.parent)
+        if (!p.active)
+            throw new ModelError('encode buffer lease expired');
+    const child = Object.create(EncodeBuffer.prototype) as EncodeBuffer, lease: Lease = { root: parent.root, parent, active: true };
+    leases.set(child, lease);
+    try {
+        requireSynchronousCodecReturn(callback(child));
+    }
+    finally {
+        lease.active = false;
+        lease.root = null;
+        lease.parent = undefined;
+    }
 }

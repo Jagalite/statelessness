@@ -372,3 +372,58 @@ uses an uncached semantic scan followed by ordered v1 sizing to avoid retaining 
 journal proportional to rejected input; rejected-input accessors may therefore be
 read again. Such inputs cannot become accepted evidence, and immutable/deterministic
 source values remain the ownership contract.
+
+`canonical-value-codec-v1` is an experimental candidate. `valueCodecs` provides
+fixed-width integers, strict bool/String, `UNIT`, tagged `NONE` / `some(value)`,
+vector, fixed array, tuple arities 1–4 and `oracleState` descriptors. Widths through
+32 bits use strict integer `number`; 64/128-bit values use `bigint` exclusively.
+UTF-8 preserves BOM, NUL and byte-distinct normalization forms and rejects malformed
+bytes or unpaired UTF-16 surrogates. There are no built-in floats, chars, native
+usize/isize, maps, sets, arbitrary objects or reference graphs.
+
+`encodeValue(schema, value, maximum)` returns bounded canonical bytes;
+`decodeValue(schema, bytes, limits)` requires one guarded value and complete input
+consumption. A public `Decoder` independently admits `bytes`, `allocation`,
+`elements`, `depth` and `work` as exact u64 `bigint` (safe integer numbers are also
+accepted). It copies admitted input using intrinsic typed-array view boundaries.
+`take` returns owned bytes, `collection` charges in Rust source order and `value`
+accounts for the actual nested guarded call graph. The first structural/callback
+failure remains sticky, with an owned diagnostic snapshot; catchable native
+exceptions restore depth. `finish` reports trailing bytes without making that
+terminal check sticky, so this public reader remains reusable as in Rust.
+
+`schema.decodeFrom(reader)` is raw; `reader.value(schema)` is guarded. String and
+vector `decodeLength(width, reader)` directly override only their own length
+prefix, while `withLength(schema, width)` creates a separately guarded schema.
+Only widths 1, 2 and 4 are supported. `encodeLengthValue` is a small native prefix
+primitive; its arithmetic tests do not claim execution of Rust's private helper
+or enormous container loops.
+
+`schema.encodeRaw(value, out)` and `encodeLengthRaw(value, width, out)` match the
+cooperative direct Rust trait boundary: a caught returned validation/callback
+error does not itself poison the buffer. Actual rejected writes and framed
+callback failures remain sticky; raw callbacks do not implicitly finish and can
+run even on an already failed sink. Every raw child lease expires on return/error.
+The existing `encodeInto` / `encodeLength` helpers retain the stronger native
+callback-poisoning policy. Built-in raw composition forwards through raw child
+encoders. String encoding writes its prefix, admits the entire body against the
+shared cap, then uses fixed UTF-8 scratch; it never allocates a full unadmitted
+UTF-8 payload. Existing engine codec hooks keep their behavior.
+
+Allocation descriptors use explicit logical Rust64 request weights, not JavaScript
+heap/RSS. Built-ins have measured scalar/header weights and a finite option/array/
+tuple layout table. Unknown compound shapes remain usable at the top level but
+need a caller-supplied `logicalLayout(bytes, name)` before collection decoding. No generic Rust-layout inference, niche arithmetic or wire-size sum is
+used. The first qualified convention is the separately measured Rust 1.99
+`aarch64-apple-darwin` target; other targets are not implied. Caller-declared custom
+weights are cooperative assertions, not compiler-verified layout identities.
+`customValueSchema` accepts either or both handwritten encode/raw-decode callbacks.
+Missing directions reject at use, including empty composite values; encoding needs
+no decoder or collection allocation layout. Direction availability propagates
+through options, vectors, arrays, tuples and OracleState. Optional `encodeLength` /
+`decodeLength` callbacks have independent directions; a length-only descriptor
+works through `withLength` without inventing ordinary encoder/decoder callbacks.
+The unified descriptor exposes unavailable methods with clear runtime errors;
+schema/variant names are diagnostic only. Arbitrary callback work/allocations and
+fatal process OOM remain outside these logical budgets. Model/derive convenience
+and version glue are a separate N13 scope; adopting these descriptors is explicit.

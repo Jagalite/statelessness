@@ -1,0 +1,77 @@
+{
+  "intermediates": [
+    {
+      "job_id": "17548d7e642d4162bda7a6dcd855a7bf",
+      "status": "succeeded",
+      "exit_code": 0,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "tests": 816,
+      "pass": 816,
+      "fail": 0,
+      "source_manifest": "diagnostic-17548d7e642d4162bda7a6dcd855a7bf-source.json",
+      "source_reconciled_after_execution": true,
+      "log_bytes": 55986,
+      "log_sha256": "d86a6d89aa158a9a2ed569dcf932f1fa6231d44b52cc48978ad3f42e302ed03e",
+      "gzip_bytes": 13639,
+      "gzip_sha256": "8d3a9418a496821c98421324a541bf1ffe9e16f928d0a6bceaeb3ff344673fef"
+    },
+    {
+      "job_id": "fdf984ee660c4016925aa203f2860d1c",
+      "status": "succeeded",
+      "exit_code": 0,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "source_manifest": "diagnostic-fdf984ee660c4016925aa203f2860d1c-source.json",
+      "source_reconciled_after_execution": true,
+      "log_bytes": 57215,
+      "log_sha256": "e8a0a30fc376f173aafabb78114e612ca28bb3e63c4ada2e498659fe44586cff",
+      "gzip_bytes": 13846,
+      "gzip_sha256": "aadfcd7210ec474dcd4586a1737fe95429ffae44dba73a3664e1463ac0383d34",
+      "tests": 828,
+      "pass": 828,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  ],
+  "final": {
+    "job_id": "fa80f97beec847f99c93008a0d70710b",
+    "status": "succeeded",
+    "exit_code": 0,
+    "requested_command": [
+      "npm",
+      "test"
+    ],
+    "effective_command": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+    "tests": 829,
+    "pass": 829,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "source_manifest": "final-source.json",
+    "source_reconciled_after_execution": true,
+    "log_bytes": 57350,
+    "log_sha256": "5cce8243d078206c7c6b42c238da9d5182146d0e52a0734d850175f25f66ccc2",
+    "gzip_bytes": 14021,
+    "gzip_sha256": "3b6bcc046e53997177d81afa0cd0c6314c397ee07d8fc2017a6c276001425bee"
+  }
+}

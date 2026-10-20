@@ -310,12 +310,38 @@ exposed Swift helper naming and optional diagnostic-file validation defects in
 the consumer harness. All 144 broad qualification-pending cells and the four
 promoted profiles remain unchanged. Registry, browser and broader platform
 qualification remain open. The finite candidate work does not establish
-general canonical value-codec APIs, debugger integration, cross-platform/browser
+derive/model-codec glue, debugger integration, cross-platform/browser
 qualification, hard RSS bounds or complete N05/N11/native parity. Metadata decoder
 allocation accounting uses the specified Rust64 logical schema weights rather
 than managed-runtime heap sizes. CRC and causal/provenance labels provide no
 authentication. New-file exports provide neither rename-atomic publication nor
 parent-directory fsync durability.
+
+## Canonical value codec candidate
+
+All four native engines now expose the [canonical built-in codec candidate](../spec/canonical-value-codec-v1.md):
+exact fixed integers through 128 bits, bool/unit, strict UTF-8 strings, vectors,
+options, fixed arrays, tuples and OracleState. Public readers preserve independent
+byte/allocation/element/depth/work budgets and guarded versus raw call graphs.
+Ordinary encoding/decoding and length-override encoding/decoding are independent
+capabilities; missing child capabilities cannot be bypassed by empty/absent values.
+Raw encoder errors preserve accepted prefixes and callback return priority while
+actual failed writes remain sticky. Existing stronger helpers retain their policy.
+
+The frozen source and finite Rust64 layout weights are pinned in the ledger.
+These weights are measured structural requests, not native heap/RSS limits or a
+generic Rust layout algorithm. Unknown compound collection elements require
+explicit layouts. Descriptors are wired manually to existing model codec hooks;
+custom record/enum builders, derive length fields and ModelCodec version glue
+remain a separate [N13 audit](native-parity/DERIVE-MODEL-CODEC-AUDIT.md).
+Opaque foreign callback error objects retain native diagnostic ownership.
+
+[Archived final Kyoto receipts](../validation/native-parity/value-codec-slice/README.md) record: Rust 149 reference cases, Python 248 tests with
+12 ABI skips, TypeScript 829 tests, Swift 134 methods, and Go tests plus vet.
+Installed-consumer job `f950cc5fc6d741028582cdc376952461` is queued and remains pending. This finite source
+and runtime evidence does not promote profiles or change any of the 144 broad
+qualification-pending cells. Registry, browser, broader platform/resource and
+performance qualification remain open.
 
 ## Next work
 

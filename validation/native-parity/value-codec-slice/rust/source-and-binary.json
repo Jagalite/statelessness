@@ -1,0 +1,86 @@
+{
+  "captured_utc": "2026-10-20T23:23:56.700813+00:00",
+  "head": "d7c659211067d5226cbe2393b8092c5df81f9774",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "final_build": "10cf0553837042e1a7f3ed637841a54e",
+  "files": {
+    "validation/corpus/src/values_reference.rs": {
+      "size": 51038,
+      "sha256": "2e0330e018adc3247dccb5b9191e9edd8d8fdb6a761a2fe2b03187191370992a"
+    },
+    "validation/corpus/src/bin/native-values.rs": {
+      "size": 1557,
+      "sha256": "53034f37d1f2c33259eaa725653dabc58550f3c8ba061866c28a82628de7fbe9"
+    },
+    "conformance/canonical-value-codec-v1.json": {
+      "size": 83638,
+      "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c"
+    },
+    "spec/canonical-value-codec-v1.md": {
+      "size": 18911,
+      "sha256": "c94ea1d77a51d66c1da3e7ff73d146fd35011d2c5519ef8060bd9f2d89393867"
+    },
+    "validation/corpus/Cargo.toml": {
+      "size": 357,
+      "sha256": "9ce8bce273f018b11dacd43ef28dc9f1eede950b4562608d24187414bacdeec6"
+    },
+    "validation/corpus/Cargo.lock": {
+      "size": 2728,
+      "sha256": "41b94c5d964f4d5eec6935a59b8b0be6169b417f20689ca6cba5015e62cee14f"
+    },
+    "src/value_codec.rs": {
+      "size": 11471,
+      "sha256": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3"
+    },
+    "src/model.rs": {
+      "size": 15663,
+      "sha256": "e69a80ad96826a27871807f848e22fd213a7bee9f95d76be92069e68504f5beb"
+    },
+    "src/evidence.rs": {
+      "size": 30342,
+      "sha256": "bac44cf62db1c2c40c9f66fe7ad1d941fa33cda5badc4709374d0b930355391e"
+    },
+    "src/monitor.rs": {
+      "size": 29844,
+      "sha256": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac"
+    },
+    "src/observation.rs": {
+      "size": 16654,
+      "sha256": "c0c288b687dbf03a87be44dab322af47ca8c3472997da337544972f5962fd870"
+    },
+    "src/operations.rs": {
+      "size": 10443,
+      "sha256": "ec19cf028645dd16f6f389cc7fa0fa3a44a72a02838842a906ca11bb2303649b"
+    },
+    "src/execution.rs": {
+      "size": 30401,
+      "sha256": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0"
+    },
+    "src/execution/replay_kernel.rs": {
+      "size": 18912,
+      "sha256": "a7a4c8242408531e10453b0314c11b26c8c469ce2c8eca56e81c2e748d783cd1"
+    },
+    "src/lib.rs": {
+      "size": 2595,
+      "sha256": "e11f13805755f9923c00840e9352d235cfbd61d1c66c8b3245d2c59fa91165c7"
+    },
+    "Cargo.toml": {
+      "size": 1714,
+      "sha256": "adabbcff4b29003b76ec881cd95d5753c1e8c89371684c8f08490eee70a54744"
+    },
+    "Cargo.lock": {
+      "size": 462,
+      "sha256": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2"
+    },
+    "build.rs": {
+      "size": 2124,
+      "sha256": "7aa837eaa71019a2fc6994d4c5886a0aabd6e0dc523e8cd8e964decde1dcf37b"
+    }
+  },
+  "binary": {
+    "path": "/Volumes/seed2/Projects/stateless-native-parity/validation/corpus/target/debug/native-values",
+    "size": 4422048,
+    "sha256": "0dccbad837682591f4b84bf772a4ef13743a2bdecf54c0abd8f17a47452b7682"
+  },
+  "note": "Final frozen reference source after independent LengthOnly bounds control. Earlier Rust app smoke is archived separately with its pre-LengthOnly exact reference hashes; no identity equivalence claim is made for that executable."
+}

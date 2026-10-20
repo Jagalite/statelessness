@@ -379,3 +379,77 @@ Upgrade performs pure structural argument admission at entry before copying
 mutable evidence. It defers stored-artifact errors until after identity checks
 and provenance errors until after exact replay, preserving replay callback order.
 Known-unfit collections are not cloned; metadata is evaluated once by replay.
+
+`canonical-value-codec-v1` is an experimental, opt-in module. `ValueCodec[T]` is
+separate from model `Codec[S,I,O]`. Builtin constructors cover exact fixed-width
+integers, bool, Unit, strict UTF-8 strings, options, vectors, fixed arrays, tuples
+of arity 1–4, and OracleState. Integers use native fixed types; Uint128 and Int128
+use exact two-limb representations. There are no float, host-int, map, dynamic
+object, or implicit narrowing codecs. Option[T] has explicit Present and Value.
+String lengths count exact UTF-8 bytes without normalization or BOM removal.
+`ArrayOf(n, element)` uses an exactly sized slice with no wire prefix; application
+[N]T adapters can explicitly convert through NewValueCodec callbacks.
+
+`EncodeValue(codec, value, maximum)` owns a bounded result and returns no bytes
+on failure. `codec.EncodeRaw(value, buffer)` appends through a fresh revocable
+lease, matching cooperative direct TraceEncode semantics: returned validation or
+callback errors alone do not poison the sink. Builtin raw composition calls its
+children raw. `EncodeStringLength`/`EncodeLengthRaw` and `EncodeVectorLength`/
+`EncodeVectorLengthRaw` override only their own 1/2/4-byte length prefix.
+`codec.EncodeInto` is a stronger native convenience that makes callback errors
+sticky, as existing model encoding helpers do. Failed writes remain sticky under
+both paths; escaped child leases expire on every return or contained panic.
+`FinishValueEncoding(buffer)` exposes Rust's canonical generic finish category
+and wraps the underlying native cause. Existing EncodeBuffer.Finish continues to
+return the first native cause unchanged. Top-level EncodeValue propagates a raw
+encoder error before checking canonical finish, preserving source order.
+
+`NewDecoder(bytes, limits)` checks byte admission before acquiring owned input.
+`ReadValue(decoder, codec)` charges one work unit before checking nesting, runs
+the concrete decoder, and records the first error. `codec.DecodeRaw(decoder)`
+omits that guard; `DecodeStringLength` and `DecodeVectorLength` are direct length
+operations, with only a guarded length integer. Returned raw validation errors
+can be caught without poisoning the reader; failed Take, Collection, or nested
+guards remain sticky. `FromValueBytes` constructs a reader, enters one guard,
+and requires Finish. Public readers remain reusable: Finish's trailing-byte
+error does not become sticky. Take returns detached bytes; collection admission
+precedes storage allocation. Native callbacks can nest guarded decoding normally.
+
+DecodeLimits defaults are independent: bytes 16 MiB, logical allocation 32 MiB,
+elements 1,000,000, depth 64, and work 2,000,000. Collection first subtracts elements,
+then checks uint64 multiplication, subtracts requested allocation, and checks
+remaining work without subtracting it. Strings additionally consume byte work;
+zero-sized elements still consume elements and guarded work. Limits/Depth/Remaining
+accessors return diagnostics, not mutable reader internals. Catchable callback
+panics become constant errors without formatting panic payloads; guards restore
+depth and retain an earlier failure. This is a native extension, not Rust unwind
+behavior or a guarantee to recover fatal process OOM.
+
+Logical allocation descriptors use explicit Rust64 schema weights, not wire size
+or Go heap/RSS. Layout is required only where collection decoding requests element
+storage. Top-level options and tuples can decode with unknown layout. Known finite
+builtin layouts are selected by private engine identities, never diagnostic schema
+strings. Unknown compositions need a caller-declared NewValueLayout and WithLayout
+before serving as collection elements; such declarations are not measurements.
+No generic option/tuple alignment or niche inference is attempted. Custom callbacks
+remain cooperative: truthful declared layouts, purity, and bounded host work are
+application obligations. Schema, Variant, and value-aware VariantFor/WithVariantFunc
+are diagnostic labels, not compatibility identities or wire tags.
+
+Adoption into model persistence is explicit: connect descriptor EncodeInto to
+EncodeStateInto/EncodeInputInto/EncodeOutputInto and use FromValueBytes for state
+and input decoders. Outputs remain encode-only. Shared tests use
+STATELESS_VALUE_CORPUS or conformance/canonical-value-codec-v1.json. Arithmetic-only
+prefix witnesses and invalid values excluded by Go's static types are reported
+separately from public API executions.
+NewValueCodec accepts independent encode-only and decode-only descriptors; only
+supplying neither operation is invalid. Missing operations report a clear native
+configuration error at use, and composite descriptors preserve their children's
+capabilities. An encode-only descriptor can serve model outputs without inventing
+an output decoder. `AdaptFixedArray` supplies explicit to/from conversions for
+application [N]T values, validates both conversion lengths, and preserves the
+array decoder's original guards and allocation requests.
+
+`LengthValueCodec[T]` independently declares length encode and/or decode callbacks with `NewLengthValueCodec`; it requires no ordinary codec callbacks. `EncodeLengthRaw` and `DecodeLengthRaw` preserve direct-call error semantics and encoder lease expiry, while `EncodeLengthInto` additionally poisons callback errors. `WithWidth` selects an ordinary `ValueCodec` without adding a raw decoder guard. `StringLengthValueCodec` and `VectorLengthValueCodec` reuse the built-in width algorithms.
+
+The canonical decoder owns built-in `ModelError` payloads in sticky failures and returns detached copies. Opaque application errors retain identity and are never formatted or serialized merely to store a failure.

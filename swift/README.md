@@ -396,3 +396,76 @@ A write/sync failure may leave an explicitly reported incomplete new file; these
 APIs do not promise rename-atomic publication or parent-directory synchronization.
 The candidate remains experimental and does not promote the four portable
 profiles or close the overall native parity/evidence qualification plan.
+
+## Experimental canonical value codecs
+
+`ValueCodecs` supplies exact fixed-width integer schemas, portable two-limb
+`TraceUInt128`/`TraceInt128`, strict bool and UTF-8 String, `TraceUnit`, vectors,
+options, fixed arrays, `TraceTuple1` and tuples2–4, and sequential `OracleState`.
+These schemas are explicit and their bytes have no dynamic type tags. They do
+not infer a codec from arbitrary Swift types. The portable128 forms preserve the
+existing OS deployment targets without a BigInt dependency. Typed option presence
+preserves `.some(TraceUnit())` and nested `.some(.none)` distinctly from `.none`.
+
+`TraceValueCodec.traceBytes(_:maximum:)` bounds a new encoding;
+`encode(_:into:)` appends through a revocable `EncodeBuffer` callback lease.
+`fromTrace(_:limits:)` enters one guarded value and rejects trailing bytes.
+`ValueDecoder` exposes `take`, guarded `value`, `collection` and reusable `finish`.
+Its five independent `DecodeLimits` use exact UInt64 counters. Concrete
+`decode(from:)` and direct `decodeLength(width:from:)` deliberately omit the outer
+value guard; arbitrary raw validation errors become sticky only if propagated
+through a guard. Structural reader failures remain sticky even if caught.
+`encodeRaw` and `encodeLengthRaw` preserve direct Rust trait semantics: returned
+validation/callback errors alone do not poison the writer, while rejected writes
+remain sticky. Both expire the callback lease. `encode`/`encodeLength` retain the
+existing stronger whole-callback poison policy as a native convenience.
+Direct string/vector length overrides accept widths1,2,4. Swift fatal traps/OOM
+are outside catchable ModelError handling, and callbacks remain synchronous and
+cooperative rather than a sandbox for arbitrary allocation or work.
+
+`Rust64ValueLayout` states an explicit logical Rust64 allocation-request weight.
+It is neither Swift `MemoryLayout` nor a heap/RSS limit. Unknown tuple/option/
+custom layouts are absent by default; supply a reference-qualified descriptor
+before using them as collection elements. Builtin scalar and String/vector
+header weights use the explicit Rust64 convention. `Rust64ValueLayouts.measured`
+provides a finite reference ledger measured with Rust1.99.0 on
+aarch64-apple-darwin (Kyoto f0351a737e3f43758f30430d8a92d4c4); select those
+weights explicitly, such as `.optionU64`. This does not infer unlisted layouts.
+Runtime/native qualification receipts remain separate. Schema spellings and optional
+`traceVariant` diagnostics do not prove compatibility. Decoded values and byte
+slices own copy-on-write storage; later caller mutations cannot alter the reader.
+No new Sendable or concurrency guarantee is introduced. Protocol conveniences
+`TraceEncodable` and `TraceDecodable` support handwritten types independently;
+record/enum generation and ModelCodec version glue remain a separate N13 gate.
+Existing application Codec callbacks can explicitly call these descriptors.
+
+Shared tests honor `STATELESS_VALUE_CORPUS`. Executable value, error and reader
+rows are separate from arithmetic-only prefix witnesses and native-only admission
+rows. Typed Swift boundaries exclude many malformed host inputs statically;
+fixture conversions are not represented as public runtime admission evidence.
+The four promoted portable profiles remain unchanged.
+
+Directions compose independently. Construct custom schemas with `encodeOnly:` or
+`decodeOnly:`, or use the throwing `encoding:decoding:` initializer (all callbacks absent
+is rejected). `TraceValueCodec<MyEncodable>.encoding()` and
+`TraceValueCodec<MyDecodable>.decoding(layout:)` adapt the separate protocols.
+`supportsEncoding`/`supportsDecoding` propagate through every container, tuple,
+OracleState and `withLayout`; encoding never requires a decode allocation layout.
+Missing directions reject at the native schema boundary before writes, bytes,
+guard work or callbacks, even for absent options, empty vectors and zero arrays.
+A reader's already sticky error takes precedence in guarded `value(schema)`.
+A mixed tuple with no common direction advertises both capabilities false; its
+nonthrowing builder preserves the shape, while both operations reject before
+partial work. Direction admission itself is not a recorded reader failure and
+does not poison a caller-owned encode buffer. Existing raw versus strong callback
+error policies apply once a supported callback is entered.
+
+Length traits are independent too: the public optional initializer additionally
+accepts `encodingLength:` and `decodingLength:` without ordinary callbacks.
+`supportsLengthEncoding` and `supportsLengthDecoding` report them separately.
+`withLength(width)` selects those callbacks as ordinary encoding/decoding while
+preserving layout and diagnostic variant; its raw decode adds no guard, while
+`fromTrace` keeps the usual top-level guard. Direct `encodeLengthRaw` and
+`decodeLength` do not require ordinary directions. Container length capabilities
+still require the element's ordinary traits, including empty containers. No
+placeholder ordinary implementation is needed for a custom length-only adapter.

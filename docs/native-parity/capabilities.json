@@ -14,6 +14,17 @@
       "examples/native-evidence/swift/Package.swift",
       "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
       "examples/native-evidence/typescript/consumer.ts",
+      "examples/native-values/README.md",
+      "examples/native-values/contract.json",
+      "examples/native-values/go/main.go",
+      "examples/native-values/go/values.go",
+      "examples/native-values/python/consumer.py",
+      "examples/native-values/python/values.py",
+      "examples/native-values/swift/Package.swift",
+      "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+      "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+      "examples/native-values/typescript/consumer.ts",
+      "examples/native-values/typescript/values.ts",
       "go/audit_binary.go",
       "go/audit_binary_read.go",
       "go/audit_record.go",
@@ -39,6 +50,16 @@
       "go/replay_evidence.go",
       "go/search_observer.go",
       "go/shrink.go",
+      "go/value_array_adapter.go",
+      "go/value_array_adapter_test.go",
+      "go/value_capability_test.go",
+      "go/value_codec.go",
+      "go/value_composite.go",
+      "go/value_composite_test.go",
+      "go/value_corpus_test.go",
+      "go/value_error_ownership_test.go",
+      "go/value_length.go",
+      "go/value_length_test.go",
       "python/src/statelessness/audit_record.py",
       "python/src/statelessness/checked.py",
       "python/src/statelessness/codec.py",
@@ -48,9 +69,12 @@
       "python/src/statelessness/replay_evidence.py",
       "python/src/statelessness/search.py",
       "python/src/statelessness/trace_binary.py",
+      "python/src/statelessness/value_codec.py",
       "python/tests/test_evidence.py",
       "python/tests/test_evidence_recorder.py",
+      "python/tests/test_value_codec.py",
       "scripts/check-native-evidence-consumers.py",
+      "scripts/check-native-value-consumers.py",
       "spec/append-checks-v1.md",
       "spec/bfs-controls-v1.md",
       "spec/causal-evidence-v2.md",
@@ -73,9 +97,19 @@
       "swift/Sources/Statelessness/Recorder.swift",
       "swift/Sources/Statelessness/Replay.swift",
       "swift/Sources/Statelessness/Shrink.swift",
+      "swift/Sources/Statelessness/ValueCodec.swift",
+      "swift/Sources/Statelessness/ValueCodec128.swift",
+      "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+      "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+      "swift/Sources/Statelessness/ValueCodecLayouts.swift",
       "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
       "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
       "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
       "typescript/src/audit_budget.ts",
       "typescript/src/audit_record.ts",
       "typescript/src/binary.ts",
@@ -90,16 +124,24 @@
       "typescript/src/runtime_recorder.ts",
       "typescript/src/search.ts",
       "typescript/src/search_support.ts",
+      "typescript/src/value_codec.ts",
       "typescript/test/evidence-recorder.test.mjs",
       "typescript/test/evidence.test.mjs",
+      "typescript/test/value-codec.test.mjs",
       "validation/corpus/src/bin/native-evidence.rs",
-      "validation/corpus/src/evidence_reference.rs"
+      "validation/corpus/src/bin/native-values.rs",
+      "validation/corpus/src/evidence_reference.rs",
+      "validation/corpus/src/values_reference.rs"
     ],
-    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending.",
+    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending. The canonical-value-codec-v1 scoped snapshot refreshes only listed built-in codec/reader/layout/direction/adapter/export/glue/contract/corpus/test/consumer files after global root source freeze; derive/model glue remains separate and installed proof is pending.",
     "files": [
       {
         "path": "Package.swift",
         "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4"
+      },
+      {
+        "path": "conformance/canonical-value-codec-v1.json",
+        "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c"
       },
       {
         "path": "conformance/causal-evidence-v2.json",
@@ -186,8 +228,52 @@
         "sha256": "792dd5180977d04be632301ae8f775b12eef8c68e481e1abffe0c7e22610c3d4"
       },
       {
+        "path": "examples/native-values/README.md",
+        "sha256": "d473d7ec06dccf3aa482e9df43e9560727a390a8d4f3cfadcd7a0c837a5be64b"
+      },
+      {
+        "path": "examples/native-values/contract.json",
+        "sha256": "2f8b41e65715f0f57c43195ca0d38dde9459912c12a4c6db6b29d1f4b3d6dccc"
+      },
+      {
+        "path": "examples/native-values/go/main.go",
+        "sha256": "94e25c20076bca2f3f0d0393b503a377ee6220a9acf3f20e184332f9ed2107ef"
+      },
+      {
+        "path": "examples/native-values/go/values.go",
+        "sha256": "2b919d3cd53b26e1f4936402960cf8e3d8a70e6cb5b0753b393e706e4479621c"
+      },
+      {
+        "path": "examples/native-values/python/consumer.py",
+        "sha256": "9d1a6e626eb339334719c12bc0868a2cf84562b81621951d3e28908c3f89df00"
+      },
+      {
+        "path": "examples/native-values/python/values.py",
+        "sha256": "afcba4df6ab2cf49bd7baf228c869565cc5bc2f2723ef251fef7f4fae8ef4c62"
+      },
+      {
+        "path": "examples/native-values/swift/Package.swift",
+        "sha256": "129650cf1c0f8ae7f6f1b6babc8b9e8839cc02e035e89bd191cc0a9d57bf39a4"
+      },
+      {
+        "path": "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+        "sha256": "520ae6ce198d3ca4602ea5971ac91814f3a4da21c2a675e244f4a57cb85d3db3"
+      },
+      {
+        "path": "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+        "sha256": "84d37075e4b5fbdaffe5010e0ce472468a3873cd97970485969fba5c832e2b9f"
+      },
+      {
+        "path": "examples/native-values/typescript/consumer.ts",
+        "sha256": "5f58cdd95bdc6db3cb53b67abc1d08b5eeeedb3b21141e5562785d7640e5db9d"
+      },
+      {
+        "path": "examples/native-values/typescript/values.ts",
+        "sha256": "a8cc88fb1e26a9af2502f41165a38f9c8a81b237efde522e76d7226c40949d27"
+      },
+      {
         "path": "go/README.md",
-        "sha256": "5b6d6765970a53597f8e662aef3672d638a9a1bc2e0bb39812a0df91e0fbea19"
+        "sha256": "95fce14fb33175bb6d4f9af18eb41e3df5e050cbc03011a157a77719f0f880c7"
       },
       {
         "path": "go/audit_binary.go",
@@ -291,7 +377,7 @@
       },
       {
         "path": "go/oracle.go",
-        "sha256": "453571df4f475fb19c6585aef4eff4def117f1ce2601843f19f5d955c5635c80"
+        "sha256": "cafacf4ad6dbe547ba66bf30a9f9efb4dafe0c3a14bf8bb9eb9c8528d50f85aa"
       },
       {
         "path": "go/paired.go",
@@ -322,8 +408,48 @@
         "sha256": "b5760742819f024638a055a757b29c20de4c1f90cba8bd50b3a2cb9ca724c8ed"
       },
       {
+        "path": "go/value_array_adapter.go",
+        "sha256": "797762172d9675ae4ccf9ae6ba16a00e309c5cfc649ae0484e803387e85bedba"
+      },
+      {
+        "path": "go/value_array_adapter_test.go",
+        "sha256": "0ad6585578eb878edab3abd492e5e7065f024e97d00f618c1f3026157a0abe76"
+      },
+      {
+        "path": "go/value_capability_test.go",
+        "sha256": "56a19f1df42df361dce5d023d0ad03c82fc6d303b3fe3808eb40ecca8efbe227"
+      },
+      {
+        "path": "go/value_codec.go",
+        "sha256": "1d1d0cec2828015e11e171592a267c3ece191111db32ecfaf75e22c2f3766108"
+      },
+      {
+        "path": "go/value_composite.go",
+        "sha256": "c6fc074dc2d8e86529790bd8f27481fa0107efa057d864d4702d577d6736d02a"
+      },
+      {
+        "path": "go/value_composite_test.go",
+        "sha256": "f19e75a084a15529cdabc114e9a3d7a4fe824106bb981e656be06dd6a33de0b4"
+      },
+      {
+        "path": "go/value_corpus_test.go",
+        "sha256": "1c1b921a5215018bd55af208e7efb24cc1847ede8cc1a77be9b7ccda712cfb49"
+      },
+      {
+        "path": "go/value_error_ownership_test.go",
+        "sha256": "6d1b3cdbfb6f34fc7d64ef6d51a48fd0544befa8ebfe77286299a0a1936419bd"
+      },
+      {
+        "path": "go/value_length.go",
+        "sha256": "f71b4d950bce4df709999a9e15066a0e649069e26aa360718a55a3996f8b925c"
+      },
+      {
+        "path": "go/value_length_test.go",
+        "sha256": "ac68af4417b22c1f63b6a8b58c47586474daedc6e9128d06f96e9a5302e7cf9f"
+      },
+      {
         "path": "python/README.md",
-        "sha256": "adc676dfad34f002c87220e2aca31b821db9abe9909a2cf0dbbb0e7644530b9b"
+        "sha256": "de5e633cad838ef0e0bccc8bed55a9d0288be900d95df53a2100151edfc71e7c"
       },
       {
         "path": "python/examples/counter.py",
@@ -331,7 +457,7 @@
       },
       {
         "path": "python/src/statelessness/__init__.py",
-        "sha256": "4ecaec1adc26c92d45ed314299af6214b1820e013a1c66ee992973fc3529d195"
+        "sha256": "397a1ea891572fbfe6de2d3ba2a5b2e835be2ef3c5751450ef08c7d100d56f72"
       },
       {
         "path": "python/src/statelessness/audit_record.py",
@@ -343,7 +469,7 @@
       },
       {
         "path": "python/src/statelessness/codec.py",
-        "sha256": "fe28815f550a7b8cfad39c26d67a4d26f29cebe2042aa34b4692a42ba1f9f946"
+        "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a"
       },
       {
         "path": "python/src/statelessness/conformance.py",
@@ -390,6 +516,10 @@
         "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885"
       },
       {
+        "path": "python/src/statelessness/value_codec.py",
+        "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735"
+      },
+      {
         "path": "python/tests/test_evidence.py",
         "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355"
       },
@@ -398,12 +528,20 @@
         "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286"
       },
       {
+        "path": "python/tests/test_value_codec.py",
+        "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b"
+      },
+      {
         "path": "scripts/check-native-evidence-consumers.py",
         "sha256": "aa187962b492fcb80c3a75881cc4de9880b44bd6263455c61924f762f485fa3c"
       },
       {
         "path": "scripts/check-native-ports.py",
-        "sha256": "7954e17e35961104e0f09aae776ee51dbbf7fedb6c6f2d33d597dbe213986217"
+        "sha256": "6ddddc83aeef03aee99d7c9b6e09b8eaa8e1fd69ef98c6556a50f1031fd03c8f"
+      },
+      {
+        "path": "scripts/check-native-value-consumers.py",
+        "sha256": "b10f7b05f913453c8da9d443c2e536aa5d2500bebced32ecfb8a18347def6bf2"
       },
       {
         "path": "spec/README.md",
@@ -416,6 +554,10 @@
       {
         "path": "spec/bfs-controls-v1.md",
         "sha256": "6a0dd2efee96b2a02e424255d77a9980b72ad3613ca088b08839e8a9256b78fc"
+      },
+      {
+        "path": "spec/canonical-value-codec-v1.md",
+        "sha256": "2e98d48a7893d33ac42cf644a18ce3cf4566bbe88d14a57419f79dbb739ed80c"
       },
       {
         "path": "spec/causal-evidence-v2.md",
@@ -567,7 +709,7 @@
       },
       {
         "path": "swift/README.md",
-        "sha256": "82907259c3ffe81a42dc6641cf5434fb54bf13aef15a557ca4006fe923ffaa0d"
+        "sha256": "b7fb93491fe454756145c1298977655f347ba29af9116c3c86869fe74557bf3c"
       },
       {
         "path": "swift/Sources/StatelessConformance/Conformance.swift",
@@ -595,7 +737,7 @@
       },
       {
         "path": "swift/Sources/Statelessness/EncodeBuffer.swift",
-        "sha256": "1bd51c37655bd5f6cb938dc443e41898c2f5c81a946304d3d370f035e10aef9f"
+        "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686"
       },
       {
         "path": "swift/Sources/Statelessness/Evidence.swift",
@@ -639,7 +781,7 @@
       },
       {
         "path": "swift/Sources/Statelessness/Oracle.swift",
-        "sha256": "977feb333742ffb139f3edd2e19e9428d0d1cede602a9c2cd1da15fe4ff30943"
+        "sha256": "5f291c7117f1f5e479ee72ceeb77f656bf5c69c2f0f7d953060e33dd7298eb28"
       },
       {
         "path": "swift/Sources/Statelessness/Recorder.swift",
@@ -662,6 +804,26 @@
         "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
       },
       {
+        "path": "swift/Sources/Statelessness/ValueCodec.swift",
+        "sha256": "ee822a34fa231667e4899fb5f0c529698f46fd20ab0c62bd28a0b29c8ca4fb09"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodec128.swift",
+        "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+        "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+        "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+        "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219"
+      },
+      {
         "path": "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
         "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11"
       },
@@ -674,8 +836,28 @@
         "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739"
       },
       {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+        "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+        "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+        "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+        "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+        "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b"
+      },
+      {
         "path": "typescript/README.md",
-        "sha256": "b19439dac74b618c8f52398726542a112c4fbd3248931f794e0d3f4a91807eea"
+        "sha256": "ae6f0edf4bad5be3a39546c9f98640af5c5d4d54cbcbb25e7c5b425fe7bb48eb"
       },
       {
         "path": "typescript/bin/corpus.mjs",
@@ -719,7 +901,7 @@
       },
       {
         "path": "typescript/src/encoding.ts",
-        "sha256": "19f80dc64d9e535da519efc5a326fa9a2ad20b44be613ff08730ea87d08bc5f5"
+        "sha256": "cdf3f58810813dcb555a9479c2a65962f12ca5a6290659e50a41b6b7b9e7f93b"
       },
       {
         "path": "typescript/src/errors.ts",
@@ -735,7 +917,7 @@
       },
       {
         "path": "typescript/src/index.ts",
-        "sha256": "467d0f194dae2beeb26b0123c1c8730f76a779672f7722d21ea8683022e841d4"
+        "sha256": "0e1f9b9d5d31b9935ec510ffb604fc427aae3dbe56aeb441b214886fe3157264"
       },
       {
         "path": "typescript/src/json.ts",
@@ -747,7 +929,7 @@
       },
       {
         "path": "typescript/src/oracle.ts",
-        "sha256": "e26b5ee03ee462183f9f32ee078233141c80c2a40ee0e08c55e47171a53dd6b2"
+        "sha256": "5f68186929079747cb44f84c9e94358904bf4370ae3a806483e520960530d533"
       },
       {
         "path": "typescript/src/replay.ts",
@@ -766,6 +948,10 @@
         "sha256": "f0ad6fbd97f3e5730327b2d43bfbee26fa5348dc306bb1028aed4bb962f91403"
       },
       {
+        "path": "typescript/src/value_codec.ts",
+        "sha256": "5735f0def5d622d94eddcb5206668900d9396a2bb4ab4f506741386b7ab682a5"
+      },
+      {
         "path": "typescript/test/evidence-recorder.test.mjs",
         "sha256": "88bd6d6d79bc167e14705d52125ca97f05fe0dbdd81d43c3102f97d77aef16f5"
       },
@@ -774,12 +960,24 @@
         "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f"
       },
       {
+        "path": "typescript/test/value-codec.test.mjs",
+        "sha256": "0fa55eb47f42badf5409ce3b34426564e23f3a3fa8a66ab3aa90180798532038"
+      },
+      {
         "path": "validation/corpus/src/bin/native-evidence.rs",
         "sha256": "5646d58db11454ad47c25055cf240d2e2f3652571e1c1fe1797f1c5951a853c4"
       },
       {
+        "path": "validation/corpus/src/bin/native-values.rs",
+        "sha256": "53034f37d1f2c33259eaa725653dabc58550f3c8ba061866c28a82628de7fbe9"
+      },
+      {
         "path": "validation/corpus/src/evidence_reference.rs",
         "sha256": "dddd7c3ff2dec7974118da06c22bc7b47d7a1532c53238e0bc6f2b7975bb0da1"
+      },
+      {
+        "path": "validation/corpus/src/values_reference.rs",
+        "sha256": "2e0330e018adc3247dccb5b9191e9edd8d8fdb6a761a2fe2b03187191370992a"
       }
     ],
     "scoped_reviews": [
@@ -1051,6 +1249,73 @@
           "binary-v1"
         ],
         "qualification_note": "Scoped source/API mapping and exact candidate-byte snapshot after root-authorized global source freeze. Hashes include associated contracts, corpus, tests and consumer harness; they do not imply independent static review of every test or runtime success. Parent reports final Rust101 causal cases plus 3150 truncation prefixes/44 chunks/app smoke, Go tests (5e59) and vet (bd5a), Python216 tests with12 ABI skips (d6b6), TypeScript627 tests (cbcf), and Swift115 methods (efc) passed. Installed r1 exposed ambiguous Swift helper disposition JSON; root reviewed the two-occurrence ApplicationDispositionJSON rename. Installed r2 exposed a driver requirement for optional Rust record.diagnostic; root reviewed mandatory three-file validation plus validation of optional diagnostics, preserving all25 explicit diagnostic comparisons and10 sentinel checks. Only the Swift consumer and installed driver hashes were refreshed for these fixes. Root reports installed r3 663603987cbf44179af313cb9400b6d2 terminal SUCCEEDED exit0: five producers,25 v2 rewrite/phase-replay pairs,25 explicit upgrades,25 private exact diagnostic comparisons,25 passive-v1 pairs and10 sentinel negative checks, plus unchanged baseline passed. Finite macOS/arm64 proof is archived at validation/native-parity/evidence-slice/installed-r3; failed r1/r2 remain preserved. Registry, browser, broader platforms and hard RSS qualification remain open. All144 broader qualification cells and receipt links remain unchanged; no profile promotion, general canonical-value-codec API, hard RSS, authentication or durable atomic-publication claim."
+      },
+      {
+        "scope": "canonical-value-codec-v1 built-ins, cooperative readers and independent codec directions",
+        "reviewed_at_utc": "2026-10-20T23:32:25.338086+00:00",
+        "head_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
+        "files_reviewed": [
+          "conformance/canonical-value-codec-v1.json",
+          "examples/native-values/README.md",
+          "examples/native-values/contract.json",
+          "examples/native-values/go/main.go",
+          "examples/native-values/go/values.go",
+          "examples/native-values/python/consumer.py",
+          "examples/native-values/python/values.py",
+          "examples/native-values/swift/Package.swift",
+          "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+          "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+          "examples/native-values/typescript/consumer.ts",
+          "examples/native-values/typescript/values.ts",
+          "go/README.md",
+          "go/oracle.go",
+          "go/value_array_adapter.go",
+          "go/value_array_adapter_test.go",
+          "go/value_capability_test.go",
+          "go/value_codec.go",
+          "go/value_composite.go",
+          "go/value_composite_test.go",
+          "go/value_corpus_test.go",
+          "go/value_error_ownership_test.go",
+          "go/value_length.go",
+          "go/value_length_test.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/codec.py",
+          "python/src/statelessness/value_codec.py",
+          "python/tests/test_value_codec.py",
+          "scripts/check-native-ports.py",
+          "scripts/check-native-value-consumers.py",
+          "spec/canonical-value-codec-v1.md",
+          "swift/README.md",
+          "swift/Sources/Statelessness/EncodeBuffer.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/ValueCodec.swift",
+          "swift/Sources/Statelessness/ValueCodec128.swift",
+          "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+          "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+          "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+          "typescript/README.md",
+          "typescript/src/encoding.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/value_codec.ts",
+          "typescript/test/value-codec.test.mjs",
+          "validation/corpus/src/bin/native-values.rs",
+          "validation/corpus/src/values_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "value-codec",
+          "record-replay",
+          "binary-v1",
+          "causal-evidence"
+        ],
+        "qualification_note": "Root-authorized frozen source/API mapping and candidate-byte pinning; associated tests/harness hashes do not imply independent static review of every test. Parent reports Rust149 reference cases, Python248 tests with12 ABI skips, TypeScript829 tests, Swift134 methods, and final Go tests/vet passed. Finite Rust64 layout receipts include11 additional compound shapes; independent static Go/Swift review is validation/native-parity/value-codec-slice/review-go-swift.md. Installed consumers are starting and remain pending. All144 broader qualification cells, per-cell receipt links and four promoted profiles are unchanged. No derive/model-codec glue, registry/browser/platform, arbitrary layout inference, foreign-error cloning, hard RSS or performance claim."
       }
     ]
   },
@@ -1439,7 +1704,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Portable record/replay remains available; explicit RecordAudit/record_audit/recordAudit now retains RunConfig and native engine stamps during capture, enforces nine wire quotas with shared incremental encoding budgets, reserves bounded UTF-8 model-error footer space, and commits only coherent steps. Reserved stateless.engine. keys are rejected; producer stamps identify native package/build labels rather than source hashes. Native binary-v2 causal evidence is mapped separately; canonical value codecs and broader installed/platform/resource qualification remain open. Replaying an exact model_error prefix does not reproduce its terminal error."
+      "remaining": "Portable record/replay remains available; explicit RecordAudit/record_audit/recordAudit now retains RunConfig and native engine stamps during capture, enforces nine wire quotas with shared incremental encoding budgets, reserves bounded UTF-8 model-error footer space, and commits only coherent steps. Reserved stateless.engine. keys are rejected; producer stamps identify native package/build labels rather than source hashes. Native binary-v2 causal evidence is mapped separately; canonical built-in value codecs are mapped separately and broader installed/platform/resource qualification remains open. Replaying an exact model_error prefix does not reproduce its terminal error."
     },
     {
       "id": "replay-observations",
@@ -2845,7 +3110,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Separate direct audit and runtime Recorder APIs now retain configuration/stamps, enforce capture quotas and reserve footer headroom. Step check phases are unknown_legacy; binary v2/causal evidence is mapped separately; canonical value codecs and durable publication remain separate gaps. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
+      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Separate direct audit and runtime Recorder APIs now retain configuration/stamps, enforce capture quotas and reserve footer headroom. Step check phases are unknown_legacy; binary v2/causal evidence is mapped separately; canonical built-in value codecs are mapped separately; durable publication remains open. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
     },
     {
       "id": "value-codec",
@@ -2865,63 +3130,50 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/value_codec.py:45 Decoder; DecodeLimits; Schema; encode_canonical/decode_canonical; raw and independent length operations"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/value_codec.go:142 NewValueCodec; ValueCodec; Decoder; exact128; raw/guarded encode/decode",
+            "go/value_composite.go:34 OptionOf; VectorOf; ArrayOf; Tuple1..4Of; OracleStateOf",
+            "go/value_length.go:5 LengthValueCodec; WithWidth; independent length directions",
+            "go/value_array_adapter.go:6 AdaptFixedArray"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/value_codec.ts:93 Decoder; schema descriptors; valueCodecs; exact bigint64/128; raw and independent length operations"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/Statelessness/ValueCodec.swift:14 TraceValueCodec; independent ordinary/length directions; withLength",
+            "swift/Sources/Statelessness/ValueCodecDecoder.swift:17 ValueDecoder; DecodeLimits",
+            "swift/Sources/Statelessness/ValueCodecBuiltins.swift:4 ValueCodecs; built-in composable schemas",
+            "swift/Sources/Statelessness/ValueCodec128.swift:2 TraceUInt128; TraceInt128",
+            "swift/Sources/Statelessness/ValueCodecLayouts.swift:4 Rust64ValueLayouts finite measured lookup"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         }
       },
-      "remaining": "Native model codecs are user callbacks over bytes. No library equivalent canonical Rust value codec/decoder family or container implementations; JSON readers are not this value encoding."
+      "remaining": "Scoped independent canonical built-ins, exact128 values, strict UTF-8, composable containers/OracleState, public cooperative readers, bounded raw/guarded operations and independent ordinary/length encode/decode capabilities now exist. Explicit finite Rust64 collection weights are pinned to measured target/compiler receipts; they are not native heap/RSS measurements or a generic compound-layout algorithm. Unknown compound collection elements require explicit truthful layouts. Custom record/enum builders, derive length-field and ModelCodec version glue remain a separate N13 gate; descriptors are manually wired to existing model callbacks. Native invalid-type and exception/opaque foreign-error policies are documented boundaries, not fabricated Rust typed cases. Installed consumer proof is pending; registry/browser/broader platform/resource qualification remains open."
     },
     {
       "id": "causal-evidence",
@@ -2989,7 +3241,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. General canonical value-codec APIs, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native suites and finite macOS/arm64 installed-consumer matrix passed as recorded in the scoped review; registry/browser/broader platform/resource qualification remains open; no broad qualification is inferred."
+      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. Canonical built-in value codecs are now mapped separately; derive/model glue, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native suites and finite macOS/arm64 installed-consumer matrix passed as recorded in the scoped review; registry/browser/broader platform/resource qualification remains open; no broad qualification is inferred."
     },
     {
       "id": "debug-session",

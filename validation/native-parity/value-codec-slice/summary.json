@@ -1,0 +1,93 @@
+{
+  "status": "native-and-rust-passed-installed-pending",
+  "scope": "Finite macOS/arm64 canonical value codec candidate; no full parity or profile promotion",
+  "base_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
+  "corpus": {
+    "rows": 186,
+    "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+    "frozen_tested_spec_sha256": "c94ea1d77a51d66c1da3e7ff73d146fd35011d2c5519ef8060bd9f2d89393867",
+    "authoring_metadata": "Historical design-only/empty-qualified-target fields are intentionally retained; actual evidence is external to independent expectations.",
+    "groups": {
+      "value_cases": 83,
+      "decode_error_cases": 30,
+      "encode_error_cases": 8,
+      "reader_cases": 19,
+      "encoder_cases": 6,
+      "length_cases": 9,
+      "native_admission_cases": 31
+    },
+    "rust_public_executed": 149,
+    "arithmetic_only": 6,
+    "native_only": 31,
+    "current_spec_sha256": "2e98d48a7893d33ac42cf644a18ce3cf4566bbe88d14a57419f79dbb739ed80c",
+    "spec_documentation_delta": "After qualification, only the introductory status paragraph was updated to link receipts; normative contract body is unchanged."
+  },
+  "rust": {
+    "status": "passed",
+    "build_job": "10cf0553837042e1a7f3ed637841a54e",
+    "execution_job": "dd28f779ef86442e91c6ddd93bfbdf1c",
+    "additional_layout_job": "4b9fd11a1102436a8883200114ade29f",
+    "app_smoke_job": "144d7be340f7422e95dd86d6655fa046",
+    "app_smoke_identity": "Pre-LengthOnly focused reference source; exact hashes are retained in rust-app. Installed matrix will consume final frozen executable.",
+    "proper_prefixes": 477,
+    "trailing_rejections": 83,
+    "bounded_subviews": 83,
+    "owned_results": 83,
+    "focused_length_only_control": true,
+    "binary_sha256": "0dccbad837682591f4b84bf772a4ef13743a2bdecf54c0abd8f17a47452b7682",
+    "measured_layouts": {
+      "registry": 41,
+      "named": 21,
+      "additional": 11
+    }
+  },
+  "go": {
+    "status": "passed",
+    "test_job": "c174d20805dc4e5c9c6b8ad481c813d9",
+    "vet_job": "6f5fe914a3f6427abcde1299eae3e551",
+    "runtime_corpus_rows": 150,
+    "arithmetic_only_rows": 6,
+    "typed_or_utf16_exclusions": 30
+  },
+  "swift": {
+    "status": "passed",
+    "job": "48cd9305ccfe4ea68b9a1e6b82b9a40e",
+    "tests": 134,
+    "runtime_corpus_rows": 154,
+    "arithmetic_only_rows": 6,
+    "typed_exclusions": 26
+  },
+  "python": {
+    "status": "passed",
+    "job": "2f7e702f48c440769c2ba54bd67f12fc",
+    "tests": 248,
+    "skipped_abi": 12,
+    "runtime_corpus_rows": 179,
+    "arithmetic_only_rows": 6,
+    "language_inapplicable_rows": 1,
+    "source_manifest_before_start": false,
+    "source_identity_limitation": "Full candidate manifest was captured after startup. Held module/test hashes had been reported before submission; all recorded source mtimes precede start and hashes match final reconciliation. This does not establish a full pre-start manifest."
+  },
+  "typescript": {
+    "status": "passed",
+    "job": "fa80f97beec847f99c93008a0d70710b",
+    "tests": 829,
+    "runtime_corpus_rows": 180,
+    "arithmetic_only_rows": 6
+  },
+  "installed": {
+    "status": "queued",
+    "job": "f950cc5fc6d741028582cdc376952461",
+    "owner": "search_consumers",
+    "note": "Root will finalize installed job, source reconciliation and finite matrix counts from terminal evidence."
+  },
+  "current_source_input_count": 281,
+  "broad_qualification_cells_pending": 144,
+  "profiles_promoted": false,
+  "remaining_limits": [
+    "Finite measured Rust64 layouts only; no arbitrary Rust layout algorithm or Rust32 proof",
+    "No native heap/RSS or untrusted callback work bound",
+    "Other OS/architectures, browser execution, registry distribution and performance unqualified",
+    "N13 derive/model-codec convenience remains separate future work"
+  ]
+}

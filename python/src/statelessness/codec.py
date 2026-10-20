@@ -28,6 +28,18 @@ class EncodeBuffer:
         child.__encoding, child.__parent, child.__active = parent.__encoding, parent, True
         return child
 
+    @classmethod
+    def _raw_child(cls, parent):
+        # Raw trait calls validate lease lifetime, not the writer's sticky error.
+        # A callback which performs no writes may still return successfully.
+        current = parent
+        while current is not None:
+            if not current.__active: raise ModelError("encode buffer lease has expired")
+            current = current.__parent
+        child = object.__new__(cls)
+        child.__encoding, child.__parent, child.__active = parent.__encoding, parent, True
+        return child
+
     def _require(self):
         if not self.__active: raise ModelError("encode buffer lease has expired")
         if self.__parent is not None: self.__parent._require()
