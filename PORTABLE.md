@@ -43,12 +43,23 @@ See [native qualification](spec/NATIVE-PORTS-QUALIFICATION.md) for evidence/scop
 The [paired-v1 candidate](spec/paired-v1.md) defines separate projected observation
 and oracle obligations. Current-source implementations exist in Rust, native Python
 and native TypeScript, using the same hand-authored bounded queue corpus and named
-negative cases. Go and Swift do not claim this candidate. `PROFILES` remains the
+negative cases. Go and Swift also provide independent candidate adapters; see the
+[native parity status](docs/NATIVE-PARITY-STATUS.md) for executed scope. `PROFILES` remains the
 original four; Python/TypeScript list `paired-v1` under `EXPERIMENTAL_PROFILES`.
 
-Python and TypeScript runtime tests and schema checking are distinct from Rust
-runtime qualification and independent review. This task runs Rust compilation only
-through Kyoto, so authored/compiled Rust cases do not promote the candidate or
-establish cross-language runtime conformance. A failed or skipped schema/runtime
+Native-language runtime tests and schema checking are distinct from Rust runtime
+qualification and independent review. Kyoto may restrict Cargo jobs to compilation;
+authored/compiled Rust cases do not promote the candidate or establish cross-language
+runtime conformance. A failed or skipped schema/runtime
 job must remain visible. The [capability matrix](docs/CAPABILITIES.md) tracks this
 boundary separately from historical native-port receipts.
+
+## Candidate native generation and search
+
+All four independent engines contain the experimental [search-v1 candidate](spec/search-v1.md):
+finite automatic generation, seeded sequence fuzzing, causal shrinking, cooperative
+controls, exact attempt reports and observation hooks. The same independent
+[finite corpus](conformance/search-v1.tsv) and [shrink histories](conformance/search-v1-history.json)
+exercise native engines and the Rust reference. Explicit exhaustion markers preserve
+nullable input values. This adds no qualified profile or generic application proof.
+See [implementation status](docs/NATIVE-PARITY-STATUS.md) for source and runtime gates.

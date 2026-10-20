@@ -4,7 +4,7 @@ Experimental, dependency-free **Python implementation**, not a Rust/FFI binding.
 Python >=3.10. Applications retain their own state types, callbacks, and codecs.
 This package implements the `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and
 `trace-json-v1` profiles in `../spec/README.md`. It does not imply full Rust feature
-parity: fuzzing, shrinking, guided search, runtime ring recording,
+parity: guided search, runtime ring recording,
 campaigns, composition helpers, and the binary `.sttrace` format are not provided.
 
 `WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
@@ -80,6 +80,8 @@ callback arguments. States must support correct `deepcopy` behavior; overriding
 it to alias mutable storage violates the contract. This is not a code sandbox.
 
 Equality must preserve future behavior, input choices, and checked properties.
+Input equality also defines shrink sequence identity; use value equality that
+survives defensive copying, rather than identity-only mutable input objects.
 Hash collisions are resolved by equality. Lists/dictionaries are supported via
 linear equality lookup; hashable states are generally faster. Equal hashable
 states must have equal hashes. Large states incur copying costs; no parity of
@@ -104,3 +106,53 @@ python -m pip wheel --no-build-isolation --no-deps ./python -w dist
 The wheel is pure Python (`py3-none-any`). Nothing here publishes to PyPI.
 The source distribution is also supported; release qualification should test an
 installed wheel in a fresh environment, not just imports from `src`.
+
+## Experimental native generation, fuzzing and shrinking
+
+`Auto(model, AutoOptions(max_candidates=100_000))` adds reservoir generation
+from the complete finite `inputs(state)` domain. It validates the full domain,
+uses one extra pull to detect overflow, and rolls RNG state back on errors.
+`Generated(model, generate, is_enabled=..., simpler_inputs=...)` instead adds
+application-owned callbacks. `generate(state, rng)` returns an input or the exported `EXHAUSTED`
+sentinel for exhaustion. Every ordinary Python value, including `None`, is a
+present input. Callbacks use defensive snapshots; the RNG is intentionally mutable.
+
+```python
+from statelessness import Auto, FuzzConfig, ShrinkConfig, fuzz, shrink
+
+report = fuzz(Auto(Counter()), FuzzConfig(seed=42, cases=100, max_steps=20))
+if report.failure is not None:
+    minimized = shrink(Auto(Counter()), report.failure, ShrinkConfig(max_attempts=1000))
+    assert minimized.validated_original
+```
+
+`fuzz` retains only the previous passing sequence for deterministic mutation and
+checks enabled inputs before execution. `shrink` validates original evidence,
+then tries chunk deletion and application simplification while preserving the
+first violation's check ID and phase. Reports include attempts, operation history,
+aggregate replay transitions, and whether original validation completed.
+`RunLimits(max_duration=seconds, cancellation=callable)` provides cooperative
+control; `ShrinkLimits` also caps aggregate replay transitions including original
+validation. A callback or iterator pull cannot be interrupted; limits do not cap
+callback allocations. Callback errors raise `ModelError`, never count as property
+reproduction. Search completion does not prove exhaustive coverage or global
+minimality. These APIs implement the experimental [`search-v1` candidate](../spec/search-v1.md)
+and consume its hand-authored TSV corpus in tests; they do not expand `PROFILES`.
+
+`fuzz(..., observer=observer)` accepts optional `SearchObserver` hooks:
+`initial(state, checks)`, `transition(before, input, transition, state_checks,
+transition_checks, history)`, and `check_error(phase, checks, complete)`.
+Each hook receives defensive snapshots; history is the actual input prefix from
+that case's initial state. Failing transitions are observed. If a check iterable
+fails after yielding values, `check_error` receives its incomplete batch; an edge
+checker error also exposes the completed state batch separately. Observer errors
+raise `ModelError` and cannot manufacture a passing search report.
+If a `check_error` hook itself fails, the original checker `ModelError` remains
+primary and secondary errors are attached in its `observer_errors` tuple.
+
+`WithOracle` forwards generation, enabled-input checks and simplification to the
+actual model while retaining independent oracle history. Wrap the actual model
+in `Generated` or `Auto` before attaching the oracle when it lacks a generator;
+requesting fuzzing without generation raises an explicit `ModelError`.
+`EXPERIMENTAL_PROFILES` lists `paired-v1` and `search-v1`; qualified `PROFILES`
+remain unchanged.

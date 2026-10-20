@@ -1,0 +1,18 @@
+{
+  "executed_at": "2026-10-20T20:16:36.655632+00:00",
+  "command": [
+    "target/debug/deps/paired_profile-a96d02eff8c291d7",
+    "--nocapture"
+  ],
+  "execution_mode": "direct compiled test executable; no compilation invoked",
+  "build_job": "de3bf30ac1a541cbb5dabd848ce46512",
+  "build_policy": "cargo test transformed to --no-run; separate execution per Kyoto skill",
+  "executable_sha256": "7b224ff86f809105da6a606771c7bcc98d3ba6b1cf52ea32711b56dd80ad1178",
+  "exit_code": 0,
+  "tests_passed": 4,
+  "tests_failed": 0,
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.2\n",
+  "scope": "existing paired_profile tests incl shared eleven queue cases; not full native parity",
+  "tool_output_chunk": "8eb461"
+}

@@ -10,6 +10,8 @@ Baseline: Rust source commit `0876717bee85e335449c2c99ada41f6c6e6112d1`, inspect
 on 2026-10-20. The target is this source snapshot, including the optional debugger
 and modeling conveniences, rather than the older published 0.2.0 archives.
 Future Rust additions enter the same gap ledger before parity claims advance.
+Track subsequent implementation in [native parity status](NATIVE-PARITY-STATUS.md);
+the existing-baseline section below describes the pinned starting point.
 
 ## Product commitments
 

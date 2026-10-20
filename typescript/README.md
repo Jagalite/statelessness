@@ -70,3 +70,59 @@ shared golden results, fail-fast recording, checkpoint restart, and exact replay
 Not implemented: Rust's advanced fuzzing/shrinking, guided/campaign/
 composition helpers, ring recording, and binary `.sttrace` audit format.
 The archive is installable locally; this change does not publish to npm.
+
+### Independent generation, fuzzing and shrinking
+
+`GenerateModel<S, I, O>` adds `generate(state, rng)` and semantic
+`equalInputs(left, right)` to the ordinary model. Optional `isEnabled` validates
+causality (default true); `simplerInputs` supplies ordered simplification hints.
+Return the exported `NO_INPUT` symbol to signal exhausted generation. `null` and
+`undefined` remain ordinary valid inputs, including through automatic sampling.
+Use `automatic(enumeratedModel, { maxCandidates: 100_000 })` to sample a finite
+input domain with transactional reservoir sampling. Generation validates the
+whole domain, pulling at most one entry beyond the cap, and commits RNG state
+only on success. Membership may stop at its first matching entry.
+
+```ts
+import { automatic, fuzz, shrink } from '@jagalite/statelessness';
+const generator = automatic(model); // model also supplies equalInputs
+const report = fuzz(generator, {
+  seed: 42n, cases: 1000, maxSteps: 100,
+  maxTransitions: 100_000n, mutationPercent: 50,
+});
+if (report.failure) {
+  const smaller = shrink(generator, report.failure, { maxAttempts: 10_000 }, {
+    maxReplayedTransitions: 100_000n,
+  });
+}
+```
+
+Fuzzing mutates only the previous passing sequence, uses state-aware generation,
+and reports skipped checks separately. Shrinking first validates the supplied
+failure, preserves its first failed check ID and phase, tries chunk deletions
+then ordered value simplifications, and guards against accepted-sequence cycles.
+Its attempt history distinguishes invalid causality, different failures, repeated
+prefixes, and resource limits. `search_complete` describes this search strategy;
+it does not promise global minimality. Inspect `validated_original` when an
+initial replay is interrupted. Transition counters and budgets use exact u64
+`bigint`; sequence/attempt counts use safe integer numbers.
+
+Both operations accept cooperative `maxDurationMs` and `cancellation: () => boolean`
+limits. Callbacks, iterators, cloning and equality must terminate; limits cannot
+interrupt a callback or bound allocations within it. Search is synchronous and
+uses no Node imports, Rust library, or Wasm. These APIs are candidates for the
+search contract and do not add a qualified entry to `PROFILES`.
+
+`fuzzObserved(model, config, observer, limits?)` (or the optional fourth observer
+argument to `fuzz`) observes initial checks and every fully checked transition,
+including the failing transition. `transition` receives the actual case prefix,
+separate state/transition check batches, and defensive copies of all model data.
+`checkError(phase, checks, complete)` reports partial iterable output on checker
+failure; a transition-check failure reports the completed state batch first.
+Observer exceptions propagate as contextual `ModelError` values.
+
+`WithOracle` forwards generation, enabled checks, simplification hints and input
+identity to the actual model (using the actual component of the combined state).
+Wrap an enumerated actual model with `automatic` before constructing `WithOracle`
+when automatic generation is desired. Missing generation or input identity
+capabilities produce explicit unsupported-operation errors.

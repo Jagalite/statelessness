@@ -260,6 +260,10 @@ export class Rng {
   private state: bigint;
   constructor(seed = 0n) { this.state = this.u64(seed); }
   private u64(n: bigint): bigint { if (typeof n !== 'bigint' || n < 0n || n > MASK) throw new ConfigError('expected u64 bigint'); return n; }
+  /** Independent snapshot for transactional finite-domain sampling. */
+  clone(): Rng { return new Rng(this.state); }
+  /** Adopt the state of a successful sampling transaction. */
+  copyFrom(other: Rng): void { this.state = other.state; }
   nextU64(): bigint {
     this.state = (this.state + 0x9e3779b97f4a7c15n) & MASK;
     let z = this.state;

@@ -20,3 +20,12 @@ __all__ = [
     "EXPERIMENTAL_PROFILES", "ObservationError", "Oracle", "OracleState",
     "Paired", "Projection", "WithOracle",
 ]
+
+from .search import (EXHAUSTED, Auto, AutoOptions, Generated, GenerateModel, FuzzConfig,
+                     FuzzReport, RunLimits, SearchObserver, ShrinkAttempt, ShrinkConfig,
+                     ShrinkLimits, ShrinkOperation, ShrinkReport, fuzz, shrink)
+__all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "FuzzConfig",
+            "FuzzReport", "RunLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
+            "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
+
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)

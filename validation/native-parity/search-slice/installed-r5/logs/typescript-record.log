@@ -1,0 +1,1 @@
+{"mode":"record","outcome":"exact","failure_reproduced":true,"steps":3,"original_steps":6,"minimized_steps":3,"shrink_attempts":15,"validated_original":true,"phase":"state","property":"threshold.bound"}

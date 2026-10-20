@@ -1,0 +1,119 @@
+[0/1] Planning build
+Building for debugging...
+[0/7] Write sources
+[2/7] Write swift-version--58304C5D6DBC2206.txt
+[4/9] Compiling Statelessness Oracle.swift
+[5/9] Emitting module Statelessness
+[6/11] Compiling StatelessConformance Conformance.swift
+[7/11] Emitting module StatelessConformance
+[7/12] Write Objects.LinkFileList
+[8/16] Linking stateless-corpus
+[9/16] Applying stateless-corpus
+[11/16] Compiling StatelessnessTests RecordingErrorTests.swift
+[12/16] Emitting module StatelessnessTests
+[13/16] Compiling StatelessnessTests OracleTests.swift
+[14/16] Compiling StatelessnessTests NativeTests.swift
+[15/18] Compiling StatelessnessPackageTests runner.swift
+[16/18] Emitting module StatelessnessPackageTests
+[16/18] Write Objects.LinkFileList
+[17/18] Linking StatelessnessPackageTests
+Build complete! (82.61s)
+Test Suite 'All tests' started at 2026-10-20 16:11:31.505.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-20 16:11:31.511.
+Test Suite 'NativeTests' started at 2026-10-20 16:11:31.511.
+Test Case '-[StatelessnessTests.NativeTests testBuildOverrideDoesNotWaiveVersions]' started.
+Test Case '-[StatelessnessTests.NativeTests testBuildOverrideDoesNotWaiveVersions]' passed (0.004 seconds).
+Test Case '-[StatelessnessTests.NativeTests testByteOrderMarkInsideAStringIsNotRemoved]' started.
+Test Case '-[StatelessnessTests.NativeTests testByteOrderMarkInsideAStringIsNotRemoved]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInitialBytes]' started.
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInitialBytes]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInputBytes]' started.
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInputBytes]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCheckerErrorDiscardsPartialFindings]' started.
+Test Case '-[StatelessnessTests.NativeTests testCheckerErrorDiscardsPartialFindings]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCodecError]' started.
+Test Case '-[StatelessnessTests.NativeTests testCodecError]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testDepthBoundaryOnlyProbesOnce]' started.
+Test Case '-[StatelessnessTests.NativeTests testDepthBoundaryOnlyProbesOnce]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testDuplicateFailureIDs]' started.
+Test Case '-[StatelessnessTests.NativeTests testDuplicateFailureIDs]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testExactStringEqualityNotCanonicalEquivalence]' started.
+Test Case '-[StatelessnessTests.NativeTests testExactStringEqualityNotCanonicalEquivalence]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testFalseTerminationAndContinuation]' started.
+Test Case '-[StatelessnessTests.NativeTests testFalseTerminationAndContinuation]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInitialErrorHasNoTrace]' started.
+Test Case '-[StatelessnessTests.NativeTests testInitialErrorHasNoTrace]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInvalidChecksAreErrors]' started.
+Test Case '-[StatelessnessTests.NativeTests testInvalidChecksAreErrors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInvalidConfiguration]' started.
+Test Case '-[StatelessnessTests.NativeTests testInvalidConfiguration]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testJSONKeysPreserveScalarIdentity]' started.
+Test Case '-[StatelessnessTests.NativeTests testJSONKeysPreserveScalarIdentity]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testJSONLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testJSONLimits]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testLaterErrorRetainsOnlyCoherentPrefix]' started.
+Test Case '-[StatelessnessTests.NativeTests testLaterErrorRetainsOnlyCoherentPrefix]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testLazyIteratorError]' started.
+Test Case '-[StatelessnessTests.NativeTests testLazyIteratorError]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testMalformedJSONRejected]' started.
+Test Case '-[StatelessnessTests.NativeTests testMalformedJSONRejected]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testMutableReferenceBranchesAreIndependent]' started.
+Test Case '-[StatelessnessTests.NativeTests testMutableReferenceBranchesAreIndependent]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testNativeStructCollisionWitness]' started.
+Test Case '-[StatelessnessTests.NativeTests testNativeStructCollisionWitness]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testObjectFieldsPreserveExactUnicodeKeys]' started.
+Test Case '-[StatelessnessTests.NativeTests testObjectFieldsPreserveExactUnicodeKeys]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testObservationNeverSteps]' started.
+Test Case '-[StatelessnessTests.NativeTests testObservationNeverSteps]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testPeriodicPolicy]' started.
+Test Case '-[StatelessnessTests.NativeTests testPeriodicPolicy]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRecordReplayJSONRoundtrip]' started.
+Test Case '-[StatelessnessTests.NativeTests testRecordReplayJSONRoundtrip]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testReplayDoesNotReconstructInitialState]' started.
+Test Case '-[StatelessnessTests.NativeTests testReplayDoesNotReconstructInitialState]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRetentionLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testRetentionLimits]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testReturnedCodecArraysAreIndependent]' started.
+Test Case '-[StatelessnessTests.NativeTests testReturnedCodecArraysAreIndependent]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRngEmptyDomainAndVectors]' started.
+Test Case '-[StatelessnessTests.NativeTests testRngEmptyDomainAndVectors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testUnicodeReplayDetailsStayExact]' started.
+Test Case '-[StatelessnessTests.NativeTests testUnicodeReplayDetailsStayExact]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testZeroAndExactStepLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testZeroAndExactStepLimits]' passed (0.000 seconds).
+Test Suite 'NativeTests' passed at 2026-10-20 16:11:31.527.
+	 Executed 30 tests, with 0 failures (0 unexpected) in 0.014 (0.016) seconds
+Test Suite 'OracleTests' started at 2026-10-20 16:11:31.527.
+Test Case '-[StatelessnessTests.OracleTests testCheckOrderAndExactFailureReplay]' started.
+Test Case '-[StatelessnessTests.OracleTests testCheckOrderAndExactFailureReplay]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.OracleTests testExactUnicodeOutcomeAndIdentity]' started.
+Test Case '-[StatelessnessTests.OracleTests testExactUnicodeOutcomeAndIdentity]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testHistoryEqualityFramingAndRestart]' started.
+Test Case '-[StatelessnessTests.OracleTests testHistoryEqualityFramingAndRestart]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.OracleTests testHistoryOnlyBFSDoesNotMerge]' started.
+Test Case '-[StatelessnessTests.OracleTests testHistoryOnlyBFSDoesNotMerge]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testObservationErrorRetainsActualAndDoesNotExecute]' started.
+Test Case '-[StatelessnessTests.OracleTests testObservationErrorRetainsActualAndDoesNotExecute]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testObservationSnapshotFailureRetainsCompletedTransition]' started.
+Test Case '-[StatelessnessTests.OracleTests testObservationSnapshotFailureRetainsCompletedTransition]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testReferenceSemanticsRemainStrictWithBuildOverride]' started.
+Test Case '-[StatelessnessTests.OracleTests testReferenceSemanticsRemainStrictWithBuildOverride]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testReplayRejectsNoncanonicalInitialAndInput]' started.
+Test Case '-[StatelessnessTests.OracleTests testReplayRejectsNoncanonicalInitialAndInput]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testSharedGoldenFixture]' started.
+Test Case '-[StatelessnessTests.OracleTests testSharedGoldenFixture]' passed (0.022 seconds).
+Test Case '-[StatelessnessTests.OracleTests testUnsupportedCapabilitiesAndCallbackErrors]' started.
+Test Case '-[StatelessnessTests.OracleTests testUnsupportedCapabilitiesAndCallbackErrors]' passed (0.000 seconds).
+Test Suite 'OracleTests' passed at 2026-10-20 16:11:31.553.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.026 (0.026) seconds
+Test Suite 'RecordingErrorTests' started at 2026-10-20 16:11:31.553.
+Test Case '-[StatelessnessTests.RecordingErrorTests testInitialCloneErrorHasNoTrace]' started.
+Test Case '-[StatelessnessTests.RecordingErrorTests testInitialCloneErrorHasNoTrace]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecordingErrorTests testLaterCloneErrorRetainsOnlyCoherentPrefix]' started.
+Test Case '-[StatelessnessTests.RecordingErrorTests testLaterCloneErrorRetainsOnlyCoherentPrefix]' passed (0.000 seconds).
+Test Suite 'RecordingErrorTests' passed at 2026-10-20 16:11:31.553.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.000 (0.000) seconds
+Test Suite 'StatelessnessPackageTests.xctest' passed at 2026-10-20 16:11:31.553.
+	 Executed 42 tests, with 0 failures (0 unexpected) in 0.040 (0.043) seconds
+Test Suite 'All tests' passed at 2026-10-20 16:11:31.553.
+	 Executed 42 tests, with 0 failures (0 unexpected) in 0.040 (0.048) seconds

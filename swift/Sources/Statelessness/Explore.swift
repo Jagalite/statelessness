@@ -6,8 +6,14 @@ public struct SearchConfig: Sendable {
         self.maxStates = maxStates; self.maxTransitions = maxTransitions; self.maxDepth = maxDepth
     }
 }
-public struct Violation: Equatable, Sendable { public let phase: String; public let check: Check }
-public struct Failure<Input> { public let inputs: [Input]; public let violations: [Violation] }
+public struct Violation: Equatable, Sendable {
+    public let phase: String; public let check: Check
+    public init(phase: String, check: Check) { self.phase = phase; self.check = check }
+}
+public struct Failure<Input> {
+    public let inputs: [Input]; public let violations: [Violation]
+    public init(inputs: [Input], violations: [Violation]) { self.inputs = inputs; self.violations = violations }
+}
 public struct SearchReport<Input> {
     public var termination: String
     public var states: Int

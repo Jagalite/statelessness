@@ -1,0 +1,110 @@
+package statelessness
+
+// GenerateModel adds state-aware generation to an ordinary native Model.
+// A nil IsEnabled accepts all inputs; nil SimplerInputs yields no alternatives.
+// InputEqual is required for shrinking/automatic membership, and must compare
+// semantic input identity independently of object addresses.
+type GenerateModel[S, I, O any] struct {
+	Model[S, I, O]
+	Generate      func(S, *Rng) (I, bool, error)
+	IsEnabled     func(S, I) (bool, error)
+	SimplerInputs func(I) (Iterator[I], error)
+	InputEqual    func(I, I) (bool, error)
+}
+type AutoOptions struct{ MaxCandidates int }
+
+func DefaultAutoOptions() AutoOptions { return AutoOptions{100000} }
+
+// Auto samples finite enumeration using reservoir sampling. The cap permits one
+// extra iterator call to distinguish exact exhaustion from overflow. RNG state
+// commits only after a successful complete scan, including successful snapshots.
+func Auto[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options AutoOptions) (GenerateModel[S, I, O], error) {
+	var z GenerateModel[S, I, O]
+	if err := m.validate(); err != nil {
+		return z, err
+	}
+	if m.Inputs == nil || equal == nil || options.MaxCandidates <= 0 {
+		return z, &ConfigError{"auto requires inputs, equality, and positive candidate cap"}
+	}
+	g := GenerateModel[S, I, O]{Model: m, InputEqual: equal}
+	cursor := func(state S) (Iterator[I], error) {
+		return call("enumerate inputs", func() (Iterator[I], error) { return m.Inputs(m.CloneState(state)) })
+	}
+	g.Generate = func(state S, rng *Rng) (value I, ok bool, err error) {
+		var zero I
+		if rng == nil {
+			return zero, false, &ConfigError{"nil RNG"}
+		}
+		candidate := *rng
+		it, err := cursor(state)
+		if err != nil {
+			return zero, false, err
+		}
+		for count := 0; ; count++ {
+			v, more, e := next(it)
+			if e != nil {
+				return zero, false, e
+			}
+			if !more {
+				*rng = candidate
+				return value, ok, nil
+			}
+			if count == options.MaxCandidates {
+				return zero, false, &ModelError{"automatic generation candidate limit"}
+			}
+			selectIt := count == 0
+			if count > 0 {
+				index, _ := candidate.Index(uint64(count + 1))
+				selectIt = index == 0
+			}
+			if selectIt {
+				value, e = copied(m.CloneInput, v)
+				if e != nil {
+					return zero, false, e
+				}
+				ok = true
+			}
+		}
+	}
+	g.IsEnabled = func(state S, input I) (bool, error) {
+		it, e := cursor(state)
+		if e != nil {
+			return false, e
+		}
+		for count := 0; ; count++ {
+			v, more, e := next(it)
+			if e != nil {
+				return false, e
+			}
+			if !more {
+				return false, nil
+			}
+			if count == options.MaxCandidates {
+				return false, &ModelError{"automatic generation candidate limit"}
+			}
+			same, e := call("input equality", func() (bool, error) { return equal(m.CloneInput(v), m.CloneInput(input)) })
+			if e != nil {
+				return false, e
+			}
+			if same {
+				return true, nil
+			}
+		}
+	}
+	return g, nil
+}
+func (g GenerateModel[S, I, O]) enabled(state S, input I) (bool, error) {
+	if g.IsEnabled == nil {
+		return true, nil
+	}
+	return call("is_enabled", func() (bool, error) { return g.IsEnabled(g.CloneState(state), g.CloneInput(input)) })
+}
+func cloneInputs[S, I, O any](g GenerateModel[S, I, O], inputs []I) ([]I, error) {
+	return call("snapshot inputs", func() ([]I, error) {
+		out := make([]I, len(inputs))
+		for k, v := range inputs {
+			out[k] = g.CloneInput(v)
+		}
+		return out, nil
+	})
+}

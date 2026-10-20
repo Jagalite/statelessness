@@ -1,9 +1,10 @@
 /** Experimental paired-v1. Uses the existing native recorder, observer and BFS.
  * Advancement never receives actual next state; callbacks must remain pure. */
 import { type Check, type Disposition, type Metadata, type Model, type EnumerateModel,
-  type CodecModel, type Transition, ModelError, check, disposition, validateMetadata } from './core.js';
+  type CodecModel, type Transition, ModelError, check, disposition, validateMetadata, type Rng } from './core.js';
+import type { GenerateModel } from './search.js';
 
-export const EXPERIMENTAL_PROFILES = ['paired-v1'] as const;
+export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1'] as const;
 export interface OracleState<S, H> { readonly model: S; readonly oracle: H }
 export interface Oracle<S, H, I, O> {
   metadata(): Metadata;
@@ -16,19 +17,18 @@ export interface Oracle<S, H, I, O> {
   encodeHistory?(history: H): Uint8Array;
   decodeHistory?(bytes: Uint8Array): H;
 }
-type Adapter<S, I, O> = Model<S, I, O> & Partial<EnumerateModel<S, I, O> & CodecModel<S, I, O>>;
+type Adapter<S, I, O> = Model<S, I, O> & Partial<EnumerateModel<S, I, O> & CodecModel<S, I, O> & GenerateModel<S,I,O>>;
 function need<T>(value: T | undefined, name: string): T {
   if (value === undefined) throw new ModelError(`unsupported oracle adapter operation: ${name}`);
   return value;
 }
 const length = (text: string): number => new TextEncoder().encode(text).length;
-function checks(values: Iterable<Check>): Check[] { return Array.from(values, c => check(c.id, c.status, c.details)); }
 export class ObservationError<S, O> extends ModelError {
   constructor(readonly cause: unknown, readonly transition: Transition<S, O>) {
     super(cause instanceof Error ? cause.message : String(cause)); this.name = 'ObservationError';
   }
 }
-export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>, I, O>, CodecModel<OracleState<S, H>, I, O> {
+export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>, I, O>, CodecModel<OracleState<S, H>, I, O>, GenerateModel<OracleState<S,H>,I,O> {
   constructor(readonly model: Adapter<S, I, O>, readonly oracle: Oracle<S, H, I, O>) {}
   metadata(): Metadata {
     const m = validateMetadata(need(this.model.metadata, 'metadata').call(this.model));
@@ -57,19 +57,29 @@ export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>,
     return this.observeTransition(before, input, this.model.step(this.model.cloneState(before.model), this.cloneInput(input)));
   }
   inputs(s: OracleState<S, H>): Iterable<I> { return need(this.model.inputs, 'inputs').call(this.model, this.model.cloneState(s.model)); }
+  generate(s:OracleState<S,H>,rng:Rng):ReturnType<GenerateModel<S,I,O>['generate']> {
+    return need(this.model.generate,'generate').call(this.model,this.model.cloneState(s.model),rng);
+  }
+  isEnabled(s:OracleState<S,H>,i:I):boolean {
+    need(this.model.generate,'generate');
+    return this.model.isEnabled ? this.model.isEnabled(this.model.cloneState(s.model),this.cloneInput(i)) : true;
+  }
+  simplerInputs(i:I):Iterable<I> {
+    need(this.model.generate,'generate');
+    return this.model.simplerInputs ? this.model.simplerInputs(this.cloneInput(i)) : [];
+  }
+  equalInputs(a:I,b:I):boolean {return need(this.model.equalInputs,'equalInputs').call(this.model,this.cloneInput(a),this.cloneInput(b));}
   equalStates(a: OracleState<S, H>, b: OracleState<S, H>): boolean {
     return need(this.model.equalStates, 'equalStates').call(this.model, a.model, b.model) && this.oracle.equalHistory(a.oracle, b.oracle);
   }
-  checkState(s: OracleState<S, H>): Check[] {
-    return [...checks(this.model.checkState(this.model.cloneState(s.model))),
-      ...checks(this.oracle.checkState(this.oracle.cloneHistory(s.oracle), this.model.cloneState(s.model)))];
+  *checkState(s: OracleState<S,H>):Iterable<Check> {
+    for(const c of this.model.checkState(this.model.cloneState(s.model)))yield check(c.id,c.status,c.details);
+    for(const c of this.oracle.checkState(this.oracle.cloneHistory(s.oracle),this.model.cloneState(s.model)))yield check(c.id,c.status,c.details);
   }
-  checkTransition(before: OracleState<S, H>, input: I, t: Transition<OracleState<S, H>, O>): Check[] {
-    const actual = this.copyTransition({ state: t.state.model, outputs: t.outputs, disposition: t.disposition });
-    const result = this.model.checkTransition ? checks(this.model.checkTransition(this.model.cloneState(before.model), this.cloneInput(input), actual)) : [];
-    if (this.oracle.checkTransition) result.push(...checks(this.oracle.checkTransition(this.cloneState(before), this.cloneInput(input),
-      { state: this.cloneState(t.state), outputs: t.outputs.map(o => this.cloneOutput(o)), disposition: { ...t.disposition } })));
-    return result;
+  *checkTransition(before:OracleState<S,H>,input:I,t:Transition<OracleState<S,H>,O>):Iterable<Check> {
+    const actual=this.copyTransition({state:t.state.model,outputs:t.outputs,disposition:t.disposition});
+    if(this.model.checkTransition)for(const c of this.model.checkTransition(this.model.cloneState(before.model),this.cloneInput(input),actual))yield check(c.id,c.status,c.details);
+    if(this.oracle.checkTransition)for(const c of this.oracle.checkTransition(this.cloneState(before),this.cloneInput(input),{state:this.cloneState(t.state),outputs:t.outputs.map(o=>this.cloneOutput(o)),disposition:{...t.disposition}}))yield check(c.id,c.status,c.details);
   }
   encodeState(s: OracleState<S, H>): Uint8Array {
     const a = need(this.model.encodeState, 'encodeState').call(this.model, this.model.cloneState(s.model));
@@ -131,20 +141,19 @@ export class Paired<S, H, I, O, R, V, E> implements Oracle<S, H, I, O> {
   advance(before: H, input: I, _outputs: readonly O[], _disposition: Disposition): H {
     return this.referenceStep(before, input).state;
   }
-  checkState(history: H, actual: S): Check[] {
-    const result = checks(this.reference.checkState(this.reference.cloneState(history)));
+  *checkState(history: H, actual: S): Iterable<Check> {
+    for(const c of this.reference.checkState(this.reference.cloneState(history)))yield check(c.id,c.status,c.details);
     const matches = this.projection.equalState(this.projection.actualState(actual), this.projection.referenceState(history));
-    result.push(check('pair.state', matches ? 'passed' : 'failed', matches ? '' : 'projected states differ')); return result;
+    yield check('pair.state', matches ? 'passed' : 'failed', matches ? '' : 'projected states differ');
   }
-  checkTransition(before: OracleState<S, H>, input: I, actual: Transition<OracleState<S, H>, O>): Check[] {
+  *checkTransition(before: OracleState<S, H>, input: I, actual: Transition<OracleState<S, H>, O>): Iterable<Check> {
     const expected = this.referenceStep(before.oracle, input);
-    const result = this.reference.checkTransition ? checks(this.reference.checkTransition(this.reference.cloneState(before.oracle), this.reference.cloneInput(input),
-      { state: this.reference.cloneState(expected.state), outputs: expected.outputs.map(o => this.reference.cloneOutput(o)), disposition: { ...expected.disposition } })) : [];
+    if(this.reference.checkTransition)for(const c of this.reference.checkTransition(this.reference.cloneState(before.oracle),this.reference.cloneInput(input),{state:this.reference.cloneState(expected.state),outputs:expected.outputs.map(o=>this.reference.cloneOutput(o)),disposition:{...expected.disposition}}))yield check(c.id,c.status,c.details);
     const a = actual.outputs.map(o => this.projection.actualEffect(o)), r = expected.outputs.map(o => this.projection.referenceEffect(o));
     const effects = a.length === r.length && a.every((v, n) => this.projection.equalEffect(v, r[n]));
     const outcome = actual.disposition.kind === expected.disposition.kind && actual.disposition.reason === expected.disposition.reason;
-    result.push(check('pair.effects', effects ? 'passed' : 'failed', effects ? '' : 'projected ordered effects differ'));
-    result.push(check('pair.outcome', outcome ? 'passed' : 'failed', outcome ? '' : 'dispositions differ')); return result;
+    yield check('pair.effects', effects ? 'passed' : 'failed', effects ? '' : 'projected ordered effects differ');
+    yield check('pair.outcome', outcome ? 'passed' : 'failed', outcome ? '' : 'dispositions differ');
   }
   encodeHistory(h: H): Uint8Array { return need(this.reference.encodeState, 'reference encodeState').call(this.reference, h); }
   decodeHistory(b: Uint8Array): H { return need(this.reference.decodeState, 'reference decodeState').call(this.reference, b); }

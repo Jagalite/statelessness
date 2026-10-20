@@ -1,0 +1,143 @@
+package statelessness
+
+import (
+	"encoding/binary"
+	"fmt"
+)
+
+// Projection defines semantic equality for differing native representations.
+type Projection[S, H, O, R, V, E any] struct {
+	Metadata        func() (Metadata, error)
+	ActualState     func(S) V
+	ReferenceState  func(H) V
+	ActualEffect    func(O) E
+	ReferenceEffect func(R) E
+	EqualStates     func(V, V) bool
+	EqualEffects    func(E, E) bool
+}
+
+func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, V, E]) (Oracle[S, H, I, O], error) {
+	var z Oracle[S, H, I, O]
+	if err := r.validate(); err != nil {
+		return z, err
+	}
+	if r.InitialState == nil || r.Step == nil || p.Metadata == nil || p.ActualState == nil || p.ReferenceState == nil || p.ActualEffect == nil || p.ReferenceEffect == nil || p.EqualStates == nil || p.EqualEffects == nil {
+		return z, &ModelError{"paired requires reference reducer and complete projection callbacks"}
+	}
+	o := Oracle[S, H, I, O]{InitialState: r.InitialState, CloneHistory: r.CloneState, EqualHistory: r.EqualStates}
+	o.Advance = func(h H, i I, _ []O, _ Disposition) (H, error) { t, e := perform(r, h, i); return t.State, e }
+	compare := func(id string, a, b any, equal bool) Check {
+		if equal {
+			return Passed(id)
+		}
+		return Failed(id, fmt.Sprintf("actual=%v; reference=%v", a, b))
+	}
+	o.CheckState = func(h H, s S) ([]Check, error) {
+		checks, e := partialStateChecks(r, h)
+		if e != nil {
+			return checks, e
+		}
+		comparison, e := call("state projection", func() (Check, error) {
+			a, b := p.ActualState(s), p.ReferenceState(r.CloneState(h))
+			return compare("pair.state", a, b, p.EqualStates(a, b)), nil
+		})
+		if e != nil {
+			return checks, e
+		}
+		return append(checks, comparison), nil
+	}
+	o.CheckTransition = func(s OracleState[S, H], i I, t Transition[OracleState[S, H], O]) ([]Check, error) {
+		rt, e := perform(r, s.Oracle, i)
+		if e != nil {
+			return nil, e
+		}
+		checks, e := partialEdgeChecks(r, s.Oracle, i, rt)
+		if e != nil {
+			return checks, e
+		}
+		comparison, e := call("effect projection", func() (Check, error) {
+			actual := make([]E, len(t.Outputs))
+			reference := make([]E, len(rt.Outputs))
+			for k, v := range t.Outputs {
+				actual[k] = p.ActualEffect(v)
+			}
+			for k, v := range rt.Outputs {
+				reference[k] = p.ReferenceEffect(r.CloneOutput(v))
+			}
+			equal := len(actual) == len(reference)
+			if equal {
+				for k := range actual {
+					if !p.EqualEffects(actual[k], reference[k]) {
+						equal = false
+						break
+					}
+				}
+			}
+			return compare("pair.effects", actual, reference, equal), nil
+		})
+		if e != nil {
+			return checks, e
+		}
+		return append(checks, comparison, compare("pair.outcome", t.Disposition, rt.Disposition, t.Disposition == rt.Disposition)), nil
+	}
+	if r.Codec != nil && r.Codec.Metadata != nil {
+		o.Metadata = func() (Metadata, error) {
+			a, e := r.Codec.Metadata()
+			if e != nil {
+				return Metadata{}, e
+			}
+			b, e := p.Metadata()
+			if e != nil {
+				return Metadata{}, e
+			}
+			if e = a.Validate(); e != nil {
+				return Metadata{}, e
+			}
+			if e = b.Validate(); e != nil {
+				return Metadata{}, e
+			}
+			name := fmt.Sprintf("paired-v1:%d:%s:%d:%d:%d:%d:%s:%d", len(a.Name), a.Name, a.ModelVersion, a.PropertiesVersion, a.CodecVersion, len(b.Name), b.Name, b.ModelVersion)
+			return Metadata{name, b.ModelVersion, b.PropertiesVersion, b.CodecVersion, fmt.Sprintf("%d:%s:%d:%s", len(a.Build), a.Build, len(b.Build), b.Build)}, nil
+		}
+		o.EncodeHistory = r.Codec.EncodeState
+		o.DecodeHistory = r.Codec.DecodeState
+	}
+	return o, nil
+}
+func combinedMetadata(a, b Metadata) Metadata {
+	return Metadata{fmt.Sprintf("with-oracle-v1:%d:%s:%d:%d:%d:%d:%s:%d:%d:%d", len(a.Name), a.Name, a.ModelVersion, a.PropertiesVersion, a.CodecVersion, len(b.Name), b.Name, b.ModelVersion, b.PropertiesVersion, b.CodecVersion), a.ModelVersion, a.PropertiesVersion, a.CodecVersion, fmt.Sprintf("%d:%s:%d:%s", len(a.Build), a.Build, len(b.Build), b.Build)}
+}
+func frameOracle(a, b []byte) []byte {
+	out := make([]byte, 4+8+len(a)+8+len(b))
+	copy(out, "ORC1")
+	binary.LittleEndian.PutUint64(out[4:], uint64(len(a)))
+	copy(out[12:], a)
+	offset := 12 + len(a)
+	binary.LittleEndian.PutUint64(out[offset:], uint64(len(b)))
+	copy(out[offset+8:], b)
+	return out
+}
+func unframeOracle(data []byte) ([]byte, []byte, error) {
+	if len(data) < 4 || string(data[:4]) != "ORC1" {
+		return nil, nil, &ModelError{"invalid oracle checkpoint format"}
+	}
+	offset := 4
+	var parts [2][]byte
+	for k := range parts {
+		if len(data)-offset < 8 {
+			return nil, nil, &ModelError{"truncated oracle checkpoint length"}
+		}
+		size := binary.LittleEndian.Uint64(data[offset:])
+		offset += 8
+		if size > uint64(len(data)-offset) {
+			return nil, nil, &ModelError{"truncated oracle checkpoint component"}
+		}
+		end := offset + int(size)
+		parts[k] = append([]byte{}, data[offset:end]...)
+		offset = end
+	}
+	if offset != len(data) {
+		return nil, nil, &ModelError{"trailing oracle checkpoint bytes"}
+	}
+	return parts[0], parts[1], nil
+}

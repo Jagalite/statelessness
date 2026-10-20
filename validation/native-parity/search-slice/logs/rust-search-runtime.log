@@ -1,0 +1,31 @@
+
+running 1 test
+checking independent search-v1 row: fuzz-singleton
+checking independent search-v1 row: fuzz-zero-cases
+checking independent search-v1 row: fuzz-zero-steps
+checking independent search-v1 row: fuzz-zero-transitions
+checking independent search-v1 row: fuzz-exact-transitions
+checking independent search-v1 row: fuzz-empty-domain
+checking independent search-v1 row: fuzz-binary-seed-zero
+checking independent search-v1 row: fuzz-initial-failure
+checking independent search-v1 row: fuzz-cancelled-entry
+checking independent search-v1 row: fuzz-deadline-entry
+checking independent search-v1 row: fuzz-mutation-singleton
+checking independent search-v1 row: shrink-threshold
+checking independent search-v1 row: shrink-attempt-limit
+checking independent search-v1 row: shrink-zero-transitions
+checking independent search-v1 row: shrink-initial
+checking independent search-v1 row: shrink-causal
+checking independent search-v1 row: shrink-phase-identity
+checking independent search-v1 row: shrink-cycle
+checking independent search-v1 row: shrink-zero-attempts
+checking independent search-v1 row: shrink-cancelled-entry
+checking independent search-v1 row: shrink-deadline-entry
+checking independent search-v1 row: fuzz-mutation-digits
+checking independent search-v1 row: fuzz-auto-exact-cap
+checking independent search-v1 row: fuzz-auto-overflow
+checking independent search-v1 row: fuzz-auto-zero-cap
+test shared_search_candidate_corpus ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -78,6 +78,7 @@ def stages(profile, work, portable=False, allow_dirty=False):
         Stage("conformance-tooling", [py, "-m", "unittest", "discover", "-s", "conformance", "-p", "test_*.py", "-v"], "tooling", env={"PYTHONPATH": str(ROOT / "python/src")}),
     ]
     result.append(Stage("capability-docs", [py, "scripts/check-capabilities.py"], "tooling"))
+    result.append(Stage("native-parity-inventory", [py, "scripts/native_parity_inventory.py", "--check"], "tooling"))
     for name, args in (
         ("workspace-tests", ["--workspace"]),
         ("debugger-examples", ["-p", "statelessness-debug", "--examples"]),
@@ -336,7 +337,7 @@ def main(argv=None):
               "toolchains": {"python": sys.version, "rustc": tool_version([*launcher, "rustc", "-Vv"], environment), "cargo": tool_version([*launcher, "cargo", "-V"], environment)},
               "candidate_profiles": {"paired-v1": "experimental; independent review and cross-language runtime qualification required"},
               "portable_profiles": ["core-v1", "bfs-v1", "rng-splitmix64-v1", "trace-json-v1"] if args.portable else [],
-              "limitations": ["Only the recorded host/toolchain is covered", "Native language package and ABI binding matrices are separate jobs", "Benchmark measurements and general application adequacy are not assessed; reference assurance has its own finite requirements", "paired-v1 is candidate only; native Rust/Python/TypeScript tests do not promote its profile", "Independent human review of the reference requirements remains pending", "A failed command is not automatically classified as an application property finding", "No automatic retries; flakiness is not inferred"],
+              "limitations": ["Only the recorded host/toolchain is covered", "Native language package and ABI binding matrices are separate jobs", "Benchmark measurements and general application adequacy are not assessed; reference assurance has its own finite requirements", "paired-v1 is candidate only; native engine tests do not promote its profile", "Independent human review of the reference requirements remains pending", "A failed command is not automatically classified as an application property finding", "No automatic retries; flakiness is not inferred"],
               "results": results}
 
     def save(complete=False):

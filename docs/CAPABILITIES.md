@@ -25,10 +25,10 @@ qualification and measured benchmark baseline remain pending until receipts exis
 | [Rust core / CLI](../Cargo.toml) | 0.2.0 | Checking, assurance catalogs/coverage, BFS, fuzz/shrink/campaigns, lifecycle retention, explicit multi-machine networks, v2 evidence envelope; reference host/fault controls; CLI runs bundled fixture | [Historical core/binding evidence](../SUPPORT.md) | Registry 0.2.0 (unyanked); older source snapshot |
 | [Rust macros](../crates/statelessness-macros/Cargo.toml) | 0.2.0 | Model/domain/codec/inspection derives, default initial state, opt-in bounded generation, typed property metadata; explicit syntax/protocol | [Historical macro evidence](../docs/MACRO-STATUS.md) | Registry 0.2.0 (unyanked); older source snapshot; inspection derives are newer |
 | [Rust debugger](../crates/statelessness-debug/Cargo.toml) | 0.2.0 | Sessions, exact replay/forks, inspection/watches/probes, stdio, cooperative live control, offline v2 evidence/phase minimization and passive diagnostic reports | [Historical debugger acceptance](../docs/debugger/ACCEPTANCE.md) | Absent from crates.io at receipt date; use local path |
-| [Native Python](../python/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections (unqualified); independent engine | [Historical Python qualification](../spec/QUALIFICATION.md) | Source/wheel instructions; registry availability not verified |
-| [Native Go](../go/README.md) | 0.1.0 | Four portable v1 profiles; no Rust/cgo | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local module replace; module release not verified |
-| [Native TypeScript](../typescript/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections (unqualified); independent ESM engine | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local npm tarball; npm availability not verified |
-| [Native Swift](../swift/README.md) | 0.1.0 | Four portable v1 profiles; root SwiftPM package | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local source package; registry/binary release not verified |
+| [Native Python](../python/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections and search-v1 generation/fuzz/shrink (unqualified); independent engine | [Historical Python qualification](../spec/QUALIFICATION.md) | Source/wheel instructions; registry availability not verified |
+| [Native Go](../go/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections and search-v1 generation/fuzz/shrink (unqualified); no Rust/cgo | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local module replace; module release not verified |
+| [Native TypeScript](../typescript/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections and search-v1 generation/fuzz/shrink (unqualified); independent ESM engine | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local npm tarball; npm availability not verified |
+| [Native Swift](../swift/README.md) | 0.1.0 | Four portable v1 profiles; candidate paired-v1 oracles/projections and search-v1 generation/fuzz/shrink (unqualified); root SwiftPM package | [Historical native qualification](../spec/NATIVE-PORTS-QUALIFICATION.md) | Local source package; registry/binary release not verified |
 | [Rust-backed C](../bindings/c/README.md) | 0.2.0 / ABI 1 | ABI 1 byte-model record/replay/BFS; Rust binary traces | [Historical core/binding evidence](../SUPPORT.md) | Build matching native library locally |
 | [Rust-backed Swift](../bindings/swift/README.md) | 0.2.0 / ABI 1 | ABI 1 byte-model record/replay/BFS; Rust binary traces; StatelessNative product | [Historical core/binding evidence](../SUPPORT.md) | Generated local SwiftPM package + native library |
 | [Rust-backed JavaScript](../bindings/browser/README.md) | 0.2.0 / ABI 1 | ABI 1 byte-model record/replay/BFS; Rust binary traces; Wasm engine | [Historical core/binding evidence](../SUPPORT.md) | Generated local npm package; version comes from core manifest |
@@ -83,14 +83,18 @@ the root Rust package version when staging its distributable package.
 ## Capability boundaries and planned work
 
 All four independent native ports retain the four established profiles:
-`core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and `trace-json-v1`. Python and TypeScript
+`core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and `trace-json-v1`. All four native engines
 also implement the **candidate** `paired-v1` oracle/projection contract and share
 an independently declared finite corpus with Rust. It is excluded from `PROFILES`
-and listed as experimental; Go and Swift do not implement that candidate. Candidate
+and listed as experimental. See [native parity status](NATIVE-PARITY-STATUS.md)
+for current implementation and execution boundaries. Candidate
 code and schema-valid fixtures do not establish independent review, full
 cross-language runtime qualification, or promotion into the portable contract.
-Native fuzz/shrink, guided campaigns, lifecycle helpers, multi-machine scheduling,
-runtime ring recorders and binary `.sttrace` parity remain outside those profiles.
+All four native engines additionally contain the experimental `search-v1`
+generation/fuzz/shrink candidate, including search observer hooks and oracle
+generation forwarding. These APIs remain outside the four qualified profiles.
+Guided campaigns, lifecycle helpers, multi-machine scheduling, runtime ring
+recorders and binary `.sttrace` parity remain open native gaps.
 
 The Rust-backed C/Swift/JavaScript/Go interfaces call the Rust engine through ABI
 1 and expose recording, replay and finite enumeration. Generic foreign fuzz,

@@ -127,5 +127,5 @@ These APIs are not represented by the older registry 0.2.0 artifacts or historic
 M0 receipts. The current local policy permits Rust compilation only; runtime
 qualification, actual mutation kills, measurements, hosted CI and independent
 review of requirements remain separate gates. Native `paired-v1` is a candidate
-for Rust/Python/TypeScript, not a promoted portable profile; Go/Swift do not support
-it. No new mandatory runtime dependency or production optimization is implied.
+for Rust and all four independent native engines, not a promoted portable profile.
+See [native parity status](docs/NATIVE-PARITY-STATUS.md) for the current slice. No new mandatory runtime dependency or production optimization is implied.

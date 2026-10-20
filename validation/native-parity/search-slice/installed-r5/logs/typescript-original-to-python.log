@@ -1,0 +1,1 @@
+{"mode": "replay", "outcome": "exact", "failure_reproduced": true, "steps": 6, "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"}
