@@ -72,5 +72,23 @@
       "gzip_bytes": 395,
       "gzip_sha256": "8b59aa3ecd01ed175b23a769f7a0920591cbac65c6d4a0083e2339edd93fec45"
     }
-  ]
+  ],
+  "final_qualification": {
+    "job_id": "cbcf8b99b97e449d97775259236f5c89",
+    "status": "succeeded",
+    "exit_code": 0,
+    "requested_command": [
+      "npm",
+      "test"
+    ],
+    "effective_command": [
+      "npm",
+      "test"
+    ],
+    "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+    "log_bytes": 41878,
+    "log_sha256": "40a31bcead3c65545527fdd3e1eb2049a8177c821fc2ed0424c1c917171cbc02",
+    "gzip_bytes": 11191,
+    "gzip_sha256": "8f3b353d6e4106bc890b5783ef3df9fc2bdbc6cee7b6a667168c75da4dbd0973"
+  }
 }

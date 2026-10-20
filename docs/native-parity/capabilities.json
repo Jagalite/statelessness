@@ -179,7 +179,7 @@
       },
       {
         "path": "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
-        "sha256": "e9d5b9319b3ac21201820e7702bcc87677c43d7b911e783e7236cf8564db5340"
+        "sha256": "6b45d696eec5c972d3c37ab48923e6affc66018e70bb1e69bdb7b54ad34c620f"
       },
       {
         "path": "examples/native-evidence/typescript/consumer.ts",
@@ -399,7 +399,7 @@
       },
       {
         "path": "scripts/check-native-evidence-consumers.py",
-        "sha256": "eeeb9b81863cf952aeb108d3c22b969be7790de4d04d99a0cd36604d30c6497f"
+        "sha256": "aa187962b492fcb80c3a75881cc4de9880b44bd6263455c61924f762f485fa3c"
       },
       {
         "path": "scripts/check-native-ports.py",
@@ -1050,7 +1050,7 @@
           "ring-recording",
           "binary-v1"
         ],
-        "qualification_note": "Scoped source/API mapping and exact candidate-byte snapshot after root-authorized global source freeze. Hashes include associated contracts, corpus, tests and consumer harness; they do not imply independent static review of every test or runtime success. Parent reports Rust101 causal cases plus 3150 truncation prefixes/44 chunks/app smoke and Swift115 methods passed. Final other-native and installed-consumer jobs remain pending. All144 broader qualification cells and receipt links remain unchanged; no profile promotion, general canonical-value-codec API, hard RSS, authentication or durable atomic-publication claim."
+        "qualification_note": "Scoped source/API mapping and exact candidate-byte snapshot after root-authorized global source freeze. Hashes include associated contracts, corpus, tests and consumer harness; they do not imply independent static review of every test or runtime success. Parent reports final Rust101 causal cases plus 3150 truncation prefixes/44 chunks/app smoke, Go tests (5e59) and vet (bd5a), Python216 tests with12 ABI skips (d6b6), TypeScript627 tests (cbcf), and Swift115 methods (efc) passed. Installed r1 exposed ambiguous Swift helper disposition JSON; root reviewed the two-occurrence ApplicationDispositionJSON rename. Installed r2 exposed a driver requirement for optional Rust record.diagnostic; root reviewed mandatory three-file validation plus validation of optional diagnostics, preserving all25 explicit diagnostic comparisons and10 sentinel checks. Only the Swift consumer and installed driver hashes were refreshed for these fixes. Root reports installed r3 663603987cbf44179af313cb9400b6d2 terminal SUCCEEDED exit0: five producers,25 v2 rewrite/phase-replay pairs,25 explicit upgrades,25 private exact diagnostic comparisons,25 passive-v1 pairs and10 sentinel negative checks, plus unchanged baseline passed. Finite macOS/arm64 proof is archived at validation/native-parity/evidence-slice/installed-r3; failed r1/r2 remain preserved. Registry, browser, broader platforms and hard RSS qualification remain open. All144 broader qualification cells and receipt links remain unchanged; no profile promotion, general canonical-value-codec API, hard RSS, authentication or durable atomic-publication claim."
       }
     ]
   },
@@ -2989,7 +2989,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. General canonical value-codec APIs, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native/installed runtime receipts remain pending; no broad qualification is inferred."
+      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. General canonical value-codec APIs, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native suites and finite macOS/arm64 installed-consumer matrix passed as recorded in the scoped review; registry/browser/broader platform/resource qualification remains open; no broad qualification is inferred."
     },
     {
       "id": "debug-session",

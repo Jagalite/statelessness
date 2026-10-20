@@ -1,0 +1,15 @@
+{
+  "final_job": "d6b6feb177f0440f85f08b05335aaadc",
+  "status": "succeeded",
+  "unittest_tests_run": 216,
+  "exit_code": 0,
+  "wire_cases": 52,
+  "replay_upgrade_cases": 16,
+  "recorder_cases": 20,
+  "diagnostic_cases": 13,
+  "valid_prefixes": 3150,
+  "chunked_reads": 44,
+  "abi_skips": 12,
+  "profile": "causal-evidence-v2",
+  "promotion": false
+}

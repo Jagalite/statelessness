@@ -299,9 +299,17 @@ operation through its separate Node adapter.
 The root-authorized frozen source is now pinned in the capability ledger, with
 all four causal-evidence implementations mapped as implemented. Root reports the
 Rust reference passed 101 causal cases, 3,150 truncation prefixes, 44 chunked
-reads and application smoke; Swift passed 115 methods. Final other-native and
-installed-consumer receipts remain pending. All 144 broad qualification-pending
-cells and the four promoted profiles remain unchanged. The finite candidate work does not establish
+reads and application smoke. Final native Kyoto suites passed: Go tests and vet,
+Python 216 tests with 12 ABI skips, TypeScript 627 tests, and Swift 115 methods.
+The installed macOS/arm64 matrix passed across five producers: all 25 v2
+rewrite/phase-replay pairs, 25 explicit upgrades, 25 private exact diagnostic
+comparisons, 25 passive-v1 pairs and ten sentinel negative checks, plus the
+unchanged baseline. The [installed receipts](../validation/native-parity/evidence-slice/installed-r3)
+retain this finite proof. Failed first and second attempts remain preserved; they
+exposed Swift helper naming and optional diagnostic-file validation defects in
+the consumer harness. All 144 broad qualification-pending cells and the four
+promoted profiles remain unchanged. Registry, browser and broader platform
+qualification remain open. The finite candidate work does not establish
 general canonical value-codec APIs, debugger integration, cross-platform/browser
 qualification, hard RSS bounds or complete N05/N11/native parity. Metadata decoder
 allocation accounting uses the specified Rust64 logical schema weights rather

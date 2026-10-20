@@ -42,5 +42,16 @@
     "stored_sha256": "4c3bd2b853037abc6b1fb7c5d57a873068201475c1f55a302ff4b5d2f9481d9b",
     "compression": "gzip, mtime=0; decompressed bytes verified identical",
     "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "d6b6feb177f0440f85f08b05335aaadc",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/d6b6feb177f0440f85f08b05335aaadc.log",
+    "original_size": 32768,
+    "original_sha256": "c34281388527d568294deb291ca1bfee3f8d6436fb07f907a198d25e93cc5730",
+    "stored_path": "logs/d6b6feb177f0440f85f08b05335aaadc.log.gz",
+    "stored_size": 6115,
+    "stored_sha256": "14d37e20ab647453efbab9be48af0ecb09b03f862697f4aadd189e98dc66fb3e",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "status": "frozen_before_final_run",
+  "status": "qualified_same_frozen_bytes",
   "scope_digest_recipe": "SHA256 of sorted path + NUL + file SHA256 + newline",
   "scope_sha256": "9bd512a2f579a9b052ddf5c1f1af9ce724e37ccf825ff2bea357fd9adbd9552b",
   "file_count": 40,
@@ -226,5 +226,8 @@
       "bytes": 11471,
       "sha256": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3"
     }
-  ]
+  ],
+  "final_job_id": "cbcf8b99b97e449d97775259236f5c89",
+  "source_candidate_commit": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "post_run_source_and_shared_input_hashes_match": true
 }

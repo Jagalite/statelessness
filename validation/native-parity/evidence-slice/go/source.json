@@ -244,5 +244,8 @@
       "sha256": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac",
       "size": 29844
     }
-  }
+  },
+  "final_execution_source_rechecked_utc": "2026-10-20T22:54:41.882455+00:00",
+  "source_candidate_head": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "final_execution_scope": "Source fingerprint unchanged from pre-execution hold through both final successful jobs."
 }

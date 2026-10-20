@@ -204,13 +204,17 @@ def main():
                 if controls.get(key) is not True: raise RuntimeError(f'{name} failed {key}')
             if receipt.get('diagnostic_text')!=diagnostic_text: raise RuntimeError(f'{name} diagnostic redaction/allowlist/schema differs')
             if name=='python' and not Path(receipt['package']).resolve().is_relative_to((work/'venv').resolve()): raise RuntimeError('Python imported outside installed environment')
-            for suffix in ('.v2','.v1','.json','.diagnostic'):
+            for suffix in ('.v2','.v1','.json'):
                 artifact=Path(str(prefix)+suffix)
                 if not artifact.is_file(): raise RuntimeError(f'{name} omitted {suffix}')
                 report['artifacts'][str(artifact.relative_to(out))]=fingerprint(artifact)
             envelope=Path(str(prefix)+'.v2').read_bytes();embedded_len=int.from_bytes(envelope[12:20],'little')
             if envelope[28:28+embedded_len]!=Path(str(prefix)+'.v1').read_bytes():raise RuntimeError(f'{name} v1 sidecar differs from exact embedded original')
-            private(Path(str(prefix)+'.v2'));private(Path(str(prefix)+'.diagnostic'))
+            private(Path(str(prefix)+'.v2'))
+            optional_diagnostic=Path(str(prefix)+'.diagnostic')
+            if optional_diagnostic.exists():
+                private(optional_diagnostic)
+                if optional_diagnostic.read_text()!=diagnostic_text:raise RuntimeError(f'{name} optional diagnostic artifact differs')
             if Path(str(prefix)+'.v2').stat().st_size>contract['limits']['max_total_bytes']: raise RuntimeError(f'{name} recorded envelope exceeds total quota')
             report['producers'][name]=receipt;save()
         protected=out/'existing-files';protected.mkdir()
