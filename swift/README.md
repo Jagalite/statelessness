@@ -436,7 +436,7 @@ Runtime/native qualification receipts remain separate. Schema spellings and opti
 slices own copy-on-write storage; later caller mutations cannot alter the reader.
 No new Sendable or concurrency guarantee is introduced. Protocol conveniences
 `TraceEncodable` and `TraceDecodable` support handwritten types independently;
-record/enum generation and ModelCodec version glue remain a separate N13 gate.
+explicit record/enum builders and opt-in ModelCodec binding are described below.
 Existing application Codec callbacks can explicitly call these descriptors.
 
 Shared tests honor `STATELESS_VALUE_CORPUS`. Executable value, error and reader
@@ -469,3 +469,36 @@ preserving layout and diagnostic variant; its raw decode adds no guard, while
 `decodeLength` do not require ordinary directions. Container length capabilities
 still require the element's ordinary traits, including empty containers. No
 placeholder ordinary implementation is needed for a custom length-only adapter.
+
+
+`TraceRecords.codec` builds ordered named or tuple records from typed
+`TraceFields.first(field).appending(field)` products. A two-field constructor
+receives `TraceProduct.prefix` and `.last`; larger declarations nest products.
+`TraceField.ordinary` guards its decoded value, while `.adapter` and `.length`
+call their selected codec mode directly. Projections are optional for decode-only
+fields. Constructors run only after every field succeeds. `TraceRecords.unit`
+emits no bytes and decodes only when an explicit constructor is supplied.
+
+`TraceEnumCase` declares an explicit UInt32 tag, label, typed payload codec, and
+optional constructor. Pass `.erased()` declarations to `TraceEnums.codec`, with
+`.u8`, `.u16`, or `.u32` tag width and a selector returning `case.select(payload)`.
+The builder rejects duplicate and out-of-range tags; encoding rejects foreign
+case selections before publishing a tag. Decoding guards the tag and calls the
+selected payload raw. Unknown tags fail before payload callbacks.
+
+Record and enum builders infer encoding and decoding independently across every
+field/case. The optional `.encoding`, `.decoding`, or `.both` requirement checks
+capabilities eagerly and never filters available directions. Neither direction
+is a valid inferred result. Result codecs acquire no length capability or Rust
+layout by inference. An explicit logical layout must identify the declaration;
+when alignment is supplied it must be a positive power of two dividing size.
+
+`try ModelCodecBinding(metadata: ..., state: ..., input: ..., output: ...).codec()`
+returns an ordinary application `Codec`. State and Input require ordinary encode
+and decode; Output requires encoding alone. All eight generated hooks evaluate
+metadata once and check its current codecVersion before touching codec callbacks,
+sinks, or decode limits. The optional `decodeLimits` factory runs afresh per
+admitted decode. Preferred into hooks append raw; existing engine helpers retain
+their own stronger lease policy. Adoption and any later mutation of Codec hooks
+remain explicit. These native builders do not parse Rust derive syntax or change
+model metadata, execution defaults, or promoted profiles.

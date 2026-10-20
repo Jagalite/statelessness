@@ -456,3 +456,14 @@ that collection. Encoding remains available without allocation metadata.
 unsigned-byte width before any custom callback. Custom length codecs can accept
 width 3; built-in string/vector codecs continue to accept only 1, 2 and 4. Raw
 decoding adds no outer value guard and does not call `finish` automatically.
+
+Explicit N13 declarations are opt-in via `statelessness.codec_declarations` (also
+exported at package root). `ordered_record`, `tuple_record`, and `unit_record`
+concatenate explicit fields; `tagged_enum` requires explicit U8/U16/U32 tags.
+Fields choose ordinary, `length=1/2/4`, or adapter routes. Builders capture their
+configuration and infer encode/decode independently; `require=("encode",)` asserts
+availability without filtering other capabilities. Record/enum layouts remain
+unknown unless `layout=Rust64Layout(...)` supplies an explicit logical weight.
+`model_codec(state=..., input=..., output=...).bind(model)` preserves model
+methods while replacing its eight codec hooks; output requires encoding only.
+These APIs do not promote a compatibility profile or infer Rust object layout.

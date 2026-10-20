@@ -76,3 +76,10 @@ __all__ += ["value_codec", "DecodeLimits", "Decoder", "Rust64Layout", "Schema",
     "encode_canonical", "decode_canonical", "encode_into", "encode_raw", "encode_length_raw", "decode_length_raw", "U8", "U16", "U32",
     "U64", "U128", "I8", "I16", "I32", "I64", "I128", "BOOL", "UNIT", "STRING"]
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("canonical-value-codec-v1",)
+
+from .codec_declarations import (DECLARATION_API_V1, adapter, field,
+    positional_field, adapted_field, ordered_record, tuple_record, unit_record,
+    case, tagged_enum, ModelCodec, model_codec)
+__all__ += ["DECLARATION_API_V1", "adapter", "field", "positional_field",
+    "adapted_field", "ordered_record", "tuple_record", "unit_record", "case",
+    "tagged_enum", "ModelCodec", "model_codec"]

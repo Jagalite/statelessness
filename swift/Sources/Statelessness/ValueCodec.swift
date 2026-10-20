@@ -49,7 +49,7 @@ public struct TraceValueCodec<Value> {
         self.init(schema: schema, layout: layout, variant: variant, encoder: encoding, decoder: decoding,
                   lengthEncoder: encodingLength, lengthDecoder: decodingLength)
     }
-    private init(schema: String, layout: Rust64ValueLayout?, variant: @escaping (Value) -> String? = { _ in nil },
+    init(schema: String, layout: Rust64ValueLayout?, variant: @escaping (Value) -> String? = { _ in nil },
                  encoder: ((Value, EncodeBuffer) throws -> Void)?, decoder: ((ValueDecoder) throws -> Value)?,
                  lengthEncoder: ((Value, UInt8, EncodeBuffer) throws -> Void)? = nil,
                  lengthDecoder: ((UInt8, ValueDecoder) throws -> Value)? = nil) {

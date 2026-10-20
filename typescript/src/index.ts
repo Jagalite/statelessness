@@ -18,3 +18,5 @@ export type {Provenance,OutputOrigin,CausalContext,StepEvidence,TraceV2,Artifact
 export {EvidenceRecorder} from './evidence_recorder.js';
 export {Decoder,DEFAULT_DECODE_LIMITS,resolveDecodeLimits,logicalLayout,customValueSchema,encodeValue,decodeValue,UNIT,NONE,some,withLength,encodeLengthValue,valueCodecs} from './value_codec.js';
 export type {DecodeLimits,ResolvedDecodeLimits,LogicalLayout,ValueSchema,LengthSchema,CustomValueSchema,Unit,Option,SchemaValue,TupleValue} from './value_codec.js';
+export {codecField,orderedRecord,tupleRecord,unitRecord,enumCases,taggedEnum,bindModelCodec} from './value_codec.js';
+export type {ValueEncoder,ValueDecoder,LengthEncoder,LengthDecoder,CodecField,RecordDeclaration,EnumCase} from './value_codec.js';

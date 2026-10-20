@@ -453,3 +453,16 @@ array decoder's original guards and allocation requests.
 `LengthValueCodec[T]` independently declares length encode and/or decode callbacks with `NewLengthValueCodec`; it requires no ordinary codec callbacks. `EncodeLengthRaw` and `DecodeLengthRaw` preserve direct-call error semantics and encoder lease expiry, while `EncodeLengthInto` additionally poisons callback errors. `WithWidth` selects an ordinary `ValueCodec` without adding a raw decoder guard. `StringLengthValueCodec` and `VectorLengthValueCodec` reuse the built-in width algorithms.
 
 The canonical decoder owns built-in `ModelError` payloads in sticky failures and returns detached copies. Opaque application errors retain identity and are never formatted or serialized merely to store a failure.
+
+Canonical derive-style declarations are opt-in: `OrderedRecord` composes a typed
+`FieldProduct` from `OrdinaryField`, `LengthField`, or `AdapterField` descriptors;
+`TaggedEnum` selects explicit numeric `TaggedCase` declarations. Record and enum
+layouts stay unknown unless `RecordOptions.Layout` or `EnumOptions.Layout`
+explicitly supplies a logical Rust64 collection weight. Inference retains every
+available direction, including neither; `Require` checks eagerly without
+filtering other available directions. `DefaultEnumOptions()` supplies a one-byte
+tag, and `DefaultModelCodecOptions()` supplies codec version 1. Their zero option
+values intentionally fail validation rather than silently choosing a format.
+`BindModelCodec` returns a new model codec for explicit assignment, requires only
+encoding for Output, and preserves metadata and engine behavior. It checks the
+current metadata version on every hook and evaluates decode limits afresh.

@@ -1,0 +1,42 @@
+{
+  "job_id": "b0d6f3e691ac4413a4cb8e46c3c4cd15",
+  "scope": "Python N13 native suite, not 90-case execution or broad parity",
+  "files": {
+    "python/src/statelessness/codec_declarations.py": {
+      "sha256": "7e5c0bc9fb837121b88e6ec9728b6c787ee58c37cc22245bda18d1442e98034f",
+      "size": 13394
+    },
+    "python/src/statelessness/__init__.py": {
+      "sha256": "1ea229bfa5d75cbe6c4ce3c1a3a4123623e6b81e9d1e1ba8410947e3238dbae8",
+      "size": 5016
+    },
+    "python/tests/test_codec_declarations.py": {
+      "sha256": "b2a8ef86056961e2f1bdf98559b8738b951118d459e9816c51570083f6d646d6",
+      "size": 13116
+    },
+    "python/README.md": {
+      "sha256": "b4f6ca7ed284d18ad5463e1b7c194ef51e9dd9db2180977dc172e1b819e19406",
+      "size": 29195
+    },
+    "examples/native-derive/python/consumer.py": {
+      "sha256": "ac2e10a1330bdce9cab942b9130a673c4929b72b2e81d22ec2c008bab4b64cc5",
+      "size": 1878
+    },
+    "validation/native-parity/derive-model/python/show-1.json": {
+      "sha256": "fa641e84600f73642d82ab1eec6497c16494249b55966074c83b166975ed4a1a",
+      "size": 1693
+    },
+    "validation/native-parity/derive-model/python/submit-1.json": {
+      "sha256": "7fd6e9b54e9e4d3865a0c23c772aeaba775d77c1818af00d7eeb5b878596f7df",
+      "size": 1693
+    },
+    "validation/native-parity/derive-model/python/show-handoff.json": {
+      "sha256": "2c3238073d59ab48dc00e56c782d4e0f254c27ba75571b7fb7066e4ea81a7c7a",
+      "size": 1693
+    },
+    "validation/native-parity/derive-model/python/log-1.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  }
+}
