@@ -180,7 +180,11 @@ def execute(request: Any, backend: Any = None) -> dict[str, Any]:
         values = {name: integer(value, maximum=MAX_WORK) for name, value in config.items()}
         if values["max_states"] == 0:
             return {"error": "invalid_config"}
-        return asdict((backend.enumerate_states if backend else enumerate_states)(model, SearchConfig(**values)))
+        result = asdict((backend.enumerate_states if backend else enumerate_states)(model, SearchConfig(**values)))
+        # bfs-v1 has a fixed qualified interchange shape. New native controls
+        # and estimates are an additive candidate, not a portable schema change.
+        result.pop("estimated_retained_state_bytes", None)
+        return result
     if operation == "record":
         inputs = [string(x) for x in array(request["inputs"], MAX_WORK)]
         maximum = integer(request["max_steps"], maximum=MAX_WORK)

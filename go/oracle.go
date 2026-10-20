@@ -1,9 +1,15 @@
 package statelessness
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"unsafe"
+)
 
 // ExperimentalProfiles names candidates; these are not qualified Profiles.
-func ExperimentalProfiles() []string { return []string{"paired-v1", "search-v1", "native-binary-v1"} }
+func ExperimentalProfiles() []string {
+	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1"}
+}
 
 type OracleState[S, H any] struct {
 	Model  S
@@ -13,15 +19,16 @@ type OracleState[S, H any] struct {
 // Oracle keeps explicit independent history. CloneHistory must deeply copy any
 // mutable values. Advance must be pure; outputs are defensive snapshots.
 type Oracle[S, H, I, O any] struct {
-	Metadata        func() (Metadata, error)
-	InitialState    func() (H, error)
-	Advance         func(H, I, []O, Disposition) (H, error)
-	CheckState      func(H, S) ([]Check, error)
-	CheckTransition func(OracleState[S, H], I, Transition[OracleState[S, H], O]) ([]Check, error)
-	CloneHistory    func(H) H
-	EqualHistory    func(H, H) bool
-	EncodeHistory   func(H) ([]byte, error)
-	DecodeHistory   func([]byte) (H, error)
+	Metadata            func() (Metadata, error)
+	InitialState        func() (H, error)
+	Advance             func(H, I, []O, Disposition) (H, error)
+	CheckState          func(H, S) ([]Check, error)
+	CheckTransition     func(OracleState[S, H], I, Transition[OracleState[S, H], O]) ([]Check, error)
+	CloneHistory        func(H) H
+	EstimatedStateBytes func(H) (*uint64, error)
+	EqualHistory        func(H, H) bool
+	EncodeHistory       func(H) ([]byte, error)
+	DecodeHistory       func([]byte) (H, error)
 }
 
 type ObservationError[S, O any] struct {
@@ -95,6 +102,36 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			return o.CheckTransition(w.CloneState(s), m.CloneInput(i), cloneOracleTransition(w, t))
 		})
 		return append(a, b...), e
+	}
+	w.EstimatedStateBytes = func(state OracleState[S, H]) (*uint64, error) {
+		actual, e := estimateState(m, state.Model)
+		if e != nil || actual == nil {
+			return nil, e
+		}
+		if o.EstimatedStateBytes == nil {
+			return nil, nil
+		}
+		history, e := call("oracle estimated_state_bytes", func() (*uint64, error) {
+			value, e := o.EstimatedStateBytes(o.CloneHistory(state.Oracle))
+			if e != nil || value == nil {
+				return nil, e
+			}
+			owned := *value
+			return &owned, nil
+		})
+		if e != nil || history == nil {
+			return nil, e
+		}
+		if *history > math.MaxUint64-*actual {
+			return nil, nil
+		}
+		total := *actual + *history
+		overhead := OracleStateOverhead[S, H]()
+		if overhead > math.MaxUint64-total {
+			return nil, nil
+		}
+		total += overhead
+		return &total, nil
 	}
 	if m.Inputs != nil {
 		w.Inputs = func(s OracleState[S, H]) (Iterator[I], error) { return m.Inputs(m.CloneState(s.Model)) }
@@ -244,4 +281,21 @@ func WithOracleGenerate[S, H, I, O any](g GenerateModel[S, I, O], o Oracle[S, H,
 		result.IsEnabled = func(state OracleState[S, H], input I) (bool, error) { return g.enabled(state.Model, input) }
 	}
 	return result, nil
+}
+
+// OracleStateOverhead reports architecture-specific inline wrapper padding beyond
+// its two fields, matching Rust's size_of rule. Application estimates must include
+// their own inline/reachable state data; this excludes heap headers and RSS.
+func OracleStateOverhead[S, H any]() uint64 {
+	var pair OracleState[S, H]
+	size := uint64(unsafe.Sizeof(pair))
+	modelSize, oracleSize := uint64(unsafe.Sizeof(pair.Model)), uint64(unsafe.Sizeof(pair.Oracle))
+	if oracleSize > math.MaxUint64-modelSize {
+		return 0
+	} // impossible for a representable native pair
+	fields := modelSize + oracleSize
+	if size <= fields {
+		return 0
+	}
+	return size - fields
 }

@@ -111,6 +111,9 @@ public struct Model<State, Input, Output> {
     public var equalStates: ((State, State) throws -> Bool)?
     public var hashState: ((State) throws -> UInt64)?
     public var codec: Codec<State, Input, Output>?
+    /// Application estimate of retained state bytes, not process RSS. Unknown
+    /// estimates are nil; callback allocations and engine bookkeeping are excluded.
+    public var estimatedStateBytes: ((State) throws -> UInt64?)?
     public init(initialState: @escaping () throws -> State,
                 step: @escaping (State, Input) throws -> Transition<State, Output>,
                 checkState: @escaping (State) throws -> [Check],
@@ -121,11 +124,12 @@ public struct Model<State, Input, Output> {
                 inputs: ((State) throws -> InputIterator<Input>)? = nil,
                 equalStates: ((State, State) throws -> Bool)? = nil,
                 hashState: ((State) throws -> UInt64)? = nil,
-                codec: Codec<State, Input, Output>? = nil) {
+                codec: Codec<State, Input, Output>? = nil,
+                estimatedStateBytes: ((State) throws -> UInt64?)? = nil) {
         self.initialState = initialState; self.step = step; self.checkState = checkState
         self.cloneState = cloneState; self.cloneInput = cloneInput; self.cloneOutput = cloneOutput
         self.checkTransition = checkTransition; self.inputs = inputs; self.equalStates = equalStates
-        self.hashState = hashState; self.codec = codec
+        self.hashState = hashState; self.codec = codec; self.estimatedStateBytes = estimatedStateBytes
     }
 }
 func call<T>(_ stage: String, _ callback: () throws -> T) throws -> T {

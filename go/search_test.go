@@ -477,3 +477,29 @@ func TestFuzzMutationExactDrawsAndDisabledReuse(t *testing.T) {
 		t.Fatal(executed, enabled)
 	}
 }
+
+func TestShrinkReplayBudgetSnapshotsCallerValue(t *testing.T) {
+	for _, test := range []struct {
+		name             string
+		initial, changed uint64
+		transitions      uint64
+		validated        bool
+	}{
+		{"raising-entry-budget-does-not-admit-more-replay", 2, 100, 2, false},
+		{"lowering-entry-budget-does-not-stop-validation", 3, 0, 3, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			maximum := test.initial
+			g := integerSearch(t, "threshold", nil)
+			g.InitialState = func() (int, error) { maximum = test.changed; return 0, nil }
+			original := s.Failure[int]{Inputs: []int{1, 1, 1}, Violations: []s.Violation{{Phase: "state", Check: s.Failed("bad", "supplied")}}}
+			report, e := s.ShrinkWithLimits(g, original, s.DefaultShrinkConfig(), s.ShrinkLimits{MaxReplayedTransitions: &maximum})
+			if e != nil || report.Termination != "transition_limit" || report.ReplayedTransitions != test.transitions || report.ValidatedOriginal != test.validated || maximum != test.changed {
+				t.Fatal(report, e, maximum)
+			}
+			if !slices.Equal(report.Minimized.Inputs, []int{1, 1, 1}) {
+				t.Fatal("supplied evidence changed", report)
+			}
+		})
+	}
+}

@@ -148,3 +148,40 @@ An `AuditReader.read(target)` may fill any nonempty prefix and returns zero only
 at EOF; reads are synchronous, and footer EOF probing requires bounded input or
 host I/O deadlines. Binary v1 step checks have unknown legacy phases. Structural
 acceptance and exact re-encoding do not qualify semantic replay or add a profile.
+
+### Experimental BFS controls, estimates and observations
+
+`enumerateStates(model, config, limits?, observer?)` preserves ordinary FIFO
+exploration and adds `SearchLimits`: `{ control: { cancellation, maxDurationMs },
+maxEstimatedStateBytes }`. Controls reuse fuzz/shrink semantics and cannot
+interrupt a model callback. `estimatedStateBytes(state)` is an optional model
+hook returning exact unsigned 64-bit `bigint` bytes or `null` for unknown.
+`estimated_retained_state_bytes` sums admitted unique states only; unknown or
+u64 overflow stays unknown without a cap. A cap requires known estimates and
+returns `estimated_state_byte_limit` before admitting an oversized state.
+The estimate excludes predecessor inputs, temporary successors, map/frontier
+storage and callback allocation; it is not a process RSS limit.
+
+`enumerateStatesObserved(model, config, observer, limits?)` is an equivalent
+entrypoint. The existing `SearchObserver` receives initial checks, duplicate and
+failing checked edges, and partial check-error batches. Set `needsHistory: () =>
+true` for actual initial-rooted edge prefixes; BFS supplies an empty history
+otherwise. Observer values are detached through model clone hooks. Fuzz always
+supplies full prefixes regardless of this optional history flag.
+
+`Oracle.estimatedStateBytes(history)` and `Paired` reference-estimate forwarding
+support composition. `new WithOracle(model, oracle, estimatedWrapperOverhead?)`
+requires explicit caller-selected logical wrapper overhead for a known combined
+estimate. Omission defaults to unknown; explicit `0n` is permitted. The estimate
+is the checked u64 sum of model bytes, history bytes and this declared overhead.
+It does not infer managed-runtime object layout or claim cross-language byte/RSS
+identity. The portable-v1 conformance wire response keeps its existing schema.
+
+For budgets beyond JavaScript's safe Number range,
+`enumerateStatesExact(model, { maxStates, maxTransitions: bigint, maxDepth },
+limits?, observer?)` uses a u64 transition budget and returns bigint
+`transitions` and `skipped_checks`. Ordinary `enumerateStates` retains its safe
+Number surface, uses the same exact kernel, and rejects a report whose counters
+cannot be represented safely. Skipped-check counts saturate at u64 maximum, matching Rust;
+state/depth limits remain checked safe integers reflecting the native array/path
+representation. No counter passes through a rounded Number.

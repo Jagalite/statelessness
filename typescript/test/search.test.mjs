@@ -104,3 +104,14 @@ test('automatic supports frozen models with own nonconfigurable functions',()=>{
 test('automatic generator overrides stay on the facade and are honored',()=>{
  const m={...base(),inputs:()=>[1],equalStates:(a,b)=>a===b},original=m.generate;const gen=automatic(m);gen.generate=()=>9;gen.isEnabled=()=>true;assert.equal(gen.generate(0,new Rng()),9);assert.equal(m.generate,original);assert.equal(fuzz(gen,config()).failure.inputs[0],9);
 });
+test('fuzz, shrink and automatic sampling snapshot validated budget fields once',()=>{
+ const oneRead=values=>{const reads={},config={};for(const [key,value]of Object.entries(values)){reads[key]=0;Object.defineProperty(config,key,{get(){assert.equal(++reads[key],1,`${key} reread`);return value;}});}return config;};
+ const m={...base(),checkState:()=>[],inputs:()=>[1,2],equalStates:(a,b)=>a===b};
+ const fuzzConfig=oneRead(config({cases:1,maxSteps:1,maxTransitions:1n}));assert.equal(fuzz(m,fuzzConfig).transitions,1n);
+ const opts=()=>oneRead({maxCandidates:2});assert.ok([1,2].includes(sampleEnumerated(m,0,new Rng(),opts())));assert.equal(containsEnumerated(m,0,2,opts()),true);assert.ok([1,2].includes(automatic(m,opts()).generate(0,new Rng())));
+ const original={inputs:[3,3],violations:[{phase:'state',check:check('limit','failed','too high')}]};
+ const limited=shrink(base(),original,oneRead({maxAttempts:1}),oneRead({maxReplayedTransitions:10n}));assert.equal(limited.termination,'attempt_limit');assert.equal(limited.attempts,1);
+ const mutable=config({cases:1,maxSteps:1,maxTransitions:1n});const f=fuzz({...m,initialState(){mutable.cases=0;mutable.maxSteps=0;mutable.maxTransitions=0n;return 0;}},mutable);assert.equal(f.transitions,1n);
+ const domainOptions={maxCandidates:1};const domain={...m,inputs(){domainOptions.maxCandidates=100;return [1,2];}};assert.throws(()=>sampleEnumerated(domain,0,new Rng(),domainOptions),/exceeds max_candidates/);
+ const attempts={maxAttempts:1},replays={maxReplayedTransitions:10n};const sh=shrink({...base(),initialState(){attempts.maxAttempts=100;replays.maxReplayedTransitions=0n;return 0;}},original,attempts,replays);assert.equal(sh.termination,'attempt_limit');assert.equal(sh.attempts,1);
+});

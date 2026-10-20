@@ -69,6 +69,49 @@ only its public types. Implement and qualify all of these requirements together:
    error if error-reporting observation also fails. The Rust reference helpers
    are [initial_checks_ops and transition_checks_ops](../../src/explore.rs#L1410).
 
+### Reference boundary and counter clarifications
+
+These examples clarify the current Rust kernel's ordering; they do not add a
+new control policy. A stop means cancellation or an expired deadline observed
+at the next existing poll, with cancellation first when both apply.
+
+- There is no control poll between `initial_state`, initial checking, and the
+  initial observer. Cancellation requested by `initial_state` still allows the
+  check batch and observer to complete. A passing batch then returns the stop
+  with `states=1`, `transitions=0`, and an unknown retained-byte estimate. An
+  initial property failure wins and returns before any estimate callback, even
+  with a zero byte cap.
+- There is no control poll between a successful `step`, successor checking,
+  transition checking, and the transition observer. The executed edge and its
+  depth are counted before checking. A state-property failure does not suppress the
+  transition checker; its error, if any, remains an engine error and takes
+  precedence over that finding. After successful checking and observation, a
+  property failure wins over a stop requested during this boundary.
+- Input advancement is followed by a control poll before interpreting either
+  exhaustion or the transition cap. An iterator that requests cancellation on
+  its final `None` therefore returns `cancelled`, not graph exhaustion. At the
+  depth boundary the same post-probe poll precedes remembering a depth cutoff.
+- Estimation is followed by a control poll before checking missing estimates,
+  overflow, or the byte cap. The initial estimate has already been stored at
+  that poll: an initial estimate of 10 that requests cancellation with a byte
+  cap of 0 reports `cancelled`, `states=1`, and retained bytes 10. Without that
+  stop, the same estimate reports the byte limit, zero states, and zero retained
+  bytes. A missing estimate that requests cancellation also returns the stop
+  before the missing-estimate error would be raised.
+- A successor estimate is committed to the report only when admission succeeds.
+  Cancellation requested by that estimate preserves the previous state count
+  and retained-byte total; the completed edge and reached depth remain counted.
+  Duplicate successors and novel successors rejected by the state-count cap
+  never invoke estimation. Once an uncapped admitted total becomes unknown
+  through a missing estimate or checked overflow, later known estimates do not
+  restore it.
+- A checker error emits only error observations, never a normal initial/turn
+  observation. A successor-state checker error emits its incomplete prefix;
+  transition checking does not run. A transition-checker error emits the complete
+  state batch first and the incomplete transition batch second, including empty
+  batches. Any partial failed check remains diagnostic evidence, not a successful
+  failure report that replaces the checker error.
+
 ### Estimate forwarding and representation convention
 
 Extend both model and oracle estimate surfaces. Rust's
@@ -99,7 +142,11 @@ Rust provides [CheckSink](../../src/model.rs#L123), default-compatible
 [check_observed_into](../../src/execution.rs#L106). Native model APIs currently
 return collections or iterables. Python/TypeScript lazy search checking can retain
 partial observations, but this does not provide append-style caller-owned storage;
-Go/Swift return-array callbacks cannot reveal a prefix before throwing.
+Go can already preserve valid returned checks alongside a non-nil callback error
+in its search-observer path. A panic before returning still exposes no returned
+prefix. Swift's throwing array callbacks cannot reveal checks accumulated inside
+a callback that throws before returning. Neither return-array API is an
+append-only caller-owned check sink.
 
 A complete implementation needs optional append callbacks with backward-compatible
 defaults, an append-only sink that cannot clear or replace prior checks, reusable

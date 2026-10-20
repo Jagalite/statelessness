@@ -4,9 +4,11 @@ import { type Check, type Disposition, type Metadata, type Model, type Enumerate
   type CodecModel, type Transition, ModelError, check, disposition, validateMetadata, type Rng } from './core.js';
 import type { GenerateModel } from './search.js';
 
-export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1'] as const;
+export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1', 'bfs-controls-v1'] as const;
 export interface OracleState<S, H> { readonly model: S; readonly oracle: H }
 export interface Oracle<S, H, I, O> {
+  /** Application-owned history estimate in the caller's documented logical representation. */
+  estimatedStateBytes?(history:H):bigint|null;
   metadata(): Metadata;
   initialState(): H;
   advance(before: H, input: I, outputs: readonly O[], disposition: Disposition): H;
@@ -22,6 +24,10 @@ function need<T>(value: T | undefined, name: string): T {
   if (value === undefined) throw new ModelError(`unsupported oracle adapter operation: ${name}`);
   return value;
 }
+function checkedEstimate(n:bigint|null):bigint|null {
+  if(n!==null&&(typeof n!=='bigint'||n<0n||n>((1n<<64n)-1n)))throw new ModelError('estimate must be u64 bigint or null');
+  return n;
+}
 const length = (text: string): number => new TextEncoder().encode(text).length;
 export class ObservationError<S, O> extends ModelError {
   constructor(readonly cause: unknown, readonly transition: Transition<S, O>) {
@@ -29,7 +35,18 @@ export class ObservationError<S, O> extends ModelError {
   }
 }
 export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>, I, O>, CodecModel<OracleState<S, H>, I, O>, GenerateModel<OracleState<S,H>,I,O> {
-  constructor(readonly model: Adapter<S, I, O>, readonly oracle: Oracle<S, H, I, O>) {}
+  /** Wrapper overhead is caller-supplied logical bytes; absent is unknown, never inferred RSS. */
+  constructor(readonly model: Adapter<S, I, O>, readonly oracle: Oracle<S, H, I, O>, readonly estimatedWrapperOverhead:bigint|null=null) {
+    checkedEstimate(estimatedWrapperOverhead);
+  }
+  estimatedStateBytes(s:OracleState<S,H>):bigint|null {
+    const model=checkedEstimate(this.model.estimatedStateBytes?this.model.estimatedStateBytes(this.model.cloneState(s.model)):null);
+    if(model===null)return null;
+    const history=checkedEstimate(this.oracle.estimatedStateBytes?this.oracle.estimatedStateBytes(this.oracle.cloneHistory(s.oracle)):null);
+    if(history===null||this.estimatedWrapperOverhead===null)return null;
+    const total=model+history+this.estimatedWrapperOverhead;
+    return total>((1n<<64n)-1n)?null:total;
+  }
   metadata(): Metadata {
     const m = validateMetadata(need(this.model.metadata, 'metadata').call(this.model));
     const o = validateMetadata(this.oracle.metadata());
@@ -125,6 +142,7 @@ export class Paired<S, H, I, O, R, V, E> implements Oracle<S, H, I, O> {
       model_version: p.model_version, properties_version: p.properties_version, codec_version: p.codec_version,
       build: `${length(r.build)}:${r.build}:${length(p.build)}:${p.build}` };
   }
+  estimatedStateBytes(h:H):bigint|null {return checkedEstimate(this.reference.estimatedStateBytes?this.reference.estimatedStateBytes(this.reference.cloneState(h)):null);}
   initialState(): H { return this.reference.initialState(); }
   cloneHistory(h: H): H { return this.reference.cloneState(h); }
   equalHistory(a: H, b: H): boolean { return need(this.reference.equalStates, 'reference equalStates').call(this.reference, a, b); }

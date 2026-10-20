@@ -1,3 +1,4 @@
+import {runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver} from './search_support.js';
 /** Independent native engine. Callbacks describe effects; the engine never executes I/O.
  * Models must be deterministic. Explicit copy hooks preserve application-owned
  * classes and reference graphs without guessing that structuredClone is suitable.
@@ -56,6 +57,8 @@ export function validateMetadata(m: Metadata): Metadata {
   return { ...m };
 }
 export interface Model<S, I, O> {
+  /** Logical retained-state estimate, excluding engine storage; null means unknown. */
+  estimatedStateBytes?(state: S): bigint | null;
   initialState(): S;
   step(state: S, input: I): Transition<S, O>;
   checkState(state: S): Iterable<Check>;
@@ -115,55 +118,180 @@ export interface SearchConfig { readonly maxStates: number; readonly maxTransiti
 export const DEFAULT_SEARCH: SearchConfig = Object.freeze({ maxStates: 100_000, maxTransitions: 1_000_000, maxDepth: 100 });
 export interface Violation { readonly phase: 'initial_state' | 'state' | 'transition'; readonly check: Check }
 export interface Failure<I> { readonly inputs: readonly I[]; readonly violations: readonly Violation[] }
+export interface SearchLimits {
+    readonly control?: RunLimits;
+    readonly maxEstimatedStateBytes?: bigint;
+}
 export interface SearchReport<I> {
-  readonly termination: 'graph_exhausted' | 'depth_bound' | 'state_limit' | 'transition_limit' | 'failure_found';
-  readonly states: number; readonly transitions: number; readonly max_depth_reached: number;
-  readonly skipped_checks: number; readonly failure: Failure<I> | null;
+    readonly termination: 'graph_exhausted' | 'depth_bound' | 'state_limit' | 'transition_limit' | 'failure_found' | 'estimated_state_byte_limit' | 'cancelled' | 'deadline';
+    readonly states: number;
+    readonly transitions: number;
+    readonly max_depth_reached: number;
+    readonly skipped_checks: number;
+    readonly estimated_retained_state_bytes: bigint | null;
+    readonly failure: Failure<I> | null;
 }
-/** FIFO search with exact equality, checked revisits, and explicit incomplete results. */
-export function enumerateStates<S, I, O>(m: EnumerateModel<S, I, O>, config: SearchConfig = DEFAULT_SEARCH): SearchReport<I> {
-  natural(config.maxStates, 'maxStates', 1); natural(config.maxTransitions, 'maxTransitions'); natural(config.maxDepth, 'maxDepth');
-  const initial = copyState(m, call('initial_state', () => m.initialState()));
-  const checks = stateChecks(m, initial);
-  let skipped = checks.filter(c => c.status === 'skipped').length;
-  const violations: Violation[] = checks.filter(c => c.status === 'failed').map(c => ({ phase: 'initial_state', check: c }));
-  type Node = { state: S; parent: number; input?: I; depth: number };
-  const nodes: Node[] = [{ state: initial, parent: -1, depth: 0 }];
-  let transitions = 0, reached = 0, cutoff = false;
-  const report = (termination: SearchReport<I>['termination'], failure: Failure<I> | null = null): SearchReport<I> => ({ termination, states: nodes.length, transitions, max_depth_reached: reached, skipped_checks: skipped, failure });
-  if (violations.length) return report('failure_found', { inputs: [], violations });
-  const hash = (s: S): string | number | bigint => call('state hash', () => m.hashState ? m.hashState(copyState(m, s)) : 0);
-  const visited = new Map<string | number | bigint, number[]>([[hash(initial), [0]]]);
-  // Admission order is FIFO, so the node array is also the queue. No array.shift().
-  for (let cursor = 0; cursor < nodes.length; cursor++) {
-    const node = nodes[cursor];
-    const iterator = call('enumerate inputs', () => m.inputs(copyState(m, node.state))[Symbol.iterator]());
-    const next = () => call('enumerate inputs', () => iterator.next());
-    if (node.depth === config.maxDepth) { cutoff = !next().done || cutoff; continue; }
-    for (let item = next(); !item.done; item = next()) {
-      if (transitions === config.maxTransitions) return report('transition_limit');
-      const t = step(m, node.state, item.value);
-      transitions++; reached = Math.max(reached, node.depth + 1);
-      const sc = stateChecks(m, t.state), ec = edgeChecks(m, node.state, item.value, t);
-      skipped += [...sc, ...ec].filter(c => c.status === 'skipped').length;
-      const bad: Violation[] = [
-        ...sc.filter(c => c.status === 'failed').map(c => ({ phase: 'state' as const, check: c })),
-        ...ec.filter(c => c.status === 'failed').map(c => ({ phase: 'transition' as const, check: c }))
-      ];
-      if (bad.length) {
-        const inputs = [copyInput(m, item.value)];
-        for (let k = cursor; nodes[k].parent >= 0; k = nodes[k].parent) inputs.push(copyInput(m, nodes[k].input as I));
-        inputs.reverse(); return report('failure_found', { inputs, violations: bad });
-      }
-      const key = hash(t.state), bucket = visited.get(key) ?? [];
-      if (bucket.some(k => call('state equality', () => m.equalStates(copyState(m, nodes[k].state), copyState(m, t.state))))) continue;
-      if (nodes.length === config.maxStates) return report('state_limit');
-      bucket.push(nodes.length); visited.set(key, bucket);
-      nodes.push({ state: t.state, parent: cursor, input: copyInput(m, item.value), depth: node.depth + 1 });
+export interface ExactSearchConfig { readonly maxStates:number; readonly maxTransitions:bigint; readonly maxDepth:number }
+export const DEFAULT_EXACT_SEARCH:ExactSearchConfig=Object.freeze({maxStates:100000,maxTransitions:1000000n,maxDepth:100});
+export type ExactSearchReport<I> = Omit<SearchReport<I>,'transitions'|'skipped_checks'> & {readonly transitions:bigint;readonly skipped_checks:bigint};
+/** Compatibility entrypoint: safe Number budgets/reports; the shared kernel uses exact bigint counters. */
+export function enumerateStates<S,I,O>(m:EnumerateModel<S,I,O>,config:SearchConfig=DEFAULT_SEARCH,limits:SearchLimits={},observer?:SearchObserver<S,I,O>):SearchReport<I> {
+  const {maxStates,maxTransitions,maxDepth}=config;
+  natural(maxStates,'maxStates',1);natural(maxTransitions,'maxTransitions');natural(maxDepth,'maxDepth');
+  const r=enumerateStatesExact(m,{maxStates,maxTransitions:BigInt(maxTransitions),maxDepth},limits,observer);
+  if(r.transitions>BigInt(Number.MAX_SAFE_INTEGER)||r.skipped_checks>BigInt(Number.MAX_SAFE_INTEGER))throw new ModelError('BFS counters exceed safe Number range; use enumerateStatesExact');
+  return {...r,transitions:Number(r.transitions),skipped_checks:Number(r.skipped_checks)};
+}
+/** FIFO search with exact equality, checked revisits, cooperative controls and admission estimates. */
+export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config: ExactSearchConfig = DEFAULT_EXACT_SEARCH, limits: SearchLimits = {}, observer?: SearchObserver<S, I, O>): ExactSearchReport<I> {
+    const {maxStates,maxTransitions,maxDepth}=config;
+    natural(maxStates, 'maxStates', 1);
+    if(typeof maxTransitions!=='bigint'||maxTransitions<0n||maxTransitions>((1n<<64n)-1n))throw new ConfigError('maxTransitions must be u64 bigint');
+    natural(maxDepth, 'maxDepth');
+    const cap = limits.maxEstimatedStateBytes;
+    if (cap !== undefined && (typeof cap !== 'bigint' || cap < 0n || cap > ((1n << 64n) - 1n)))
+        throw new ConfigError('maxEstimatedStateBytes must be u64 bigint');
+    const stop = runControl(limits.control ?? {});
+    type Node = {
+        state: S;
+        parent: number;
+        input?: I;
+        depth: number;
+    };
+    const nodes: Node[] = [];
+    let states = 0, transitions = 0n, reached = 0, skipped = 0n, retained: bigint | null = null, cutoff = false;
+    const report = (termination: SearchReport<I>['termination'], failure: Failure<I> | null = null): ExactSearchReport<I> => ({ termination, states, transitions, max_depth_reached: reached, skipped_checks: skipped, estimated_retained_state_bytes: retained, failure });
+    const stopped = (): ExactSearchReport<I> | null => { const reason = stop(); return reason ? report(reason) : null; };
+    const estimate = (s: S): bigint | null => call('estimated_state_bytes', () => {
+        const n = m.estimatedStateBytes ? m.estimatedStateBytes(copyState(m, s)) : null;
+        if (n !== null && (typeof n !== 'bigint' || n < 0n || n > ((1n << 64n) - 1n)))
+            throw new TypeError('estimatedStateBytes must return u64 bigint or null');
+        return n;
+    });
+    const hash = (s: S): string | number | bigint => call('state hash', () => m.hashState ? m.hashState(copyState(m, s)) : 0);
+    const path = (index: number): I[] => { const out: I[] = []; for (let k = index; nodes[k].parent >= 0; k = nodes[k].parent)
+        out.push(copyInput(m, nodes[k].input as I)); out.reverse(); return out; };
+    let halted = stopped();
+    if (halted)
+        return halted;
+    const initial = copyState(m, call('initial_state', () => m.initialState()));
+    states = 1;
+    const checked = searchChecks(m, initial, undefined, undefined, undefined, observer);
+    skipped = addSkippedChecks(skipped,checked.skipped);
+    if (checked.violations.length)
+        return report('failure_found', { inputs: [], violations: checked.violations });
+    halted = stopped();
+    if (halted)
+        return halted;
+    retained = estimate(initial);
+    halted = stopped();
+    if (halted)
+        return halted;
+    if (cap !== undefined) {
+        if (retained === null)
+            throw new ModelError('state byte budget requires estimated_state_bytes');
+        if (retained > cap) {
+            states = 0;
+            retained = 0n;
+            return report('estimated_state_byte_limit');
+        }
     }
-  }
-  return report(cutoff ? 'depth_bound' : 'graph_exhausted');
+    const initialHash = hash(initial);
+    halted = stopped();
+    if (halted)
+        return halted;
+    const visited = new Map<string | number | bigint, number[]>([[initialHash, [0]]]);
+    nodes.push({ state: initial, parent: -1, depth: 0 });
+    for (let cursor = 0; cursor < nodes.length; cursor++) {
+        halted = stopped();
+        if (halted)
+            return halted;
+        const node = nodes[cursor];
+        const iterator = call('enumerate inputs', () => m.inputs(copyState(m, node.state))[Symbol.iterator]());
+        halted = stopped();
+        if (halted)
+            return halted;
+        const next = () => call('enumerate inputs', () => iterator.next());
+        if (node.depth === maxDepth) {
+            const item = next();
+            halted = stopped();
+            if (halted)
+                return halted;
+            cutoff = !item.done || cutoff;
+            continue;
+        }
+        for (;;) {
+            halted = stopped();
+            if (halted)
+                return halted;
+            const item = next();
+            halted = stopped();
+            if (halted)
+                return halted;
+            if (item.done)
+                break;
+            if (transitions === maxTransitions)
+                return report('transition_limit');
+            const t = step(m, node.state, item.value);
+            transitions++;
+            reached = Math.max(reached, node.depth + 1);
+            const wantHistory = observer?.needsHistory ? call('observer needs_history', () => { const v = observer.needsHistory!(); if (typeof v !== 'boolean')
+                throw new TypeError('needsHistory must return boolean'); return v; }) : false;
+            const history = wantHistory ? [...path(cursor), copyInput(m, item.value)] : [];
+            const checked = searchChecks(m, t.state, node.state, item.value, t, observer, history);
+            skipped = addSkippedChecks(skipped,checked.skipped);
+            if (checked.violations.length)
+                return report('failure_found', { inputs: [...path(cursor), copyInput(m, item.value)], violations: checked.violations });
+            halted = stopped();
+            if (halted)
+                return halted;
+            const key = hash(t.state);
+            halted = stopped();
+            if (halted)
+                return halted;
+            const bucket = visited.get(key) ?? [];
+            let duplicate = false;
+            // Rust's same-hash collision chain visits the most recently admitted state first.
+            for (const other of bucket) {
+                halted = stopped();
+                if (halted)
+                    return halted;
+                const equal = call('state equality', () => { const v = m.equalStates(copyState(m, nodes[other].state), copyState(m, t.state)); if (typeof v !== 'boolean')
+                    throw new TypeError('equalStates must return boolean'); return v; });
+                halted = stopped();
+                if (halted)
+                    return halted;
+                if (equal) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate)
+                continue;
+            if (nodes.length === maxStates)
+                return report('state_limit');
+            const bytes = estimate(t.state);
+            halted = stopped();
+            if (halted)
+                return halted;
+            const sum = retained === null || bytes === null ? null : retained + bytes;
+            const total = sum !== null && sum > ((1n << 64n) - 1n) ? null : sum;
+            if (cap !== undefined) {
+                if (bytes === null)
+                    throw new ModelError('state byte budget requires estimated_state_bytes');
+                if (total === null || total > cap)
+                    return report('estimated_state_byte_limit');
+            }
+            bucket.unshift(nodes.length);
+            visited.set(key, bucket);
+            nodes.push({ state: t.state, parent: cursor, input: copyInput(m, item.value), depth: node.depth + 1 });
+            states = nodes.length;
+            retained = total;
+        }
+    }
+    return report(cutoff ? 'depth_bound' : 'graph_exhausted');
 }
+export function enumerateStatesObserved<S, I, O>(m: EnumerateModel<S, I, O>, config: SearchConfig, observer: SearchObserver<S, I, O>, limits: SearchLimits = {}): SearchReport<I> { return enumerateStates(m, config, limits, observer); }
 export interface TraceStep { readonly input: Uint8Array; readonly disposition: Disposition; readonly outputs: readonly Uint8Array[]; readonly postState: Uint8Array; readonly checks: readonly Check[] }
 export type Termination = 'completed' | 'property_failed' | 'step_limit' | 'interrupted' | 'model_error';
 export interface Trace { readonly metadata: Metadata; readonly initialState: Uint8Array; readonly initialChecks: readonly Check[]; readonly steps: readonly TraceStep[]; readonly termination: Termination; readonly error: string }

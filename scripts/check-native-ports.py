@@ -70,7 +70,8 @@ def main():
         STATELESS_PAIRED_CORPUS=str(ROOT / 'conformance/paired-v1.tsv'),
         STATELESS_SEARCH_CORPUS=str(ROOT / 'conformance/search-v1.tsv'),
         STATELESS_SEARCH_HISTORY=str(ROOT / 'conformance/search-v1-history.json'),
-        STATELESS_BINARY_CORPUS=str(ROOT / 'conformance/native-binary-v1.json'))
+        STATELESS_BINARY_CORPUS=str(ROOT / 'conformance/native-binary-v1.json'),
+        STATELESS_BFS_CORPUS=str(ROOT / 'conformance/bfs-controls-v1.json'))
     environment = dict(paired_environment, CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off')
     toolchains = {'python': sys.version, 'platform': platform.platform()}
     toolchains['go'] = run('go-version', [go, 'version']).strip()

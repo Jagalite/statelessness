@@ -154,7 +154,7 @@ primary and secondary errors are attached in its `observer_errors` tuple.
 actual model while retaining independent oracle history. Wrap the actual model
 in `Generated` or `Auto` before attaching the oracle when it lacks a generator;
 requesting fuzzing without generation raises an explicit `ModelError`.
-`EXPERIMENTAL_PROFILES` lists `paired-v1`, `search-v1`, and `native-binary-v1`; qualified `PROFILES`
+`EXPERIMENTAL_PROFILES` lists `paired-v1`, `search-v1`, `native-binary-v1`, and `bfs-controls-v1`; qualified `PROFILES`
 remain unchanged.
 
 ## Experimental lossless Rust audit binary v1
@@ -181,3 +181,37 @@ Binary v1 records no successor/transition check boundary, so step check phases
 remain `unknown_legacy`; never infer phases from IDs or order. `native-binary-v1`
 is an experimental candidate, outside qualified `PROFILES`. Shared finite goldens
 and unit tests do not alone establish cross-language replay or publication safety.
+
+## Candidate BFS controls, state estimates and observations
+
+`enumerate_states(model, config, limits=SearchLimits(...), observer=...)` preserves
+ordinary FIFO exploration and accepts the same `RunLimits` controls as fuzzing.
+Cancellation/deadline polls surround enumeration, hashing, collision comparisons
+and estimation. Completed check boundaries and their failures precede stops.
+Depth/transition caps still probe one input to distinguish exhaustion from cutoff.
+
+An optional `estimated_state_bytes(state)` model hook returns an unsigned 64-bit
+logical retained-state estimate or `None`. `SearchLimits` optionally caps their
+sum with `max_estimated_state_bytes`. Exact fits are admitted. Duplicates are not
+charged or estimated again; state-count limits precede successor estimation.
+Missing estimates under a cap raise `ModelError`; overflowing a capped total
+stops admission. `SearchReport.estimated_retained_state_bytes` is `None` when an
+uncapped total is unknown or overflows. These are application estimates, excluding
+incoming successors, predecessor inputs, maps/frontier storage, callback
+allocations and process RSS.
+
+BFS uses the existing `SearchObserver` hooks. `needs_history()` defaults false;
+return true to receive each edge's detached root-to-edge input prefix. Duplicate
+and failing edges are observed. Partial check prefixes on errors retain the same
+primary-error/secondary-observer-error semantics as fuzzing.
+
+`WithOracle(..., estimated_wrapper_overhead=bytes)` combines actual and history
+estimates with checked unsigned 64-bit addition. Python has no portable Rust-like
+inline layout, so callers must explicitly supply their chosen logical wrapper
+representation overhead; the default is unknown, never silently zero. Missing
+components or sum overflow also produce unknown. `Paired` delegates history
+estimation to its reference model. This convention does not imply equal byte
+counts across languages or a runtime memory guarantee. Promoted `bfs-v1` JSON
+interchange remains unchanged; these additive APIs need separate qualification.
+
+The BFS extension is the experimental [`bfs-controls-v1` candidate](../spec/bfs-controls-v1.md); tests consume its shared callback/report vectors.

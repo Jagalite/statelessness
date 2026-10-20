@@ -1,5 +1,5 @@
 /// Candidate APIs only; these do not expand the qualified portable profiles.
-public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1"]
+public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1"]
 
 public struct OracleState<S, H> {
     public let model: S
@@ -18,15 +18,18 @@ public struct Oracle<S, H, I, O> {
     public var checkTransition: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>) throws -> [Check])?
     public var encodeHistory: ((H) throws -> [UInt8])?
     public var decodeHistory: (([UInt8]) throws -> H)?
+    public var estimatedStateBytes: ((H) throws -> UInt64?)?
     public init(metadata: @escaping () throws -> Metadata, initialState: @escaping () throws -> H,
                 advance: @escaping (H, I, [O], Disposition) throws -> H,
                 checkState: @escaping (H, S) throws -> [Check], cloneHistory: @escaping (H) throws -> H,
                 equalHistory: ((H, H) throws -> Bool)? = nil,
                 checkTransition: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>) throws -> [Check])? = nil,
-                encodeHistory: ((H) throws -> [UInt8])? = nil, decodeHistory: (([UInt8]) throws -> H)? = nil) {
+                encodeHistory: ((H) throws -> [UInt8])? = nil, decodeHistory: (([UInt8]) throws -> H)? = nil,
+                estimatedStateBytes: ((H) throws -> UInt64?)? = nil) {
         self.metadata = metadata; self.initialState = initialState; self.advance = advance
         self.checkState = checkState; self.cloneHistory = cloneHistory; self.equalHistory = equalHistory
         self.checkTransition = checkTransition; self.encodeHistory = encodeHistory; self.decodeHistory = decodeHistory
+        self.estimatedStateBytes = estimatedStateBytes
     }
 }
 
@@ -42,6 +45,13 @@ public struct WithOracle<S, H, I, O> {
     public let actual: Model<S, I, O>
     public let oracle: Oracle<S, H, I, O>
     public init(_ actual: Model<S, I, O>, oracle: Oracle<S, H, I, O>) { self.actual = actual; self.oracle = oracle }
+    /// Actual Swift inline padding only. Payload estimates remain application
+    /// supplied; heap objects, allocator headers and process RSS are not measured.
+    public var estimatedWrapperBytes: UInt64? {
+        let (components, overflow) = MemoryLayout<S>.size.addingReportingOverflow(MemoryLayout<H>.size)
+        guard !overflow else { return nil }
+        return UInt64(max(0, MemoryLayout<OracleState<S, H>>.size - components))
+    }
     public func attach(model: S, oracle history: H) throws -> OracleState<S, H> {
         OracleState(model: try copied(actual.cloneState, model), oracle: try copied(oracle.cloneHistory, history))
     }
@@ -110,6 +120,16 @@ public struct WithOracle<S, H, I, O> {
         if let c = actual.codec, oracle.encodeHistory != nil, oracle.decodeHistory != nil {
             result.codec = Codec(metadata: self.metadata, encodeState: self.encodeState, decodeState: self.decodeState, encodeInput: c.encodeInput, decodeInput: c.decodeInput, encodeOutput: c.encodeOutput)
         }
+        result.estimatedStateBytes = { state in
+            guard let actualEstimate = self.actual.estimatedStateBytes,
+                  let a = try actualEstimate(copied(self.actual.cloneState, state.model)),
+                  let historyEstimate = self.oracle.estimatedStateBytes,
+                  let b = try historyEstimate(copied(self.oracle.cloneHistory, state.oracle)),
+                  let overhead = self.estimatedWrapperBytes else { return nil }
+            let (payload, payloadOverflow) = a.addingReportingOverflow(b)
+            let (total, totalOverflow) = payload.addingReportingOverflow(overhead)
+            return payloadOverflow || totalOverflow ? nil : total
+        }
         return result
     }
 }
@@ -153,6 +173,10 @@ public struct Paired<S, H, I, O, R, V, E> {
             var same = a.count == b.count
             if same { for i in a.indices { if try !p.equalEffect(a[i], b[i]) { same = false; break } } }
             return checks + [same ? .passed("pair.effects") : .failed("pair.effects", "projected ordered effects differ"), actual.disposition == expected.disposition ? .passed("pair.outcome") : .failed("pair.outcome", "dispositions differ")]
-        }, encodeHistory: r.codec?.encodeState, decodeHistory: r.codec?.decodeState)
+        }, encodeHistory: r.codec?.encodeState, decodeHistory: r.codec?.decodeState,
+           estimatedStateBytes: { history in
+               guard let estimate = r.estimatedStateBytes else { return nil }
+               return try estimate(copied(r.cloneState, history))
+           })
     }
 }

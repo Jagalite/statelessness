@@ -11,7 +11,7 @@ import time
 from typing import Callable, Generic, Iterable, Protocol
 
 from .core import (S, I, O, Check, Transition, Model, EnumerateModel, ModelError, Rng, Failure,
-                   Violation, _call, _copy, _natural, _step)
+                   Violation, _call, _copy, _natural, _step, _saturating_add_u64)
 
 
 class _Exhausted:
@@ -128,6 +128,26 @@ class RunLimits:
             raise ValueError("cancellation must be callable")
 
 
+@dataclass(frozen=True)
+class SearchLimits:
+    control: RunLimits = RunLimits()
+    max_estimated_state_bytes: int | None = None
+
+    def __post_init__(self):
+        if not isinstance(self.control, RunLimits):
+            raise ValueError("control must be RunLimits")
+        if self.max_estimated_state_bytes is not None:
+            _natural(self.max_estimated_state_bytes, "max_estimated_state_bytes")
+
+
+def _estimate(model, state):
+    callback = getattr(model, "estimated_state_bytes", None)
+    value = None if callback is None else _call("estimated_state_bytes", callback, _copy(state))
+    if value is not None and (type(value) is not int or not 0 <= value <= (1 << 64) - 1):
+        raise ModelError("estimated_state_bytes must return an unsigned 64-bit integer or None")
+    return value
+
+
 class _Control:
     def __init__(self, limits):
         self.limits = limits
@@ -165,6 +185,8 @@ class SearchObserver(Protocol[S, I, O]):
     Hooks describe actual search, including failing edges. check_error exposes
     partial check batches without certifying the edge that failed to check.
     """
+    def needs_history(self) -> bool:
+        return False
     def initial(self, state: S, checks: tuple[Check, ...]) -> None: ...
     def transition(self, before: S, input: I, transition: Transition[S, O],
                    state_checks: tuple[Check, ...], transition_checks: tuple[Check, ...],
@@ -224,7 +246,7 @@ def _violations(model, state, input=None, transition=None, *, observer=None, his
         _notify(observer, "transition", state, input, transition, checks, edge_checks, tuple(history))
     failures = tuple(Violation(phase, check) for phase, values in batches
                      for check in values if check.status == "failed")
-    skipped = sum(check.status == "skipped" for _, values in batches for check in values)
+    skipped = _saturating_add_u64(0, sum(check.status == "skipped" for _, values in batches for check in values))
     return failures, skipped
 
 
@@ -273,7 +295,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
         state = _copy(_call("initial_state", model.initial_state))
         cases += 1
         violations, count = _violations(model, state, observer=observer)
-        skipped += count
+        skipped = _saturating_add_u64(skipped, count)
         if violations:
             return report("failure_found", Failure((), violations))
         stop = control.stop()
@@ -314,7 +336,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
             transitions += 1
             inputs.append(_copy(input))
             violations, count = _violations(model, state, input, transition, observer=observer, history=inputs)
-            skipped += count
+            skipped = _saturating_add_u64(skipped, count)
             if violations:
                 return report("failure_found", Failure(tuple(inputs), violations))
             stop = control.stop()

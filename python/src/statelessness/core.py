@@ -17,6 +17,11 @@ T = TypeVar("T")
 U64_MAX = (1 << 64) - 1
 
 
+def _saturating_add_u64(left: int, right: int) -> int:
+    """Counters match Rust u64::saturating_add rather than growing unbounded."""
+    return min(U64_MAX, left + right)
+
+
 class ModelError(Exception):
     """A callback/codec failure, not an application property violation."""
 
@@ -93,7 +98,11 @@ class Metadata:
 
 
 class Model(Protocol[S, I, O]):
-    """Minimal model. An optional check_transition hook adds edge properties."""
+    """Minimal model. Optional check_transition adds edge properties.
+
+    Optional estimated_state_bytes(state) returns an unsigned 64-bit logical
+    retained-state estimate or None. It does not measure process RSS.
+    """
     def initial_state(self) -> S: ...
     def step(self, state: S, input: I) -> Transition[S, O]: ...
     def check_state(self, state: S) -> Iterable[Check]: ...
@@ -365,7 +374,9 @@ class SearchConfig:
     max_depth: int = 100
 
     def __post_init__(self) -> None:
-        _natural(self.max_states, "max_states", 1)
+        _natural(self.max_states, "max_states")
+        if self.max_states == 0:
+            raise ValueError("enumeration max_states must be greater than zero")
         _natural(self.max_transitions, "max_transitions")
         _natural(self.max_depth, "max_depth")
 
@@ -390,6 +401,7 @@ class SearchReport(Generic[I]):
     max_depth_reached: int
     skipped_checks: int
     failure: Failure[I] | None = None
+    estimated_retained_state_bytes: int | None = None
 
 
 def _hash(state: Any) -> int | None:
@@ -400,38 +412,100 @@ def _hash(state: Any) -> int | None:
         return None
 
 
-def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = SearchConfig()) -> SearchReport[I]:
-    """Bounded breadth-first search with exact, collision-resolving equality.
+def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = SearchConfig(),
+                     *, limits=None, observer=None) -> SearchReport[I]:
+    """FIFO search with exact equality, cooperative controls and admission caps.
 
-    Hashable states must obey Python's equal-implies-equal-hash contract. For all
-    states, equality must preserve future behavior and checked properties.
+    Optional SearchLimits bounds summed logical state estimates, excluding
+    temporary successors, predecessor inputs, map/frontier storage and callback
+    allocation. None reports an unknown/overflowed total. Observer histories are
+    real root prefixes when needs_history() returns True. Snapshots are detached.
     """
-    state = _copy(_call("initial_state", model.initial_state))
-    initial = _state_checks(model, state)
-    skipped = sum(check.status == "skipped" for check in initial)
-    violations = tuple(Violation("initial_state", c) for c in initial if c.status == "failed")
-    if violations:
-        return SearchReport("failure_found", 1, 0, 0, skipped, Failure((), violations))
-    nodes: list[tuple[S, int | None, I | None, int]] = [(state, None, None, 0)]
-    visited: dict[int | None, list[int]] = {_call("state hash", _hash, state): [0]}
-    queue = deque([0])
-    transitions = max_depth = 0
+    # Local import preserves the existing core/search public module split.
+    from .search import SearchLimits, _Control, _estimate, _violations
+    limits = SearchLimits() if limits is None else limits
+    if not isinstance(limits, SearchLimits):
+        raise ValueError("limits must be SearchLimits")
+    control = _Control(limits.control)
+    states = transitions = max_depth = skipped = 0
+    estimated = None
+    nodes = []
     cutoff = False
 
-    def report(termination: str, failure: Failure[I] | None = None) -> SearchReport[I]:
-        return SearchReport(termination, len(nodes), transitions, max_depth, skipped, failure)
+    def report(reason, failure=None):
+        return SearchReport(reason, states, transitions, max_depth, skipped,
+                            failure, estimated)
 
+    def stopped():
+        reason = control.stop()
+        return None if reason is None else report(reason)
+
+    def path(index, input):
+        inputs = [_copy(input)]
+        while nodes[index][1] is not None:
+            inputs.append(_copy(nodes[index][2]))
+            index = nodes[index][1]
+        inputs.reverse()
+        return tuple(inputs)
+
+    stop = stopped()
+    if stop is not None:
+        return stop
+    state = _copy(_call("initial_state", model.initial_state))
+    states = 1
+    violations, skipped = _violations(model, state, observer=observer)
+    if violations:
+        return report("failure_found", Failure((), violations))
+    stop = stopped()
+    if stop is not None:
+        return stop
+    estimated = _estimate(model, state)
+    stop = stopped()
+    if stop is not None:
+        return stop
+    if limits.max_estimated_state_bytes is not None:
+        if estimated is None:
+            raise ModelError("state byte budget requires estimated_state_bytes")
+        if estimated > limits.max_estimated_state_bytes:
+            states, estimated = 0, 0
+            return report("estimated_state_byte_limit")
+    hashed = _call("state hash", _hash, _copy(state))
+    stop = stopped()
+    if stop is not None:
+        return stop
+    nodes.append((state, None, None, 0))
+    visited = {hashed: [0]}
+    queue = deque([0])
+    sentinel = object()
     while queue:
         index = queue.popleft()
+        stop = stopped()
+        if stop is not None:
+            return stop
         state, _, _, depth = nodes[index]
         domain = _call("enumerate inputs", model.inputs, _copy(state))
+        stop = stopped()
+        if stop is not None:
+            return stop
         iterator = _call("enumerate inputs", iter, domain)
-        sentinel = object()
+        stop = stopped()
+        if stop is not None:
+            return stop
         if depth == config.max_depth:
-            cutoff |= _call("enumerate inputs", next, iterator, sentinel) is not sentinel
+            unexamined = _call("enumerate inputs", next, iterator, sentinel) is not sentinel
+            stop = stopped()
+            if stop is not None:
+                return stop
+            cutoff |= unexamined
             continue
         while True:
+            stop = stopped()
+            if stop is not None:
+                return stop
             input = _call("enumerate inputs", next, iterator, sentinel)
+            stop = stopped()
+            if stop is not None:
+                return stop
             if input is sentinel:
                 break
             if transitions == config.max_transitions:
@@ -439,31 +513,59 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
             transition = _step(model, state, input)
             transitions += 1
             max_depth = max(max_depth, depth + 1)
-            state_checks = _state_checks(model, transition.state)
-            edge_checks = _transition_checks(model, state, input, transition)
-            skipped += sum(c.status == "skipped" for c in state_checks + edge_checks)
-            violations = tuple(Violation(phase, c)
-                               for phase, checks in (("state", state_checks), ("transition", edge_checks))
-                               for c in checks if c.status == "failed")
+            wants_history = getattr(observer, "needs_history", None) if observer is not None else None
+            history_requested = False if wants_history is None else _call("search observer needs_history", wants_history)
+            if type(history_requested) is not bool:
+                raise ModelError("search observer needs_history must return bool")
+            history = path(index, input) if history_requested else ()
+            violations, count = _violations(model, state, input, transition,
+                                            observer=observer, history=history)
+            skipped = _saturating_add_u64(skipped, count)
             if violations:
-                path = [_copy(input)]
-                cursor = index
-                while nodes[cursor][1] is not None:
-                    path.append(_copy(nodes[cursor][2]))
-                    cursor = nodes[cursor][1]  # type: ignore[assignment]
-                path.reverse()
-                return report("failure_found", Failure(tuple(path), violations))
-            hashed = _call("state hash", _hash, transition.state)
-            bucket = (range(len(nodes)) if hashed is None else
-                      visited.get(hashed, []) + visited.get(None, []))
-            if any(_call("state equality", lambda other: bool(other == transition.state), nodes[j][0]) for j in bucket):
+                return report("failure_found", Failure(path(index, input), violations))
+            stop = stopped()
+            if stop is not None:
+                return stop
+            hashed = _call("state hash", _hash, _copy(transition.state))
+            stop = stopped()
+            if stop is not None:
+                return stop
+            # Latest collision first, matching the Rust collision-chain order.
+            bucket = (range(len(nodes) - 1, -1, -1) if hashed is None else
+                      sorted(visited.get(hashed, []) + visited.get(None, []), reverse=True))
+            duplicate = False
+            for other in bucket:
+                stop = stopped()
+                if stop is not None:
+                    return stop
+                duplicate = _call("state equality", lambda left, right: bool(left == right),
+                                  _copy(nodes[other][0]), _copy(transition.state))
+                stop = stopped()
+                if stop is not None:
+                    return stop
+                if duplicate:
+                    break
+            if duplicate:
                 continue
             if len(nodes) == config.max_states:
                 return report("state_limit")
+            estimate = _estimate(model, transition.state)
+            stop = stopped()
+            if stop is not None:
+                return stop
+            total = None if estimated is None or estimate is None else estimated + estimate
+            if total is not None and total > U64_MAX:
+                total = None
+            if limits.max_estimated_state_bytes is not None:
+                if estimate is None:
+                    raise ModelError("state byte budget requires estimated_state_bytes")
+                if total is None or total > limits.max_estimated_state_bytes:
+                    return report("estimated_state_byte_limit")
             successor = len(nodes)
             visited.setdefault(hashed, []).append(successor)
             nodes.append((_copy(transition.state), index, _copy(input), depth + 1))
             queue.append(successor)
+            states, estimated = len(nodes), total
     return report("depth_bound" if cutoff else "graph_exhausted")
 
 

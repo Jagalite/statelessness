@@ -22,10 +22,10 @@ __all__ = [
 ]
 
 from .search import (EXHAUSTED, Auto, AutoOptions, Generated, GenerateModel, FuzzConfig,
-                     FuzzReport, RunLimits, SearchObserver, ShrinkAttempt, ShrinkConfig,
+                     FuzzReport, RunLimits, SearchLimits, SearchObserver, ShrinkAttempt, ShrinkConfig,
                      ShrinkLimits, ShrinkOperation, ShrinkReport, fuzz, shrink)
 __all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "FuzzConfig",
-            "FuzzReport", "RunLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
+            "FuzzReport", "RunLimits", "SearchLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
             "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
 
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)
@@ -35,3 +35,5 @@ from .trace_binary import (AuditTrace, BinaryLimits, BinaryTraceError, RunConfig
 __all__ += ["AuditTrace", "BinaryLimits", "BinaryTraceError", "RunConfig",
             "audit_from_bytes", "audit_to_bytes", "read_audit", "write_audit"]
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("native-binary-v1",)
+
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("bfs-controls-v1",)

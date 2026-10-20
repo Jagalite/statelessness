@@ -14,10 +14,10 @@ pending compiler/runtime findings before hash capture; subsequent review fixes
 invalidate the affected hashes and require another refresh.
 Use the JSON source hashes to identify audited bytes; do not silently treat these
 static statuses as observations about later source. The JSON timestamps record
-when source metadata was collected, not when tests ran. A later scoped binary
-review adds the native audit codec/export/contract hashes and identifies its own
-worktree HEAD separately; it does not silently refresh unrelated feature cells or
-source hashes from the original audit.
+when source metadata was collected, not when tests ran. Later scoped binary and BFS-controls
+reviews add or refresh only their listed source/export/contract hashes and each
+identify their own worktree HEAD. They do not silently refresh unrelated feature
+cells or source hashes from the original audit.
 
 ## Status meaning
 
@@ -54,8 +54,9 @@ All four independently implement the existing four profile foundations:
 Their source also implements bounded recording and exact replay with
 application-owned codecs. The portable `Trace` shape does **not** contain Rust
 run configuration or binary v2 evidence. Separate native audit codecs now provide the scoped binary
-v1 representation described below. BFS/replay controls, retained-state-byte
-search controls and rich replay observations remain additional requirements.
+v1 representation described below. The later BFS-controls slice adds cooperative controls and retained-state-byte
+admission. Rich replay observations and bounded replay evidence remain separate
+requirements.
 Native `Trace` names alone do not establish Rust wire compatibility.
 
 All four now expose `Oracle`/`WithOracle` and `Paired`/`Projection` APIs. Python
@@ -66,8 +67,9 @@ application/reference dispositions, and retain explicit oracle history in the
 `ORC1` checkpoint. They compose with native BFS/record/replay. `paired-v1` remains
 an experimental profile. Generation, enabled checks and simplification now forward
 through Python/TypeScript `WithOracle`, Go `WithOracleGenerate`, and Swift
-`Generate.withOracle`. Rust's estimated-state-byte forwarding and reusable
-append/encode-buffer behavior remain missing, so the full oracle feature stays
+`Generate.withOracle`. Model/oracle state estimates now forward too, including
+checked aggregation and an explicit native wrapper-overhead convention. Reusable
+append/encode-buffer behavior remains missing, so the full oracle feature stays
 `partial` even though scoped projection comparison is `implemented`.
 
 All four also implement the candidate `search-v1` slice independently: explicit
@@ -80,22 +82,65 @@ must preserve supported null-like model inputs rather than confuse them with
 domain exhaustion. Candidate markers stay separate from the four established
 profile declarations and do not promote qualification or release.
 
-Native fuzz observers now receive defensive state/input/transition snapshots,
-full executed history including a failing turn, ordered checks, and explicit
-partial/complete check-error batches. Python/TypeScript preserve incremental
-iterator check prefixes; Go preserves valid returned partial checks. Swift's
-array-returning throwing callbacks cannot expose an internally emitted prefix:
-the failed batch is empty/incomplete while a preceding complete state batch is
-still visible. Native observer errors explicitly abort with an engine error;
+Native search observers receive defensive state/input/transition snapshots,
+requested initial-rooted histories, ordered checks, and explicit partial/complete
+check-error batches. Fuzz always supplies its full executed prefix, including a
+failing turn. Python/TypeScript preserve incremental iterator check prefixes;
+Go preserves valid returned partial checks. Swift's eager array callbacks cannot
+expose work never returned before a throw. A returned array whose later check
+fails validation does preserve its valid prefix as incomplete; a preceding
+complete state batch remains visible. Native observer errors abort with an engine error;
 Rust's observer callbacks return unit. These choices are stated in the candidate
 contract, rather than silently claiming identical callback types.
 
-The new controls/observers apply to fuzz/shrink, not the existing BFS or replay
-entrypoints. `SearchLimits` retained-byte accounting and model byte estimates
-remain absent. Shrink attempt limits bound replay attempts, not total iterator
-pulls or equality work: an infinite already-seen alternative stream can spend no
-attempts. Cancellation/deadline is cooperative and cannot interrupt one
-nonreturning callback. Bounded shrinking establishes no global minimality.
+The newer BFS APIs now combine cooperative cancellation/deadline controls,
+`SearchLimits` retained-state estimates, and the existing search observer.
+Resource settings are captured at entry; callbacks cannot change validated
+budgets through aliased option objects or pointers. Only the captured cancellation
+channel remains live. Initial and completed-turn check boundaries finish before a following control
+poll: a property failure wins over a stop at that boundary, while checker errors
+remain errors. Successor checks and observations precede deduplication and
+admission caps, so duplicate, failing and unadmitted edges remain observable.
+Hash collisions use actual equality in newest-admitted-first order. Depth and
+transition exhaustion still require their specified single probe. Callback order,
+reported counters and unknown estimates are part of the candidate
+[bfs-controls-v1 contract](../../spec/bfs-controls-v1.md).
+
+BFS requests actual initial-rooted histories only when `needs_history` is true;
+fuzz retains its always-present executed prefix independently of that flag.
+`SearchReport` now includes nullable retained estimated bytes and distinct
+estimated-byte/cancellation/deadline outcomes. The initial estimate runs after
+successful checks even without a cap. Only novel admitted states are charged;
+state-count rejection precedes a successor estimate. Unknown estimates or checked
+sum overflow remain unknown without a cap; a capped missing estimate is an
+error, and overflow/over-cap rejects admission without changing prior totals.
+An initial state over the cap reports zero admitted states and known zero bytes.
+TypeScript's additive `enumerateStatesExact` uses BigInt for unsigned 64-bit
+transition budgets, executed-transition counts and saturated skipped-check counts.
+The compatibility `enumerateStates` API retains safe Number budgets/reports and
+rejects a result that cannot convert exactly; it does not round the exact kernel's
+counters. State/depth container bounds remain host safe integers.
+
+These application estimates describe retained model representation, excluding
+transient successors, predecessor inputs, maps/frontiers, hidden callback
+allocations and process RSS. `WithOracle` adds model and history estimates plus
+wrapper overhead with checked unsigned arithmetic. Go/Swift expose actual native
+inline padding beyond member sizes; Python/TypeScript require caller-supplied
+logical overhead, with an absent value remaining unknown. Explicit zero is a
+caller assertion, not an inferred object size. `Paired` forwards its reference
+estimate. These conventions do not imply equal byte counts across runtimes.
+
+The richer native report remains separate from the four existing qualified
+portable wire profiles. Their conformance adapters keep the original report
+projection instead of silently adding estimate fields. These controls do not
+supply reusable append-only check/encoding storage, checked-initial/checked-turn
+provenance tokens, or rich/bounded replay observations. Rust replay uses observer
+stop boundaries rather than taking search `RunLimits` directly; new BFS controls
+must not be counted as that separate replay API. Shrink attempt limits bound
+replay attempts, not total iterator pulls or equality work: an infinite already
+seen alternative stream can spend no attempts. Controls remain cooperative and
+cannot interrupt one nonreturning callback. Bounded shrinking establishes no
+global minimality.
 
 All four now have independent structural Rust binary v1 codecs: Python
 `trace_binary.AuditTrace`, Go `AuditTrace`, TypeScript `AuditTrace`, and Swift
@@ -151,8 +196,8 @@ plus per-language implementation cells and concrete omissions.
 
 | Gap | Reviewed feature groups | Current implementation boundary |
 | --- | --- | --- |
-| N01 | `core-model`, `append-buffers`, `finite-bfs`, `search-controls`, `fuzz-observers`, `record-replay`, `replay-observations` | Core/BFS/record/replay exist. New fuzz/shrink controls and fuzz observations exist; BFS/replay controls, reusable sinks, retained-state estimates and rich replay callbacks remain missing. |
-| N02 | `oracle-history`, `paired-projection` | Candidate APIs present in all four; richer adapter forwarding and runtime qualification remain. |
+| N01 | `core-model`, `append-buffers`, `finite-bfs`, `search-controls`, `fuzz-observers`, `record-replay`, `replay-observations` | Core/BFS/record/replay and cooperative search controls exist. BFS now adds admitted-state estimates and checked observations; reusable sinks, checked provenance tokens and rich/bounded replay evidence remain separate gaps. |
+| N02 | `oracle-history`, `paired-projection` | Candidate history/projection/generation and estimate forwarding present in all four; reusable append/encode-buffer forwarding and runtime qualification remain. |
 | N03 | `rng`, `generation`, `fuzz`, `fuzz-observers` | Native generation, automatic sampling/membership, seeded fuzz, controls, reports and fuzz observers implemented as candidate `search-v1`; qualification remains pending. |
 | N04 | `shrink` | Native target-ID/phase-preserving deletion/simplification, causality checks, histories and cooperative/aggregate replay budgets implemented; qualification remains pending. |
 | N05 | `guided` | Feedback, novelty, corpus management and guided fuzz missing. |
@@ -237,10 +282,11 @@ matching type names:
 - Rust `CheckPhase::{InitialState,State,Transition}` maps to native failure
   phase strings. Native BFS failure reports do not by themselves establish
   phase-aware binary evidence or phase-preserving shrinking.
-- Rust `SearchTermination` has graph/depth/state/transition/failure outcomes
-  present in native BFS, plus `EstimatedStateByteLimit`, `Deadline` and
-  `Cancelled`, which are absent in the inspected APIs. Rust report fields beyond
-  the portable report remain requirements under `search-controls`.
+- Rust `SearchTermination` graph/depth/state/transition/failure outcomes now
+  have native counterparts alongside `EstimatedStateByteLimit`, `Deadline` and
+  `Cancelled`. Native reports include nullable admitted-state estimated bytes.
+  Known, unknown, overflow and rejected-admission states remain distinct; the
+  candidate map is not a runtime or process-memory qualification.
 - Rust replay exact/diverged/incompatible outcomes have native equivalents.
   Detailed Rust replay differences/observations/error context do not.
 - Rust fuzz termination and shrink termination/operation/outcome/report families
@@ -308,7 +354,7 @@ are outside this pinned Rust baseline; their absence is not an invented extra
 native parity gap.
 
 No builds or tests were required or run for this static audit. Existing CI may
-qualify earlier portable scopes; new pairing/search/binary implementations and
+qualify earlier portable scopes; new pairing/search/binary/BFS-controls implementations and
 broader parity features require fresh evidence through the authorized Kyoto
 workflow.
 All qualification fields intentionally remain pending until the parent work

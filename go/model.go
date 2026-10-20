@@ -123,7 +123,10 @@ type Model[S, I, O any] struct {
 	EqualStates     func(S, S) bool
 	// Equal states must hash equally. Nil uses a single equality bucket.
 	HashState func(S) uint64
-	Codec     *Codec[S, I, O]
+	// EstimatedStateBytes estimates retained state plus its owned data. Nil hook or
+	// nil result means unknown; it never represents a hard process-memory bound.
+	EstimatedStateBytes func(S) (*uint64, error)
+	Codec               *Codec[S, I, O]
 }
 
 func (m Model[S, I, O]) validate() error {

@@ -24,7 +24,7 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 	if r.InitialState == nil || r.Step == nil || p.Metadata == nil || p.ActualState == nil || p.ReferenceState == nil || p.ActualEffect == nil || p.ReferenceEffect == nil || p.EqualStates == nil || p.EqualEffects == nil {
 		return z, &ModelError{"paired requires reference reducer and complete projection callbacks"}
 	}
-	o := Oracle[S, H, I, O]{InitialState: r.InitialState, CloneHistory: r.CloneState, EqualHistory: r.EqualStates}
+	o := Oracle[S, H, I, O]{InitialState: r.InitialState, CloneHistory: r.CloneState, EqualHistory: r.EqualStates, EstimatedStateBytes: func(h H) (*uint64, error) { return estimateState(r, h) }}
 	o.Advance = func(h H, i I, _ []O, _ Disposition) (H, error) { t, e := perform(r, h, i); return t.State, e }
 	compare := func(id string, a, b any, equal bool) Check {
 		if equal {

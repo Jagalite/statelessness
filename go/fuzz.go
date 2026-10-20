@@ -22,6 +22,9 @@ func newRunControl(limits RunLimits) (runControl, error) {
 	}
 	c := runControl{limits: limits}
 	if limits.MaxDuration != nil {
+		// Duration is immutable run configuration; only cancellation is live.
+		duration := *limits.MaxDuration
+		c.limits.MaxDuration = &duration
 		c.started = time.Now()
 	}
 	return c, nil

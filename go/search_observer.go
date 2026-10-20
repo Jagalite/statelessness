@@ -7,9 +7,12 @@ import "fmt"
 // explicit engine errors. CheckError marks incomplete batches; these are never
 // presented as successful transition observations or property reproductions.
 type SearchObserver[S, I, O any] struct {
-	Initial    func(S, []Check) error
-	Transition func(S, I, Transition[S, O], []Check, []Check, []I) error
-	CheckError func(phase string, checks []Check, complete bool) error
+	// NeedsHistory opts BFS into initial-rooted input histories (nil means false).
+	// Fuzz always supplies its executed case prefix, independent of this hook.
+	NeedsHistory func() bool
+	Initial      func(S, []Check) error
+	Transition   func(S, I, Transition[S, O], []Check, []Check, []I) error
+	CheckError   func(phase string, checks []Check, complete bool) error
 }
 
 func FuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limits RunLimits, observer SearchObserver[S, I, O]) (*FuzzReport[I], error) {

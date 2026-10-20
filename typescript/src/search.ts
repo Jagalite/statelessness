@@ -1,3 +1,5 @@
+import { runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver } from './search_support.js';
+export type { RunLimits, SearchObserver } from './search_support.js';
 /** Independent generation and causal search. All control is cooperative between callbacks. */
 import { Model, EnumerateModel, Transition, Check, Violation, Failure, Rng, ModelError, ConfigError, natural, check, disposition } from './core.js';
 /** Distinct exhaustion marker; null and undefined remain ordinary model inputs. */
@@ -27,65 +29,6 @@ function call<T>(stage: string, fn: () => T): T {
 }
 const state = <S, I, O>(m: Model<S, I, O>, s: S): S => call('snapshot state', () => m.cloneState(s));
 const input = <S, I, O>(m: Model<S, I, O>, i: I): I => call('snapshot input', () => m.cloneInput(i));
-/** Observation cannot alter search; all supplied values are independent snapshots. */
-export interface SearchObserver<S, I, O> {
-    initial?(state: S, checks: readonly Check[]): void;
-    transition?(before: S, input: I, transition: Transition<S, O>, stateChecks: readonly Check[], transitionChecks: readonly Check[], history: readonly I[]): void;
-    checkError?(phase: Violation['phase'], checks: readonly Check[], complete: boolean): void;
-}
-const copyChecks = (checks: readonly Check[]): Check[] => checks.map(c => check(c.id, c.status, c.details));
-function checks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I, t?: Transition<S, O>, observer?: SearchObserver<S, I, O>, history: readonly I[] = []): {
-    violations: Violation[];
-    skipped: bigint;
-} {
-    const sc: Check[] = [], ec: Check[] = [];
-    const notify = (phase: Violation['phase'], values: Check[], complete: boolean) => {
-        if (observer?.checkError)
-            call('observer check_error', () => observer.checkError!(phase, copyChecks(values), complete));
-    };
-    const reportCheckError = (error: unknown, batches: [
-        Violation['phase'],
-        Check[],
-        boolean
-    ][]): never => {
-        const secondary: string[] = [];
-        for (const [phase, values, complete] of batches) {
-            try {
-                notify(phase, values, complete);
-            }
-            catch (observationError) {
-                secondary.push(observationError instanceof Error ? observationError.message : String(observationError));
-            }
-        }
-        if (secondary.length)
-            throw new ModelError(`${error instanceof Error ? error.message : String(error)}; ${secondary.join('; ')}`);
-        throw error;
-    };
-    const collect = (stage: string, fn: () => Iterable<Check>, out: Check[]) => call(stage, () => {
-        for (const c of fn())
-            out.push(check(c.id, c.status, c.details));
-    });
-    try {
-        collect('state check', () => m.checkState(state(m, s)), sc);
-    }
-    catch (error) {
-        reportCheckError(error, [[t ? 'state' : 'initial_state', sc, false]]);
-    }
-    if (t) {
-        try {
-            if (m.checkTransition)
-                collect('transition check', () => m.checkTransition!(state(m, before as S), input(m, i as I), copyTransition(m, t)), ec);
-        }
-        catch (error) {
-            reportCheckError(error, [['state', sc, true], ['transition', ec, false]]);
-        }
-        if (observer?.transition)
-            call('observer transition', () => observer.transition!(state(m, before as S), input(m, i as I), copyTransition(m, t), copyChecks(sc), copyChecks(ec), history.map(v => input(m, v))));
-    }
-    else if (observer?.initial)
-        call('observer initial', () => observer.initial!(state(m, s), copyChecks(sc)));
-    return { violations: [...sc.filter(c => c.status === 'failed').map(c => ({ phase: t ? 'state' as const : 'initial_state' as const, check: c })), ...ec.filter(c => c.status === 'failed').map(c => ({ phase: 'transition' as const, check: c }))], skipped: BigInt([...sc, ...ec].filter(c => c.status === 'skipped').length) };
-}
 function copyTransition<S, I, O>(m: Model<S, I, O>, t: Transition<S, O>): Transition<S, O> { return call('snapshot transition', () => ({ state: m.cloneState(t.state), outputs: Array.from(t.outputs, o => m.cloneOutput(o)), disposition: disposition(t.disposition.kind, t.disposition.reason) })); }
 function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> { return copyTransition(m, call('step', () => m.step(state(m, s), input(m, i)))); }
 function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
@@ -98,7 +41,8 @@ function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
 }
 /** Transactional reservoir sampling: an oversized/erroring domain never advances rng. */
 export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng: Rng, options: AutoOptions = DEFAULT_AUTO): I | typeof NO_INPUT {
-    natural(options.maxCandidates, 'maxCandidates', 1);
+    const maxCandidates=options.maxCandidates;
+    natural(maxCandidates, 'maxCandidates', 1);
     const candidate = rng.clone();
     let selected: I | typeof NO_INPUT = NO_INPUT, count = 0;
     const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
@@ -106,7 +50,7 @@ export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng:
         const item = call('enumerate inputs next', () => iterator.next());
         if (item.done)
             break;
-        if (count === options.maxCandidates)
+        if (count === maxCandidates)
             throw new ModelError('automatic input domain exceeds max_candidates');
         count++;
         if (count === 1 || candidate.index(BigInt(count)) === 0n)
@@ -118,14 +62,15 @@ export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng:
 export function containsEnumerated<S, I, O>(m: EnumerateModel<S, I, O> & {
     equalInputs(left: I, right: I): boolean;
 }, s: S, i: I, options: AutoOptions = DEFAULT_AUTO): boolean {
-    natural(options.maxCandidates, 'maxCandidates', 1);
+    const maxCandidates=options.maxCandidates;
+    natural(maxCandidates, 'maxCandidates', 1);
     let count = 0;
     const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
     for (;;) {
         const item = call('enumerate inputs next', () => iterator.next());
         if (item.done)
             return false;
-        if (count === options.maxCandidates)
+        if (count === maxCandidates)
             throw new ModelError('automatic input domain exceeds max_candidates');
         count++;
         if (call('input equality', () => boolean(m.equalInputs(input(m, item.value), input(m, i)), 'equalInputs')))
@@ -136,14 +81,16 @@ export function containsEnumerated<S, I, O>(m: EnumerateModel<S, I, O> & {
 export function automatic<M extends EnumerateModel<any, any, any> & {
     equalInputs(left: any, right: any): boolean;
 }>(m: M, options: AutoOptions = DEFAULT_AUTO): M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never) {
-    natural(options.maxCandidates, 'maxCandidates', 1);
-    const opts = { ...options };
+    const maxCandidates=options.maxCandidates;
+    natural(maxCandidates, 'maxCandidates', 1);
+    const opts = { maxCandidates };
     const generate = (s: any, r: Rng) => sampleEnumerated(m, s, r, opts);
     const isEnabled = (s: any, i: any) => containsEnumerated(m, s, i, opts);
     const bound = new Map<PropertyKey, unknown>();
-    const facade=Object.assign(Object.create(Object.getPrototypeOf(m)),{generate,isEnabled}) as M;
+    const facade = Object.assign(Object.create(Object.getPrototypeOf(m)), { generate, isEnabled }) as M;
     return new Proxy(facade, { get(target, key) {
-            if (Object.hasOwn(target,key))return Reflect.get(target,key);
+            if (Object.hasOwn(target, key))
+                return Reflect.get(target, key);
             const value = Reflect.get(m, key, m);
             if (typeof value !== 'function')
                 return value;
@@ -159,26 +106,10 @@ export function automatic<M extends EnumerateModel<any, any, any> & {
             return method;
         } }) as M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never);
 }
-export interface RunLimits {
-    readonly maxDurationMs?: number;
-    readonly cancellation?: () => boolean;
-}
 export interface ShrinkLimits extends RunLimits {
     readonly maxReplayedTransitions?: bigint;
 }
 type ControlStop = 'cancelled' | 'deadline';
-function control(limits: RunLimits): () => ControlStop | null {
-    if (limits.maxDurationMs !== undefined && (!Number.isFinite(limits.maxDurationMs) || limits.maxDurationMs < 0))
-        throw new ConfigError('maxDurationMs must be finite and nonnegative');
-    const started = limits.maxDurationMs === undefined ? 0 : performance.now();
-    return () => {
-        if (limits.cancellation && call('cancellation', () => boolean(limits.cancellation!(), 'cancellation')))
-            return 'cancelled';
-        if (limits.maxDurationMs !== undefined && performance.now() - started >= limits.maxDurationMs)
-            return 'deadline';
-        return null;
-    };
-}
 const MASK = (1n << 64n) - 1n;
 function u64(n: bigint, name: string): void {
     if (typeof n !== 'bigint' || n < 0n || n > MASK)
@@ -201,12 +132,15 @@ export interface FuzzReport<I> {
     failure: Failure<I> | null;
 }
 export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DEFAULT_FUZZ, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I> {
+    // Rust receives copied configs; callback-side mutation cannot change validated budgets.
+    const {seed,cases,maxSteps,maxTransitions,mutationPercent}=config;
+    config={seed,cases,maxSteps,maxTransitions,mutationPercent};
     u64(config.seed, 'seed');
     u64(config.maxTransitions, 'maxTransitions');
     natural(config.cases, 'cases');
     natural(config.maxSteps, 'maxSteps');
     natural(config.mutationPercent, 'mutationPercent', 0, 100);
-    const stop = control(limits), rng = new Rng(config.seed);
+    const stop = runControl(limits), rng = new Rng(config.seed);
     let previous: I[] = [];
     const r: FuzzReport<I> = { termination: 'cases_completed', seed: config.seed, cases: 0, transitions: 0n, skipped_checks: 0n, failure: null };
     const stopped = () => {
@@ -222,8 +156,8 @@ export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DE
             return r;
         let s = state(m, call('initial_state', () => m.initialState()));
         r.cases++;
-        const initial = checks(m, s, undefined, undefined, undefined, observer);
-        r.skipped_checks += initial.skipped;
+        const initial = searchChecks(m, s, undefined, undefined, undefined, observer);
+        r.skipped_checks = addSkippedChecks(r.skipped_checks,initial.skipped);
         if (initial.violations.length) {
             r.termination = 'failure_found';
             r.failure = { inputs: [], violations: initial.violations };
@@ -268,8 +202,8 @@ export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DE
             const t = step(m, s, next);
             r.transitions++;
             inputs.push(input(m, next));
-            const observed = checks(m, t.state, s, next, t, observer, inputs);
-            r.skipped_checks += observed.skipped;
+            const observed = searchChecks(m, t.state, s, next, t, observer, inputs);
+            r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
             if (observed.violations.length) {
                 r.termination = 'failure_found';
                 r.failure = { inputs: inputs.map(i => input(m, i)), violations: observed.violations };
@@ -318,10 +252,12 @@ export interface ShrinkReport<I> {
     validated_original: boolean;
 }
 export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig = DEFAULT_SHRINK, limits: ShrinkLimits = {}): ShrinkReport<I> {
-    natural(config.maxAttempts, 'maxAttempts', 1);
-    if (limits.maxReplayedTransitions !== undefined)
-        u64(limits.maxReplayedTransitions, 'maxReplayedTransitions');
-    const stop = control(limits);
+    const maxAttempts=config.maxAttempts;
+    const maxReplayedTransitions=limits.maxReplayedTransitions;
+    natural(maxAttempts, 'maxAttempts', 1);
+    if (maxReplayedTransitions !== undefined)
+        u64(maxReplayedTransitions, 'maxReplayedTransitions');
+    const stop = runControl(limits);
     const copy = (f: Failure<I>): Failure<I> => ({ inputs: f.inputs.map(i => input(m, i)), violations: f.violations.map(v => ({ phase: v.phase, check: check(v.check.id, v.check.status, v.check.details) })) });
     const supplied = copy(original), target = supplied.violations[0];
     if (!target || target.check.status !== 'failed')
@@ -343,7 +279,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
         if (reason)
             return { kind: 'stopped', reason };
         let s = state(m, call('shrink initial_state', () => m.initialState()));
-        const initial = checks(m, s);
+        const initial = searchChecks(m, s);
         if (initial.violations.length)
             return { kind: 'failure', failure: { inputs: [], violations: initial.violations } };
         reason = stop();
@@ -353,7 +289,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             reason = stop();
             if (reason)
                 return { kind: 'stopped', reason };
-            if (limits.maxReplayedTransitions !== undefined && r.replayed_transitions >= limits.maxReplayedTransitions)
+            if (maxReplayedTransitions !== undefined && r.replayed_transitions >= maxReplayedTransitions)
                 return { kind: 'stopped', reason: 'transition_limit' };
             const valid = enabled(m, s, inputs[n]);
             reason = stop();
@@ -363,7 +299,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
                 return { kind: 'invalid' };
             const t = step(m, s, inputs[n]);
             r.replayed_transitions++;
-            const observed = checks(m, t.state, s, inputs[n], t);
+            const observed = searchChecks(m, t.state, s, inputs[n], t);
             if (observed.violations.length)
                 return { kind: 'failure', failure: { inputs: inputs.slice(0, n + 1).map(i => input(m, i)), violations: observed.violations } };
             reason = stop();
@@ -417,7 +353,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
         return reason !== null;
     };
     const attempt = (values: I[], operation: ShrinkOperation): boolean => {
-        if (r.attempts === config.maxAttempts) {
+        if (r.attempts === maxAttempts) {
             r.termination = 'attempt_limit';
             return false;
         }

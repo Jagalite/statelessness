@@ -10,7 +10,7 @@ from typing import Any, Generic, Iterable, Protocol, TypeVar
 
 from .core import (Check, Disposition, Metadata, ModelError, Transition,
                    _call, _checks, _copy, _encode, _state_checks, _step,
-                   _transition_checks)
+                   _transition_checks, _natural)
 
 S = TypeVar("S")
 H = TypeVar("H")
@@ -60,8 +60,12 @@ def _iter_checks(stage, callback, *args):
 
 
 class WithOracle(Generic[S, H, I, O]):
-    def __init__(self, model: Any, oracle: Oracle[H, I, O]):
+    def __init__(self, model: Any, oracle: Oracle[H, I, O], *,
+                 estimated_wrapper_overhead: int | None = None):
+        if estimated_wrapper_overhead is not None:
+            _natural(estimated_wrapper_overhead, "estimated_wrapper_overhead")
         self.model, self.oracle = model, oracle
+        self.estimated_wrapper_overhead = estimated_wrapper_overhead
 
     def metadata(self) -> Metadata:
         m, o = self.model.metadata(), self.oracle.metadata()
@@ -99,6 +103,22 @@ class WithOracle(Generic[S, H, I, O]):
 
     def inputs(self, state: OracleState[S, H]) -> Iterable[I]:
         return self.model.inputs(_copy(state.model))
+
+    def estimated_state_bytes(self, state: OracleState[S, H]) -> int | None:
+        """Application logical bytes plus explicit wrapper overhead; never RSS.
+
+        Managed Python layout has no Rust-equivalent inline padding. Unknown
+        overhead (the default) or unknown component/overflow yields None.
+        """
+        from .search import _estimate
+        model = _estimate(self.model, state.model)
+        if model is None:
+            return None
+        history = _estimate(self.oracle, state.oracle)
+        if history is None or self.estimated_wrapper_overhead is None:
+            return None
+        total = model + history + self.estimated_wrapper_overhead
+        return total if total <= (1 << 64) - 1 else None
 
     def generate(self, state: OracleState[S, H], rng):
         callback = getattr(self.model, "generate", None)
@@ -196,6 +216,10 @@ class Paired:
                 f"{r.properties_version}:{r.codec_version}:{_length(p.name)}:{p.name}:{p.model_version}")
         build = f"{_length(r.build)}:{r.build}:{_length(p.build)}:{p.build}"
         return Metadata(name, p.model_version, p.properties_version, p.codec_version, build)
+
+    def estimated_state_bytes(self, history: Any) -> int | None:
+        from .search import _estimate
+        return _estimate(self.reference, history)
 
     def initial_state(self) -> Any:
         return self.reference.initial_state()

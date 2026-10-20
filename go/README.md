@@ -175,3 +175,39 @@ boundaries: binary v1 only identifies initial-state phases; subsequent checks ha
 unknown legacy phases. `conformance/native-binary-v1.json` supplies shared fixed
 bytes and malformed fixtures; tests honor `STATELESS_BINARY_CORPUS` for copied
 module trees. Binary v2 evidence and durable publication remain separate work.
+
+## Experimental BFS controls and retained-state estimates
+
+`EnumerateWithLimits(model, config, SearchLimits{...})` extends existing FIFO BFS
+with the same cooperative `RunLimits` used by fuzz/shrink and an optional
+`MaxEstimatedStateBytes *uint64` admission cap. Existing `Enumerate` defaults stay
+unchanged. `Model.EstimatedStateBytes(state)` returns `(*uint64, error)`; a nil hook
+or nil result means unknown. `SearchReport.EstimatedRetainedStateBytes` is nullable.
+Uncapped missing estimates/overflow make the total unknown; a capped missing
+estimate is an error. Initial over-cap reports zero admitted states/bytes;
+successor overflow/over-cap preserves the prior admitted total. Exact fits are
+accepted, duplicate successors are not estimated twice, and the state-count cap
+precedes successor estimation. Checks complete before failure-versus-stop decisions.
+
+`EnumerateObserved` accepts the existing `SearchObserver`. Its optional new
+`NeedsHistory func() bool` controls BFS histories only (nil means false); fuzz
+continues supplying its full case prefix independently. Requested BFS histories
+are detached initial-rooted paths including the current edge, including duplicate
+and failing turns. Incomplete checker batches use the same diagnostic/error rules
+as fuzz observers. Hash collision chains compare actual states newest-first.
+
+`Oracle.EstimatedStateBytes(history)` extends the independent oracle surface.
+`Paired` forwards reference estimates. `WithOracle` sums actual/history estimates
+and `OracleStateOverhead[S,H]()` using checked unsigned64 addition; missing values
+or overflow remain unknown. The exposed overhead is actual architecture-specific
+Go inline pair padding (`unsafe.Sizeof(pair)` minus member sizes), excluding heap
+headers and RSS. Each application estimate includes its own owned representation.
+Generation, enumeration, and persistence continue using the combined native model.
+
+These estimates bound admitted model-state representation only. Temporary
+successors, predecessor inputs, frontier/maps, callback allocation, and process RSS
+are outside the budget. `bfs-controls-v1` remains an experimental candidate;
+qualified profiles and the existing portable runner wire schema stay unchanged.
+Shared callback-order/report tests read `conformance/bfs-controls-v1.json`, with
+`STATELESS_BFS_CORPUS` override for copied module test trees. Append-only checking
+storage and richer/bounded replay are separate remaining work.

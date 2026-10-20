@@ -122,6 +122,13 @@ func Shrink[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config S
 	return ShrinkWithLimits(g, original, config, ShrinkLimits{})
 }
 func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config ShrinkConfig, limits ShrinkLimits) (*ShrinkReport[I], error) {
+	// Replay work is a fixed entry budget; callbacks cannot alter it through the
+	// caller's optional pointer. Cancellation remains the live control channel.
+	if limits.MaxReplayedTransitions != nil {
+		maximum := *limits.MaxReplayedTransitions
+		limits.MaxReplayedTransitions = &maximum
+	}
+
 	if e := g.validate(); e != nil {
 		return nil, e
 	}

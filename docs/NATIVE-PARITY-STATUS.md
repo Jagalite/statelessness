@@ -127,13 +127,44 @@ See the [binary-slice receipts](../validation/native-parity/binary-slice/README.
 for source/package identities and exact scope. Binary v2 causal evidence, direct
 recorder retention/capture policy and the remaining N11 gates are still open.
 
+## BFS control and estimate candidate
+
+The [BFS candidate contract](../spec/bfs-controls-v1.md) now has 47 independently
+specified report/callback vectors verified against real public Rust execution.
+All four native engines add cooperative controls, nullable retained-state-byte
+reports, byte admission caps, newest-first collision comparisons and BFS
+observations with optional detached root-to-edge histories. Initial and completed
+turn failures retain precedence over control cutoffs; duplicate and unadmitted
+edges are still checked and observed. Oracle estimates forward with explicit
+wrapper accounting: native inline padding in Go/Swift and caller-declared logical
+overhead in Python/TypeScript. Estimates remain application estimates, not RSS.
+
+TypeScript adds exact BigInt BFS budgets/counters and keeps checked Number
+compatibility. Skipped-check counts saturate at Rust's u64 maximum. Review also
+fixed caller-owned budget aliases across shared Go/TypeScript controls and search
+operations; budgets are captured at entry while cancellation state stays live.
+The four promoted profiles and their runner response schema remain unchanged.
+
+Final Kyoto runs passed: Python 103 tests with 12 ABI skips, Go uncached tests and
+vet, Swift 66 tests, and TypeScript 216 tests. All five installed applications
+matched base/cap/pre-cancel counters, failure targets and observer histories;
+all 25 fresh-process witness replay pairs passed. The unchanged four-profile
+baseline passed across five independent engines, including 717 cases per engine
+and 550 fresh-process replays. [BFS receipts](../validation/native-parity/bfs-slice/README.md)
+record exact source/package/runtime identities and historical failures.
+
+Append-only check storage, checked-result handoffs and rich/bounded replay remain
+open. The [append-check audit](native-parity/APPEND-CHECKS-AUDIT.md) specifies the
+next complete integration scope; the earlier [controls audit](native-parity/N01-CONTROLS-AUDIT.md)
+remains the source-pinned rationale for this implementation.
+
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Implement the [audited BFS controls/estimates/observers slice](native-parity/N01-CONTROLS-AUDIT.md),
-   then append-only check storage and rich replay observations; retain distinct gates.
-   Continue binary-v1 and N03/N04 qualification across platforms.
+3. Implement [append-only check storage](native-parity/APPEND-CHECKS-AUDIT.md) across
+   execution, search, recording/replay and adapters, then richer/bounded replay.
+   Continue BFS/binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

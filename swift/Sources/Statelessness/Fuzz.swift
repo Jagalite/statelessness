@@ -36,13 +36,18 @@ func searchInitial<S, I, O>(_ m: Model<S, I, O>) throws -> S {
 /// cannot expose checks emitted internally before throwing: its failed batch is
 /// empty/incomplete. The preceding completed state batch remains observable.
 public struct SearchObserver<S, I, O> {
+    /// BFS requests full predecessor histories only when true. Existing fuzz
+    /// observations always include their executed prefix, preserving search-v1.
+    public var needsHistory: () -> Bool
     public var initial: (S, [Check]) throws -> Void
     public var checkError: (String, [Check], Bool) throws -> Void
     public var transition: (S, I, Transition<S, O>, [Check], [Check], [I]) throws -> Void
     public init(initial: @escaping (S, [Check]) throws -> Void = { _, _ in },
                 checkError: @escaping (String, [Check], Bool) throws -> Void = { _, _, _ in },
-                transition: @escaping (S, I, Transition<S, O>, [Check], [Check], [I]) throws -> Void = { _, _, _, _, _, _ in }) {
+                transition: @escaping (S, I, Transition<S, O>, [Check], [Check], [I]) throws -> Void = { _, _, _, _, _, _ in },
+                needsHistory: @escaping () -> Bool = { false }) {
         self.initial = initial; self.checkError = checkError; self.transition = transition
+        self.needsHistory = needsHistory
     }
 }
 private func observerCheckError<S, I, O>(_ observer: SearchObserver<S, I, O>?, phase: String, checks: [Check], complete: Bool, checkerError: Error) throws {
@@ -50,25 +55,50 @@ private func observerCheckError<S, I, O>(_ observer: SearchObserver<S, I, O>?, p
     do { try observer.checkError(phase, checks, complete) }
     catch { throw ModelError("\(checkerError); search observer check_error: \(error)") }
 }
+// Return-array callbacks cannot reveal work before throwing, but a successfully
+// returned array can contain an invalid later check. Keep its validated prefix
+// for diagnostic observers without treating the failed batch as complete.
+private func searchCheckBatch(_ stage: String, prefix: inout [Check], _ callback: () throws -> [Check]) throws -> [Check] {
+    try call(stage) {
+        let checks = try callback()
+        for check in checks { try check.validate(); prefix.append(check) }
+        return checks
+    }
+}
 func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil) throws -> [Violation] {
     let checks: [Check]
-    do { checks = try stateChecks(m, state) }
-    catch { try observerCheckError(observer, phase: "initial_state", checks: [], complete: false, checkerError: error); throw error }
+    var prefix: [Check] = []
+    do {
+        if observer == nil { checks = try stateChecks(m, state) }
+        else { checks = try searchCheckBatch("state check", prefix: &prefix) { try m.checkState(copied(m.cloneState, state)) } }
+    }
+    catch { try observerCheckError(observer, phase: "initial_state", checks: prefix, complete: false, checkerError: error); throw error }
     if let observer { try call("search observer initial") { try observer.initial(copied(m.cloneState, state), checks) } }
     return try searchFindings("initial_state", checks, skipped: &skipped)
 }
 func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = []) throws -> [Violation] {
     let sc: [Check], ec: [Check]
-    do { sc = try stateChecks(m, transition.state) }
-    catch { try observerCheckError(observer, phase: "state", checks: [], complete: false, checkerError: error); throw error }
-    do { ec = try edgeChecks(m, state, input, transition) }
+    var statePrefix: [Check] = [], edgePrefix: [Check] = []
+    do {
+        if observer == nil { sc = try stateChecks(m, transition.state) }
+        else { sc = try searchCheckBatch("state check", prefix: &statePrefix) { try m.checkState(copied(m.cloneState, transition.state)) } }
+    }
+    catch { try observerCheckError(observer, phase: "state", checks: statePrefix, complete: false, checkerError: error); throw error }
+    do {
+        if observer == nil { ec = try edgeChecks(m, state, input, transition) }
+        else if let callback = m.checkTransition {
+            ec = try searchCheckBatch("transition check", prefix: &edgePrefix) {
+                try callback(copied(m.cloneState, state), copied(m.cloneInput, input), cloneTransition(m, transition))
+            }
+        } else { ec = [] }
+    }
     catch {
         // Deliver both normative batches even when a notification itself fails.
         var notificationErrors: [String] = []
         if let observer {
             do { try observer.checkError("state", sc, true) }
             catch { notificationErrors.append(String(describing: error)) }
-            do { try observer.checkError("transition", [], false) }
+            do { try observer.checkError("transition", edgePrefix, false) }
             catch { notificationErrors.append(String(describing: error)) }
         }
         if !notificationErrors.isEmpty { throw ModelError("\(error); search observer check_error: \(notificationErrors.joined(separator: "; "))") }

@@ -128,3 +128,37 @@ UTF-8 are retained. Binary v1's flattened successor/transition check phases rema
 portable profiles. This API does not qualify binary v2, causal evidence,
 resource/performance costs, installed platforms or durable publication. See
 [`spec/native-binary-v1.md`](../spec/native-binary-v1.md) for format and boundaries.
+
+## Candidate BFS controls and estimates
+
+`enumerateStates` preserves its existing defaults and adds optional
+`limits: SearchLimits` and `observer: SearchObserver`. `enumerateObserved` is the
+explicit observed entrypoint. `SearchLimits` reuses `RunLimits` for cooperative
+cancellation/deadline and accepts `maxEstimatedStateBytes: UInt64?` for admission.
+Checks complete at the current execution boundary; a property failure takes
+precedence over a stop requested during that boundary. Callbacks cannot be
+interrupted. BFS observers request actual predecessor histories with
+`needsHistory: { true }`; false delivers empty history. Fuzz retains its existing
+always-present histories.
+
+Set `Model.estimatedStateBytes` to a throwing state-to-`UInt64?` callback.
+`SearchReport.estimatedRetainedStateBytes` sums admitted states only; missing
+estimates/overflow make an uncapped total unknown, while capped searches require
+known estimates. Duplicate states are not charged again; exact equality with a
+cap fits. These estimates exclude temporary successors, predecessor inputs,
+frontier/maps, callback allocations, allocator overhead and process RSS.
+
+`Oracle.estimatedStateBytes` estimates retained history. `WithOracle` aggregates
+actual and history estimates with checked addition and exposes
+`estimatedWrapperBytes`: native inline padding from
+`MemoryLayout<OracleState<S,H>>.size` minus the sum of member sizes, saturating at
+zero. Unknown layout arithmetic/estimates or overflow stay unknown. This is
+Swift/type/architecture-specific inline layout, not heap measurement or a promise
+of equal byte totals across languages. `Paired` delegates history estimation to
+its reference model; outer wrapper padding is still added.
+
+`bfs-controls-v1` remains experimental; the four promoted portable profile
+projections are unchanged. Array-returning throwing checkers cannot expose checks
+never returned; observed searches retain a validated prefix when a returned
+array contains a later invalid check. Append-only check storage and rich replay
+observations remain separate work. See [`spec/bfs-controls-v1.md`](../spec/bfs-controls-v1.md).
