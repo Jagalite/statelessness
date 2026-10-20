@@ -292,3 +292,56 @@ with that prefix are rejected. Python's build label `native-python-v1` identifie
 the implementation, not a source fingerprint. Replay preserves producer stamps.
 `encode-buffers-v1` and `replay-evidence-v1` are experimental candidates; the four
 qualified profiles and portable wire projections remain unchanged.
+
+## Candidate checked results and runtime recording
+
+`check_initial(model, state)` checks the supplied checkpoint once, without calling
+`initial_state`, `step`, metadata or codecs. `check_turn(model, before, input,
+transition, sequence, policy=CheckPolicy())` checks an already executed turn once
+and never calls the reducer. Both return a sealed complete result even when
+properties fail. Checker or snapshot errors produce no token. Positive Python
+integer sequences preserve the full u64 domain; zero, booleans, floats and overflow
+are rejected. Sampling policies include explicit skipped checks and always yield
+`full_checking=False`, even at a turn whose sampled state check runs.
+
+`CheckedInitial` exposes read-only `model`, `state`, `checks`, and
+`state_check_count`. `CheckedTurn` adds `before`, `input`, `transition`, `sequence`,
+`full_checking` and `observation()`. `into_checks()` returns detached checks without
+invalidating the Python token. Payloads are snapshotted together before checking;
+check callbacks receive separate copies. Payload/check accessors and diagnostic
+views return fresh detached values, while `model` retains the original model
+reference. This requires faithful `deepcopy` behavior and deterministic, pure model
+callbacks. It introduces no codec, hashing, equality or serialization requirement
+for ordinary model values. These native ownership assumptions correspond to Rust's
+borrowed-context determinism contract; Python cannot prove arbitrary application
+clone fidelity or purity.
+
+Public constructors, subclassing, dataclass replacement and serialization cannot
+create authority. A caller-created `TurnObservation`, replay observation or check
+collection is diagnostic evidence and cannot authorize checked recording. Sealing
+protects the public API against accidental replacement; it is not a security
+sandbox against hostile reflection or alteration of private engine code. Tokens
+remain reusable across independent recorders; each recorder enforces ordering.
+
+`Recorder(model, checkpoint, config=RunConfig(), max_steps=1024)` captures
+application-owned transitions without executing them. `with_options` selects
+`RecorderOptions(max_steps, max_retained_bytes, limits=BinaryLimits())`.
+`with_checked_initial` and `with_checked_initial_at(initial, host_sequence, config,
+options)` attach to sealed checks without rechecking. `observe(model, before,
+input, transition)` performs full checking; `observe_checked(token)` uses the
+bound complete batch with no checker calls. Sampled coverage, reordered/duplicate/
+gapped sequences, metadata changes, encoded-before discontinuity and quota errors
+freeze the previous coherent prefix. Metadata identity, rather than model object
+identity, determines compatible handoffs.
+
+The recorder retains a contiguous bounded ring, validating candidates before
+eviction and promoting only evicted state-check prefixes into checkpoint checks.
+Property failure freezes capture and cannot be overwritten by a later external
+error; `stop_with_error(error)` also freezes a coherent prefix. `snapshot()` returns
+a detached lossless `AuditTrace`; counters, retained size and binary export expose
+the captured artifact. Retention budgets include complete binary framing, metadata,
+checks, parameters and error-footer headroom, not process memory or callback
+allocations. Engine and monitor provenance parameters are reserved. Host sequence
+origins are recorded separately from local retained-step indexing.
+`checked-results-v1` is experimental. This runtime recorder does not implement the
+separate causal evidence/envelope recorder.

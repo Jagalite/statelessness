@@ -59,8 +59,8 @@ public final class CheckSink {
         if let failure = storage.failure { throw failure }
     }
 }
-func appendStateChecks<S, I, O>(_ model: Model<S, I, O>, _ state: S, into sink: CheckSink) throws {
-    try call("state check") {
+func appendStateChecks<S, I, O>(_ model: Model<S, I, O>, _ state: S, into sink: CheckSink, stage: String = "state check") throws {
+    try call(stage) {
         try sink.sublease { child in
             let snapshot = try copied(model.cloneState, state)
             if let callback = model.checkStateInto { try callback(snapshot, child) }
@@ -78,8 +78,8 @@ func appendTransitionChecks<S, I, O>(_ model: Model<S, I, O>, _ before: S, _ inp
         }
     }
 }
-func stateChecksInto<S, I, O>(_ model: Model<S, I, O>, _ state: S, checks: inout [Check]) throws {
-    try CheckSink.withStorage(&checks) { try appendStateChecks(model, state, into: $0) }
+func stateChecksInto<S, I, O>(_ model: Model<S, I, O>, _ state: S, checks: inout [Check], stage: String = "state check") throws {
+    try CheckSink.withStorage(&checks) { try appendStateChecks(model, state, into: $0, stage: stage) }
 }
 func edgeChecksInto<S, I, O>(_ model: Model<S, I, O>, _ before: S, _ input: I, _ transition: Transition<S, O>, checks: inout [Check]) throws {
     try CheckSink.withStorage(&checks) { try appendTransitionChecks(model, before, input, transition, into: $0) }

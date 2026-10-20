@@ -140,10 +140,7 @@ private func replayKernel<S,I,O>(_ m: Model<S,I,O>, trace: Trace, config: RunCon
         var count: Int?, outputs: [[UInt8]] = []
         do {
             checks.removeAll(keepingCapacity: true)
-            do {
-                try stateChecksInto(m, turn.state, checks: &checks); let boundary = checks.count
-                try edgeChecksInto(m, state, input, turn, checks: &checks); count = boundary
-            } catch { checks.removeAll(keepingCapacity: true); throw error }
+            count = try checkObservedCountInto(m, before: state, input: input, transition: turn, sequence: sequence, checks: &checks)
             var remaining: UInt64?
             if let limits {
                 let fixed = try executionStepFixed(inputBytes, turn.disposition, turn.outputs.count, checks, limits)

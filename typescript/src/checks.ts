@@ -114,7 +114,7 @@ export function requireSynchronousCheckReturn(value: unknown): void {
         Promise.prototype.then.call(value, undefined, () => { });
     throw new ModelError('append check hook must return undefined synchronously');
 }
-export function appendStateChecks<S, I, O>(m: Model<S, I, O>, state: S, sink: CheckSink): void {
+export function appendStateChecks<S, I, O>(m: Model<S, I, O>, state: S, sink: CheckSink, context = 'state check'): void {
     withChildCheckSink(sink, child => {
         const snapshot = m.cloneState(state), hook = m.checkStateInto;
         if (hook !== undefined) {
@@ -126,7 +126,7 @@ export function appendStateChecks<S, I, O>(m: Model<S, I, O>, state: S, sink: Ch
             const legacy = m.checkState;
             child.extend(legacy.call(m, snapshot));
         }
-    }, 'state check');
+    }, context);
 }
 export function appendTransitionChecks<S, I, O>(m: Model<S, I, O>, before: S, input: I, t: Transition<S, O>, sink: CheckSink): void {
     withChildCheckSink(sink, child => {

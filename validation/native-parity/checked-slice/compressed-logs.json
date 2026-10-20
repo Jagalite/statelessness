@@ -1,0 +1,14 @@
+{
+  "kyoto/installed-final.log.gz": {
+    "uncompressed_sha256": "026f808039f91a9e9e8a50d95b1fcdb32a1985173a06638c35efb2832bbc9943",
+    "uncompressed_bytes": 22283
+  },
+  "kyoto/rust-final-build.log.gz": {
+    "uncompressed_sha256": "f45d4b2efe696960eacafb4970731ed680b9c2b47197caca637a845d7eefa679",
+    "uncompressed_bytes": 256
+  },
+  "installed-r1/logs/swift-diagnostic-not-token.log.gz": {
+    "uncompressed_sha256": "84d38ddb29ee2f72d668e988500e25c410a2cdfc022c7e81a89d4a914dcdcea4",
+    "uncompressed_bytes": 2537
+  }
+}

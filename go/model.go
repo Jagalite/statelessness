@@ -236,9 +236,14 @@ func CheckObserved[S, I, O any](m Model[S, I, O], before S, input I, t Transitio
 
 // CheckObservedInto clears caller storage at entry and on every error while
 // retaining capacity. It observes completed execution and never invokes Step.
-func CheckObservedInto[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O], sequence uint64, policy CheckPolicy, checks *[]Check) (err error) {
+func CheckObservedInto[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O], sequence uint64, policy CheckPolicy, checks *[]Check) error {
+	_, err := checkObservedCountInto(m, before, input, t, sequence, policy, checks)
+	return err
+}
+
+func checkObservedCountInto[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O], sequence uint64, policy CheckPolicy, checks *[]Check) (count int, err error) {
 	if checks == nil {
-		return &ConfigError{"nil check storage"}
+		return 0, &ConfigError{"nil check storage"}
 	}
 	resetChecks(checks)
 	defer func() {
@@ -247,26 +252,30 @@ func CheckObservedInto[S, I, O any](m Model[S, I, O], before S, input I, t Trans
 		}
 	}()
 	if e := m.validate(); e != nil {
-		return e
+		return 0, e
 	}
 	if sequence == 0 || policy.StateEvery == 0 {
-		return &ConfigError{"sequence and state period must be positive"}
+		return 0, &ConfigError{"sequence and state period must be positive"}
 	}
 	if e := t.Disposition.Validate(); e != nil {
-		return &ModelError{fmt.Sprintf("observed transition: %v", e)}
+		return 0, &ModelError{fmt.Sprintf("observed transition: %v", e)}
 	}
 	if sequence%policy.StateEvery == 0 {
 		if e := stateChecksInto(m, t.State, checks); e != nil {
-			return e
+			return 0, e
 		}
 	} else {
 		*checks = append(*checks, Skipped("stateless.state_checks", "periodic checking policy"))
 	}
+	count = len(*checks)
 	if policy.TransitionChecks {
-		return edgeChecksInto(m, before, input, t, checks)
+		if e := edgeChecksInto(m, before, input, t, checks); e != nil {
+			return 0, e
+		}
+	} else {
+		*checks = append(*checks, Skipped("stateless.transition_checks", "disabled by policy"))
 	}
-	*checks = append(*checks, Skipped("stateless.transition_checks", "disabled by policy"))
-	return nil
+	return count, nil
 }
 
 func hasFailure(checks []Check) bool {

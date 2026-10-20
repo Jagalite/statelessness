@@ -234,13 +234,56 @@ The four promoted profiles remain unchanged. Checked provenance handoffs are the
 codecs, binary v2 causal evidence, debugger integration and broad allocation,
 performance and platform qualification remain separate work.
 
+## Checked results and runtime recording candidate
+
+The [checked-results candidate](../spec/checked-results-v1.md) adds sealed
+`CheckedInitial`/`CheckedTurn` handoffs and a runtime `Recorder` in all four native
+engines. Supplied checkpoints and already executed turns are checked without
+calling initialization or the reducer. Complete batches retain order, phase
+boundary, exact sequence and full-checking coverage; property failures can produce
+tokens, while checker/snapshot errors cannot. Detached diagnostics do not authorize
+recording or change a token's certified context.
+
+The runtime recorder consumes supplied or checked context, verifies metadata,
+full coverage, sequence and canonical before-state continuity, and admits complete
+prepared evidence into a contiguous bounded window. Eviction promotes only the
+state-check prefix into checkpoint checks. Retained-byte accounting covers the
+whole wire artifact, prospective counter metadata and terminal footer; admission
+errors freeze the preceding coherent prefix. Same-metadata handoffs may use a
+different state/input/output representation when canonical bytes agree.
+
+Final native Kyoto suites passed after ownership, quota-before-copy, reentry and
+transfer fixes: Go uncached tests and vet; Python 180 tests with 12 ABI skips;
+TypeScript 500 tests; Swift 101 methods. Actual public Rust execution passed all
+27 token and 36 recorder cases plus the application smoke. Independent reviews
+closed. The installed matrix passed across all five producers: 25 binary audit and
+25 JSON fresh-process replay pairs, full/main and retained-ring rich sessions,
+Swift positive/negative compiler cases, and the unchanged baseline of 717 cases
+per engine plus 550 fresh replays. [Checked-slice receipts](../validation/native-parity/checked-slice/README.md)
+pin these finite results; they do not establish broad native parity. The ledger
+pins the reviewed frozen source and retains all 144 qualification-pending cells.
+
+Go exposes heterogeneous handoffs through generic `ObserveRecorder` and
+`ObserveCheckedRecorder` free functions over a representation-independent
+`Recorder`. Swift's `intoTrace` logically consumes mutation/transfer authority:
+subsequent writes and a second transfer fail, while read-only snapshots and
+counters remain available as a documented native extension. Private native token
+storage depends on correct clone hooks and application purity; it is not a
+reflection/security sandbox or Rust's static borrow system.
+
+The four promoted profiles remain unchanged. This slice does not provide
+`CausalEvidenceRecorder`, evidence envelopes or binary v2 causal provenance;
+these are the [next scoped audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
+Wire quotas do not bound application allocation, snapshots, backing capacity or
+RSS, and continuity cannot detect an omitted turn returning to the same state.
+
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Implement [checked-result handoffs](native-parity/CHECKED-RESULTS-AUDIT.md),
-   then continue broader codec/replay qualification.
+3. Complete installed checked-result/runtime-recorder handoff qualification,
+   then follow the [causal evidence audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
    Continue append/BFS/binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

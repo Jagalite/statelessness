@@ -1,0 +1,7268 @@
+{
+  "profile": "checked-results-v1",
+  "status": "candidate",
+  "cases": [
+    {
+      "case": "supplied-checkpoint",
+      "kind": "initial",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:7"
+        ],
+        "token": {
+          "kind": "initial",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            }
+          ],
+          "state_check_count": 2,
+          "state": 7
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "initial-empty",
+      "kind": "initial",
+      "model": {
+        "state_checks": [],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:7"
+        ],
+        "token": {
+          "kind": "initial",
+          "checks": [],
+          "state_check_count": 0,
+          "state": 7
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "initial-failed",
+      "kind": "initial",
+      "model": {
+        "state_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "details": "broken"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:7"
+        ],
+        "token": {
+          "kind": "initial",
+          "checks": [
+            {
+              "id": "bad",
+              "status": "failed",
+              "details": "broken"
+            }
+          ],
+          "state_check_count": 1,
+          "state": 7
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "initial-ordered",
+      "kind": "initial",
+      "model": {
+        "state_checks": [
+          {
+            "id": "x",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "x",
+            "status": "skipped",
+            "details": "later"
+          },
+          {
+            "id": "x",
+            "status": "failed",
+            "details": "bad"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:7"
+        ],
+        "token": {
+          "kind": "initial",
+          "checks": [
+            {
+              "id": "x",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "x",
+              "status": "skipped",
+              "details": "later"
+            },
+            {
+              "id": "x",
+              "status": "failed",
+              "details": "bad"
+            }
+          ],
+          "state_check_count": 3,
+          "state": 7
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-empty",
+      "kind": "turn",
+      "model": {
+        "state_checks": [],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 0,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-failed",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "details": "broken"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "bad",
+              "status": "failed",
+              "details": "broken"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-ordered",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "x",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "x",
+            "status": "skipped",
+            "details": "later"
+          },
+          {
+            "id": "x",
+            "status": "failed",
+            "details": "bad"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "x",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "x",
+              "status": "skipped",
+              "details": "later"
+            },
+            {
+              "id": "x",
+              "status": "failed",
+              "details": "bad"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 3,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-accepted",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-rejected",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "rejected",
+          "reason": "why"
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "rejected",
+              "reason": "why"
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-ignored",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "ignored",
+          "reason": "why"
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "ignored",
+              "reason": "why"
+            }
+          },
+          "sequence": "1",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sequence-0",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "0",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": "transition sequence must be positive",
+        "events": [],
+        "token": null,
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sequence-2",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "2",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "2",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sequence-18446744073709551615",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "18446744073709551615",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "18446744073709551615",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sequence-9007199254740993",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "9007199254740993",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "9007199254740993",
+          "full_checking": true
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-1-true",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "stateless.state_checks",
+              "status": "skipped",
+              "details": "periodic checking policy"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-1-false",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": false
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "stateless.state_checks",
+              "status": "skipped",
+              "details": "periodic checking policy"
+            },
+            {
+              "id": "stateless.transition_checks",
+              "status": "skipped",
+              "details": "disabled by policy"
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-2-true",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "2",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "2",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-2-false",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "2",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": false
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "stateless.transition_checks",
+              "status": "skipped",
+              "details": "disabled by policy"
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "2",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-18446744073709551615-true",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "18446744073709551615",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "stateless.state_checks",
+              "status": "skipped",
+              "details": "periodic checking policy"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "18446744073709551615",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "sampled-18446744073709551615-false",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "18446744073709551615",
+      "policy": {
+        "state_every": "2",
+        "transition_checks": false
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "stateless.state_checks",
+              "status": "skipped",
+              "details": "periodic checking policy"
+            },
+            {
+              "id": "stateless.transition_checks",
+              "status": "skipped",
+              "details": "disabled by policy"
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "18446744073709551615",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "transition-disabled",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": false
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "stateless.transition_checks",
+              "status": "skipped",
+              "details": "disabled by policy"
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "initial-state-error",
+      "kind": "initial",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": "state boom",
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": "initial check: state boom",
+        "events": [
+          "state:7"
+        ],
+        "token": null,
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-state-error",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": "state boom",
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": "state check: state boom",
+        "events": [
+          "state:9"
+        ],
+        "token": null,
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "turn-transition-error",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": "edge boom"
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": "transition check: edge boom",
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": null,
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "failed-state-does-not-suppress-transition-error",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "details": "broken"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": "edge boom"
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "1",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": "transition check: edge boom",
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": null,
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "u64-policy-matching",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "18446744073709551615",
+      "policy": {
+        "state_every": "18446744073709551615",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "state:9",
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "s",
+              "status": "passed",
+              "details": ""
+            },
+            {
+              "id": "s.skip",
+              "status": "skipped",
+              "details": "not applicable"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 2,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "18446744073709551615",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    },
+    {
+      "case": "u64-policy-skipped",
+      "kind": "turn",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "state": 7,
+      "before": 7,
+      "input": 2,
+      "transition": {
+        "state": 9,
+        "outputs": [
+          90
+        ],
+        "disposition": {
+          "kind": "accepted",
+          "reason": ""
+        }
+      },
+      "sequence": "1",
+      "policy": {
+        "state_every": "18446744073709551615",
+        "transition_checks": true
+      },
+      "expected": {
+        "error_contains": null,
+        "events": [
+          "transition:7:2:9"
+        ],
+        "token": {
+          "kind": "turn",
+          "checks": [
+            {
+              "id": "stateless.state_checks",
+              "status": "skipped",
+              "details": "periodic checking policy"
+            },
+            {
+              "id": "t",
+              "status": "passed",
+              "details": ""
+            }
+          ],
+          "state_check_count": 1,
+          "before": 7,
+          "input": 2,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "sequence": "1",
+          "full_checking": false
+        },
+        "initial_state_calls": 0,
+        "step_calls": 0
+      }
+    }
+  ],
+  "recorder_cases": [
+    {
+      "case": "handoff-no-rechecks",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "ring-state-prefix-only",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "3",
+          "before": 9,
+          "input": 1,
+          "transition": {
+            "state": 10,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "4",
+          "before": 10,
+          "input": 1,
+          "transition": {
+            "state": 11,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "3",
+            "evicted_steps": "1",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 8,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 10,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "4",
+            "evicted_steps": "2",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 9,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 10,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 11,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "origin-nonzero",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "41",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "42",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "43",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "44",
+          "before": 9,
+          "input": 1,
+          "transition": {
+            "state": 10,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "3",
+            "evicted_steps": "1",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 8,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 10,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "origin-u64-last-valid",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "18446744073709551614",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "18446744073709551615",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "origin-u64-overflow",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "18446744073709551615",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "sequence is missing or reordered",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "duplicate",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "1",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "3",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "sequence is missing or reordered",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "gap",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "3",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "3",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "sequence is missing or reordered",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "reordered",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "1",
+          "before": 9,
+          "input": 1,
+          "transition": {
+            "state": 10,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "sequence is missing or reordered",
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "reject-policy-{'state_every': '2', 'transition_checks': True}",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "2",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "runtime recorder requires full checking",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "reject-policy-{'state_every': '1', 'transition_checks': False}",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": false
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "runtime recorder requires full checking",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "metadata-mismatch-freezes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "model_name": "different"
+        },
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "model identity changed",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "encoded-continuity-freezes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "before state is discontinuous",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "equivalent-distinct-model-allowed",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "model_name": "same"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "initial-failure-freezes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "details": "broken"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "property_failed",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "bad",
+                "status": "failed",
+                "details": "broken"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "turn-failure-freezes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "checks_model": {
+            "state_checks": [
+              {
+                "id": "bad",
+                "status": "failed",
+                "details": "broken"
+              }
+            ],
+            "transition_checks": [
+              {
+                "id": "t",
+                "status": "passed",
+                "details": ""
+              }
+            ],
+            "state_error": null,
+            "transition_error": null
+          }
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "stop_error": "later"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "property_failed",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "bad",
+                    "status": "failed",
+                    "details": "broken"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 1
+              }
+            ]
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "property_failed",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "bad",
+                    "status": "failed",
+                    "details": "broken"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 1
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "property_failed",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "bad",
+                    "status": "failed",
+                    "details": "broken"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "external-error-freezes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "stop_error": "external boom"
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "stop_error": "later"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "encode-output-freezes-coherent-prefix",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "encode_error": "output"
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "encode output",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": "runtime recorder is frozen",
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "output-quota-preflight",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_outputs_per_step": 0
+        }
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          }
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": "outputs per step",
+            "observed_steps": "0",
+            "evicted_steps": "0",
+            "retained_steps": 0,
+            "frozen": true,
+            "termination": "model_error",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": []
+          }
+        ]
+      }
+    },
+    {
+      "case": "initial-quota-max_total_bytes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_total_bytes": "1"
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_frame_bytes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_frame_bytes": 0
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_blob_bytes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_blob_bytes": 0
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_string_bytes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_string_bytes": 0
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_checks_per_batch",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_checks_per_batch": 1
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_parameters",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_parameters": 0
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-quota-max_items",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_items": 0
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "invalid-zero-max-steps",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 0,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "max_steps must be positive",
+        "states": []
+      }
+    },
+    {
+      "case": "invalid-step-limit",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {
+          "max_steps": 1
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "max_steps must be positive",
+        "states": []
+      }
+    },
+    {
+      "case": "invalid-zero-byte-budget",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "0",
+        "limits": {}
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "byte budget must be positive",
+        "states": []
+      }
+    },
+    {
+      "case": "initial-retained-byte-budget",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1",
+        "limits": {}
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime",
+        "states": []
+      }
+    },
+    {
+      "case": "ordinary-constructor-and-observe",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      },
+      "entry_mode": "ordinary"
+    },
+    {
+      "case": "ordinary-ring-promotion",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        },
+        {
+          "sequence": "3",
+          "before": 9,
+          "input": 1,
+          "transition": {
+            "state": 10,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        },
+        {
+          "sequence": "4",
+          "before": 10,
+          "input": 1,
+          "transition": {
+            "state": 11,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "3",
+            "evicted_steps": "1",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 8,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 10,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "4",
+            "evicted_steps": "2",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 9,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 10,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 11,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      },
+      "entry_mode": "ordinary"
+    },
+    {
+      "case": "checked-initial-ordinary-observe",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        },
+        {
+          "sequence": "2",
+          "before": 8,
+          "input": 1,
+          "transition": {
+            "state": 9,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "mode": "ordinary"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          },
+          {
+            "error_contains": null,
+            "observed_steps": "2",
+            "evicted_steps": "0",
+            "retained_steps": 2,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              },
+              {
+                "input": 1,
+                "transition": {
+                  "state": 9,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "cross-representation-same-metadata-canonical-bytes",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "1048576",
+        "limits": {}
+      },
+      "actions": [
+        {
+          "sequence": "1",
+          "before": 7,
+          "input": 1,
+          "transition": {
+            "state": 8,
+            "outputs": [
+              90
+            ],
+            "disposition": {
+              "kind": "accepted",
+              "reason": ""
+            }
+          },
+          "policy": {
+            "state_every": "1",
+            "transition_checks": true
+          },
+          "representation": "decimal-string"
+        }
+      ],
+      "expected": {
+        "initial_error_contains": null,
+        "states": [
+          {
+            "error_contains": null,
+            "observed_steps": "1",
+            "evicted_steps": "0",
+            "retained_steps": 1,
+            "frozen": false,
+            "termination": "interrupted",
+            "initial_state": 7,
+            "initial_checks": [
+              {
+                "id": "s",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "s.skip",
+                "status": "skipped",
+                "details": "not applicable"
+              }
+            ],
+            "steps": [
+              {
+                "input": 1,
+                "transition": {
+                  "state": 8,
+                  "outputs": [
+                    90
+                  ],
+                  "disposition": {
+                    "kind": "accepted",
+                    "reason": ""
+                  }
+                },
+                "checks": [
+                  {
+                    "id": "s",
+                    "status": "passed",
+                    "details": ""
+                  },
+                  {
+                    "id": "s.skip",
+                    "status": "skipped",
+                    "details": "not applicable"
+                  },
+                  {
+                    "id": "t",
+                    "status": "passed",
+                    "details": ""
+                  }
+                ],
+                "state_check_count": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "retained-only-error-category",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "128",
+        "limits": {}
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime recording exceeds retained byte budget",
+        "states": []
+      }
+    },
+    {
+      "case": "aggregate-items-before-retained-budget",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "128",
+        "limits": {
+          "max_items": 8
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime recording limit: trace exceeds aggregate items limit",
+        "states": []
+      }
+    },
+    {
+      "case": "format-total-before-retained-budget",
+      "model": {
+        "state_checks": [
+          {
+            "id": "s",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "s.skip",
+            "status": "skipped",
+            "details": "not applicable"
+          }
+        ],
+        "transition_checks": [
+          {
+            "id": "t",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "state_error": null,
+        "transition_error": null
+      },
+      "initial_state": 7,
+      "origin": "0",
+      "config": {
+        "strategy": "manual",
+        "seed": null,
+        "parameters": []
+      },
+      "options": {
+        "max_steps": 2,
+        "max_retained_bytes": "128",
+        "limits": {
+          "max_total_bytes": "128"
+        }
+      },
+      "actions": [],
+      "expected": {
+        "initial_error_contains": "runtime recording limit: trace exceeds total bytes limit",
+        "states": []
+      }
+    }
+  ]
+}

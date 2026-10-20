@@ -287,3 +287,52 @@ snapshot fails, the error observer receives no Actual plus SnapshotError; the
 returned error retains recovery evidence without retrying model callbacks.
 Shared tests use `STATELESS_ENCODE_CORPUS` and `STATELESS_REPLAY_CORPUS`, with
 repository-relative fixture paths by default.
+
+`checked-results-v1` is an experimental check-once handoff. `CheckInitial(model,
+state)` checks the supplied checkpoint without calling InitialState or Step.
+`CheckTurn(model, before, input, transition, sequence, policy)` checks an already
+executed turn without invoking Step. Positive `uint64` sequences preserve the
+full u64 domain. Failed properties still produce a complete token; checker,
+snapshot, policy, and validation errors produce no token. Sampled checking and
+disabled transition checks retain explicit skipped entries and never claim full
+coverage. Existing CheckObserved and append APIs share the same dispatch.
+
+`CheckedInitial` and `CheckedTurn` have private fields and constructors. Their
+zero values have no authority. Context snapshots are captured before checking;
+checkers receive defensive copies of those snapshots. Checks, context accessors,
+and `TurnObservation` diagnostics return detached data. Accessors that clone
+application values return errors if cloning fails. Faithful deep clones and pure,
+deterministic callbacks remain the model's responsibility; the engine cannot
+verify clone fidelity without imposing new equality or codec requirements.
+Privacy protects ordinary API use, not hostile reflection or unsafe operations.
+Diagnostics are not checked tokens. Tokens require no codec and may feed multiple
+independent recorders; they are not globally consumed or persistent authority.
+
+`NewRecorderWithCheckedInitial` and `NewRecorderWithCheckedInitialAt` attach a
+runtime Recorder to a checked checkpoint without rechecking. `ObserveCheckedRecorder(recorder, token)`
+uses the token's bound model, turn, and complete checks without reducers or
+checkers. It requires full coverage, exact host sequence continuity, matching
+metadata, and encoded before-state continuity. Ordinary `NewRecorderWithOptions`
+and `ObserveRecorder(recorder, model, before, input, transition)` check supplied
+application execution once. Recorder storage is independent of Go payload types;
+compatible metadata and canonical bytes permit handoffs across distinct payload
+representations. RecorderOptions bounds
+the retained step window and complete serialized artifact under BinaryLimits.
+Eviction promotes only state-phase checks to the new checkpoint. Property or
+recording failure freezes the coherent prefix; later errors cannot replace it.
+Snapshots are detached AuditTrace values, with local trace indexes and explicit
+host sequence origin/counter metadata. Retention measures serialized evidence,
+not callback allocations or process memory. EvidenceRecorder causal envelopes
+remain a separate scope. Shared tests use `STATELESS_CHECKED_CORPUS` or
+`conformance/checked-results-v1.json` in a repository checkout.
+Recorder mutation is synchronous and exclusive: nested observation or transfer
+from an application callback is rejected (IntoTrace returns nil during capture). A callback may stop recording with an
+error; that first frozen prefix remains authoritative when the outer call resumes
+or encounters another error. Error formatting runs under the same mutation guard.
+Read-only snapshots and counters remain available. Retention admission reports
+format total-byte, aggregate-item, and format step limits before recorder-specific
+byte and step budgets when multiple global limits are exceeded.
+Binary export holds a read borrow over the recorder: writer callbacks cannot
+observe, transfer, or stop it. StopWithError returns a rejection error during
+export. The borrow is released even if a writer panics; partial I/O remains the
+writer's responsibility. Export streams the retained artifact directly.

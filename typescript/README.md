@@ -279,3 +279,55 @@ snapshot explicitly. These APIs remain `encode-buffers-v1` and
 `replay-evidence-v1` experimental candidates; the four promoted profiles are
 unchanged. No browser, cross-platform, hard-memory or allocation-performance
 qualification is implied.
+
+`checked-results-v1` is an experimental candidate. `checkInitial(model, state)`
+checks a supplied checkpoint without calling `initialState`. `checkTurnExact`
+checks an already executed transition without calling `step`, with a positive
+`bigint` u64 sequence and `{stateEvery: bigint, transitionChecks: boolean}` policy.
+`checkTurn` accepts safe integer number sequences and policy periods. Failed or
+skipped properties still produce a complete token; callback or snapshot errors
+produce no token. Models do not need codecs to use these checking APIs.
+
+`CheckedInitial` and `CheckedTurn` have no public constructors. Engine-private
+WeakMaps authenticate tokens; diagnostic `observation()` objects cannot authorize
+recording. Tokens are frozen and check arrays are immutable at runtime. Context is
+cloned before checking and again before sealing; each public context accessor
+returns another detached copy using the original model's clone hooks. Clone hooks
+must isolate mutable data, preserve values, and model callbacks must not mutate
+checked context. Snapshot failure never reruns a reducer or checker. This is an
+API integrity convention, not a sandbox against hostile reflection. Tokens have
+no global consumption bit and may feed independent recorders; each recorder
+checks its own sequence continuity. `intoChecks()` returns an immutable detached
+batch and does not invalidate a JavaScript token.
+
+`Recorder` records application-executed transitions into a bounded binary-v1
+`AuditTrace`. `new Recorder(model, checkpoint, config, options)` checks the supplied
+checkpoint once. `Recorder.withCheckedInitial(token, config, options)` and
+`withCheckedInitialAt(token, origin, config, options)` reuse sealed checks.
+`observe(model, before, input, transition)` checks a supplied actual turn;
+`observeChecked(token)` reuses its complete full-coverage batch without executing
+reducers or checkers. Host origins and counters use exact u64 `bigint`; trace
+indices and counters stay local to the attachment. Tokens can feed two recorders,
+while duplicate, reordered or gapped sequences freeze the affected recorder.
+
+Options select positive `maxSteps`, positive `maxRetainedBytes: bigint`, and all
+nine binary `limits`. The recorder checks metadata identity and canonical encoded
+before-state continuity, incrementally bounds codecs, and evicts oldest turns to
+fit its retained ring. Eviction promotes only the evicted turn's state-check
+prefix into checkpoint checks. Initial/turn property failures freeze the artifact;
+recording errors freeze the previously coherent prefix, preserving earlier
+failures against later observer errors. Reserved engine and monitor parameters
+record implementation identity, origin and local observation/eviction counts.
+
+`snapshot()` returns detached artifact bytes/checks; `intoTrace()` transfers the
+artifact and disables that recorder. `writeTo` / `writeWithLimits` serialize through
+the strict binary writer. `observedSteps()`, `evictedSteps()`, `retainedSteps()`,
+`retainedBytes()` and `isFrozen()` expose runtime status. Limits bound engine
+encoding/retention, not arbitrary callback allocations or process RSS.
+`CausalEvidenceRecorder` remains a separate, unimplemented parity scope.
+
+Recorder capture and ownership transfer reject reentrant calls while a model
+callback is active. This native ownership guard mirrors Rust's exclusive mutable
+borrow: callbacks cannot observe another turn or transfer the recorder midway
+through capture. A prior terminal failure remains primary. Sealed immutable check
+batches are quota-validated before the recorder copies them into retained storage.

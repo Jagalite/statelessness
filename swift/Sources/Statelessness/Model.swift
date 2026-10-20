@@ -185,13 +185,18 @@ public func checkObserved<S, I, O>(_ m: Model<S, I, O>, before: S, input: I, tra
 /// Reuses caller storage. Clears at entry and every error, preserving capacity.
 /// This checks an already executed turn and never invokes the reducer.
 public func checkObservedInto<S, I, O>(_ m: Model<S, I, O>, before: S, input: I, transition: Transition<S, O>, sequence: UInt64, policy: CheckPolicy = CheckPolicy(), checks: inout [Check]) throws {
+    _ = try checkObservedCountInto(m, before: before, input: input, transition: transition, sequence: sequence, policy: policy, checks: &checks)
+}
+func checkObservedCountInto<S,I,O>(_ m: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>, sequence: UInt64, policy: CheckPolicy = CheckPolicy(), checks: inout [Check]) throws -> Int {
     checks.removeAll(keepingCapacity: true)
     do {
         guard sequence > 0, policy.stateEvery > 0 else { throw ConfigError("sequence and state period must be positive") }
         if sequence % policy.stateEvery == 0 { try stateChecksInto(m, transition.state, checks: &checks) }
         else { checks.append(.skipped("stateless.state_checks", "periodic checking policy")) }
+        let stateCheckCount = checks.count
         if policy.transitionChecks { try edgeChecksInto(m, before, input, transition, checks: &checks) }
         else { checks.append(.skipped("stateless.transition_checks", "disabled by policy")) }
+        return stateCheckCount
     } catch { checks.removeAll(keepingCapacity: true); throw error }
 }
 func hasFailure(_ checks: [Check]) -> Bool { checks.contains { $0.status == .failed } }

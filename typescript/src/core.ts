@@ -107,15 +107,18 @@ function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> {
 export interface CheckPolicy { readonly stateEvery: number; readonly transitionChecks: boolean }
 export const FULL_CHECKS: CheckPolicy = Object.freeze({ stateEvery: 1, transitionChecks: true });
 /** Clear caller storage at entry and on every error; checks an already executed turn without step(). */
-export function checkObservedCountInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):number {
+export interface ExactObservedCheckPolicy { readonly stateEvery: bigint; readonly transitionChecks: boolean }
+export function checkObservedCountIntoExact<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:bigint,output:Check[],policy:ExactObservedCheckPolicy={stateEvery:1n,transitionChecks:true}):number {
   output.length=0;
   try {
     const {stateEvery,transitionChecks}=policy;
-    natural(sequence,'sequence',1);natural(stateEvery,'stateEvery',1);
+    const maximum=(1n<<64n)-1n;
+    if(typeof sequence!=='bigint'||sequence<1n||sequence>maximum)throw new ConfigError('transition sequence must be positive u64 bigint');
+    if(typeof stateEvery!=='bigint'||stateEvery<1n||stateEvery>maximum)throw new ConfigError('stateEvery must be positive u64 bigint');
     if(typeof transitionChecks!=='boolean')throw new ConfigError('transitionChecks must be boolean');
     let boundary=0;
     withCheckSink(output,sink=>{
-      if(sequence%stateEvery===0)call('state check',()=>appendStateChecks(m,transition.state,sink));
+      if(sequence%stateEvery===0n)call('state check',()=>appendStateChecks(m,transition.state,sink));
       else sink.push(check('stateless.state_checks','skipped','periodic checking policy'));
       boundary=output.length;
       if(transitionChecks)call('transition check',()=>appendTransitionChecks(m,before,input,transition,sink));
@@ -123,6 +126,14 @@ export function checkObservedCountInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,tr
     });
     return boundary;
   } catch(error){output.length=0;throw error;}
+}
+export function checkObservedCountInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):number {
+  output.length=0;
+  try {
+    const {stateEvery,transitionChecks}=policy;
+    natural(sequence,'sequence',1);natural(stateEvery,'stateEvery',1);
+    return checkObservedCountIntoExact(m,before,input,transition,BigInt(sequence),output,{stateEvery:BigInt(stateEvery),transitionChecks});
+  }catch(error){output.length=0;throw error;}
 }
 export function checkObservedInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):void {checkObservedCountInto(m,before,input,transition,sequence,output,policy);}
 /** Collection convenience shares the append dispatcher and never calls step(). */

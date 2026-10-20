@@ -270,3 +270,69 @@ steps and reserves space for a bounded model-error footer. Portable `record` kee
 its distinct `TraceLimits` behavior; binary quotas are not substituted for JSON
 or portable payload limits. Both new candidate profiles leave the four promoted
 portable profiles unchanged, and make no zero-allocation or hard-RSS claim.
+
+## Candidate checked handoffs and runtime recording
+
+`checkInitial(model, state: checkpoint)` checks the caller's supplied checkpoint
+once; it does not call `initialState` or require codecs. `checkTurn(model,
+before: before, input: input, transition: actual, sequence: UInt64, policy: policy)`
+checks an already executed turn without rerunning the reducer. Positive sequences
+retain the full UInt64 range. Period zero is rejected. Complete failed/skipped
+checks still produce a certificate; checker or snapshot errors produce none.
+
+`CheckedInitial` and `CheckedTurn` are final classes with private constructors.
+The factory snapshots the complete context before checking; append dispatch gives
+application callbacks separate copies of that pristine context. Checks, sequence,
+coverage and context have no public replacement path. Getters and diagnostic
+`observation()` return fresh deep detached values and may throw if the application's
+copy callbacks fail. Checks are immutable Swift values in copy-on-write arrays.
+Models must provide faithful deep clones and deterministic callbacks; API sealing
+cannot verify a malicious clone's fidelity or prevent application code from
+violating that ownership contract. No extra codec, hashing, serialization or
+`Sendable` requirement is imposed merely to check a turn.
+
+`TurnObservation` is publicly constructible diagnostic data and has no authority
+to bypass checking. `intoChecks()` returns independent check storage without
+process-wide consumption: the same certificate may feed two independent
+recorders. `fullChecking` requires period exactly one and enabled transition
+checking, even when a sampled period happens to check this particular sequence.
+
+`Recorder(checkedInitial: certificate, sequenceOrigin: origin, config: config,
+options: options)` attaches without initial rechecking. `Recorder(model: state:
+config: options:)` performs ordinary checkpoint checking. `observeChecked` records
+the sealed context/checks without calling the reducer or checkers; ordinary
+`observe(model:before:input:transition:)` checks the supplied transition once.
+The recorder enforces full checking and the exact next host sequence, with checked
+origin arithmetic. Identity is metadata-based, not a model-object pointer gate.
+Encoded before-state continuity still has to match the retained checkpoint.
+
+`RecorderOptions` supplies a positive `maxSteps` ring size, `maxRetainedBytes`,
+and all nine `BinaryTraceLimits`. Candidate encoding and admission complete
+before any eviction; ring eviction promotes only the evicted turn's state-check
+prefix to checkpoint checks. The first property failure or recording error freezes
+the coherent prefix. Later observer errors cannot overwrite its earlier cause.
+`stopWithError` retains a bounded UTF-8 error footer. Snapshots/exports are lossless
+`AuditTrace` values with engine and monitor configuration/counters; getters expose
+retained/observed/evicted counts, serialized retained bytes and freeze state.
+Serialized limits exclude callback allocations, clone work, backing capacities
+and process RSS. Callers still own reliable ordered observation delivery; encoded
+continuity cannot detect omitted transitions that return to the same state.
+
+These synchronous native checked-result/recorder APIs remain experimental and
+leave the four promoted portable profiles unchanged. Causal `EvidenceRecorder`
+metadata/envelopes and their separate provenance/budget semantics remain a
+separate qualification gate.
+
+Recorder callbacks cannot reenter a mutating observation operation. A nested
+mutation freezes the existing prefix with a reentrancy error. Calling
+`stopWithError` from a codec/checker callback also freezes immediately; the outer
+operation checks freeze state at callback boundaries and cannot publish a later
+candidate or replace that first cause. Read-only snapshots remain available.
+
+`try recorder.intoTrace()` transfers the retained `AuditTrace` exactly once and
+logically consumes the recorder. `isFrozen` stays true; repeated transfer, later
+observations and `stopWithError` throw `ModelError` without altering the handed-off
+trace. `stopWithError` is therefore a throwing API. Transfer during a codec/checker
+callback is rejected and freezes the existing prefix. Read-only snapshots, exports
+and counters remain available after transfer as a native extension; the returned
+value owns its immutable/copy-on-write encoded evidence.

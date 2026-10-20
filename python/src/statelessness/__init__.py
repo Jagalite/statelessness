@@ -49,3 +49,10 @@ __all__ += ["EncodeBuffer", "ReplayActual", "ReplayDifferences", "ReplayError",
     "ReplayErrorObservation", "ReplayInitialObservation", "ReplayTurnObservation",
     "replay_with_observations", "replay_with_observations_bounded", "record_audit"]
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("encode-buffers-v1", "replay-evidence-v1")
+
+from .checked import CheckedInitial, CheckedTurn, TurnObservation, check_initial, check_turn
+__all__ += ["CheckedInitial", "CheckedTurn", "TurnObservation", "check_initial", "check_turn"]
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("checked-results-v1",)
+
+from .monitor import Recorder, RecorderOptions
+__all__ += ["Recorder", "RecorderOptions"]

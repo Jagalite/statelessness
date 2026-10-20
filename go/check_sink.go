@@ -160,7 +160,10 @@ func stateChecksInto[S, I, O any](m Model[S, I, O], state S, storage *[]Check) e
 	return stateChecksBatch(m, state, &checkBatch{checks: storage})
 }
 func stateChecksBatch[S, I, O any](m Model[S, I, O], state S, batch *checkBatch) error {
-	return invokeCheckBatch("state check", batch, func(sink *CheckSink) error {
+	return stateChecksStageBatch("state check", m, state, batch)
+}
+func stateChecksStageBatch[S, I, O any](stage string, m Model[S, I, O], state S, batch *checkBatch) error {
+	return invokeCheckBatch(stage, batch, func(sink *CheckSink) error {
 		snapshot := m.CloneState(state)
 		if m.CheckStateInto != nil {
 			return m.CheckStateInto(snapshot, sink)
