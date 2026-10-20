@@ -483,13 +483,68 @@ export function readAuditTrace(source: Uint8Array | AuditReader, overrides: Part
     }
 }
 /** Internal shared structural accounting; no wire output allocation or model callbacks. */
-export function resolveBinaryLimits(overrides:Partial<BinaryLimits>={}):BinaryLimits{return limits(overrides);}
-export function validateAuditTrace(trace:AuditTrace,overrides:Partial<BinaryLimits>={}):void {const l=limits(overrides);preflight(capture(trace,l),l);}
+export function resolveBinaryLimits(overrides: Partial<BinaryLimits> = {}): BinaryLimits { return limits(overrides); }
+export function validateAuditTrace(trace: AuditTrace, overrides: Partial<BinaryLimits> = {}): void { const l = limits(overrides); preflight(capture(trace, l), l); }
 /** Validate then detach retained fields and bytes for replay ownership. */
-export function snapshotAuditTrace(trace:AuditTrace,overrides:Partial<BinaryLimits>={}):AuditTrace {
-    const l=limits(overrides),t=capture(trace,l);preflight(t,l);return {...copyTrace(t),config:copyConfig(t.config)};
+export function snapshotAuditTrace(trace: AuditTrace, overrides: Partial<BinaryLimits> = {}): AuditTrace {
+    const l = limits(overrides), t = capture(trace, l);
+    preflight(t, l);
+    return { ...copyTrace(t), config: copyConfig(t.config) };
 }
-export function auditRunLayout(metadata:Metadata,config:RunConfig,initialState:Uint8Array,initialChecks:readonly Check[],overrides:Partial<BinaryLimits>):{bytes:number;items:number}{
-    const l=limits(overrides),t=capture({metadata,config,initialState,initialChecks,steps:[],termination:'completed',error:''},l),sizes=preflight(t,l);
-    return {bytes:sizes[0]+9,items:t.config.parameters.length+t.initialChecks.length};
+export function auditRunLayout(metadata: Metadata, config: RunConfig, initialState: Uint8Array, initialChecks: readonly Check[], overrides: Partial<BinaryLimits>): {
+    bytes: number;
+    items: number;
+} {
+    const l = limits(overrides), t = capture({ metadata, config, initialState, initialChecks, steps: [], termination: 'completed', error: '' }, l), sizes = preflight(t, l);
+    return { bytes: sizes[0] + 9, items: t.config.parameters.length + t.initialChecks.length };
+}
+/** Internal exact validated wire measurement without constructing encoded payload bytes. */
+export function auditTraceWireLength(trace: AuditTrace, overrides: Partial<BinaryLimits> = {}): number {
+    const l = limits(overrides), t = capture(trace, l);
+    return preflight(t, l).reduce((n, s) => n + s + 9, HEADER.length);
+}
+/** Internal stable field capture, retaining byte views until a consumer completes envelope preflight. */
+export function captureAuditTraceForEvidence(trace: AuditTrace, overrides: Partial<BinaryLimits> = {}): AuditTrace {
+    const l = limits(overrides), t = capture(trace, l);
+    preflight(t, l);
+    return t;
+}
+/** Internal ordered v1 sizing for known-rejected evidence inputs. Indexed lazy arrays
+ * prevent an unbounded capture journal; no payload bytes or source collections are copied.
+ * Rejected-source accessors may be read again after the separate semantic scan.
+ */
+export function preflightRejectedEvidenceTrace(source: AuditTrace, overrides: Partial<BinaryLimits> = {}): number {
+    const l = limits(overrides);
+    const record = (v: unknown): Record<string, any> => { if (v === null || typeof v !== 'object')
+        return fail('invalid_data', 'expected record'); return v as Record<string, any>; };
+    const bytes = (v: unknown): Uint8Array => {
+        if (!(v instanceof Uint8Array))
+            return fail('invalid_data', 'expected bytes');
+        const p = Object.getPrototypeOf(Uint8Array.prototype), get = (key: string) => Object.getOwnPropertyDescriptor(p, key)!.get!.call(v);
+        return new Uint8Array(get('buffer'), get('byteOffset'), get('length'));
+    };
+    const array = <T>(value: unknown, convert: (v: unknown) => T): T[] => {
+        if (!Array.isArray(value))
+            return fail('invalid_data', 'expected array');
+        const length = integer(value.length, 'collection wire count', U32);
+        return new Proxy([] as T[], { get(_target, key) {
+                if (key === 'length')
+                    return length;
+                if (key === Symbol.iterator)
+                    return function* () { for (let i = 0; i < length; i++)
+                        yield convert(value[i]); };
+                return Reflect.get(value, key, value);
+            } });
+    };
+    const checks = (value: unknown) => array(value, v => { const c = record(v); return { id: c.id, status: c.status, details: c.details } as Check; });
+    const t = record(source), m = record(t.metadata), c = record(t.config);
+    const trace: AuditTrace = {
+        metadata: { name: m.name, model_version: m.model_version, properties_version: m.properties_version, codec_version: m.codec_version, build: m.build },
+        config: { strategy: c.strategy, seed: c.seed, parameters: array(c.parameters, v => { if (!Array.isArray(v) || v.length !== 2)
+                return fail('invalid_data', 'parameter pair'); return [v[0], v[1]] as const; }) },
+        initialState: bytes(t.initialState), initialChecks: checks(t.initialChecks),
+        steps: array(t.steps, v => { const s = record(v), d = record(s.disposition); return { input: bytes(s.input), disposition: { kind: d.kind, reason: d.reason }, outputs: array(s.outputs, bytes), postState: bytes(s.postState), checks: checks(s.checks) }; }),
+        termination: t.termination, error: t.error
+    };
+    return preflight(trace, l).reduce((n, s) => n + s + 9, HEADER.length);
 }

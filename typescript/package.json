@@ -13,6 +13,10 @@
     "./conformance": {
       "types": "./dist/conformance.d.ts",
       "import": "./dist/conformance.js"
+    },
+    "./node-evidence": {
+      "types": "./dist/node_evidence.d.ts",
+      "import": "./dist/node_evidence.js"
     }
   },
   "bin": {

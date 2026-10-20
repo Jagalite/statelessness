@@ -145,6 +145,9 @@ class Recorder:
         return self._observe(model, before, input, transition, None)
 
     def observe_checked(self, checked):
+        return self._observe_checked_retaining(checked, 0)
+
+    def _observe_checked_retaining(self, checked, minimum_evictions):
         self._require_active()
         try:
             from .checked import _turn_context
@@ -156,7 +159,7 @@ class Recorder:
         except Exception as error:
             self.stop_with_error(error)
             raise
-        return self._observe(model, before, input, transition, (checks, boundary))
+        return self._observe(model, before, input, transition, (checks, boundary), minimum_evictions)
 
     def _require_usable(self):
         if self._transferred: raise ModelError('runtime recorder has transferred its trace')
@@ -166,7 +169,7 @@ class Recorder:
         if self._busy: raise ModelError('runtime recorder observation is already in progress')
         if self.is_frozen(): raise ModelError('runtime recorder is frozen; export its retained trace')
 
-    def _observe(self, model, before, input, transition, checked):
+    def _observe(self, model, before, input, transition, checked, minimum_evictions=0):
         self._require_active()
         self._busy = True
         try:
@@ -215,7 +218,9 @@ class Recorder:
             returned_checks = _copy(tuple(checks))
             if self.is_frozen(): raise ModelError('runtime recorder was stopped during observation')
             candidate = self._steps + [observation]
-            first = int(len(self._steps) == o.max_steps)
+            if type(minimum_evictions) is not int or not 0 <= minimum_evictions <= len(self._steps):
+                raise ModelError('invalid envelope retention request')
+            first = max(minimum_evictions, int(len(self._steps) == o.max_steps))
             last_error = None
             for evictions in range(first, len(self._steps) + 1):
                 state = self._initial if not evictions else self._steps[evictions-1][0].post_state
@@ -271,6 +276,14 @@ class Recorder:
         run, _ = _run_account(trace.metadata, trace.config, trace.initial_state, trace.initial_checks, self._options.limits)
         return 12 + run + sum(s[2] for s in self._steps) + _footer_size(0, trace.termination, trace.error, self._options.limits)
     def retained_steps(self): self._require_usable(); return len(self._steps)
+    def _retained_output_count(self, sequence):
+        self._require_usable()
+        if type(sequence) is not int: return None
+        checkpoint = self._origin + self._evicted
+        if checkpoint > U64_MAX: return None
+        index = sequence - checkpoint - 1
+        return len(self._steps[index][0].outputs) if 0 <= index < len(self._steps) else None
+
     def observed_steps(self): self._require_usable(); return self._observed
     def evicted_steps(self): self._require_usable(); return self._evicted
     def is_frozen(self): self._require_usable(); return self._termination != 'interrupted'

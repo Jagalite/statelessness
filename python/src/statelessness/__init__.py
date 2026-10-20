@@ -56,3 +56,12 @@ EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("checked-results-v1",)
 
 from .monitor import Recorder, RecorderOptions
 __all__ += ["Recorder", "RecorderOptions"]
+
+from .evidence import (Artifact, CausalContext, EvidenceLimits, ExportPolicy,
+    OutputOrigin, Provenance, StepEvidence, TraceV2, diagnostic_json,
+    export_diagnostic_new)
+from .evidence_recorder import EvidenceRecorder
+__all__ += ["Artifact", "CausalContext", "EvidenceLimits", "ExportPolicy",
+    "OutputOrigin", "Provenance", "StepEvidence", "TraceV2", "diagnostic_json",
+    "export_diagnostic_new", "EvidenceRecorder"]
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("causal-evidence-v2",)

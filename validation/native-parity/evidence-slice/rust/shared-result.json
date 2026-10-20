@@ -1,0 +1,17 @@
+{
+  "chunked_reads": 44,
+  "export_cases": 13,
+  "invalid_wire": 41,
+  "profile": "causal-evidence-v2",
+  "recorder_cases": 20,
+  "replay_cases": 16,
+  "rust_layout": {
+    "OutputOrigin": 16,
+    "StepEvidence": 120,
+    "String": 24,
+    "StringPair": 48,
+    "usize_bits": 64
+  },
+  "truncations": 3150,
+  "valid_wire": 11
+}

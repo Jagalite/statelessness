@@ -336,3 +336,46 @@ Binary export holds a read borrow over the recorder: writer callbacks cannot
 observe, transfer, or stop it. StopWithError returns a rejection error during
 export. The borrow is released even if a writer panics; partial I/O remains the
 writer's responsibility. Export streams the retained artifact directly.
+
+`causal-evidence-v2` is experimental. `TraceV2` adds owned Provenance, absolute
+checkpoint/step sequences, state-check boundaries, and CausalContext output links
+to a lossless AuditTrace. `Artifact` distinguishes v1 from v2; passive v1 reading
+preserves unknown turn phases. `ReadArtifact`/`ParseArtifact` and `Write`/marshal
+APIs use exact little-endian v2 framing, canonical structural metadata, and CRC32.
+EvidenceLimits independently bounds all nine trace quotas, metadata bytes,
+environment labels, label bytes, causes per step, and aggregate causes. Metadata
+parsing additionally charges bytes, elements, allocation, nesting, and work;
+requested collection allocation uses fixed Rust64 schema accounting weights,
+independently of v1 item limits. These are portable structural charges, not Go
+allocator or heap measurements. These bounds do not measure process RSS or host callback memory.
+
+`ReplayTraceV2` validates evidence before bounded replay and compares the persisted
+state-check boundary only after semantic comparison succeeds. `VerifyUpgrade`
+is explicit execution: exact compatible bounded replay derives phases; passive
+reading never runs a model or guesses phases. Both preserve full u64 host values.
+Snapshots and upgrade provenance are detached; callers must not concurrently
+mutate artifacts. Host labels and causal claims are not authenticated.
+
+`NewEvidenceRecorder` attaches to a checked checkpoint, reserves the selected
+metadata allowance plus 32 envelope bytes, and captures checked turns through
+`ObserveEvidenceRecorder`. Capture runs no reducer or checker. Metadata limits
+and trace retention plan a single atomic eviction; causal sources are validated
+against the current retained output counts before eviction is considered.
+Preparation failures preserve the first frozen coherent prefix. Snapshot phases
+and exact trace steps remain aligned, and evicted state-phase prefixes become
+the checkpoint. Choose metadata allowance explicitly when selecting small total
+retention; defaults are not silently reduced.
+
+`DiagnosticJSON`/`ExportDiagnostic` uses the nonreplayable diagnostic schema,
+redacts payloads, identity, labels, and check details, and reveals property IDs
+only through exact allowlisting. ExportPolicy applies whole-output byte and step
+caps. `ExportDiagnosticNew` and `Artifact.ExportRawNew`/`TraceV2.ExportRawNew`
+precompute bounded bytes, create exclusively with Unix mode 0600, and sync the
+file. They never overwrite; failure after creation can leave an incomplete new
+file. These are direct new-file exports, without rename publication or directory
+sync guarantees. Shared tests use `STATELESS_CAUSAL_CORPUS` or the repository's
+`conformance/causal-evidence-v2.json`.
+Upgrade performs pure structural argument admission at entry before copying
+mutable evidence. It defers stored-artifact errors until after identity checks
+and provenance errors until after exact replay, preserving replay callback order.
+Known-unfit collections are not cloned; metadata is evaluated once by replay.

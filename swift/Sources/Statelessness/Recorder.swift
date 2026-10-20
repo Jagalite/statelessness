@@ -155,6 +155,16 @@ public final class Recorder {
         guard !isFrozen else { throw ModelError("runtime recorder froze during observation") }
     }
     @discardableResult public func observeChecked<S,I,O>(_ checked: CheckedTurn<S,I,O>) throws -> [Check] {
+        try observeCheckedRetaining(checked, minimumEvictions: 0)
+    }
+    func retainedOutputCount(sequence: UInt64) -> Int? {
+        let (checkpoint, overflow) = sequenceOrigin.addingReportingOverflow(evictedSteps)
+        guard !overflow, sequence > checkpoint else { return nil }
+        let position = sequence - checkpoint - 1
+        guard position < UInt64(entries.count) else { return nil }
+        return entries[Int(position)].step.outputs.count
+    }
+    @discardableResult func observeCheckedRetaining<S,I,O>(_ checked: CheckedTurn<S,I,O>, minimumEvictions: Int) throws -> [Check] {
         try beginMutation()
         defer { mutationInProgress = false }
         do {
@@ -165,7 +175,7 @@ public final class Recorder {
             let before = try checked.before; try requireActive()
             let input = try checked.input; try requireActive()
             let transition = try checked.transition; try requireActive()
-            return try prepare(model: checked.model, before: before, input: input, transition: transition, checks: checked.checks, stateCount: checked.stateCheckCount)
+            return try prepare(model: checked.model, before: before, input: input, transition: transition, checks: checked.checks, stateCount: checked.stateCheckCount, minimumEvictions: minimumEvictions)
         } catch { throw freezeWithError(engineError(error)) }
     }
     @discardableResult public func observe<S,I,O>(model: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>) throws -> [Check] {
@@ -179,7 +189,7 @@ public final class Recorder {
         }
         catch { throw freezeWithError(engineError(error)) }
     }
-    private func prepare<S,I,O>(model: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>, checks certified: [Check]?, stateCount certifiedCount: Int?) throws -> [Check] {
+    private func prepare<S,I,O>(model: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>, checks certified: [Check]?, stateCount certifiedCount: Int?, minimumEvictions: Int = 0) throws -> [Check] {
         try requireActive()
         guard let codec = model.codec else { throw ModelError("runtime recorder requires a codec") }
         guard try call("runtime metadata", codec.metadata) == metadata else { throw ModelError("runtime recorder model identity changed") }
@@ -226,7 +236,8 @@ public final class Recorder {
         let step = TraceStep(input: inputBytes, disposition: transition.disposition, outputs: outputs, postState: post, checks: checks)
         let end: AuditTermination = hasFailure(checks) ? .propertyFailed : .interrupted
         var lastError: Error = ModelError("runtime recording exceeds retention budget")
-        let minimum = entries.count == options.maxSteps ? 1 : 0
+        guard minimumEvictions >= 0, minimumEvictions <= entries.count else { throw ModelError("invalid envelope retention request") }
+        let minimum = max(minimumEvictions, entries.count == options.maxSteps ? 1 : 0)
         for count in minimum...entries.count {
             let checkpoint = count == 0 ? initialState : entries[count - 1].step.postState
             let checkpointChecks = count == 0 ? initialChecks : Array(entries[count - 1].step.checks.prefix(entries[count - 1].stateCount))

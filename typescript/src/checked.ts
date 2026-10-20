@@ -82,7 +82,8 @@ export function requireCheckedInitialForRecorder<S, I, O>(token: CheckedInitial<
 export function requireCheckedTurnHeader<S, I, O>(token: CheckedTurn<S, I, O>): {
     sequence: bigint;
     fullChecking: boolean;
-} { const c = turnContext(token); return { sequence: c.sequence, fullChecking: c.fullChecking }; }
+    stateCheckCount: number;
+} { const c = turnContext(token); return { sequence: c.sequence, fullChecking: c.fullChecking, stateCheckCount: c.stateCheckCount }; }
 export function requireCheckedTurn<S, I, O>(token: CheckedTurn<S, I, O>): CheckedTurnContext<S, I, O> { const c = turnContext(token); return { ...c, before: stage('snapshot', () => c.model.cloneState(c.before)), input: stage('snapshot', () => c.model.cloneInput(c.input)), transition: stage('snapshot', () => copyTransition(c.model, c.transition)), checks: copyChecks(c.checks) }; }
 export function requireCheckedTurnForRecorder<S, I, O>(token: CheckedTurn<S, I, O>): CheckedTurnContext<S, I, O> {
     const c = turnContext(token);

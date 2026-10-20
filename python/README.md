@@ -345,3 +345,66 @@ allocations. Engine and monitor provenance parameters are reserved. Host sequenc
 origins are recorded separately from local retained-step indexing.
 `checked-results-v1` is experimental. This runtime recorder does not implement the
 separate causal evidence/envelope recorder.
+
+## Candidate causal evidence v2
+
+`TraceV2(trace, checkpoint_after, provenance, steps)` wraps a lossless `AuditTrace`
+with ordered `StepEvidence(sequence, state_check_count, causal)` rows. `Provenance`
+contains run/epoch, optional manifest/source and ordered environment pairs.
+`CausalContext` contains optional machine/generation/correlation/logical_time and
+ordered `OutputOrigin(sequence, output)` references. All integers retain their
+exact u64/u32 domains. Collection constructors take ordinary lists or tuples and
+own tuple copies; closed-schema subclasses are rejected before field getters.
+String operations use intrinsic UTF-8 semantics, with no application encode/copy
+hooks. Host labels assert provenance; neither labels nor CRC authenticate it.
+
+`EvidenceLimits` combines `trace=BinaryLimits()` with independent
+`max_metadata_bytes=4194304`, `max_labels=1024`, `max_label_bytes=4096`,
+`max_causes_per_step=32` and `max_total_causes=100000` budgets. `validate(limits)`
+checks semantic termination, exact v1 quotas, complete-envelope size, phase rows,
+checked sequence addition, unique earlier causes and retained output indices.
+Links at or before the checkpoint describe an omitted prefix whose outputs are
+unavailable. `check_phase(local_sequence, check_index)` returns `initial_state`,
+`state`, `transition`, or `None`; local zero denotes the checkpoint.
+
+`to_bytes(limits=...)`, `write(writer, limits=...)` and `write_raw_new(path,
+limits=...)` emit the exact version-two envelope around unchanged v1 bytes and
+canonical structural metadata. Writers preflight before publication. `Artifact`
+wraps v1 or v2; `Artifact.read(reader, limits=...)` and `from_bytes(data, limits=...)`
+parse bounded artifacts without executing a model or closing the caller's reader.
+V1 later-turn phases remain unknown. Mutable input bytes are detached after header
+quota admission; callers must not mutate inputs concurrently. Metadata decoding
+has independent byte/element/depth/work/allocation accounting, separate from v1
+item limits. Allocation accounting uses the explicit Rust64 logical schema request
+weights, not Python heap measurements or a process-memory guarantee.
+
+`TraceV2.replay(model, limits=..., allow_build_mismatch=False)` performs bounded
+semantic replay and compares persisted phase boundaries at otherwise exact turns.
+`TraceV2.verify_upgrade(model, audit_trace, provenance, checkpoint_after,
+limits=...)` explicitly executes exact compatible replay to derive phase rows;
+passive reading never invents them. Upgrade/replay do not execute external effects.
+
+`EvidenceRecorder(initial_token, origin, config, options, provenance, limits)`
+reserves the entire selected metadata allowance plus 32 envelope bytes before
+creating its inner runtime recorder. Small total budgets require an explicitly
+smaller metadata allowance. `observe(checked_turn, causal)` uses sealed complete
+checks, validates causal references against currently retained outputs before
+planned eviction, and commits the trace and phase journal together. Metadata,
+cause-count and trace budgets may each force eviction. Snapshot phase/checkpoint
+rows follow the exact same retained window. Capture never reruns reducers or
+checkers; preparation errors freeze the coherent prefix and preserve the first
+terminal reason. `snapshot()` returns detached owned evidence; `into_trace()`
+consumes the native handle. Metadata ownership is canonicalized only after quota
+admission and never invokes application `deepcopy` hooks. These are synchronous
+APIs, with no asynchronous thread-safety or hard RSS claim.
+
+`diagnostic_json(artifact, ExportPolicy(max_steps, max_bytes, property_ids))` returns
+nonreplayable UTF-8 JSON. Payloads, property details, model/build identity and causal
+labels are omitted. IDs survive only an exact explicit allowlist; Unicode strings
+are not normalized. Initial checks remain present at zero turn allowance. Whole
+output bytes and turn count are bounded. `export_diagnostic_new(artifact, path,
+policy)` and raw new-file export precompute bounded bytes, create exclusively
+without overwriting, request Unix mode0600 and fsync the new file. An error after
+creation may leave an incomplete file and reports that explicitly. There is no
+rename-atomic publication or directory-fsync claim. `causal-evidence-v2` remains
+experimental and does not promote the four qualified portable profiles.

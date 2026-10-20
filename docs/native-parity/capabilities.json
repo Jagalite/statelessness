@@ -6,12 +6,31 @@
     "head_commit": "e711bd6694780aba50af0d972fbecccbab30534f",
     "reviewed_at_utc": "2026-10-20T20:22:07.647166+00:00",
     "working_tree_additions_included": [
+      "conformance/causal-evidence-v2.json",
+      "examples/native-evidence/README.md",
+      "examples/native-evidence/contract.json",
+      "examples/native-evidence/go/main.go",
+      "examples/native-evidence/python/consumer.py",
+      "examples/native-evidence/swift/Package.swift",
+      "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+      "examples/native-evidence/typescript/consumer.ts",
       "go/audit_binary.go",
       "go/audit_binary_read.go",
       "go/audit_record.go",
       "go/check_sink.go",
       "go/checked_results.go",
       "go/encode_buffer.go",
+      "go/evidence.go",
+      "go/evidence_export.go",
+      "go/evidence_export_internal_test.go",
+      "go/evidence_export_test.go",
+      "go/evidence_metadata.go",
+      "go/evidence_metadata_test.go",
+      "go/evidence_recorder.go",
+      "go/evidence_recorder_corpus_test.go",
+      "go/evidence_recorder_test.go",
+      "go/evidence_replay_test.go",
+      "go/evidence_wire_corpus_test.go",
       "go/fuzz.go",
       "go/generate.go",
       "go/oracle.go",
@@ -23,12 +42,18 @@
       "python/src/statelessness/audit_record.py",
       "python/src/statelessness/checked.py",
       "python/src/statelessness/codec.py",
+      "python/src/statelessness/evidence.py",
+      "python/src/statelessness/evidence_recorder.py",
       "python/src/statelessness/monitor.py",
       "python/src/statelessness/replay_evidence.py",
       "python/src/statelessness/search.py",
       "python/src/statelessness/trace_binary.py",
+      "python/tests/test_evidence.py",
+      "python/tests/test_evidence_recorder.py",
+      "scripts/check-native-evidence-consumers.py",
       "spec/append-checks-v1.md",
       "spec/bfs-controls-v1.md",
+      "spec/causal-evidence-v2.md",
       "spec/checked-results-v1.md",
       "spec/encode-buffers-v1.md",
       "spec/replay-evidence-v1.md",
@@ -37,6 +62,10 @@
       "swift/Sources/Statelessness/CheckSink.swift",
       "swift/Sources/Statelessness/CheckedResults.swift",
       "swift/Sources/Statelessness/EncodeBuffer.swift",
+      "swift/Sources/Statelessness/Evidence.swift",
+      "swift/Sources/Statelessness/EvidenceCodec.swift",
+      "swift/Sources/Statelessness/EvidenceExports.swift",
+      "swift/Sources/Statelessness/EvidenceRecorder.swift",
       "swift/Sources/Statelessness/ExecutionBudget.swift",
       "swift/Sources/Statelessness/Fuzz.swift",
       "swift/Sources/Statelessness/Generate.swift",
@@ -44,6 +73,9 @@
       "swift/Sources/Statelessness/Recorder.swift",
       "swift/Sources/Statelessness/Replay.swift",
       "swift/Sources/Statelessness/Shrink.swift",
+      "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+      "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+      "swift/Tests/StatelessnessTests/EvidenceTests.swift",
       "typescript/src/audit_budget.ts",
       "typescript/src/audit_record.ts",
       "typescript/src/binary.ts",
@@ -51,16 +83,27 @@
       "typescript/src/checks.ts",
       "typescript/src/encoding.ts",
       "typescript/src/errors.ts",
+      "typescript/src/evidence.ts",
+      "typescript/src/evidence_recorder.ts",
+      "typescript/src/node_evidence.ts",
       "typescript/src/replay.ts",
       "typescript/src/runtime_recorder.ts",
       "typescript/src/search.ts",
-      "typescript/src/search_support.ts"
+      "typescript/src/search_support.ts",
+      "typescript/test/evidence-recorder.test.mjs",
+      "typescript/test/evidence.test.mjs",
+      "validation/corpus/src/bin/native-evidence.rs",
+      "validation/corpus/src/evidence_reference.rs"
     ],
-    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending.",
+    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending.",
     "files": [
       {
         "path": "Package.swift",
         "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4"
+      },
+      {
+        "path": "conformance/causal-evidence-v2.json",
+        "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7"
       },
       {
         "path": "crates/statelessness-debug/src/dashboard.rs",
@@ -115,6 +158,38 @@
         "sha256": "4e9c4142739699ec35b5143a15024a942cb3659e54dffd94a7cc7660ba8c156c"
       },
       {
+        "path": "examples/native-evidence/README.md",
+        "sha256": "c22e812d90bce6f6281e238ace312ff1e06012167c83973ebecf92767aa49dd9"
+      },
+      {
+        "path": "examples/native-evidence/contract.json",
+        "sha256": "cbb4039e7974db1cc0cda39a84069619a653c36791522ed9b63354d6aa17c10b"
+      },
+      {
+        "path": "examples/native-evidence/go/main.go",
+        "sha256": "31dad134e20d9ec12d50087c337846dcf57a7aa620ac40ccf4fdcaa5103c79bc"
+      },
+      {
+        "path": "examples/native-evidence/python/consumer.py",
+        "sha256": "63b89184712ba777a131d943bf83647354c6875fea209c2369e409c9eb071e50"
+      },
+      {
+        "path": "examples/native-evidence/swift/Package.swift",
+        "sha256": "bbb029107b7e2cf4e9de7079a61282192bcbd1783475508ef05d4cc605eded60"
+      },
+      {
+        "path": "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+        "sha256": "e9d5b9319b3ac21201820e7702bcc87677c43d7b911e783e7236cf8564db5340"
+      },
+      {
+        "path": "examples/native-evidence/typescript/consumer.ts",
+        "sha256": "792dd5180977d04be632301ae8f775b12eef8c68e481e1abffe0c7e22610c3d4"
+      },
+      {
+        "path": "go/README.md",
+        "sha256": "5b6d6765970a53597f8e662aef3672d638a9a1bc2e0bb39812a0df91e0fbea19"
+      },
+      {
         "path": "go/audit_binary.go",
         "sha256": "e752a148998bc62a3c01ab5d3ffd4710fbe06f83d1852077ced6af7c0fb05b66"
       },
@@ -147,6 +222,50 @@
         "sha256": "3860dddd9bb441c27b57e4cc6a3547206d5b2548d736baf3067c1a2d0f06030a"
       },
       {
+        "path": "go/evidence.go",
+        "sha256": "672720503ca45bdc32580004c1e1552d2733895d90231ec7dd472db1ea7baacc"
+      },
+      {
+        "path": "go/evidence_export.go",
+        "sha256": "6edefec03deb67679bcfe54a50f00d08864bb836494c8fdb2d32407b71286fa2"
+      },
+      {
+        "path": "go/evidence_export_internal_test.go",
+        "sha256": "49ac4db0ed8b9b5a855d6e4c784a89a7845582db0de8be626fc3c61d5e56da39"
+      },
+      {
+        "path": "go/evidence_export_test.go",
+        "sha256": "2e24bb87f747e12c0e56dcb12cec73ba54dad4d75c6336fbb34ec4becedbdb6d"
+      },
+      {
+        "path": "go/evidence_metadata.go",
+        "sha256": "3485515ddde313f4d0097974a919168d961364b745f6214734a4e76582dc2e84"
+      },
+      {
+        "path": "go/evidence_metadata_test.go",
+        "sha256": "07196abac3684690824d9610ed5f24d092e6e8976a05907faec5e76d72187fb9"
+      },
+      {
+        "path": "go/evidence_recorder.go",
+        "sha256": "7932bd357772bfcbcaa98bbaa6b142eb73930a431a5333de76d2d067845fec5b"
+      },
+      {
+        "path": "go/evidence_recorder_corpus_test.go",
+        "sha256": "bc12c54ccd1a9e5e2b60497d82b3aaf3fee8301a475f5b7630a30332da4ad771"
+      },
+      {
+        "path": "go/evidence_recorder_test.go",
+        "sha256": "a1fd654e9f492c3aeea5aec3bbaf8dc89f96469bc24b4ec02b228e319692660a"
+      },
+      {
+        "path": "go/evidence_replay_test.go",
+        "sha256": "0d0da04908f286be2417bfd3da547655ec147b185506c02c14540e997fa9b5d9"
+      },
+      {
+        "path": "go/evidence_wire_corpus_test.go",
+        "sha256": "34869c872e2f095a001ea170c53718c7dcf7ba2ca8f319c236a9742e891b0ff3"
+      },
+      {
         "path": "go/examples/counter/main.go",
         "sha256": "27b4acb959b3f0978b6ad95ef5514cc68b602e1371d3749be9a9bec76ac3bea6"
       },
@@ -172,7 +291,7 @@
       },
       {
         "path": "go/oracle.go",
-        "sha256": "0db1c9b2474e4b4f1ee95f5b77632929bdbf1d6c6566e3dfdee3a42606396c25"
+        "sha256": "453571df4f475fb19c6585aef4eff4def117f1ce2601843f19f5d955c5635c80"
       },
       {
         "path": "go/paired.go",
@@ -180,11 +299,11 @@
       },
       {
         "path": "go/recorder.go",
-        "sha256": "b21952f3ea2d5b58c9cf11b72fb85159af5e2e806017d77e5a07ebd63e7cfce6"
+        "sha256": "910f44bbc0e63830a4867efc57fa7cfc022a8140a050c5b9be5abfea4bee19d7"
       },
       {
         "path": "go/replay_evidence.go",
-        "sha256": "d49d153d0ec16c793fe322731ace2d2879b8712de6343e0a84231bf5a06f6480"
+        "sha256": "b635cc997f3fd50e45a4802c5c341a9799381740d269307e51f0b30c9a4d1e8b"
       },
       {
         "path": "go/rng.go",
@@ -203,12 +322,16 @@
         "sha256": "b5760742819f024638a055a757b29c20de4c1f90cba8bd50b3a2cb9ca724c8ed"
       },
       {
+        "path": "python/README.md",
+        "sha256": "adc676dfad34f002c87220e2aca31b821db9abe9909a2cf0dbbb0e7644530b9b"
+      },
+      {
         "path": "python/examples/counter.py",
         "sha256": "70b6be7d796d191b9ac5a06d38015fbd004e6c68a3b56761d89fa1600516c913"
       },
       {
         "path": "python/src/statelessness/__init__.py",
-        "sha256": "a510178482482d5f7faef682fb3bf76e620229b5bdcd9d8f36597c43e67ee3f3"
+        "sha256": "4ecaec1adc26c92d45ed314299af6214b1820e013a1c66ee992973fc3529d195"
       },
       {
         "path": "python/src/statelessness/audit_record.py",
@@ -231,8 +354,16 @@
         "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397"
       },
       {
+        "path": "python/src/statelessness/evidence.py",
+        "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3"
+      },
+      {
+        "path": "python/src/statelessness/evidence_recorder.py",
+        "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b"
+      },
+      {
         "path": "python/src/statelessness/monitor.py",
-        "sha256": "17f79cc4b46b566252dce14a099756656711cfb45a3a463bdbd317441c6ac095"
+        "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493"
       },
       {
         "path": "python/src/statelessness/native_conformance.py",
@@ -259,6 +390,22 @@
         "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885"
       },
       {
+        "path": "python/tests/test_evidence.py",
+        "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355"
+      },
+      {
+        "path": "python/tests/test_evidence_recorder.py",
+        "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286"
+      },
+      {
+        "path": "scripts/check-native-evidence-consumers.py",
+        "sha256": "eeeb9b81863cf952aeb108d3c22b969be7790de4d04d99a0cd36604d30c6497f"
+      },
+      {
+        "path": "scripts/check-native-ports.py",
+        "sha256": "7954e17e35961104e0f09aae776ee51dbbf7fedb6c6f2d33d597dbe213986217"
+      },
+      {
         "path": "spec/README.md",
         "sha256": "a7cbec5e7591ac7fb0324e0297b86b3f92ccb9865a18acff23bcc7f387360667"
       },
@@ -269,6 +416,10 @@
       {
         "path": "spec/bfs-controls-v1.md",
         "sha256": "6a0dd2efee96b2a02e424255d77a9980b72ad3613ca088b08839e8a9256b78fc"
+      },
+      {
+        "path": "spec/causal-evidence-v2.md",
+        "sha256": "c4b22b63aebc8e94dfe83e0228f0bc0aeb7abce899eb18987154bd98e7a203e7"
       },
       {
         "path": "spec/checked-results-v1.md",
@@ -415,6 +566,10 @@
         "sha256": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1"
       },
       {
+        "path": "swift/README.md",
+        "sha256": "82907259c3ffe81a42dc6641cf5434fb54bf13aef15a557ca4006fe923ffaa0d"
+      },
+      {
         "path": "swift/Sources/StatelessConformance/Conformance.swift",
         "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5"
       },
@@ -443,6 +598,22 @@
         "sha256": "1bd51c37655bd5f6cb938dc443e41898c2f5c81a946304d3d370f035e10aef9f"
       },
       {
+        "path": "swift/Sources/Statelessness/Evidence.swift",
+        "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceCodec.swift",
+        "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceExports.swift",
+        "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceRecorder.swift",
+        "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f"
+      },
+      {
         "path": "swift/Sources/Statelessness/Execution.swift",
         "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64"
       },
@@ -468,11 +639,11 @@
       },
       {
         "path": "swift/Sources/Statelessness/Oracle.swift",
-        "sha256": "9946ce4bf45d12fd2e1bf0579539c976ebcc5ee338f5b6c06689c112541fca73"
+        "sha256": "977feb333742ffb139f3edd2e19e9428d0d1cede602a9c2cd1da15fe4ff30943"
       },
       {
         "path": "swift/Sources/Statelessness/Recorder.swift",
-        "sha256": "7c97ce3bd10c5baa78566008726e38a18c95002de7d2b539c02396199cf18b28"
+        "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9"
       },
       {
         "path": "swift/Sources/Statelessness/Replay.swift",
@@ -491,6 +662,22 @@
         "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
       },
       {
+        "path": "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+        "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+        "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+        "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739"
+      },
+      {
+        "path": "typescript/README.md",
+        "sha256": "b19439dac74b618c8f52398726542a112c4fbd3248931f794e0d3f4a91807eea"
+      },
+      {
         "path": "typescript/bin/corpus.mjs",
         "sha256": "41d2e4be5fb23d7a6542b65bc89b5576eb882f91b58f4e26feda71abe68b6647"
       },
@@ -500,7 +687,7 @@
       },
       {
         "path": "typescript/package.json",
-        "sha256": "c4023d699dcced839d8966e81eb805c790267c5ffefdac4e46e0066b6d251d04"
+        "sha256": "4d74b3d46fadb648fb4c501f8056eb4ca2e82e39dc065c366c0d843558f91413"
       },
       {
         "path": "typescript/src/audit_budget.ts",
@@ -512,11 +699,11 @@
       },
       {
         "path": "typescript/src/binary.ts",
-        "sha256": "3fd9a6cd041f8080236eb6b23394415fcf011a6c7fb496794e2fda172ff2bfc5"
+        "sha256": "9da3c179525b336a779cd88afe396b90bf3ab06e16c9184c117d0b1d2cdb2747"
       },
       {
         "path": "typescript/src/checked.ts",
-        "sha256": "ba7ee0e1f78e07ee3ace4de2cb2be7e1114914e2c5847f0845e0bd65f583ca44"
+        "sha256": "ee3df47d3b03c09489343184aa2ce2917f29348119dd605b55003aee727ce45d"
       },
       {
         "path": "typescript/src/checks.ts",
@@ -539,16 +726,28 @@
         "sha256": "1d50ab177ce083dae51ed5a0f76107e632df9e35ef386646be766d79b2bee85a"
       },
       {
+        "path": "typescript/src/evidence.ts",
+        "sha256": "b4db937ad59a667fbaca66a2b9473461d72a7373b7fc7124637dfafcfd0f1a33"
+      },
+      {
+        "path": "typescript/src/evidence_recorder.ts",
+        "sha256": "10148303f4f88cb4d7433aacfdbbeff2d53c75a31153569fde29cc57da23e566"
+      },
+      {
         "path": "typescript/src/index.ts",
-        "sha256": "0391a35acf4066ea6b8f7ed8f9a3c18b127815b878439ee0a281d7dfb2214eeb"
+        "sha256": "467d0f194dae2beeb26b0123c1c8730f76a779672f7722d21ea8683022e841d4"
       },
       {
         "path": "typescript/src/json.ts",
         "sha256": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd"
       },
       {
+        "path": "typescript/src/node_evidence.ts",
+        "sha256": "c659fa34979b129591ec6b9789fdf9383867c931572226c59e26fe914ad7c846"
+      },
+      {
         "path": "typescript/src/oracle.ts",
-        "sha256": "67644eb3255e805e7b231ad20be04257060dff752714f90477e928411a182160"
+        "sha256": "e26b5ee03ee462183f9f32ee078233141c80c2a40ee0e08c55e47171a53dd6b2"
       },
       {
         "path": "typescript/src/replay.ts",
@@ -556,7 +755,7 @@
       },
       {
         "path": "typescript/src/runtime_recorder.ts",
-        "sha256": "9b552e7ffc519389a13d40b7654a4b755f1baa580492cd31d6455584f5b2056b"
+        "sha256": "5aeda96d9d961d04632361b017d1ab841a1a3f260cf63c36c1a8be88bab7e732"
       },
       {
         "path": "typescript/src/search.ts",
@@ -565,6 +764,22 @@
       {
         "path": "typescript/src/search_support.ts",
         "sha256": "f0ad6fbd97f3e5730327b2d43bfbee26fa5348dc306bb1028aed4bb962f91403"
+      },
+      {
+        "path": "typescript/test/evidence-recorder.test.mjs",
+        "sha256": "88bd6d6d79bc167e14705d52125ca97f05fe0dbdd81d43c3102f97d77aef16f5"
+      },
+      {
+        "path": "typescript/test/evidence.test.mjs",
+        "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f"
+      },
+      {
+        "path": "validation/corpus/src/bin/native-evidence.rs",
+        "sha256": "5646d58db11454ad47c25055cf240d2e2f3652571e1c1fe1797f1c5951a853c4"
+      },
+      {
+        "path": "validation/corpus/src/evidence_reference.rs",
+        "sha256": "dddd7c3ff2dec7974118da06c22bc7b47d7a1532c53238e0bc6f2b7975bb0da1"
       }
     ],
     "scoped_reviews": [
@@ -765,6 +980,77 @@
           "replay-observations"
         ],
         "qualification_note": "Static source/API mapping after final source-freeze authorization. Parent reports final native suites, actual Rust27 token+36 recorder vectors/app smoke and installed matrix cbf8e4c1426e4f6bb741e6c4a01b42e9 passed: five producers,25 binary audit+25 JSON pairs, main/ring rich sessions, Swift compiler cases and unchanged717-per-engine/550-fresh baseline. Scoped receipts: validation/native-parity/checked-slice. All144 broader qualification cells and receipt links unchanged; finite evidence does not close full native parity. No CausalEvidenceRecorder/profile promotion/hard RSS guarantee; Go heterogeneous free functions and Swift logical-transfer/read-only conventions remain native extensions."
+      },
+      {
+        "scope": "causal-evidence-v2 envelopes, phases, causal retention and bounded exports",
+        "reviewed_at_utc": "2026-10-20T22:50:26.500095+00:00",
+        "head_commit": "7f37c2f2dadb4d251f75762ac60d0976a5198ab2",
+        "files_reviewed": [
+          "conformance/causal-evidence-v2.json",
+          "examples/native-evidence/README.md",
+          "examples/native-evidence/contract.json",
+          "examples/native-evidence/go/main.go",
+          "examples/native-evidence/python/consumer.py",
+          "examples/native-evidence/swift/Package.swift",
+          "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+          "examples/native-evidence/typescript/consumer.ts",
+          "go/README.md",
+          "go/evidence.go",
+          "go/evidence_export.go",
+          "go/evidence_export_internal_test.go",
+          "go/evidence_export_test.go",
+          "go/evidence_metadata.go",
+          "go/evidence_metadata_test.go",
+          "go/evidence_recorder.go",
+          "go/evidence_recorder_corpus_test.go",
+          "go/evidence_recorder_test.go",
+          "go/evidence_replay_test.go",
+          "go/evidence_wire_corpus_test.go",
+          "go/oracle.go",
+          "go/recorder.go",
+          "go/replay_evidence.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/evidence.py",
+          "python/src/statelessness/evidence_recorder.py",
+          "python/src/statelessness/monitor.py",
+          "python/tests/test_evidence.py",
+          "python/tests/test_evidence_recorder.py",
+          "scripts/check-native-evidence-consumers.py",
+          "scripts/check-native-ports.py",
+          "spec/causal-evidence-v2.md",
+          "swift/README.md",
+          "swift/Sources/Statelessness/Evidence.swift",
+          "swift/Sources/Statelessness/EvidenceCodec.swift",
+          "swift/Sources/Statelessness/EvidenceExports.swift",
+          "swift/Sources/Statelessness/EvidenceRecorder.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/Recorder.swift",
+          "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+          "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+          "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+          "typescript/README.md",
+          "typescript/package.json",
+          "typescript/src/binary.ts",
+          "typescript/src/checked.ts",
+          "typescript/src/evidence.ts",
+          "typescript/src/evidence_recorder.ts",
+          "typescript/src/index.ts",
+          "typescript/src/node_evidence.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/runtime_recorder.ts",
+          "typescript/test/evidence-recorder.test.mjs",
+          "typescript/test/evidence.test.mjs",
+          "validation/corpus/src/bin/native-evidence.rs",
+          "validation/corpus/src/evidence_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "causal-evidence",
+          "record-replay",
+          "ring-recording",
+          "binary-v1"
+        ],
+        "qualification_note": "Scoped source/API mapping and exact candidate-byte snapshot after root-authorized global source freeze. Hashes include associated contracts, corpus, tests and consumer harness; they do not imply independent static review of every test or runtime success. Parent reports Rust101 causal cases plus 3150 truncation prefixes/44 chunks/app smoke and Swift115 methods passed. Final other-native and installed-consumer jobs remain pending. All144 broader qualification cells and receipt links remain unchanged; no profile promotion, general canonical-value-codec API, hard RSS, authentication or durable atomic-publication claim."
       }
     ]
   },
@@ -1153,7 +1439,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Portable record/replay remains available; explicit RecordAudit/record_audit/recordAudit now retains RunConfig and native engine stamps during capture, enforces nine wire quotas with shared incremental encoding budgets, reserves bounded UTF-8 model-error footer space, and commits only coherent steps. Reserved stateless.engine. keys are rejected; producer stamps identify native package/build labels rather than source hashes. Canonical value codecs, binary-v2 causal evidence, broader installed/platform/resource qualification remain separate. Replaying an exact model_error prefix does not reproduce its terminal error."
+      "remaining": "Portable record/replay remains available; explicit RecordAudit/record_audit/recordAudit now retains RunConfig and native engine stamps during capture, enforces nine wire quotas with shared incremental encoding budgets, reserves bounded UTF-8 model-error footer space, and commits only coherent steps. Reserved stateless.engine. keys are rejected; producer stamps identify native package/build labels rather than source hashes. Native binary-v2 causal evidence is mapped separately; canonical value codecs and broader installed/platform/resource qualification remain open. Replaying an exact model_error prefix does not reproduce its terminal error."
     },
     {
       "id": "replay-observations",
@@ -2015,7 +2301,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "All four now implement the scoped runtime Recorder: ordinary/checked checkpoint construction, exact host-origin sequence and full-coverage gates, metadata/canonical-byte continuity, representation-independent checked handoff, all nine wire quotas plus retained byte/step budgets, bounded footer reservation, atomic coherent-window eviction, state-check-only checkpoint promotion, freeze/error-stop and export/counters. Go heterogeneous handoff uses generic free functions over a nongeneric Recorder. Swift logical consuming intoTrace rejects later mutation/second transfer while permitting read-only snapshots/counters as a documented native extension; other host transfer/error details remain native. CausalEvidenceRecorder/evidence envelopes, binary-v2 causal origins, live debugger integration and broad resource/platform/installed qualification remain open. Continuity cannot detect omitted state cycles; delivery and clone fidelity remain application obligations."
+      "remaining": "All four now implement the scoped runtime Recorder: ordinary/checked checkpoint construction, exact host-origin sequence and full-coverage gates, metadata/canonical-byte continuity, representation-independent checked handoff, all nine wire quotas plus retained byte/step budgets, bounded footer reservation, atomic coherent-window eviction, state-check-only checkpoint promotion, freeze/error-stop and export/counters. Go heterogeneous handoff uses generic free functions over a nongeneric Recorder. Swift logical consuming intoTrace rejects later mutation/second transfer while permitting read-only snapshots/counters as a documented native extension; other host transfer/error details remain native. The separate causal-evidence mapping now includes EvidenceRecorder envelopes/origins and coordinated metadata eviction; live debugger integration and broad resource/platform/installed qualification remain open. Continuity cannot detect omitted state cycles; delivery and clone fidelity remain application obligations."
     },
     {
       "id": "composition",
@@ -2559,7 +2845,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Separate direct audit and runtime Recorder APIs now retain configuration/stamps, enforce capture quotas and reserve footer headroom. Step check phases are unknown_legacy; binary v2/causal evidence, canonical value codecs, durable publication are separate gaps. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
+      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Separate direct audit and runtime Recorder APIs now retain configuration/stamps, enforce capture quotas and reserve footer headroom. Step check phases are unknown_legacy; binary v2/causal evidence is mapped separately; canonical value codecs and durable publication remain separate gaps. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
     },
     {
       "id": "value-codec",
@@ -2658,63 +2944,52 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/evidence.py:25 Provenance; TraceV2; Artifact; verified upgrade; diagnostic_json; exclusive exports",
+            "python/src/statelessness/evidence_recorder.py:13 EvidenceRecorder; atomic trace/phase retention"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/evidence.go:17 Provenance; TraceV2; Artifact; ReplayTraceV2; VerifyUpgrade",
+            "go/evidence_metadata.go:184 Rust64 logical structural decoder budgets",
+            "go/evidence_recorder.go:23 NewEvidenceRecorder; ObserveEvidenceRecorder; private runtime retention bridge",
+            "go/evidence_export.go:14 ExportPolicy; DiagnosticJSON; exclusive raw/diagnostic exports"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/evidence.ts:20 Provenance; TraceV2; Artifact; phase-aware replay; verifyUpgrade; diagnosticJSON",
+            "typescript/src/evidence_recorder.ts:21 EvidenceRecorder; atomic trace/phase retention",
+            "typescript/src/node_evidence.ts:33 writeRawEvidenceNew; exportDiagnosticNew (explicit Node adapter)"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/Statelessness/Evidence.swift:7 Provenance; TraceV2; Artifact; phase-aware replay; verifyUpgrade",
+            "swift/Sources/Statelessness/EvidenceCodec.swift:60 logical Rust64 structural budgets and bounded envelope reading",
+            "swift/Sources/Statelessness/EvidenceRecorder.swift:3 EvidenceRecorder; private runtime retention bridge",
+            "swift/Sources/Statelessness/EvidenceExports.swift:18 diagnosticJSON; exclusive raw/diagnostic exports"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         }
       },
-      "remaining": "Both portable TraceStep and new binary-v1 AuditTrace retain flat step checks and lack v2 phase/causal metadata. Initial phase is known; successor/transition phases in decoded v1 evidence are unknown_legacy and cannot be inferred from IDs/order. Missing causal origins/provenance cannot be reconstructed from v1 JSON or binary traces; explicit verified replay upgrade or v2 evidence remains required."
+      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. General canonical value-codec APIs, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native/installed runtime receipts remain pending; no broad qualification is inferred."
     },
     {
       "id": "debug-session",

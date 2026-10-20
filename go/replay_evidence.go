@@ -144,6 +144,11 @@ func ReplayWithObservationsBounded[S, I, O any](m Model[S, I, O], trace *AuditTr
 	return replayEvidence(m, &trace.Trace, trace, allowBuildMismatch, &limits, observer)
 }
 func replayEvidence[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTrace, allow bool, limits *BinaryLimits, observer ReplayObserver[S, I, O]) (*ReplayReport, error) {
+	return replayEvidenceCaptured(m, trace, audit, allow, limits, observer, nil)
+}
+
+// capture is engine-private admission of an entry-owned artifact after identity.
+func replayEvidenceCaptured[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTrace, allow bool, limits *BinaryLimits, observer ReplayObserver[S, I, O], capture func() (*AuditTrace, error)) (*ReplayReport, error) {
 	r := ReplayReport{Outcome: "exact"}
 	var actual *ReplayActual[S, I, O]
 	sequence := uint64(0)
@@ -188,6 +193,15 @@ func replayEvidence[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTra
 	}
 	if m.Step == nil {
 		return fail(&ModelError{"replay requires step callback"}, true)
+	}
+
+	if capture != nil {
+		captured, captureError := capture()
+		if captureError != nil {
+			return fail(fmt.Errorf("bounded replay artifact: %w", captureError), true)
+		}
+		audit = captured
+		trace = &captured.Trace
 	}
 
 	if limits != nil {

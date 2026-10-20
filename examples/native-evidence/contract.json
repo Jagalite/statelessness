@@ -1,0 +1,65 @@
+{
+  "model": {
+    "name": "native-evidence-threshold",
+    "model_version": 1,
+    "properties_version": 1,
+    "codec_version": 1,
+    "build": "application-v1"
+  },
+  "limits": {
+    "max_total_bytes": 16384,
+    "max_frame_bytes": 4096,
+    "max_blob_bytes": 64,
+    "max_string_bytes": 256,
+    "max_steps": 16,
+    "max_checks_per_step": 16,
+    "max_outputs_per_step": 16,
+    "max_parameters": 32,
+    "max_items": 256
+  },
+  "evidence_limits": {
+    "max_metadata_bytes": 1024,
+    "max_labels": 8,
+    "max_label_bytes": 128,
+    "max_causes_per_step": 4,
+    "max_total_causes": 8
+  },
+  "provenance": {
+    "run": "installed-evidence-run",
+    "epoch": "7",
+    "manifest": "manifest-v1",
+    "source": "consumer-source",
+    "environment": [
+      [
+        "region",
+        "test"
+      ],
+      [
+        "note",
+        "é"
+      ]
+    ]
+  },
+  "normal_report": {
+    "outcome": "exact",
+    "divergence_step": null,
+    "divergence_field": null,
+    "steps_verified": 3,
+    "failure_reproduced": true,
+    "build_matches": true
+  },
+  "controls": [
+    "check_once",
+    "coordinated_metadata_eviction",
+    "coordinated_cause_eviction",
+    "coordinated_trace_eviction",
+    "source_index_before_eviction",
+    "phase_divergence",
+    "verified_upgrade",
+    "diagnostic_exact",
+    "diagnostic_caps",
+    "exclusive_private_files",
+    "no_overwrite",
+    "passive_v1_no_execution"
+  ]
+}

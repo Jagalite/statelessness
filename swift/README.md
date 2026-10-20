@@ -336,3 +336,63 @@ trace. `stopWithError` is therefore a throwing API. Transfer during a codec/chec
 callback is rejected and freezes the existing prefix. Read-only snapshots, exports
 and counters remain available after transfer as a native extension; the returned
 value owns its immutable/copy-on-write encoded evidence.
+
+## Candidate causal evidence v2
+
+`TraceV2` wraps an unchanged lossless `AuditTrace` with an absolute checkpoint,
+`Provenance` and one `StepEvidence` row for every retained turn. `CausalContext`
+contains optional machine/generation/correlation/logical-time values and ordered
+`OutputOrigin` links. Host labels are assertions, not authentication; modeled
+logical time is not a telemetry clock. All integers retain UInt64/UInt32 width,
+all optional absences remain distinct, and text identity uses exact UTF-8 bytes.
+Environment names must be nonempty and byte-distinct; canonically equivalent NFC
+and NFD spellings remain distinct names. Owned value arrays and immutable fields
+prevent later caller changes from rewriting retained provenance or phases.
+
+`encodeEvidence`, `TraceV2.write` and `decodeArtifact` implement the canonical
+STLESS version-two envelope: unchanged embedded v1 bytes, structural little-endian
+metadata, exact lengths and CRC32. `Artifact.read(limits:from:)` bounds the whole
+reader, takes ownership of no caller resource and executes no model. Original v1
+artifacts remain `.v1` and expose initial-check phase only; later v1 checks stay
+unknown legacy. `checkPhase(sequence:checkIndex:)` uses local sequence zero for the
+checkpoint, then the persisted state-check boundary of each turn.
+
+`EvidenceLimits` keeps all nine trace quotas independent from metadata bytes,
+label counts/UTF-8 bytes and per-step/total causal counts. Metadata decoding also
+charges its own byte, logical allocation, element, nesting and work budgets before
+structural allocation. Allocation uses the shared Rust64 schema convention
+(String24, environment pair48, OutputOrigin16, StepEvidence120), not measured Swift
+heap size. Allocation/work allowance is saturated16-times the selected metadata
+allowance, elements equal that allowance, and nesting is16. Neither these logical
+budgets nor encoded-byte caps bound callback memory, backing capacities or RSS.
+
+`TraceV2.replay(model, limits:)` validates evidence and bounded semantic replay,
+then compares persisted phases on otherwise exact turns. A phase mismatch reports
+`check_phase` without replacing an earlier semantic divergence.
+`TraceV2.verifyUpgrade` explicitly executes compatible exact bounded replay to
+construct phase rows with empty causal contexts. Reading, inspection and export
+never infer phases or silently run the model. Replay snapshots retain the existing
+application deep-copy ownership contract; no extra serialization, hashing,
+output-decoder or generic `Sendable` requirement is imposed.
+
+`EvidenceRecorder(checkedInitial:origin:config:options:provenance:limits:)` reserves
+the entire selected metadata allowance plus32 envelope bytes before constructing
+its runtime recorder. Select an appropriately smaller metadata allowance for a
+small capture budget; defaults are never silently shrunk. `observe(token, causal:)`
+preflights causal links against the currently retained outputs before planning
+metadata eviction, then coordinates the minimum evictions with the runtime ring.
+The journal changes only after a successful exact trace commit. Both phase and
+trace windows therefore advance together, and no reducer/checker is rerun for
+capture. Snapshot and one-time `intoTrace` retain the existing first-failure,
+reentrancy and logical-consumption guarantees.
+
+`diagnosticJSON` with `ExportPolicy` produces explicitly nonreplayable diagnostic
+JSON. It omits payloads, details, build/identity and host causal labels; only exact
+allowlisted property IDs survive. Whole-output byte/step caps preserve the initial
+observation even at zero step allowance. `TraceV2.writeRawNew` and
+`exportDiagnosticNew` precompute bounded bytes, create exclusively with Unix mode
+0600, and synchronize the new file. They never overwrite an existing path.
+A write/sync failure may leave an explicitly reported incomplete new file; these
+APIs do not promise rename-atomic publication or parent-directory synchronization.
+The candidate remains experimental and does not promote the four portable
+profiles or close the overall native parity/evidence qualification plan.

@@ -324,10 +324,51 @@ artifact and disables that recorder. `writeTo` / `writeWithLimits` serialize thr
 the strict binary writer. `observedSteps()`, `evictedSteps()`, `retainedSteps()`,
 `retainedBytes()` and `isFrozen()` expose runtime status. Limits bound engine
 encoding/retention, not arbitrary callback allocations or process RSS.
-`CausalEvidenceRecorder` remains a separate, unimplemented parity scope.
+Causal envelopes and coordinated retention are provided separately by `EvidenceRecorder` below.
 
 Recorder capture and ownership transfer reject reentrant calls while a model
 callback is active. This native ownership guard mirrors Rust's exclusive mutable
 borrow: callbacks cannot observe another turn or transfer the recorder midway
 through capture. A prior terminal failure remains primary. Sealed immutable check
 batches are quota-validated before the recorder copies them into retained storage.
+
+`causal-evidence-v2` is an experimental candidate. `TraceV2` wraps an unchanged
+binary-v1 `AuditTrace` with exact `bigint` checkpoint/host sequences, ordered
+provenance and per-turn state-check boundaries/causes. `readArtifact` accepts
+bounded bytes or an `AuditReader`, runs no model and distinguishes original v1
+artifacts from v2 evidence. `writeTraceV2` / `writeTraceV2To` preflight the complete
+canonical envelope before publication. Evidence metadata has independent byte,
+label and causal quotas plus structural decoder allocation/element/depth/work
+budgets; those logical budgets describe bounded requests, not JavaScript heap or
+RSS. Provenance and CRC are assertions/integrity checks, not authentication.
+
+`checkPhase` preserves unknown legacy turn phases. `replayTraceV2` validates the
+whole evidence artifact before bounded replay, then checks persisted phases only
+where semantic replay is exact. `verifyUpgrade` explicitly executes compatible
+exact replay to derive v2 boundaries; passive reading never fabricates them.
+Causal labels remain data and do not execute host effects.
+
+`EvidenceRecorder(initialToken, origin, config, recorderOptions, provenance,
+limits)` consumes sealed checking evidence without rerunning reducers/checkers.
+It reserves the full selected metadata allowance and envelope overhead, then
+coordinates metadata/cause retention with the runtime Recorder's actual ring
+commit. Causal output references are checked against the currently retained
+prefix before planned eviction. `snapshot()` owns independent evidence;
+`intoTrace()` transfers ownership. Errors preserve a coherent aligned prefix and
+the first terminal reason. Recorder lifecycle and reentry guards still apply.
+
+`diagnosticJSON` returns bounded, explicitly nonreplayable JSON bytes. It omits
+payloads, details, model/build identity and causal labels; property IDs appear
+only by exact `propertyIds` allowlisting. Core APIs do not access files or trigger
+browser downloads. The explicit Node subpath
+`@jagalite/statelessness/node-evidence` exports `writeRawEvidenceNew` and
+`exportDiagnosticNew`: precompute bounded bytes, create exclusively (Unix mode
+0600), write and fsync the file. Existing paths are never overwritten. A failure
+after creation may leave an incomplete new file; this adapter does not claim
+rename-atomic publication or directory fsync.
+
+Accepted evidence snapshots capture native accessors once. A known unfit trace
+uses an uncached semantic scan followed by ordered v1 sizing to avoid retaining a
+journal proportional to rejected input; rejected-input accessors may therefore be
+read again. Such inputs cannot become accepted evidence, and immutable/deterministic
+source values remain the ownership contract.

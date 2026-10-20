@@ -1,0 +1,46 @@
+[
+  {
+    "job_id": "28eaa4a68f2743a08a59087e7933a24e",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/28eaa4a68f2743a08a59087e7933a24e.log",
+    "original_size": 33167,
+    "original_sha256": "cd443413b954755c9be915f9ec8cb011f817a936ca6ea14a3de7bfb01018c06c",
+    "stored_path": "logs/28eaa4a68f2743a08a59087e7933a24e.log.gz",
+    "stored_size": 6351,
+    "stored_sha256": "12fe0bad0440fb589fd7e7aeaa7b5c3268da805e431f289d1b4907c385f47ae9",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": true
+  },
+  {
+    "job_id": "947a810dd11f4d9789ab280b88dbc7ea",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/947a810dd11f4d9789ab280b88dbc7ea.log",
+    "original_size": 38510,
+    "original_sha256": "4f29db03a6214effcc6f5b8a20df87e0e9d3a31e6f21f3036cd1fdd9ac1d24b0",
+    "stored_path": "logs/947a810dd11f4d9789ab280b88dbc7ea.log.gz",
+    "stored_size": 6409,
+    "stored_sha256": "466d797a819a2a11e4313b70cbd4c2f841c9a369af293b4df7a88891f4238d6c",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": true
+  },
+  {
+    "job_id": "d6d4960d48c6473f9b916943e5897ffd",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/d6d4960d48c6473f9b916943e5897ffd.log",
+    "original_size": 31979,
+    "original_sha256": "44433929b1d2f27d752366dc2f83de019fe55b73c9ca12236b378fad27c7e55f",
+    "stored_path": "logs/d6d4960d48c6473f9b916943e5897ffd.log.gz",
+    "stored_size": 5970,
+    "stored_sha256": "655fb63a9458b826ae2313edbd852dc1ba3a33146b78943b78df253b3fec3821",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "d06b44a4f5c04c1195f1eec8c3fc067c",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/d06b44a4f5c04c1195f1eec8c3fc067c.log",
+    "original_size": 2795,
+    "original_sha256": "62744a7f88fb19810c19e04143d0ff894acf801fd77303a2028e386f338483dd",
+    "stored_path": "logs/d06b44a4f5c04c1195f1eec8c3fc067c.log.gz",
+    "stored_size": 634,
+    "stored_sha256": "4c3bd2b853037abc6b1fb7c5d57a873068201475c1f55a302ff4b5d2f9481d9b",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "status": "qualification-pending",
+  "scope": "reviewed causal-evidence-v2 source candidate; finite macOS/arm64 runtime qualification in progress",
+  "base_commit": "7f37c2f2dadb4d251f75762ac60d0976a5198ab2",
+  "shared_cases": {
+    "wire": 52,
+    "replay_upgrade": 16,
+    "recorder": 20,
+    "diagnostic_export": 13
+  },
+  "rust": {
+    "status": "passed",
+    "build_job": "7eb0f9c8fbd04005893be6f4144bdd19",
+    "execution_job": "cdb6e6b8e66048b18020506caff084b6",
+    "smoke_job": "d0c807d5bdfd4788b4588f7371e96489",
+    "truncations": 3150,
+    "chunked_reads": 44
+  },
+  "swift": {
+    "status": "passed",
+    "job": "efc000626be9488fa4684d90681ceb66",
+    "methods": 115
+  },
+  "go": {
+    "status": "queued",
+    "test_job": "5e59e98de1b44b2baa2445b385d86fc2",
+    "vet_job": "bd5a76feef90466eb538b22633efe290"
+  },
+  "python": {
+    "status": "queued",
+    "job": "d6b6feb177f0440f85f08b05335aaadc"
+  },
+  "typescript": {
+    "status": "queued",
+    "job": "cbcf8b99b97e449d97775259236f5c89"
+  },
+  "installed": {
+    "status": "queued",
+    "job": "a41b9c55866f4319ba3642cd73085b5d",
+    "output": "/private/tmp/stateless-evidence-consumers-20261020-r1"
+  },
+  "reviewed_ledger_files": 171,
+  "broad_qualification_cells_pending": 144
+}

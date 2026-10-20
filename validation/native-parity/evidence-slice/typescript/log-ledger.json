@@ -1,0 +1,76 @@
+{
+  "development_diagnostics": [
+    {
+      "job_id": "977460a016aa4b26b4f90f05026ecca5",
+      "status": "failed",
+      "exit_code": 1,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "log_bytes": 538,
+      "log_sha256": "269032a696a848b73516d54d0a6c0429f25e833235c0b131107ca105191d1aeb",
+      "gzip_bytes": 261,
+      "gzip_sha256": "6aed78b9e1c0f017d55b5636085e295d374299dfc54a7f99d6ea84af62ba61e1"
+    },
+    {
+      "job_id": "f8daf9d274e5480fa5ecb0d8cd30d20c",
+      "status": "failed",
+      "exit_code": 1,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "log_bytes": 321,
+      "log_sha256": "03b48d70e2e8e2347745406c25c7243bda98d19f3b39580235caaecd2b6e9afc",
+      "gzip_bytes": 213,
+      "gzip_sha256": "a1b11a08696410204aabcc358a1a727a130058b654dede433020e283436a1656"
+    },
+    {
+      "job_id": "1fa1691a90764b089380a24deb06197b",
+      "status": "failed",
+      "exit_code": 1,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "log_bytes": 73013,
+      "log_sha256": "eee39b95b008bd7ce2aebdb93a489c0245055feb0440540aef49477dffbf0b0e",
+      "gzip_bytes": 12507,
+      "gzip_sha256": "eb578b5b97c8775954d667e243a131db13a0692e97528921238fce573f87cfe7"
+    },
+    {
+      "job_id": "aa307a8e63d04938a401e9864c3cef63",
+      "status": "failed",
+      "exit_code": 1,
+      "requested_command": [
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+      "log_bytes": 1000,
+      "log_sha256": "4474bdcca1c1ef8cd146ab22495bbaf4a8d3d0154a4a6fe73d1f2ecb34078142",
+      "gzip_bytes": 395,
+      "gzip_sha256": "8b59aa3ecd01ed175b23a769f7a0920591cbac65c6d4a0083e2339edd93fec45"
+    }
+  ]
+}

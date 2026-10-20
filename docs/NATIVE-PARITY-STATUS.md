@@ -271,19 +271,51 @@ counters remain available as a documented native extension. Private native token
 storage depends on correct clone hooks and application purity; it is not a
 reflection/security sandbox or Rust's static borrow system.
 
-The four promoted profiles remain unchanged. This slice does not provide
-`CausalEvidenceRecorder`, evidence envelopes or binary v2 causal provenance;
-these are the [next scoped audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
+The four promoted profiles remain unchanged. Checked results and runtime recording
+alone do not establish causal evidence; the next candidate slice is described below.
 Wire quotas do not bound application allocation, snapshots, backing capacity or
 RSS, and continuity cannot detect an omitted turn returning to the same state.
+
+## Causal evidence candidate
+
+The [causal-evidence-v2 candidate](../spec/causal-evidence-v2.md) adds native
+`Provenance`, causal output origins, persisted check-phase boundaries, `TraceV2`
+and version-preserving `Artifact` APIs. Source is present in Python
+[`evidence.py`](../python/src/statelessness/evidence.py), Go
+[`evidence.go`](../go/evidence.go), TypeScript
+[`evidence.ts`](../typescript/src/evidence.ts), and Swift
+[`Evidence.swift`](../swift/Sources/Statelessness/Evidence.swift). Exact v2 envelopes
+embed unchanged v1 artifacts; passive v1 reading leaves later check phases unknown.
+Explicit verified upgrade executes bounded replay to derive phase boundaries.
+
+Native `EvidenceRecorder` implementations coordinate causal metadata retention with
+the runtime recorder's actual trace evictions. Context validation uses the current
+retained window before any planned eviction, and metadata commits only after trace
+admission. Diagnostic exports omit payloads and host labels, include only exactly
+allowlisted property IDs, and apply whole-output byte caps. Filesystem exports
+create new private files exclusively and sync them; TypeScript exposes that host
+operation through its separate Node adapter.
+
+The root-authorized frozen source is now pinned in the capability ledger, with
+all four causal-evidence implementations mapped as implemented. Root reports the
+Rust reference passed 101 causal cases, 3,150 truncation prefixes, 44 chunked
+reads and application smoke; Swift passed 115 methods. Final other-native and
+installed-consumer receipts remain pending. All 144 broad qualification-pending
+cells and the four promoted profiles remain unchanged. The finite candidate work does not establish
+general canonical value-codec APIs, debugger integration, cross-platform/browser
+qualification, hard RSS bounds or complete N05/N11/native parity. Metadata decoder
+allocation accounting uses the specified Rust64 logical schema weights rather
+than managed-runtime heap sizes. CRC and causal/provenance labels provide no
+authentication. New-file exports provide neither rename-atomic publication nor
+parent-directory fsync durability.
 
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Complete installed checked-result/runtime-recorder handoff qualification,
-   then follow the [causal evidence audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
+3. Finish the causal-evidence candidate's final source, installed-consumer and
+   interoperability qualification against the [scoped audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
    Continue append/BFS/binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

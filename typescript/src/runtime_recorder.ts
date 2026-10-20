@@ -23,20 +23,29 @@ interface Observation {
     items: number;
 }
 const U64 = (1n << 64n) - 1n, BOOT = Symbol('recorder checked initialization');
-const u64 = (v: bigint, name: string) => { if (typeof v !== 'bigint' || v < 0n || v > U64)
-    throw new ModelError(`${name} must be u64 bigint`); return v; };
+const u64 = (v: bigint, name: string) => {
+    if (typeof v !== 'bigint' || v < 0n || v > U64)
+        throw new ModelError(`${name} must be u64 bigint`);
+    return v;
+};
 const failed = (cs: readonly Check[]) => cs.some(c => c.status === 'failed');
 const copies = (cs: readonly Check[]) => cs.map(c => check(c.id, c.status, c.details));
-const contextual = (stage: string, e: unknown) => { let text = 'callback failed'; try {
-    text = e instanceof BinaryError && e.kind === 'limit_exceeded' ? `trace exceeds ${e.detail} limit` : e instanceof Error ? e.message : String(e);
+const contextual = (stage: string, e: unknown) => {
+    let text = 'callback failed';
+    try {
+        text = e instanceof BinaryError && e.kind === 'limit_exceeded' ? `trace exceeds ${e.detail} limit` : e instanceof Error ? e.message : String(e);
+    }
+    catch { }
+    return new ModelError(`runtime ${stage}: ${text}`);
+};
+function call<T>(stage: string, f: () => T): T {
+    try {
+        return f();
+    }
+    catch (e) {
+        throw contextual(stage, e);
+    }
 }
-catch { } return new ModelError(`runtime ${stage}: ${text}`); };
-function call<T>(stage: string, f: () => T): T { try {
-    return f();
-}
-catch (e) {
-    throw contextual(stage, e);
-} }
 function captureOptions(source: RecorderOptions): Options {
     const { maxSteps = 1024, maxRetainedBytes, limits: overrides = {} } = source, limits = resolveBinaryLimits(overrides);
     natural(maxSteps, 'maxSteps');
@@ -77,12 +86,35 @@ function configCopy(source: RunConfig, options: Options, origin: bigint, stamp =
         parameters.push([`stateless.monitor.${k}`, v]);
     return { strategy, seed, parameters };
 }
-function stringBytes(s: string, maximum: number): number { scalar(s); let n = 0; for (const c of s) {
-    const cp = c.codePointAt(0)!;
-    n += cp < 128 ? 1 : cp < 2048 ? 2 : cp < 65536 ? 3 : 4;
-    if (n > maximum)
-        throw new ModelError('runtime recording limit: string bytes');
-} return n; }
+function stringBytes(s: string, maximum: number): number {
+    scalar(s);
+    let n = 0;
+    for (const c of s) {
+        const cp = c.codePointAt(0)!;
+        n += cp < 128 ? 1 : cp < 2048 ? 2 : cp < 65536 ? 3 : 4;
+        if (n > maximum)
+            throw new ModelError('runtime recording limit: string bytes');
+    }
+    return n;
+}
+interface RecorderBridge {
+    observe<A, B, C>(token: CheckedTurn<A, B, C>, minimumEvictions: number): readonly Check[];
+    outputCount(sequence: bigint): number | null;
+}
+const bridges = new WeakMap<object, RecorderBridge>();
+/** Internal causal-envelope coordination; deliberately absent from package exports. */
+export function observeCheckedRetaining<A, B, C>(recorder: object, token: CheckedTurn<A, B, C>, minimumEvictions: number): readonly Check[] {
+    const bridge = bridges.get(recorder);
+    if (!bridge)
+        throw new ModelError('invalid runtime recorder');
+    return bridge.observe(token, minimumEvictions);
+}
+export function retainedOutputCount(recorder: object, sequence: bigint): number | null {
+    const bridge = bridges.get(recorder);
+    if (!bridge)
+        throw new ModelError('invalid runtime recorder');
+    return bridge.outputCount(sequence);
+}
 /** Native ownership: snapshots detach bytes/checks; intoTrace consumes this recorder. */
 export class Recorder<S, I, O> {
     #metadata!: Metadata;
@@ -137,6 +169,7 @@ export class Recorder<S, I, O> {
         this.#validate(run.bytes, BigInt(run.items), 0n, 0, terminal ? 18 : this.#reserved);
         if (terminal)
             this.#termination = 'property_failed';
+        bridges.set(this, { observe: (token, minimum) => this.#observeCheckedRetaining(token, minimum), outputCount: sequence => this.#retainedOutputCount(sequence) });
     }
     static withCheckedInitial<S, I, O>(token: CheckedInitial<S, I, O>, config: RunConfig, options: RecorderOptions = {}): Recorder<S, I, O> { return Recorder.withCheckedInitialAt(token, 0n, config, options); }
     static withCheckedInitialAt<S, I, O>(token: CheckedInitial<S, I, O>, origin: bigint, config: RunConfig, options: RecorderOptions = {}): Recorder<S, I, O> {
@@ -145,16 +178,28 @@ export class Recorder<S, I, O> {
         const c = requireCheckedInitialForRecorder(token);
         return Reflect.construct(Recorder, [c.model, c.state, callerConfig, selected, { seal: BOOT, checks: c.checks, origin }]) as Recorder<S, I, O>;
     }
-    #available(): void { if (this.#consumed)
-        throw new ModelError('runtime recorder ownership was transferred'); }
-    #active(): void { this.#available(); if (this.isFrozen())
-        throw new ModelError('runtime recorder is frozen; export its retained trace'); if (this.#busy)
-        throw new ModelError('runtime recorder observation is already in progress'); }
+    #available(): void {
+        if (this.#consumed)
+            throw new ModelError('runtime recorder ownership was transferred');
+    }
+    #active(): void {
+        this.#available();
+        if (this.isFrozen())
+            throw new ModelError('runtime recorder is frozen; export its retained trace');
+        if (this.#busy)
+            throw new ModelError('runtime recorder observation is already in progress');
+    }
     #blobLimit(): number { return Number([BigInt(this.#options.limits.max_blob_bytes), 0xffffffffn, BigInt(this.#options.limits.max_frame_bytes), this.#options.maxRetainedBytes, BigInt(this.#options.limits.max_total_bytes)].reduce((a, b) => a < b ? a : b)); }
-    #counts(config: RunConfig, observed: bigint, evicted: bigint): RunConfig { const parameters = config.parameters.map(([k, v]) => [k, v] as [
-        string,
-        string
-    ]), offset = parameters.length - 3; parameters[offset][1] = observed.toString(); parameters[offset + 1][1] = evicted.toString(); parameters[offset + 2][1] = evicted.toString(); return { ...config, parameters }; }
+    #counts(config: RunConfig, observed: bigint, evicted: bigint): RunConfig {
+        const parameters = config.parameters.map(([k, v]) => [k, v] as [
+            string,
+            string
+        ]), offset = parameters.length - 3;
+        parameters[offset][1] = observed.toString();
+        parameters[offset + 1][1] = evicted.toString();
+        parameters[offset + 2][1] = evicted.toString();
+        return { ...config, parameters };
+    }
     #validate(runBytes: number, items: bigint, stepBytes: bigint, count: number, footer: number): void {
         const l = this.#options.limits, total = 12n + BigInt(runBytes) + stepBytes + BigInt(footer);
         if (total > BigInt(l.max_total_bytes))
@@ -177,8 +222,11 @@ export class Recorder<S, I, O> {
         if (checks.length > l.max_items)
             throw new ModelError('runtime recording limit: trace exceeds aggregate items limit');
         let size = 4n;
-        const add = (n: number) => { size += BigInt(n); if (size > cap)
-            throw new ModelError('runtime recording limit: frame bytes'); };
+        const add = (n: number) => {
+            size += BigInt(n);
+            if (size > cap)
+                throw new ModelError('runtime recording limit: frame bytes');
+        };
         add(0);
         for (const c of checks) {
             add(4 + stringBytes(c.id, Math.min(0xffffffff, l.max_string_bytes)));
@@ -195,24 +243,32 @@ export class Recorder<S, I, O> {
         if (size > maximum)
             throw new ModelError('runtime recording limit: retained bytes');
     }
-    #freeze(e: unknown): ModelError { const previous = this.#busy; this.#busy = true; try {
-        const error = e instanceof ModelError ? e : contextual(e instanceof BinaryError ? 'recording limit' : 'observation', e);
-        if (this.#termination !== 'interrupted')
-            return error;
-        this.#termination = 'model_error';
+    #freeze(e: unknown): ModelError {
+        const previous = this.#busy;
+        this.#busy = true;
         try {
-            this.#error = truncatedErrorReason(error, this.#options.limits);
+            const error = e instanceof ModelError ? e : contextual(e instanceof BinaryError ? 'recording limit' : 'observation', e);
+            if (this.#termination !== 'interrupted')
+                return error;
+            this.#termination = 'model_error';
+            try {
+                this.#error = truncatedErrorReason(error, this.#options.limits);
+            }
+            catch {
+                this.#error = '';
+            }
+            return error;
         }
-        catch {
-            this.#error = '';
+        finally {
+            this.#busy = previous;
         }
-        return error;
     }
-    finally {
-        this.#busy = previous;
-    } }
-    stopWithError(error: ModelError): ModelError { this.#available(); if (this.isFrozen())
-        return error; return this.#freeze(error); }
+    stopWithError(error: ModelError): ModelError {
+        this.#available();
+        if (this.isFrozen())
+            return error;
+        return this.#freeze(error);
+    }
     observe<A, B, C>(model: CodecModel<A, B, C>, before: A, input: B, transition: Transition<A, C>): readonly Check[] {
         this.#active();
         this.#busy = true;
@@ -226,7 +282,8 @@ export class Recorder<S, I, O> {
             this.#busy = false;
         }
     }
-    observeChecked<A, B, C>(token: CheckedTurn<A, B, C>): readonly Check[] {
+    observeChecked<A, B, C>(token: CheckedTurn<A, B, C>): readonly Check[] { return this.#observeCheckedRetaining(token, 0); }
+    #observeCheckedRetaining<A, B, C>(token: CheckedTurn<A, B, C>, minimumEvictions: number): readonly Check[] {
         this.#active();
         this.#busy = true;
         try {
@@ -237,7 +294,7 @@ export class Recorder<S, I, O> {
             if (next > U64 || header.sequence !== next)
                 throw new ModelError('runtime checked observation sequence is missing or reordered');
             const c = requireCheckedTurnForRecorder(token);
-            return this.#commit(this.#prepare(c.model as CodecModel<A, B, C>, c.before, c.input, c.transition, { checks: c.checks, boundary: c.stateCheckCount }));
+            return this.#commit(this.#prepare(c.model as CodecModel<A, B, C>, c.before, c.input, c.transition, { checks: c.checks, boundary: c.stateCheckCount }), minimumEvictions);
         }
         catch (e) {
             throw this.#freeze(e);
@@ -295,10 +352,13 @@ export class Recorder<S, I, O> {
         const bytes = 9 + fixed.payloadBytes + encodedOutputs.reduce((n, b) => n + b.length, 0) + postState.length;
         return { step: { input: encodedInput, disposition: d, outputs: encodedOutputs, postState, checks }, boundary, bytes, items: fixed.items };
     }
-    #commit(candidate: Observation): readonly Check[] {
+    #commit(candidate: Observation, minimumEvictions = 0): readonly Check[] {
+        natural(minimumEvictions, 'minimumEvictions');
+        if (minimumEvictions > this.#steps.length)
+            throw new ModelError('invalid envelope retention request');
         if (this.#termination !== 'interrupted')
             throw new ModelError('runtime recorder is frozen; export its retained trace');
-        let bytes = this.#stepBytes + BigInt(candidate.bytes), items = this.#stepItems + BigInt(candidate.items), evictions = this.#steps.length === this.#options.maxSteps ? 1 : 0;
+        let bytes = this.#stepBytes + BigInt(candidate.bytes), items = this.#stepItems + BigInt(candidate.items), evictions = Math.max(minimumEvictions, this.#steps.length === this.#options.maxSteps ? 1 : 0);
         for (let i = 0; i < evictions; i++) {
             bytes -= BigInt(this.#steps[i].bytes);
             items -= BigInt(this.#steps[i].items);
@@ -336,10 +396,21 @@ export class Recorder<S, I, O> {
         }
         throw last;
     }
+    #retainedOutputCount(sequence: bigint): number | null { this.#available(); u64(sequence, 'sequence'); const index = sequence - this.#origin - this.#evicted - 1n; if (index < 0n || index >= BigInt(this.#steps.length))
+        return null; return this.#steps[Number(index)].step.outputs.length; }
     #view(): AuditTrace { this.#available(); return { metadata: this.#metadata, config: this.#config, initialState: this.#initial, initialChecks: this.#checks, steps: this.#steps.map(s => s.step), termination: this.#termination, error: this.#error }; }
     snapshot(): AuditTrace { const t = this.#view(); return { metadata: { ...t.metadata }, config: { ...t.config, parameters: t.config.parameters.map(([k, v]) => [k, v]) }, initialState: new Uint8Array(t.initialState), initialChecks: copies(t.initialChecks), steps: t.steps.map(s => ({ input: new Uint8Array(s.input), disposition: { ...s.disposition }, outputs: s.outputs.map(b => new Uint8Array(b)), postState: new Uint8Array(s.postState), checks: copies(s.checks) })), termination: t.termination, error: t.error }; }
-    intoTrace(): AuditTrace { this.#available(); if (this.#busy)
-        throw new ModelError('runtime recorder observation is already in progress'); const trace = this.#view(); this.#consumed = true; this.#steps = []; this.#checks = []; this.#initial = new Uint8Array(); return trace; }
+    intoTrace(): AuditTrace {
+        this.#available();
+        if (this.#busy)
+            throw new ModelError('runtime recorder observation is already in progress');
+        const trace = this.#view();
+        this.#consumed = true;
+        this.#steps = [];
+        this.#checks = [];
+        this.#initial = new Uint8Array();
+        return trace;
+    }
     writeTo(writer: AuditWriter): void { this.writeWithLimits(writer, this.#options.limits); }
     writeWithLimits(writer: AuditWriter, limits: Partial<BinaryLimits>): void { writeAuditTraceTo(this.#view(), writer, limits); }
     retainedBytes(): bigint { this.#available(); return 12n + BigInt(this.#runBytes) + this.#stepBytes + BigInt(this.#termination === 'model_error' ? 22 + new TextEncoder().encode(this.#error).length : 18); }

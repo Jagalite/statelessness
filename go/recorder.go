@@ -203,9 +203,12 @@ func (r *Recorder) measure(t *AuditTrace, reserve bool) (uint64, error) {
 }
 
 func ObserveRecorder[S, I, O any](r *Recorder, m Model[S, I, O], before S, input I, transition Transition[S, O]) ([]Check, error) {
-	return recorderObserve(r, m, before, input, transition, nil, 0)
+	return recorderObserve(r, m, before, input, transition, nil, 0, 0)
 }
 func ObserveCheckedRecorder[S, I, O any](r *Recorder, t *CheckedTurn[S, I, O]) ([]Check, error) {
+	return observeCheckedRecorderRetaining(r, t, 0)
+}
+func observeCheckedRecorderRetaining[S, I, O any](r *Recorder, t *CheckedTurn[S, I, O], minimumEvictions int) ([]Check, error) {
 	if r.busy {
 		return nil, &ModelError{"runtime recorder mutation already in progress"}
 	}
@@ -221,9 +224,9 @@ func ObserveCheckedRecorder[S, I, O any](r *Recorder, t *CheckedTurn[S, I, O]) (
 	if r.observed == math.MaxUint64 || r.origin > math.MaxUint64-r.observed-1 || t.sequence != r.origin+r.observed+1 {
 		return nil, r.freeze(&ModelError{"runtime checked observation sequence is missing or reordered"})
 	}
-	return recorderObserve(r, t.model, t.before, t.input, t.transition, &t.checks, t.stateCheckCount)
+	return recorderObserve(r, t.model, t.before, t.input, t.transition, &t.checks, t.stateCheckCount, minimumEvictions)
 }
-func recorderObserve[S, I, O any](r *Recorder, m Model[S, I, O], before S, input I, t Transition[S, O], checked *[]Check, phase int) ([]Check, error) {
+func recorderObserve[S, I, O any](r *Recorder, m Model[S, I, O], before S, input I, t Transition[S, O], checked *[]Check, phase int, minimumEvictions int) ([]Check, error) {
 	if r.busy {
 		return nil, &ModelError{"runtime recorder mutation already in progress"}
 	}
@@ -232,13 +235,13 @@ func recorderObserve[S, I, O any](r *Recorder, m Model[S, I, O], before S, input
 	if r.IsFrozen() {
 		return nil, &ModelError{"runtime recorder is frozen; export its retained trace"}
 	}
-	checks, e := recorderPrepare(r, m, before, input, t, checked, phase)
+	checks, e := recorderPrepare(r, m, before, input, t, checked, phase, minimumEvictions)
 	if e != nil {
 		return nil, r.freeze(e)
 	}
 	return checks, nil
 }
-func recorderPrepare[S, I, O any](r *Recorder, m Model[S, I, O], before S, input I, t Transition[S, O], checked *[]Check, phase int) ([]Check, error) {
+func recorderPrepare[S, I, O any](r *Recorder, m Model[S, I, O], before S, input I, t Transition[S, O], checked *[]Check, phase int, minimumEvictions int) ([]Check, error) {
 	if e := m.validateCodec(); e != nil {
 		return nil, e
 	}
@@ -341,9 +344,12 @@ func recorderPrepare[S, I, O any](r *Recorder, m Model[S, I, O], before S, input
 	if hasFailure(s.Checks) {
 		candidate.Termination = "property_failed"
 	}
-	minimum := 0
+	if minimumEvictions < 0 || minimumEvictions > len(r.observations) {
+		return nil, &ModelError{"invalid envelope retention request"}
+	}
+	minimum := minimumEvictions
 	if len(r.trace.Steps) == r.options.MaxSteps {
-		minimum = 1
+		minimum = max(minimum, 1)
 	}
 	var fitErr error
 	for evict := minimum; evict <= len(r.observations); evict++ {
@@ -455,4 +461,19 @@ func (r *Recorder) ObservedSteps() uint64 { return r.observed }
 func (r *Recorder) EvictedSteps() uint64  { return r.evicted }
 func (r *Recorder) IsFrozen() bool {
 	return r.transferred || r.trace.Termination != "interrupted"
+}
+
+func (r *Recorder) retainedOutputCount(sequence uint64) (int, bool) {
+	if r.origin > math.MaxUint64-r.evicted {
+		return 0, false
+	}
+	checkpoint := r.origin + r.evicted
+	if sequence <= checkpoint {
+		return 0, false
+	}
+	index := sequence - checkpoint - 1
+	if index >= uint64(len(r.trace.Steps)) {
+		return 0, false
+	}
+	return len(r.trace.Steps[int(index)].Outputs), true
 }
