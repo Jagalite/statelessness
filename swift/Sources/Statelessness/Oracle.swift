@@ -1,5 +1,5 @@
 /// Candidate APIs only; these do not expand the qualified portable profiles.
-public let experimentalProfiles = ["paired-v1", "search-v1"]
+public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1"]
 
 public struct OracleState<S, H> {
     public let model: S

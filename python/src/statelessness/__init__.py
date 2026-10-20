@@ -29,3 +29,9 @@ __all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "F
             "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
 
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)
+
+from .trace_binary import (AuditTrace, BinaryLimits, BinaryTraceError, RunConfig,
+                           audit_from_bytes, audit_to_bytes, read_audit, write_audit)
+__all__ += ["AuditTrace", "BinaryLimits", "BinaryTraceError", "RunConfig",
+            "audit_from_bytes", "audit_to_bytes", "read_audit", "write_audit"]
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("native-binary-v1",)

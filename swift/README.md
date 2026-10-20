@@ -106,3 +106,25 @@ input identity hooks while wrapping state in explicit independent history.
 Generation/membership see actual state only; the resulting model retains
 combined equality and paired checkpoint codecs. Estimated-state-byte forwarding
 remains unavailable until the native engine exposes that capability.
+
+## Candidate binary audit traces
+
+`AuditTrace` independently reads and writes Rust's binary v1 format through
+`decodeAuditTrace`/`encodeAuditTrace`, or throwing chunk/sink callbacks through
+`readAuditTrace`/`writeAuditTrace`. `BinaryTraceLimits` exposes nine independent
+byte/item quotas. The writer validates every frame and total before its first
+sink call; a later I/O failure can still leave a prefix. The incremental reader
+bounds each frame before requesting its payload and verifies CRC before parsing.
+
+`RunConfig(strategy:seed:parameters:)` retains an optional full-width UInt64 seed
+and ordered duplicate `AuditParameter` pairs. Importing portable `Trace` requires
+explicit `AuditTrace(portable:config:)`; `audit.portable()` returns both trace and
+configuration, preserving the information absent from the older portable shape.
+Empty model-error text, empty failed/skipped/rejected/ignored reasons and exact
+UTF-8 are retained. Binary v1's flattened successor/transition check phases remain
+`unknown_legacy`; no causal/phase data is invented.
+
+`native-binary-v1` is an experimental candidate separate from the established
+portable profiles. This API does not qualify binary v2, causal evidence,
+resource/performance costs, installed platforms or durable publication. See
+[`spec/native-binary-v1.md`](../spec/native-binary-v1.md) for format and boundaries.

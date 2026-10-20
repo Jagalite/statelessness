@@ -3,7 +3,7 @@ package statelessness
 import "fmt"
 
 // ExperimentalProfiles names candidates; these are not qualified Profiles.
-func ExperimentalProfiles() []string { return []string{"paired-v1", "search-v1"} }
+func ExperimentalProfiles() []string { return []string{"paired-v1", "search-v1", "native-binary-v1"} }
 
 type OracleState[S, H any] struct {
 	Model  S

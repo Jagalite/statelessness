@@ -150,3 +150,28 @@ its combined history model/codec. Generation and causal membership see only the
 actual application's state; input simplification and semantic identity forward
 unchanged. The resulting typed `GenerateModel[OracleState[...], ...]` supports the
 same native fuzz, shrink, recording, and exact replay pipeline.
+
+## Experimental Rust audit binary v1
+
+`AuditTrace` adds an explicit `RunConfig` to the ordinary portable `Trace` shape.
+It preserves strategy, absent versus zero/full-width seeds, ordered duplicate
+parameter pairs, all bytes/checks/dispositions, and exact model-error text.
+`AuditFromPortable(trace, config)` requires caller-supplied configuration;
+`audit.Portable()` returns both the portable trace and the omitted configuration.
+Both conversions own their snapshots and reject an unrepresentable error string.
+
+`WriteBinary` / `WriteBinaryWithLimits`, `MarshalAuditTrace`, `ReadAuditTrace`, and
+`ParseAuditTrace` implement Rust's existing `.sttrace` binary-v1 framing, strict
+UTF-8, CRC32, record order/index/footer, and EOF requirements. `BinaryLimits`
+provides all nine independent Rust quotas. Writers preflight the complete artifact
+before publishing the first byte and reuse one bounded frame buffer. I/O failure
+can leave a partial stream; the codec does not flush, close, sync, or publish files.
+Readers require a bounded input stream and host I/O deadlines where appropriate.
+
+`native-binary-v1` is experimental, not a qualified profile. Structural parsing
+preserves unusual check/termination combinations without silently repairing them.
+It establishes neither semantic replay nor successor-state/transition check phase
+boundaries: binary v1 only identifies initial-state phases; subsequent checks have
+unknown legacy phases. `conformance/native-binary-v1.json` supplies shared fixed
+bytes and malformed fixtures; tests honor `STATELESS_BINARY_CORPUS` for copied
+module trees. Binary v2 evidence and durable publication remain separate work.

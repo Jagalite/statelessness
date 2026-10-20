@@ -3,8 +3,8 @@
 This audit materially advances M0 from the lexical bootstrap into a reviewed
 feature/API ledger. [capabilities.json](capabilities.json) groups the pinned Rust
 behavior into **36 features** and maps actual Python, Go, TypeScript and Swift
-public source. It records exact SHA-256 identities for 88 source files. It does
-not close M0 or establish runtime qualification.
+public source. It records exact SHA-256 identities for the reviewed source files
+listed in the ledger. It does not close M0 or establish runtime qualification.
 
 Rust baseline remains `0876717bee85e335449c2c99ada41f6c6e6112d1`. The native source
 snapshot is based on worktree HEAD `e711bd6694780aba50af0d972fbecccbab30534f`,
@@ -13,8 +13,11 @@ oracle/projection additions in all four languages. Authors reported source stabl
 pending compiler/runtime findings before hash capture; subsequent review fixes
 invalidate the affected hashes and require another refresh.
 Use the JSON source hashes to identify audited bytes; do not silently treat these
-static statuses as observations about later source. The JSON timestamp records
-when source metadata was collected, not when tests ran.
+static statuses as observations about later source. The JSON timestamps record
+when source metadata was collected, not when tests ran. A later scoped binary
+review adds the native audit codec/export/contract hashes and identifies its own
+worktree HEAD separately; it does not silently refresh unrelated feature cells or
+source hashes from the original audit.
 
 ## Status meaning
 
@@ -49,9 +52,11 @@ All four independently implement the existing four profile foundations:
 | `trace-json-v1` | `trace_json.dumps/loads` | `MarshalTrace/ParseTrace` | `stringifyTrace/parseTrace` | `encodeTrace/parseTrace` |
 
 Their source also implements bounded recording and exact replay with
-application-owned codecs. These capabilities do **not** include the richer Rust
-binary formats, cancellation/retained-byte search controls or replay observation
-callbacks. Native `Trace` names alone do not establish Rust wire compatibility.
+application-owned codecs. The portable `Trace` shape does **not** contain Rust
+run configuration or binary v2 evidence. Separate native audit codecs now provide the scoped binary
+v1 representation described below. BFS/replay controls, retained-state-byte
+search controls and rich replay observations remain additional requirements.
+Native `Trace` names alone do not establish Rust wire compatibility.
 
 All four now expose `Oracle`/`WithOracle` and `Paired`/`Projection` APIs. Python
 and TypeScript already contained them; this worktree adds the Go and Swift forms.
@@ -92,6 +97,47 @@ pulls or equality work: an infinite already-seen alternative stream can spend no
 attempts. Cancellation/deadline is cooperative and cannot interrupt one
 nonreturning callback. Bounded shrinking establishes no global minimality.
 
+All four now have independent structural Rust binary v1 codecs: Python
+`trace_binary.AuditTrace`, Go `AuditTrace`, TypeScript `AuditTrace`, and Swift
+`AuditTrace`. Each preserves model metadata, explicit `RunConfig`, initial
+checkpoint/checks, ordered steps and the full termination variant including
+model-error text. Configuration retains absent versus zero seed, all unsigned
+64-bit seed bits, and ordered duplicate parameter pairs; TypeScript uses BigInt.
+Lifting a portable trace requires explicit configuration. Narrowing returns that
+configuration alongside the portable trace, so it is not silently lost.
+
+The reviewed codec bodies implement the fixed v1 header, little-endian fields,
+RUN/STEP/END order, frame CRC32, contiguous step indices, exact footer count,
+strict UTF-8, and trailing-data rejection. They expose all nine independent Rust
+read/write limit families and preflight the complete trace before the first sink
+write. Limits bound encoded bytes and retained collection items, not callback
+allocations, allocator overhead or process memory. Stream I/O can still fail
+partway through a write; no flush, close, fsync, atomic replacement or private
+publication is implied. Error-family parity is incomplete: Python translates
+`MemoryError` into allocation failure, while Go/Swift/TypeScript do not expose
+the same explicit recoverable `TraceError::AllocationFailed` variant. Swift
+stream callback errors propagate as host errors rather than a binary I/O case.
+Buffer allocation behavior, adversarial input and installed
+native↔Rust/native↔native interoperability still require qualification.
+
+This is a structural codec slice, not a replacement for Rust's recorder. Existing
+native `record` APIs still create the portable shape: callers explicitly supply
+configuration when converting to audit form. Direct recorder configuration and
+Rust provenance stamping, encoded-artifact admission during capture, reserved
+bounded model-error footer policy, and reusable bounded encoder sinks remain
+open. A codec rejecting a finished oversized artifact does not establish that
+recording admitted only a bounded coherent prefix.
+
+Binary v1 has flat step checks and cannot encode successor-state/transition
+phase boundaries. Its decoded step phases remain `unknown_legacy`; check order
+or IDs cannot manufacture those boundaries. Structural decoding neither invokes
+model callbacks nor validates termination/check consistency. Replaying a
+compatible restored prefix can establish that prefix's semantics; it does not
+reproduce a terminal model error or recover missing causal provenance. Binary v2
+`TraceV2`, causal output origins/evidence, canonical value-codec families, richer
+replay observations and debugger integration remain missing. Candidate
+`native-binary-v1` and its hand-authored corpus do not qualify or close N11.
+
 Periodic checks of an application-executed transition exist in all four native
 engines. Rust's `CheckedInitial`/`CheckedTurn` provenance handoffs, observer event
 families, logging/snapshot policies and bounded live ring recorder are additional
@@ -115,7 +161,7 @@ plus per-language implementation cells and concrete omissions.
 | N08 | `composition`, `network` | Two-model routing and multi-machine queue/scheduling wrappers missing. |
 | N09 | `lifecycle` | Both legacy and indexed lifecycle monitors/retention missing. |
 | N10 | `assurance`, `reference-controller` | Manifests, applicability/coverage, aggregation and controller mutation fixture missing. |
-| N11 | `append-buffers`, `record-replay`, `json-envelope`, `binary-v1`, `value-codec`, `causal-evidence` | Portable JSON and user model codecs present; Rust binary/value codecs and causal evidence missing. |
+| N11 | `append-buffers`, `record-replay`, `json-envelope`, `binary-v1`, `value-codec`, `causal-evidence` | Portable JSON/user model codecs and structural binary v1 read/write/configuration candidate APIs present. Direct binary-budgeted capture/provenance, reusable sinks, canonical value codecs and binary v2 causal evidence remain open. |
 | N12 | `replay-observations`, `debug-session`, `debug-inspection`, `debug-live-protocol`, `debug-telemetry` | All optional debugger/diagnostic packages missing; basic native replay remains available. |
 | N13 | `core-model`, `generation`, `reference-controller`, `modeling-helpers`, `derive-adapters`, `demo-and-cli` | Handwritten models and generation adapters exist. Bounded Domain/product descriptors, lazy checks, generated codec/inspection helpers and full integration fixtures remain missing. |
 | N14 | `reference-controller`, `native-conformance-tooling`, `reduction-research`, `demo-and-cli` | Corpus runners and counter examples present; controller/research/demo/CLI coverage incomplete. |
@@ -248,7 +294,7 @@ preserve zero third-party runtime dependencies.
    separately specified. Do not turn the 3,327 lexical candidates into an API count.
 2. Add source-backed per-language API/contract decisions for each remaining
    method/variant, including target-specific cfg exports and canonical container
-   codecs. The 35-feature grouping is an organizing map, not an exhaustive symbol
+   codecs. The feature grouping is an organizing map, not an exhaustive symbol
    closure assertion.
 3. Review normative cross-language contracts independently, then link actual
    qualification receipts with source/package/corpus/runtime/command identities.
@@ -262,7 +308,8 @@ are outside this pinned Rust baseline; their absence is not an invented extra
 native parity gap.
 
 No builds or tests were required or run for this static audit. Existing CI may
-qualify earlier portable scopes; new pairing/search implementations and broader
-parity features require fresh evidence through the authorized Kyoto workflow.
+qualify earlier portable scopes; new pairing/search/binary implementations and
+broader parity features require fresh evidence through the authorized Kyoto
+workflow.
 All qualification fields intentionally remain pending until the parent work
 collects and reviews current receipts.

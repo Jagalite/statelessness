@@ -139,6 +139,28 @@ def build_corpus():
     ]: invalid(name, data, "limit_exceeded", detail, {key:value})
     valid("exact-total-limit", t, {"max_total_bytes":len(base)})
     valid("exact-frame-limit", t, {"max_frame_bytes":len(parts[0][1])})
+    # Append independent positive edge cases; keep earlier fixtures unchanged.
+    empty_error = empty(); empty_error["termination"] = dict(kind="model_error", reason="")
+    valid("empty-model-error-reason", empty_error)
+    unusual_completed = empty(); unusual_completed["initial_checks"] = [check("bad", "failed", "")]
+    valid("structural-completed-with-failure", unusual_completed)
+    unusual_failed = empty(); unusual_failed["termination"] = dict(kind="property_failed", reason=None)
+    valid("structural-property-failed-without-failure", unusual_failed)
+    duplicate_checks = empty()
+    duplicate_checks["initial_checks"] = [check("duplicate"), check("duplicate", "skipped", "")]
+    duplicate_checks["steps"] = [step(checks=[check("duplicate", "failed", "first"), check("duplicate", "failed", "second")])]
+    duplicate_checks["termination"] = dict(kind="property_failed", reason=None)
+    valid("ordered-duplicate-check-ids", duplicate_checks)
+    # Two parameters + two initial checks + one STEP + two outputs + two STEP
+    # checks = nine aggregate items. Blob bytes and strings are not items.
+    boundary = empty()
+    boundary["config"]["parameters"] = [["same", "first"], ["same", "second"]]
+    boundary["initial_checks"] = [check("a"), check("b", "skipped", "")]
+    boundary["steps"] = [step(outputs=["", "ff"], checks=[check("a"), check("b")])]
+    valid("exact-item-limit", boundary, {"max_items":9})
+    valid("exact-parameter-limit", boundary, {"max_parameters":2})
+    valid("exact-check-limit", boundary, {"max_checks_per_step":2})
+    valid("exact-output-limit", boundary, {"max_outputs_per_step":2})
     return dict(profile="native-binary-v1", version=1, status="candidate", defaults=DEFAULT_LIMITS, fixtures=fixtures)
 
 
@@ -183,6 +205,36 @@ class NativeBinaryProfileTests(unittest.TestCase):
         self.assertTrue({None, "0", "18446744073709551615"} <= seeds)
         empty_bytes = bytes.fromhex(next(r["bytes_hex"] for r in valid if r["case"] == "empty"))
         self.assertEqual(len(empty_bytes), 12 + 9 + 43 + 9 + 9)
+
+    def test_structural_variants_are_lossless(self):
+        rows = {r["case"]: r for r in json.loads(PATH.read_text())["fixtures"]}
+        self.assertEqual(rows["empty-model-error-reason"]["trace"]["termination"], {"kind":"model_error", "reason":""})
+        completed = rows["structural-completed-with-failure"]["trace"]
+        self.assertEqual(completed["termination"]["kind"], "completed")
+        self.assertEqual(completed["initial_checks"][0]["status"], "failed")
+        failed = rows["structural-property-failed-without-failure"]["trace"]
+        self.assertEqual(failed["termination"]["kind"], "property_failed")
+        self.assertEqual(failed["initial_checks"], [])
+        self.assertEqual(failed["steps"], [])
+        duplicates = rows["ordered-duplicate-check-ids"]["trace"]
+        self.assertEqual(duplicates["initial_checks"], [check("duplicate"), check("duplicate", "skipped", "")])
+        self.assertEqual(duplicates["steps"][0]["checks"], [check("duplicate", "failed", "first"), check("duplicate", "failed", "second")])
+
+    def test_exact_collection_boundaries(self):
+        rows = {r["case"]: r for r in json.loads(PATH.read_text())["fixtures"]}
+        for name, key, expected in [("item", "max_items", 9), ("parameter", "max_parameters", 2),
+                                    ("check", "max_checks_per_step", 2), ("output", "max_outputs_per_step", 2)]:
+            row = rows[f"exact-{name}-limit"]
+            self.assertTrue(row["valid"])
+            self.assertEqual(row["limits"], {key:expected})
+            trace = row["trace"]
+            self.assertEqual(len(trace["config"]["parameters"]), 2)
+            self.assertEqual(len(trace["initial_checks"]), 2)
+            self.assertEqual([len(s["checks"]) for s in trace["steps"]], [2])
+            self.assertEqual([len(s["outputs"]) for s in trace["steps"]], [2])
+            items = len(trace["config"]["parameters"]) + len(trace["initial_checks"])
+            items += sum(1 + len(s["checks"]) + len(s["outputs"]) for s in trace["steps"])
+            self.assertEqual(items, 9)
 
 
 if __name__ == "__main__": unittest.main()

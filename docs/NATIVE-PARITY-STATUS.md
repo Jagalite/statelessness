@@ -103,21 +103,37 @@ recorded native/default target. Parser tests and source/artifact identity checks
 passed through Kyoto. This enumerates the compiled surface; individual native
 equivalence and other targets/features remain open.
 
-## Binary trace preparation
+## Native binary trace candidate
 
 The [binary-v1 candidate contract](../spec/native-binary-v1.md) and
-[independent 46-case corpus](../conformance/native-binary-v1.json) specify the
+[independent 54-case corpus](../conformance/native-binary-v1.json) specify the
 actual Rust audit format, configuration preservation, strict decoding and quotas.
-Three independent format-arithmetic checks passed through Kyoto. Native readers,
-writers and actual Rust interoperability tests have not yet been implemented for
-this increment; these fixtures do not establish binary parity.
+The native engines now add separate lossless audit traces with explicit run
+configuration, ordered duplicate parameters, exact seeds, strict UTF-8 and CRC32,
+and all nine independent read/write limits. Portable conversions return omitted
+configuration alongside the narrower trace. Writers preflight the complete trace
+before first publication; readers reject malformed framing and trailing bytes.
+
+The final native suites passed through Kyoto: Python ran 85 tests with 12 ABI
+skips, Go passed all packages with cgo disabled, Swift passed 59 tests and
+TypeScript passed 154 tests. The real Rust reference tool passed all 54 cases,
+2,565 proper-prefix truncations, chunked reads, I/O failure and writer preflight
+checks. The installed five-engine matrix passed 500 exact fixture roundtrips,
+25 fresh-record roundtrips, 25 semantic replays and 10 negative replay controls.
+Every replay retained the complete producer configuration, including Rust engine
+version/build stamps. A first application comparison mistakenly expected those
+stamps to match an unstamped static golden; that failed attempt is preserved.
+See the [binary-slice receipts](../validation/native-parity/binary-slice/README.md)
+for source/package identities and exact scope. Binary v2 causal evidence, direct
+recorder retention/capture policy and the remaining N11 gates are still open.
 
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Specify and implement N03/N04 generation, fuzzing and shrinking across the
-   four independent engines, including failure identity and replay guarantees.
+3. Implement the [audited BFS controls/estimates/observers slice](native-parity/N01-CONTROLS-AUDIT.md),
+   then append-only check storage and rich replay observations; retain distinct gates.
+   Continue binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

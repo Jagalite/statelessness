@@ -102,7 +102,10 @@ Raising one field does not raise another. Inclusive defaults:
 | max_items | 250000 | Sum of STEP records, all checks, all outputs, all parameter pairs |
 
 All length/count additions must be checked, never wrapping or using lossy float
-math. Wire lengths/counts must fit u32 even if a caller raises limits beyond it.
+math. Frame payload lengths, blob/string byte lengths, and vector counts must
+fit their u32 wire fields even if a caller raises limits beyond them. STEP
+indices and the END total STEP count retain their explicitly specified u64
+width; do not impose an additional u32 step-count limit.
 Before reserving a frame, validate payload length against max_frame_bytes and
 remaining max_total_bytes including the four checksum bytes. Before collection
 allocation validate count against its individual quota and aggregate items,
@@ -134,6 +137,13 @@ up to min(256, max_string_bytes, max_frame_bytes.saturating_sub(13)) bytes and m
 append `...` when truncating with room>=3. This is recorder capture policy, not
 a codec rule: the binary codec must preserve any already-supplied ModelError
 reason within its limits and must not truncate reasons during read/write.
+
+Rust's recorder also appends reserved `stateless.engine.version` and
+`stateless.engine.build` parameters. The structural codec preserves supplied
+configuration without adding these fields. Static format goldens and freshly
+recorded artifacts therefore have separate configuration expectations. Cross-engine
+tests must retain each producer's actual provenance rather than remove stamps
+or invent another engine's build identity to obtain equal bytes.
 
 ## Candidate finite corpus
 

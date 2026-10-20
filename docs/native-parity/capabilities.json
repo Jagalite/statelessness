@@ -6,6 +6,8 @@
     "head_commit": "e711bd6694780aba50af0d972fbecccbab30534f",
     "reviewed_at_utc": "2026-10-20T20:22:07.647166+00:00",
     "working_tree_additions_included": [
+      "go/audit_binary.go",
+      "go/audit_binary_read.go",
       "go/fuzz.go",
       "go/generate.go",
       "go/oracle.go",
@@ -13,13 +15,16 @@
       "go/search_observer.go",
       "go/shrink.go",
       "python/src/statelessness/search.py",
+      "python/src/statelessness/trace_binary.py",
+      "swift/Sources/Statelessness/AuditTrace.swift",
       "swift/Sources/Statelessness/Fuzz.swift",
       "swift/Sources/Statelessness/Generate.swift",
       "swift/Sources/Statelessness/Oracle.swift",
       "swift/Sources/Statelessness/Shrink.swift",
+      "typescript/src/binary.ts",
       "typescript/src/search.ts"
     ],
-    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh.",
+    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred.",
     "files": [
       {
         "path": "Package.swift",
@@ -78,6 +83,14 @@
         "sha256": "4e9c4142739699ec35b5143a15024a942cb3659e54dffd94a7cc7660ba8c156c"
       },
       {
+        "path": "go/audit_binary.go",
+        "sha256": "e752a148998bc62a3c01ab5d3ffd4710fbe06f83d1852077ced6af7c0fb05b66"
+      },
+      {
+        "path": "go/audit_binary_read.go",
+        "sha256": "6b2bc5630065d651a381d5aa8a402d016d47fddef2e62782c91c17f7e85049e4"
+      },
+      {
         "path": "go/cmd/stateless-corpus/main.go",
         "sha256": "c798b7d5e3a3fc4513dd678685c67d9b45b3eb42b95fa448afea7b145395906d"
       },
@@ -111,7 +124,7 @@
       },
       {
         "path": "go/oracle.go",
-        "sha256": "a48ba9f9840ca1d270da90f989ab6d52f68b927b359b8b2cef33086e8019589f"
+        "sha256": "d6ec8e832ffc05b536595474adfcd21852b3cb6f1f1efd2344194bad29b205fb"
       },
       {
         "path": "go/paired.go",
@@ -139,7 +152,7 @@
       },
       {
         "path": "python/src/statelessness/__init__.py",
-        "sha256": "2c75182a622d31101618409e1c8c5b0f5fd2a09cfde76f8f32229b563cf2d098"
+        "sha256": "7f5541960925605a35a1cc2d0fcfd5fea6ded01d38b59c0ff612c8e300f79bd6"
       },
       {
         "path": "python/src/statelessness/core.py",
@@ -158,12 +171,20 @@
         "sha256": "572cc00d455f778edd17cc6a184b7a8e4da0b51e77f4f69abe5b9c06df49725b"
       },
       {
+        "path": "python/src/statelessness/trace_binary.py",
+        "sha256": "075461692f410a524f3ee85502c00fd4ae62600d8e6757d0a2f89fe157b8944e"
+      },
+      {
         "path": "python/src/statelessness/trace_json.py",
         "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885"
       },
       {
         "path": "spec/README.md",
         "sha256": "a7cbec5e7591ac7fb0324e0297b86b3f92ccb9865a18acff23bcc7f387360667"
+      },
+      {
+        "path": "spec/native-binary-v1.md",
+        "sha256": "60df8d1985f8fe711bb4415be028147da4e576be159c336201792e6595c88c83"
       },
       {
         "path": "spec/paired-v1.md",
@@ -302,6 +323,10 @@
         "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8"
       },
       {
+        "path": "swift/Sources/Statelessness/AuditTrace.swift",
+        "sha256": "331669c86eff877c6065a36abe62487c341980252a99de8466a2b3700f3653e1"
+      },
+      {
         "path": "swift/Sources/Statelessness/Execution.swift",
         "sha256": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21"
       },
@@ -323,7 +348,7 @@
       },
       {
         "path": "swift/Sources/Statelessness/Oracle.swift",
-        "sha256": "4395320454ec94b349e82dd5dd9ff7e0204534e1c1a301e8103fb1087fb9d8e2"
+        "sha256": "8a19c1036a9f5d740e6a38feb3a466f49af2b730de9c37ba2d5312895998e288"
       },
       {
         "path": "swift/Sources/Statelessness/Rng.swift",
@@ -350,6 +375,10 @@
         "sha256": "c4023d699dcced839d8966e81eb805c790267c5ffefdac4e46e0066b6d251d04"
       },
       {
+        "path": "typescript/src/binary.ts",
+        "sha256": "09bf4a77dabf9154b6c61ac232b40084e7117423775abbfe10d7d078187f7f1d"
+      },
+      {
         "path": "typescript/src/conformance.ts",
         "sha256": "d4d1af31db53d92f8f57c7fddf26a5a09ccba3b891d3d963c693ea35132fb7ed"
       },
@@ -359,7 +388,7 @@
       },
       {
         "path": "typescript/src/index.ts",
-        "sha256": "3affe04db520a4874af46cbe1e7125903fd697fe68ec3eb32181f949dcb85c63"
+        "sha256": "50840e51fb70694bab92db78032493c3e89eb7dd02a38f0cc36a18188167d382"
       },
       {
         "path": "typescript/src/json.ts",
@@ -367,11 +396,37 @@
       },
       {
         "path": "typescript/src/oracle.ts",
-        "sha256": "15a7a7869c05561c5a5f1413d3e3b83cfbb0c40f258d8b2319b9aa8eba17370c"
+        "sha256": "fbe565b2c33c175fbfa41498bf487fd4bfb2d96d93ed32f2a65d847eb01280c3"
       },
       {
         "path": "typescript/src/search.ts",
         "sha256": "31e33cca22f88c0ca34d054d4b9a64db41f7fe112c82517abb0fe39979e96be0"
+      }
+    ],
+    "scoped_reviews": [
+      {
+        "scope": "binary-v1 structural codecs, explicit run configuration, binary limits, exports and candidate markers",
+        "reviewed_at_utc": "2026-10-20T20:53:36.935369+00:00",
+        "head_commit": "daaf76c15d1c04c8720e4710b9e746a7d72ddb97",
+        "files_reviewed": [
+          "go/audit_binary.go",
+          "go/audit_binary_read.go",
+          "go/oracle.go",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/trace_binary.py",
+          "spec/native-binary-v1.md",
+          "swift/Sources/Statelessness/AuditTrace.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/binary.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts"
+        ],
+        "feature_ids_changed": [
+          "binary-v1",
+          "record-replay",
+          "causal-evidence"
+        ],
+        "qualification_note": "Static implementation mapping only. Qualification fields and receipt links remain unchanged; parent-owned runtime/cross-language receipts are separate. All unrelated feature cells and source hashes were preserved."
       }
     ]
   },
@@ -736,7 +791,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Scoped to portable model value codecs/observation envelopes. Rust RunConfig parameters, binary wire format, replay observations and causal evidence are separate gaps. Canonical restored-state/input validation and build override boundaries need continued conformance."
+      "remaining": "Scoped portable recording/exact replay remains implemented. New binary-v1 AuditTrace codecs preserve explicitly supplied RunConfig alongside the portable trace, but existing recorders do not directly accept/stamp Rust RunConfig or enforce all binary artifact quotas during capture/reserve a bounded model-error footer. These recorder/resource behaviors, reusable bounded sinks, rich replay observations and causal evidence remain open. Restored-state/input canonical validation and build-override boundaries need continued conformance."
     },
     {
       "id": "replay-observations",
@@ -2075,76 +2130,93 @@
       "gap_ids": [
         "N11"
       ],
-      "capability": "Rust binary trace v1 read/write and run-configuration identity",
+      "capability": "Structural Rust binary trace v1 read/write and lossless run-configuration representation",
       "rust_api": [
         "src/trace.rs:23 RunConfig",
         "src/trace.rs:40 TraceStep",
         "src/trace.rs:49 Termination",
         "src/trace.rs:63 Trace",
         "src/trace.rs:75 ReadLimits",
-        "src/trace.rs:105 TraceError"
+        "src/trace.rs:105 TraceError",
+        "src/trace.rs:523 Trace::write_to",
+        "src/trace.rs:527 Trace::write_with_limits",
+        "src/trace.rs:547 Trace::read_from"
       ],
       "mapping_review": "source_reviewed",
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/trace_binary.py:37 BinaryLimits",
+            "python/src/statelessness/trace_binary.py:54 RunConfig",
+            "python/src/statelessness/trace_binary.py:74 AuditTrace::{from_portable,to_portable}",
+            "python/src/statelessness/trace_binary.py:256 write_audit",
+            "python/src/statelessness/trace_binary.py:283 audit_to_bytes",
+            "python/src/statelessness/trace_binary.py:386 read_audit",
+            "python/src/statelessness/trace_binary.py:452 audit_from_bytes",
+            "python/src/statelessness/__init__.py:33 public binary exports"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/audit_binary.go:14 RunConfig",
+            "go/audit_binary.go:22 AuditTrace",
+            "go/audit_binary.go:30 BinaryLimits/DefaultBinaryLimits",
+            "go/audit_binary.go:97 AuditFromPortable",
+            "go/audit_binary.go:106 AuditTrace.Portable",
+            "go/audit_binary.go:298 AuditTrace.WriteBinaryWithLimits",
+            "go/audit_binary.go:375 AuditTrace.WriteBinary",
+            "go/audit_binary.go:378 MarshalAuditTrace",
+            "go/audit_binary_read.go:213 ReadAuditTrace",
+            "go/audit_binary_read.go:347 ParseAuditTrace"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/binary.ts:3 RunConfig",
+            "typescript/src/binary.ts:11 AuditTrace",
+            "typescript/src/binary.ts:14 BinaryLimits/DEFAULT_BINARY_LIMITS",
+            "typescript/src/binary.ts:29 BinaryError/AuditReader/AuditWriter",
+            "typescript/src/binary.ts:140 auditTraceFromPortable",
+            "typescript/src/binary.ts:146 auditTraceToPortable",
+            "typescript/src/binary.ts:268 writeAuditTrace",
+            "typescript/src/binary.ts:322 writeAuditTraceTo",
+            "typescript/src/binary.ts:411 readAuditTrace",
+            "typescript/src/index.ts:6 public binary reexport"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/Statelessness/AuditTrace.swift:2 AuditParameter",
+            "swift/Sources/Statelessness/AuditTrace.swift:8 RunConfig",
+            "swift/Sources/Statelessness/AuditTrace.swift:17 AuditTermination",
+            "swift/Sources/Statelessness/AuditTrace.swift:29 AuditTrace/init(portable:config:)/portable",
+            "swift/Sources/Statelessness/AuditTrace.swift:66 BinaryTraceLimits",
+            "swift/Sources/Statelessness/AuditTrace.swift:78 BinaryTraceError",
+            "swift/Sources/Statelessness/AuditTrace.swift:208 writeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:242 encodeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:338 decodeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:367 readAuditTrace"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         }
       },
-      "remaining": "Independent native JSON helpers do not read/write the Rust binary Trace format. Public Trace names have different envelope representations; they must not be counted as wire compatibility."
+      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Direct recording still uses the portable shape: native recorder RunConfig/provenance stamping, encoded-artifact admission and reserved bounded model-error footer capture policy remain open. Step check phases are unknown_legacy; binary v2/causal evidence, canonical value codecs, rich replay observations and durable publication are separate gaps. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
     },
     {
       "id": "value-codec",
@@ -2299,7 +2371,7 @@
           "receipt_ids": []
         }
       },
-      "remaining": "Native TraceStep flattens checks and lacks v2 phase/causal metadata. Cannot reconstruct missing phase/causal information from v1 JSON traces."
+      "remaining": "Both portable TraceStep and new binary-v1 AuditTrace retain flat step checks and lack v2 phase/causal metadata. Initial phase is known; successor/transition phases in decoded v1 evidence are unknown_legacy and cannot be inferred from IDs/order. Missing causal origins/provenance cannot be reconstructed from v1 JSON or binary traces; explicit verified replay upgrade or v2 evidence remains required."
     },
     {
       "id": "debug-session",
@@ -2961,12 +3033,14 @@
     "Rust cfg and target-specific FFI exports require target expansion audit. Macro-generated application exports depend on invocation and are not enumerated.",
     "Exact language deployment/platform/runtime floors and installed-consumer performance qualification remain open.",
     "Native bounded generation/fuzz/shrink and fuzz observations are implemented in this snapshot; BFS/replay cooperative controls, state-byte estimates, append-buffer partial-check equivalence and all later milestone groups remain open.",
+    "Native binary-v1 structural read/write, lossless RunConfig and all nine limit families have source implementations; direct binary-budgeted recording/provenance/footer capture, binary v2 causal evidence, canonical value codecs, durable publication and installed native/Rust interoperability qualification remain open. N11 is not closed.",
     "General liveness, general partial-order reduction, a TUI and LLDB/GDB integration are outside the pinned Rust baseline; no extra native gap is invented for them."
   ],
   "experimental_profiles": {
     "profiles": [
       "paired-v1",
-      "search-v1"
+      "search-v1",
+      "native-binary-v1"
     ],
     "qualified_profile_list_unchanged": [
       "core-v1",
@@ -2975,14 +3049,15 @@
       "trace-json-v1"
     ],
     "declarations": [
-      "python/src/statelessness/__init__.py:31 EXPERIMENTAL_PROFILES",
+      "python/src/statelessness/__init__.py EXPERIMENTAL_PROFILES (paired-v1/search-v1/native-binary-v1)",
       "go/oracle.go:6 ExperimentalProfiles",
       "typescript/src/oracle.ts:7 EXPERIMENTAL_PROFILES",
       "swift/Sources/Statelessness/Oracle.swift:2 experimentalProfiles"
     ],
     "contracts": [
       "spec/paired-v1.md",
-      "spec/search-v1.md"
+      "spec/search-v1.md",
+      "spec/native-binary-v1.md"
     ],
     "note": "Candidate markers advertise opt-in API scope only, not qualification or release."
   }

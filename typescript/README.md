@@ -126,3 +126,25 @@ identity to the actual model (using the actual component of the combined state).
 Wrap an enumerated actual model with `automatic` before constructing `WithOracle`
 when automatic generation is desired. Missing generation or input identity
 capabilities produce explicit unsupported-operation errors.
+
+### Experimental lossless audit binary v1
+
+`readAuditTrace(bytesOrReader, limits?)` and `writeAuditTrace(audit, limits?)`
+read/write the existing Rust audit format, including complete run configuration,
+ordered duplicate parameters, exact `bigint | null` seeds and model-error text.
+`AuditTrace` extends the portable `Trace` with a required `config: RunConfig`.
+`auditTraceFromPortable(trace, config, limits?)` requires explicit configuration;
+`auditTraceToPortable(audit, limits?)` returns `{ trace, config }` together. Both
+conversions own their bytes, including when the source contains Node Buffers.
+Conversions apply the default binary quotas unless explicitly overridden.
+
+`BinaryLimits` uses the nine independently enforced snake_case fields from
+[`native-binary-v1`](../spec/native-binary-v1.md). The writer captures fields and
+preflights all frames, strings, counts and total bytes before publication.
+`writeAuditTraceTo(audit, writer, limits?)` passes a complete encoded artifact to
+`writer.write(bytes)` only after validation; an I/O error can still leave the
+host sink partially written. No flush, close, durability or publication is implied.
+An `AuditReader.read(target)` may fill any nonempty prefix and returns zero only
+at EOF; reads are synchronous, and footer EOF probing requires bounded input or
+host I/O deadlines. Binary v1 step checks have unknown legacy phases. Structural
+acceptance and exact re-encoding do not qualify semantic replay or add a profile.

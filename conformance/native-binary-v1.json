@@ -769,6 +769,445 @@
       "limits": {
         "max_frame_bytes": 43
       }
+    },
+    {
+      "case": "empty-model-error-reason",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8030d00000000000000000000000400000000fd17a36a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "model_error",
+          "reason": ""
+        }
+      }
+    },
+    {
+      "case": "structural-completed-with-failure",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a0100000001370000000000000000000000000000000000000000000000060000006d616e75616c000000000000000000010000000300000062616401000000009ca02f7a0309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "reason": ""
+          }
+        ],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "structural-property-failed-without-failure",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b803090000000000000000000000016266485d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "ordered-duplicate-check-ids",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000014b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000002000000090000006475706c696361746500090000006475706c69636174650200000000e3de0e03024a000000000000000000000001000000010000000000010000000202000000090000006475706c696361746501050000006669727374090000006475706c696361746501060000007365636f6e642aa48c9903090000000100000000000000012172334a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "duplicate",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "duplicate",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "duplicate",
+                "status": "failed",
+                "reason": "first"
+              },
+              {
+                "id": "duplicate",
+                "status": "failed",
+                "reason": "second"
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "exact-item-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_items": 9
+      }
+    },
+    {
+      "case": "exact-parameter-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_parameters": 2
+      }
+    },
+    {
+      "case": "exact-check-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_checks_per_step": 2
+      }
+    },
+    {
+      "case": "exact-output-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_outputs_per_step": 2
+      }
     }
   ]
 }

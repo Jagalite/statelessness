@@ -3,3 +3,4 @@ export * from './oracle.js';
 export { FormatError, parseTrace, stringifyTrace, traceFromData, traceToData } from './json.js';
 
 export * from './search.js';
+export * from './binary.js';

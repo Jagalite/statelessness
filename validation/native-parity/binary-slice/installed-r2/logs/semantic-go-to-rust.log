@@ -1,0 +1,1 @@
+{"build_matches":true,"failure_reproduced":false,"operation":"replay-single","outcome":"exact","producer":"rust","retained_config":{"parameters":[],"seed":null,"strategy":"manual"},"semantic_replay":true,"steps":1}

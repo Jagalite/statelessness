@@ -154,5 +154,30 @@ primary and secondary errors are attached in its `observer_errors` tuple.
 actual model while retaining independent oracle history. Wrap the actual model
 in `Generated` or `Auto` before attaching the oracle when it lacks a generator;
 requesting fuzzing without generation raises an explicit `ModelError`.
-`EXPERIMENTAL_PROFILES` lists `paired-v1` and `search-v1`; qualified `PROFILES`
+`EXPERIMENTAL_PROFILES` lists `paired-v1`, `search-v1`, and `native-binary-v1`; qualified `PROFILES`
 remain unchanged.
+
+## Experimental lossless Rust audit binary v1
+
+`AuditTrace` retains `RunConfig(strategy, seed, parameters)` alongside all portable
+trace fields. Seeds preserve absence versus zero and all 64 bits; parameter pairs
+preserve order and duplicate keys. `AuditTrace.from_portable(trace, config)`
+requires explicit configuration. `audit.to_portable()` returns `(trace, config)`
+to retain fields omitted by portable traces.
+
+`audit_to_bytes(audit)` / `audit_from_bytes(data)` and stream counterparts
+`write_audit(audit, writer)` / `read_audit(reader)` implement the existing Rust
+binary v1 format with strict UTF-8, CRC32, framing, indices and EOF validation.
+`BinaryLimits` independently bounds total/frame/blob/string bytes, steps, checks,
+outputs, parameters and aggregate items on reading and writing. Writers preflight
+all fields before publishing bytes; I/O failure can still leave a partial stream.
+Streams remain caller-owned: no implicit flush, close or durable publication.
+Reader EOF probing requires a bounded stream and host-controlled I/O deadlines.
+`BinaryTraceError.kind` distinguishes structural, quota, checksum, truncation,
+version and I/O errors. Binary parsing preserves structurally valid unusual
+termination/check combinations; semantic consistency belongs to `replay`.
+
+Binary v1 records no successor/transition check boundary, so step check phases
+remain `unknown_legacy`; never infer phases from IDs or order. `native-binary-v1`
+is an experimental candidate, outside qualified `PROFILES`. Shared finite goldens
+and unit tests do not alone establish cross-language replay or publication safety.
