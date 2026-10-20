@@ -264,9 +264,10 @@ mod binding {
                 .to_string()
                 .contains("version")
         );
-        let mut bytes = vec![9];
+        let mut bytes = Vec::new();
         {
             let mut sink = EncodeBuffer::new(&mut bytes, 1);
+            sink.extend_from_slice(&[9]).unwrap();
             assert!(
                 wrong
                     .encode_state_into(&value, &mut sink)
