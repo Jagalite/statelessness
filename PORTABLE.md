@@ -5,6 +5,7 @@
 - [Shared JSON corpus and Rust/Python differential runner](conformance/README.md)
 - [Qualification evidence and limitations](spec/QUALIFICATION.md)
 - [Source capability/version matrix and distribution status](docs/CAPABILITIES.md)
+- [Native language parity plan](docs/NATIVE-PARITY-PLAN.md)
 
 The Python package is independent: it does not call Rust, cgo, or Wasm.
 The Rust qualification adapter calls the existing Rust engine. Both execute the
