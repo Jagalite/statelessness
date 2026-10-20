@@ -225,4 +225,91 @@ class BinaryStreamFailureTests(unittest.TestCase):
         self.assertEqual(caught.exception.kind, "io")
 
 
+
+
+class BinaryVariantValidationTests(unittest.TestCase):
+    class EqualAnything:
+        def __eq__(self, other): return True
+    class Spoof(str):
+        def __eq__(self, other): return True
+    class HiddenReason(str):
+        def __bool__(self): return False
+        def __len__(self): return 0
+
+    def base(self):
+        return AuditTrace(Metadata("m"), RunConfig(), b"", (), (), "completed")
+
+    def assertRejectedBeforePublication(self, trace):
+        stream = io.BytesIO()
+        with self.assertRaises(BinaryTraceError) as caught: write_audit(trace, stream)
+        self.assertEqual(caught.exception.kind, "invalid_data")
+        self.assertEqual(stream.getvalue(), b"")
+
+    def test_public_check_status_spoof_objects_and_unknown_text_are_rejected(self):
+        for status in (self.EqualAnything(), self.Spoof("unknown")):
+            check = Check("bad", status)
+            self.assertRejectedBeforePublication(replace(self.base(), initial_checks=(check,)))
+        for kind in (self.EqualAnything(), self.Spoof("unknown")):
+            step = TraceStep(b"", Disposition(kind), (), b"", ())
+            self.assertRejectedBeforePublication(replace(self.base(), steps=(step,)))
+        for termination in (self.EqualAnything(), self.Spoof("unknown")):
+            self.assertRejectedBeforePublication(replace(self.base(), termination=termination))
+
+    def test_hidden_nonempty_reasons_are_not_dropped(self):
+        check = Check("bad", "passed", self.HiddenReason("must not disappear"))
+        self.assertRejectedBeforePublication(replace(self.base(), initial_checks=(check,)))
+        step = TraceStep(b"", Disposition("accepted", self.HiddenReason("must not disappear")), (), b"", ())
+        self.assertRejectedBeforePublication(replace(self.base(), steps=(step,)))
+        bad = replace(self.base(), error=self.HiddenReason("must not disappear"))
+        self.assertRejectedBeforePublication(bad)
+        with self.assertRaises(BinaryTraceError): bad.to_portable()
+        with self.assertRaises(BinaryTraceError):
+            AuditTrace.from_portable(Trace(Metadata("m"), b"", (), (), "completed", self.HiddenReason("lost")), RunConfig())
+        self.assertRejectedBeforePublication(replace(self.base(), error=self.EqualAnything()))
+
+    def test_known_subclass_variant_text_encodes_exact_actual_data(self):
+        check = Check("check", self.Spoof("failed"), self.HiddenReason("failure"))
+        disposition = Disposition(self.Spoof("ignored"), self.HiddenReason("why"))
+        step = TraceStep(b"", disposition, (), b"", (check,))
+        trace = replace(self.base(), steps=(step,), termination=self.Spoof("model_error"),
+                        error=self.HiddenReason("terminal"))
+        decoded = audit_from_bytes(audit_to_bytes(trace))
+        self.assertEqual(decoded.termination, "model_error")
+        self.assertEqual(decoded.error, "terminal")
+        self.assertEqual(decoded.steps[0].checks, (Check("check", "failed", "failure"),))
+        self.assertEqual(decoded.steps[0].disposition, Disposition("ignored", "why"))
+        portable, config = trace.to_portable()
+        self.assertIs(type(portable.termination), str)
+        self.assertEqual(portable.error, "terminal")
+
+
+
+
+class BinaryCanonicalizationQuotaTests(unittest.TestCase):
+    def test_large_subclass_reason_is_not_copied_before_string_quota(self):
+        import tracemalloc
+        class Hidden(str):
+            def __bool__(self): return False
+        reason = Hidden("x" * (8 * 1024 * 1024))
+        trace = AuditTrace(Metadata(""), RunConfig(), b"", (), (), "model_error", reason)
+        tracemalloc.start()
+        try:
+            with self.assertRaises(BinaryTraceError): audit_to_bytes(trace, limits=BinaryLimits(max_string_bytes=8))
+            _, peak = tracemalloc.get_traced_memory()
+        finally:
+            tracemalloc.stop()
+        # A full canonical base-str copy would allocate >8MiB before rejection.
+        self.assertLess(peak, 1024 * 1024)
+
+    def test_class_attribute_spoof_is_not_a_real_string(self):
+        class Fake:
+            @property
+            def __class__(self): return str
+            def __eq__(self, other): return True
+        trace = AuditTrace(Metadata(""), RunConfig(), b"", (), (), Fake())
+        stream = io.BytesIO()
+        with self.assertRaises(BinaryTraceError) as caught: write_audit(trace, stream)
+        self.assertEqual((caught.exception.kind, stream.getvalue()), ("invalid_data", b""))
+
+
 if __name__ == "__main__": unittest.main()

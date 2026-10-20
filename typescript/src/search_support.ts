@@ -1,3 +1,4 @@
+import { withCheckSink, appendStateChecks, appendTransitionChecks } from './checks.js';
 /** Shared cooperative controls and checked search observations; not a package entrypoint. */
 import { type Model, type Transition, type Check, type Violation, ModelError, ConfigError, check, disposition } from './core.js';
 export interface RunLimits {
@@ -5,14 +6,19 @@ export interface RunLimits {
     readonly cancellation?: () => boolean;
 }
 type ControlStop = 'cancelled' | 'deadline';
-function boolean(value: boolean, name: string): boolean { if (typeof value !== 'boolean')
-    throw new TypeError(`${name} must return boolean`); return value; }
-function call<T>(stage: string, fn: () => T): T { try {
-    return fn();
+function boolean(value: boolean, name: string): boolean {
+    if (typeof value !== 'boolean')
+        throw new TypeError(`${name} must return boolean`);
+    return value;
 }
-catch (e) {
-    throw new ModelError(`${stage}: ${e instanceof Error ? e.message : String(e)}`);
-} }
+function call<T>(stage: string, fn: () => T): T {
+    try {
+        return fn();
+    }
+    catch (e) {
+        throw new ModelError(`${stage}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+}
 const state = <S, I, O>(m: Model<S, I, O>, s: S): S => call('snapshot state', () => m.cloneState(s));
 const input = <S, I, O>(m: Model<S, I, O>, i: I): I => call('snapshot input', () => m.cloneInput(i));
 function copyTransition<S, I, O>(m: Model<S, I, O>, t: Transition<S, O>): Transition<S, O> { return call('snapshot transition', () => ({ state: m.cloneState(t.state), outputs: Array.from(t.outputs, o => m.cloneOutput(o)), disposition: disposition(t.disposition.kind, t.disposition.reason) })); }
@@ -25,57 +31,62 @@ export interface SearchObserver<S, I, O> {
     checkError?(phase: Violation['phase'], checks: readonly Check[], complete: boolean): void;
 }
 const copyChecks = (checks: readonly Check[]): Check[] => checks.map(c => check(c.id, c.status, c.details));
-export function searchChecks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I, t?: Transition<S, O>, observer?: SearchObserver<S, I, O>, history: readonly I[] = []): {
+export function searchChecks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I, t?: Transition<S, O>, observer?: SearchObserver<S, I, O>, history: readonly I[] = [], storage: Check[] = []): {
     violations: Violation[];
     skipped: bigint;
 } {
-    const sc: Check[] = [], ec: Check[] = [];
-    const notify = (phase: Violation['phase'], values: Check[], complete: boolean) => {
-        if (observer?.checkError)
-            call('observer check_error', () => observer.checkError!(phase, copyChecks(values), complete));
-    };
-    const reportCheckError = (error: unknown, batches: [
+    storage.length = 0;
+    const phase = t ? 'state' : 'initial_state';
+    const notify = (error: unknown, batches: [
         Violation['phase'],
-        Check[],
+        number,
+        number,
         boolean
     ][]): never => {
         const secondary: string[] = [];
-        for (const [phase, values, complete] of batches) {
-            try {
-                notify(phase, values, complete);
+        if (observer?.checkError)
+            for (const [phase, start, end, complete] of batches) {
+                try {
+                    call('observer check_error', () => observer.checkError!(phase, copyChecks(storage.slice(start, end)), complete));
+                }
+                catch (e) {
+                    secondary.push(e instanceof Error ? e.message : String(e));
+                }
             }
-            catch (observationError) {
-                secondary.push(observationError instanceof Error ? observationError.message : String(observationError));
-            }
-        }
         if (secondary.length)
             throw new ModelError(`${error instanceof Error ? error.message : String(error)}; ${secondary.join('; ')}`);
         throw error;
     };
-    const collect = (stage: string, fn: () => Iterable<Check>, out: Check[]) => call(stage, () => {
-        for (const c of fn())
-            out.push(check(c.id, c.status, c.details));
-    });
     try {
-        collect('state check', () => m.checkState(state(m, s)), sc);
+        call('state check', () => withCheckSink(storage, sink => appendStateChecks(m, s, sink)));
     }
     catch (error) {
-        reportCheckError(error, [[t ? 'state' : 'initial_state', sc, false]]);
+        notify(error, [[phase, 0, storage.length, false]]);
     }
+    const stateCount = storage.length;
     if (t) {
         try {
-            if (m.checkTransition)
-                collect('transition check', () => m.checkTransition!(state(m, before as S), input(m, i as I), copyTransition(m, t)), ec);
+            call('transition check', () => withCheckSink(storage, sink => appendTransitionChecks(m, before as S, i as I, t, sink)));
         }
         catch (error) {
-            reportCheckError(error, [['state', sc, true], ['transition', ec, false]]);
+            notify(error, [['state', 0, stateCount, true], ['transition', stateCount, storage.length, false]]);
         }
         if (observer?.transition)
-            call('observer transition', () => observer.transition!(state(m, before as S), input(m, i as I), copyTransition(m, t), copyChecks(sc), copyChecks(ec), history.map(v => input(m, v))));
+            call('observer transition', () => observer.transition!(state(m, before as S), input(m, i as I), copyTransition(m, t), copyChecks(storage.slice(0, stateCount)), copyChecks(storage.slice(stateCount)), history.map(v => input(m, v))));
     }
     else if (observer?.initial)
-        call('observer initial', () => observer.initial!(state(m, s), copyChecks(sc)));
-    return { violations: [...sc.filter(c => c.status === 'failed').map(c => ({ phase: t ? 'state' as const : 'initial_state' as const, check: c })), ...ec.filter(c => c.status === 'failed').map(c => ({ phase: 'transition' as const, check: c }))], skipped: BigInt([...sc, ...ec].filter(c => c.status === 'skipped').length) };
+        call('observer initial', () => observer.initial!(state(m, s), copyChecks(storage)));
+    const violations: Violation[] = [];
+    let skipped = 0n;
+    // A single reusable buffer stores both batches. Boundary offsets avoid temporary batch arrays when unobserved.
+    for (let index = 0; index < storage.length; index++) {
+        const c = storage[index];
+        if (c.status === 'failed')
+            violations.push({ phase: t ? (index < stateCount ? 'state' : 'transition') : 'initial_state', check: c });
+        else if (c.status === 'skipped')
+            skipped++;
+    }
+    return { violations, skipped };
 }
 /** Snapshot copied run settings; only the captured cancellation function's external state stays live. */
 export function runControl(limits: RunLimits): () => ControlStop | null {
@@ -93,9 +104,8 @@ export function runControl(limits: RunLimits): () => ControlStop | null {
         return null;
     };
 }
-
 /** Rust check accounting saturates at u64::MAX rather than wrapping. */
-export function addSkippedChecks(left:bigint,right:bigint):bigint {
-    const total=left+right,maximum=(1n<<64n)-1n;
-    return total>maximum?maximum:total;
+export function addSkippedChecks(left: bigint, right: bigint): bigint {
+    const total = left + right, maximum = (1n << 64n) - 1n;
+    return total > maximum ? maximum : total;
 }

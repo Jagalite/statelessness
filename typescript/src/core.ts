@@ -1,3 +1,5 @@
+import {CheckSink,withCheckSink,appendStateChecks,appendTransitionChecks} from './checks.js';
+export {CheckSink,withCheckSink} from './checks.js';
 import {runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver} from './search_support.js';
 /** Independent native engine. Callbacks describe effects; the engine never executes I/O.
  * Models must be deterministic. Explicit copy hooks preserve application-owned
@@ -62,6 +64,8 @@ export interface Model<S, I, O> {
   initialState(): S;
   step(state: S, input: I): Transition<S, O>;
   checkState(state: S): Iterable<Check>;
+  checkStateInto?(state:S,sink:CheckSink):void;
+  checkTransitionInto?(before:S,input:I,transition:Transition<S,O>,sink:CheckSink):void;
   checkTransition?(before: S, input: I, transition: Transition<S, O>): Iterable<Check>;
   /** Identity is appropriate only for immutable values; clone nested mutable data. */
   cloneState(state: S): S;
@@ -91,27 +95,32 @@ function copyInput<S, I, O>(m: Model<S, I, O>, i: I): I { return call('snapshot'
 function copyTransition<S, I, O>(m: Model<S, I, O>, t: Transition<S, O>): Transition<S, O> {
   return call('snapshot', () => ({ state: m.cloneState(t.state), outputs: Array.from(t.outputs, o => m.cloneOutput(o)), disposition: disposition(t.disposition.kind, t.disposition.reason) }));
 }
-function collect(stage: string, callback: () => Iterable<Check>): Check[] {
-  return call(stage, () => Array.from(callback(), c => check(c.id, c.status, c.details)));
-}
-function stateChecks<S, I, O>(m: Model<S, I, O>, s: S): Check[] {
-  return collect('state check', () => m.checkState(copyState(m, s)));
-}
-function edgeChecks<S, I, O>(m: Model<S, I, O>, b: S, i: I, t: Transition<S, O>): Check[] {
-  return m.checkTransition ? collect('transition check', () => m.checkTransition!(copyState(m, b), copyInput(m, i), copyTransition(m, t))) : [];
+function stateChecks<S,I,O>(m:Model<S,I,O>,s:S,stage='state check'):Check[]{
+  const output:Check[]=[];call(stage,()=>withCheckSink(output,sink=>appendStateChecks(m,s,sink)));return output;
 }
 function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> {
   return copyTransition(m, call('transition', () => m.step(copyState(m, s), copyInput(m, i))));
 }
 export interface CheckPolicy { readonly stateEvery: number; readonly transitionChecks: boolean }
 export const FULL_CHECKS: CheckPolicy = Object.freeze({ stateEvery: 1, transitionChecks: true });
-/** Observe exactly once: never calls step(). Initial state checking is separate. */
-export function checkObserved<S, I, O>(m: Model<S, I, O>, before: S, input: I, transition: Transition<S, O>, sequence: number, policy: CheckPolicy = FULL_CHECKS): Check[] {
-  natural(sequence, 'sequence', 1); natural(policy.stateEvery, 'stateEvery', 1);
-  if (typeof policy.transitionChecks !== 'boolean') throw new ConfigError('transitionChecks must be boolean');
-  const first = sequence % policy.stateEvery === 0 ? stateChecks(m, transition.state) : [check('stateless.state_checks', 'skipped', 'periodic checking policy')];
-  const second = policy.transitionChecks ? edgeChecks(m, before, input, transition) : [check('stateless.transition_checks', 'skipped', 'disabled by policy')];
-  return [...first, ...second];
+/** Clear caller storage at entry and on every error; checks an already executed turn without step(). */
+export function checkObservedInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):void {
+  output.length=0;
+  try {
+    const {stateEvery,transitionChecks}=policy;
+    natural(sequence,'sequence',1);natural(stateEvery,'stateEvery',1);
+    if(typeof transitionChecks!=='boolean')throw new ConfigError('transitionChecks must be boolean');
+    withCheckSink(output,sink=>{
+      if(sequence%stateEvery===0)call('state check',()=>appendStateChecks(m,transition.state,sink));
+      else sink.push(check('stateless.state_checks','skipped','periodic checking policy'));
+      if(transitionChecks)call('transition check',()=>appendTransitionChecks(m,before,input,transition,sink));
+      else sink.push(check('stateless.transition_checks','skipped','disabled by policy'));
+    });
+  } catch(error){output.length=0;throw error;}
+}
+/** Collection convenience shares the append dispatcher and never calls step(). */
+export function checkObserved<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,policy:CheckPolicy=FULL_CHECKS):Check[]{
+  const output:Check[]=[];checkObservedInto(m,before,input,transition,sequence,output,policy);return output;
 }
 function failed(checks: readonly Check[]): boolean { return checks.some(c => c.status === 'failed'); }
 export interface SearchConfig { readonly maxStates: number; readonly maxTransitions: number; readonly maxDepth: number }
@@ -159,6 +168,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
         depth: number;
     };
     const nodes: Node[] = [];
+    const checkStorage:Check[]=[];
     let states = 0, transitions = 0n, reached = 0, skipped = 0n, retained: bigint | null = null, cutoff = false;
     const report = (termination: SearchReport<I>['termination'], failure: Failure<I> | null = null): ExactSearchReport<I> => ({ termination, states, transitions, max_depth_reached: reached, skipped_checks: skipped, estimated_retained_state_bytes: retained, failure });
     const stopped = (): ExactSearchReport<I> | null => { const reason = stop(); return reason ? report(reason) : null; };
@@ -176,7 +186,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
         return halted;
     const initial = copyState(m, call('initial_state', () => m.initialState()));
     states = 1;
-    const checked = searchChecks(m, initial, undefined, undefined, undefined, observer);
+    const checked = searchChecks(m, initial, undefined, undefined, undefined, observer,[],checkStorage);
     skipped = addSkippedChecks(skipped,checked.skipped);
     if (checked.violations.length)
         return report('failure_found', { inputs: [], violations: checked.violations });
@@ -238,7 +248,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
             const wantHistory = observer?.needsHistory ? call('observer needs_history', () => { const v = observer.needsHistory!(); if (typeof v !== 'boolean')
                 throw new TypeError('needsHistory must return boolean'); return v; }) : false;
             const history = wantHistory ? [...path(cursor), copyInput(m, item.value)] : [];
-            const checked = searchChecks(m, t.state, node.state, item.value, t, observer, history);
+            const checked = searchChecks(m, t.state, node.state, item.value, t, observer, history,checkStorage);
             skipped = addSkippedChecks(skipped,checked.skipped);
             if (checked.violations.length)
                 return report('failure_found', { inputs: [...path(cursor), copyInput(m, item.value)], violations: checked.violations });
@@ -311,12 +321,13 @@ function encode(stage: string, callback: () => Uint8Array, maximum = Number.MAX_
 export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps = 100_000, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace {
   natural(maxSteps, 'maxSteps'); validateTraceLimits(limits);
   let state = copyState(m, call('initial state', () => m.initialState()));
-  const initialChecks = collect('initial check', () => m.checkState(copyState(m, state)));
+  const initialChecks = stateChecks(m,state,'initial check');
   const initialState = encode('encode initial state', () => m.encodeState(copyState(m, state)), limits.maxBlobBytes);
   const identity = call('metadata', () => validateMetadata(m.metadata()));
   let items = initialChecks.length, payload = initialState.length;
   if (items > limits.maxItems || payload > limits.maxPayloadBytes) throw new ModelError('recording limit: initial checkpoint');
   const steps: TraceStep[] = [];
+  const checkStorage:Check[]=[];
   const result = (termination: Termination, error = ''): Trace => ({ metadata: identity, initialState, initialChecks, steps, termination, error });
   if (failed(initialChecks)) return result('property_failed');
   try {
@@ -326,7 +337,9 @@ export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, max
       if (item.done) return result('completed');
       if (steps.length >= Math.min(maxSteps, limits.maxSteps)) return result('step_limit');
       const input = encode('encode input', () => m.encodeInput(copyInput(m, item.value)), limits.maxBlobBytes);
-      const t = step(m, state, item.value), checks = checkObserved(m, state, item.value, t, steps.length + 1);
+      const t=step(m,state,item.value);
+      checkObservedInto(m,state,item.value,t,steps.length+1,checkStorage);
+      const checks=checkStorage.map(c=>({...c}));
       const nextItems = items + 1 + checks.length + t.outputs.length;
       if (nextItems > limits.maxItems) throw new ModelError('recording limit: aggregate items');
       const outputs = t.outputs.map(o => encode('encode output', () => m.encodeOutput(call('snapshot', () => m.cloneOutput(o))), limits.maxBlobBytes));
@@ -363,14 +376,17 @@ export function replay<S, I, O>(m: CodecModel<S, I, O>, trace: Trace, allowBuild
   validateRecording(trace);
   let state = call('decode initial state', () => m.decodeState(new Uint8Array(trace.initialState)));
   if (!bytesEqual(encode('encode initial state', () => m.encodeState(copyState(m, state))), trace.initialState)) throw new ModelError('initial state encoding is not canonical');
-  const initial = collect('initial check', () => m.checkState(copyState(m, state)));
+  const initial = stateChecks(m,state,'initial check');
   r.failure_reproduced = sameFailure(trace.initialChecks, initial);
   if (!checksEqual(initial, trace.initialChecks)) { r.outcome = 'diverged'; r.field = 'initial checks'; return r; }
+  const checkStorage:Check[]=[];
   for (let index = 0; index < trace.steps.length; index++) {
     const expected = trace.steps[index];
     const input = call('decode input', () => m.decodeInput(new Uint8Array(expected.input)));
     if (!bytesEqual(encode('encode input', () => m.encodeInput(copyInput(m, input))), expected.input)) throw new ModelError(`input ${index + 1} encoding is not canonical`);
-    const actual = step(m, state, input), checks = checkObserved(m, state, input, actual, index + 1);
+    const actual=step(m,state,input);
+    checkObservedInto(m,state,input,actual,index+1,checkStorage);
+    const checks=checkStorage;
     r.failure_reproduced ||= sameFailure(expected.checks, checks);
     const outputs = actual.outputs.map(o => encode('encode output', () => m.encodeOutput(call('snapshot', () => m.cloneOutput(o)))));
     const postState = encode('encode state', () => m.encodeState(copyState(m, actual.state)));

@@ -32,54 +32,66 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 		}
 		return Failed(id, fmt.Sprintf("actual=%v; reference=%v", a, b))
 	}
-	o.CheckState = func(h H, s S) ([]Check, error) {
-		checks, e := partialStateChecks(r, h)
-		if e != nil {
-			return checks, e
+	o.CheckStateInto = func(history H, actual S, sink *CheckSink) error {
+		if e := appendStateChecks(r, history, sink); e != nil {
+			return e
 		}
 		comparison, e := call("state projection", func() (Check, error) {
-			a, b := p.ActualState(s), p.ReferenceState(r.CloneState(h))
+			a, b := p.ActualState(actual), p.ReferenceState(r.CloneState(history))
 			return compare("pair.state", a, b, p.EqualStates(a, b)), nil
 		})
 		if e != nil {
-			return checks, e
+			return e
 		}
-		return append(checks, comparison), nil
+		return sink.Push(comparison)
 	}
-	o.CheckTransition = func(s OracleState[S, H], i I, t Transition[OracleState[S, H], O]) ([]Check, error) {
-		rt, e := perform(r, s.Oracle, i)
+	o.CheckTransitionInto = func(state OracleState[S, H], input I, t Transition[OracleState[S, H], O], sink *CheckSink) error {
+		reference, e := perform(r, state.Oracle, input)
 		if e != nil {
-			return nil, e
+			return e
 		}
-		checks, e := partialEdgeChecks(r, s.Oracle, i, rt)
-		if e != nil {
-			return checks, e
+		if e := appendEdgeChecks(r, state.Oracle, input, reference, sink); e != nil {
+			return e
 		}
 		comparison, e := call("effect projection", func() (Check, error) {
 			actual := make([]E, len(t.Outputs))
-			reference := make([]E, len(rt.Outputs))
+			expected := make([]E, len(reference.Outputs))
 			for k, v := range t.Outputs {
 				actual[k] = p.ActualEffect(v)
 			}
-			for k, v := range rt.Outputs {
-				reference[k] = p.ReferenceEffect(r.CloneOutput(v))
+			for k, v := range reference.Outputs {
+				expected[k] = p.ReferenceEffect(r.CloneOutput(v))
 			}
-			equal := len(actual) == len(reference)
+			equal := len(actual) == len(expected)
 			if equal {
 				for k := range actual {
-					if !p.EqualEffects(actual[k], reference[k]) {
+					if !p.EqualEffects(actual[k], expected[k]) {
 						equal = false
 						break
 					}
 				}
 			}
-			return compare("pair.effects", actual, reference, equal), nil
+			return compare("pair.effects", actual, expected, equal), nil
 		})
 		if e != nil {
-			return checks, e
+			return e
 		}
-		return append(checks, comparison, compare("pair.outcome", t.Disposition, rt.Disposition, t.Disposition == rt.Disposition)), nil
+		if e := sink.Push(comparison); e != nil {
+			return e
+		}
+		return sink.Push(compare("pair.outcome", t.Disposition, reference.Disposition, t.Disposition == reference.Disposition))
 	}
+	o.CheckState = func(history H, actual S) ([]Check, error) {
+		checks := []Check{}
+		e := invokeChecks("paired state check", &checks, func(sink *CheckSink) error { return o.CheckStateInto(history, actual, sink) })
+		return checks, e
+	}
+	o.CheckTransition = func(state OracleState[S, H], input I, t Transition[OracleState[S, H], O]) ([]Check, error) {
+		checks := []Check{}
+		e := invokeChecks("paired transition check", &checks, func(sink *CheckSink) error { return o.CheckTransitionInto(state, input, t, sink) })
+		return checks, e
+	}
+
 	if r.Codec != nil && r.Codec.Metadata != nil {
 		o.Metadata = func() (Metadata, error) {
 			a, e := r.Codec.Metadata()

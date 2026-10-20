@@ -160,5 +160,51 @@ its reference model; outer wrapper padding is still added.
 `bfs-controls-v1` remains experimental; the four promoted portable profile
 projections are unchanged. Array-returning throwing checkers cannot expose checks
 never returned; observed searches retain a validated prefix when a returned
-array contains a later invalid check. Append-only check storage and rich replay
-observations remain separate work. See [`spec/bfs-controls-v1.md`](../spec/bfs-controls-v1.md).
+array contains a later invalid check. Rich replay observations remain separate
+work. See [`spec/bfs-controls-v1.md`](../spec/bfs-controls-v1.md).
+
+## Candidate append checks
+
+`append-checks-v1` adds optional `Model.checkStateInto` and
+`checkTransitionInto` callbacks, preferred exactly once over the legacy
+array-returning callbacks. The same optional hooks exist on `Oracle`.
+`CheckSink.push`, `extend`, `reserve`, throwing `count`/`isEmpty`, and `snapshot`
+append or inspect the complete existing prefix. They expose no mutable backing
+storage. Invalid checks or reserve arguments reject the active batch even if the
+callback catches the error; only its preceding valid prefix survives.
+
+Each synchronous callback receives a fresh lease. All operations throw after
+that callback ends, and expired leases detach their backing owner. Nested actual,
+oracle and reference callbacks expire independently; an outer callback's lease
+stays active. Callbacks and caller buffers require exclusive synchronous access;
+there is no thread-safety, `Sendable`, asynchronous-use or reentrant-buffer
+promise. Check values are immutable; inspection and retained evidence use
+independent copy-on-write value snapshots.
+
+`checkStateInto(model, state: state, checks: &checks)` and
+`checkTransitionInto(model, before: before, input: input, transition: turn,
+checks: &checks)` preserve caller prefixes. `checkObservedInto` adds `sequence`
+and optional `policy`, clears caller storage at entry and on every error, and
+never executes the reducer. It retains array capacity where possible. The
+collection-returning `checkObserved` convenience collects through this dispatch.
+Legacy state callbacks remain required by `Model`'s initializer; supply the
+existing callback as before, or an explicitly unused callback when an append hook
+is supplied.
+
+BFS, fuzz, shrink, record and replay use preferred append dispatch for initial and
+turn checking. Search error observers receive actually emitted partial batches;
+a transition-check error retains the completed state batch followed by an
+incomplete edge batch. Both notifications are attempted and checker errors remain
+primary. `WithOracle` appends actual checks before oracle checks. `Paired` appends
+reference checks before projection comparisons; `Generate.withOracle` preserves
+these hooks. Search reuses its boundary buffer, while retained traces and observer
+snapshots remain detached. Legacy callbacks may still allocate arrays; this
+candidate makes no zero-allocation or RSS claim and does not promote the four
+portable conformance profiles. See
+[`spec/append-checks-v1.md`](../spec/append-checks-v1.md).
+
+Mutable adapter migration: paired/oracle adapters now supply preferred append
+hooks. Replacing only their legacy `checkState` or `checkTransition` closure does
+not override an existing append hook. Replace the corresponding `...Into` hook,
+or explicitly set it to `nil` to select your legacy replacement. Existing models
+that provide only legacy callbacks retain their dispatch behavior.

@@ -28,6 +28,31 @@ def _invalid(detail):
     raise BinaryTraceError("invalid_data", detail)
 
 
+def _text(value, detail):
+    if not issubclass(type(value), str):
+        _invalid(detail)
+    # Keep payload text borrowed. Canonicalizing a str subclass could allocate
+    # its entire contents before string/frame quotas have been checked.
+    return value
+
+
+def _variant(value, choices, detail):
+    value = _text(value, detail)
+    for choice in choices:
+        # Explicit intrinsic equality ignores subclasses' __eq__ overrides.
+        if str.__eq__(value, choice) is True:
+            return choice
+    _invalid(detail)
+
+
+def _termination(trace, *, normalize_reason=False):
+    kind = _variant(trace.termination, TERMINATIONS, "termination tag")
+    reason = _text(trace.error, "error string")
+    if kind != "model_error" and str.__len__(reason) != 0:
+        _invalid("error text requires model_error termination")
+    return kind, str.__str__(reason) if normalize_reason else reason
+
+
 def _limit(value, maximum, name):
     if value > maximum:
         raise BinaryTraceError("limit_exceeded", name)
@@ -92,17 +117,15 @@ class AuditTrace:
         """Require explicit configuration; never invent seed/strategy provenance."""
         if not isinstance(trace, Trace) or not isinstance(config, RunConfig):
             raise ValueError("conversion requires Trace and explicit RunConfig")
-        if trace.error and trace.termination != "model_error":
-            _invalid("error text requires model_error termination")
+        kind, reason = _termination(trace, normalize_reason=True)
         return cls(trace.metadata, config, trace.initial_state, trace.initial_checks,
-                   trace.steps, trace.termination, trace.error)
+                   trace.steps, kind, reason)
 
     def to_portable(self) -> tuple[Trace, RunConfig]:
         """Return omitted configuration alongside the portable trace, losslessly."""
-        if self.error and self.termination != "model_error":
-            _invalid("error text requires model_error termination")
+        kind, reason = _termination(self, normalize_reason=True)
         return (Trace(self.metadata, self.initial_state, self.initial_checks,
-                      self.steps, self.termination, self.error), self.config)
+                      self.steps, kind, reason), self.config)
 
 
 def _utf8_payload(value):
@@ -136,7 +159,7 @@ class _Encoder:
         self.raw(value)
 
     def string(self, value):
-        if not isinstance(value, str):
+        if not issubclass(type(value), str):
             _invalid("string value")
         maximum = min(self.limits.max_string_bytes, U32_MAX)
         _limit(str.__len__(value), maximum, "string bytes")
@@ -168,13 +191,13 @@ class _Encoder:
             if not isinstance(check, Check):
                 _invalid("check value")
             self.string(check.id)
-            if check.status not in ("passed", "failed", "skipped"):
-                _invalid("check status tag")
-            if check.status == "passed" and check.details:
+            status = _variant(check.status, ("passed", "failed", "skipped"), "check status tag")
+            reason = _text(check.details, "check reason")
+            if status == "passed" and str.__len__(reason) != 0:
                 _invalid("passing check reason")
-            self.integer(("passed", "failed", "skipped").index(check.status), 1)
-            if check.status != "passed":
-                self.string(check.details)
+            self.integer(("passed", "failed", "skipped").index(status), 1)
+            if status != "passed":
+                self.string(reason)
 
 
 def _encode_run(e, trace):
@@ -203,13 +226,15 @@ def _encode_step(e, index, step):
     e.integer(index, 8)
     e.blob(step.input)
     disposition = step.disposition
-    if not isinstance(disposition, Disposition) or disposition.kind not in ("accepted", "rejected", "ignored"):
+    if not isinstance(disposition, Disposition):
         _invalid("disposition tag")
-    if disposition.kind == "accepted" and disposition.reason:
+    kind = _variant(disposition.kind, ("accepted", "rejected", "ignored"), "disposition tag")
+    reason = _text(disposition.reason, "disposition reason")
+    if kind == "accepted" and str.__len__(reason) != 0:
         _invalid("accepted disposition reason")
-    e.integer(("accepted", "rejected", "ignored").index(disposition.kind), 1)
-    if disposition.kind != "accepted":
-        e.string(disposition.reason)
+    e.integer(("accepted", "rejected", "ignored").index(kind), 1)
+    if kind != "accepted":
+        e.string(reason)
     e.count(len(step.outputs), e.limits.max_outputs_per_step, "outputs per step")
     for output in step.outputs:
         e.blob(output)
@@ -219,15 +244,10 @@ def _encode_step(e, index, step):
 
 def _encode_end(e, trace):
     e.integer(len(trace.steps), 8)
-    if trace.termination not in TERMINATIONS:
-        _invalid("termination tag")
-    if trace.error and trace.termination != "model_error":
-        _invalid("error text requires model_error termination")
-    if not isinstance(trace.error, str):
-        _invalid("error string")
-    e.integer(TERMINATIONS.index(trace.termination), 1)
-    if trace.termination == "model_error":
-        e.string(trace.error)
+    kind, reason = _termination(trace)
+    e.integer(TERMINATIONS.index(kind), 1)
+    if kind == "model_error":
+        e.string(reason)
 
 
 def _records(trace):

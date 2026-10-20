@@ -1,0 +1,2121 @@
+{
+  "profile": "append-checks-v1",
+  "version": 1,
+  "status": "candidate",
+  "cases": [
+    {
+      "case": "legacy-direct-state",
+      "operation": "direct_state",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:1"
+      ]
+    },
+    {
+      "case": "legacy-direct-transition",
+      "operation": "direct_transition",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-observed",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-observed-state-skip",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 2,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "stateless.state_checks",
+            "status": "skipped",
+            "details": "periodic checking policy"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-observed-edge-skip",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": false,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "stateless.transition_checks",
+            "status": "skipped",
+            "details": "disabled by policy"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:1"
+      ]
+    },
+    {
+      "case": "legacy-observed-both-skip",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 2,
+      "transition_checks": false,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "stateless.state_checks",
+            "status": "skipped",
+            "details": "periodic checking policy"
+          },
+          {
+            "id": "stateless.transition_checks",
+            "status": "skipped",
+            "details": "disabled by policy"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": []
+    },
+    {
+      "case": "legacy-observed-sequence-zero",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 0,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "sequence",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": []
+    },
+    {
+      "case": "legacy-bfs",
+      "operation": "bfs",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "graph_exhausted",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "observe_initial",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "legacy-fuzz",
+      "operation": "fuzz",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "cases_completed",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "observe_initial",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "legacy-shrink",
+      "operation": "shrink",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": 1,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "search_complete",
+        "checks": null,
+        "observations": [],
+        "witness": [
+          1
+        ],
+        "attempts": 2
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1",
+        "initial",
+        "legacy_state:0"
+      ]
+    },
+    {
+      "case": "legacy-record",
+      "operation": "record",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "completed",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-replay",
+      "operation": "replay",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "exact",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:0",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-observed-state-error",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": "state:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:1"
+      ]
+    },
+    {
+      "case": "legacy-bfs-state-error",
+      "operation": "bfs",
+      "mode": "legacy",
+      "error_at": "state:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": false,
+            "checks": []
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "observe_initial",
+        "step:0:1",
+        "legacy_state:1",
+        "check_error:state:false"
+      ]
+    },
+    {
+      "case": "legacy-observed-transition-error",
+      "operation": "observed",
+      "mode": "legacy",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-bfs-transition-error",
+      "operation": "bfs",
+      "mode": "legacy",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": false,
+            "checks": []
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "observe_initial",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1",
+        "check_error:state:true",
+        "check_error:transition:false"
+      ]
+    },
+    {
+      "case": "legacy-bfs-initial-error",
+      "operation": "bfs",
+      "mode": "legacy",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": false,
+            "checks": []
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "check_error:initial_state:false"
+      ]
+    },
+    {
+      "case": "legacy-record-turn-error",
+      "operation": "record",
+      "mode": "legacy",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "model_error",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-record-initial-error",
+      "operation": "record",
+      "mode": "legacy",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0"
+      ]
+    },
+    {
+      "case": "legacy-replay-initial-error",
+      "operation": "replay",
+      "mode": "legacy",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:0"
+      ]
+    },
+    {
+      "case": "legacy-replay-turn-error",
+      "operation": "replay",
+      "mode": "legacy",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "legacy_state:0",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1"
+      ]
+    },
+    {
+      "case": "legacy-fuzz-state-failure",
+      "operation": "fuzz",
+      "mode": "legacy",
+      "error_at": null,
+      "fail_state": 1,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "failure_found",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              },
+              {
+                "id": "bad",
+                "status": "failed",
+                "details": "broken"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": [
+          1
+        ],
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "legacy_state:0",
+        "observe_initial",
+        "step:0:1",
+        "legacy_state:1",
+        "legacy_transition:1",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "append-direct-state",
+      "operation": "direct_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1"
+      ]
+    },
+    {
+      "case": "append-direct-transition",
+      "operation": "direct_transition",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_transition:1:1"
+      ]
+    },
+    {
+      "case": "append-observed",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-observed-state-skip",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 2,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "stateless.state_checks",
+            "status": "skipped",
+            "details": "periodic checking policy"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_transition:1:1"
+      ]
+    },
+    {
+      "case": "append-observed-edge-skip",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": false,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "stateless.transition_checks",
+            "status": "skipped",
+            "details": "disabled by policy"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:0"
+      ]
+    },
+    {
+      "case": "append-observed-both-skip",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 2,
+      "transition_checks": false,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "stateless.state_checks",
+            "status": "skipped",
+            "details": "periodic checking policy"
+          },
+          {
+            "id": "stateless.transition_checks",
+            "status": "skipped",
+            "details": "disabled by policy"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": []
+    },
+    {
+      "case": "append-observed-sequence-zero",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 0,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "sequence",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": []
+    },
+    {
+      "case": "append-bfs",
+      "operation": "bfs",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "graph_exhausted",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "observe_initial",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "append-fuzz",
+      "operation": "fuzz",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "cases_completed",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "observe_initial",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "append-shrink",
+      "operation": "shrink",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": 1,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "search_complete",
+        "checks": null,
+        "observations": [],
+        "witness": [
+          1
+        ],
+        "attempts": 2
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:3",
+        "initial",
+        "append_state:0:0"
+      ]
+    },
+    {
+      "case": "append-record",
+      "operation": "record",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "completed",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-replay",
+      "operation": "replay",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "exact",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:0:0",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-observed-state-error",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": "state:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:0"
+      ]
+    },
+    {
+      "case": "append-bfs-state-error",
+      "operation": "bfs",
+      "mode": "append",
+      "error_at": "state:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": false,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "observe_initial",
+        "step:0:1",
+        "append_state:1:0",
+        "check_error:state:false"
+      ]
+    },
+    {
+      "case": "append-observed-transition-error",
+      "operation": "observed",
+      "mode": "append",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-bfs-transition-error",
+      "operation": "bfs",
+      "mode": "append",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": false,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "observe_initial",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2",
+        "check_error:state:true",
+        "check_error:transition:false"
+      ]
+    },
+    {
+      "case": "append-bfs-initial-error",
+      "operation": "bfs",
+      "mode": "append",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": false,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "check_error:initial_state:false"
+      ]
+    },
+    {
+      "case": "append-record-turn-error",
+      "operation": "record",
+      "mode": "append",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "model_error",
+        "checks": [
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-record-initial-error",
+      "operation": "record",
+      "mode": "append",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0"
+      ]
+    },
+    {
+      "case": "append-replay-initial-error",
+      "operation": "replay",
+      "mode": "append",
+      "error_at": "state:0",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:0:0"
+      ]
+    },
+    {
+      "case": "append-replay-turn-error",
+      "operation": "replay",
+      "mode": "append",
+      "error_at": "transition:1",
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": null,
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:0:0",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:2"
+      ]
+    },
+    {
+      "case": "append-fuzz-state-failure",
+      "operation": "fuzz",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": 1,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "failure_found",
+        "checks": null,
+        "observations": [
+          {
+            "phase": "initial_state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              }
+            ]
+          },
+          {
+            "phase": "state",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              },
+              {
+                "id": "skip",
+                "status": "skipped",
+                "details": "not run"
+              },
+              {
+                "id": "bad",
+                "status": "failed",
+                "details": "broken"
+              }
+            ]
+          },
+          {
+            "phase": "transition",
+            "complete": true,
+            "checks": [
+              {
+                "id": "same",
+                "status": "passed",
+                "details": ""
+              }
+            ]
+          }
+        ],
+        "witness": [
+          1
+        ],
+        "attempts": null
+      },
+      "events": [
+        "initial",
+        "append_state:0:0",
+        "observe_initial",
+        "step:0:1",
+        "append_state:1:0",
+        "append_transition:1:3",
+        "observe_transition"
+      ]
+    },
+    {
+      "case": "oracle_state",
+      "operation": "oracle_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "oracle.state",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "oracle.skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1",
+        "oracle_state:1:3"
+      ]
+    },
+    {
+      "case": "oracle_state-error",
+      "operation": "oracle_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": "oracle_state",
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "oracle.state",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1",
+        "oracle_state:1:3"
+      ]
+    },
+    {
+      "case": "oracle_transition",
+      "operation": "oracle_transition",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "oracle.transition",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "oracle.skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_transition:1:1",
+        "oracle_transition:1:2"
+      ]
+    },
+    {
+      "case": "oracle_transition-error",
+      "operation": "oracle_transition",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": "oracle_transition",
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "oracle.transition",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_transition:1:1",
+        "oracle_transition:1:2"
+      ]
+    },
+    {
+      "case": "paired-state",
+      "operation": "paired_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "pair.state",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1",
+        "reference_append_state:1:3",
+        "projection_actual_state",
+        "projection_reference_state"
+      ]
+    },
+    {
+      "case": "paired-reference-error",
+      "operation": "paired_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": "reference_state",
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1",
+        "reference_append_state:1:3"
+      ]
+    },
+    {
+      "case": "paired-projection-error",
+      "operation": "paired_state",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": "projection_actual_state",
+      "error_contains": "fixture append error",
+      "expected": {
+        "outcome": "error",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "skip",
+            "status": "skipped",
+            "details": "not run"
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_state:1:1",
+        "reference_append_state:1:3",
+        "projection_actual_state"
+      ]
+    },
+    {
+      "case": "paired-transition",
+      "operation": "paired_transition",
+      "mode": "append",
+      "error_at": null,
+      "fail_state": null,
+      "sequence": 1,
+      "state_every": 1,
+      "transition_checks": true,
+      "wrapper_error": null,
+      "error_contains": null,
+      "expected": {
+        "outcome": "ok",
+        "checks": [
+          {
+            "id": "sentinel",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "same",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "pair.effects",
+            "status": "passed",
+            "details": ""
+          },
+          {
+            "id": "pair.outcome",
+            "status": "passed",
+            "details": ""
+          }
+        ],
+        "observations": [],
+        "witness": null,
+        "attempts": null
+      },
+      "events": [
+        "append_transition:1:1",
+        "reference_step:0:1",
+        "reference_append_transition:1:2"
+      ]
+    }
+  ]
+}

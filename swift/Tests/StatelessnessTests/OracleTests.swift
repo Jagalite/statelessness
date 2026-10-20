@@ -178,6 +178,7 @@ final class OracleTests: XCTestCase {
         XCTAssertThrowsError(try enumerateStates(a.model))
         var failing = queue().oracle
         failing.checkState = { _, _ in throw ModelError("check callback failed") }
+        failing.checkStateInto = nil // Explicitly select the legacy hook for this regression.
         XCTAssertThrowsError(try enumerateStates(WithOracle(queue().actual, oracle: failing).model))
         failing = queue().oracle
         failing.advance = { _, _, _, _ in throw ModelError("advance callback failed") }

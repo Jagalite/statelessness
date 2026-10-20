@@ -34,6 +34,7 @@ public struct ShrinkReport<I> {
     public let validatedOriginal: Bool
 }
 private final class ShrinkWork {
+    let checkStorage = SearchCheckStorage()
     let control: RunControl
     let maximum: UInt64?
     let maxAttempts: Int
@@ -66,8 +67,7 @@ private func replayCandidate<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], work:
     if let stop = work.control.stop() { return .stopped(stop) }
     let m = g.model
     var state = try searchInitial(m), skipped: UInt64 = 0
-    let checks = try stateChecks(m, state)
-    let initial = try searchFindings("initial_state", checks, skipped: &skipped)
+    let initial = try searchInitialChecks(m, state: state, skipped: &skipped, storage: work.checkStorage)
     if !initial.isEmpty { return .failure(Failure(inputs: [], violations: initial)) }
     if let stop = work.control.stop() { return .stopped(stop) }
     for (index, input) in inputs.enumerated() {
@@ -79,7 +79,7 @@ private func replayCandidate<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], work:
         let t = try perform(m, state, input)
         let (count, overflow) = work.transitions.addingReportingOverflow(1)
         guard !overflow else { throw ModelError("replayed transition count overflow") }; work.transitions = count
-        let bad = try searchEdge(m, state: state, input: input, transition: t, skipped: &skipped)
+        let bad = try searchEdge(m, state: state, input: input, transition: t, skipped: &skipped, storage: work.checkStorage)
         if !bad.isEmpty { return .failure(Failure(inputs: try inputs[...index].map { try copied(m.cloneInput, $0) }, violations: bad)) }
         if let stop = work.control.stop() { return .stopped(stop) }
         state = t.state

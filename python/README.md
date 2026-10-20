@@ -215,3 +215,34 @@ counts across languages or a runtime memory guarantee. Promoted `bfs-v1` JSON
 interchange remains unchanged; these additive APIs need separate qualification.
 
 The BFS extension is the experimental [`bfs-controls-v1` candidate](../spec/bfs-controls-v1.md); tests consume its shared callback/report vectors.
+
+## Candidate append-only checking
+
+Optional `check_state_into(state, sink)` and
+`check_transition_into(before, input, transition, sink)` hooks take precedence
+over legacy iterable-returning checks. Hooks are synchronous and return `None`;
+non-None results, including coroutine objects, are errors. An append-only model
+may omit legacy callbacks entirely; it must supply either the state append hook
+or legacy state checking. Absent transition hooks remain empty.
+
+`CheckSink` exposes `append` (`push` alias), `extend`, `reserve`, `snapshot`,
+indexing, iteration and length. Inspection returns detached immutable tuples and
+fresh Check values. There is no clear/remove/replace or public mutable backing
+list. Each callback gets a fresh revocable lease. Every operation after callback
+return/error fails before accessing storage; nested wrapper callbacks expire
+individually while a legitimate outer lease stays usable. Invalid append/extend/
+reserve is sticky even if the checker catches it: the batch still fails, retaining
+its valid prefix for search diagnostics. Expired old views cannot poison a new
+batch. This is a synchronous ownership API, not thread safety or a security
+sandbox against private implementation access.
+
+`check_observed_into(model, before, input, transition, sequence, checks, policy)`
+reuses a caller-owned list, clearing it at entry and on every error (including
+invalid sequence, snapshot failure, and interruption). It never invokes step.
+The tuple-returning convenience API shares the same dispatch. BFS/fuzz/shrink
+reuse check storage and preserve actual partial batches for observers. Record,
+replay and oracle/paired/generated/automatic wrappers use the same append-first
+path, without rerunning checkers. Sink callbacks see all preceding checks,
+including the completed state batch and preceding actual/reference observations.
+Python list capacity reuse and zero-allocation performance are not promised.
+`append-checks-v1` remains an experimental candidate outside qualified `PROFILES`.

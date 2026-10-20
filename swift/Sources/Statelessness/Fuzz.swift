@@ -55,55 +55,34 @@ private func observerCheckError<S, I, O>(_ observer: SearchObserver<S, I, O>?, p
     do { try observer.checkError(phase, checks, complete) }
     catch { throw ModelError("\(checkerError); search observer check_error: \(error)") }
 }
-// Return-array callbacks cannot reveal work before throwing, but a successfully
-// returned array can contain an invalid later check. Keep its validated prefix
-// for diagnostic observers without treating the failed batch as complete.
-private func searchCheckBatch(_ stage: String, prefix: inout [Check], _ callback: () throws -> [Check]) throws -> [Check] {
-    try call(stage) {
-        let checks = try callback()
-        for check in checks { try check.validate(); prefix.append(check) }
-        return checks
-    }
+final class SearchCheckStorage { var checks: [Check] = [] }
+func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, storage: SearchCheckStorage? = nil) throws -> [Violation] {
+    let storage = storage ?? SearchCheckStorage()
+    storage.checks.removeAll(keepingCapacity: true)
+    do { try stateChecksInto(m, state, checks: &storage.checks) }
+    catch { try observerCheckError(observer, phase: "initial_state", checks: storage.checks, complete: false, checkerError: error); throw error }
+    if let observer { try call("search observer initial") { try observer.initial(copied(m.cloneState, state), storage.checks) } }
+    return try searchFindings("initial_state", storage.checks, skipped: &skipped)
 }
-func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil) throws -> [Violation] {
-    let checks: [Check]
-    var prefix: [Check] = []
-    do {
-        if observer == nil { checks = try stateChecks(m, state) }
-        else { checks = try searchCheckBatch("state check", prefix: &prefix) { try m.checkState(copied(m.cloneState, state)) } }
-    }
-    catch { try observerCheckError(observer, phase: "initial_state", checks: prefix, complete: false, checkerError: error); throw error }
-    if let observer { try call("search observer initial") { try observer.initial(copied(m.cloneState, state), checks) } }
-    return try searchFindings("initial_state", checks, skipped: &skipped)
-}
-func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = []) throws -> [Violation] {
-    let sc: [Check], ec: [Check]
-    var statePrefix: [Check] = [], edgePrefix: [Check] = []
-    do {
-        if observer == nil { sc = try stateChecks(m, transition.state) }
-        else { sc = try searchCheckBatch("state check", prefix: &statePrefix) { try m.checkState(copied(m.cloneState, transition.state)) } }
-    }
-    catch { try observerCheckError(observer, phase: "state", checks: statePrefix, complete: false, checkerError: error); throw error }
-    do {
-        if observer == nil { ec = try edgeChecks(m, state, input, transition) }
-        else if let callback = m.checkTransition {
-            ec = try searchCheckBatch("transition check", prefix: &edgePrefix) {
-                try callback(copied(m.cloneState, state), copied(m.cloneInput, input), cloneTransition(m, transition))
-            }
-        } else { ec = [] }
-    }
+func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = [], storage: SearchCheckStorage? = nil) throws -> [Violation] {
+    let storage = storage ?? SearchCheckStorage()
+    storage.checks.removeAll(keepingCapacity: true)
+    do { try stateChecksInto(m, transition.state, checks: &storage.checks) }
+    catch { try observerCheckError(observer, phase: "state", checks: storage.checks, complete: false, checkerError: error); throw error }
+    let stateCount = storage.checks.count
+    do { try edgeChecksInto(m, state, input, transition, checks: &storage.checks) }
     catch {
-        // Deliver both normative batches even when a notification itself fails.
         var notificationErrors: [String] = []
         if let observer {
-            do { try observer.checkError("state", sc, true) }
+            do { try observer.checkError("state", Array(storage.checks.prefix(stateCount)), true) }
             catch { notificationErrors.append(String(describing: error)) }
-            do { try observer.checkError("transition", edgePrefix, false) }
+            do { try observer.checkError("transition", Array(storage.checks.dropFirst(stateCount)), false) }
             catch { notificationErrors.append(String(describing: error)) }
         }
         if !notificationErrors.isEmpty { throw ModelError("\(error); search observer check_error: \(notificationErrors.joined(separator: "; "))") }
         throw error
     }
+    let sc = Array(storage.checks.prefix(stateCount)), ec = Array(storage.checks.dropFirst(stateCount))
     if let observer {
         try call("search observer transition") {
             let prefix = try history.map { try copied(m.cloneInput, $0) }
@@ -135,6 +114,7 @@ public struct FuzzReport<I> {
 public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfig(), limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport<I> {
     guard config.cases >= 0, config.maxSteps >= 0, (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
     let control = try RunControl(limits), m = g.model
+    let checkStorage = SearchCheckStorage()
     var rng = Rng(seed: config.seed), previous: [I] = []
     var report = FuzzReport<I>(termination: "cases_completed", seed: config.seed, cases: 0, transitions: 0, skippedChecks: 0, failure: nil)
     if let stop = control.stop() { report.termination = stop; return report }
@@ -142,7 +122,7 @@ public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfi
         if let stop = control.stop() { report.termination = stop; return report }
         var state = try searchInitial(m)
         report.cases += 1
-        let bad = try searchInitialChecks(m, state: state, skipped: &report.skippedChecks, observer: observer)
+        let bad = try searchInitialChecks(m, state: state, skipped: &report.skippedChecks, observer: observer, storage: checkStorage)
         if !bad.isEmpty { report.termination = "failure_found"; report.failure = Failure(inputs: [], violations: bad); return report }
         if let stop = control.stop() { report.termination = stop; return report }
         var mutated: [I] = [], replacement: Int?
@@ -176,7 +156,7 @@ public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfi
             let t = try perform(m, state, input)
             report.transitions += 1
             history.append(try copied(m.cloneInput, input))
-            let violations = try searchEdge(m, state: state, input: input, transition: t, skipped: &report.skippedChecks, observer: observer, history: history)
+            let violations = try searchEdge(m, state: state, input: input, transition: t, skipped: &report.skippedChecks, observer: observer, history: history, storage: checkStorage)
             if !violations.isEmpty { report.termination = "failure_found"; report.failure = Failure(inputs: history, violations: violations); return report }
             if let stop = control.stop() { report.termination = stop; return report }
             state = t.state

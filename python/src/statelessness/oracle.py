@@ -9,8 +9,8 @@ from dataclasses import dataclass
 from typing import Any, Generic, Iterable, Protocol, TypeVar
 
 from .core import (Check, Disposition, Metadata, ModelError, Transition,
-                   _call, _checks, _copy, _encode, _state_checks, _step,
-                   _transition_checks, _natural)
+                   _call, _copy, _encode, _state_checks, _step,
+                   _transition_checks, _natural, _dispatch_checks, CheckSink)
 
 S = TypeVar("S")
 H = TypeVar("H")
@@ -44,19 +44,6 @@ class ObservationError(ModelError):
 
 def _length(value: str) -> int:
     return len(value.encode("utf-8"))
-
-
-def _iter_checks(stage, callback, *args):
-    """Preserve successful emissions when a later iterator/callback fails."""
-    iterator = _call(stage, iter, _call(stage, callback, *args))
-    sentinel = object()
-    while True:
-        check = _call(stage, next, iterator, sentinel)
-        if check is sentinel:
-            return
-        if not isinstance(check, Check):
-            raise ModelError(stage + ": checker must return Check values")
-        yield check
 
 
 class WithOracle(Generic[S, H, I, O]):
@@ -139,22 +126,28 @@ class WithOracle(Generic[S, H, I, O]):
         callback = getattr(self.model, "simpler_inputs", None)
         return () if callback is None else _call("oracle model simpler_inputs", callback, _copy(input))
 
-    def check_state(self, state: OracleState[S, H]) -> Iterable[Check]:
-        yield from _iter_checks("model state check", self.model.check_state, _copy(state.model))
-        yield from _iter_checks("oracle state check", self.oracle.check_state,
-                                _copy(state.oracle), _copy(state.model))
+    def check_state_into(self, state: OracleState[S, H], checks: CheckSink) -> None:
+        _dispatch_checks(self.model, "check_state_into", "check_state",
+                         (_copy(state.model),), checks, "model state check")
+        _dispatch_checks(self.oracle, "check_state_into", "check_state",
+                         (_copy(state.oracle), _copy(state.model)), checks, "oracle state check")
+
+    def check_state(self, state: OracleState[S, H]) -> tuple[Check, ...]:
+        return _state_checks(self, state)
+
+    def check_transition_into(self, before: OracleState[S, H], input: I,
+                              transition: Transition[OracleState[S, H], O], checks: CheckSink) -> None:
+        actual = Transition(transition.state.model, transition.outputs, transition.disposition)
+        _dispatch_checks(self.model, "check_transition_into", "check_transition",
+                         (_copy(before.model), _copy(input), _copy(actual)), checks,
+                         "model transition check", optional=True)
+        _dispatch_checks(self.oracle, "check_transition_into", "check_transition",
+                         (_copy(before), _copy(input), _copy(transition)), checks,
+                         "oracle transition check", optional=True)
 
     def check_transition(self, before: OracleState[S, H], input: I,
-                         transition: Transition[OracleState[S, H], O]) -> Iterable[Check]:
-        actual = Transition(transition.state.model, transition.outputs, transition.disposition)
-        callback = getattr(self.model, "check_transition", None)
-        if callback is not None:
-            yield from _iter_checks("model transition check", callback,
-                                    _copy(before.model), _copy(input), _copy(actual))
-        callback = getattr(self.oracle, "check_transition", None)
-        if callback is not None:
-            yield from _iter_checks("oracle transition check", callback,
-                                    _copy(before), _copy(input), _copy(transition))
+                         transition: Transition[OracleState[S, H], O]) -> tuple[Check, ...]:
+        return _transition_checks(self, before, input, transition)
 
     def encode_state(self, state: OracleState[S, H]) -> bytes:
         model = _encode("encode model", self.model.encode_state, state.model)
@@ -227,22 +220,32 @@ class Paired:
     def advance(self, before: Any, input: Any, _outputs: Any, _disposition: Any) -> Any:
         return _step(self.reference, before, input).state
 
-    def check_state(self, history: Any, actual: Any) -> Iterable[Check]:
-        yield from _iter_checks("reference state check", self.reference.check_state, _copy(history))
-        yield _compare("pair.state", self.projection.actual_state(actual),
-                       self.projection.reference_state(history))
+    def check_state_into(self, history: Any, actual: Any, checks: CheckSink) -> None:
+        _dispatch_checks(self.reference, "check_state_into", "check_state",
+                         (_copy(history),), checks, "reference state check")
+        checks.append(_compare("pair.state", self.projection.actual_state(actual),
+                               self.projection.reference_state(history)))
 
-    def check_transition(self, before: OracleState[Any, Any], input: Any,
-                         transition: Transition[OracleState[Any, Any], Any]) -> Iterable[Check]:
+    def check_state(self, history: Any, actual: Any) -> tuple[Check, ...]:
+        values = []
+        _dispatch_checks(self, "check_state_into", "check_state", (_copy(history), _copy(actual)),
+                         values, "paired state check")
+        return tuple(values)
+
+    def check_transition_into(self, before: OracleState[Any, Any], input: Any,
+                              transition: Transition[OracleState[Any, Any], Any], checks: CheckSink) -> None:
         reference = _step(self.reference, before.oracle, input)
-        callback = getattr(self.reference, "check_transition", None)
-        if callback is not None:
-            yield from _iter_checks("reference transition check", callback,
-                                    _copy(before.oracle), _copy(input), _copy(reference))
+        _dispatch_checks(self.reference, "check_transition_into", "check_transition",
+                         (_copy(before.oracle), _copy(input), _copy(reference)), checks,
+                         "reference transition check", optional=True)
         actual_effects = tuple(self.projection.actual_effect(o) for o in transition.outputs)
         reference_effects = tuple(self.projection.reference_effect(o) for o in reference.outputs)
-        yield _compare("pair.effects", actual_effects, reference_effects)
-        yield _compare("pair.outcome", transition.disposition, reference.disposition)
+        checks.append(_compare("pair.effects", actual_effects, reference_effects))
+        checks.append(_compare("pair.outcome", transition.disposition, reference.disposition))
+
+    def check_transition(self, before: OracleState[Any, Any], input: Any,
+                         transition: Transition[OracleState[Any, Any], Any]) -> tuple[Check, ...]:
+        return _transition_checks(self, before, input, transition)
 
     def encode_history(self, history: Any) -> bytes:
         return self.reference.encode_state(history)

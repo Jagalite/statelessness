@@ -1,0 +1,1 @@
+{"cases":52,"native_lease_tests":false,"outcome":"passed","producer":"rust","profile":"append-checks-v1","rust_borrow_confinement":true}

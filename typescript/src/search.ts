@@ -142,6 +142,7 @@ export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DE
     natural(config.mutationPercent, 'mutationPercent', 0, 100);
     const stop = runControl(limits), rng = new Rng(config.seed);
     let previous: I[] = [];
+    const checkStorage:Check[]=[];
     const r: FuzzReport<I> = { termination: 'cases_completed', seed: config.seed, cases: 0, transitions: 0n, skipped_checks: 0n, failure: null };
     const stopped = () => {
         const reason = stop();
@@ -156,7 +157,7 @@ export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DE
             return r;
         let s = state(m, call('initial_state', () => m.initialState()));
         r.cases++;
-        const initial = searchChecks(m, s, undefined, undefined, undefined, observer);
+        const initial = searchChecks(m, s, undefined, undefined, undefined, observer,[],checkStorage);
         r.skipped_checks = addSkippedChecks(r.skipped_checks,initial.skipped);
         if (initial.violations.length) {
             r.termination = 'failure_found';
@@ -202,7 +203,7 @@ export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DE
             const t = step(m, s, next);
             r.transitions++;
             inputs.push(input(m, next));
-            const observed = searchChecks(m, t.state, s, next, t, observer, inputs);
+            const observed = searchChecks(m, t.state, s, next, t, observer, inputs,checkStorage);
             r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
             if (observed.violations.length) {
                 r.termination = 'failure_found';
@@ -258,6 +259,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
     if (maxReplayedTransitions !== undefined)
         u64(maxReplayedTransitions, 'maxReplayedTransitions');
     const stop = runControl(limits);
+    const checkStorage:Check[]=[];
     const copy = (f: Failure<I>): Failure<I> => ({ inputs: f.inputs.map(i => input(m, i)), violations: f.violations.map(v => ({ phase: v.phase, check: check(v.check.id, v.check.status, v.check.details) })) });
     const supplied = copy(original), target = supplied.violations[0];
     if (!target || target.check.status !== 'failed')
@@ -279,7 +281,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
         if (reason)
             return { kind: 'stopped', reason };
         let s = state(m, call('shrink initial_state', () => m.initialState()));
-        const initial = searchChecks(m, s);
+        const initial = searchChecks(m,s,undefined,undefined,undefined,undefined,[],checkStorage);
         if (initial.violations.length)
             return { kind: 'failure', failure: { inputs: [], violations: initial.violations } };
         reason = stop();
@@ -299,7 +301,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
                 return { kind: 'invalid' };
             const t = step(m, s, inputs[n]);
             r.replayed_transitions++;
-            const observed = searchChecks(m, t.state, s, inputs[n], t);
+            const observed = searchChecks(m,t.state,s,inputs[n],t,undefined,[],checkStorage);
             if (observed.violations.length)
                 return { kind: 'failure', failure: { inputs: inputs.slice(0, n + 1).map(i => input(m, i)), violations: observed.violations } };
             reason = stop();

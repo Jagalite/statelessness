@@ -185,3 +185,32 @@ Number surface, uses the same exact kernel, and rejects a report whose counters
 cannot be represented safely. Skipped-check counts saturate at u64 maximum, matching Rust;
 state/depth limits remain checked safe integers reflecting the native array/path
 representation. No counter passes through a rounded Number.
+
+### Experimental append-only checks
+
+Optional `checkStateInto(state, sink)` and
+`checkTransitionInto(before, input, transition, sink)` hooks take precedence over
+legacy iterable checks in execution, BFS, fuzz, shrink, record and replay. Hooks
+must synchronously return `undefined`; promises, thenables and other values are
+errors. Legacy callbacks remain required/source compatible and run exactly once
+when an append hook is absent.
+
+`CheckSink` exposes `push`, `extend`, `length`, detached frozen `snapshot()` and
+validated `reserve()` (without a JavaScript capacity guarantee). Use
+`withCheckSink(output, sink => ...)` to append within one scoped callback without
+clearing preceding checks. Every callback receives a fresh revocable lease;
+escaped operations fail after return/error, nested callbacks cannot reopen older
+leases, and revoked leases release backing-storage references. Malformed append,
+extend or reserve operations have sticky first-failure semantics even if caught.
+Stored checks are validated/copied; snapshots cannot alter retained evidence.
+
+`checkObservedInto(model, before, input, transition, sequence, output, policy?)`
+reuses caller storage and clears it both at entry and on every error. It never
+calls `step`. Search instead retains actual partial check prefixes for diagnostic
+observers. State and transition callbacks share preceding checks in one reusable
+scratch buffer; returned traces/observer batches detach their observations.
+WithOracle/Paired forward actual, oracle/reference and projection checks in order
+with independent child leases. Caller buffers are exclusively owned during a
+call: aliases, reentrancy and concurrent writes are outside the contract. These
+APIs establish no allocation, thread-safety or performance guarantee and remain
+`append-checks-v1` candidates in `EXPERIMENTAL_PROFILES`.

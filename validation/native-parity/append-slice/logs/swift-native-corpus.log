@@ -1,0 +1,34 @@
+[0/1] Planning build
+Building for debugging...
+[0/6] Write sources
+[1/6] Write swift-version--58304C5D6DBC2206.txt
+[3/6] Compiling StatelessnessTests AppendChecksTests.swift
+[4/6] Emitting module StatelessnessTests
+[4/6] Write Objects.LinkFileList
+[5/6] Linking StatelessnessPackageTests
+Build complete! (6.67s)
+Test Suite 'Selected tests' started at 2026-10-20 17:26:51.684.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-20 17:26:51.687.
+Test Suite 'AppendChecksTests' started at 2026-10-20 17:26:51.687.
+Test Case '-[StatelessnessTests.AppendChecksTests testInvalidOperationsAreStickyAndKeepOnlyValidPrefix]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testInvalidOperationsAreStickyAndKeepOnlyValidPrefix]' passed (0.004 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testLeasesExpireAndSnapshotsDetachOnEveryExit]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testLeasesExpireAndSnapshotsDetachOnEveryExit]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testNestedWrapperLeasesExpireWithoutRevokingOuter]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testNestedWrapperLeasesExpireWithoutRevokingOuter]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testObservedIntoClearsEveryErrorAndRetainsCapacity]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testObservedIntoClearsEveryErrorAndRetainsCapacity]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testSearchPartialBatchesAndPrimaryErrorSurviveObserverErrors]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testSearchPartialBatchesAndPrimaryErrorSurviveObserverErrors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testSharedAppendCorpus]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testSharedAppendCorpus]' passed (0.004 seconds).
+Test Suite 'AppendChecksTests' passed at 2026-10-20 17:26:51.697.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.009 (0.010) seconds
+Test Suite 'StatelessnessPackageTests.xctest' passed at 2026-10-20 17:26:51.697.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.009 (0.010) seconds
+Test Suite 'Selected tests' passed at 2026-10-20 17:26:51.697.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.009 (0.013) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -6,6 +6,7 @@ be deterministic and side-effect free. The engine describes, never executes, I/O
 from __future__ import annotations
 
 from collections import deque
+import inspect
 from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Generic, Iterable, Protocol, TypeVar
@@ -133,25 +134,170 @@ class CheckPolicy:
             raise ValueError("transition_checks must be boolean")
 
 
+def _validated_check(value: Check) -> Check:
+    if not isinstance(value, Check):
+        raise ModelError("checker must emit Check values")
+    fields = (value.id, value.status, value.details)
+    if any(not isinstance(field, str) for field in fields):
+        raise ModelError("check fields must be strings")
+    # Intrinsic conversion strips str-subclass overrides while preserving the
+    # actual immutable text; arbitrary equality objects cannot spoof status.
+    return Check(*(str.__str__(field) for field in fields))
+
+
+class _SinkBuffer:
+    __slots__ = ("checks", "failure")
+    def __init__(self, checks):
+        self.checks, self.failure = checks, None
+
+
+class _SinkLease:
+    __slots__ = ("buffer", "parent", "active")
+    def __init__(self, buffer, parent=None):
+        self.buffer, self.parent, self.active = buffer, parent, True
+
+    def require(self):
+        if not self.active:
+            raise ModelError("check sink lease has expired")
+        if self.parent is not None:
+            self.parent.require()
+        if self.buffer.failure is not None:
+            raise self.buffer.failure
+        return self.buffer.checks
+
+    def poison(self, error):
+        if self.buffer.failure is None:
+            self.buffer.failure = error if isinstance(error, ModelError) else ModelError(str(error))
+        self.active = False
+        return self.buffer.failure
+
+
+class CheckSink:
+    """Synchronous append-only callback lease; snapshots are detached.
+
+    No public mutable backing storage or capacity guarantee. Escaped callback
+    views expire on return/error. Private implementation access is unsupported;
+    this API is not a security sandbox and concurrent use is unsupported.
+    """
+    __slots__ = ("__lease",)
+
+    def __init__(self, checks: list[Check]):
+        if type(checks) is not list:
+            raise ValueError("check sink storage must be a list")
+        self.__lease = _SinkLease(_SinkBuffer(checks))
+
+    @classmethod
+    def _child(cls, parent):
+        parent.__lease.require()
+        child = object.__new__(cls)
+        child.__lease = _SinkLease(parent.__lease.buffer, parent.__lease)
+        return child
+
+    def _revoke(self):
+        self.__lease.active = False
+        # An escaped expired view must not pin the reused buffer or later data.
+        self.__lease.buffer = None
+        self.__lease.parent = None
+
+    def _failure(self):
+        return self.__lease.buffer.failure
+
+    def _poison(self, error):
+        return self.__lease.poison(error)
+
+    def append(self, check: Check) -> None:
+        storage = self.__lease.require()
+        try:
+            value = _validated_check(check)
+        except Exception as error:
+            raise self.__lease.poison(error) from error
+        storage.append(value)
+
+    push = append
+
+    def extend(self, checks: Iterable[Check]) -> None:
+        self.__lease.require()
+        try:
+            for check in checks:
+                self.append(check)
+        except Exception as error:
+            raise self.__lease.poison(error) from error
+
+    def reserve(self, additional: int) -> None:
+        self.__lease.require()
+        try:
+            _natural(additional, "additional")
+        except Exception as error:
+            raise self.__lease.poison(error) from error
+        # Python lists expose no portable reserve/capacity guarantee.
+
+    def snapshot(self) -> tuple[Check, ...]:
+        return tuple(_validated_check(check) for check in self.__lease.require())
+
+    def __len__(self) -> int:
+        return len(self.__lease.require())
+
+    def __iter__(self):
+        return iter(self.snapshot())
+
+    def __getitem__(self, index):
+        return self.snapshot()[index]
+
+
+def _dispatch_checks(model, append_name, legacy_name, args, destination, stage, *, optional=False):
+    sink = CheckSink._child(destination) if isinstance(destination, CheckSink) else CheckSink(destination)
+    try:
+        def invoke():
+            try:
+                callback = getattr(model, append_name, None)
+                if callback is not None:
+                    result = callback(*args, sink)
+                    if result is not None:
+                        failure = sink._poison(ModelError("append checker must return None synchronously"))
+                        if inspect.iscoroutine(result) or inspect.isgenerator(result):
+                            result.close()
+                        raise failure
+                else:
+                    legacy = getattr(model, legacy_name, None)
+                    if legacy is None:
+                        if optional:
+                            return
+                        raise ModelError("model needs " + legacy_name + " or " + append_name)
+                    sink.extend(legacy(*args))
+            except BaseException:
+                if sink._failure() is not None:
+                    raise sink._failure()
+                raise
+            if sink._failure() is not None:
+                raise sink._failure()
+        _call(stage, invoke)
+    finally:
+        sink._revoke()
+
+
 def _checks(stage: str, callback: Callable[..., Iterable[Check]], *args: Any) -> tuple[Check, ...]:
-    def collect() -> tuple[Check, ...]:
-        result = tuple(callback(*args))
-        if any(not isinstance(check, Check) for check in result):
-            raise TypeError("checker must return Check values")
-        return result
-    return _call(stage, collect)
+    values = []
+    sink = CheckSink(values)
+    try:
+        _call(stage, lambda: sink.extend(callback(*args)))
+        return tuple(values)
+    finally:
+        sink._revoke()
 
 
-def _state_checks(model: Model[S, I, O], state: S) -> tuple[Check, ...]:
-    return _checks("state check", model.check_state, _copy(state))
+def _state_checks(model: Model[S, I, O], state: S, *, stage="state check") -> tuple[Check, ...]:
+    values = []
+    _dispatch_checks(model, "check_state_into", "check_state", (_copy(state),), values, stage)
+    return tuple(values)
 
 
 def _transition_checks(model: Model[S, I, O], before: S, input: I,
                        transition: Transition[S, O]) -> tuple[Check, ...]:
-    callback = getattr(model, "check_transition", None)
-    if callback is None:
-        return ()
-    return _checks("transition check", callback, _copy(before), _copy(input), _copy(transition))
+    values = []
+    _dispatch_checks(model, "check_transition_into", "check_transition",
+                     (_copy(before), _copy(input), _copy(transition)), values,
+                     "transition check", optional=True)
+    return tuple(values)
 
 
 def _step(model: Model[S, I, O], before: S, input: I) -> Transition[S, O]:
@@ -161,24 +307,46 @@ def _step(model: Model[S, I, O], before: S, input: I) -> Transition[S, O]:
     return _copy(transition)
 
 
+def check_observed_into(model: Model[S, I, O], before: S, input: I,
+                        transition: Transition[S, O], sequence: int,
+                        checks: list[Check], policy: CheckPolicy = CheckPolicy()) -> None:
+    """Check an executed turn into reused caller storage, clearing on all errors.
+
+    Checkers receive revocable append-only leases, never the backing list.
+    Logical list identity is reused; Python capacity/allocation is not promised.
+    """
+    if type(checks) is not list:
+        raise ValueError("checks must be a list")
+    checks.clear()
+    try:
+        _natural(sequence, "sequence", 1)
+        if not isinstance(transition, Transition):
+            raise ValueError("transition must be a Transition")
+        if not isinstance(policy, CheckPolicy):
+            raise ValueError("policy must be CheckPolicy")
+        if sequence % policy.state_every == 0:
+            _dispatch_checks(model, "check_state_into", "check_state",
+                             (_copy(transition.state),), checks, "state check")
+        else:
+            checks.append(Check("stateless.state_checks", "skipped", "periodic checking policy"))
+        if policy.transition_checks:
+            _dispatch_checks(model, "check_transition_into", "check_transition",
+                             (_copy(before), _copy(input), _copy(transition)), checks,
+                             "transition check", optional=True)
+        else:
+            checks.append(Check("stateless.transition_checks", "skipped", "disabled by policy"))
+    except BaseException:
+        checks.clear()
+        raise
+
+
 def check_observed(model: Model[S, I, O], before: S, input: I,
                    transition: Transition[S, O], sequence: int,
                    policy: CheckPolicy = CheckPolicy()) -> tuple[Check, ...]:
-    """Check a completed transition without calling step. Sequence is one-based.
-
-    Initial checking is separate. Callback errors raise without returning partial
-    check batches. Defensive copies keep checker mutation away from caller state.
-    """
-    _natural(sequence, "sequence", 1)
-    if not isinstance(transition, Transition):
-        raise ValueError("transition must be a Transition")
-    state_checks = (_state_checks(model, transition.state)
-                    if sequence % policy.state_every == 0 else
-                    (Check("stateless.state_checks", "skipped", "periodic checking policy"),))
-    transition_checks = (_transition_checks(model, before, input, transition)
-                         if policy.transition_checks else
-                         (Check("stateless.transition_checks", "skipped", "disabled by policy"),))
-    return state_checks + transition_checks
+    """Check a completed transition without calling step. Sequence is one-based."""
+    values = []
+    check_observed_into(model, before, input, transition, sequence, values, policy)
+    return tuple(values)
 
 
 def _failed(checks: Iterable[Check]) -> bool:
@@ -245,7 +413,9 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     """
     _natural(max_steps, "max_steps")
     state = _copy(_call("initial state", model.initial_state))
-    initial_checks = _checks("initial check", model.check_state, _copy(state))
+    check_storage: list[Check] = []
+    _dispatch_checks(model, "check_state_into", "check_state", (_copy(state),), check_storage, "initial check")
+    initial_checks = tuple(check_storage)
     initial_state = _blob_limit(_encode("encode initial state", model.encode_state, state), limits)
     metadata = _call("metadata", model.metadata)
     if not isinstance(metadata, Metadata):
@@ -271,7 +441,8 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
                 break
             encoded_input = _blob_limit(_encode("encode input", model.encode_input, input), limits)
             transition = _step(model, state, input)
-            checks = check_observed(model, state, input, transition, len(steps) + 1)
+            check_observed_into(model, state, input, transition, len(steps) + 1, check_storage)
+            checks = tuple(check_storage)
             next_items = items + 1 + len(checks) + len(transition.outputs)
             if next_items > limits.max_items:
                 raise ModelError("recording limit: aggregate items")
@@ -343,7 +514,9 @@ def replay(model: ModelCodec[S, I, O], trace: Trace, *, allow_build_mismatch: bo
     state = _call("decode initial state", model.decode_state, trace.initial_state)
     if _encode("encode initial state", model.encode_state, state) != trace.initial_state:
         raise ModelError("initial state encoding is not canonical")
-    checks = _checks("initial check", model.check_state, _copy(state))
+    check_storage: list[Check] = []
+    _dispatch_checks(model, "check_state_into", "check_state", (_copy(state),), check_storage, "initial check")
+    checks = tuple(check_storage)
     reproduced = _same_failure(trace.initial_checks, checks)
     if checks != trace.initial_checks:
         return ReplayReport("diverged", 0, reproduced, build_matches, None, "initial checks")
@@ -352,7 +525,8 @@ def replay(model: ModelCodec[S, I, O], trace: Trace, *, allow_build_mismatch: bo
         if _encode("encode input", model.encode_input, input) != expected.input:
             raise ModelError(f"input {index} encoding is not canonical")
         actual = _step(model, state, input)
-        checks = check_observed(model, state, input, actual, index)
+        check_observed_into(model, state, input, actual, index, check_storage)
+        checks = tuple(check_storage)
         reproduced |= _same_failure(expected.checks, checks)
         outputs = tuple(_encode("encode output", model.encode_output, x) for x in actual.outputs)
         post_state = _encode("encode state", model.encode_state, actual.state)
@@ -428,6 +602,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
         raise ValueError("limits must be SearchLimits")
     control = _Control(limits.control)
     states = transitions = max_depth = skipped = 0
+    check_storage = []
     estimated = None
     nodes = []
     cutoff = False
@@ -453,7 +628,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
         return stop
     state = _copy(_call("initial_state", model.initial_state))
     states = 1
-    violations, skipped = _violations(model, state, observer=observer)
+    violations, skipped = _violations(model, state, observer=observer, storage=check_storage)
     if violations:
         return report("failure_found", Failure((), violations))
     stop = stopped()
@@ -519,7 +694,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
                 raise ModelError("search observer needs_history must return bool")
             history = path(index, input) if history_requested else ()
             violations, count = _violations(model, state, input, transition,
-                                            observer=observer, history=history)
+                                            observer=observer, history=history, storage=check_storage)
             skipped = _saturating_add_u64(skipped, count)
             if violations:
                 return report("failure_found", Failure(path(index, input), violations))

@@ -41,6 +41,7 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
     guard config.maxDepth >= 0 else { throw ConfigError("enumeration max_depth must be nonnegative") }
     guard let inputs = m.inputs, let equal = m.equalStates else { throw ModelError("enumeration requires inputs and equality") }
     let control = try RunControl(limits.control)
+    let checkStorage = SearchCheckStorage()
     var r = SearchReport<I>(termination: "graph_exhausted", states: 0, transitions: 0, maxDepthReached: 0, skippedChecks: 0, failure: nil)
     func stopped() -> Bool {
         if let reason = control.stop() { r.termination = reason; return true }
@@ -54,7 +55,7 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
     if stopped() { return r }
     let initial = try searchInitial(m)
     r.states = 1
-    let initialBad = try searchInitialChecks(m, state: initial, skipped: &r.skippedChecks, observer: observer)
+    let initialBad = try searchInitialChecks(m, state: initial, skipped: &r.skippedChecks, observer: observer, storage: checkStorage)
     if !initialBad.isEmpty { r.termination = "failure_found"; r.failure = Failure(inputs: [], violations: initialBad); return r }
     if stopped() { return r }
     let initialBytes = try estimate(initial)
@@ -98,7 +99,7 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
             r.transitions += 1; r.maxDepthReached = max(r.maxDepthReached, current.depth + 1)
             var history: [I] = []
             if observer?.needsHistory() == true { history = try path(cursor); history.append(try copied(m.cloneInput, input)) }
-            let bad = try searchEdge(m, state: current.state, input: input, transition: transition, skipped: &r.skippedChecks, observer: observer, history: history)
+            let bad = try searchEdge(m, state: current.state, input: input, transition: transition, skipped: &r.skippedChecks, observer: observer, history: history, storage: checkStorage)
             if !bad.isEmpty {
                 var witness = try path(cursor); witness.append(try copied(m.cloneInput, input))
                 r.failure = Failure(inputs: witness, violations: bad); r.termination = "failure_found"; return r

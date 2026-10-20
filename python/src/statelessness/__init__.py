@@ -1,8 +1,8 @@
 """Native Python Statelessness: deterministic checking without Rust or FFI."""
 from .core import (
-    Check, CheckPolicy, Disposition, EnumerateModel, Failure, Metadata, Model,
+    Check, CheckPolicy, CheckSink, Disposition, EnumerateModel, Failure, Metadata, Model,
     ModelCodec, ModelError, ReplayReport, Rng, SearchConfig, SearchReport, Trace,
-    TraceLimits, TraceStep, Transition, Violation, check_observed,
+    TraceLimits, TraceStep, Transition, Violation, check_observed, check_observed_into,
     enumerate_states, record, replay, validate_recording,
 )
 from .oracle import (EXPERIMENTAL_PROFILES, ObservationError, Oracle, OracleState,
@@ -12,10 +12,10 @@ __version__ = "0.1.0"
 SPEC_VERSION = "1.0.0"
 PROFILES = ("core-v1", "bfs-v1", "rng-splitmix64-v1", "trace-json-v1")
 __all__ = [
-    "Check", "CheckPolicy", "Disposition", "EnumerateModel", "Failure", "Metadata",
+    "Check", "CheckPolicy", "CheckSink", "Disposition", "EnumerateModel", "Failure", "Metadata",
     "Model", "ModelCodec", "ModelError", "ReplayReport", "Rng", "SearchConfig",
     "SearchReport", "Trace", "TraceLimits", "TraceStep", "Transition", "Violation",
-    "check_observed", "enumerate_states", "record", "replay", "validate_recording",
+    "check_observed", "check_observed_into", "enumerate_states", "record", "replay", "validate_recording",
     "SPEC_VERSION", "PROFILES",
     "EXPERIMENTAL_PROFILES", "ObservationError", "Oracle", "OracleState",
     "Paired", "Projection", "WithOracle",
@@ -37,3 +37,5 @@ __all__ += ["AuditTrace", "BinaryLimits", "BinaryTraceError", "RunConfig",
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("native-binary-v1",)
 
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("bfs-controls-v1",)
+
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("append-checks-v1",)

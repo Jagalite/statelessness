@@ -88,7 +88,9 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 	if err != nil {
 		return nil, err
 	}
-	initialChecks, err := collect("initial check", func() ([]Check, error) { return m.CheckState(sc) })
+	var checkStorage []Check
+	err = stateChecksInto(m, state, &checkStorage)
+	initialChecks := copyChecks(checkStorage)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +155,8 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 		if err != nil {
 			return terminalError(err)
 		}
-		checks, err := CheckObserved(m, state, x.value, t, uint64(len(trace.Steps)+1), FullChecks())
+		err = CheckObservedInto(m, state, x.value, t, uint64(len(trace.Steps)+1), FullChecks(), &checkStorage)
+		checks := copyChecks(checkStorage)
 		if err != nil {
 			return terminalError(err)
 		}
@@ -291,7 +294,9 @@ func Replay[S, I, O any](m Model[S, I, O], trace *Trace, allowBuildMismatch bool
 	if err != nil {
 		return nil, err
 	}
-	checks, err := collect("initial check", func() ([]Check, error) { return m.CheckState(sc) })
+	var checkStorage []Check
+	err = stateChecksInto(m, state, &checkStorage)
+	checks := checkStorage
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +327,8 @@ func Replay[S, I, O any](m Model[S, I, O], trace *Trace, allowBuildMismatch bool
 		if err != nil {
 			return nil, err
 		}
-		checks, err := CheckObserved(m, state, input, actual, uint64(index+1), FullChecks())
+		err = CheckObservedInto(m, state, input, actual, uint64(index+1), FullChecks(), &checkStorage)
+		checks = checkStorage
 		if err != nil {
 			return nil, err
 		}

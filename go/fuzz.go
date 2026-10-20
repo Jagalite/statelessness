@@ -88,6 +88,7 @@ func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limi
 		return report, nil
 	}
 	rng := NewRng(config.Seed)
+	var checkStorage []Check
 	var previous []I
 	for c := 0; c < config.Cases; c++ {
 		if stop() {
@@ -102,7 +103,7 @@ func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limi
 			return nil, e
 		}
 		report.Cases++
-		checks, e := searchInitialObserved(g.Model, state, observer)
+		checks, e := searchInitialObservedInto(g.Model, state, observer, &checkStorage)
 		if e != nil {
 			return nil, e
 		}
@@ -208,7 +209,7 @@ func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limi
 				return nil, e
 			}
 			inputs = append(inputs, saved)
-			violations, e := searchEdgeObserved(g, state, input, transition, inputs, &report.SkippedChecks, observer)
+			violations, e := searchEdgeObservedInto(g, state, input, transition, inputs, &report.SkippedChecks, observer, &checkStorage)
 			if e != nil {
 				return nil, e
 			}
@@ -234,13 +235,6 @@ func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limi
 	return report, nil
 }
 func searchEdge[S, I, O any](m Model[S, I, O], state S, input I, t Transition[S, O], skipped *uint64) ([]Violation, error) {
-	checks, e := stateChecks(m, t.State)
-	if e != nil {
-		return nil, e
-	}
-	edges, e := edgeChecks(m, state, input, t)
-	if e != nil {
-		return nil, e
-	}
-	return append(findings("state", checks, skipped), findings("transition", edges, skipped)...), nil
+	checks := []Check{}
+	return searchEdgeObservedInto(GenerateModel[S, I, O]{Model: m}, state, input, t, nil, skipped, nil, &checks)
 }

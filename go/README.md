@@ -211,3 +211,46 @@ qualified profiles and the existing portable runner wire schema stay unchanged.
 Shared callback-order/report tests read `conformance/bfs-controls-v1.json`, with
 `STATELESS_BFS_CORPUS` override for copied module test trees. Append-only checking
 storage and richer/bounded replay are separate remaining work.
+
+## Experimental append-only checking
+
+`Model.CheckStateInto(state, sink)` and `CheckTransitionInto(before, input, turn,
+sink)` append to `*CheckSink` and return `error`. They take precedence over legacy
+collection-returning callbacks; legacy models still run unchanged. A state model
+may supply only the append hook. Missing transition checking remains empty.
+The same preferred dispatch is used by execution, BFS, fuzz, shrink, recording,
+and replay, including initial checks. Automatic and oracle generation wrappers
+retain these hooks.
+
+A sink exposes `Push`, `Extend`, `Reserve`, `Len`, `IsEmpty`, and detached
+`Snapshot` operations. It cannot remove/replace preceding checks or expose the
+backing slice. Every callback receives a fresh synchronous lease, revoked on
+success, failure, malformed append, and contained panic. Nested adapter callbacks
+get child leases; expired child access cannot revoke or corrupt the still-active
+outer callback. Invalid writes/reservations poison the active enclosing batch,
+even if a callback ignores the returned error. An expired old lease cannot poison
+a fresh batch. Checks are validated/copied on append; snapshots are detached.
+
+`CheckObservedInto(model, before, input, turn, sequence, policy, &checks)` checks
+an already-completed turn without stepping. It clears logical caller storage at
+entry and on every error while retaining capacity. `CheckObserved` is its
+collection-returning convenience API. Caller storage is exclusive during the
+operation: do not mutate aliases, reenter with that buffer, or use it concurrently.
+`WithCheckSink(&checks, callback)` offers scoped direct append access without
+clearing an existing valid prefix. `Model.AppendStateChecks` and
+`AppendTransitionChecks` select the preferred callback with a fresh child lease.
+
+Search observers preserve actual partial prefixes and completed-state versus
+incomplete-transition batches when checking fails; ordinary observed-into checking
+exposes no partial success. Recorders retain only fully checked committed turns.
+`Oracle` has matching append hooks; `WithOracle` appends actual then oracle checks,
+and `Paired` appends reference checks before projection comparisons, all sharing
+existing append positions. Child failures remain failures if enclosing code ignores
+them. Legacy Go callbacks returning checks plus an error retain only their valid
+prefix for diagnostics and preserve the original checker error.
+
+`append-checks-v1` is experimental. Reusable check buffers retain capacity, while
+observer/trace snapshots and legacy defaults can allocate; no zero-allocation or
+process-memory claim is made. Shared tests read `conformance/append-checks-v1.json`
+or `STATELESS_APPEND_CORPUS` in copied package trees. Rich/bounded replay and the
+other remaining parity work are separate scopes.

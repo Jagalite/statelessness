@@ -30,6 +30,7 @@ type shrinkWork[S, I, O any] struct {
 	control     runControl
 	maximum     *uint64
 	transitions uint64
+	checks      []Check
 }
 type shrinkCandidate[I any] struct {
 	kind    string
@@ -66,7 +67,7 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 	if e != nil {
 		return shrinkCandidate[I]{}, e
 	}
-	checks, e := stateChecks(g.Model, state)
+	checks, e := searchInitialObservedInto(g.Model, state, nil, &w.checks)
 	if e != nil {
 		return shrinkCandidate[I]{}, e
 	}
@@ -100,7 +101,7 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 			return shrinkCandidate[I]{}, e
 		}
 		w.transitions++
-		violations, e = searchEdge(g.Model, state, input, transition, &skipped)
+		violations, e = searchEdgeObservedInto(g, state, input, transition, nil, &skipped, nil, &w.checks)
 		if e != nil {
 			return shrinkCandidate[I]{}, e
 		}

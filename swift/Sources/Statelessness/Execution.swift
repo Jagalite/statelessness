@@ -44,7 +44,9 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
     // cleanup of the generic clone closure. No verifier flags are disabled.
     let initialValue = try call("initial state", m.initialState)
     var state = try copied(m.cloneState, initialValue)
-    let initialChecks = try collect("initial check") { try m.checkState(copied(m.cloneState, state)) }
+    var checkBuffer: [Check] = []
+    try call("initial check") { try stateChecksInto(m, state, checks: &checkBuffer) }
+    let initialChecks = checkBuffer
     let initialSnapshot = try copied(m.cloneState, state)
     let initialState = try encoded("encode initial state", codec.encodeState, initialSnapshot, maximum: limits.maxBlobBytes)
     let metadata = try call("metadata", codec.metadata)
@@ -60,7 +62,8 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
             let inputSnapshot = try copied(m.cloneInput, input)
             let bytes = try encoded("encode input", codec.encodeInput, inputSnapshot, maximum: limits.maxBlobBytes)
             let t = try perform(m, state, input)
-            let checks = try checkObserved(m, before: state, input: input, transition: t, sequence: UInt64(steps.count + 1))
+            try checkObservedInto(m, before: state, input: input, transition: t, sequence: UInt64(steps.count + 1), checks: &checkBuffer)
+            let checks = checkBuffer
             let nextItems = items + 1 + checks.count + t.outputs.count
             if nextItems > limits.maxItems { throw ModelError("recording limit: aggregate items") }
             let outputs = try t.outputs.map { output in
@@ -113,16 +116,18 @@ public func replay<S, I, O>(_ m: Model<S, I, O>, trace: Trace, allowBuildMismatc
     let initialSnapshot = try copied(m.cloneState, state)
     let initialEncoding = try encoded("encode initial state", codec.encodeState, initialSnapshot)
     if initialEncoding != trace.initialState { throw ModelError("initial state encoding is not canonical") }
-    let initial = try collect("initial check") { try m.checkState(copied(m.cloneState, state)) }
-    r.failureReproduced = sameFailure(trace.initialChecks, initial)
-    if initial != trace.initialChecks { r.outcome = "diverged"; r.field = "initial checks"; return r }
+    var checkBuffer: [Check] = []
+    try call("initial check") { try stateChecksInto(m, state, checks: &checkBuffer) }
+    r.failureReproduced = sameFailure(trace.initialChecks, checkBuffer)
+    if checkBuffer != trace.initialChecks { r.outcome = "diverged"; r.field = "initial checks"; return r }
     for (index, expected) in trace.steps.enumerated() {
         let input = try call("decode input") { try codec.decodeInput(expected.input) }
         let inputSnapshot = try copied(m.cloneInput, input)
         let inputEncoding = try encoded("encode input", codec.encodeInput, inputSnapshot)
         if inputEncoding != expected.input { throw ModelError("input \(index + 1) encoding is not canonical") }
         let actual = try perform(m, state, input)
-        let checks = try checkObserved(m, before: state, input: input, transition: actual, sequence: UInt64(index + 1))
+        try checkObservedInto(m, before: state, input: input, transition: actual, sequence: UInt64(index + 1), checks: &checkBuffer)
+        let checks = checkBuffer
         r.failureReproduced = r.failureReproduced || sameFailure(expected.checks, checks)
         let outputs = try actual.outputs.map { output in
             let snapshot = try copied(m.cloneOutput, output)

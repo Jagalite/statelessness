@@ -112,15 +112,17 @@ type Codec[S, I, O any] struct {
 // optional until those operations are requested. Copies are explicit because a
 // generic Go assignment does not deeply copy application-owned slices or maps.
 type Model[S, I, O any] struct {
-	InitialState    func() (S, error)
-	Step            func(S, I) (Transition[S, O], error)
-	CheckState      func(S) ([]Check, error)
-	CheckTransition func(S, I, Transition[S, O]) ([]Check, error)
-	CloneState      func(S) S
-	CloneInput      func(I) I
-	CloneOutput     func(O) O
-	Inputs          func(S) (Iterator[I], error)
-	EqualStates     func(S, S) bool
+	InitialState        func() (S, error)
+	Step                func(S, I) (Transition[S, O], error)
+	CheckState          func(S) ([]Check, error)
+	CheckStateInto      func(S, *CheckSink) error
+	CheckTransitionInto func(S, I, Transition[S, O], *CheckSink) error
+	CheckTransition     func(S, I, Transition[S, O]) ([]Check, error)
+	CloneState          func(S) S
+	CloneInput          func(I) I
+	CloneOutput         func(O) O
+	Inputs              func(S) (Iterator[I], error)
+	EqualStates         func(S, S) bool
 	// Equal states must hash equally. Nil uses a single equality bucket.
 	HashState func(S) uint64
 	// EstimatedStateBytes estimates retained state plus its owned data. Nil hook or
@@ -130,7 +132,7 @@ type Model[S, I, O any] struct {
 }
 
 func (m Model[S, I, O]) validate() error {
-	if m.CloneState == nil || m.CloneInput == nil || m.CloneOutput == nil || m.CheckState == nil {
+	if m.CloneState == nil || m.CloneInput == nil || m.CloneOutput == nil || (m.CheckState == nil && m.CheckStateInto == nil) {
 		return &ModelError{"model requires clone and state-check callbacks"}
 	}
 	return nil
@@ -166,29 +168,15 @@ func call[T any](stage string, f func() (T, error)) (value T, err error) {
 func copied[T any](clone func(T) T, v T) (T, error) {
 	return call("snapshot", func() (T, error) { return clone(v), nil })
 }
-func collect(stage string, f func() ([]Check, error)) ([]Check, error) {
-	return call(stage, func() ([]Check, error) {
-		values, err := f()
-		if err != nil {
-			return nil, err
-		}
-		result := make([]Check, len(values))
-		copy(result, values)
-		for _, c := range result {
-			if err = c.Validate(); err != nil {
-				return nil, err
-			}
-		}
-		return result, nil
-	})
-}
-func stateChecks[S, I, O any](m Model[S, I, O], s S) ([]Check, error) {
-	copy, err := copied(m.CloneState, s)
-	if err != nil {
-		return nil, err
+
+func stateChecks[S, I, O any](m Model[S, I, O], state S) ([]Check, error) {
+	checks := []Check{}
+	if e := stateChecksInto(m, state, &checks); e != nil {
+		return nil, e
 	}
-	return collect("state check", func() ([]Check, error) { return m.CheckState(copy) })
+	return checks, nil
 }
+
 func cloneTransition[S, I, O any](m Model[S, I, O], t Transition[S, O]) (Transition[S, O], error) {
 	return call("snapshot", func() (Transition[S, O], error) {
 		if err := t.Disposition.Validate(); err != nil {
@@ -202,23 +190,13 @@ func cloneTransition[S, I, O any](m Model[S, I, O], t Transition[S, O]) (Transit
 	})
 }
 func edgeChecks[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O]) ([]Check, error) {
-	if m.CheckTransition == nil {
-		return []Check{}, nil
+	checks := []Check{}
+	if e := edgeChecksInto(m, before, input, t, &checks); e != nil {
+		return nil, e
 	}
-	b, err := copied(m.CloneState, before)
-	if err != nil {
-		return nil, err
-	}
-	i, err := copied(m.CloneInput, input)
-	if err != nil {
-		return nil, err
-	}
-	tr, err := cloneTransition(m, t)
-	if err != nil {
-		return nil, err
-	}
-	return collect("transition check", func() ([]Check, error) { return m.CheckTransition(b, i, tr) })
+	return checks, nil
 }
+
 func perform[S, I, O any](m Model[S, I, O], before S, input I) (Transition[S, O], error) {
 	var zero Transition[S, O]
 	b, err := copied(m.CloneState, before)
@@ -246,35 +224,48 @@ func FullChecks() CheckPolicy { return CheckPolicy{1, true} }
 // CheckObserved checks an already completed transition without invoking Step.
 // Callback errors invalidate the entire batch; partial checks are never returned.
 func CheckObserved[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O], sequence uint64, policy CheckPolicy) ([]Check, error) {
-	if err := m.validate(); err != nil {
-		return nil, err
+	checks := []Check{}
+	if e := CheckObservedInto(m, before, input, t, sequence, policy, &checks); e != nil {
+		return nil, e
+	}
+	return checks, nil
+}
+
+// CheckObservedInto clears caller storage at entry and on every error while
+// retaining capacity. It observes completed execution and never invokes Step.
+func CheckObservedInto[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S, O], sequence uint64, policy CheckPolicy, checks *[]Check) (err error) {
+	if checks == nil {
+		return &ConfigError{"nil check storage"}
+	}
+	resetChecks(checks)
+	defer func() {
+		if err != nil {
+			resetChecks(checks)
+		}
+	}()
+	if e := m.validate(); e != nil {
+		return e
 	}
 	if sequence == 0 || policy.StateEvery == 0 {
-		return nil, &ConfigError{"sequence and state period must be positive"}
+		return &ConfigError{"sequence and state period must be positive"}
 	}
-	if err := t.Disposition.Validate(); err != nil {
-		return nil, &ModelError{fmt.Sprintf("observed transition: %v", err)}
+	if e := t.Disposition.Validate(); e != nil {
+		return &ModelError{fmt.Sprintf("observed transition: %v", e)}
 	}
-	var sc, ec []Check
-	var err error
 	if sequence%policy.StateEvery == 0 {
-		sc, err = stateChecks(m, t.State)
+		if e := stateChecksInto(m, t.State, checks); e != nil {
+			return e
+		}
 	} else {
-		sc = []Check{Skipped("stateless.state_checks", "periodic checking policy")}
-	}
-	if err != nil {
-		return nil, err
+		*checks = append(*checks, Skipped("stateless.state_checks", "periodic checking policy"))
 	}
 	if policy.TransitionChecks {
-		ec, err = edgeChecks(m, before, input, t)
-	} else {
-		ec = []Check{Skipped("stateless.transition_checks", "disabled by policy")}
+		return edgeChecksInto(m, before, input, t, checks)
 	}
-	if err != nil {
-		return nil, err
-	}
-	return append(sc, ec...), nil
+	*checks = append(*checks, Skipped("stateless.transition_checks", "disabled by policy"))
+	return nil
 }
+
 func hasFailure(checks []Check) bool {
 	for _, c := range checks {
 		if c.Status == "failed" {

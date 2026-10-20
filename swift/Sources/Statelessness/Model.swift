@@ -114,6 +114,8 @@ public struct Model<State, Input, Output> {
     /// Application estimate of retained state bytes, not process RSS. Unknown
     /// estimates are nil; callback allocations and engine bookkeeping are excluded.
     public var estimatedStateBytes: ((State) throws -> UInt64?)?
+    public var checkStateInto: ((State, CheckSink) throws -> Void)?
+    public var checkTransitionInto: ((State, Input, Transition<State, Output>, CheckSink) throws -> Void)?
     public init(initialState: @escaping () throws -> State,
                 step: @escaping (State, Input) throws -> Transition<State, Output>,
                 checkState: @escaping (State) throws -> [Check],
@@ -125,11 +127,14 @@ public struct Model<State, Input, Output> {
                 equalStates: ((State, State) throws -> Bool)? = nil,
                 hashState: ((State) throws -> UInt64)? = nil,
                 codec: Codec<State, Input, Output>? = nil,
-                estimatedStateBytes: ((State) throws -> UInt64?)? = nil) {
+                estimatedStateBytes: ((State) throws -> UInt64?)? = nil,
+                checkStateInto: ((State, CheckSink) throws -> Void)? = nil,
+                checkTransitionInto: ((State, Input, Transition<State, Output>, CheckSink) throws -> Void)? = nil) {
         self.initialState = initialState; self.step = step; self.checkState = checkState
         self.cloneState = cloneState; self.cloneInput = cloneInput; self.cloneOutput = cloneOutput
         self.checkTransition = checkTransition; self.inputs = inputs; self.equalStates = equalStates
         self.hashState = hashState; self.codec = codec; self.estimatedStateBytes = estimatedStateBytes
+        self.checkStateInto = checkStateInto; self.checkTransitionInto = checkTransitionInto
     }
 }
 func call<T>(_ stage: String, _ callback: () throws -> T) throws -> T {
@@ -140,14 +145,13 @@ func collect(_ stage: String, _ callback: () throws -> [Check]) throws -> [Check
     try call(stage) { let checks = try callback(); for check in checks { try check.validate() }; return checks }
 }
 func stateChecks<S, I, O>(_ m: Model<S, I, O>, _ state: S) throws -> [Check] {
-    try collect("state check") { try m.checkState(copied(m.cloneState, state)) }
+    var checks: [Check] = []; try stateChecksInto(m, state, checks: &checks); return checks
 }
 func cloneTransition<S, I, O>(_ m: Model<S, I, O>, _ t: Transition<S, O>) throws -> Transition<S, O> {
     try call("snapshot") { Transition(state: try m.cloneState(t.state), outputs: try t.outputs.map(m.cloneOutput), disposition: t.disposition) }
 }
 func edgeChecks<S, I, O>(_ m: Model<S, I, O>, _ before: S, _ input: I, _ t: Transition<S, O>) throws -> [Check] {
-    guard let callback = m.checkTransition else { return [] }
-    return try collect("transition check") { try callback(copied(m.cloneState, before), copied(m.cloneInput, input), cloneTransition(m, t)) }
+    var checks: [Check] = []; try edgeChecksInto(m, before, input, t, checks: &checks); return checks
 }
 func perform<S, I, O>(_ m: Model<S, I, O>, _ state: S, _ input: I) throws -> Transition<S, O> {
     let t = try call("transition") { try m.step(copied(m.cloneState, state), copied(m.cloneInput, input)) }
@@ -160,9 +164,20 @@ public struct CheckPolicy: Sendable {
 }
 /// Checks already-observed data; never calls the reducer. Initial checks are separate.
 public func checkObserved<S, I, O>(_ m: Model<S, I, O>, before: S, input: I, transition: Transition<S, O>, sequence: UInt64, policy: CheckPolicy = CheckPolicy()) throws -> [Check] {
-    guard sequence > 0, policy.stateEvery > 0 else { throw ConfigError("sequence and state period must be positive") }
-    let sc = sequence % policy.stateEvery == 0 ? try stateChecks(m, transition.state) : [.skipped("stateless.state_checks", "periodic checking policy")]
-    let ec = policy.transitionChecks ? try edgeChecks(m, before, input, transition) : [.skipped("stateless.transition_checks", "disabled by policy")]
-    return sc + ec
+    var checks: [Check] = []
+    try checkObservedInto(m, before: before, input: input, transition: transition, sequence: sequence, policy: policy, checks: &checks)
+    return checks
+}
+/// Reuses caller storage. Clears at entry and every error, preserving capacity.
+/// This checks an already executed turn and never invokes the reducer.
+public func checkObservedInto<S, I, O>(_ m: Model<S, I, O>, before: S, input: I, transition: Transition<S, O>, sequence: UInt64, policy: CheckPolicy = CheckPolicy(), checks: inout [Check]) throws {
+    checks.removeAll(keepingCapacity: true)
+    do {
+        guard sequence > 0, policy.stateEvery > 0 else { throw ConfigError("sequence and state period must be positive") }
+        if sequence % policy.stateEvery == 0 { try stateChecksInto(m, transition.state, checks: &checks) }
+        else { checks.append(.skipped("stateless.state_checks", "periodic checking policy")) }
+        if policy.transitionChecks { try edgeChecksInto(m, before, input, transition, checks: &checks) }
+        else { checks.append(.skipped("stateless.transition_checks", "disabled by policy")) }
+    } catch { checks.removeAll(keepingCapacity: true); throw error }
 }
 func hasFailure(_ checks: [Check]) -> Bool { checks.contains { $0.status == .failed } }

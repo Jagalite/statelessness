@@ -11,7 +11,7 @@ import time
 from typing import Callable, Generic, Iterable, Protocol
 
 from .core import (S, I, O, Check, Transition, Model, EnumerateModel, ModelError, Rng, Failure,
-                   Violation, _call, _copy, _natural, _step, _saturating_add_u64)
+                   Violation, _call, _copy, _natural, _step, _saturating_add_u64, _dispatch_checks)
 
 
 class _Exhausted:
@@ -208,45 +208,39 @@ def _notify_check_error(observer, phase, checks, complete, primary):
         primary.observer_errors = getattr(primary, "observer_errors", ()) + (secondary,)
 
 
-def _collect_checks(stage, callback, args, partial):
-    def collect():
-        for check in callback(*args):
-            if not isinstance(check, Check):
-                raise TypeError("checker must return Check values")
-            partial.append(check)
-        return tuple(partial)
-    return _call(stage, collect)
-
-
-def _violations(model, state, input=None, transition=None, *, observer=None, history=()):
-    state_values = []
-    phase = "initial_state" if transition is None else "state"
+def _violations(model, state, input=None, transition=None, *, observer=None, history=(), storage=None):
+    values = [] if storage is None else storage
+    values.clear()
+    initial = transition is None
+    phase = "initial_state" if initial else "state"
     try:
-        checks = _collect_checks("initial check" if transition is None else "state check",
-                                 model.check_state,
-                                 (_copy(state if transition is None else transition.state),), state_values)
+        _dispatch_checks(model, "check_state_into", "check_state",
+                         (_copy(state if initial else transition.state),), values,
+                         "initial check" if initial else "state check")
     except ModelError as error:
-        _notify_check_error(observer, phase, tuple(state_values), False, error)
+        if observer is not None:
+            _notify_check_error(observer, phase, tuple(values), False, error)
         raise
-    batches = [(phase, checks)]
-    if transition is None:
-        _notify(observer, "initial", state, checks)
+    boundary = len(values)
+    if initial:
+        if observer is not None:
+            _notify(observer, "initial", state, tuple(values))
     else:
-        edge_values = []
-        callback = getattr(model, "check_transition", None)
         try:
-            edge_checks = (() if callback is None else
-                _collect_checks("transition check", callback,
-                                (_copy(state), _copy(input), _copy(transition)), edge_values))
+            _dispatch_checks(model, "check_transition_into", "check_transition",
+                             (_copy(state), _copy(input), _copy(transition)), values,
+                             "transition check", optional=True)
         except ModelError as error:
-            _notify_check_error(observer, "state", checks, True, error)
-            _notify_check_error(observer, "transition", tuple(edge_values), False, error)
+            if observer is not None:
+                _notify_check_error(observer, "state", tuple(values[:boundary]), True, error)
+                _notify_check_error(observer, "transition", tuple(values[boundary:]), False, error)
             raise
-        batches.append(("transition", edge_checks))
-        _notify(observer, "transition", state, input, transition, checks, edge_checks, tuple(history))
-    failures = tuple(Violation(phase, check) for phase, values in batches
-                     for check in values if check.status == "failed")
-    skipped = _saturating_add_u64(0, sum(check.status == "skipped" for _, values in batches for check in values))
+        if observer is not None:
+            _notify(observer, "transition", state, input, transition,
+                    tuple(values[:boundary]), tuple(values[boundary:]), tuple(history))
+    failures = tuple(Violation("initial_state" if initial else "state" if index < boundary else "transition", check)
+                     for index, check in enumerate(values) if check.status == "failed")
+    skipped = _saturating_add_u64(0, sum(check.status == "skipped" for check in values))
     return failures, skipped
 
 
@@ -281,6 +275,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
     control, rng = _Control(limits), Rng(config.seed)
     previous = ()
     cases = transitions = skipped = 0
+    check_storage = []
 
     def report(reason, failure=None):
         return FuzzReport(reason, config.seed, cases, transitions, skipped, failure)
@@ -294,7 +289,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
             return report(stop)
         state = _copy(_call("initial_state", model.initial_state))
         cases += 1
-        violations, count = _violations(model, state, observer=observer)
+        violations, count = _violations(model, state, observer=observer, storage=check_storage)
         skipped = _saturating_add_u64(skipped, count)
         if violations:
             return report("failure_found", Failure((), violations))
@@ -335,7 +330,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
             transition = _step(model, state, input)
             transitions += 1
             inputs.append(_copy(input))
-            violations, count = _violations(model, state, input, transition, observer=observer, history=inputs)
+            violations, count = _violations(model, state, input, transition, observer=observer, history=inputs, storage=check_storage)
             skipped = _saturating_add_u64(skipped, count)
             if violations:
                 return report("failure_found", Failure(tuple(inputs), violations))
@@ -404,6 +399,7 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
     control = _Control(limits.control)
     transitions = attempts = 0
     history = []
+    check_storage = []
     termination = "search_complete"
     minimized = original
     validated = False
@@ -437,7 +433,7 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
         if stop:
             return stop, None
         state = _copy(_call("shrink initial_state", model.initial_state))
-        violations, _ = _violations(model, state)
+        violations, _ = _violations(model, state, storage=check_storage)
         if violations:
             return "failure", Failure((), violations)
         stop = control.stop()
@@ -457,7 +453,7 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
                 return "invalid_causality", None
             transition = _step(model, state, input)
             transitions += 1
-            violations, _ = _violations(model, state, input, transition)
+            violations, _ = _violations(model, state, input, transition, storage=check_storage)
             if violations:
                 return "failure", Failure(_copy(tuple(inputs[:index + 1])), violations)
             stop = control.stop()

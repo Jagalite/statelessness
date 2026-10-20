@@ -153,18 +153,51 @@ baseline passed across five independent engines, including 717 cases per engine
 and 550 fresh-process replays. [BFS receipts](../validation/native-parity/bfs-slice/README.md)
 record exact source/package/runtime identities and historical failures.
 
-Append-only check storage, checked-result handoffs and rich/bounded replay remain
-open. The [append-check audit](native-parity/APPEND-CHECKS-AUDIT.md) specifies the
-next complete integration scope; the earlier [controls audit](native-parity/N01-CONTROLS-AUDIT.md)
-remains the source-pinned rationale for this implementation.
+Append-only check storage is implemented in the following slice; checked-result
+handoffs and rich/bounded replay remain open. The [append-check audit](native-parity/APPEND-CHECKS-AUDIT.md)
+and earlier [controls audit](native-parity/N01-CONTROLS-AUDIT.md) retain the
+source-pinned rationale for these implementations.
+
+## Append-only check storage candidate
+
+All four native engines now implement the [append-check candidate](../spec/append-checks-v1.md).
+Optional append callbacks take precedence over legacy collection callbacks and
+feed reusable engine storage across observed checking, BFS, fuzz, shrink,
+recording, replay and adapters. Transition hooks inspect the preceding state
+checks; oracle/reference hooks inspect preceding actual-model checks. Search
+errors preserve real partial diagnostic batches, while observed-check-into clears
+caller storage on error without executing the reducer again.
+
+Native callback sinks use revocable nested leases, shared sticky validation,
+detached check values and inspection snapshots, and synchronous-return guards.
+Expired handles release their storage references. These are deliberate native
+counterparts to Rust's static borrowing; contained exception cleanup is stronger
+than Rust's uncaught-unwind behavior. Raw caller buffers remain exclusively owned
+during a call. Built-in adapters now provide append hooks, so customizations must
+respect append-before-legacy priority; package READMEs document override migration.
+
+The real Rust reference passed all 52 shared cases. Final Kyoto suites passed:
+Python ran 124 tests with 12 ABI skips, Go ran uncached tests, Swift passed 73
+methods, and TypeScript passed 281 tests. All five installed pipelines used zero
+legacy callbacks and matched Rust's append callback counts through BFS, fuzz,
+shrink, recording and replay. All 25 fresh witness replay pairs passed. The
+unchanged four-profile baseline passed 717 cases per engine and 550 fresh-process
+replays across five engines. [Append receipts](../validation/native-parity/append-slice/README.md)
+identify exact source/package/runtime bytes and preserve historical results.
+
+Review also fixed Python binary variant spoofing and quota-before-copy behavior
+for string subclasses; its 54 binary goldens remain intact. Bounded codec buffers
+and richer/bounded replay remain open; their [source audit](native-parity/ENCODE-BUFFERS-REPLAY-AUDIT.md)
+sets the next dependency and qualification scope. Append sinks alone do not close
+N01, binary recorder admission or allocation/performance parity.
 
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Implement [append-only check storage](native-parity/APPEND-CHECKS-AUDIT.md) across
-   execution, search, recording/replay and adapters, then richer/bounded replay.
-   Continue BFS/binary-v1 and N03/N04 qualification across platforms.
+3. Implement [bounded codec buffers and richer/bounded replay](native-parity/ENCODE-BUFFERS-REPLAY-AUDIT.md),
+   preserving actual-result/error evidence and independent byte/item quotas.
+   Continue append/BFS/binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

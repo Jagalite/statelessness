@@ -136,6 +136,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 	if stop() {
 		return report, nil
 	}
+	var checkStorage []Check
 	initial, e := call("initial_state", m.InitialState)
 	if e != nil {
 		return nil, e
@@ -145,7 +146,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 		return nil, e
 	}
 	report.States = 1
-	checks, e := searchInitialObserved(m, initial, observer)
+	checks, e := searchInitialObservedInto(m, initial, observer, &checkStorage)
 	if e != nil {
 		return nil, e
 	}
@@ -257,7 +258,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 					return nil, e
 				}
 			}
-			bad, e := searchEdgeObserved(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, history, &report.SkippedChecks, observer)
+			bad, e := searchEdgeObservedInto(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, history, &report.SkippedChecks, observer, &checkStorage)
 			if e != nil {
 				return nil, e
 			}

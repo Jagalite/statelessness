@@ -14,7 +14,7 @@ pending compiler/runtime findings before hash capture; subsequent review fixes
 invalidate the affected hashes and require another refresh.
 Use the JSON source hashes to identify audited bytes; do not silently treat these
 static statuses as observations about later source. The JSON timestamps record
-when source metadata was collected, not when tests ran. Later scoped binary and BFS-controls
+when source metadata was collected, not when tests ran. Later scoped binary, BFS-controls and append-checks
 reviews add or refresh only their listed source/export/contract hashes and each
 identify their own worktree HEAD. They do not silently refresh unrelated feature
 cells or source hashes from the original audit.
@@ -68,8 +68,8 @@ application/reference dispositions, and retain explicit oracle history in the
 an experimental profile. Generation, enabled checks and simplification now forward
 through Python/TypeScript `WithOracle`, Go `WithOracleGenerate`, and Swift
 `Generate.withOracle`. Model/oracle state estimates now forward too, including
-checked aggregation and an explicit native wrapper-overhead convention. Reusable
-append/encode-buffer behavior remains missing, so the full oracle feature stays
+checked aggregation and an explicit native wrapper-overhead convention. Append-only checks now forward through these adapters; reusable
+encode-buffer behavior remains missing, so the full oracle feature stays
 `partial` even though scoped projection comparison is `implemented`.
 
 All four also implement the candidate `search-v1` slice independently: explicit
@@ -86,8 +86,9 @@ Native search observers receive defensive state/input/transition snapshots,
 requested initial-rooted histories, ordered checks, and explicit partial/complete
 check-error batches. Fuzz always supplies its full executed prefix, including a
 failing turn. Python/TypeScript preserve incremental iterator check prefixes;
-Go preserves valid returned partial checks. Swift's eager array callbacks cannot
-expose work never returned before a throw. A returned array whose later check
+Go preserves valid returned partial checks. Preferred append callbacks in every
+language preserve the valid emitted prefix on error. Legacy Swift eager array
+callbacks cannot expose work never returned before a throw. A returned array whose later check
 fails validation does preserve its valid prefix as incomplete; a preceding
 complete state batch remains visible. Native observer errors abort with an engine error;
 Rust's observer callbacks return unit. These choices are stated in the candidate
@@ -133,7 +134,7 @@ estimate. These conventions do not imply equal byte counts across runtimes.
 The richer native report remains separate from the four existing qualified
 portable wire profiles. Their conformance adapters keep the original report
 projection instead of silently adding estimate fields. These controls do not
-supply reusable append-only check/encoding storage, checked-initial/checked-turn
+supply reusable encoding storage, checked-initial/checked-turn
 provenance tokens, or rich/bounded replay observations. Rust replay uses observer
 stop boundaries rather than taking search `RunLimits` directly; new BFS controls
 must not be counted as that separate replay API. Shrink attempt limits bound
@@ -141,6 +142,46 @@ replay attempts, not total iterator pulls or equality work: an infinite already
 seen alternative stream can spend no attempts. Controls remain cooperative and
 cannot interrupt one nonreturning callback. Bounded shrinking establishes no
 global minimality.
+
+All four now implement candidate `append-checks-v1`: `CheckSink`, preferred
+state/transition append callbacks, and `check_observed_into`/`CheckObservedInto`/
+`checkObservedInto`. Direct append preserves the existing ordered prefix; engines
+prefer the append hook exactly once, otherwise call the legacy checker once.
+Execution, BFS, fuzz, shrink and oracle/paired adapters use that dispatcher, with
+reusable scratch storage and detached retained checks/observer batches. Adapters
+append actual checks before oracle checks, and reference checks before paired
+comparisons. Sink inspection sees the complete preceding prefix.
+
+Fresh synchronous callback leases expire on return or error and detach reusable
+storage; nested callback leases expire independently. Validation copies checks
+on append and retains the first malformed-check/reservation failure even when
+caught by the callback. These runtime capabilities are native extensions to
+Rust's borrowed sink, not identical type-system enforcement. Caller-owned storage
+requires exclusive synchronous use: raw aliases, reentry and concurrent mutation
+are outside the contract. Python/TypeScript reject asynchronous or non-void hook
+results; Go/Swift use synchronous callback types. Python/JavaScript reservation
+validates requests but cannot promise portable array capacity or allocator bounds.
+
+Observed-into clears caller storage at entry (including invalid configuration)
+and on contained errors, never executes the reducer, and retains explicit policy
+skip checks. Direct append instead retains its valid emitted prefix. Search
+errors publish actual incomplete prefixes, including a completed state batch
+before an incomplete transition batch; both error notifications are attempted and
+the checker error stays primary. Rust `Result::Err` cannot reveal an internal
+legacy vector never returned, and Rust panics may leave appended output; native
+contained-error cleanup does not claim to reproduce Rust unwinding.
+
+Mutable adapters already install preferred append hooks. Replacing only a legacy
+checker does not override that hook: replace the corresponding append callback,
+or explicitly clear it where supported to select the legacy replacement. Existing
+legacy-only models retain fallback behavior. This migration rule also applies to
+paired and oracle wrappers, not just plain models.
+
+This check-storage slice does not implement `EncodeBuffer`, codec `*_into`,
+canonical value codecs or direct bounded recording sinks. The combined
+`append-buffers` feature therefore remains `partial`, and all qualification cells
+remain pending. Finite append fixtures and native adversarial tests provide scoped
+evidence only; they do not close N01/N11 or qualify the full native model contract.
 
 All four now have independent structural Rust binary v1 codecs: Python
 `trace_binary.AuditTrace`, Go `AuditTrace`, TypeScript `AuditTrace`, and Swift
@@ -196,8 +237,8 @@ plus per-language implementation cells and concrete omissions.
 
 | Gap | Reviewed feature groups | Current implementation boundary |
 | --- | --- | --- |
-| N01 | `core-model`, `append-buffers`, `finite-bfs`, `search-controls`, `fuzz-observers`, `record-replay`, `replay-observations` | Core/BFS/record/replay and cooperative search controls exist. BFS now adds admitted-state estimates and checked observations; reusable sinks, checked provenance tokens and rich/bounded replay evidence remain separate gaps. |
-| N02 | `oracle-history`, `paired-projection` | Candidate history/projection/generation and estimate forwarding present in all four; reusable append/encode-buffer forwarding and runtime qualification remain. |
+| N01 | `core-model`, `append-buffers`, `finite-bfs`, `search-controls`, `fuzz-observers`, `record-replay`, `replay-observations` | Core/BFS/record/replay and cooperative search controls exist. BFS now adds admitted-state estimates and checked observations and append-check sinks; encoding sinks, checked provenance tokens and rich/bounded replay evidence remain separate gaps. |
+| N02 | `oracle-history`, `paired-projection` | Candidate history/projection/generation and estimate forwarding present in all four; append forwarding present; reusable encoding buffers and runtime qualification remain. |
 | N03 | `rng`, `generation`, `fuzz`, `fuzz-observers` | Native generation, automatic sampling/membership, seeded fuzz, controls, reports and fuzz observers implemented as candidate `search-v1`; qualification remains pending. |
 | N04 | `shrink` | Native target-ID/phase-preserving deletion/simplification, causality checks, histories and cooperative/aggregate replay budgets implemented; qualification remains pending. |
 | N05 | `guided` | Feedback, novelty, corpus management and guided fuzz missing. |
@@ -206,7 +247,7 @@ plus per-language implementation cells and concrete omissions.
 | N08 | `composition`, `network` | Two-model routing and multi-machine queue/scheduling wrappers missing. |
 | N09 | `lifecycle` | Both legacy and indexed lifecycle monitors/retention missing. |
 | N10 | `assurance`, `reference-controller` | Manifests, applicability/coverage, aggregation and controller mutation fixture missing. |
-| N11 | `append-buffers`, `record-replay`, `json-envelope`, `binary-v1`, `value-codec`, `causal-evidence` | Portable JSON/user model codecs and structural binary v1 read/write/configuration candidate APIs present. Direct binary-budgeted capture/provenance, reusable sinks, canonical value codecs and binary v2 causal evidence remain open. |
+| N11 | `append-buffers`, `record-replay`, `json-envelope`, `binary-v1`, `value-codec`, `causal-evidence` | Portable JSON/user model codecs and structural binary v1 read/write/configuration candidate APIs present. Direct binary-budgeted capture/provenance, reusable encoding sinks, canonical value codecs and binary v2 causal evidence remain open. |
 | N12 | `replay-observations`, `debug-session`, `debug-inspection`, `debug-live-protocol`, `debug-telemetry` | All optional debugger/diagnostic packages missing; basic native replay remains available. |
 | N13 | `core-model`, `generation`, `reference-controller`, `modeling-helpers`, `derive-adapters`, `demo-and-cli` | Handwritten models and generation adapters exist. Bounded Domain/product descriptors, lazy checks, generated codec/inspection helpers and full integration fixtures remain missing. |
 | N14 | `reference-controller`, `native-conformance-tooling`, `reduction-research`, `demo-and-cli` | Corpus runners and counter examples present; controller/research/demo/CLI coverage incomplete. |

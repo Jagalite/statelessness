@@ -14,7 +14,11 @@ observations; it cannot remove or replace preceding observations or obtain the
 mutable backing vector. The borrow prevents retaining the sink past its owner.
 The [Model append hooks](../../src/model.rs#L379) default to extending from the
 existing collection-returning callbacks, preserving compatibility and emitted
-order. Defaults may still allocate their temporary result collections.
+order. Defaults append only after the legacy callback returns successfully;
+internal values from a legacy `Err` are unavailable. Defaults may still allocate
+their temporary result collections. Inspection and length include the entire
+existing prefix: a transition checker can see earlier state checks and an oracle
+checker can see the actual model's observations.
 
 [WithOracle](../../src/oracle.rs#L194) forwards the same sink first to the actual
 model and then to the oracle. [Paired](../../src/conformance.rs#L72) forwards
@@ -25,8 +29,22 @@ This order and evidence cannot be reproduced by running either checker again.
 [check_observed_into](../../src/execution.rs#L106) clears the caller's logical
 result at entry while retaining capacity. It checks an already executed turn and
 does not invoke the reducer. Its [shared implementation](../../src/execution.rs#L129)
-clears the entire result on error, including invalid sequence zero. Policy-skipped
-state and transition batches append their explicit skipped checks in order.
+clears the entire result on a returned `Result::Err`, including invalid sequence
+zero. Sequence zero fails without invoking any model callback. It does not catch
+callback panics: a panic after an append can unwind with that prefix still in
+caller storage. Rust's
+`CheckPolicy.state_every` is `NonZeroU64`, so a zero period cannot reach this API.
+Native invalid-configuration, snapshot-failure, and contained panic/exception
+cleanup must be specified as explicit native extensions rather than inferred
+from Rust's returned-error behavior.
+
+Policy-skipped state and transition batches append their explicit skipped checks
+in that order. A skipped state batch suppresses only state checking; it does not
+prevent enabled transition checking. A failed state property also does not
+suppress transition checking. These observations borrow an already executed
+transition and do not rerun its reducer or validate an initial state implicitly.
+Rust's separate `check_initial` owns a fresh private vector and returns no checked
+token on error; it is not a public reusable initial-check-into operation.
 By contrast, [search checking](../../src/explore.rs#L1410) preserves actual partial
 prefixes for diagnostic observers and distinguishes incomplete state/transition
 batches. These are separate public contracts, not inconsistent behavior.
@@ -69,9 +87,12 @@ path; it must remain compatible without calling model checkers.
    does not require permitting an append-only model with no collection callback;
    if that extension is chosen, document its validation contract explicitly.
 4. Expose observed-check-into entrypoints with caller-owned reusable storage.
-   Clear at entry and on every failure; append policy checks in the same order as
-   existing APIs. Keep the collection-returning convenience APIs, implemented
-   through the shared dispatch to prevent semantic drift.
+   Clear at entry and on returned errors, matching Rust. Also define clearing for
+   native validation, snapshot and contained panic/exception errors as explicit
+   host-language extensions; Rust does not catch an unwinding checker panic.
+   Append policy checks in the same order as existing APIs. Keep the
+   collection-returning convenience APIs, implemented through the shared dispatch
+   to prevent semantic drift.
 5. Share dispatch and batch-boundary logic across execution, BFS, fuzz, shrink,
    record and replay. Keep context-specific ownership/error policy at the caller.
    Search observers receive completed state checks separately from an incomplete
@@ -116,6 +137,24 @@ use is invalid. Document confinement and make expired use fail deterministically
 do not advertise thread safety merely because lease checks exist. If supported
 concurrency is added, its synchronization and race semantics need their own scope.
 
+### Native validation failures must remain failures
+
+Rust's typed `Check` and status variants cannot supply a malformed runtime check
+to `CheckSink`; its `push` has no validation-error return. Native APIs accepting
+runtime values need an explicit additional fail-closed contract. Retain the
+first validation failure in shared invocation state, including across nested
+wrapper leases. Ignoring a Go append error or catching a TypeScript/Python/Swift
+append exception must not let the callback return a passing batch. Inspect that
+failure state after the callback returns successfully as well as on its error
+path; later valid appends cannot erase it or bless the invalid batch.
+
+Retain only successfully accepted observations preceding the first malformed
+value for search error diagnostics. Ordinary observed-check-into clears its
+caller result on this native validation failure. A fresh callback invocation
+may begin with fresh validation state, but an existing or expired lease must not
+reset a failed invocation. This native guarantee is separate from Rust's typed
+append behavior and from the bounded encoder's own error rules.
+
 ## Qualification requirements
 
 - Run legacy-only models through every engine path and compare existing traces,
@@ -129,8 +168,12 @@ concurrency is added, its synchronization and race semantics need their own scop
 - Test search error notifications against real emitted prefixes and completeness
   flags. Confirm both notifications occur after a transition-check error even if
   the first notification fails; retain checker error precedence. Test observed-
-  into clearing on invalid configuration, snapshot failure, checker error,
-  malformed append and panic/exception. Never repeat a reducer or checker.
+  into clearing on invalid sequence and returned checker errors. Separately test
+  the documented native extensions for invalid configuration, snapshot failure,
+  malformed append and contained panic/exception. Include ignored append errors,
+  caught append exceptions, and later valid appends after a malformed value;
+  none may convert the invalid batch into success. Rust unwind cleanup is not
+  claimed. Never repeat a reducer or checker.
 - Capture a sink and attempt push/extend/inspection/reserve after normal return,
   exception, and subsequent buffer reuse. Capture nested oracle/reference sinks.
   All expired operations must fail without changing any prior or later evidence.

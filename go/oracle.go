@@ -8,7 +8,7 @@ import (
 
 // ExperimentalProfiles names candidates; these are not qualified Profiles.
 func ExperimentalProfiles() []string {
-	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1"}
+	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1"}
 }
 
 type OracleState[S, H any] struct {
@@ -23,6 +23,8 @@ type Oracle[S, H, I, O any] struct {
 	InitialState        func() (H, error)
 	Advance             func(H, I, []O, Disposition) (H, error)
 	CheckState          func(H, S) ([]Check, error)
+	CheckStateInto      func(H, S, *CheckSink) error
+	CheckTransitionInto func(OracleState[S, H], I, Transition[OracleState[S, H], O], *CheckSink) error
 	CheckTransition     func(OracleState[S, H], I, Transition[OracleState[S, H], O]) ([]Check, error)
 	CloneHistory        func(H) H
 	EstimatedStateBytes func(H) (*uint64, error)
@@ -51,7 +53,7 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 	if err := m.validate(); err != nil {
 		return nil, err
 	}
-	if o.InitialState == nil || o.Advance == nil || o.CheckState == nil || o.CloneHistory == nil {
+	if o.InitialState == nil || o.Advance == nil || (o.CheckState == nil && o.CheckStateInto == nil) || o.CloneHistory == nil {
 		return nil, &ModelError{"oracle requires initial, advance, state-check, and clone callbacks"}
 	}
 	w := &OracleModel[S, H, I, O]{actual: m, oracle: o}
@@ -82,27 +84,47 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			return w.ObserveTransition(s, i, t)
 		}
 	}
-	w.CheckState = func(s OracleState[S, H]) ([]Check, error) {
-		a, e := partialStateChecks(m, s.Model)
-		if e != nil {
-			return a, e
+	w.CheckStateInto = func(state OracleState[S, H], sink *CheckSink) error {
+		if e := appendStateChecks(m, state.Model, sink); e != nil {
+			return e
 		}
-		b, e := partialChecks("oracle state check", func() ([]Check, error) { return o.CheckState(o.CloneHistory(s.Oracle), m.CloneState(s.Model)) })
-		return append(a, b...), e
-	}
-	w.CheckTransition = func(s OracleState[S, H], i I, t Transition[OracleState[S, H], O]) ([]Check, error) {
-		a, e := partialEdgeChecks(m, s.Model, i, Transition[S, O]{t.State.Model, t.Outputs, t.Disposition})
-		if e != nil {
-			return a, e
-		}
-		if o.CheckTransition == nil {
-			return a, nil
-		}
-		b, e := partialChecks("oracle transition check", func() ([]Check, error) {
-			return o.CheckTransition(w.CloneState(s), m.CloneInput(i), cloneOracleTransition(w, t))
+		return invokeChildChecks("oracle state check", sink, func(child *CheckSink) error {
+			history, actual := o.CloneHistory(state.Oracle), m.CloneState(state.Model)
+			if o.CheckStateInto != nil {
+				return o.CheckStateInto(history, actual, child)
+			}
+			return legacyChecks(child, func() ([]Check, error) { return o.CheckState(history, actual) })
 		})
-		return append(a, b...), e
 	}
+	w.CheckTransitionInto = func(state OracleState[S, H], input I, t Transition[OracleState[S, H], O], sink *CheckSink) error {
+		if e := appendEdgeChecks(m, state.Model, input, Transition[S, O]{t.State.Model, t.Outputs, t.Disposition}, sink); e != nil {
+			return e
+		}
+		if o.CheckTransitionInto == nil && o.CheckTransition == nil {
+			return nil
+		}
+		return invokeChildChecks("oracle transition check", sink, func(child *CheckSink) error {
+			before, i, tr := w.CloneState(state), m.CloneInput(input), cloneOracleTransition(w, t)
+			if o.CheckTransitionInto != nil {
+				return o.CheckTransitionInto(before, i, tr, child)
+			}
+			return legacyChecks(child, func() ([]Check, error) { return o.CheckTransition(before, i, tr) })
+		})
+	}
+	// Capture the composition callbacks so opting out of the public append
+	// fields cannot make the legacy fallback recursively redispatch to itself.
+	stateInto, transitionInto := w.CheckStateInto, w.CheckTransitionInto
+	w.CheckState = func(state OracleState[S, H]) ([]Check, error) {
+		checks := []Check{}
+		e := invokeChecks("oracle state check", &checks, func(sink *CheckSink) error { return stateInto(state, sink) })
+		return checks, e
+	}
+	w.CheckTransition = func(state OracleState[S, H], input I, t Transition[OracleState[S, H], O]) ([]Check, error) {
+		checks := []Check{}
+		e := invokeChecks("oracle transition check", &checks, func(sink *CheckSink) error { return transitionInto(state, input, t, sink) })
+		return checks, e
+	}
+
 	w.EstimatedStateBytes = func(state OracleState[S, H]) (*uint64, error) {
 		actual, e := estimateState(m, state.Model)
 		if e != nil || actual == nil {

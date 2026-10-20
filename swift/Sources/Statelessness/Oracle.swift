@@ -1,5 +1,5 @@
 /// Candidate APIs only; these do not expand the qualified portable profiles.
-public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1"]
+public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1"]
 
 public struct OracleState<S, H> {
     public let model: S
@@ -19,17 +19,22 @@ public struct Oracle<S, H, I, O> {
     public var encodeHistory: ((H) throws -> [UInt8])?
     public var decodeHistory: (([UInt8]) throws -> H)?
     public var estimatedStateBytes: ((H) throws -> UInt64?)?
+    public var checkStateInto: ((H, S, CheckSink) throws -> Void)?
+    public var checkTransitionInto: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void)?
     public init(metadata: @escaping () throws -> Metadata, initialState: @escaping () throws -> H,
                 advance: @escaping (H, I, [O], Disposition) throws -> H,
                 checkState: @escaping (H, S) throws -> [Check], cloneHistory: @escaping (H) throws -> H,
                 equalHistory: ((H, H) throws -> Bool)? = nil,
                 checkTransition: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>) throws -> [Check])? = nil,
                 encodeHistory: ((H) throws -> [UInt8])? = nil, decodeHistory: (([UInt8]) throws -> H)? = nil,
-                estimatedStateBytes: ((H) throws -> UInt64?)? = nil) {
+                estimatedStateBytes: ((H) throws -> UInt64?)? = nil,
+                checkStateInto: ((H, S, CheckSink) throws -> Void)? = nil,
+                checkTransitionInto: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void)? = nil) {
         self.metadata = metadata; self.initialState = initialState; self.advance = advance
         self.checkState = checkState; self.cloneHistory = cloneHistory; self.equalHistory = equalHistory
         self.checkTransition = checkTransition; self.encodeHistory = encodeHistory; self.decodeHistory = decodeHistory
         self.estimatedStateBytes = estimatedStateBytes
+        self.checkStateInto = checkStateInto; self.checkTransitionInto = checkTransitionInto
     }
 }
 
@@ -91,6 +96,28 @@ public struct WithOracle<S, H, I, O> {
         guard offset == bytes.count else { throw ModelError("trailing oracle checkpoint bytes") }
         return try attach(model: c.decodeState(a), oracle: decode(h))
     }
+    private func appendState(_ state: OracleState<S, H>, into sink: CheckSink) throws {
+        try appendStateChecks(actual, state.model, into: sink)
+        try call("oracle state check") {
+            try sink.sublease { child in
+                let history = try copied(oracle.cloneHistory, state.oracle), model = try copied(actual.cloneState, state.model)
+                if let callback = oracle.checkStateInto { try callback(history, model, child) }
+                else { try child.extend(oracle.checkState(history, model)) }
+            }
+        }
+    }
+    private func appendTransition(_ before: OracleState<S, H>, _ input: I, _ t: Transition<OracleState<S, H>, O>, into sink: CheckSink) throws {
+        try appendTransitionChecks(actual, before.model, input, Transition(state: t.state.model, outputs: t.outputs, disposition: t.disposition), into: sink)
+        guard oracle.checkTransitionInto != nil || oracle.checkTransition != nil else { return }
+        try call("oracle transition check") {
+            try sink.sublease { child in
+                let b = try attach(model: before.model, oracle: before.oracle), i = try copied(actual.cloneInput, input)
+                let turn = Transition(state: try attach(model: t.state.model, oracle: t.state.oracle), outputs: try t.outputs.map { try copied(actual.cloneOutput, $0) }, disposition: t.disposition)
+                if let callback = oracle.checkTransitionInto { try callback(b, i, turn, child) }
+                else if let callback = oracle.checkTransition { try child.extend(callback(b, i, turn)) }
+            }
+        }
+    }
     /// Use this ordinary native model with recording, replay and finite BFS.
     public var model: Model<OracleState<S, H>, I, O> {
         let clone: (OracleState<S, H>) throws -> OracleState<S, H> = { try self.attach(model: $0.model, oracle: $0.oracle) }
@@ -98,17 +125,15 @@ public struct WithOracle<S, H, I, O> {
             initialState: { try self.attach(model: self.actual.initialState(), oracle: self.oracle.initialState()) },
             step: { before, input in try self.observeTransition(before: before, input: input, transition: perform(self.actual, before.model, input)) },
             checkState: { state in
-                let checks = try stateChecks(self.actual, state.model)
-                return checks + (try collect("oracle state check") { try self.oracle.checkState(copied(self.oracle.cloneHistory, state.oracle), copied(self.actual.cloneState, state.model)) })
+                var checks: [Check] = []
+                try CheckSink.withStorage(&checks) { try self.appendState(state, into: $0) }; return checks
             }, cloneState: clone, cloneInput: actual.cloneInput, cloneOutput: actual.cloneOutput,
             checkTransition: { before, input, t in
-                let a = Transition(state: t.state.model, outputs: t.outputs, disposition: t.disposition)
-                let checks = try edgeChecks(self.actual, before.model, input, a)
-                guard let callback = self.oracle.checkTransition else { return checks }
-                return checks + (try collect("oracle transition check") {
-                    try callback(clone(before), copied(self.actual.cloneInput, input), Transition(state: clone(t.state), outputs: t.outputs.map { try copied(self.actual.cloneOutput, $0) }, disposition: t.disposition))
-                })
+                var checks: [Check] = []
+                try CheckSink.withStorage(&checks) { try self.appendTransition(before, input, t, into: $0) }; return checks
             })
+        result.checkStateInto = { try self.appendState($0, into: $1) }
+        result.checkTransitionInto = { try self.appendTransition($0, $1, $2, into: $3) }
         if let inputs = actual.inputs { result.inputs = { try inputs(copied(self.actual.cloneState, $0.model)) } }
         if let equal = actual.equalStates, let historyEqual = oracle.equalHistory {
             result.equalStates = { a, b in
@@ -158,25 +183,32 @@ public struct Paired<S, H, I, O, R, V, E> {
     public init(reference: Model<H, I, R>, projection: Projection<S, H, O, R, V, E>) { self.reference = reference; self.projection = projection }
     public var oracle: Oracle<S, H, I, O> {
         let r = reference, p = projection
+        let stateInto: (H, S, CheckSink) throws -> Void = { history, actual, sink in
+            try appendStateChecks(r, history, into: sink)
+            let same = try p.equalState(p.actualState(actual), p.referenceState(history))
+            try sink.push(same ? .passed("pair.state") : .failed("pair.state", "projected states differ"))
+        }
+        let transitionInto: (OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void = { before, input, actual, sink in
+            let expected = try perform(r, before.oracle, input)
+            try appendTransitionChecks(r, before.oracle, input, expected, into: sink)
+            let a = try actual.outputs.map(p.actualEffect), b = try expected.outputs.map(p.referenceEffect)
+            var same = a.count == b.count
+            if same { for i in a.indices { if try !p.equalEffect(a[i], b[i]) { same = false; break } } }
+            try sink.push(same ? .passed("pair.effects") : .failed("pair.effects", "projected ordered effects differ"))
+            try sink.push(actual.disposition == expected.disposition ? .passed("pair.outcome") : .failed("pair.outcome", "dispositions differ"))
+        }
         return Oracle(metadata: {
             guard let c = r.codec else { throw ModelError("unsupported oracle adapter operation: reference metadata") }
             let m = try c.metadata(), q = try p.metadata()
             return Metadata(name: "paired-v1:\(m.name.utf8.count):\(m.name):\(m.modelVersion):\(m.propertiesVersion):\(m.codecVersion):\(q.name.utf8.count):\(q.name):\(q.modelVersion)", modelVersion: q.modelVersion, propertiesVersion: q.propertiesVersion, codecVersion: q.codecVersion, build: "\(m.build.utf8.count):\(m.build):\(q.build.utf8.count):\(q.build)")
         }, initialState: r.initialState, advance: { h, i, _, _ in try perform(r, h, i).state }, checkState: { h, a in
-            let checks = try stateChecks(r, h)
-            let same = try p.equalState(p.actualState(a), p.referenceState(h))
-            return checks + [same ? .passed("pair.state") : .failed("pair.state", "projected states differ")]
+            var checks: [Check] = []; try CheckSink.withStorage(&checks) { try stateInto(h, a, $0) }; return checks
         }, cloneHistory: r.cloneState, equalHistory: r.equalStates, checkTransition: { before, input, actual in
-            let expected = try perform(r, before.oracle, input)
-            let checks = try edgeChecks(r, before.oracle, input, expected)
-            let a = try actual.outputs.map(p.actualEffect), b = try expected.outputs.map(p.referenceEffect)
-            var same = a.count == b.count
-            if same { for i in a.indices { if try !p.equalEffect(a[i], b[i]) { same = false; break } } }
-            return checks + [same ? .passed("pair.effects") : .failed("pair.effects", "projected ordered effects differ"), actual.disposition == expected.disposition ? .passed("pair.outcome") : .failed("pair.outcome", "dispositions differ")]
+            var checks: [Check] = []; try CheckSink.withStorage(&checks) { try transitionInto(before, input, actual, $0) }; return checks
         }, encodeHistory: r.codec?.encodeState, decodeHistory: r.codec?.decodeState,
            estimatedStateBytes: { history in
                guard let estimate = r.estimatedStateBytes else { return nil }
                return try estimate(copied(r.cloneState, history))
-           })
+           }, checkStateInto: stateInto, checkTransitionInto: transitionInto)
     }
 }
