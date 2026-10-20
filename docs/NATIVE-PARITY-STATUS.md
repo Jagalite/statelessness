@@ -338,7 +338,7 @@ Opaque foreign callback error objects retain native diagnostic ownership.
 
 [Archived final Kyoto receipts](../validation/native-parity/value-codec-slice/README.md) record: Rust 149 reference cases, Python 248 tests with
 12 ABI skips, TypeScript 829 tests, Swift 134 methods, and Go tests plus vet.
-Installed-consumer job `f950cc5fc6d741028582cdc376952461` is queued and remains pending. This finite source
+Installed-consumer qualification remains pending after example compilation and finite-layout adapter failures; preserved attempts and the current retry status are in the candidate receipts. This finite source
 and runtime evidence does not promote profiles or change any of the 144 broad
 qualification-pending cells. Registry, browser, broader platform/resource and
 performance qualification remain open.

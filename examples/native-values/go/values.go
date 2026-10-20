@@ -338,6 +338,10 @@ type valueContract struct {
 	Schema  string
 	Rows    []valueFixture `json:"value_cases"`
 	Layouts struct {
+		Named []struct {
+			Name string
+			Size uint64
+		}
 		Registry []struct {
 			Schema valueSchema
 			Size   uint64
@@ -357,6 +361,17 @@ func measuredLayout(shape valueSchema) (uint64, bool) {
 	for _, v := range contract.Layouts.Registry {
 		if reflect.DeepEqual(v.Schema, shape) {
 			return v.Size, true
+		}
+	}
+	// Exact named nested types measured by the same Rust reference job.
+	if shape.Kind == "option" && shape.Element != nil {
+		names := map[string]string{"unit": "Option<()>", "bool": "Option<bool>", "u8": "Option<u8>", "u64": "Option<u64>"}
+		if name, ok := names[shape.Element.Kind]; ok && reflect.DeepEqual(*shape.Element, valueSchema{Kind: shape.Element.Kind}) {
+			for _, row := range contract.Layouts.Named {
+				if row.Name == name {
+					return row.Size, true
+				}
+			}
 		}
 	}
 	return 0, false

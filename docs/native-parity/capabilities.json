@@ -241,7 +241,7 @@
       },
       {
         "path": "examples/native-values/go/values.go",
-        "sha256": "2b919d3cd53b26e1f4936402960cf8e3d8a70e6cb5b0753b393e706e4479621c"
+        "sha256": "5b62a1039792cca3b434e10a1d463062df98b75641f3b9aa84e2581cf305430f"
       },
       {
         "path": "examples/native-values/python/consumer.py",
@@ -249,7 +249,7 @@
       },
       {
         "path": "examples/native-values/python/values.py",
-        "sha256": "afcba4df6ab2cf49bd7baf228c869565cc5bc2f2723ef251fef7f4fae8ef4c62"
+        "sha256": "8b103d76556445987fd8996ff1f94d96fcb4df633304a535dfbe5cc497203e0d"
       },
       {
         "path": "examples/native-values/swift/Package.swift",
@@ -257,7 +257,7 @@
       },
       {
         "path": "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
-        "sha256": "520ae6ce198d3ca4602ea5971ac91814f3a4da21c2a675e244f4a57cb85d3db3"
+        "sha256": "d3a19b3c1d6d2383e199864b75bbe36e4d670b30411746b5bdb3730ee496fe73"
       },
       {
         "path": "examples/native-values/swift/Sources/ValueConsumer/main.swift",

@@ -1,7 +1,7 @@
 {
   "source_candidate_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
   "captured_utc": "2026-10-20T23:33:18.454586+00:00",
-  "status": "current-source-snapshot-installed-qualification-pending",
+  "status": "current-example-candidate-installed-qualification-pending",
   "scope": "Current runtime, native package/test, shared fixture, reference and native-values application/driver inputs. Documentation and receipts are excluded to avoid recursive provenance.",
   "installed_job": null,
   "input_count": 281,
@@ -36,11 +36,11 @@
     "docs/requirements/controller.json": "dedebec109f296aae00ac06106b403db129af2031ace7339c7ad039161b69765",
     "examples/native-values/contract.json": "2f8b41e65715f0f57c43195ca0d38dde9459912c12a4c6db6b29d1f4b3d6dccc",
     "examples/native-values/go/main.go": "94e25c20076bca2f3f0d0393b503a377ee6220a9acf3f20e184332f9ed2107ef",
-    "examples/native-values/go/values.go": "2b919d3cd53b26e1f4936402960cf8e3d8a70e6cb5b0753b393e706e4479621c",
+    "examples/native-values/go/values.go": "5b62a1039792cca3b434e10a1d463062df98b75641f3b9aa84e2581cf305430f",
     "examples/native-values/python/consumer.py": "9d1a6e626eb339334719c12bc0868a2cf84562b81621951d3e28908c3f89df00",
-    "examples/native-values/python/values.py": "afcba4df6ab2cf49bd7baf228c869565cc5bc2f2723ef251fef7f4fae8ef4c62",
+    "examples/native-values/python/values.py": "8b103d76556445987fd8996ff1f94d96fcb4df633304a535dfbe5cc497203e0d",
     "examples/native-values/swift/Package.swift": "129650cf1c0f8ae7f6f1b6babc8b9e8839cc02e035e89bd191cc0a9d57bf39a4",
-    "examples/native-values/swift/Sources/ValueConsumer/Values.swift": "520ae6ce198d3ca4602ea5971ac91814f3a4da21c2a675e244f4a57cb85d3db3",
+    "examples/native-values/swift/Sources/ValueConsumer/Values.swift": "d3a19b3c1d6d2383e199864b75bbe36e4d670b30411746b5bdb3730ee496fe73",
     "examples/native-values/swift/Sources/ValueConsumer/main.swift": "84d37075e4b5fbdaffe5010e0ce472468a3873cd97970485969fba5c832e2b9f",
     "examples/native-values/typescript/consumer.ts": "5f58cdd95bdc6db3cb53b67abc1d08b5eeeedb3b21141e5562785d7640e5db9d",
     "examples/native-values/typescript/values.ts": "a8cc88fb1e26a9af2502f41165a38f9c8a81b237efde522e76d7226c40949d27",
@@ -295,5 +295,10 @@
     "README and license prose",
     "generated targets/dist/node_modules/.build/cache files"
   ],
-  "embedded_runtime_input_exception": "Two docs/requirements files are included because src/reference.rs and build.rs embed/hash their bytes; prose documentation remains excluded."
+  "embedded_runtime_input_exception": "Two docs/requirements files are included because src/reference.rs and build.rs embed/hash their bytes; prose documentation remains excluded.",
+  "example_delta_after_native_checkpoint": [
+    "examples/native-values/go/values.go",
+    "examples/native-values/python/values.py",
+    "examples/native-values/swift/Sources/ValueConsumer/Values.swift"
+  ]
 }

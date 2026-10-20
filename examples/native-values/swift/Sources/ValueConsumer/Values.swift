@@ -59,7 +59,7 @@ enum ValueAdapter {
         default: preconditionFailure(kind)
         }
     }
-    static func measured(_ d:[String:Any])->Rust64ValueLayout? {for row in (contract["layouts"] as! [String:Any])["registry"] as! [[String:Any]] {if NSDictionary(dictionary:row["schema"] as! [String:Any]).isEqual(to:d){return Rust64ValueLayout(size:UInt64(row["size"] as! Int),identity:"measured finite Rust64 shape",alignment:UInt64(row["alignment"] as! Int))}};return nil}
+    static func measured(_ d:[String:Any])->Rust64ValueLayout? {for row in (contract["layouts"] as! [String:Any])["registry"] as! [[String:Any]] {if NSDictionary(dictionary:row["schema"] as! [String:Any]).isEqual(to:d){return Rust64ValueLayout(size:UInt64(row["size"] as! Int),identity:"measured finite Rust64 shape",alignment:UInt64(row["alignment"] as! Int))}};if d["kind"] as? String == "option",let element=d["element"] as? [String:Any],element.count==1,let kind=element["kind"] as? String,let name=["unit":"Option<()>","bool":"Option<bool>","u8":"Option<u8>","u64":"Option<u64>"][kind] {for row in (contract["layouts"] as! [String:Any])["named"] as! [[String:Any]] {if row["name"] as? String == name {return Rust64ValueLayout(size:UInt64(row["size"] as! Int),identity:"measured finite Rust64 shape",alignment:UInt64(row["alignment"] as! Int))}}};return nil}
     static func same(_ a:Any,_ b:Any)->Bool {NSDictionary(dictionary:["v":a]).isEqual(to:["v":b])}
     static func decode(_ row:[String:Any],_ data:[UInt8],exact:Bool=true)throws->Any {let c=schema(row["schema"] as! [String:Any]),r=try ValueDecoder(data,limits:exact ? limits(row["limits"] as? [String:Any] ?? [:]):DecodeLimits());let v=try row["entry"] as! String == "direct_length" ? c.decode(from:r):r.value(c);try r.finish();return v}
 }
@@ -67,7 +67,7 @@ func parseOwnedJSON(_ path:String)throws->Any {
  func convert(_ j:JSON)->Any {switch j{case .null:return NSNull();case let .bool(b):return b;case let .number(n):return Int(n)!;case let .string(s):return s;case let .array(a):return a.map(convert);case let .object(o):return Dictionary(uniqueKeysWithValues:o.map{($0.key.value,convert($0.value))})}}
  return try convert(parseJSON(Array(Data(contentsOf:URL(fileURLWithPath:path)))))
 }
-let contract:[String:Any] = { do { return try parseOwnedJSON(ProcessInfo.processInfo.environment["STATELESS_VALUES_CONTRACT"]!) as! [String:Any] } catch { fatalError("invalid trusted value contract: \(error)") } }()
+var contract:[String:Any] { do { return try parseOwnedJSON(ProcessInfo.processInfo.environment["STATELESS_VALUES_CONTRACT"]!) as! [String:Any] } catch { fatalError("invalid trusted value contract: \(error)") } }
 func valueReject(_ needle:String="",_ callback:()throws->Void)throws->String {do{try callback()}catch{let text=String(describing:error);try require(needle.isEmpty || text.contains(needle),"wrong codec error: \(text)");return text};throw ModelError("expected rejection")}
 func extraValueControls()throws->[String:Any]{var l=DecodeLimits();l.elements=16;let unitError=try valueReject("decode element limit"){_ = try ValueCodecs.vector(ValueCodecs.unit).fromTrace([255,255,255,255],limits:l)}
  let reader=try ValueDecoder([1]);var calls=0;let custom=TraceValueCodec<TraceUnit>(schema:"swallowed-reader-error",decodeOnly:{r in calls += 1;do{_ = try r.take(2)}catch{};return TraceUnit()});let sticky=try valueReject("truncated value"){_ = try reader.value(custom)};_ = try valueReject("truncated value"){try reader.finish()};try require(calls==1,"custom callback repeated")

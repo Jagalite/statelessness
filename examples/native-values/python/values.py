@@ -7,6 +7,12 @@ ROWS=CONTRACT['value_cases']
 def layout(shape):
     for row in CONTRACT['layouts']['registry']:
         if row['schema']==shape:return vc.Rust64Layout(row['size'],row['alignment'],'measured finite Rust64 shape')
+    # These named nested layouts were measured by the same Rust reference job.
+    names={'unit':'Option<()>','bool':'Option<bool>','u8':'Option<u8>','u64':'Option<u64>'}
+    element=shape.get('element',{})
+    name=names.get(element.get('kind')) if shape.get('kind')=='option' and element=={'kind':element.get('kind')} else None
+    for row in CONTRACT['layouts']['named']:
+        if row['name']==name:return vc.Rust64Layout(row['size'],row['alignment'],'measured finite Rust64 shape')
     return None
 class Length:
     def __init__(self,base,width):self.base,self.width,self.allocation_layout=base,width,base.allocation_layout

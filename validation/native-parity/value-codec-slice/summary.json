@@ -77,9 +77,26 @@
   },
   "installed": {
     "status": "queued",
-    "job": "f950cc5fc6d741028582cdc376952461",
-    "owner": "search_consumers",
-    "note": "Root will finalize installed job, source reconciliation and finite matrix counts from terminal evidence."
+    "prior_attempts": [
+      {
+        "job": "f950cc5fc6d741028582cdc376952461",
+        "status": "failed",
+        "reason": "Swift example stored-global concurrency admission"
+      },
+      {
+        "job": "c6af4efdfcbc4b40a64ffa8cbca4a080",
+        "status": "failed",
+        "reason": "Python example omitted finite nested option layout"
+      },
+      {
+        "job": "b6e82816bc7e4a56ad0ec771c2c9787e",
+        "status": "cancelled-before-start",
+        "reason": "Static review found analogous Go example layout omission before admission"
+      }
+    ],
+    "note": "Installed qualification remains pending. Core codec sources are unchanged; example adapter corrections are separate candidate inputs.",
+    "job": "e7ba3927063346ce90c2b99a7071090b",
+    "output": "/private/tmp/stateless-value-consumers-20261020-r4"
   },
   "current_source_input_count": 281,
   "broad_qualification_cells_pending": 144,
