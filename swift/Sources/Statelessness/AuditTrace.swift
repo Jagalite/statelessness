@@ -107,14 +107,14 @@ private func auditCRC(_ bytes: [UInt8], _ range: Range<Int>) -> UInt32 {
     }
     return value ^ 0xffffffff
 }
-private func auditAdd(_ a: UInt64, _ b: UInt64, _ name: String) throws -> UInt64 {
+func auditAdd(_ a: UInt64, _ b: UInt64, _ name: String) throws -> UInt64 {
     let (sum, overflow) = a.addingReportingOverflow(b)
     guard !overflow else { throw BinaryTraceError.limitExceeded(name) }; return sum
 }
-private func auditBound(_ value: UInt64, _ maximum: UInt64, _ name: String) throws {
+func auditBound(_ value: UInt64, _ maximum: UInt64, _ name: String) throws {
     if value > maximum { throw BinaryTraceError.limitExceeded(name) }
 }
-private struct AuditSizer {
+struct AuditSizer {
     let limits: BinaryTraceLimits
     var items: UInt64 = 0
     mutating func count(_ count: Int, _ maximum: UInt64, _ name: String) throws {
@@ -148,7 +148,7 @@ private struct AuditSizer {
         try auditBound(total, limits.maxTotalBytes, "total bytes")
     }
 }
-private func auditPreflight(_ trace: AuditTrace, _ limits: BinaryTraceLimits) throws {
+func auditPreflight(_ trace: AuditTrace, _ limits: BinaryTraceLimits) throws {
     var size = AuditSizer(limits: limits), total: UInt64 = 12
     try auditBound(total, limits.maxTotalBytes, "total bytes")
     try auditBound(UInt64(trace.steps.count), limits.maxSteps, "steps")

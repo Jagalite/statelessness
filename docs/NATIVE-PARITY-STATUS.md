@@ -191,13 +191,56 @@ and richer/bounded replay remain open; their [source audit](native-parity/ENCODE
 sets the next dependency and qualification scope. Append sinks alone do not close
 N01, binary recorder admission or allocation/performance parity.
 
+## Bounded encoding, rich replay and audit recording candidate
+
+All four independent native engines now expose the
+[bounded encoding](../spec/encode-buffers-v1.md) and
+[rich replay/audit recording](../spec/replay-evidence-v1.md) candidate APIs.
+`EncodeBuffer` checks accepted length before growth, retains sticky failure,
+frames nested components under one budget, and prefers incremental codecs exactly
+once. Oracle model/history encoding shares that budget and preserves ORC1 bytes.
+Legacy allocating codecs remain compatible and can allocate before admission.
+
+Rich replay exposes all four divergence flags, typed actual results, unknown
+versus completed check batches, primary and secondary observer errors, and
+first-divergence stopping. Bounded replay validates the stored artifact before
+model decoding, then independently charges actual evidence against shared frame,
+aggregate-byte and item quotas. Direct audit recording retains explicit
+`RunConfig`, native engine provenance, coherent committed prefixes and reserved
+terminal-error headroom. A per-blob sink alone would not supply these contracts.
+
+Final full Kyoto suites passed: Go tests and vet, Python 154 tests with 12 ABI
+skips, Swift 83 methods and TypeScript 421 tests. Public Rust reference runs passed
+46 encoding, 54 replay and 17 recording cases; the native suites consume the same
+cases. Swift's expanded replay corpus passed separately after its full suite.
+The installed five-engine matrix passed all 25 full-audit and 25 portable witness
+replay pairs, including complete rich/bounded observations, retained producer
+configuration and negative controls. The unchanged four-profile baseline passed
+717 cases per engine and 550 fresh-process replays with no failures.
+[Codec/replay receipts](../validation/native-parity/codec-replay-slice/README.md)
+pin source/package/runtime identities and preserve intermediate failures. These scoped results do
+not establish broad native parity or platform qualification. The capability
+ledger retains all qualification-pending cells and pins only reviewed source.
+
+Native revocable leases and detached observations replace Rust's synchronous
+borrows; recovery transfers an already produced actual result when a snapshot
+fails instead of rerunning the model. Generic Swift recovery errors remain
+synchronous/actor-confined despite their unchecked `Sendable` conformance. Logical
+wire limits exclude callbacks, legacy codec allocation, snapshots, backing
+capacity and process RSS; process OOM/traps are not uniformly recoverable.
+
+The four promoted profiles remain unchanged. Checked provenance handoffs are the
+[next scoped dependency](native-parity/CHECKED-RESULTS-AUDIT.md). Canonical value
+codecs, binary v2 causal evidence, debugger integration and broad allocation,
+performance and platform qualification remain separate work.
+
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
 2. Complete N02 installed-consumer and cross-language runtime qualification,
    preserving experimental status until promotion is explicitly reviewed.
-3. Implement [bounded codec buffers and richer/bounded replay](native-parity/ENCODE-BUFFERS-REPLAY-AUDIT.md),
-   preserving actual-result/error evidence and independent byte/item quotas.
+3. Implement [checked-result handoffs](native-parity/CHECKED-RESULTS-AUDIT.md),
+   then continue broader codec/replay qualification.
    Continue append/BFS/binary-v1 and N03/N04 qualification across platforms.
 4. Continue M2–M6 against the plan; retain separate source, qualification and
    release states for every language and capability.

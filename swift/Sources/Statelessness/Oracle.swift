@@ -1,5 +1,5 @@
 /// Candidate APIs only; these do not expand the qualified portable profiles.
-public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1"]
+public let experimentalProfiles = ["paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1", "encode-buffers-v1", "replay-evidence-v1"]
 
 public struct OracleState<S, H> {
     public let model: S
@@ -19,6 +19,7 @@ public struct Oracle<S, H, I, O> {
     public var encodeHistory: ((H) throws -> [UInt8])?
     public var decodeHistory: (([UInt8]) throws -> H)?
     public var estimatedStateBytes: ((H) throws -> UInt64?)?
+    public var encodeHistoryInto: ((H, EncodeBuffer) throws -> Void)?
     public var checkStateInto: ((H, S, CheckSink) throws -> Void)?
     public var checkTransitionInto: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void)?
     public init(metadata: @escaping () throws -> Metadata, initialState: @escaping () throws -> H,
@@ -29,12 +30,13 @@ public struct Oracle<S, H, I, O> {
                 encodeHistory: ((H) throws -> [UInt8])? = nil, decodeHistory: (([UInt8]) throws -> H)? = nil,
                 estimatedStateBytes: ((H) throws -> UInt64?)? = nil,
                 checkStateInto: ((H, S, CheckSink) throws -> Void)? = nil,
-                checkTransitionInto: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void)? = nil) {
+                checkTransitionInto: ((OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void)? = nil,
+                encodeHistoryInto: ((H, EncodeBuffer) throws -> Void)? = nil) {
         self.metadata = metadata; self.initialState = initialState; self.advance = advance
         self.checkState = checkState; self.cloneHistory = cloneHistory; self.equalHistory = equalHistory
         self.checkTransition = checkTransition; self.encodeHistory = encodeHistory; self.decodeHistory = decodeHistory
         self.estimatedStateBytes = estimatedStateBytes
-        self.checkStateInto = checkStateInto; self.checkTransitionInto = checkTransitionInto
+        self.checkStateInto = checkStateInto; self.checkTransitionInto = checkTransitionInto; self.encodeHistoryInto = encodeHistoryInto
     }
 }
 
@@ -76,10 +78,23 @@ public struct WithOracle<S, H, I, O> {
         return Metadata(name: "with-oracle-v1:\(m.name.utf8.count):\(m.name):\(m.modelVersion):\(m.propertiesVersion):\(m.codecVersion):\(o.name.utf8.count):\(o.name):\(o.modelVersion):\(o.propertiesVersion):\(o.codecVersion)", modelVersion: m.modelVersion, propertiesVersion: m.propertiesVersion, codecVersion: m.codecVersion, build: "\(m.build.utf8.count):\(m.build):\(o.build.utf8.count):\(o.build)")
     }
     public func encodeState(_ state: OracleState<S, H>) throws -> [UInt8] {
-        guard let c = actual.codec, let encode = oracle.encodeHistory else { throw ModelError("unsupported oracle adapter operation: encode state") }
-        let a = try c.encodeState(copied(actual.cloneState, state.model)), h = try encode(copied(oracle.cloneHistory, state.oracle))
-        func length(_ n: Int) -> [UInt8] { (0..<8).map { UInt8(truncatingIfNeeded: UInt64(n) >> ($0 * 8)) } }
-        return [79, 82, 67, 49] + length(a.count) + a + length(h.count) + h
+        var bytes: [UInt8] = []
+        try EncodeBuffer.withBuffer(&bytes, maximum: Int.max) { try self.encodeStateInto(state, $0) }
+        return bytes
+    }
+    public func encodeStateInto(_ state: OracleState<S, H>, _ sink: EncodeBuffer) throws {
+        guard let c = actual.codec, oracle.encodeHistory != nil || oracle.encodeHistoryInto != nil else { throw ModelError("unsupported oracle adapter operation: encode state") }
+        try sink.extend([79, 82, 67, 49])
+        try sink.framed { child in
+            let snapshot = try copied(actual.cloneState, state.model)
+            if let incremental = c.encodeStateInto { try incremental(snapshot, child) }
+            else { try child.extendFromVec(c.encodeState(snapshot)) }
+        }
+        try sink.framed { child in
+            let snapshot = try copied(oracle.cloneHistory, state.oracle)
+            if let incremental = oracle.encodeHistoryInto { try incremental(snapshot, child) }
+            else if let encode = oracle.encodeHistory { try child.extendFromVec(encode(snapshot)) }
+        }
     }
     public func decodeState(_ bytes: [UInt8]) throws -> OracleState<S, H> {
         guard let c = actual.codec, let decode = oracle.decodeHistory else { throw ModelError("unsupported oracle adapter operation: decode state") }
@@ -142,8 +157,8 @@ public struct WithOracle<S, H, I, O> {
                 return try historyEqual(copied(self.oracle.cloneHistory, a.oracle), copied(self.oracle.cloneHistory, b.oracle))
             }
         }
-        if let c = actual.codec, oracle.encodeHistory != nil, oracle.decodeHistory != nil {
-            result.codec = Codec(metadata: self.metadata, encodeState: self.encodeState, decodeState: self.decodeState, encodeInput: c.encodeInput, decodeInput: c.decodeInput, encodeOutput: c.encodeOutput)
+        if let c = actual.codec, oracle.encodeHistory != nil || oracle.encodeHistoryInto != nil, oracle.decodeHistory != nil {
+            result.codec = Codec(metadata: self.metadata, encodeState: self.encodeState, decodeState: self.decodeState, encodeInput: c.encodeInput, decodeInput: c.decodeInput, encodeOutput: c.encodeOutput, encodeStateInto: self.encodeStateInto, encodeInputInto: c.encodeInputInto, encodeOutputInto: c.encodeOutputInto)
         }
         result.estimatedStateBytes = { state in
             guard let actualEstimate = self.actual.estimatedStateBytes,
@@ -209,6 +224,6 @@ public struct Paired<S, H, I, O, R, V, E> {
            estimatedStateBytes: { history in
                guard let estimate = r.estimatedStateBytes else { return nil }
                return try estimate(copied(r.cloneState, history))
-           }, checkStateInto: stateInto, checkTransitionInto: transitionInto)
+           }, checkStateInto: stateInto, checkTransitionInto: transitionInto, encodeHistoryInto: r.codec?.encodeStateInto)
     }
 }

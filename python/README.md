@@ -246,3 +246,49 @@ path, without rerunning checkers. Sink callbacks see all preceding checks,
 including the completed state batch and preceding actual/reference observations.
 Python list capacity reuse and zero-allocation performance are not promised.
 `append-checks-v1` remains an experimental candidate outside qualified `PROFILES`.
+
+## Candidate bounded codecs and replay evidence
+
+Optional `encode_state_into(value, buffer)`, `encode_input_into(value, buffer)`
+and `encode_output_into(value, buffer)` hooks take precedence over legacy byte
+encoders exactly once. Hooks return `None` synchronously. `EncodeBuffer(bytearray,
+maximum)` clears the destination and supports `append`/`extend`, `framed(callback)`
+with a little-endian u64 payload length, `snapshot`, length and `finish`. Appends
+accept contiguous bytes, bytearray and memoryview values, check their byte count
+before copying and retain detached bytes. A rejected write poisons the shared
+budget even if caught; an explicit callback exception remains primary. Callback
+leases expire on every exit and release storage ownership. A framed child shares
+its parent's budget and expires independently. `WithOracle` writes ORC1 and both
+framed component encodings incrementally; `Paired`, `Generated` and `Auto` forward
+preferred codecs. Logical byte budgets do not bound legacy allocations, backing
+capacity, model callbacks, snapshots or process memory.
+
+`replay_with_observations(model, trace, observer=None)` returns the existing
+`ReplayReport`. Its synchronous observer receives `(observation, report)`, with
+initial, turn and error observation variants. Initial/turn observations contain
+detached typed values, encoded bytes, checks and four difference flags; the report
+is updated before delivery. A `ReplayError` retains the report and available
+`actual`, with unknown checks on checker errors and complete checks on later codec
+errors. Error-observer failures remain secondary in `observer_error`; a normal
+observer failure does not recursively invoke the error observer. Snapshot failures
+never rerun a reducer or retry the failed snapshot: the error owns the retained
+original actual, while the error observation has absent actual and an explicit
+`actual_unavailable_reason`. This recovery transfer differs from ordinary detached
+observations and should be treated as error-owned mutable evidence.
+
+`replay_with_observations_bounded(model, audit_trace, observer=None,
+limits=BinaryLimits())` requires lossless `AuditTrace`, admits metadata identity
+before validating the stored artifact against all nine binary quotas, then charges
+actual RUN/STEP frames, aggregate items and shared output/state bytes with the
+exact 18-byte replay footer. Quota primitives are captured before model callbacks;
+identity-incompatible replay does not validate those captured quotas. Basic
+`replay` keeps its existing API and uses the same kernel.
+
+`record_audit(model, inputs, config, max_steps=100000, limits=BinaryLimits())`
+records incrementally under all nine binary quotas, preserving coherent prefixes
+and reserved error-footer headroom. It preserves caller config and appends ordered
+`stateless.engine.version` and `stateless.engine.build` provenance; caller keys
+with that prefix are rejected. Python's build label `native-python-v1` identifies
+the implementation, not a source fingerprint. Replay preserves producer stamps.
+`encode-buffers-v1` and `replay-evidence-v1` are experimental candidates; the four
+qualified profiles and portable wire projections remain unchanged.

@@ -1,0 +1,22 @@
+{
+  "kyoto/rust-encode-build.log.gz": {
+    "uncompressed_sha256": "59bfe94f1ac86f513a478427b6a7692f04426d101bf95e9bc49ae9baf676738f",
+    "uncompressed_bytes": 256
+  },
+  "kyoto/rust-replay-build-failed.log.gz": {
+    "uncompressed_sha256": "b9f151c99710852dd83e38a23228de94c3ec0c3948921da0c9408a2f407ea0db",
+    "uncompressed_bytes": 1680
+  },
+  "kyoto/python54-missing-context.log.gz": {
+    "uncompressed_sha256": "0bd52841b0b9bdb1829fabb1825ef40443010fddafb751cacfea3522f67155f4",
+    "uncompressed_bytes": 7032
+  },
+  "kyoto/rust-final-build.log.gz": {
+    "uncompressed_sha256": "bbb93c4731480560d75e08f70899e74c042311116dd34a0872c4edf2e0c67ff6",
+    "uncompressed_bytes": 256
+  },
+  "kyoto/rust-replay-build.log.gz": {
+    "uncompressed_sha256": "3f49c8ff3efc7aec673ae14cc622a094bd23943f76613dc3feab3f3a92b5612f",
+    "uncompressed_bytes": 256
+  }
+}

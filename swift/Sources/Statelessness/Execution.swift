@@ -33,9 +33,6 @@ public struct TraceLimits: Sendable {
     public init() {}
     func validate() throws { for n in [maxSteps, maxBlobBytes, maxItems, maxPayloadBytes, maxJSONBytes] { if n < 0 || n > Int.max / 2 { throw ConfigError("invalid trace limit") } } }
 }
-private func encoded<T>(_ stage: String, _ callback: (T) throws -> [UInt8], _ value: T, maximum: Int = Int.max) throws -> [UInt8] {
-    try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
-}
 public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
     guard let codec = m.codec else { throw ModelError("record requires a codec") }
@@ -48,7 +45,7 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
     try call("initial check") { try stateChecksInto(m, state, checks: &checkBuffer) }
     let initialChecks = checkBuffer
     let initialSnapshot = try copied(m.cloneState, state)
-    let initialState = try encoded("encode initial state", codec.encodeState, initialSnapshot, maximum: limits.maxBlobBytes)
+    let initialState = try encodedValue("encode initial state", codec.encodeState, codec.encodeStateInto, initialSnapshot, maximum: limits.maxBlobBytes)
     let metadata = try call("metadata", codec.metadata)
     var items = initialChecks.count, payload = initialState.count, steps: [TraceStep] = []
     guard items <= limits.maxItems, payload <= limits.maxPayloadBytes else { throw ModelError("recording limit: initial checkpoint") }
@@ -60,7 +57,7 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
         while let input = try call("inputs", inputs.next) {
             if steps.count >= min(maxSteps, limits.maxSteps) { return result(.stepLimit) }
             let inputSnapshot = try copied(m.cloneInput, input)
-            let bytes = try encoded("encode input", codec.encodeInput, inputSnapshot, maximum: limits.maxBlobBytes)
+            let bytes = try encodedValue("encode input", codec.encodeInput, codec.encodeInputInto, inputSnapshot, maximum: limits.maxBlobBytes)
             let t = try perform(m, state, input)
             try checkObservedInto(m, before: state, input: input, transition: t, sequence: UInt64(steps.count + 1), checks: &checkBuffer)
             let checks = checkBuffer
@@ -68,10 +65,10 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
             if nextItems > limits.maxItems { throw ModelError("recording limit: aggregate items") }
             let outputs = try t.outputs.map { output in
                 let snapshot = try copied(m.cloneOutput, output)
-                return try encoded("encode output", codec.encodeOutput, snapshot, maximum: limits.maxBlobBytes)
+                return try encodedValue("encode output", codec.encodeOutput, codec.encodeOutputInto, snapshot, maximum: limits.maxBlobBytes)
             }
             let nextSnapshot = try copied(m.cloneState, t.state)
-            let postState = try encoded("encode state", codec.encodeState, nextSnapshot, maximum: limits.maxBlobBytes)
+            let postState = try encodedValue("encode state", codec.encodeState, codec.encodeStateInto, nextSnapshot, maximum: limits.maxBlobBytes)
             let nextPayload = payload + bytes.count + postState.count + outputs.reduce(0) { $0 + $1.count }
             if nextPayload > limits.maxPayloadBytes { throw ModelError("recording limit: aggregate payload bytes") }
             steps.append(TraceStep(input: bytes, disposition: t.disposition, outputs: outputs, postState: postState, checks: checks))
@@ -79,7 +76,7 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
             if hasFailure(checks) { return result(.propertyFailed) }
         }
         return result(.completed)
-    } catch let error as ModelError { return result(.modelError, error.description) }
+    } catch { return result(.modelError, String(describing: error)) }
 }
 public struct ReplayReport: Equatable, Sendable {
     public var outcome: String
@@ -103,46 +100,6 @@ public func validateRecording(_ t: Trace) throws {
 /// Restores saved checkpoints; InitialState is never called. Build overrides do
 /// not waive model/property/codec identity. Exact verifies only the stored prefix.
 public func replay<S, I, O>(_ m: Model<S, I, O>, trace: Trace, allowBuildMismatch: Bool = false) throws -> ReplayReport {
-    guard let codec = m.codec else { throw ModelError("replay requires a codec") }
-    let identity = try call("metadata", codec.metadata)
-    var r = ReplayReport(outcome: "exact", stepsVerified: 0, failureReproduced: false, buildMatches: exactText(identity.build, trace.metadata.build), step: nil, field: nil)
-    if !exactText(identity.name, trace.metadata.name) || identity.modelVersion != trace.metadata.modelVersion || identity.propertiesVersion != trace.metadata.propertiesVersion || identity.codecVersion != trace.metadata.codecVersion || (!r.buildMatches && !allowBuildMismatch) {
-        r.outcome = "incompatible"; return r
-    }
-    try validateRecording(trace)
-    var state = try call("decode initial state") { try codec.decodeState(trace.initialState) }
-    // Keep throwing snapshots/encoding outside conditional expressions. Swift
-    // 6.0.3's ownership verifier can abort on the nested throwing expression.
-    let initialSnapshot = try copied(m.cloneState, state)
-    let initialEncoding = try encoded("encode initial state", codec.encodeState, initialSnapshot)
-    if initialEncoding != trace.initialState { throw ModelError("initial state encoding is not canonical") }
-    var checkBuffer: [Check] = []
-    try call("initial check") { try stateChecksInto(m, state, checks: &checkBuffer) }
-    r.failureReproduced = sameFailure(trace.initialChecks, checkBuffer)
-    if checkBuffer != trace.initialChecks { r.outcome = "diverged"; r.field = "initial checks"; return r }
-    for (index, expected) in trace.steps.enumerated() {
-        let input = try call("decode input") { try codec.decodeInput(expected.input) }
-        let inputSnapshot = try copied(m.cloneInput, input)
-        let inputEncoding = try encoded("encode input", codec.encodeInput, inputSnapshot)
-        if inputEncoding != expected.input { throw ModelError("input \(index + 1) encoding is not canonical") }
-        let actual = try perform(m, state, input)
-        try checkObservedInto(m, before: state, input: input, transition: actual, sequence: UInt64(index + 1), checks: &checkBuffer)
-        let checks = checkBuffer
-        r.failureReproduced = r.failureReproduced || sameFailure(expected.checks, checks)
-        let outputs = try actual.outputs.map { output in
-            let snapshot = try copied(m.cloneOutput, output)
-            return try encoded("encode output", codec.encodeOutput, snapshot)
-        }
-        let nextSnapshot = try copied(m.cloneState, actual.state)
-        let postState = try encoded("encode state", codec.encodeState, nextSnapshot)
-        let field: String?
-        if actual.disposition != expected.disposition { field = "disposition" }
-        else if outputs != expected.outputs { field = "outputs" }
-        else if postState != expected.postState { field = "state" }
-        else if checks != expected.checks { field = "checks" }
-        else { field = nil }
-        if let field { r.outcome = "diverged"; r.step = index + 1; r.field = field; return r }
-        r.stepsVerified += 1; state = actual.state
-    }
-    return r
+    do { return try replayBasic(m, trace: trace, allowBuildMismatch: allowBuildMismatch) }
+    catch let error as ReplayError<S,I,O> { throw error.error }
 }

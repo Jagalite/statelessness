@@ -1,11 +1,5 @@
 package statelessness
 
-import (
-	"bytes"
-	"fmt"
-	"slices"
-)
-
 type TraceStep struct {
 	Input       []byte
 	Disposition Disposition
@@ -45,18 +39,7 @@ func (l TraceLimits) validate() error {
 	}
 	return nil
 }
-func encode[T any](stage string, callback func(T) ([]byte, error), value T, maximum int) ([]byte, error) {
-	return call(stage, func() ([]byte, error) {
-		b, err := callback(value)
-		if err != nil {
-			return nil, err
-		}
-		if len(b) > maximum {
-			return nil, fmt.Errorf("encoded blob exceeds byte limit")
-		}
-		return append([]byte{}, b...), nil
-	})
-}
+
 func Record[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxSteps int) (*Trace, error) {
 	return RecordWithLimits(m, inputs, maxSteps, DefaultTraceLimits())
 }
@@ -98,7 +81,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 	if err != nil {
 		return nil, err
 	}
-	initial, err := encode("encode initial state", m.Codec.EncodeState, sc, limits.MaxBlobBytes)
+	initial, err := encodeState(m, sc, limits.MaxBlobBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +130,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 		if err != nil {
 			return terminalError(err)
 		}
-		encoded, err := encode("encode input", m.Codec.EncodeInput, i, limits.MaxBlobBytes)
+		encoded, err := encodeInput(m, i, limits.MaxBlobBytes)
 		if err != nil {
 			return terminalError(err)
 		}
@@ -170,7 +153,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 			if e != nil {
 				return terminalError(e)
 			}
-			outputs[k], err = encode("encode output", m.Codec.EncodeOutput, oc, limits.MaxBlobBytes)
+			outputs[k], err = encodeOutput(m, oc, limits.MaxBlobBytes)
 			if err != nil {
 				return terminalError(err)
 			}
@@ -179,7 +162,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 		if err != nil {
 			return terminalError(err)
 		}
-		post, err := encode("encode state", m.Codec.EncodeState, sc, limits.MaxBlobBytes)
+		post, err := encodeState(m, sc, limits.MaxBlobBytes)
 		if err != nil {
 			return terminalError(err)
 		}
@@ -251,127 +234,12 @@ func ValidateRecording(t *Trace) error {
 // Replay starts from the saved snapshot. It never calls InitialState. Exact
 // replay verifies a prefix, not graph exhaustion or its unrecorded terminal error.
 func Replay[S, I, O any](m Model[S, I, O], trace *Trace, allowBuildMismatch bool) (*ReplayReport, error) {
-	if err := m.validateCodec(); err != nil {
-		return nil, err
-	}
-	if trace == nil {
-		return nil, &ModelError{"nil trace"}
-	}
-	identity, err := call("metadata", func() (Metadata, error) {
-		v, e := m.Codec.Metadata()
-		if e == nil {
-			e = v.Validate()
-		}
-		return v, e
-	})
+	report, err := ReplayWithObservations(m, trace, allowBuildMismatch, ReplayObserver[S, I, O]{})
 	if err != nil {
+		if replayError, ok := err.(*ReplayError[S, I, O]); ok {
+			return nil, replayError.Err
+		}
 		return nil, err
 	}
-	r := &ReplayReport{Outcome: "exact", BuildMatches: identity.Build == trace.Metadata.Build}
-	if identity.Name != trace.Metadata.Name || identity.ModelVersion != trace.Metadata.ModelVersion || identity.PropertiesVersion != trace.Metadata.PropertiesVersion || identity.CodecVersion != trace.Metadata.CodecVersion || !r.BuildMatches && !allowBuildMismatch {
-		r.Outcome = "incompatible"
-		return r, nil
-	}
-	if err = ValidateRecording(trace); err != nil {
-		return nil, err
-	}
-	state, err := call("decode initial state", func() (S, error) { return m.Codec.DecodeState(slices.Clone(trace.InitialState)) })
-	if err != nil {
-		return nil, err
-	}
-	sc, err := copied(m.CloneState, state)
-	if err != nil {
-		return nil, err
-	}
-	encoded, err := encode("encode initial state", m.Codec.EncodeState, sc, int(^uint(0)>>1))
-	if err != nil {
-		return nil, err
-	}
-	if !bytes.Equal(encoded, trace.InitialState) {
-		return nil, &ModelError{"initial state encoding is not canonical"}
-	}
-	sc, err = copied(m.CloneState, state)
-	if err != nil {
-		return nil, err
-	}
-	var checkStorage []Check
-	err = stateChecksInto(m, state, &checkStorage)
-	checks := checkStorage
-	if err != nil {
-		return nil, err
-	}
-	r.FailureReproduced = sameFailure(trace.InitialChecks, checks)
-	if !slices.Equal(checks, trace.InitialChecks) {
-		r.Outcome = "diverged"
-		field := "initial checks"
-		r.Field = &field
-		return r, nil
-	}
-	for index, expected := range trace.Steps {
-		input, err := call("decode input", func() (I, error) { return m.Codec.DecodeInput(slices.Clone(expected.Input)) })
-		if err != nil {
-			return nil, err
-		}
-		ic, err := copied(m.CloneInput, input)
-		if err != nil {
-			return nil, err
-		}
-		encoded, err := encode("encode input", m.Codec.EncodeInput, ic, int(^uint(0)>>1))
-		if err != nil {
-			return nil, err
-		}
-		if !bytes.Equal(encoded, expected.Input) {
-			return nil, &ModelError{fmt.Sprintf("input %d encoding is not canonical", index+1)}
-		}
-		actual, err := perform(m, state, input)
-		if err != nil {
-			return nil, err
-		}
-		err = CheckObservedInto(m, state, input, actual, uint64(index+1), FullChecks(), &checkStorage)
-		checks = checkStorage
-		if err != nil {
-			return nil, err
-		}
-		r.FailureReproduced = r.FailureReproduced || sameFailure(expected.Checks, checks)
-		outputs := make([][]byte, len(actual.Outputs))
-		for k, o := range actual.Outputs {
-			oc, e := copied(m.CloneOutput, o)
-			if e != nil {
-				return nil, e
-			}
-			outputs[k], err = encode("encode output", m.Codec.EncodeOutput, oc, int(^uint(0)>>1))
-			if err != nil {
-				return nil, err
-			}
-		}
-		sc, err = copied(m.CloneState, actual.State)
-		if err != nil {
-			return nil, err
-		}
-		post, err := encode("encode state", m.Codec.EncodeState, sc, int(^uint(0)>>1))
-		if err != nil {
-			return nil, err
-		}
-		mismatch := ""
-		switch {
-		case actual.Disposition != expected.Disposition:
-			mismatch = "disposition"
-		case !slices.EqualFunc(outputs, expected.Outputs, bytes.Equal):
-			mismatch = "outputs"
-		case !bytes.Equal(post, expected.PostState):
-			mismatch = "state"
-		case !slices.Equal(checks, expected.Checks):
-			mismatch = "checks"
-		}
-		if mismatch != "" {
-			r.Outcome = "diverged"
-			n := index + 1
-			r.Step = &n
-			r.Field = &mismatch
-			return r, nil
-		}
-		r.StepsVerified++
-		state = actual.State
-	}
-	return r, nil
+	return report, nil
 }

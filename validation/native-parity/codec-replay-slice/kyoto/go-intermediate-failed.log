@@ -1,0 +1,9 @@
+--- FAIL: TestRecordAuditFailingTurnCanUseErrorFooterReserve (0.00s)
+    audit_record_test.go:228: audit limit_exceeded: total bytes
+FAIL
+FAIL	github.com/Jagalite/statelessness/go	0.849s
+?   	github.com/Jagalite/statelessness/go/cmd/stateless-corpus	[no test files]
+?   	github.com/Jagalite/statelessness/go/conformance	[no test files]
+?   	github.com/Jagalite/statelessness/go/examples/counter	[no test files]
+ok  	github.com/Jagalite/statelessness/go/internal/portablejson	0.362s
+FAIL

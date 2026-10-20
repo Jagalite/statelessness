@@ -1,3 +1,4 @@
+import {EncodeStorage,withEncodeBuffer,withChildEncodeBuffer,appendModelEncoding,requireSynchronousCodecReturn,type EncodeBuffer} from './encoding.js';
 import {withCheckSink,withChildCheckSink,appendStateChecks,appendTransitionChecks,requireSynchronousCheckReturn} from './checks.js';
 import type {CheckSink} from './checks.js';
 /** Experimental paired-v1. Uses the existing native recorder, observer and BFS.
@@ -6,7 +7,7 @@ import { type Check, type Disposition, type Metadata, type Model, type Enumerate
   type CodecModel, type Transition, ModelError, check, disposition, validateMetadata, type Rng } from './core.js';
 import type { GenerateModel } from './search.js';
 
-export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1', 'bfs-controls-v1', 'append-checks-v1'] as const;
+export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1', 'bfs-controls-v1', 'append-checks-v1', 'encode-buffers-v1', 'replay-evidence-v1'] as const;
 export interface OracleState<S, H> { readonly model: S; readonly oracle: H }
 export interface Oracle<S, H, I, O> {
   /** Application-owned history estimate in the caller's documented logical representation. */
@@ -21,6 +22,7 @@ export interface Oracle<S, H, I, O> {
   cloneHistory(history: H): H;
   equalHistory(left: H, right: H): boolean;
   encodeHistory?(history: H): Uint8Array;
+  encodeHistoryInto?(history:H,buffer:EncodeBuffer):void;
   decodeHistory?(bytes: Uint8Array): H;
 }
 type Adapter<S, I, O> = Model<S, I, O> & Partial<EnumerateModel<S, I, O> & CodecModel<S, I, O> & GenerateModel<S,I,O>>;
@@ -119,13 +121,17 @@ export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>,
       if(hook!==undefined)requireSynchronousCheckReturn(hook.call(this.oracle,b,i,after,child));else child.extend(legacy!.call(this.oracle,b,i,after));
     });
   }
-  encodeState(s: OracleState<S, H>): Uint8Array {
-    const a = need(this.model.encodeState, 'encodeState').call(this.model, this.model.cloneState(s.model));
-    const b = need(this.oracle.encodeHistory, 'encodeHistory').call(this.oracle, this.oracle.cloneHistory(s.oracle));
-    if (!(a instanceof Uint8Array) || !(b instanceof Uint8Array)) throw new ModelError('oracle codec must return bytes');
-    const bytes = new Uint8Array(20 + a.length + b.length), view = new DataView(bytes.buffer);
-    bytes.set([79, 82, 67, 49]); view.setBigUint64(4, BigInt(a.length), true); bytes.set(a, 12);
-    view.setBigUint64(12 + a.length, BigInt(b.length), true); bytes.set(b, 20 + a.length); return bytes;
+  encodeState(s:OracleState<S,H>):Uint8Array {
+    const storage=new EncodeStorage();withEncodeBuffer(storage,Number.MAX_SAFE_INTEGER,buffer=>this.encodeStateInto(s,buffer));return storage.snapshot();
+  }
+  encodeStateInto(s:OracleState<S,H>,buffer:EncodeBuffer):void {
+    buffer.extend(Uint8Array.of(79,82,67,49));
+    buffer.framed(child=>appendModelEncoding(this.model as CodecModel<S,I,O>,'state',s.model,child));
+    buffer.framed(child=>withChildEncodeBuffer(child,historyBuffer=>{
+      const history=this.oracle.cloneHistory(s.oracle),hook=this.oracle.encodeHistoryInto;
+      if(hook!==undefined){if(typeof hook!=='function')throw new ModelError('codec hook must be a function');requireSynchronousCodecReturn(hook.call(this.oracle,history,historyBuffer));}
+      else {const legacy=need(this.oracle.encodeHistory,'encodeHistory');historyBuffer.extendFromVec(legacy.call(this.oracle,history));}
+    }));
   }
   decodeState(bytes: Uint8Array): OracleState<S, H> {
     if (!(bytes instanceof Uint8Array) || bytes.length < 4 || ![79, 82, 67, 49].every((v, n) => bytes[n] === v)) throw new ModelError('invalid oracle checkpoint format');
@@ -141,9 +147,11 @@ export class WithOracle<S, H, I, O> implements EnumerateModel<OracleState<S, H>,
     return this.attach(need(this.model.decodeState, 'decodeState').call(this.model, parts[0]),
       need(this.oracle.decodeHistory, 'decodeHistory').call(this.oracle, parts[1]));
   }
-  encodeInput(i: I): Uint8Array { return need(this.model.encodeInput, 'encodeInput').call(this.model, i); }
+  encodeInput(i:I):Uint8Array {const storage=new EncodeStorage();withEncodeBuffer(storage,Number.MAX_SAFE_INTEGER,buffer=>this.encodeInputInto(i,buffer));return storage.snapshot();}
+  encodeInputInto(i:I,buffer:EncodeBuffer):void {appendModelEncoding(this.model as CodecModel<S,I,O>,'input',i,buffer);}
   decodeInput(b: Uint8Array): I { return need(this.model.decodeInput, 'decodeInput').call(this.model, b); }
-  encodeOutput(o: O): Uint8Array { return need(this.model.encodeOutput, 'encodeOutput').call(this.model, o); }
+  encodeOutput(o:O):Uint8Array {const storage=new EncodeStorage();withEncodeBuffer(storage,Number.MAX_SAFE_INTEGER,buffer=>this.encodeOutputInto(o,buffer));return storage.snapshot();}
+  encodeOutputInto(o:O,buffer:EncodeBuffer):void {appendModelEncoding(this.model as CodecModel<S,I,O>,'output',o,buffer);}
 }
 
 export interface Projection<S, H, O, R, V, E> {
@@ -196,6 +204,7 @@ export class Paired<S, H, I, O, R, V, E> implements Oracle<S, H, I, O> {
     sink.push(check('pair.effects', effects ? 'passed' : 'failed', effects ? '' : 'projected ordered effects differ'));
     sink.push(check('pair.outcome', outcome ? 'passed' : 'failed', outcome ? '' : 'dispositions differ'));
   }
-  encodeHistory(h: H): Uint8Array { return need(this.reference.encodeState, 'reference encodeState').call(this.reference, h); }
+  encodeHistory(h:H):Uint8Array {const storage=new EncodeStorage();withEncodeBuffer(storage,Number.MAX_SAFE_INTEGER,buffer=>this.encodeHistoryInto(h,buffer));return storage.snapshot();}
+  encodeHistoryInto(h:H,buffer:EncodeBuffer):void {appendModelEncoding(this.reference as CodecModel<H,I,R>,'state',h,buffer);}
   decodeHistory(b: Uint8Array): H { return need(this.reference.decodeState, 'reference decodeState').call(this.reference, b); }
 }

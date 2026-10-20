@@ -482,3 +482,14 @@ export function readAuditTrace(source: Uint8Array | AuditReader, overrides: Part
             fail('invalid_data', 'unknown or misplaced record');
     }
 }
+/** Internal shared structural accounting; no wire output allocation or model callbacks. */
+export function resolveBinaryLimits(overrides:Partial<BinaryLimits>={}):BinaryLimits{return limits(overrides);}
+export function validateAuditTrace(trace:AuditTrace,overrides:Partial<BinaryLimits>={}):void {const l=limits(overrides);preflight(capture(trace,l),l);}
+/** Validate then detach retained fields and bytes for replay ownership. */
+export function snapshotAuditTrace(trace:AuditTrace,overrides:Partial<BinaryLimits>={}):AuditTrace {
+    const l=limits(overrides),t=capture(trace,l);preflight(t,l);return {...copyTrace(t),config:copyConfig(t.config)};
+}
+export function auditRunLayout(metadata:Metadata,config:RunConfig,initialState:Uint8Array,initialChecks:readonly Check[],overrides:Partial<BinaryLimits>):{bytes:number;items:number}{
+    const l=limits(overrides),t=capture({metadata,config,initialState,initialChecks,steps:[],termination:'completed',error:''},l),sizes=preflight(t,l);
+    return {bytes:sizes[0]+9,items:t.config.parameters.length+t.initialChecks.length};
+}

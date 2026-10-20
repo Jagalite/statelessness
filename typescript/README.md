@@ -214,3 +214,68 @@ with independent child leases. Caller buffers are exclusively owned during a
 call: aliases, reentrancy and concurrent writes are outside the contract. These
 APIs establish no allocation, thread-safety or performance guarantee and remain
 `append-checks-v1` candidates in `EXPERIMENTAL_PROFILES`.
+
+### Experimental bounded codecs and replay evidence
+
+`EncodeStorage` owns reusable byte capacity. `withEncodeBuffer(storage, maximum,
+callback)` clears its logical length and grants a synchronous `EncodeBuffer`
+lease. Maximum accepts a safe integer or exact u64 `bigint`; existing capacity
+may exceed the logical limit. `extend`, `extendFromSlice` and `extendFromVec`
+validate an entire chunk before copying; rejected writes remain sticky even if
+caught. `framed` writes an eight-byte little-endian component length and grants
+an independently expiring child lease over the same budget. No mutable backing
+view or prefix patch operation is exposed. Lease operations expire on every
+return/error, and expired leases release storage references. `finish` cannot
+turn a failed write into success. A codec's explicit callback error takes
+precedence over a prior caught write failure.
+
+Optional `encodeStateInto`, `encodeInputInto`, `encodeOutputInto` and Oracle
+`encodeHistoryInto` hooks synchronously return `undefined` and take precedence
+over one allocating legacy call. Legacy allocation happens outside the sink
+limit. WithOracle incrementally writes exact ORC1 bytes with model/history
+components sharing one budget; Paired and automatic wrappers preserve hooks.
+`EncodeStorage.snapshot()` is an owner-held detached diagnostic copy, including
+partial accepted bytes after failure; those bytes are not a successful encoding.
+Only a completed scope may publish an artifact. Logical limits do not bound
+preexisting capacity, application callback allocations, clones or process RSS.
+
+`recordAudit(model, inputs, runConfig, maxSteps?, binaryLimits?)` performs binary
+admission while recording, including all nine independent quotas, shared output
+and state headroom, and reserved future-error footer bytes. An error after the
+initial checkpoint preserves only admitted steps with a bounded model-error
+reason. Capture escapes invalid UTF-16 diagnostic units as literal `\uNNNN`;
+supplied binary text remains strictly validated. Caller `stateless.engine.*`
+parameters are reserved; recording appends ordered package version and
+`native-typescript-v1` build identity parameters. This implementation label is
+not a source fingerprint; source qualification receipts remain separate.
+The portable `record` keeps its distinct TraceLimits and configuration-free API.
+
+`replayWithObservations(model, trace, options?, observer?)` and
+`replayWithObservationsBounded(model, auditTrace, options?, binaryLimits?, observer?)`
+share the basic replay kernel. `options.allowBuildMismatch` defaults false.
+Observations include sequence-zero initial evidence, every exact or first
+divergent turn, typed actual values, complete check boundaries, stored/actual
+encoded values, all four difference flags and an already updated report.
+Primary difference order is disposition, outputs, state, checks. Reproduced
+failure means a recorded failed ID failed again at the corresponding initial or
+combined step boundary; details may differ. Exact replay describes the recorded
+prefix and does not verify a terminal model error or prove completion.
+
+The bounded variant requires lossless AuditTrace configuration, checks identity
+before stored artifact validation, rejects invalid artifacts before decoding,
+and independently shares actual RUN/STEP/frame/total/item/footer budgets across
+all outputs and successor state, including divergent evidence. Ordinary rich
+replay retains its unbounded compatibility behavior. Observer callbacks are
+synchronous; there is no separate replay deadline/cancellation algorithm.
+
+`ReplayError` preserves the primary engine error, report and available actual
+initial/turn result without repeating execution. Incomplete checks and their
+boundary are `null`, rather than an empty passing batch. Error-notification
+failure is separately retained as `observer_error`; normal observer failure is
+not recursively sent back to the error observer. Observations are detached
+through model clone hooks. If a snapshot fails, recovery transfers the retained
+actual result to the error owner; an error observation marks the unavailable
+snapshot explicitly. These APIs remain `encode-buffers-v1` and
+`replay-evidence-v1` experimental candidates; the four promoted profiles are
+unchanged. No browser, cross-platform, hard-memory or allocation-performance
+qualification is implied.

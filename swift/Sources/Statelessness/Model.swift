@@ -5,7 +5,9 @@ public let conformanceProfiles = ["core-v1", "bfs-v1", "rng-splitmix64-v1", "tra
 
 public struct ModelError: Error, CustomStringConvertible {
     public let description: String
-    public init(_ message: String) { description = message }
+    let snapshotFailure: Bool
+    public init(_ message: String) { description = message; snapshotFailure = false }
+    init(_ message: String, snapshotFailure: Bool) { description = message; self.snapshotFailure = snapshotFailure }
 }
 public struct ConfigError: Error, CustomStringConvertible {
     public let description: String
@@ -87,12 +89,19 @@ public struct Codec<State, Input, Output> {
     public var encodeInput: (Input) throws -> [UInt8]
     public var decodeInput: ([UInt8]) throws -> Input
     public var encodeOutput: (Output) throws -> [UInt8]
+    public var encodeStateInto: ((State, EncodeBuffer) throws -> Void)?
+    public var encodeInputInto: ((Input, EncodeBuffer) throws -> Void)?
+    public var encodeOutputInto: ((Output, EncodeBuffer) throws -> Void)?
     public init(metadata: @escaping () throws -> Metadata,
                 encodeState: @escaping (State) throws -> [UInt8], decodeState: @escaping ([UInt8]) throws -> State,
                 encodeInput: @escaping (Input) throws -> [UInt8], decodeInput: @escaping ([UInt8]) throws -> Input,
-                encodeOutput: @escaping (Output) throws -> [UInt8]) {
+                encodeOutput: @escaping (Output) throws -> [UInt8],
+                encodeStateInto: ((State, EncodeBuffer) throws -> Void)? = nil,
+                encodeInputInto: ((Input, EncodeBuffer) throws -> Void)? = nil,
+                encodeOutputInto: ((Output, EncodeBuffer) throws -> Void)? = nil) {
         self.metadata = metadata; self.encodeState = encodeState; self.decodeState = decodeState
         self.encodeInput = encodeInput; self.decodeInput = decodeInput; self.encodeOutput = encodeOutput
+        self.encodeStateInto = encodeStateInto; self.encodeInputInto = encodeInputInto; self.encodeOutputInto = encodeOutputInto
     }
 }
 /// Applications retain their own types. Copy closures must deeply copy mutable
@@ -138,9 +147,14 @@ public struct Model<State, Input, Output> {
     }
 }
 func call<T>(_ stage: String, _ callback: () throws -> T) throws -> T {
-    do { return try callback() } catch { throw ModelError("\(stage): \(error)") }
+    do { return try callback() } catch {
+        if let error = error as? ModelError, error.snapshotFailure { throw ModelError("\(stage): \(error)", snapshotFailure: true) }
+        throw ModelError("\(stage): \(error)")
+    }
 }
-func copied<T>(_ clone: (T) throws -> T, _ value: T) throws -> T { try call("snapshot") { try clone(value) } }
+func copied<T>(_ clone: (T) throws -> T, _ value: T) throws -> T {
+    do { return try clone(value) } catch { throw ModelError("snapshot: \(error)", snapshotFailure: true) }
+}
 func collect(_ stage: String, _ callback: () throws -> [Check]) throws -> [Check] {
     try call(stage) { let checks = try callback(); for check in checks { try check.validate() }; return checks }
 }
@@ -148,7 +162,7 @@ func stateChecks<S, I, O>(_ m: Model<S, I, O>, _ state: S) throws -> [Check] {
     var checks: [Check] = []; try stateChecksInto(m, state, checks: &checks); return checks
 }
 func cloneTransition<S, I, O>(_ m: Model<S, I, O>, _ t: Transition<S, O>) throws -> Transition<S, O> {
-    try call("snapshot") { Transition(state: try m.cloneState(t.state), outputs: try t.outputs.map(m.cloneOutput), disposition: t.disposition) }
+    Transition(state: try copied(m.cloneState, t.state), outputs: try t.outputs.map { try copied(m.cloneOutput, $0) }, disposition: t.disposition)
 }
 func edgeChecks<S, I, O>(_ m: Model<S, I, O>, _ before: S, _ input: I, _ t: Transition<S, O>) throws -> [Check] {
     var checks: [Check] = []; try edgeChecksInto(m, before, input, t, checks: &checks); return checks

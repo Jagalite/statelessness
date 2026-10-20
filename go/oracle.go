@@ -8,7 +8,7 @@ import (
 
 // ExperimentalProfiles names candidates; these are not qualified Profiles.
 func ExperimentalProfiles() []string {
-	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1"}
+	return []string{"paired-v1", "search-v1", "native-binary-v1", "bfs-controls-v1", "append-checks-v1", "encode-buffers-v1", "replay-evidence-v1"}
 }
 
 type OracleState[S, H any] struct {
@@ -30,6 +30,7 @@ type Oracle[S, H, I, O any] struct {
 	EstimatedStateBytes func(H) (*uint64, error)
 	EqualHistory        func(H, H) bool
 	EncodeHistory       func(H) ([]byte, error)
+	EncodeHistoryInto   func(H, *EncodeBuffer) error
 	DecodeHistory       func([]byte) (H, error)
 }
 
@@ -163,7 +164,7 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			return m.EqualStates(a.Model, b.Model) && o.EqualHistory(a.Oracle, b.Oracle)
 		}
 	}
-	if m.Codec != nil && o.Metadata != nil && o.EncodeHistory != nil && o.DecodeHistory != nil {
+	if m.Codec != nil && o.Metadata != nil && (o.EncodeHistory != nil || o.EncodeHistoryInto != nil) && o.DecodeHistory != nil {
 		c := m.Codec
 		w.Codec = &Codec[OracleState[S, H], I, O]{Metadata: func() (Metadata, error) {
 			if c.Metadata == nil {
@@ -184,20 +185,6 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 				return Metadata{}, e
 			}
 			return combinedMetadata(a, b), nil
-		}, EncodeState: func(s OracleState[S, H]) ([]byte, error) {
-			if c.EncodeState == nil {
-				return nil, &ModelError{"missing actual state encoder"}
-			}
-			a, e := c.EncodeState(m.CloneState(s.Model))
-			if e != nil {
-				return nil, e
-			}
-			a = append([]byte{}, a...)
-			b, e := o.EncodeHistory(o.CloneHistory(s.Oracle))
-			if e != nil {
-				return nil, e
-			}
-			return frameOracle(a, b), nil
 		}, DecodeState: func(data []byte) (OracleState[S, H], error) {
 			var z OracleState[S, H]
 			a, b, e := unframeOracle(data)
@@ -216,7 +203,53 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 				return z, e
 			}
 			return w.Attach(s, h)
-		}, EncodeInput: c.EncodeInput, DecodeInput: c.DecodeInput, EncodeOutput: c.EncodeOutput}
+		}, DecodeInput: c.DecodeInput}
+		stateInto := func(state OracleState[S, H], buffer *EncodeBuffer) error {
+			if e := buffer.Append([]byte("ORC1")); e != nil {
+				return e
+			}
+			if e := buffer.Framed(func(child *EncodeBuffer) error {
+				return appendEncoded(state.Model, m.CloneState, c.EncodeState, c.EncodeStateInto, child)
+			}); e != nil {
+				return e
+			}
+			return buffer.Framed(func(child *EncodeBuffer) error {
+				return appendEncoded(state.Oracle, o.CloneHistory, o.EncodeHistory, o.EncodeHistoryInto, child)
+			})
+		}
+		inputInto := func(input I, buffer *EncodeBuffer) error {
+			return appendEncoded(input, m.CloneInput, c.EncodeInput, c.EncodeInputInto, buffer)
+		}
+		outputInto := func(output O, buffer *EncodeBuffer) error {
+			return appendEncoded(output, m.CloneOutput, c.EncodeOutput, c.EncodeOutputInto, buffer)
+		}
+		w.Codec.EncodeStateInto = stateInto
+		w.Codec.EncodeInputInto = inputInto
+		w.Codec.EncodeOutputInto = outputInto
+		w.Codec.EncodeState = func(state OracleState[S, H]) ([]byte, error) {
+			var bytes []byte
+			e := WithEncodeBuffer(&bytes, uint64(int(^uint(0)>>1)), func(buffer *EncodeBuffer) error { return stateInto(state, buffer) })
+			if e != nil {
+				return nil, e
+			}
+			return bytes, nil
+		}
+		w.Codec.EncodeInput = func(input I) ([]byte, error) {
+			var bytes []byte
+			e := WithEncodeBuffer(&bytes, uint64(int(^uint(0)>>1)), func(buffer *EncodeBuffer) error { return inputInto(input, buffer) })
+			if e != nil {
+				return nil, e
+			}
+			return bytes, nil
+		}
+		w.Codec.EncodeOutput = func(output O) ([]byte, error) {
+			var bytes []byte
+			e := WithEncodeBuffer(&bytes, uint64(int(^uint(0)>>1)), func(buffer *EncodeBuffer) error { return outputInto(output, buffer) })
+			if e != nil {
+				return nil, e
+			}
+			return bytes, nil
+		}
 	}
 	return w, nil
 }

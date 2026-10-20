@@ -40,8 +40,15 @@ def _call(stage: str, callback: Callable[..., T], *args: Any) -> T:
         raise ModelError(f"{stage}: {error}") from error
 
 
+class _SnapshotFailure(ModelError):
+    """Internal typed ownership failure; never inferred from application text."""
+
+
 def _copy(value: T) -> T:
-    return _call("snapshot", deepcopy, value)
+    try:
+        return deepcopy(value)
+    except Exception as error:
+        raise _SnapshotFailure(f"snapshot: {error}") from error
 
 
 @dataclass(frozen=True)
@@ -307,7 +314,7 @@ def _step(model: Model[S, I, O], before: S, input: I) -> Transition[S, O]:
     return _copy(transition)
 
 
-def check_observed_into(model: Model[S, I, O], before: S, input: I,
+def _check_observed_count_into(model: Model[S, I, O], before: S, input: I,
                         transition: Transition[S, O], sequence: int,
                         checks: list[Check], policy: CheckPolicy = CheckPolicy()) -> None:
     """Check an executed turn into reused caller storage, clearing on all errors.
@@ -329,15 +336,21 @@ def check_observed_into(model: Model[S, I, O], before: S, input: I,
                              (_copy(transition.state),), checks, "state check")
         else:
             checks.append(Check("stateless.state_checks", "skipped", "periodic checking policy"))
+        boundary = len(checks)
         if policy.transition_checks:
             _dispatch_checks(model, "check_transition_into", "check_transition",
                              (_copy(before), _copy(input), _copy(transition)), checks,
                              "transition check", optional=True)
         else:
             checks.append(Check("stateless.transition_checks", "skipped", "disabled by policy"))
+        return boundary
     except BaseException:
         checks.clear()
         raise
+
+
+def check_observed_into(model, before, input, transition, sequence, checks, policy=CheckPolicy()):
+    _check_observed_count_into(model, before, input, transition, sequence, checks, policy)
 
 
 def check_observed(model: Model[S, I, O], before: S, input: I,
@@ -412,11 +425,13 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     a prefix does not validate its unrecorded terminal error.
     """
     _natural(max_steps, "max_steps")
+    from .codec import encode_value
     state = _copy(_call("initial state", model.initial_state))
     check_storage: list[Check] = []
     _dispatch_checks(model, "check_state_into", "check_state", (_copy(state),), check_storage, "initial check")
     initial_checks = tuple(check_storage)
-    initial_state = _blob_limit(_encode("encode initial state", model.encode_state, state), limits)
+    state_storage, input_storage, output_storage = bytearray(), bytearray(), []
+    initial_state = _blob_limit(encode_value(model, "state", state, maximum=limits.max_blob_bytes, storage=state_storage, stage="encode initial state"), limits)
     metadata = _call("metadata", model.metadata)
     if not isinstance(metadata, Metadata):
         raise ModelError("metadata: model must return Metadata")
@@ -439,16 +454,20 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
             if len(steps) >= min(max_steps, limits.max_steps):
                 termination = "step_limit"
                 break
-            encoded_input = _blob_limit(_encode("encode input", model.encode_input, input), limits)
+            encoded_input = _blob_limit(encode_value(model, "input", input, maximum=limits.max_blob_bytes, storage=input_storage, stage="encode input"), limits)
             transition = _step(model, state, input)
             check_observed_into(model, state, input, transition, len(steps) + 1, check_storage)
             checks = tuple(check_storage)
             next_items = items + 1 + len(checks) + len(transition.outputs)
             if next_items > limits.max_items:
                 raise ModelError("recording limit: aggregate items")
-            outputs = tuple(_blob_limit(_encode("encode output", model.encode_output, x), limits)
-                            for x in transition.outputs)
-            post_state = _blob_limit(_encode("encode state", model.encode_state, transition.state), limits)
+            encoded_outputs = []
+            for index, output in enumerate(transition.outputs):
+                if index == len(output_storage): output_storage.append(bytearray())
+                encoded_outputs.append(_blob_limit(encode_value(model, "output", output, maximum=limits.max_blob_bytes,
+                    storage=output_storage[index], stage="encode output"), limits))
+            outputs = tuple(encoded_outputs)
+            post_state = _blob_limit(encode_value(model, "state", transition.state, maximum=limits.max_blob_bytes, storage=state_storage, stage="encode state"), limits)
             next_payload = payload_bytes + len(encoded_input) + len(post_state) + sum(map(len, outputs))
             if next_payload > limits.max_payload_bytes:
                 raise ModelError("recording limit: aggregate payload bytes")
@@ -495,50 +514,11 @@ def validate_recording(trace: Trace) -> None:
 
 
 def replay(model: ModelCodec[S, I, O], trace: Trace, *, allow_build_mismatch: bool = False) -> ReplayReport:
-    """Restore the saved checkpoint; never call initial_state to reconstruct it.
-
-    Exact verifies recorded observations, not graph exhaustion or an error after
-    the recorded prefix. Divergent step numbers are one-based; None is initial.
-    """
-    if type(allow_build_mismatch) is not bool:
-        raise ValueError("allow_build_mismatch must be boolean")
-    metadata = _call("metadata", model.metadata)
-    if not isinstance(metadata, Metadata):
-        raise ModelError("metadata: model must return Metadata")
-    build_matches = metadata.build == trace.metadata.build
-    identities = ("name", "model_version", "properties_version", "codec_version")
-    if any(getattr(metadata, key) != getattr(trace.metadata, key) for key in identities) or (
-            not build_matches and not allow_build_mismatch):
-        return ReplayReport("incompatible", build_matches=build_matches)
-    validate_recording(trace)
-    state = _call("decode initial state", model.decode_state, trace.initial_state)
-    if _encode("encode initial state", model.encode_state, state) != trace.initial_state:
-        raise ModelError("initial state encoding is not canonical")
-    check_storage: list[Check] = []
-    _dispatch_checks(model, "check_state_into", "check_state", (_copy(state),), check_storage, "initial check")
-    checks = tuple(check_storage)
-    reproduced = _same_failure(trace.initial_checks, checks)
-    if checks != trace.initial_checks:
-        return ReplayReport("diverged", 0, reproduced, build_matches, None, "initial checks")
-    for index, expected in enumerate(trace.steps, 1):
-        input = _call("decode input", model.decode_input, expected.input)
-        if _encode("encode input", model.encode_input, input) != expected.input:
-            raise ModelError(f"input {index} encoding is not canonical")
-        actual = _step(model, state, input)
-        check_observed_into(model, state, input, actual, index, check_storage)
-        checks = tuple(check_storage)
-        reproduced |= _same_failure(expected.checks, checks)
-        outputs = tuple(_encode("encode output", model.encode_output, x) for x in actual.outputs)
-        post_state = _encode("encode state", model.encode_state, actual.state)
-        comparisons = (("disposition", actual.disposition, expected.disposition),
-                       ("outputs", outputs, expected.outputs),
-                       ("state", post_state, expected.post_state),
-                       ("checks", checks, expected.checks))
-        for name, left, right in comparisons:
-            if left != right:
-                return ReplayReport("diverged", index - 1, reproduced, build_matches, index, name)
-        state = actual.state
-    return ReplayReport("exact", len(trace.steps), reproduced, build_matches)
+    from .replay_evidence import replay_with_observations, ReplayError
+    try:
+        return replay_with_observations(model, trace, allow_build_mismatch=allow_build_mismatch)
+    except ReplayError as error:
+        raise error.error from error
 
 
 @dataclass(frozen=True)

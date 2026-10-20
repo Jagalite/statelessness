@@ -100,12 +100,15 @@ func Values[T any](values []T) Iterator[T] {
 func ValueCopy[T any](value T) T { return value }
 
 type Codec[S, I, O any] struct {
-	Metadata     func() (Metadata, error)
-	EncodeState  func(S) ([]byte, error)
-	DecodeState  func([]byte) (S, error)
-	EncodeInput  func(I) ([]byte, error)
-	DecodeInput  func([]byte) (I, error)
-	EncodeOutput func(O) ([]byte, error)
+	Metadata         func() (Metadata, error)
+	EncodeState      func(S) ([]byte, error)
+	DecodeState      func([]byte) (S, error)
+	EncodeInput      func(I) ([]byte, error)
+	DecodeInput      func([]byte) (I, error)
+	EncodeOutput     func(O) ([]byte, error)
+	EncodeStateInto  func(S, *EncodeBuffer) error
+	EncodeInputInto  func(I, *EncodeBuffer) error
+	EncodeOutputInto func(O, *EncodeBuffer) error
 }
 
 // Model uses ordinary typed Go callbacks. Enumeration and persistence hooks are
@@ -142,7 +145,7 @@ func (m Model[S, I, O]) validateCodec() error {
 		return err
 	}
 	c := m.Codec
-	if c == nil || c.Metadata == nil || c.EncodeState == nil || c.DecodeState == nil || c.EncodeInput == nil || c.DecodeInput == nil || c.EncodeOutput == nil {
+	if c == nil || c.Metadata == nil || (c.EncodeState == nil && c.EncodeStateInto == nil) || c.DecodeState == nil || (c.EncodeInput == nil && c.EncodeInputInto == nil) || c.DecodeInput == nil || (c.EncodeOutput == nil && c.EncodeOutputInto == nil) {
 		return &ModelError{"model requires canonical codec callbacks"}
 	}
 	return nil

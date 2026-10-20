@@ -39,3 +39,13 @@ EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("native-binary-v1",)
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("bfs-controls-v1",)
 
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("append-checks-v1",)
+
+from .codec import EncodeBuffer
+from .replay_evidence import (ReplayActual, ReplayDifferences, ReplayError,
+    ReplayErrorObservation, ReplayInitialObservation, ReplayTurnObservation,
+    replay_with_observations, replay_with_observations_bounded)
+from .audit_record import record_audit
+__all__ += ["EncodeBuffer", "ReplayActual", "ReplayDifferences", "ReplayError",
+    "ReplayErrorObservation", "ReplayInitialObservation", "ReplayTurnObservation",
+    "replay_with_observations", "replay_with_observations_bounded", "record_audit"]
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("encode-buffers-v1", "replay-evidence-v1")

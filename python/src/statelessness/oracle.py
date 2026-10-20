@@ -149,10 +149,15 @@ class WithOracle(Generic[S, H, I, O]):
                          transition: Transition[OracleState[S, H], O]) -> tuple[Check, ...]:
         return _transition_checks(self, before, input, transition)
 
+    def encode_state_into(self, state: OracleState[S, H], buffer) -> None:
+        from .codec import _dispatch_encode
+        buffer.append(b"ORC1")
+        buffer.framed(lambda child: _dispatch_encode(self.model, "state", state.model, child))
+        buffer.framed(lambda child: _dispatch_encode(self.oracle, "history", state.oracle, child))
+
     def encode_state(self, state: OracleState[S, H]) -> bytes:
-        model = _encode("encode model", self.model.encode_state, state.model)
-        history = _encode("encode history", self.oracle.encode_history, state.oracle)
-        return b"ORC1" + len(model).to_bytes(8, "little") + model + len(history).to_bytes(8, "little") + history
+        from .codec import encode_value
+        return encode_value(self, "state", state)
 
     def decode_state(self, data: bytes) -> OracleState[S, H]:
         if type(data) is not bytes or not data.startswith(b"ORC1"):
@@ -172,14 +177,24 @@ class WithOracle(Generic[S, H, I, O]):
             raise ModelError("trailing oracle checkpoint bytes")
         return OracleState(self.model.decode_state(parts[0]), self.oracle.decode_history(parts[1]))
 
+    def encode_input_into(self, input: I, buffer) -> None:
+        from .codec import _dispatch_encode
+        _dispatch_encode(self.model, "input", input, buffer)
+
     def encode_input(self, input: I) -> bytes:
-        return self.model.encode_input(input)
+        from .codec import encode_value
+        return encode_value(self, "input", input)
 
     def decode_input(self, data: bytes) -> I:
         return self.model.decode_input(data)
 
+    def encode_output_into(self, output: O, buffer) -> None:
+        from .codec import _dispatch_encode
+        _dispatch_encode(self.model, "output", output, buffer)
+
     def encode_output(self, output: O) -> bytes:
-        return self.model.encode_output(output)
+        from .codec import encode_value
+        return encode_value(self, "output", output)
 
 
 class Projection(Protocol):
@@ -247,8 +262,13 @@ class Paired:
                          transition: Transition[OracleState[Any, Any], Any]) -> tuple[Check, ...]:
         return _transition_checks(self, before, input, transition)
 
+    def encode_history_into(self, history: Any, buffer) -> None:
+        from .codec import _dispatch_encode
+        _dispatch_encode(self.reference, "state", history, buffer)
+
     def encode_history(self, history: Any) -> bytes:
-        return self.reference.encode_state(history)
+        from .codec import encode_value
+        return encode_value(self, "history", history)
 
     def decode_history(self, data: bytes) -> Any:
         return self.reference.decode_state(data)

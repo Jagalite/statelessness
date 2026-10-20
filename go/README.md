@@ -254,3 +254,36 @@ observer/trace snapshots and legacy defaults can allocate; no zero-allocation or
 process-memory claim is made. Shared tests read `conformance/append-checks-v1.json`
 or `STATELESS_APPEND_CORPUS` in copied package trees. Rich/bounded replay and the
 other remaining parity work are separate scopes.
+
+`encode-buffers-v1` and `replay-evidence-v1` are experimental candidates.
+`Codec.EncodeStateInto`, `EncodeInputInto`, and `EncodeOutputInto` take precedence
+once over allocating encoders. `WithEncodeBuffer(&bytes, maximum, callback)` clears
+caller storage at entry/error and retains capacity. Append operations, `Framed`
+(u64 little-endian length), and nested callbacks share a sticky byte budget.
+Callback leases expire on return, error, and panic; snapshots are detached and
+failed buffers cannot publish bytes. `Len` is diagnostic after failure. Snapshot
+allocation failures are contained as buffer failures; process-wide allocation
+failure is not a recoverability guarantee. Caller buffers require exclusive
+synchronous use. ORC1 encoding frames actual state and oracle history incrementally
+under the same cap, including `Oracle.EncodeHistoryInto`; generation wrappers
+retain the preferred codecs. No zero-allocation claim is made.
+
+`RecordAudit(model, inputs, config, maxSteps, limits)` records lossless AuditTrace
+artifacts with all nine binary quotas, shared turn budgets, and reserved error
+footer space. It snapshots config and limits before callbacks, rejects caller
+`stateless.engine.*` parameters, and appends ordered engine version/build stamps.
+The `native-go-v1` build stamp identifies the implementation, not its source hash.
+Only complete checked turns are committed; later errors retain a coherent prefix.
+
+`ReplayWithObservations` accepts a portable Trace and `ReplayObserver` callbacks
+`Initial`, `Turn`, and `Error`. It retains actual execution evidence, all four
+comparison flags, and the updated report, stopping at the first divergence.
+`ReplayWithObservationsBounded` accepts AuditTrace and BinaryLimits, validates the
+stored artifact after identity compatibility and before decode, then accounts for
+actual evidence with shared frame, total-byte, and item quotas. Stored producer
+configuration is retained. Basic `Replay` uses the same kernel. A `ReplayError`
+retains actual initial/turn evidence and secondary observer errors. When a
+snapshot fails, the error observer receives no Actual plus SnapshotError; the
+returned error retains recovery evidence without retrying model callbacks.
+Shared tests use `STATELESS_ENCODE_CORPUS` and `STATELESS_REPLAY_CORPUS`, with
+repository-relative fixture paths by default.

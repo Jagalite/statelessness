@@ -111,7 +111,18 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 			name := fmt.Sprintf("paired-v1:%d:%s:%d:%d:%d:%d:%s:%d", len(a.Name), a.Name, a.ModelVersion, a.PropertiesVersion, a.CodecVersion, len(b.Name), b.Name, b.ModelVersion)
 			return Metadata{name, b.ModelVersion, b.PropertiesVersion, b.CodecVersion, fmt.Sprintf("%d:%s:%d:%s", len(a.Build), a.Build, len(b.Build), b.Build)}, nil
 		}
-		o.EncodeHistory = r.Codec.EncodeState
+		historyInto := func(history H, buffer *EncodeBuffer) error {
+			return appendEncoded(history, r.CloneState, r.Codec.EncodeState, r.Codec.EncodeStateInto, buffer)
+		}
+		o.EncodeHistoryInto = historyInto
+		o.EncodeHistory = func(history H) ([]byte, error) {
+			var bytes []byte
+			e := WithEncodeBuffer(&bytes, uint64(int(^uint(0)>>1)), func(buffer *EncodeBuffer) error { return historyInto(history, buffer) })
+			if e != nil {
+				return nil, e
+			}
+			return bytes, nil
+		}
 		o.DecodeHistory = r.Codec.DecodeState
 	}
 	return o, nil

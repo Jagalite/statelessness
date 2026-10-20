@@ -208,3 +208,65 @@ hooks. Replacing only their legacy `checkState` or `checkTransition` closure doe
 not override an existing append hook. Replace the corresponding `...Into` hook,
 or explicitly set it to `nil` to select your legacy replacement. Existing models
 that provide only legacy callbacks retain their dispatch behavior.
+
+## Candidate bounded codecs and replay evidence
+
+`encode-buffers-v1` adds optional `Codec.encodeStateInto`, `encodeInputInto` and
+`encodeOutputInto`, plus `Oracle.encodeHistoryInto`. Present hooks take precedence
+once over legacy allocating encoders. `EncodeBuffer.withBuffer(&bytes,
+maximum: cap) { sink in ... }` clears logical bytes while retaining capacity.
+`extend` and `extendFromVec` reject whole chunks before growth; rejected writes
+and nested callback errors poison successful finish even if caught. `framed`
+shares the same budget and writes an eight-byte little-endian component length.
+Every callback, including framed children, receives a separately revocable lease;
+expired leases detach their storage owner. The enclosing lease remains valid
+after a successful child. Incoming arrays use Swift value ownership, and no
+mutable backing storage is exposed. These synchronous APIs do not grant thread
+safety, `Sendable`, reentrant caller-buffer access or a catchable process-OOM
+promise. Legacy encoding and model callbacks may allocate outside these bounds.
+
+The public `encodeStateInto(codec, state: value, into: sink)` and corresponding
+input/output functions provide preferred dispatch. `WithOracle` incrementally
+writes exact ORC1 framed model/history components into one shared budget.
+`Paired` forwards reference history hooks; generated/automatic models preserve
+codec hooks while non-codec search models remain supported. Existing allocating
+encoder properties are retained. Mutating a legacy encoder on an adapter does
+not override a present incremental hook; replace that hook or set it to `nil`.
+
+`replayWithObservations` accepts portable `Trace`; its bounded counterpart
+`replayWithObservationsBounded` requires lossless `AuditTrace` and
+`BinaryTraceLimits`. They emit `.initial`, `.turn` and `.error` observations.
+Initial and turn observations contain typed detached values, encoded expected and
+actual evidence, ordered checks, the state-check boundary, and all four difference
+flags. Reports update before observers run, stop on the first divergence, and
+choose disposition, outputs, state, then checks as primary. Failure reproduction
+matches a failed ID at its corresponding initial/combined-turn boundary even if
+details differ. Exact replay validates only the recorded prefix.
+
+`ReplayError` preserves the primary engine error, secondary error-notification
+failure, updated report and any produced actual initial/turn result. Optional
+checks and state-check count distinguish unknown checking from a completed empty
+batch. A direct initial/turn observer failure is not recursively reported to the
+error observer. Observations use application deep-copy callbacks. If a snapshot
+fails after execution, the original produced values transfer only to
+`ReplayError.actual`; the error observation has no typed actual and an explicit
+`actualUnavailableReason`. No reducer, checker or failed clone is repeated to
+reconstruct evidence. If copying a normal engine-error notification fails, its
+snapshot error is retained as `observerError`, and the error callback still runs
+with unavailable typed evidence. Recovery values remain caller-owned and
+synchronous; they must not cross tasks merely because Swift requires errors to
+conform to `Sendable`.
+
+Bounded replay checks identity first, then validates all nine binary quotas before
+decoding. Actual run/step evidence independently shares exact wire framing,
+UTF-8 strings, item counts, output/state payloads and reserved footer headroom.
+`recordAudit(model, inputs: iterator, config: RunConfig(...), limits: limits)`
+provides bounded encoding while retaining ordered configuration parameters.
+It appends reserved `stateless.engine.version` and `stateless.engine.build`
+parameters (`native-swift-v1` is an implementation label, not a source fingerprint)
+and rejects caller parameters using that reserved prefix. Replay retains the
+stored producer configuration without restamping. Recording commits only coherent
+steps and reserves space for a bounded model-error footer. Portable `record` keeps
+its distinct `TraceLimits` behavior; binary quotas are not substituted for JSON
+or portable payload limits. Both new candidate profiles leave the four promoted
+portable profiles unchanged, and make no zero-allocation or hard-RSS claim.

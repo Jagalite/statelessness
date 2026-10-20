@@ -1,3 +1,8 @@
+import {ModelError,ConfigError} from './errors.js';
+export {ModelError,ConfigError} from './errors.js';
+import {replayBasic} from './replay.js';
+import {EncodeStorage,encodeModel,type EncodeBuffer} from './encoding.js';
+export {EncodeStorage,EncodeBuffer,withEncodeBuffer} from './encoding.js';
 import {CheckSink,withCheckSink,appendStateChecks,appendTransitionChecks} from './checks.js';
 export {CheckSink,withCheckSink} from './checks.js';
 import {runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver} from './search_support.js';
@@ -8,12 +13,6 @@ import {runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchO
 export const VERSION = '0.1.0';
 export const SPEC_VERSION = '1.0.0';
 export const PROFILES = ['core-v1', 'bfs-v1', 'rng-splitmix64-v1', 'trace-json-v1'] as const;
-export class ModelError extends Error {
-  constructor(message: string) { super(message); this.name = 'ModelError'; }
-}
-export class ConfigError extends Error {
-  constructor(message: string) { super(message); this.name = 'ConfigError'; }
-}
 export type CheckStatus = 'passed' | 'failed' | 'skipped';
 export interface Check { readonly id: string; readonly status: CheckStatus; readonly details: string }
 export interface Disposition { readonly kind: 'accepted' | 'rejected' | 'ignored'; readonly reason: string }
@@ -54,9 +53,10 @@ export function metadata(name: string, build = 'unqualified'): Metadata {
   return { name, build, model_version: 1, properties_version: 1, codec_version: 1 };
 }
 export function validateMetadata(m: Metadata): Metadata {
-  scalar(m.name); scalar(m.build);
-  for (const key of ['model_version', 'properties_version', 'codec_version'] as const) natural(m[key], key, 0, 0xffffffff);
-  return { ...m };
+  const {name,build,model_version,properties_version,codec_version}=m;
+  scalar(name);scalar(build);
+  for(const [key,value]of [['model_version',model_version],['properties_version',properties_version],['codec_version',codec_version]] as const)natural(value,key,0,0xffffffff);
+  return {name,build,model_version,properties_version,codec_version};
 }
 export interface Model<S, I, O> {
   /** Logical retained-state estimate, excluding engine storage; null means unknown. */
@@ -80,6 +80,9 @@ export interface EnumerateModel<S, I, O> extends Model<S, I, O> {
 }
 export interface CodecModel<S, I, O> extends Model<S, I, O> {
   metadata(): Metadata;
+  encodeStateInto?(state:S,buffer:EncodeBuffer):void;
+  encodeInputInto?(input:I,buffer:EncodeBuffer):void;
+  encodeOutputInto?(output:O,buffer:EncodeBuffer):void;
   encodeState(state: S): Uint8Array;
   decodeState(bytes: Uint8Array): S;
   encodeInput(input: I): Uint8Array;
@@ -104,20 +107,24 @@ function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> {
 export interface CheckPolicy { readonly stateEvery: number; readonly transitionChecks: boolean }
 export const FULL_CHECKS: CheckPolicy = Object.freeze({ stateEvery: 1, transitionChecks: true });
 /** Clear caller storage at entry and on every error; checks an already executed turn without step(). */
-export function checkObservedInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):void {
+export function checkObservedCountInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):number {
   output.length=0;
   try {
     const {stateEvery,transitionChecks}=policy;
     natural(sequence,'sequence',1);natural(stateEvery,'stateEvery',1);
     if(typeof transitionChecks!=='boolean')throw new ConfigError('transitionChecks must be boolean');
+    let boundary=0;
     withCheckSink(output,sink=>{
       if(sequence%stateEvery===0)call('state check',()=>appendStateChecks(m,transition.state,sink));
       else sink.push(check('stateless.state_checks','skipped','periodic checking policy'));
+      boundary=output.length;
       if(transitionChecks)call('transition check',()=>appendTransitionChecks(m,before,input,transition,sink));
       else sink.push(check('stateless.transition_checks','skipped','disabled by policy'));
     });
+    return boundary;
   } catch(error){output.length=0;throw error;}
 }
+export function checkObservedInto<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,output:Check[],policy:CheckPolicy=FULL_CHECKS):void {checkObservedCountInto(m,before,input,transition,sequence,output,policy);}
 /** Collection convenience shares the append dispatcher and never calls step(). */
 export function checkObserved<S,I,O>(m:Model<S,I,O>,before:S,input:I,transition:Transition<S,O>,sequence:number,policy:CheckPolicy=FULL_CHECKS):Check[]{
   const output:Check[]=[];checkObservedInto(m,before,input,transition,sequence,output,policy);return output;
@@ -310,19 +317,13 @@ export const DEFAULT_TRACE_LIMITS: TraceLimits = Object.freeze({ maxSteps: 100_0
 export function validateTraceLimits(limits: TraceLimits): void {
   for (const key of ['maxSteps', 'maxBlobBytes', 'maxItems', 'maxPayloadBytes', 'maxJSONBytes'] as const) natural(limits[key], key);
 }
-function encode(stage: string, callback: () => Uint8Array, maximum = Number.MAX_SAFE_INTEGER): Uint8Array {
-  return call(stage, () => {
-    const value = callback();
-    if (!(value instanceof Uint8Array)) throw new TypeError('codec must return Uint8Array');
-    if (value.length > maximum) throw new Error('encoded blob exceeds byte limit');
-    return new Uint8Array(value);
-  });
-}
 export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps = 100_000, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace {
+  limits={maxSteps:limits.maxSteps,maxBlobBytes:limits.maxBlobBytes,maxItems:limits.maxItems,maxPayloadBytes:limits.maxPayloadBytes,maxJSONBytes:limits.maxJSONBytes};
   natural(maxSteps, 'maxSteps'); validateTraceLimits(limits);
+  const encodingStorage=new EncodeStorage();
   let state = copyState(m, call('initial state', () => m.initialState()));
   const initialChecks = stateChecks(m,state,'initial check');
-  const initialState = encode('encode initial state', () => m.encodeState(copyState(m, state)), limits.maxBlobBytes);
+  const initialState = call('encode initial state',()=>encodeModel(m,'state',state,encodingStorage,limits.maxBlobBytes));
   const identity = call('metadata', () => validateMetadata(m.metadata()));
   let items = initialChecks.length, payload = initialState.length;
   if (items > limits.maxItems || payload > limits.maxPayloadBytes) throw new ModelError('recording limit: initial checkpoint');
@@ -336,14 +337,14 @@ export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, max
       const item = call('inputs', () => iterator.next());
       if (item.done) return result('completed');
       if (steps.length >= Math.min(maxSteps, limits.maxSteps)) return result('step_limit');
-      const input = encode('encode input', () => m.encodeInput(copyInput(m, item.value)), limits.maxBlobBytes);
+      const input = call('encode input',()=>encodeModel(m,'input',item.value,encodingStorage,limits.maxBlobBytes));
       const t=step(m,state,item.value);
       checkObservedInto(m,state,item.value,t,steps.length+1,checkStorage);
       const checks=checkStorage.map(c=>({...c}));
       const nextItems = items + 1 + checks.length + t.outputs.length;
       if (nextItems > limits.maxItems) throw new ModelError('recording limit: aggregate items');
-      const outputs = t.outputs.map(o => encode('encode output', () => m.encodeOutput(call('snapshot', () => m.cloneOutput(o))), limits.maxBlobBytes));
-      const postState = encode('encode state', () => m.encodeState(copyState(m, t.state)), limits.maxBlobBytes);
+      const outputs = t.outputs.map(o => call('encode output',()=>encodeModel(m,'output',o,encodingStorage,limits.maxBlobBytes)));
+      const postState = call('encode state',()=>encodeModel(m,'state',t.state,encodingStorage,limits.maxBlobBytes));
       const nextPayload = payload + input.length + postState.length + outputs.reduce((n, o) => n + o.length, 0);
       if (nextPayload > limits.maxPayloadBytes) throw new ModelError('recording limit: aggregate payload bytes');
       steps.push({ input, disposition: t.disposition, outputs, postState, checks });
@@ -357,8 +358,6 @@ export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, max
 }
 export interface ReplayReport { outcome: 'exact' | 'diverged' | 'incompatible'; steps_verified: number; failure_reproduced: boolean; build_matches: boolean; step: number | null; field: string | null }
 export function bytesEqual(a: Uint8Array, b: Uint8Array): boolean { return a.length === b.length && a.every((v, i) => v === b[i]); }
-function checksEqual(a: readonly Check[], b: readonly Check[]): boolean { return a.length === b.length && a.every((c, i) => c.id === b[i].id && c.status === b[i].status && c.details === b[i].details); }
-function sameFailure(a: readonly Check[], b: readonly Check[]): boolean { return a.some(x => x.status === 'failed' && b.some(y => y.id === x.id && y.status === 'failed')); }
 export function validateRecording(t: Trace): void {
   if (!['completed', 'property_failed', 'step_limit', 'interrupted', 'model_error'].includes(t.termination)) throw new ModelError('unknown trace termination');
   if (t.error && t.termination !== 'model_error') throw new ModelError('error text requires model_error termination');
@@ -368,36 +367,7 @@ export function validateRecording(t: Trace): void {
   if (bad !== (t.termination === 'property_failed')) throw new ModelError('trace termination disagrees with recorded checks');
 }
 /** Exact means the stored prefix matched; it does not verify any terminal callback error. */
-export function replay<S, I, O>(m: CodecModel<S, I, O>, trace: Trace, allowBuildMismatch = false): ReplayReport {
-  if (typeof allowBuildMismatch !== 'boolean') throw new ConfigError('allowBuildMismatch must be boolean');
-  const identity = call('metadata', () => validateMetadata(m.metadata()));
-  const r: ReplayReport = { outcome: 'exact', steps_verified: 0, failure_reproduced: false, build_matches: identity.build === trace.metadata.build, step: null, field: null };
-  if (['name', 'model_version', 'properties_version', 'codec_version'].some(k => identity[k as keyof Metadata] !== trace.metadata[k as keyof Metadata]) || (!r.build_matches && !allowBuildMismatch)) { r.outcome = 'incompatible'; return r; }
-  validateRecording(trace);
-  let state = call('decode initial state', () => m.decodeState(new Uint8Array(trace.initialState)));
-  if (!bytesEqual(encode('encode initial state', () => m.encodeState(copyState(m, state))), trace.initialState)) throw new ModelError('initial state encoding is not canonical');
-  const initial = stateChecks(m,state,'initial check');
-  r.failure_reproduced = sameFailure(trace.initialChecks, initial);
-  if (!checksEqual(initial, trace.initialChecks)) { r.outcome = 'diverged'; r.field = 'initial checks'; return r; }
-  const checkStorage:Check[]=[];
-  for (let index = 0; index < trace.steps.length; index++) {
-    const expected = trace.steps[index];
-    const input = call('decode input', () => m.decodeInput(new Uint8Array(expected.input)));
-    if (!bytesEqual(encode('encode input', () => m.encodeInput(copyInput(m, input))), expected.input)) throw new ModelError(`input ${index + 1} encoding is not canonical`);
-    const actual=step(m,state,input);
-    checkObservedInto(m,state,input,actual,index+1,checkStorage);
-    const checks=checkStorage;
-    r.failure_reproduced ||= sameFailure(expected.checks, checks);
-    const outputs = actual.outputs.map(o => encode('encode output', () => m.encodeOutput(call('snapshot', () => m.cloneOutput(o)))));
-    const postState = encode('encode state', () => m.encodeState(copyState(m, actual.state)));
-    const mismatch = actual.disposition.kind !== expected.disposition.kind || actual.disposition.reason !== expected.disposition.reason ? 'disposition'
-      : outputs.length !== expected.outputs.length || outputs.some((o, i) => !bytesEqual(o, expected.outputs[i])) ? 'outputs'
-      : !bytesEqual(postState, expected.postState) ? 'state' : !checksEqual(checks, expected.checks) ? 'checks' : null;
-    if (mismatch) { r.outcome = 'diverged'; r.step = index + 1; r.field = mismatch; return r; }
-    r.steps_verified++; state = actual.state;
-  }
-  return r;
-}
+export function replay<S,I,O>(m:CodecModel<S,I,O>,trace:Trace,allowBuildMismatch=false):ReplayReport {return replayBasic(m,trace,allowBuildMismatch);}
 const MASK = (1n << 64n) - 1n;
 /** SplitMix64 with exact modulo arithmetic; not a cryptographic generator. */
 export class Rng {
