@@ -1,9 +1,9 @@
 {
   "source_candidate_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
   "captured_utc": "2026-10-20T23:33:18.454586+00:00",
-  "status": "current-example-candidate-installed-qualification-pending",
+  "status": "reconciled-with-passed-installed-execution",
   "scope": "Current runtime, native package/test, shared fixture, reference and native-values application/driver inputs. Documentation and receipts are excluded to avoid recursive provenance.",
-  "installed_job": null,
+  "installed_job": "e7ba3927063346ce90c2b99a7071090b",
   "input_count": 281,
   "inputs": {
     "Cargo.lock": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2",
@@ -300,5 +300,11 @@
     "examples/native-values/go/values.go",
     "examples/native-values/python/values.py",
     "examples/native-values/swift/Sources/ValueConsumer/Values.swift"
-  ]
+  ],
+  "installed_reconciliation": {
+    "inputs": 281,
+    "missing_from_execution_manifest": [],
+    "current_or_execution_hash_mismatches": [],
+    "note": "Current snapshot reconciled with execution source_files after terminal success; not retroactive pre-start provenance."
+  }
 }

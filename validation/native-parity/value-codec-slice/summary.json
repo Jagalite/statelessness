@@ -1,5 +1,5 @@
 {
-  "status": "native-and-rust-passed-installed-pending",
+  "status": "passed",
   "scope": "Finite macOS/arm64 canonical value codec candidate; no full parity or profile promotion",
   "base_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
   "corpus": {
@@ -76,7 +76,7 @@
     "arithmetic_only_rows": 6
   },
   "installed": {
-    "status": "queued",
+    "status": "passed",
     "prior_attempts": [
       {
         "job": "f950cc5fc6d741028582cdc376952461",
@@ -94,9 +94,19 @@
         "reason": "Static review found analogous Go example layout omission before admission"
       }
     ],
-    "note": "Installed qualification remains pending. Core codec sources are unchanged; example adapter corrections are separate candidate inputs.",
+    "note": "Finite installed/fresh-process macOS arm64 proof. All 281 root source inputs match both current disk and the execution source manifest. Staged/runtime subset reconciliation is retained separately in consumers/installed-r4.",
     "job": "e7ba3927063346ce90c2b99a7071090b",
-    "output": "/private/tmp/stateless-value-consumers-20261020-r4"
+    "output": "/private/tmp/stateless-value-consumers-20261020-r4",
+    "commands": 82,
+    "producers": 5,
+    "value_cases_per_producer": 83,
+    "value_pairs": 25,
+    "typed_transcodes": 2075,
+    "evidence_pairs": 25,
+    "baseline_cases_per_engine": 717,
+    "baseline_fresh_replays": 550,
+    "root_reconciled_inputs": 281,
+    "runtime_source_mismatches": []
   },
   "current_source_input_count": 281,
   "broad_qualification_cells_pending": 144,
@@ -106,5 +116,7 @@
     "No native heap/RSS or untrusted callback work bound",
     "Other OS/architectures, browser execution, registry distribution and performance unqualified",
     "N13 derive/model-codec convenience remains separate future work"
-  ]
+  ],
+  "source_candidate_commit": "ec8dc6db236a3a794dd4d3163e5a9ae1a82410b6",
+  "installed_source_head": "732578595b16052a8f922f122b41d7091258b476"
 }

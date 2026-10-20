@@ -1,8 +1,9 @@
 # Native canonical value codec candidate receipts
 
 The finite Rust reference and four native suites passed on this macOS/arm64
-candidate. Installed-package interoperability is **pending**; its owner is
-running the separate consumer qualification and root will finalize that result.
+candidate. Installed-package interoperability also **passed** Kyoto job
+`e7ba3927063346ce90c2b99a7071090b`; exact receipts are in
+[consumers/installed-r4](consumers/installed-r4).
 This is not complete language parity or profile promotion. The broad matrix's
 144 qualification cells remain pending.
 
@@ -60,7 +61,7 @@ goldens, and real typed EvidenceRecorder/phase replay retained the producer's
 configuration and exact v2 bytes. Its Output implements encoding only. The smoke
 uses the pre-LengthOnly focused reference build, explicitly pinned in its own
 source receipt; no identical-binary claim is made for that smoke and the later
-reference executable. The installed matrix will use the final frozen executable.
+reference executable. The installed matrix used the final frozen executable.
 
 Final native receipts record:
 
@@ -88,10 +89,10 @@ limitation is retained in [summary.json](summary.json) and the Python receipt.
 
 [source-inputs-final.json](source-inputs-final.json) is a current snapshot of
 runtime, package/test, fixture, reference and application/driver inputs. It is not
-retroactive pre-start provenance or an installed pass. Documentation and receipts
+retroactive pre-start provenance. Its 281 entries match both current files and
+the passed installed execution manifest, with no missing entries or mismatches. Documentation and receipts
 are excluded to avoid recursive hashes; two embedded controller requirement
-files are included as actual Rust runtime/build inputs. Root will reconcile
-installed execution separately.
+files are included as actual Rust runtime/build inputs. The separate installed receipts also reconcile the staged/runtime subset.
 
 Independent static reviews are in [Go/Swift](review-go-swift.md) and
 [Python/TypeScript](review-python-typescript.md). Their hashes and reviewed ranges
@@ -102,3 +103,19 @@ callback execution, OOM behavior, Rust32, other platforms, browser execution,
 registry distribution and performance remain unqualified. N13 derive and
 ModelCodec convenience surfaces are future work. Existing promoted profiles
 remain unchanged.
+
+## Installed interoperability
+
+The final installed run executed 82 commands successfully. Five producers each
+matched 83 independent value goldens; 25 ordered fresh-process value pairs
+transcoded 2,075 values. Twenty-five actual application evidence pairs replayed
+with phase-aware checks, retained producer configuration and exact v2 bytes.
+Output remained encode-only. Each typed invocation also checked proper prefixes,
+trailing bytes, bounded subviews, owned results and exact output caps.
+
+The unchanged baseline passed 717 cases per engine plus 550 fresh-process
+replays. All builds and executions were inside the same Kyoto job. Earlier Swift
+example compilation and missing finite-layout adapter failures, plus the
+cancelled-before-start attempt, remain separate preserved receipts. This finite
+macOS/arm64 result does not close broad platform, registry, performance, N13 or
+all 144 parity qualification cells.
