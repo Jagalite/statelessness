@@ -48,11 +48,12 @@ function runCase(defaults: Json, row: Json): Json {
             inputs: state => {
                 event(`inputs:${state}`);
                 const edges = states.get(state).inputs; let index = 0;
-                return { [Symbol.iterator]() { return this; }, next(): IteratorResult<string> {
+                const iterator: IterableIterator<string> = { [Symbol.iterator]() { return this; }, next(): IteratorResult<string> {
                     event(`next:${state}:${index}`);
                     if (index === edges.length) return {done: true, value: undefined};
                     return {done: false, value: edges[index++].input};
                 }};
+                return iterator;
             },
             step: (state, label) => {
                 event(`step:${state}:${label}`); const e = edge(state, label);

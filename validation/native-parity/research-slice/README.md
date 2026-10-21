@@ -2,11 +2,11 @@
 
 The independently reviewed candidate implementation is committed as `cdc0a5a`;
 its independent specification and expectations are committed as `0b9056d`.
-Full qualification is **pending**. Rust actual execution passed all 67 shared
-cases; Python passed 275 tests with 12 ABI skips, and the Swift suite returned
-success. Go and TypeScript full reruns are queued after focused test corrections;
-initial failures are retained separately. All requested build/test work is submitted
-through Kyoto; compilation alone is not an execution pass.
+Installed qualification is **pending**. Rust actual execution passed all 67 shared
+cases; Python passed 275 tests with 12 ABI skips, Swift passed 147 tests,
+TypeScript passed all 928 tests, and Go full tests and vet passed. Initial
+Go/TypeScript failures remain preserved. All build/test work runs through Kyoto;
+compilation alone is not an execution pass.
 
 The frozen corpus contains 67 shared public Rust cases and 10 native-only
 admission cases. These are authored expectations, not 77 Rust executions. Native
@@ -19,8 +19,10 @@ strings are part of the finite contract. Production pruning stays disabled.
 retain pre-submission source manifests and will retain exact terminal commands,
 results and lossless raw logs. [source-inputs-candidate.json](source-inputs-candidate.json)
 is an aggregate current snapshot captured after submission; it is not retroactive
-pre-start provenance. Installed-package qualification will be submitted only
-after native suites and the real Rust reference pass.
+pre-start provenance. Installed attempt r1 failed on a TypeScript application iterator declaration;
+its source reconciliation and complete logs are preserved. The explicit local
+iterator annotation fixes only application typing. Fresh r2 is queued as
+`d2ea10c5d4d847d2b4105ed9df5642bf`; no installed pass is claimed.
 
 This finite candidate does not promote a profile, change the 144 broad pending
 qualification cells, prove arbitrary native heap/RSS bounds or callback

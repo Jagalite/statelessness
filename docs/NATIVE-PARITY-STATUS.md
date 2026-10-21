@@ -367,9 +367,11 @@ corrected native equality termination, Unicode identity/blank validation, callba
 error and edge-accounting issues. Equality and clone callbacks remain cooperative;
 unknown compound value semantics need explicitly faithful native comparators.
 
-Runtime qualification is pending. Kyoto jobs are submitted for the Rust reference
-build and all four native suites, including Go vet; no pass is claimed here.
-Installed consumers will be queued after those suites pass. Candidate source
+Finite Kyoto execution passed the 67-case Rust reference, Go tests and vet,
+Python (275 tests, 12 ABI skips), TypeScript (928 tests), and Swift (147 tests).
+Installed qualification remains pending: r1 exposed an application-only TypeScript
+iterator annotation issue, preserved with unchanged source hashes; corrected r2
+is queued. See [receipts](../validation/native-parity/research-slice/README.md). Candidate source
 mapping does not promote any profile or change the 144 broad qualification-pending
 cells. General POR, symmetry renaming, liveness, production reduction, performance
 and broader platform/resource qualification remain open.

@@ -30,5 +30,39 @@
     "stored_size": 164,
     "stored_sha256": "3f478707eb89065ab3ef7d94aaf549bc1b76927c835ada291b9026395f3d2272",
     "compression": "gzip mtime0 byte-identical verified"
+  },
+  {
+    "job_id": "c0146e5372674a78adc1bd1e2a92673b",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f",
+      "manifest": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/manifest.json",
+      "source_archive": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/c0146e5372674a78adc1bd1e2a92673b.log",
+    "original_size": 344,
+    "original_sha256": "d37f8c9e6a3753e3bc2875e64bc679d1562dbcb3625bbcd1cbe7eb4b87c5d320",
+    "stored_path": "logs/c0146e5372674a78adc1bd1e2a92673b.log.gz",
+    "stored_size": 154,
+    "stored_sha256": "37282ecad78af08ddf6e9d4068bea12e8a7e1b2e38d0538d678c67a4e75454fa",
+    "compression": "gzip mtime0 byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "2bce3a0dfc2c48e6b17ae060083ad440",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f",
+      "manifest": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/manifest.json",
+      "source_archive": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/2bce3a0dfc2c48e6b17ae060083ad440.log",
+    "original_size": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_path": "logs/2bce3a0dfc2c48e6b17ae060083ad440.log.gz",
+    "stored_size": 20,
+    "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "compression": "gzip mtime0 byte-identical verified",
+    "contains_trailing_whitespace": false
   }
 ]
