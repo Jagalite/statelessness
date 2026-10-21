@@ -3,7 +3,7 @@
 Worktree: `/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a`.
 Branch: `t3/recover-n12-debugger-parity`.
 Recovered base: `732578595b16052a8f922f122b41d7091258b476`.
-Use `git rev-parse HEAD` for the source candidate commit after this handoff is committed.
+Source candidate commit: `f866f7552df77736297fec5bf515481730a23f4c`. Later commits retain qualification receipts without runtime source changes.
 No push, PR, parent merge, capability/profile promotion or broad 144-cell closure is authorized by this receipt.
 
 ## Recovery and ownership
@@ -35,11 +35,11 @@ Go details: `../n12-go/recovery/HANDOFF.md` (relative to native-parity; actual p
 
 Manual goldens and the original conformance fixture predate real public reference execution. New independent finite Rust assertions cover all principal module families, including explicit metric windows/catalogs. Initial compile job `e869645469424e7387f5a2d6bccc91a0` succeeded **compilation only**, effective `--no-run`. Rust stdio example build `8599279a7d4a4d1dad89fbd896f55935` succeeded.
 
-Actual execution `f2192f30ded5430bb92bc3a1476c24e5` was correctly rejected: the binary ran ten passing tests but the source candidate required eleven after a source/compile race. Its raw logs and failed receipt are preserved. Its separate OS-pipe fixture passed. A fresh matching compilation and explicit execution are required; consult integration/HANDOFF.md and job receipts for the final result/remaining handles. Never infer eleven tests from the ten-test pass or a compile-only exit code.
+Actual execution `f2192f30ded5430bb92bc3a1476c24e5` was correctly rejected: the binary ran ten passing tests but the source candidate required eleven after a source/compile race. Its raw logs and failed receipt are preserved. Its separate OS-pipe fixture passed. Fresh compilation `7b4d790fcae44e4d94c41f988f9eb679` passed compilation-only with 109 Rust source paths matching before/after. Explicit execution `1ee93dea6b3346b998b3fd44050f23bb` then passed all eleven actual public Rust reference tests plus the OS-pipe fixture. Its receipt identifies source candidate `f866f7552df77736297fec5bf515481730a23f4c`, stable full candidate source, matching compile baseline and unchanged executable byte identities. Never infer this eleven-test pass from the earlier ten-test pass or a compile-only exit code.
 
 ## Remaining root gates
 
-- Resolve every final integration live handle and verify matching eleven-test actual public Rust reference execution with stable source/binary identity.
+- No new native or integration live handles remain at final handoff. Root still owns every original job listed in RECOVERY.md; their current status was not reinterpreted here.
 - Direct same-model, normalized native-vs-public-Rust wire artifacts remain unimplemented/unqualified. Existing independent goldens, native suites and real pipe fixtures do not substitute for that cross-language comparison.
 - Review final full optional API acceptance coverage against actual Rust contracts before declaring full N12 parity. This handoff deliberately leaves N12 closure open.
 - Broad 144-cell qualification, profile/default promotion, registry release and unrelated N13 remain pending.

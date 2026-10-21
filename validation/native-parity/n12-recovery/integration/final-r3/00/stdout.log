@@ -1,0 +1,20 @@
+
+running 11 tests
+test n12_independent_live_safe_point_dispatch_goldens ... ok
+test n12_independent_overflow_quantile_goldens ... ok
+test n12_independent_metric_window_and_catalog_goldens ... ok
+test n12_independent_probe_revision_callback_and_loss_goldens ... ok
+test n12_independent_structural_unknowns_and_exact_integer ... ok
+N12_PROTOCOL_STATUS	DDBG	u32:1	response	string:wire	u64:41	u64:1	u64:0	u64:0	ok	none	u64:23	mode	enum:simulation	phase	enum:Ready	sequence	u64:0	environment	string:enumerated-domain	capability.input_delivery	bool:false	capability.inspection	bool:false	capability.watch_configuration	bool:false	capability.exact_values	bool:false	capability.live_control	bool:false	capability.live_restore	bool:false	capability.effects	bool:false	capability.probe_queries	bool:false	capability.probe_configuration	bool:false	capability.trace_export	bool:false	capability.effect_telemetry	bool:false	capability.metric_queries	bool:false	limits.telemetry_snapshot_bytes	u64:8388608	limits.frame_bytes	u64:65536	limits.dedup_entries	u64:1	limits.dedup_bytes	u64:4194304	limits.page_size	u64:100	events.dropped	u64:0	stop	enum:none
+N12_PROTOCOL_SNAPSHOT	DDBG	u32:1	response	string:wire	u64:41	u64:1	u64:0	u64:0	ok	none	u64:3	handle	u64:1	snapshot.revision	u64:0	snapshot.sequence	u64:0
+N12_PROTOCOL_STEP	DDBG	u32:1	response	string:wire	u64:41	u64:2	u64:1	u64:0	ok	none	u64:2	delivered	bool:true	sequence	u64:1
+test n12_independent_explicit_nanosecond_lifecycle ... ok
+test n12_independent_watch_disable_and_baseline_goldens ... ok
+N12_PROTOCOL_CANCEL	DDBG	u32:1	response	string:wire	u64:41	u64:4	u64:1	u64:0	ok	none	u64:0
+test n12_independent_dashboard_unknowns_and_causal_join_goldens ... ok
+test n12_independent_protocol_exact_wire_and_retirement ... ok
+test n12_independent_session_breakpoint_and_fork_goldens ... ok
+test n12_independent_offline_goldens ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
