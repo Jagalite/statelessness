@@ -1,0 +1,17 @@
+error: SM401: codec version must be positive
+ --> src/main.rs:2:10
+  |
+2 | #[derive(statelessness_macros::ModelCodec)] #[model_codec(version=0)] struct S;
+  |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the derive macro `statelessness_macros::ModelCodec` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unused imports: `TraceDecode` and `TraceEncode`
+ --> src/main.rs:1:28
+  |
+1 | use statelessness_macros::{TraceEncode,TraceDecode};
+  |                            ^^^^^^^^^^^ ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error: could not compile `n13-compile-fail` (bin "n13-compile-fail") due to 1 previous error; 1 warning emitted

@@ -69,6 +69,15 @@ struct EncodeOnly(u8);
 #[derive(Debug, TraceDecode)]
 struct DecodeOnly(u8);
 
+// cases.json decode_only_u8: a raw scalar callback, not a derived record.
+#[derive(Debug)]
+struct DecodeOnlyByte(u8);
+impl stateless::value_codec::TraceDecode for DecodeOnlyByte {
+    fn trace_decode(reader: &mut Decoder<'_>) -> Result<Self, ModelError> {
+        Ok(Self(u8::trace_decode(reader)?))
+    }
+}
+
 fn golden<
     T: stateless::value_codec::TraceEncode
         + stateless::value_codec::TraceDecode
@@ -403,7 +412,7 @@ struct Words8(#[trace(length = "u8")] Vec<u16>);
 #[derive(TraceEncode)]
 enum EncodeEvent { #[trace(tag = 7)] Idle, #[trace(tag = 2)] Value(EncodeOnly) }
 #[derive(Debug, TraceDecode)]
-enum DecodeEvent { #[trace(tag = 7)] Idle, #[trace(tag = 2)] Value(DecodeOnly) }
+enum DecodeEvent { #[trace(tag = 7)] Idle, #[trace(tag = 2)] Value(DecodeOnlyByte) }
 #[derive(TraceEncode)]
 enum Renamed { #[trace(tag = 7)] Waiting }
 #[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
@@ -425,7 +434,7 @@ fn literal_draft_routes_and_diagnostics() {
     assert_eq!(EncodeEvent::Idle.trace_bytes(1).unwrap(), [7]);
     assert_eq!(EncodeEvent::Value(EncodeOnly(9)).trace_bytes(2).unwrap(), [2, 9]);
     assert!(matches!(DecodeEvent::from_trace(&[7], limits(2, 2)).unwrap(), DecodeEvent::Idle));
-    assert!(matches!(DecodeEvent::from_trace(&[2, 9], limits(3, 2)).unwrap(), DecodeEvent::Value(DecodeOnly(9))));
+    assert!(matches!(DecodeEvent::from_trace(&[2, 9], limits(3, 2)).unwrap(), DecodeEvent::Value(DecodeOnlyByte(9))));
     assert_eq!(NamedEvent::Ready { ready: true, byte: 9 }.trace_variant(), Some("Ready"));
     assert_eq!(Renamed::Waiting.trace_variant(), Some("Waiting"));
     assert_eq!(Renamed::Waiting.trace_bytes(1).unwrap(), Event8::Idle.trace_bytes(1).unwrap());
@@ -543,8 +552,9 @@ mod literal_raw_sink {
         let mut bytes = vec![];
         { let mut sink = EncodeBuffer::new(&mut bytes, 1);
           let first = BigEndian(4660).trace_encode(&mut sink).unwrap_err().to_string();
-          assert_eq!(first, "encoded blob exceeds byte or allocation limit");
-          assert_eq!(sink.finish().unwrap_err().to_string(), first); }
+          // extend_from_slice rejects the write directly; finish reports sticky failure.
+          assert_eq!(first, "encoded blob exceeds byte limit");
+          assert_eq!(sink.finish().unwrap_err().to_string(), "encoded blob exceeds byte or allocation limit"); }
         assert!(bytes.is_empty());
     }
 }
@@ -651,4 +661,7 @@ fn literal_positive_row_budgets() {
     budget::<Event16>(&[255, 255], 2, 2, 0, 0);
     budget::<DecodeOnly>(&[7], 2, 2, 0, 0);
     budget::<DecodeEvent>(&[7], 2, 2, 0, 0);
+    // Guarded enum (1), guarded tag (1), guarded raw payload (1).
+    // Tag and payload are siblings at depth 2; the raw callback adds no guard.
+    budget::<DecodeEvent>(&[2, 9], 3, 2, 0, 0);
 }

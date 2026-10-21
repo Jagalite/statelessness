@@ -205,7 +205,7 @@
       "disposition": "runtime",
       "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
       "qualification": "authored_pending_execution",
-      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "notes": "Derived DecodeOnly(u8) record: outer admission plus guarded raw u8 field; exact work 2/depth 2. No encoder is implemented. Execution tracked separately.",
       "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
     },
     {
@@ -222,7 +222,7 @@
       "disposition": "runtime",
       "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
       "qualification": "authored_pending_execution",
-      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "notes": "DecodeEvent uses DecodeOnlyByte, the declared raw decode_only_u8 callback with no encoder. Unit row remains work 2/depth 2; supplementary Value payload witness is work 3/depth 2 with one-under checks. Execution tracked separately.",
       "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
     },
     {
