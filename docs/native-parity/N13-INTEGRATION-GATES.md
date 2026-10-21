@@ -1,5 +1,29 @@
 # N13 parent integration gates
 
+## Follow-up candidate received
+
+The source audit below pins the earlier work-in-progress snapshot. A separate
+continuation has since returned source commit `67c1e3f` and handoff HEAD `eaf87d8`
+on `t3/n13-parity-qualification`, in
+`/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9`. It adds five 90-row
+disposition ledgers, missing witnesses and a five-engine binder/Recorder/causal
+evidence application. The old three-fixture driver retains its original scope.
+
+The continuation reports independent static clearance. Its qualification jobs
+were queued at handoff; this is **not** execution proof or parent acceptance.
+Exact handles, source snapshots, compiler-only versus runtime wrappers and
+remaining gates are in that worktree's
+`validation/native-parity/derive-model-v2/HANDOFF.md`. In particular, the installed
+job is `bc6dd9c046a3422e95649db12a4117ea`, Rust workspace execution is
+`88dc1b05082642498013e2519d81f0d1`, and compiler rejection qualification is
+`cfe860eae13e4c88942e4f7b8079f5a2`. Preserve those handles and the frozen tree.
+
+Parent integration and exact-candidate requalification still remain. The
+remaining generated-model/domain/inspection helpers and broad144 gates are not
+closed by this declaration convenience work.
+
+## Earlier static snapshot
+
 Static parent review of child worktree
 `/Users/jagatranvo/.t3/worktrees/stateless/t3-b71b6b32`, inspected on 2026-10-20.
 The child is still implementing and qualifying its changes. This document ran
