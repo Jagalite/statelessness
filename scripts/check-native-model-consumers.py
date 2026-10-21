@@ -50,6 +50,9 @@ def main():
   (work/'swift-package').mkdir();shutil.copy2(ROOT/'Package.swift',work/'swift-package/Package.swift');stage(ROOT/'swift',work/'swift-package/swift');stage(ROOT/'examples/native-model/swift',work/'swift-consumer')
   run('swift-build',['swift','build','--package-path',work/'swift-consumer','-j','2']);bindir=run('swift-bin-path',['swift','build','--package-path',work/'swift-consumer','--show-bin-path']);runners['swift']=[str(Path(bindir)/'ModelConsumer')]
   stage(ROOT/'src',work/'rust-source/src');stage(ROOT/'crates',work/'rust-source/crates');stage(ROOT/'docs/requirements',work/'rust-source/docs/requirements')
+  # Preserve declared Cargo targets even when this install selects one binary.
+  for directory in ('benches','tests','examples'):
+   stage(ROOT/directory,work/'rust-source'/directory)
   for f in ('Cargo.toml','Cargo.lock','build.rs','README.md','LICENSE'):shutil.copy2(ROOT/f,work/'rust-source'/f)
   rustc_version=run('rustc-version',['rustc','--version'])+'\n'
   rustc_verbose=run('rustc-host',['rustc','-vV']);target=next(line.split(': ',1)[1]for line in rustc_verbose.splitlines()if line.startswith('host: '))
