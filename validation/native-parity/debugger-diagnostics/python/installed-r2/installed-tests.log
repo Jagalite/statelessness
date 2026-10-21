@@ -1,0 +1,48 @@
+test_explicit_verification_limits (test_debugger.DebuggerTests.test_explicit_verification_limits) ... ok
+test_legacy_phase_and_semantic_validation (test_debugger.DebuggerTests.test_legacy_phase_and_semantic_validation) ... ok
+test_passive_boundary_and_full_width_checkpoint (test_debugger.DebuggerTests.test_passive_boundary_and_full_width_checkpoint) ... ok
+test_phase_spoof_and_budget_reject_before_execution (test_debugger.DebuggerTests.test_phase_spoof_and_budget_reject_before_execution) ... ok
+test_policy_is_not_fabricated (test_debugger.DebuggerTests.test_policy_is_not_fabricated) ... ok
+test_roundtrip_passive_read (test_debugger.DebuggerTests.test_roundtrip_passive_read) ... ok
+test_v2_three_pass_accounting (test_debugger.DebuggerTests.test_v2_three_pass_accounting) ... ok
+test_debugger_metrics (unittest.loader._FailedTest.test_debugger_metrics) ... ERROR
+test_admission_dedup_retirement_reconnect (test_debugger_protocol.ProtocolTests.test_admission_dedup_retirement_reconnect) ... ok
+test_authority_stale_and_failed_requests_retire (test_debugger_protocol.ProtocolTests.test_authority_stale_and_failed_requests_retire) ... ok
+test_framing_preallocation_and_partial (test_debugger_protocol.ProtocolTests.test_framing_preallocation_and_partial) ... ok
+test_manual_wire_fullwidth_and_controls (test_debugger_protocol.ProtocolTests.test_manual_wire_fullwidth_and_controls) ... ok
+test_os_pipe_serve (test_debugger_protocol.ProtocolTests.test_os_pipe_serve) ... ok
+test_stale_handle_and_write_after_commit (test_debugger_protocol.ProtocolTests.test_stale_handle_and_write_after_commit) ... ok
+test_bounded_continue_and_counters (test_debugger_session.SessionTests.test_bounded_continue_and_counters) ... ok
+test_constructor_order_and_iterator_ownership (test_debugger_session.SessionTests.test_constructor_order_and_iterator_ownership) ... ok
+test_enumerated_admission_bounds (test_debugger_session.SessionTests.test_enumerated_admission_bounds) ... ok
+test_policy_and_observer_faults (test_debugger_session.SessionTests.test_policy_and_observer_faults) ... ok
+test_pre_breakpoint_pending_and_post_commit (test_debugger_session.SessionTests.test_pre_breakpoint_pending_and_post_commit) ... ok
+test_property_failure_and_checker_error_commit (test_debugger_session.SessionTests.test_property_failure_and_checker_error_commit) ... ok
+test_read_only_identity_and_callback_unwind_boundary (test_debugger_session.SessionTests.test_read_only_identity_and_callback_unwind_boundary) ... ok
+test_recording_checks_once_and_no_codecs_default (test_debugger_session.SessionTests.test_recording_checks_once_and_no_codecs_default) ... ok
+test_fork_divergence_budget_and_environment (test_debugger_workbench.WorkbenchTests.test_fork_divergence_budget_and_environment) ... ok
+test_fork_prefix_and_branch_isolation (test_debugger_workbench.WorkbenchTests.test_fork_prefix_and_branch_isolation) ... ok
+test_token_bound_to_session_epoch_revision_value (test_debugger_workbench.WorkbenchTests.test_token_bound_to_session_epoch_revision_value) ... ok
+test_unrestricted_selection_still_revalidates_domain (test_debugger_workbench.WorkbenchTests.test_unrestricted_selection_still_revalidates_domain) ... ok
+
+======================================================================
+ERROR: test_debugger_metrics (unittest.loader._FailedTest.test_debugger_metrics)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_debugger_metrics
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/loader.py", line 426, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/loader.py", line 367, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-9efv2xht/tests/test_debugger_metrics.py", line 6, in <module>
+    from statelessness.debugger_dashboard import Dashboard, correlate
+  File "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-9efv2xht/consumer/lib/python3.14/site-packages/statelessness/debugger_dashboard.py", line 5, in <module>
+    from .debugger_metrics import MetricFamily as F, Histogram, MetricSnapshot, metric_catalog, _kind, _uint
+ImportError: cannot import name 'MetricFamily' from 'statelessness.debugger_metrics' (/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-9efv2xht/consumer/lib/python3.14/site-packages/statelessness/debugger_metrics.py)
+
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.012s
+
+FAILED (errors=1)

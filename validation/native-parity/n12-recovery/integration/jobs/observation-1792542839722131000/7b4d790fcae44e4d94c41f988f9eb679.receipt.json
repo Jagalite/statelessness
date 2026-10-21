@@ -1,0 +1,39 @@
+{
+  "job": "7b4d790fcae44e4d94c41f988f9eb679",
+  "status": "succeeded",
+  "terminal": true,
+  "raw_log": {
+    "bytes": 363,
+    "sha256": "c6a2296654a5f0a800c9088d03ecddf38b7b36ee35e2373faeb16daa8236959f"
+  },
+  "effective_command": [
+    "env",
+    "CARGO_TARGET_DIR=target/n12-recovery",
+    "CARGO_BUILD_JOBS=1",
+    "CARGO_PROFILE_DEV_DEBUG=0",
+    "CARGO_PROFILE_TEST_DEBUG=0",
+    "cargo",
+    "test",
+    "-p",
+    "statelessness-debug",
+    "--test",
+    "n12_reference",
+    "--offline",
+    "--no-run"
+  ],
+  "requested_command": [
+    "env",
+    "CARGO_TARGET_DIR=target/n12-recovery",
+    "CARGO_BUILD_JOBS=1",
+    "CARGO_PROFILE_DEV_DEBUG=0",
+    "CARGO_PROFILE_TEST_DEBUG=0",
+    "cargo",
+    "test",
+    "-p",
+    "statelessness-debug",
+    "--test",
+    "n12_reference",
+    "--offline"
+  ],
+  "policy_message": "Test/benchmark execution is disabled by shared policy; this job compiles only (--no-run). Tests/benchmarks will not run."
+}

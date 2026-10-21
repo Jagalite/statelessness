@@ -1,0 +1,62 @@
+{
+  "authority": "independently reasoned before executing Rust public reference",
+  "fixture": "buggy RequestModel: Start, Cancel, Complete(1)",
+  "offline": {
+    "steps": 3,
+    "failure": {
+      "sequence": 3,
+      "check": 2,
+      "phase": "transition"
+    },
+    "legacy_noninitial_phase": "unknown; selection rejects",
+    "passed_check_selection": "reject",
+    "boundary_zero": "retained checkpoint, no input/outputs/causal row",
+    "boundary_three_before": "second turn post-state",
+    "continuation_after_failure": "raw v1 structurally reads, semantic viewer rejects",
+    "v2_minimization_total_budget_9": {
+      "minimum_accounted_transitions": 6,
+      "maximum_accounted_transitions": 9
+    },
+    "v2_minimization_total_budget_2": "reject before phase verification",
+    "cancelled_before_verification": "reject",
+    "wrong_nonselected_phase_split": "reject during exact phase verification"
+  },
+  "fixed_build_verification": {
+    "default": "incompatible",
+    "allow_build_mismatch": {
+      "step": 3,
+      "primary_field": "outputs",
+      "steps_verified": 2,
+      "failure_reproduced": false
+    }
+  },
+  "histogram": {
+    "bounds": [
+      10,
+      20
+    ],
+    "samples": [
+      0,
+      10,
+      11,
+      30
+    ],
+    "buckets": [
+      2,
+      1,
+      1
+    ],
+    "p50_upper": 10,
+    "p95": {
+      "present": true,
+      "upper": null,
+      "observations": 4,
+      "low_sample_warning": true
+    }
+  },
+  "scope": "Finite contracts only; not full N12 or native qualification. Callback work remains cooperative.",
+  "session": {
+    "pre_breakpoint": "no delivery/counter increments; exact pending repeat bypasses once; next revision stops again",
+    "verified_fork": "prefix2 fixed build explicit override verifies; parent unchanged; fork after failure rejects"
+  }
+}

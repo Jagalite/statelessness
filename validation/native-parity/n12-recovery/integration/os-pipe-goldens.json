@@ -1,0 +1,22 @@
+{
+  "authorship": "Finite source-derived expectations recorded before executing this qualifier or Rust reference; original manual fixtures remain unchanged.",
+  "source": "crates/statelessness-debug/src/protocol.rs: ProtocolSession::handle, dispatch(Status/Snapshot/Step), encode_response, read_frame, serve; examples/debug_stdio.rs startup authorities",
+  "session": "request-lifecycle",
+  "read_only_status": {
+    "mode": "enum:simulation",
+    "phase": "enum:Ready",
+    "sequence": "u64:0",
+    "environment": "string:enumerated-domain",
+    "capability.input_delivery": "bool:false",
+    "capability.live_control": "bool:false",
+    "capability.live_restore": "bool:false",
+    "capability.effects": "bool:false"
+  },
+  "snapshot": {"handle": "u64:1", "snapshot.revision": "u64:0", "snapshot.sequence": "u64:0"},
+  "fullwidth_request_id": 9007199254740993,
+  "unauthorized_step": {"result": "error", "code": "unauthorized", "revision": "u64:0", "sequence_after": "u64:0"},
+  "duplicate_identical": "byte-identical response; no new snapshot handle",
+  "duplicate_conflict": "duplicate_conflict",
+  "truncated_frame": "nonzero exit and no response bytes",
+  "scope": "OS stdin/stdout pipes and finite protocol authority/dedup behavior only. No callback-count, native module, installed-package, live safepoint, or broad N12 completion claim."
+}

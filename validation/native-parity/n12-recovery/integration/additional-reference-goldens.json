@@ -1,0 +1,69 @@
+{
+  "authorship": "Manually source-derived before executing the expanded Rust n12_reference tests; does not replace original manual goldens",
+  "watch": {
+    "observations": [
+      7,
+      7,
+      8
+    ],
+    "events": [
+      "baseline:initial",
+      "unchanged",
+      "changed"
+    ],
+    "disabled_generation": 2,
+    "disabled_effective_sequence": 3,
+    "reenabled_generation": 3,
+    "next_event": "baseline:reenabled"
+  },
+  "probe": {
+    "disabled_callback_calls": 0,
+    "configuration_revision": 1,
+    "pending_producers": [
+      1
+    ],
+    "stale_revision": "StaleRevision",
+    "enabled_turns": 3,
+    "destinations": 2,
+    "total_callback_calls": 3,
+    "unbounded_sink_records": 3,
+    "bounded_sink_records": 1,
+    "bounded_sink_drops": 2
+  },
+  "live": {
+    "delivered_turn_revision": 1,
+    "staged_outputs": 1,
+    "inflight_dispatch_safe_point": "WrongPhase",
+    "confirmed_dispatch_pause": {
+      "generation": 1,
+      "revision": 1,
+      "effect_phase": "Dispatched"
+    }
+  },
+  "dashboard": {
+    "missing_metrics": "unknown, never zero",
+    "clock_failure_visibility": "incomplete",
+    "json_budget_32": "reject",
+    "exact_run_epoch_machine_output_join": "retained with incomplete detail",
+    "wrong_machine": "Conflict(machine)"
+  },
+  "sources": [
+    "crates/statelessness-debug/src/watches.rs",
+    "crates/statelessness-debug/src/diagnostic.rs",
+    "crates/statelessness-debug/src/live.rs",
+    "crates/statelessness-debug/src/dashboard.rs"
+  ],
+  "scope": "Finite source-derived contracts. Full module test suites, installed imports, native matching, callbacks/leases and broad N12 remain independently required.",
+  "metrics": {
+    "observed_nanoseconds": [
+      3,
+      11
+    ],
+    "window_delta_count": 1,
+    "window_delta_sum_ns": 11,
+    "window_temporality": "Delta",
+    "reversed_window": "ReversedWindow",
+    "different_epoch": "Incompatible",
+    "catalog": "one AttemptElapsed descriptor; all populations nonempty; no effect_id label"
+  }
+}

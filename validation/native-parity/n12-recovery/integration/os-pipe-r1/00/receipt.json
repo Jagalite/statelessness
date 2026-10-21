@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "target/n12-recovery/debug/examples/debug_stdio",
+    "--fixed",
+    "--read-only"
+  ],
+  "artifacts": {
+    "stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdin.frames": {
+      "bytes": 567,
+      "sha256": "633c77ce574d975ee444060a09b94c45063a2508206dc438577e319921d5bd0b"
+    },
+    "stdout.frames": {
+      "bytes": 2192,
+      "sha256": "aec56718cdd4f94adf31e602392aaa14a6b5999e49e739a362e61e770f194db4"
+    },
+    "truncated.stderr.log": {
+      "bytes": 77,
+      "sha256": "9bf0cfb71902dcc3e887aa753073baec33bc704b231663c3fd93deb73c9558e4"
+    },
+    "truncated.stdin.frames": {
+      "bytes": 5,
+      "sha256": "add13c54df0f6f56726c2032eb2cccadd1cd72329badfdb430e124157f3575cd"
+    },
+    "truncated.stdout.frames": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "callback_count": "not instrumented; sequence and authorization checked",
+  "delivered_sequence": 0,
+  "passed": true,
+  "requests": 6,
+  "scope": "OS stdin/stdout pipes and finite protocol authority/dedup behavior only. No callback-count, native module, installed-package, live safepoint, or broad N12 completion claim."
+}

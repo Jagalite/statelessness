@@ -1,0 +1,19 @@
+{
+  "schema": "statelessness.n12.swift-final/1",
+  "full_suite_job": "03aa3ec70ad9474e819184cc01369354",
+  "full_suite_status": "succeeded",
+  "full_suite_tests": 211,
+  "optional_debug_tests": 77,
+  "full_suite_source_stable": true,
+  "full_suite_raw_log_bytes": 55629,
+  "full_suite_raw_log_sha256": "b99b05c999204755e70c9dfac9e366675fb9240c476629610f45a1cfdc2ea359",
+  "installed_job": "633d2c36a79d47dfbb0d57e6e9de6f5e",
+  "installed_status": "succeeded",
+  "installed_qualifier_receipt": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/validation/native-parity/debugger-diagnostics/swift-installed/824510ce-73d1-4208-bab7-36317464dc42.json",
+  "installed_source_stable": true,
+  "installed_qualified": true,
+  "installed_raw_log_bytes": 2783,
+  "installed_raw_log_sha256": "ec3ccb48848454fb3ec34db49a17ead89b51e3cc54987817f041a9f4da9c0a8f",
+  "live_jobs": [],
+  "boundaries": "Finite macOS Swift suite and copied local package fresh process; no registry publication, full N12 closure, broad platform claim or Rust-reference qualification."
+}
