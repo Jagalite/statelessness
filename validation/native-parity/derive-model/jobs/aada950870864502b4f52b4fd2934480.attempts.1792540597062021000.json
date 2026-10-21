@@ -1,0 +1,1 @@
+[{"sequence": 709, "job_id": "aada950870864502b4f52b4fd2934480", "started": 1792540520.225728, "requested": 1792540528.350344, "finished": 1792540528.8090649, "exit_code": -15, "peak_rss_mb": 311.875, "cpu_seconds": 3.2178690000000003, "reason": "sustained memory/swap pressure"}]

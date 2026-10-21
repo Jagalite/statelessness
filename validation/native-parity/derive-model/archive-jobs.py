@@ -26,13 +26,18 @@ def main():
         dest = out / (job + '.' + state['status'] + '.' + str(time.time_ns()) + '.json')
         dest.write_bytes(raw)
         row = {'job_id': job, 'status': state['status'], 'receipt': receipt(dest)}
+        attempts = subprocess.check_output([sys.executable, KYOTO, 'attempts', job])
+        attempts_path = out / (job + '.attempts.' + str(time.time_ns()) + '.json')
+        attempts_path.write_bytes(attempts)
+        row['attempts'] = receipt(attempts_path)
         log = Path(state['log'])
-        if state['status'] in ('succeeded', 'failed', 'cancelled') and log.exists():
+        if log.exists():
             data = log.read_bytes()
             packed = gzip.compress(data, mtime=0)
             if gzip.decompress(packed) != data:
                 raise RuntimeError('lossless log archive verification failed')
-            stored = out / (job + '.log.gz')
+            suffix = '' if state['status'] in ('succeeded', 'failed', 'cancelled') else '.' + str(time.time_ns())
+            stored = out / (job + suffix + '.log.gz')
             if stored.exists() and stored.read_bytes() != packed:
                 raise RuntimeError('terminal log changed; preserve prior archive')
             stored.write_bytes(packed)
