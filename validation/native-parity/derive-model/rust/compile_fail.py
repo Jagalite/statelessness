@@ -6,7 +6,7 @@ its independent diagnostic expectation. Full stdout/stderr bytes are retained.
 """
 import hashlib,json,pathlib,subprocess,tempfile,time
 ROOT=pathlib.Path(__file__).resolve().parents[4]
-OUT=pathlib.Path(__file__).resolve().parent/'compile-fail'/str(time.time_ns())
+OUT=ROOT/'validation/native-parity/derive-model-v2/rust/compile-fail'/str(time.time_ns())
 CASES={
  'duplicate_tag': ('#[derive(TraceEncode)] enum E {#[trace(tag=1)] A,#[trace(tag=1)] B}', 'SM107'),
  'missing_tag': ('#[derive(TraceEncode)] enum E { A }', 'SM106'),
