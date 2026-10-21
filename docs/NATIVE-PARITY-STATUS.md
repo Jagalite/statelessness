@@ -338,8 +338,14 @@ Opaque foreign callback error objects retain native diagnostic ownership.
 
 [Archived final Kyoto receipts](../validation/native-parity/value-codec-slice/README.md) record: Rust 149 reference cases, Python 248 tests with
 12 ABI skips, TypeScript 829 tests, Swift 134 methods, and Go tests plus vet.
-Installed-consumer qualification remains pending after example compilation and finite-layout adapter failures; preserved attempts and the current retry status are in the candidate receipts. This finite source
-and runtime evidence does not promote profiles or change any of the 144 broad
+The [installed-r4 receipts](../validation/native-parity/value-codec-slice/consumers/installed-r4)
+record 82 commands with exit zero: five producers matched 83 independent goldens,
+all 25 typed pairs matched 2,075 values, and all 25 actual v2 phase-aware
+replay/rewrite pairs matched exact bytes. The unchanged baseline passed 717 cases
+per engine and 550 fresh replays. Root reconciled all 281 reported input files
+and the 212-file runtime/staged subset to current source. Earlier example
+compilation and finite-layout adapter failures remain preserved. This finite
+installed macOS/arm64 evidence does not promote profiles or change any of the 144 broad
 qualification-pending cells. Registry, browser, broader platform/resource and
 performance qualification remain open.
 

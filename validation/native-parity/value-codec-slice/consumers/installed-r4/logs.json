@@ -1,0 +1,583 @@
+[
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-model-to-rust.log",
+    "raw_bytes": 3150,
+    "raw_sha256": "3174d5864e1370d9389cddf80b876def19be502ba1f27718cc039f0a461bf2f5",
+    "gzip_bytes": 786,
+    "gzip_sha256": "54d1df7835398a79377fc8a025702f6418a1e6f7ed9f3b95852e01ebf73ae960"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-bin-path.log",
+    "raw_bytes": 137,
+    "raw_sha256": "bff0c9de2fceddbc26783f63c0dcd834cfd8f3b5a257f44b156bcd4e453ecabd",
+    "gzip_bytes": 134,
+    "gzip_sha256": "53a34924f589d06f4ff78d8da3c78007e55761976ed422f30164a3ea7a30a95b"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-model-to-swift.log",
+    "raw_bytes": 3214,
+    "raw_sha256": "ac05a16c3116064920db74d2112cd4f4aa09bd85154b9eedfee39d96506a3ccb",
+    "gzip_bytes": 818,
+    "gzip_sha256": "5104032c4e5969fcf4ecf56a1c1ce4e5d6bc2af9e3e5d4f1b733e4bfe4dd4a5c"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values.log",
+    "raw_bytes": 4971,
+    "raw_sha256": "54b08d6c6318e683b975c3cdbfab2bed8feed5ee293e97fe384048c4e1799044",
+    "gzip_bytes": 1260,
+    "gzip_sha256": "7632631ab5451446fc30aceffe6a7950d148f1a0a48b6b9c20ca66ec52f48c46"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/baseline-go-corpus-build.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values-to-python.log",
+    "raw_bytes": 4974,
+    "raw_sha256": "232ddad341825b0a22d85a1aa1e4fb211f46bcc7fb5f4e486d1dd251989424b4",
+    "gzip_bytes": 1262,
+    "gzip_sha256": "7e46ed5f709a02b3055a5e5c00793db4a524f40f870675068a180ba304837792"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values-to-python.log",
+    "raw_bytes": 4974,
+    "raw_sha256": "232ddad341825b0a22d85a1aa1e4fb211f46bcc7fb5f4e486d1dd251989424b4",
+    "gzip_bytes": 1262,
+    "gzip_sha256": "7e46ed5f709a02b3055a5e5c00793db4a524f40f870675068a180ba304837792"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values-to-python.log",
+    "raw_bytes": 4974,
+    "raw_sha256": "232ddad341825b0a22d85a1aa1e4fb211f46bcc7fb5f4e486d1dd251989424b4",
+    "gzip_bytes": 1262,
+    "gzip_sha256": "7e46ed5f709a02b3055a5e5c00793db4a524f40f870675068a180ba304837792"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-builder-tools.log",
+    "raw_bytes": 800,
+    "raw_sha256": "ddac4bd2f2e5607aa6f47a53e1a1600ae9cd01a6bd10c64cde88eb75452ce471",
+    "gzip_bytes": 386,
+    "gzip_sha256": "03acca04e73acd207fa54189f3139a0b85bfbc5392089028392f26467f4609d1"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-model-to-typescript.log",
+    "raw_bytes": 3203,
+    "raw_sha256": "9f0f0a3c88b3336871121e5da39f2d76375365aac9cb8bab93c810e106e6781e",
+    "gzip_bytes": 813,
+    "gzip_sha256": "8d238edc03b2fd6023c7c4d3a7515505fde46ce30b71ffff4a956166f0f7ea8f"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values-to-python.log",
+    "raw_bytes": 4974,
+    "raw_sha256": "232ddad341825b0a22d85a1aa1e4fb211f46bcc7fb5f4e486d1dd251989424b4",
+    "gzip_bytes": 1262,
+    "gzip_sha256": "7e46ed5f709a02b3055a5e5c00793db4a524f40f870675068a180ba304837792"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values-to-typescript.log",
+    "raw_bytes": 4344,
+    "raw_sha256": "5f49324ab1a2768af5c66a5e6b436b6d74ec9acab625b9caf5c27b6a4f3b5a57",
+    "gzip_bytes": 1158,
+    "gzip_sha256": "a33f36232c4500e9797058de8791e01be165ee9ba072fcfc145346c04a156bf0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-venv.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/installed-four-profile-baseline.log",
+    "raw_bytes": 3932,
+    "raw_sha256": "315de1781b88daa5a170ebf3a39906a6f8b5aafde337867a8f3ed694c73a4256",
+    "gzip_bytes": 822,
+    "gzip_sha256": "1feb8de3a0ac19b06915acebbfeec44e008cba3e426be883c06f4d601e654692"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-record.log",
+    "raw_bytes": 3721,
+    "raw_sha256": "a16015e957f5c048fa13e14413c3b0a0d42ec97be4e4fa6783d6e8c65f57216a",
+    "gzip_bytes": 956,
+    "gzip_sha256": "66a723921e37fc4b5f93e19dbddfc44f9b953df47b4b768da8954625b0bc930e"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-model-to-go.log",
+    "raw_bytes": 3201,
+    "raw_sha256": "08b07f09ecde6c5928b383bf356d41233152f0e04b0838d37cb8c4bed9c2eeb7",
+    "gzip_bytes": 815,
+    "gzip_sha256": "c495858450c64ce960ff56ec3e197d395f0a13f8c026363cb597c6158ade4da5"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/node-version.log",
+    "raw_bytes": 8,
+    "raw_sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6",
+    "gzip_bytes": 28,
+    "gzip_sha256": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-model-to-python.log",
+    "raw_bytes": 3625,
+    "raw_sha256": "8c922f29d04bd26424ee4c32160df3e9dcfd629e498ff180fe2d11cb5a4b73aa",
+    "gzip_bytes": 927,
+    "gzip_sha256": "814d01a60c911719593fc5cd922770ea6423d7046c424c92d07cf9cfb3f0e066"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-model-to-python.log",
+    "raw_bytes": 3635,
+    "raw_sha256": "8713ad1aca336530a38ac27e395f613be7a144a296446e560f2efd3d8e94f72d",
+    "gzip_bytes": 930,
+    "gzip_sha256": "3b0c0e5e33a127ece682baaef078610c618994b65be2b5f3ebde331f84ddd3b1"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-build.log",
+    "raw_bytes": 1767,
+    "raw_sha256": "3bd0bc7d3b870e2e9ec2b795a314a4ca07b2fd0fff19fa87aad48891093b3d82",
+    "gzip_bytes": 515,
+    "gzip_sha256": "0441ca255eeaba9f15273ae6bcb6a7d1ed89c960bb5211a4b090ed90d0dba262"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-builder-freeze.log",
+    "raw_bytes": 61,
+    "raw_sha256": "0ab3d1305cf3b2031a43ecc3818882ac0bc23c094e0ee519b4c45258fa00ad9e",
+    "gzip_bytes": 78,
+    "gzip_sha256": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-model-to-swift.log",
+    "raw_bytes": 3206,
+    "raw_sha256": "3a189fc4f197a018671b71b49c696e5eb4e2baac58e674f671ce28a08bf8e026",
+    "gzip_bytes": 816,
+    "gzip_sha256": "8bd3faaab25690853d7a3f1ac4496bad879d8b5edab2db8af2b94b7c6ff8f2e9"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-version.log",
+    "raw_bytes": 128,
+    "raw_sha256": "5fa4b669e41b23b9ad0760253d062493487f93cf5d8ad8c44f0d4fd635137499",
+    "gzip_bytes": 124,
+    "gzip_sha256": "2fe24bb8a7ad54aed3bafc06538884f313d9c0379f8f57fadc3bd68d871bd371"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-model-to-rust.log",
+    "raw_bytes": 3188,
+    "raw_sha256": "cc99bf723276aa88ee366f17e819d6a02db930048783fce8c7284b043a72f517",
+    "gzip_bytes": 800,
+    "gzip_sha256": "103ae13bbe8542c4243b07ea73944a20620dc6c6445f10f416ff7ca1d3f27738"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-package-build.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values-to-go.log",
+    "raw_bytes": 4336,
+    "raw_sha256": "abcea236717f86dbd3816d905ef46b483ea93bdf95cc36dc87148549224a35b7",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "0861d0f64784889a55cf77c3541207b941489ad0d3f85bf21f771c61f8f0b881"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-record.log",
+    "raw_bytes": 3280,
+    "raw_sha256": "1aa8b6d2c0dda00d27065d1680677afe38c9584a183960bcecc16136fc1aa527",
+    "gzip_bytes": 845,
+    "gzip_sha256": "83852d14a25669b7bdf5ad48b5d338c800be46ce583359849d6ccc406f76ca10"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values-to-typescript.log",
+    "raw_bytes": 4344,
+    "raw_sha256": "5f49324ab1a2768af5c66a5e6b436b6d74ec9acab625b9caf5c27b6a4f3b5a57",
+    "gzip_bytes": 1158,
+    "gzip_sha256": "a33f36232c4500e9797058de8791e01be165ee9ba072fcfc145346c04a156bf0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/npm-version.log",
+    "raw_bytes": 7,
+    "raw_sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5",
+    "gzip_bytes": 27,
+    "gzip_sha256": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-model-to-go.log",
+    "raw_bytes": 3195,
+    "raw_sha256": "56e01804adeaef728ddcd60deb7207faebfb16b02e51f43c5c43d4f37c4b7502",
+    "gzip_bytes": 813,
+    "gzip_sha256": "9f7579113ebafac263053ee3d2ba32b01ba68281b8e92cea2b60793a5b4fd946"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values-to-rust.log",
+    "raw_bytes": 4338,
+    "raw_sha256": "6898be27dab22bb6962d15b88fd6b38f96a314618bb700c69470c1cc58ead70d",
+    "gzip_bytes": 1163,
+    "gzip_sha256": "d8752c9c2029979752145aa0d2a3b624991dfc463b7e8547d340b76c80a9ffa6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-record.log",
+    "raw_bytes": 3289,
+    "raw_sha256": "1a6b208ed1e9ec4477dc7b0aaf0118023827e818cfb3933c64e219d28d40f37d",
+    "gzip_bytes": 845,
+    "gzip_sha256": "0a2e2d8d1fb84a4e64685ce570361e6674b0b235e6b3b5b636f200e51c90185b"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values-to-swift.log",
+    "raw_bytes": 4373,
+    "raw_sha256": "9c1750f743f4de8d20074bca186102942dd3107960cd84001d79caa86b64a4f9",
+    "gzip_bytes": 1182,
+    "gzip_sha256": "71628e5904814f14677450bc7aa2d171bc0e03a12f200ad79c7669febb70b605"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values-to-python.log",
+    "raw_bytes": 4974,
+    "raw_sha256": "232ddad341825b0a22d85a1aa1e4fb211f46bcc7fb5f4e486d1dd251989424b4",
+    "gzip_bytes": 1262,
+    "gzip_sha256": "7e46ed5f709a02b3055a5e5c00793db4a524f40f870675068a180ba304837792"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-version.log",
+    "raw_bytes": 14,
+    "raw_sha256": "9265ac58ff367868abd52fc852ecff28622facad715e3c3a0fcf92c4ca2d86e2",
+    "gzip_bytes": 34,
+    "gzip_sha256": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values-to-rust.log",
+    "raw_bytes": 4338,
+    "raw_sha256": "6898be27dab22bb6962d15b88fd6b38f96a314618bb700c69470c1cc58ead70d",
+    "gzip_bytes": 1163,
+    "gzip_sha256": "d8752c9c2029979752145aa0d2a3b624991dfc463b7e8547d340b76c80a9ffa6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/baseline-swift-bin-path.log",
+    "raw_bytes": 136,
+    "raw_sha256": "86088d7ad4d91d2eb7aa2e4ba2ea32571b65df431f050386f347eb293631857c",
+    "gzip_bytes": 133,
+    "gzip_sha256": "7a692fa74a16e27934bd132408bfd1b27f4fc6aff7b6cc26cd494ddd9e42b8d1"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-declarations.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values-to-typescript.log",
+    "raw_bytes": 4344,
+    "raw_sha256": "5f49324ab1a2768af5c66a5e6b436b6d74ec9acab625b9caf5c27b6a4f3b5a57",
+    "gzip_bytes": 1158,
+    "gzip_sha256": "a33f36232c4500e9797058de8791e01be165ee9ba072fcfc145346c04a156bf0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values.log",
+    "raw_bytes": 4333,
+    "raw_sha256": "0c38c3c723c25b014a3d91cf795b00da7af0b5f02bcd9b405e2da824c97f5bd0",
+    "gzip_bytes": 1159,
+    "gzip_sha256": "3f6056ec04287cce9a89585cfec48153e26185e5d4c20b2073f524695e18c7c1"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-model-to-python.log",
+    "raw_bytes": 3627,
+    "raw_sha256": "039d795a312351073e119579a105734c902b06486ab7fe696f62393ac0d15747",
+    "gzip_bytes": 923,
+    "gzip_sha256": "3185b1befb12014a606c6ad45bfdb691df4382ce48855928bde23df9efbb7298"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values-to-typescript.log",
+    "raw_bytes": 4344,
+    "raw_sha256": "5f49324ab1a2768af5c66a5e6b436b6d74ec9acab625b9caf5c27b6a4f3b5a57",
+    "gzip_bytes": 1158,
+    "gzip_sha256": "a33f36232c4500e9797058de8791e01be165ee9ba072fcfc145346c04a156bf0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values-to-swift.log",
+    "raw_bytes": 4373,
+    "raw_sha256": "9c1750f743f4de8d20074bca186102942dd3107960cd84001d79caa86b64a4f9",
+    "gzip_bytes": 1182,
+    "gzip_sha256": "71628e5904814f14677450bc7aa2d171bc0e03a12f200ad79c7669febb70b605"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values.log",
+    "raw_bytes": 4370,
+    "raw_sha256": "b5098703fa01d60bed86031cfc46acb8d47160718f20af87ce3caa4032ff2989",
+    "gzip_bytes": 1180,
+    "gzip_sha256": "727824d9f9364b70a6dc11f7b163e2ac253747504f41fc964a8ad1e5660728fd"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-model-to-go.log",
+    "raw_bytes": 3233,
+    "raw_sha256": "98a112d17e5e3b9c57a6108c75e7409d1b040ccb10ab763183c7a4c8ed92a08e",
+    "gzip_bytes": 830,
+    "gzip_sha256": "cfc71aa32a2f23c7926f3d1d1ce34d4ab40d1b16c519a30a0aef8f835ff3b3c7"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-model-to-swift.log",
+    "raw_bytes": 3198,
+    "raw_sha256": "4b55c0fb3a183e03b5afb18051f73ef58c15d4ee0a386f49eb2cfaf2a18d4728",
+    "gzip_bytes": 813,
+    "gzip_sha256": "68be84609aabb2e3c65cf1d7130d664fc5519eb89989895f63300656aab0f4b5"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values.log",
+    "raw_bytes": 4341,
+    "raw_sha256": "6d32253c58cb030a94a5783efc99cb210ec46f446181ee50cec0d7d5326af664",
+    "gzip_bytes": 1156,
+    "gzip_sha256": "029cb6f6e2fc0b5ea83dc83be30434463b6eb5382fbc3832062c31a6ef0005a7"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-model-to-rust.log",
+    "raw_bytes": 3156,
+    "raw_sha256": "1d69c81a06d45af4c88f40829a9ae5f49ddda8349e6ec39f8125d5a56e9d5339",
+    "gzip_bytes": 788,
+    "gzip_sha256": "d4f035ba0260d81eb616526d46bca274067b1e09ba9ba108901e6b48aacdaa19"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values-to-rust.log",
+    "raw_bytes": 4338,
+    "raw_sha256": "6898be27dab22bb6962d15b88fd6b38f96a314618bb700c69470c1cc58ead70d",
+    "gzip_bytes": 1163,
+    "gzip_sha256": "d8752c9c2029979752145aa0d2a3b624991dfc463b7e8547d340b76c80a9ffa6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values.log",
+    "raw_bytes": 4335,
+    "raw_sha256": "6f646d746a27539d8108111538b466ba9a6804d0748e7cb3d6b7d53b525c4338",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "997fd9dfefcf0d103619147ba3007b2ded12f550460796a713a06abf6a93ab3f"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-model-to-rust.log",
+    "raw_bytes": 3166,
+    "raw_sha256": "cd265c10aa7987179b22a699f6089bc27f6c65bdcf19517f29cf6fa7de0cb74e",
+    "gzip_bytes": 791,
+    "gzip_sha256": "2d92e8d8cc4a94cee49148e29b95ec51ad8075569b7d8ea073e4ae4a1c7b8c53"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-pack.log",
+    "raw_bytes": 4375,
+    "raw_sha256": "5a4c4409dae08eb67e3c77b03131eaa380cd6d4699aab6a6452447e025032f28",
+    "gzip_bytes": 1011,
+    "gzip_sha256": "579827e86b0c23d21723c2dd9226f7a9c3b1a9b8346fc8cb00af374f4226fb28"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values-to-typescript.log",
+    "raw_bytes": 4344,
+    "raw_sha256": "5f49324ab1a2768af5c66a5e6b436b6d74ec9acab625b9caf5c27b6a4f3b5a57",
+    "gzip_bytes": 1158,
+    "gzip_sha256": "a33f36232c4500e9797058de8791e01be165ee9ba072fcfc145346c04a156bf0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-model-to-typescript.log",
+    "raw_bytes": 3219,
+    "raw_sha256": "1ee576112b1a32157cb0fe1870510df5f36d181929263ac5eff8ea55d5de796d",
+    "gzip_bytes": 814,
+    "gzip_sha256": "945843be325c0ca5dbb450b7abe046dd67cbf64553107f229023a7b0cb6118a8"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-wheel.log",
+    "raw_bytes": 892,
+    "raw_sha256": "dd74378a00ad4cbbbf49be245851cfbdb1dc71f8e721bbc3ee3030e123901df2",
+    "gzip_bytes": 516,
+    "gzip_sha256": "fe7c39a6ad9da723d2aaea6b6f275a1cc87a5963332b97b61b94e5e09f7bd5ea"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-record.log",
+    "raw_bytes": 3304,
+    "raw_sha256": "50d3546362db04a928c33c4bf71839ba0de24965195fca4955b5ff226c3210a7",
+    "gzip_bytes": 845,
+    "gzip_sha256": "f4c54dc1a331903166ef2edd54605d25d2db5b48dced27d1febeb9527f25072c"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values-to-swift.log",
+    "raw_bytes": 4373,
+    "raw_sha256": "9c1750f743f4de8d20074bca186102942dd3107960cd84001d79caa86b64a4f9",
+    "gzip_bytes": 1182,
+    "gzip_sha256": "71628e5904814f14677450bc7aa2d171bc0e03a12f200ad79c7669febb70b605"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values-to-swift.log",
+    "raw_bytes": 4373,
+    "raw_sha256": "9c1750f743f4de8d20074bca186102942dd3107960cd84001d79caa86b64a4f9",
+    "gzip_bytes": 1182,
+    "gzip_sha256": "71628e5904814f14677450bc7aa2d171bc0e03a12f200ad79c7669febb70b605"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-build.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-model-to-typescript.log",
+    "raw_bytes": 3241,
+    "raw_sha256": "4b767b85f024005a06556c2e4fddade09cbdd22e1f49337932a58fef99efa8d7",
+    "gzip_bytes": 832,
+    "gzip_sha256": "c507712cbe5b1f217c0502b4c5cc08cefaf3b110eb67a17df52414f86cda8696"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-model-to-swift.log",
+    "raw_bytes": 3236,
+    "raw_sha256": "f14564a1258a03ad4324a13c1a3df05319cfaef3d01a028a9aef033844caa1d4",
+    "gzip_bytes": 829,
+    "gzip_sha256": "926a387971910cdc7abfc5e4e86da28de7dfd0f64537870ae3e6440ff1f041ec"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-record.log",
+    "raw_bytes": 3332,
+    "raw_sha256": "b29b99883608d6c351d9607fb3ee88604c8800b03f780632aaa8b79c25cfa246",
+    "gzip_bytes": 865,
+    "gzip_sha256": "4402aade3ecdbd33ddeea238558501b7fcf977a0eff52da73e224e2c58e78a26"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-builder-venv.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-model-to-rust.log",
+    "raw_bytes": 3158,
+    "raw_sha256": "7a5a38d7f9873b51a5e0791d137dc062dd68ab3c6545cad304118f7bd99f346d",
+    "gzip_bytes": 789,
+    "gzip_sha256": "24180e6b375b56600975fbba4a760d2ecaaf5bfd89e7dd959ccc3a9851396785"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-model-to-python.log",
+    "raw_bytes": 3657,
+    "raw_sha256": "ca387ff9a0cc2a646b53760f89bc265168219a1b9c86ce13fe812451cf0b6518",
+    "gzip_bytes": 941,
+    "gzip_sha256": "83237814e8933e31a52e79d77ab54945ce0b99b4b5f9c1a58a32b02be8bdd068"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-model-to-go.log",
+    "raw_bytes": 3211,
+    "raw_sha256": "5e84b33d55b727a1d3d47c753a80d689125f0617b04fae0fab7d64f9ddeaceb7",
+    "gzip_bytes": 818,
+    "gzip_sha256": "3c54eb482e48e5df68731137557c9329e45cbc4825a9bcf371eb748b72e54f4c"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/baseline-swift-corpus-build.log",
+    "raw_bytes": 1848,
+    "raw_sha256": "5be53e0f1c22134836f57c1b928f9b5a7b8da3e27f077acce3f511d039f12848",
+    "gzip_bytes": 542,
+    "gzip_sha256": "037d2718affdbb088ce867db23dba0cef257d7e615df6d188aeaa472abb70cd0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-model-to-typescript.log",
+    "raw_bytes": 3209,
+    "raw_sha256": "e5b6d00aea782c1d61caf8f9edb4f5adede59de3b47db2d87266c3c761239ef1",
+    "gzip_bytes": 816,
+    "gzip_sha256": "85417414da3a7de275200e76e7b3cdf8a64d9354c3266441a6382fbb74f99a3a"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values-to-rust.log",
+    "raw_bytes": 4338,
+    "raw_sha256": "6898be27dab22bb6962d15b88fd6b38f96a314618bb700c69470c1cc58ead70d",
+    "gzip_bytes": 1163,
+    "gzip_sha256": "d8752c9c2029979752145aa0d2a3b624991dfc463b7e8547d340b76c80a9ffa6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-model-to-python.log",
+    "raw_bytes": 3619,
+    "raw_sha256": "77f5ff5776914037886afdff9a0235236a138c99bd134f4d364ac6c447be793c",
+    "gzip_bytes": 924,
+    "gzip_sha256": "7260ef8dc99dcb1b29e57c9a0b16e726ff9f43684a5175d1c25031a67fcc5010"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-install.log",
+    "raw_bytes": 26,
+    "raw_sha256": "1860e21f86b51fd24e27434bfad25a308b760e27320bce24a868b4dd950193ec",
+    "gzip_bytes": 46,
+    "gzip_sha256": "1c58a154b65be70c673606de0691425c977295b53f9f1518ec3327dc73f94337"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-install.log",
+    "raw_bytes": 196,
+    "raw_sha256": "a7175e2ef6a6de5c40deaa1d0b0e6433b7da6a208a11b02fd31bdc542909e047",
+    "gzip_bytes": 152,
+    "gzip_sha256": "3f708c7928cacb477e2398b1cb5b30705e9015eea336a10937a72c5e89b4bea6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-values-to-swift.log",
+    "raw_bytes": 4373,
+    "raw_sha256": "9c1750f743f4de8d20074bca186102942dd3107960cd84001d79caa86b64a4f9",
+    "gzip_bytes": 1182,
+    "gzip_sha256": "71628e5904814f14677450bc7aa2d171bc0e03a12f200ad79c7669febb70b605"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values-to-rust.log",
+    "raw_bytes": 4338,
+    "raw_sha256": "6898be27dab22bb6962d15b88fd6b38f96a314618bb700c69470c1cc58ead70d",
+    "gzip_bytes": 1163,
+    "gzip_sha256": "d8752c9c2029979752145aa0d2a3b624991dfc463b7e8547d340b76c80a9ffa6"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-values-to-go.log",
+    "raw_bytes": 4336,
+    "raw_sha256": "abcea236717f86dbd3816d905ef46b483ea93bdf95cc36dc87148549224a35b7",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "0861d0f64784889a55cf77c3541207b941489ad0d3f85bf21f771c61f8f0b881"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-model-to-go.log",
+    "raw_bytes": 3203,
+    "raw_sha256": "8ab2db8d7d91a1c85328033234639c1b92a9f24e6737471da1001a2aef6c1d47",
+    "gzip_bytes": 816,
+    "gzip_sha256": "9b3fa9e89a0bd685dff258a6163b7f9ca4a60f093eb27f758998140c3d74a0ae"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/typescript-values-to-go.log",
+    "raw_bytes": 4336,
+    "raw_sha256": "abcea236717f86dbd3816d905ef46b483ea93bdf95cc36dc87148549224a35b7",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "0861d0f64784889a55cf77c3541207b941489ad0d3f85bf21f771c61f8f0b881"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/rust-values-to-go.log",
+    "raw_bytes": 4336,
+    "raw_sha256": "abcea236717f86dbd3816d905ef46b483ea93bdf95cc36dc87148549224a35b7",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "0861d0f64784889a55cf77c3541207b941489ad0d3f85bf21f771c61f8f0b881"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/go-version.log",
+    "raw_bytes": 33,
+    "raw_sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9",
+    "gzip_bytes": 53,
+    "gzip_sha256": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-values-to-go.log",
+    "raw_bytes": 4336,
+    "raw_sha256": "abcea236717f86dbd3816d905ef46b483ea93bdf95cc36dc87148549224a35b7",
+    "gzip_bytes": 1161,
+    "gzip_sha256": "0861d0f64784889a55cf77c3541207b941489ad0d3f85bf21f771c61f8f0b881"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/swift-model-to-swift.log",
+    "raw_bytes": 3204,
+    "raw_sha256": "53096f4261dd282b38f8f3fbb7ad07e58edd0f74460defdf3b569d5ea25cf9ce",
+    "gzip_bytes": 814,
+    "gzip_sha256": "9dce67d66426dc794aa35f3c52847d20139f95821c0c06168440125f5caa2f49"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r4/logs/python-model-to-typescript.log",
+    "raw_bytes": 3211,
+    "raw_sha256": "1c2c76bfa7d05023c5bf7492515c3a3bf44465139b81665122b058b4f2cad280",
+    "gzip_bytes": 816,
+    "gzip_sha256": "d6c8732f450cc09b1eac46918ead4242e4e0cf173cbbccdf7aa0a5a880296c61"
+  },
+  {
+    "source": "/Users/jagatranvo/.local/state/kyoto/e7ba3927063346ce90c2b99a7071090b.log",
+    "raw_bytes": 24173,
+    "raw_sha256": "49609283daabc1521426b8c34b9f361ab4b2446bff3d8add31613bfb29b9f9b2",
+    "gzip_bytes": 1746,
+    "gzip_sha256": "f5ef3d812cf1696132f46b558bfc5c2c9276ff0cfd6117f75d47a6ad9947a9f0"
+  }
+]
