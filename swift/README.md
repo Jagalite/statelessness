@@ -469,3 +469,47 @@ preserving layout and diagnostic variant; its raw decode adds no guard, while
 `decodeLength` do not require ordinary directions. Container length capabilities
 still require the element's ordinary traits, including empty containers. No
 placeholder ordinary implementation is needed for a custom length-only adapter.
+
+## Experimental finite equivalence research
+
+`Research.compareEquivalence` studies a caller-declared closed finite domain with
+independent UInt64 state/edge/equivalent-pair budgets. It is disabled by default;
+a proposal records seven explicit assumptions, source identities, and required
+property IDs with `ResearchPropertyPhase`. Disabled mode still validates the
+proposal and evaluates metadata once, while executing no initial state, reducer,
+checker, input iterator or projection. Non-codec models supply `metadata:`;
+otherwise the existing Codec metadata provider can be used.
+
+Enabled experiments materialize every declared edge once, including unreachable
+rows, then run exact and projected BFS over that owned table. Ordered inputs,
+outputs, dispositions, state/transition checks and successor classes must agree.
+Projection runs once per declared state only after complete materialization.
+Reports retain deterministic shortest failure inputs and conflicting-state
+prefixes. Observed properties sort by exact UTF-8 ID bytes and then phase; failure
+witnesses retain BFS/check discovery order. Limits, skipped/missing checks and
+callback errors cannot qualify a fixture, while concrete differences take
+precedence over pair-budget exhaustion.
+
+Immutable/value-semantic Equatable payloads use the convenience overload. The
+explicit overload accepts state/input/output/key equality and a projection-key
+clone. Model clone callbacks must deeply detach mutable references; projection
+keys must be immutable values or use a faithful `cloneKey`. Equality is exact,
+pure and synchronous. Snapshot/comparator/projection failures are native
+incomplete outcomes, not evidence that Rust permits fallible Eq or projection.
+Array ownership and structural limits do not bound arbitrary callback allocations,
+Swift traps, process OOM, elapsed time or RSS. No new Sendable claim is introduced.
+`Research.qualificationParameters` records fixture assumptions and always reports
+`research.production_pruning_enabled=false`. Agreement is evidence for this
+fixture only, including preserved property failures; it changes no production
+explorer, replay equality, input order, default, pruning policy or promoted profile.
+
+Research convenience equality treats direct String state/input/output/key values
+as exact UTF-8. A supplied Model.equalStates remains its explicit equality
+contract. Synthesized compound Equatable may inherit Swift's canonical String
+equality; use the explicit comparison overload for compound payloads whose Rust
+contract distinguishes those bytes. Framework check IDs/details, disposition
+reasons and property identity always use exact UTF-8. Projection keys must be
+reflexive: non-reflexive host values such as NaN reject before traversal. An
+exact-state-index guard additionally keeps traversal finite if an invalid
+stateful comparator later changes behavior; that does not qualify such a
+comparator as lawful Rust Eq. These are native boundary safeguards.

@@ -456,3 +456,40 @@ that collection. Encoding remains available without allocation metadata.
 unsigned-byte width before any custom callback. Custom length codecs can accept
 width 3; built-in string/vector codecs continue to accept only 1, 2 and 4. Raw
 decoding adds no outer value guard and does not call `finish` automatically.
+
+Optional finite research experiments live only in `statelessness.research`; they
+are not imported into the basic public namespace. `compare_equivalence(model,
+states, proposal, config, projection)` is disabled by default. It validates explicit
+assumptions and proposal identity, reads metadata once, and requires both an
+explicit enabled config and established assumptions before executing the model.
+Models need metadata, enumeration, transitions and checks; no value codecs are
+required. Required properties are explicit `(id, phase)` declarations, with phase
+`state` or `transition`.
+
+An enabled experiment owns snapshots of the declared finite domain, materializes
+every declared edge once (including unreachable states), and rejects an unclosed
+domain. Exact and candidate traversals then use only that private table. Ordered
+input labels, effects, dispositions, checks and projected successors must match.
+`ResearchEquality` supplies optional state/input/output/projection equality hooks;
+otherwise native equality is used. Hooks receive detached snapshots and must
+return an actual bool. No serialization or hash digest stands in for equality.
+Cloning and equality remain cooperative, faithful and deterministic; arbitrary
+callback execution/memory and malicious private mutation are not sandboxed.
+
+The result retains shortest BFS failure witnesses, pair prefixes, missing
+properties and separate state/edge/pair budgets. Observed properties sort by ID
+then phase; violation witnesses retain first BFS/check discovery order and first
+failure details. Limits, callback errors, skipped checks and absent required
+properties prevent qualification. `AgreesWithinDeclaredFixture` can retain real
+property failures; it is bounded fixture evidence, not proof of application
+correctness or a general reduction. `qualification_parameters` records proposal,
+model build, assumptions and status, always with production pruning disabled.
+The module never changes production search/replay equality or enables pruning.
+Projection equality must be reflexive; invalid native keys such as NaN return an
+incomplete result before traversal. An exact-index visitation guard also bounds
+traversal if a cooperative relation later changes. These guards do not prove
+symmetry/transitivity or stable application behavior. Identity-based object
+models generally need explicit equality hooks compatible with faithful snapshots.
+Typed ModelError messages are retained in incomplete limitations; other Python
+exceptions receive safe contextual diagnostics. Successful reducer returns count
+as materialized edges before native result validation or snapshot errors.

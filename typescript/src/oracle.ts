@@ -7,7 +7,7 @@ import { type Check, type Disposition, type Metadata, type Model, type Enumerate
   type CodecModel, type Transition, ModelError, check, disposition, validateMetadata, type Rng } from './core.js';
 import type { GenerateModel } from './search.js';
 
-export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1', 'bfs-controls-v1', 'append-checks-v1', 'encode-buffers-v1', 'replay-evidence-v1', 'checked-results-v1', 'causal-evidence-v2', 'canonical-value-codec-v1'] as const;
+export const EXPERIMENTAL_PROFILES = ['paired-v1', 'search-v1', 'native-binary-v1', 'bfs-controls-v1', 'append-checks-v1', 'encode-buffers-v1', 'replay-evidence-v1', 'checked-results-v1', 'causal-evidence-v2', 'canonical-value-codec-v1', 'research-equivalence-v1'] as const;
 export interface OracleState<S, H> { readonly model: S; readonly oracle: H }
 export interface Oracle<S, H, I, O> {
   /** Application-owned history estimate in the caller's documented logical representation. */

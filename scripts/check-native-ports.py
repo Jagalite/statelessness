@@ -77,7 +77,8 @@ def main():
         STATELESS_REPLAY_CORPUS=str(ROOT / 'conformance/replay-evidence-v1.json'),
         STATELESS_CHECKED_CORPUS=str(ROOT / 'conformance/checked-results-v1.json'),
         STATELESS_EVIDENCE_CORPUS=str(ROOT / 'conformance/causal-evidence-v2.json'),
-        STATELESS_VALUE_CORPUS=str(ROOT / 'conformance/canonical-value-codec-v1.json'))
+        STATELESS_VALUE_CORPUS=str(ROOT / 'conformance/canonical-value-codec-v1.json'),
+        STATELESS_RESEARCH_CORPUS=str(ROOT / 'conformance/research-equivalence-v1.json'))
     environment = dict(paired_environment, CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off')
     toolchains = {'python': sys.version, 'platform': platform.platform()}
     toolchains['go'] = run('go-version', [go, 'version']).strip()

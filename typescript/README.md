@@ -427,3 +427,56 @@ The unified descriptor exposes unavailable methods with clear runtime errors;
 schema/variant names are diagnostic only. Arbitrary callback work/allocations and
 fatal process OOM remain outside these logical budgets. Model/derive convenience
 and version glue are a separate N13 scope; adopting these descriptors is explicit.
+
+## Finite equivalence research (N14 candidate)
+
+`compareEquivalence` is an explicit opt-in experiment on a caller-declared finite
+state domain. It never changes explorer equality, input enumeration or production
+pruning. The default configuration is disabled; proposal assumptions and model
+metadata are still validated, but initial state, reducer and projection callbacks
+are not executed. `Assumptions.established` is a caller declaration, not a proof.
+
+Pass a native model with `inputs`, the complete state array, a versioned proposal,
+a configuration, a projection and explicit `equalStates`, `equalInputs`,
+`equalOutputs`, `equalProjections` callbacks. No codec is required: supply an
+optional seventh metadata callback when the model has no `metadata()` method.
+All three budgets (`maxStates`, `maxEdges`, `maxEquivalencePairs`) are exact u64
+`bigint` values. Defaults are 256n, 4096n and 65536n. State indexes and the actual
+declared array length are native numbers; edge/pair/skipped counters are bigint.
+
+Each declared edge, including unreachable states' edges, is materialized once.
+The exact and projected breadth-first traversals then share that owned table.
+Ordered inputs, effects, dispositions, state/transition checks and projected
+successors must match. Failed checks retain deterministic shortest witnesses,
+with property identity including phase. Missing required properties, skipped
+checks, materialization errors and exhausted budgets cannot establish agreement;
+a concrete counterexample wins over an exhausted pair budget. Agreement can
+preserve property failures: it does not mean the model's properties passed.
+
+Model clone functions must provide value snapshots. They and equality/projection
+callbacks are synchronous cooperative code, invoked with the original model or
+equality receiver where applicable. Object/function projection keys additionally
+require `cloneProjection`; primitive keys can be retained directly. Equality
+receives detached snapshots, so mutating an equality argument cannot rewrite the
+stored graph when the caller's clone contract is satisfied. Arbitrary user clone,
+projection, iterable or checker work/allocation is outside the three logical
+budgets. No JSON serialization is used as a substitute for equality.
+
+Reports own their metadata, proposal and witness containers; immutable declaration
+copies prevent callback mutations from changing budgets or assumptions mid-run.
+Materialization failures produce `Incomplete` with no completed traversals.
+Projection equality must be reflexive; a native nonreflexive key comparison
+(including NaN under `===`) rejects as incomplete. An independent exact-index
+visited guard guarantees termination even if a callback later changes its answer.
+Symmetry/transitivity and stable clone/equality behavior remain caller obligations.
+Native-only projection/equality callback failures also fail closed as incomplete;
+they are outside Rust's infallible projection/Eq type surface. Duplicate exact
+states and malformed declarations reject before materialization. The native
+runtime rejects non-boolean equality, asynchronous callbacks and unsafe numeric
+budgets instead of rounding or silently treating them as equality.
+
+`qualificationParameters(report)` returns a detached frozen sorted string map,
+including `research.production_pruning_enabled: 'false'`. Every outcome qualifies
+only this explicit fixture and its stated assumptions. This candidate API implies
+no general reduction theorem, renamed-effect symmetry, timing abstraction,
+history compaction, profile promotion or automatic pruning.

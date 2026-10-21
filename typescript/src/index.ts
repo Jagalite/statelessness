@@ -18,3 +18,7 @@ export type {Provenance,OutputOrigin,CausalContext,StepEvidence,TraceV2,Artifact
 export {EvidenceRecorder} from './evidence_recorder.js';
 export {Decoder,DEFAULT_DECODE_LIMITS,resolveDecodeLimits,logicalLayout,customValueSchema,encodeValue,decodeValue,UNIT,NONE,some,withLength,encodeLengthValue,valueCodecs} from './value_codec.js';
 export type {DecodeLimits,ResolvedDecodeLimits,LogicalLayout,ValueSchema,LengthSchema,CustomValueSchema,Unit,Option,SchemaValue,TupleValue} from './value_codec.js';
+
+// Explicit opt-in finite research; no production exploration settings change.
+export {compareEquivalence,qualificationParameters,DEFAULT_EXPERIMENT_CONFIG} from './research.js';
+export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProperty,PropertyPhase,ViolationWitness,Reachability,EquivalenceCounterexample,ExperimentReport,ResearchEquality,ResearchModel} from './research.js';
