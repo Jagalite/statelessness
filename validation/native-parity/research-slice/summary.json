@@ -1,0 +1,40 @@
+{
+  "status": "source-reviewed-runtime-pending",
+  "scope": "Finite macOS arm64 research candidate; no production pruning, profile promotion or broad parity closure",
+  "source_candidate_commit": "cdc0a5a",
+  "fixture_commit": "0b9056d",
+  "corpus": {
+    "shared_public_rust_authored": 67,
+    "native_only_authored": 10,
+    "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa",
+    "spec_sha256": "bbaffbcb09f24e5e85bfa3ca59ed7ff5b3d242f8c086b91af43f7373ca022649"
+  },
+  "rust": {
+    "status": "queued",
+    "build_job": "c2def9cef475478e82fa2844cc78626a",
+    "execution_job": null
+  },
+  "go": {
+    "status": "queued",
+    "test_job": "8b4ec2fa696149d2961cad615ca86c31",
+    "vet_job": "4e3bedd9c73845e5aa0c232f4309f110"
+  },
+  "python": {
+    "status": "queued",
+    "job": "73186c42f181435398b8a692c7d02e1e"
+  },
+  "typescript": {
+    "status": "queued",
+    "job": "e88c7597c3b4489b97189f51e9e9afa8"
+  },
+  "swift": {
+    "status": "queued",
+    "job": "cecb24161e1a4d72b070ca0383a135eb"
+  },
+  "installed": {
+    "status": "not-submitted",
+    "reason": "Await native suites and actual Rust reference execution"
+  },
+  "broad_qualification_cells_pending": 144,
+  "profiles_promoted": false
+}

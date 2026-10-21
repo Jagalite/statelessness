@@ -133,7 +133,7 @@
       "validation/corpus/src/evidence_reference.rs",
       "validation/corpus/src/values_reference.rs"
     ],
-    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending. The canonical-value-codec-v1 scoped snapshot refreshes only listed built-in codec/reader/layout/direction/adapter/export/glue/contract/corpus/test/consumer files after global root source freeze; derive/model glue remains separate and installed proof is pending.",
+    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending. The canonical-value-codec-v1 scoped snapshot refreshes only listed built-in codec/reader/layout/direction/adapter/export/glue/contract/corpus/test/consumer files after global root source freeze; derive/model glue remains separate and installed proof is pending. The research-equivalence-v1 scoped review maps the committed N14 candidate cdc0a5a and contract/corpus0b9056d, pinning only listed research sources, narrow approved marker/export/harness changes, tests, examples and references. Manual fixtures/source review are not runtime qualification; suites and installed proof remain pending.",
     "files": [
       {
         "path": "Package.swift",
@@ -146,6 +146,10 @@
       {
         "path": "conformance/causal-evidence-v2.json",
         "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7"
+      },
+      {
+        "path": "conformance/research-equivalence-v1.json",
+        "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa"
       },
       {
         "path": "crates/statelessness-debug/src/dashboard.rs",
@@ -200,6 +204,10 @@
         "sha256": "4e9c4142739699ec35b5143a15024a942cb3659e54dffd94a7cc7660ba8c156c"
       },
       {
+        "path": "docs/REDUCTION_RESEARCH.md",
+        "sha256": "fbe74188c6b38db1cbb7512c363922b7850bf56e4db0a5cce55f0d4c50d46ff4"
+      },
+      {
         "path": "examples/native-evidence/README.md",
         "sha256": "c22e812d90bce6f6281e238ace312ff1e06012167c83973ebecf92767aa49dd9"
       },
@@ -226,6 +234,30 @@
       {
         "path": "examples/native-evidence/typescript/consumer.ts",
         "sha256": "792dd5180977d04be632301ae8f775b12eef8c68e481e1abffe0c7e22610c3d4"
+      },
+      {
+        "path": "examples/native-research/README.md",
+        "sha256": "567b653400989160db060630e38d909edb7a07d98452cb523e1bc0f3541d24e7"
+      },
+      {
+        "path": "examples/native-research/go/main.go",
+        "sha256": "b6ec08ffa66f2b0d5ef18f59a9539adb5a57d6be814b70ed74f59dcf9a6cbc8c"
+      },
+      {
+        "path": "examples/native-research/python/consumer.py",
+        "sha256": "9be03c41e4e9bb6ac2ea7b22216265dd3deee498da7e2de73cbda70ee8cf3dd2"
+      },
+      {
+        "path": "examples/native-research/swift/Package.swift",
+        "sha256": "2402d6bfcb51d621514c847acba6d989e24944b71cfc653b521f463729645f65"
+      },
+      {
+        "path": "examples/native-research/swift/Sources/ResearchConsumer/main.swift",
+        "sha256": "2d20d149e8e90c357cbad728628f8c834cf2c9ef560a748df1cb05000c9bd475"
+      },
+      {
+        "path": "examples/native-research/typescript/consumer.ts",
+        "sha256": "e656edddae3297a845767030df828dd99d9c33b4c5041e44cc0628ead7ad47f6"
       },
       {
         "path": "examples/native-values/README.md",
@@ -273,7 +305,7 @@
       },
       {
         "path": "go/README.md",
-        "sha256": "95fce14fb33175bb6d4f9af18eb41e3df5e050cbc03011a157a77719f0f880c7"
+        "sha256": "36257ccfe4754afe8c570435e43ed7b94211952ab2f5ba8eb4f0d78d0928faa0"
       },
       {
         "path": "go/audit_binary.go",
@@ -377,7 +409,7 @@
       },
       {
         "path": "go/oracle.go",
-        "sha256": "cafacf4ad6dbe547ba66bf30a9f9efb4dafe0c3a14bf8bb9eb9c8528d50f85aa"
+        "sha256": "41ce83c231b85db49569067986eb487c67d83e964cf2344a6fdb2439d54bdcc5"
       },
       {
         "path": "go/paired.go",
@@ -390,6 +422,18 @@
       {
         "path": "go/replay_evidence.go",
         "sha256": "b635cc997f3fd50e45a4802c5c341a9799381740d269307e51f0b30c9a4d1e8b"
+      },
+      {
+        "path": "go/research.go",
+        "sha256": "87d04f1a54017516b7066b378fd08ed333d109c5976d23530333c3e8bc31d281"
+      },
+      {
+        "path": "go/research_corpus_test.go",
+        "sha256": "4f3aee384e2fca79682eac0f3a483c5a01bc3ecbd44b2e1341ca6b383254db73"
+      },
+      {
+        "path": "go/research_test.go",
+        "sha256": "48a457f6d71cdeba15eeb957aee6552fdc8dbe3c2dd9736159ce43fb441c3060"
       },
       {
         "path": "go/rng.go",
@@ -449,7 +493,7 @@
       },
       {
         "path": "python/README.md",
-        "sha256": "de5e633cad838ef0e0bccc8bed55a9d0288be900d95df53a2100151edfc71e7c"
+        "sha256": "c2bedd2edd7bd3e56ae24fdf2780deb3f3d9f963ce829c000575fe9536cbbff1"
       },
       {
         "path": "python/examples/counter.py",
@@ -457,7 +501,7 @@
       },
       {
         "path": "python/src/statelessness/__init__.py",
-        "sha256": "397a1ea891572fbfe6de2d3ba2a5b2e835be2ef3c5751450ef08c7d100d56f72"
+        "sha256": "cef793916954de35d232926f1c72f1125088645f4cc783771a0fdaf65b61c03f"
       },
       {
         "path": "python/src/statelessness/audit_record.py",
@@ -504,6 +548,10 @@
         "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055"
       },
       {
+        "path": "python/src/statelessness/research.py",
+        "sha256": "cf1700faf152f28c0d27967b880bc6fe87b4ed6a152f0d4a1c8b89bf09a345bf"
+      },
+      {
         "path": "python/src/statelessness/search.py",
         "sha256": "5195e85fef070a460d877151dee0c481089f01d7a9e006617ae2299850c75223"
       },
@@ -528,6 +576,10 @@
         "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286"
       },
       {
+        "path": "python/tests/test_research.py",
+        "sha256": "8496474f7aa3a9d6d9fc81ebc4592bbeb9408001ba4eb82adecdd3355fc87d93"
+      },
+      {
         "path": "python/tests/test_value_codec.py",
         "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b"
       },
@@ -537,7 +589,11 @@
       },
       {
         "path": "scripts/check-native-ports.py",
-        "sha256": "6ddddc83aeef03aee99d7c9b6e09b8eaa8e1fd69ef98c6556a50f1031fd03c8f"
+        "sha256": "0223620e33dd7c3cf92fa0478de4f0c998495f214397575a4a5ab3dd7dcef61b"
+      },
+      {
+        "path": "scripts/check-native-research-consumers.py",
+        "sha256": "110b4a1351a6aa8c166d8d9219f2ba805e9ba3ef5c128f6bdc9e5b11997088c2"
       },
       {
         "path": "scripts/check-native-value-consumers.py",
@@ -582,6 +638,10 @@
       {
         "path": "spec/replay-evidence-v1.md",
         "sha256": "7be3f8d660477821996e338646eafdbe0c93c375926d1b09c9f841bd34fbf634"
+      },
+      {
+        "path": "spec/research-equivalence-v1.md",
+        "sha256": "bbaffbcb09f24e5e85bfa3ca59ed7ff5b3d242f8c086b91af43f7373ca022649"
       },
       {
         "path": "spec/search-v1.md",
@@ -709,7 +769,7 @@
       },
       {
         "path": "swift/README.md",
-        "sha256": "b7fb93491fe454756145c1298977655f347ba29af9116c3c86869fe74557bf3c"
+        "sha256": "51baf2ee9fb6df8667665ca366882492e2383b85b7c665f8c7a5c796c02a33a4"
       },
       {
         "path": "swift/Sources/StatelessConformance/Conformance.swift",
@@ -781,7 +841,7 @@
       },
       {
         "path": "swift/Sources/Statelessness/Oracle.swift",
-        "sha256": "5f291c7117f1f5e479ee72ceeb77f656bf5c69c2f0f7d953060e33dd7298eb28"
+        "sha256": "7c1077e7ff48699ab72b73ac34e3d53382dd372f2bd19df52dab6926e9d80a4a"
       },
       {
         "path": "swift/Sources/Statelessness/Recorder.swift",
@@ -790,6 +850,10 @@
       {
         "path": "swift/Sources/Statelessness/Replay.swift",
         "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Research.swift",
+        "sha256": "30dda4aea30d12d2bc15b88a300c0909abae7c6599aa539a214515eaa7c5067d"
       },
       {
         "path": "swift/Sources/Statelessness/Rng.swift",
@@ -836,6 +900,10 @@
         "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739"
       },
       {
+        "path": "swift/Tests/StatelessnessTests/ResearchTests.swift",
+        "sha256": "9bc3d857910dc6ba0a5f628ed2629dea87c87130284f19414a832d41d00788db"
+      },
+      {
         "path": "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
         "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323"
       },
@@ -856,8 +924,12 @@
         "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b"
       },
       {
+        "path": "tests/research.rs",
+        "sha256": "265ffa49db72889b499f5588dfc5791932978b7a0b331da6b3f9304db169751f"
+      },
+      {
         "path": "typescript/README.md",
-        "sha256": "ae6f0edf4bad5be3a39546c9f98640af5c5d4d54cbcbb25e7c5b425fe7bb48eb"
+        "sha256": "9360dde4d777a41be87599935747345fd57a529020e90ef4a49220d2b7a06dc1"
       },
       {
         "path": "typescript/bin/corpus.mjs",
@@ -917,7 +989,7 @@
       },
       {
         "path": "typescript/src/index.ts",
-        "sha256": "0e1f9b9d5d31b9935ec510ffb604fc427aae3dbe56aeb441b214886fe3157264"
+        "sha256": "25609fd95d008a9a3632eedadbd8ef417c308239726fbfddf301e4a3c9c3c1df"
       },
       {
         "path": "typescript/src/json.ts",
@@ -929,11 +1001,15 @@
       },
       {
         "path": "typescript/src/oracle.ts",
-        "sha256": "5f68186929079747cb44f84c9e94358904bf4370ae3a806483e520960530d533"
+        "sha256": "25e7ff8f56573dd5b4fb187a5e7b057ac9550b8f6c600ef8c5c5fe8d949b19ea"
       },
       {
         "path": "typescript/src/replay.ts",
         "sha256": "207923eb14891e6e99e8199530ec4cf0fb9282e7c12a704545f0ba76dbfd588e"
+      },
+      {
+        "path": "typescript/src/research.ts",
+        "sha256": "19d83be8f4f0ca0bd181201c8e71bf87cbc97738b7baf12378332ea6b50994be"
       },
       {
         "path": "typescript/src/runtime_recorder.ts",
@@ -960,6 +1036,10 @@
         "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f"
       },
       {
+        "path": "typescript/test/research.test.mjs",
+        "sha256": "900f3ae5fbeb0ee08940c6831f556ae8e000fc91ae64a64147189eca90af4959"
+      },
+      {
         "path": "typescript/test/value-codec.test.mjs",
         "sha256": "0fa55eb47f42badf5409ce3b34426564e23f3a3fa8a66ab3aa90180798532038"
       },
@@ -968,12 +1048,20 @@
         "sha256": "5646d58db11454ad47c25055cf240d2e2f3652571e1c1fe1797f1c5951a853c4"
       },
       {
+        "path": "validation/corpus/src/bin/native-research.rs",
+        "sha256": "49949f5f85c134b0c214755866c77c4729d842dfc946ecc548c00eec07f9d2a9"
+      },
+      {
         "path": "validation/corpus/src/bin/native-values.rs",
         "sha256": "53034f37d1f2c33259eaa725653dabc58550f3c8ba061866c28a82628de7fbe9"
       },
       {
         "path": "validation/corpus/src/evidence_reference.rs",
         "sha256": "dddd7c3ff2dec7974118da06c22bc7b47d7a1532c53238e0bc6f2b7975bb0da1"
+      },
+      {
+        "path": "validation/corpus/src/research_reference.rs",
+        "sha256": "3d406381d23bba0a6885093af136434810c402522fd44b7a09536d0ab3372c95"
       },
       {
         "path": "validation/corpus/src/values_reference.rs",
@@ -1316,6 +1404,50 @@
           "causal-evidence"
         ],
         "qualification_note": "Root-authorized frozen source/API mapping and candidate-byte pinning; associated tests/harness hashes do not imply independent static review of every test. Parent reports Rust149 reference cases, Python248 tests with12 ABI skips, TypeScript829 tests, Swift134 methods, and final Go tests/vet passed. Finite Rust64 layout receipts include11 additional compound shapes; independent static Go/Swift review is validation/native-parity/value-codec-slice/review-go-swift.md. Installed r4 e7ba3927063346ce90c2b99a7071090b passed terminal:82 commands all exit0, five producers/83 independent goldens,25 typed producer-consumer pairs/2075 values,25 actual v2 phase-aware exact-byte replay/rewrite pairs, and unchanged baseline717 cases per engine plus550 fresh replays. Receipts: validation/native-parity/value-codec-slice/consumers/installed-r4. Root reconciled281 report input files and owner212 runtime/staged files to current source; preserved earlier failed attempts remain historical evidence. This is finite installed macOS/arm64 proof, not registry/browser/platform or broad qualification. All144 broader qualification cells, per-cell receipt links and four promoted profiles are unchanged. No derive/model-codec glue, registry/browser/platform, arbitrary layout inference, foreign-error cloning, hard RSS or performance claim."
+      },
+      {
+        "scope": "research-equivalence-v1 finite exact/projected fixture experiment",
+        "reviewed_at_utc": "2026-10-21T00:14:26.900012+00:00",
+        "head_commit": "cdc0a5aba53cf2e05250ad01c717a00cd9389131",
+        "files_reviewed": [
+          "conformance/research-equivalence-v1.json",
+          "docs/REDUCTION_RESEARCH.md",
+          "examples/native-research/README.md",
+          "examples/native-research/go/main.go",
+          "examples/native-research/python/consumer.py",
+          "examples/native-research/swift/Package.swift",
+          "examples/native-research/swift/Sources/ResearchConsumer/main.swift",
+          "examples/native-research/typescript/consumer.ts",
+          "go/README.md",
+          "go/oracle.go",
+          "go/research.go",
+          "go/research_corpus_test.go",
+          "go/research_test.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/research.py",
+          "python/tests/test_research.py",
+          "scripts/check-native-ports.py",
+          "scripts/check-native-research-consumers.py",
+          "spec/research-equivalence-v1.md",
+          "src/research.rs",
+          "swift/README.md",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/Research.swift",
+          "swift/Tests/StatelessnessTests/ResearchTests.swift",
+          "tests/research.rs",
+          "typescript/README.md",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/research.ts",
+          "typescript/test/research.test.mjs",
+          "validation/corpus/src/bin/native-research.rs",
+          "validation/corpus/src/research_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "reduction-research"
+        ],
+        "qualification_note": "Source/API mapping of committed N14 candidate cdc0a5a with spec/corpus0b9056d;67 independent shared expectations and10 native-only cases remain distinct evidence classes. Static four-language review: docs/native-parity/RESEARCH-EQUIVALENCE-REVIEW.md. Runtime qualification PENDING: Rust build c2def9cef475478e82fa2844cc78626a; Go tests8b4ec2fa696149d2961cad615ca86c31/vet4e3bedd9c73845e5aa0c232f4309f110; Python73186c42f181435398b8a692c7d02e1e; TypeScripte88c7597c3b4489b97189f51e9e9afa8; Swiftcecb24161e1a4d72b070ca0383a135eb. Installed consumers are not queued until suites pass. No execution success inferred. All144 broad qualification cells, existing per-cell receipt links and promoted profiles remain unchanged. No production pruning, general reduction/liveness, arbitrary callback resource, performance or broad platform qualification."
       }
     ]
   },
@@ -3778,63 +3910,51 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/research.py:35 Assumptions; Proposal; ExperimentConfig; ExperimentReport",
+            "python/src/statelessness/research.py:288 compare_equivalence",
+            "python/src/statelessness/research.py:364 qualification_parameters"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/research.go:18 RequiredProperty; ResearchProposal; ResearchConfig; ExperimentReport",
+            "go/research.go:104 CompareEquivalence; explicit non-codec metadata and exact equality",
+            "go/research.go:483 QualificationParameters"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/research.ts:178 compareEquivalence; ResearchEquality; ResearchModel; report types",
+            "typescript/src/research.ts:433 qualificationParameters",
+            "typescript/src/index.ts:23 opt-in research exports"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "implemented",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/Statelessness/Research.swift:6 ResearchRequiredProperty; Research namespace report/proposal/config",
+            "swift/Sources/Statelessness/Research.swift:102 compareEquivalence convenience and explicit equality overloads",
+            "swift/Sources/Statelessness/Research.swift:273 qualificationParameters"
           ],
+          "absence_review_scope": [],
           "receipt_ids": []
         }
       },
-      "remaining": "No independent research harness equivalent. Experimental status and known unsound projection fixture must be preserved; no general POR/liveness promise is required."
+      "remaining": "Scoped opt-in finite-domain exact-versus-projected research implementations now exist in all four, including closed one-time materialization, ordered observables, deterministic property/phase witnesses, explicit incomplete/counterexample precedence and qualification strings that keep production pruning false. Known unsound history/population projections remain explicit rejection fixtures. The67 shared manually authored cases and10 native-only controls are classified separately; no runtime execution pass is yet claimed. Native equality/clone callbacks remain cooperative and lawful; nonreflexive host keys are rejected with exact-index termination guards, and compound Swift equality may need explicit byte-faithful comparators. No general POR/symmetry/liveness, performance or production-equivalence claim; native suites and later installed proof remain pending."
     },
     {
       "id": "demo-and-cli",

@@ -349,6 +349,31 @@ installed macOS/arm64 evidence does not promote profiles or change any of the 14
 qualification-pending cells. Registry, browser, broader platform/resource and
 performance qualification remain open.
 
+## Finite equivalence research candidate
+
+The committed N14 candidate adds opt-in native research APIs in all four
+languages, mapped in the ledger against the [research contract](../spec/research-equivalence-v1.md).
+Each implementation materializes the explicitly closed domain once, including
+unreachable declared states, then compares exact and projected traversals of that
+same owned table. Ordered inputs/effects/dispositions/checks, property phases,
+shortest witnesses, separate budgets and counterexample precedence remain visible.
+No report enables production pruning. The known unsound population/history
+projection remains a fixture that must retain its lost transition-failure witness.
+
+The corpus contains 67 manually authored shared expectations and ten native-only
+admission controls; these are separate classes, not 77 Rust executions. The
+[independent static review](native-parity/RESEARCH-EQUIVALENCE-REVIEW.md) records
+corrected native equality termination, Unicode identity/blank validation, callback
+error and edge-accounting issues. Equality and clone callbacks remain cooperative;
+unknown compound value semantics need explicitly faithful native comparators.
+
+Runtime qualification is pending. Kyoto jobs are submitted for the Rust reference
+build and all four native suites, including Go vet; no pass is claimed here.
+Installed consumers will be queued after those suites pass. Candidate source
+mapping does not promote any profile or change the 144 broad qualification-pending
+cells. General POR, symmetry renaming, liveness, production reduction, performance
+and broader platform/resource qualification remain open.
+
 ## Next work
 
 1. Finish the semantic export and per-language API audit before closing M0.
