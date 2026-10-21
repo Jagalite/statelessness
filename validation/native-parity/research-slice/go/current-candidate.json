@@ -1,5 +1,5 @@
 {
-  "scoped_sha256": "bfc20c6335f6ba9c426d4a388118d642538a248ce5b2f09c7aeb7c5ecb277fde",
-  "manifest": "validation/native-parity/research-slice/go/source-candidates/bfc20c6335f6ba9c426d4a388118d642538a248ce5b2f09c7aeb7c5ecb277fde/manifest.json",
-  "source_archive": "validation/native-parity/research-slice/go/source-candidates/bfc20c6335f6ba9c426d4a388118d642538a248ce5b2f09c7aeb7c5ecb277fde/source.tar.gz"
+  "scoped_sha256": "3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f",
+  "manifest": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/manifest.json",
+  "source_archive": "validation/native-parity/research-slice/go/source-candidates/3429dc1d4ad27d2e4398146fd86ba2481c2e014b44222dbf0814ec38d710f69f/source.tar.gz"
 }

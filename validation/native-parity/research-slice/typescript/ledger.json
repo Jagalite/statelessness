@@ -1,0 +1,54 @@
+{
+  "intermediates": [
+    {
+      "job_id": "e88c7597c3b4489b97189f51e9e9afa8",
+      "status": "failed",
+      "exit_code": 1,
+      "requested_command": [
+        "env",
+        "STATELESS_PAIRED_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/paired-v1.tsv",
+        "STATELESS_SEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY=/Volumes/seed2/Projects/stateless-native-parity/conformance/search-v1-history.json",
+        "STATELESS_BINARY_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/native-binary-v1.json",
+        "STATELESS_BFS_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/bfs-controls-v1.json",
+        "STATELESS_APPEND_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/append-checks-v1.json",
+        "STATELESS_ENCODE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/encode-buffers-v1.json",
+        "STATELESS_REPLAY_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/replay-evidence-v1.json",
+        "STATELESS_CHECKED_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/checked-results-v1.json",
+        "STATELESS_EVIDENCE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/causal-evidence-v2.json",
+        "STATELESS_VALUE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/canonical-value-codec-v1.json",
+        "STATELESS_RESEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/research-equivalence-v1.json",
+        "npm",
+        "test"
+      ],
+      "effective_command": [
+        "env",
+        "STATELESS_PAIRED_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/paired-v1.tsv",
+        "STATELESS_SEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY=/Volumes/seed2/Projects/stateless-native-parity/conformance/search-v1-history.json",
+        "STATELESS_BINARY_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/native-binary-v1.json",
+        "STATELESS_BFS_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/bfs-controls-v1.json",
+        "STATELESS_APPEND_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/append-checks-v1.json",
+        "STATELESS_ENCODE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/encode-buffers-v1.json",
+        "STATELESS_REPLAY_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/replay-evidence-v1.json",
+        "STATELESS_CHECKED_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/checked-results-v1.json",
+        "STATELESS_EVIDENCE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/causal-evidence-v2.json",
+        "STATELESS_VALUE_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/canonical-value-codec-v1.json",
+        "STATELESS_RESEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/research-equivalence-v1.json",
+        "npm",
+        "test"
+      ],
+      "source_manifest": "e88c7597c3b4489b97189f51e9e9afa8-source.json",
+      "source_reconciled_after_execution": true,
+      "log_bytes": 67260,
+      "log_sha256": "d5669cd15dc39403dc8f3ea0b6e33c26116539715aea74409987daaed365e1e2",
+      "gzip_bytes": 16194,
+      "gzip_sha256": "75ab0996892d8edae1cfb7bdfd26e277fc502846d5bf06338cbe88bca2e8a743",
+      "tests": 928,
+      "pass": 927,
+      "fail": 1,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  ]
+}

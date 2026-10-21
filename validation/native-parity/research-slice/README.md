@@ -2,7 +2,10 @@
 
 The independently reviewed candidate implementation is committed as `cdc0a5a`;
 its independent specification and expectations are committed as `0b9056d`.
-Runtime qualification is **pending**. All requested build/test work is submitted
+Full qualification is **pending**. Rust actual execution passed all 67 shared
+cases; Python passed 275 tests with 12 ABI skips, and the Swift suite returned
+success. Go and TypeScript full reruns are queued after focused test corrections;
+initial failures are retained separately. All requested build/test work is submitted
 through Kyoto; compilation alone is not an execution pass.
 
 The frozen corpus contains 67 shared public Rust cases and 10 native-only

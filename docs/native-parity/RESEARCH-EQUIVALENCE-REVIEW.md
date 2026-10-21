@@ -98,3 +98,20 @@ Snapshot time: 2026-10-21T00:10:44.289409+00:00.
 | `swift/Tests/StatelessnessTests/ResearchTests.swift` | `9bc3d857910dc6ba0a5f628ed2629dea87c87130284f19414a832d41d00788db` |
 | `python/src/statelessness/__init__.py` | `cef793916954de35d232926f1c72f1125088645f4cc783771a0fdaf65b61c03f` |
 | `typescript/src/index.ts` | `25609fd95d008a9a3632eedadbd8ef417c308239726fbfddf301e4a3c9c3c1df` |
+
+## Post-execution focused test corrections
+
+The first Go execution/vet caught four no-output `Accept` calls whose generic
+output type could not be inferred. Each now explicitly requests `Accept[int,int]`,
+matching its declared `Transition[int,int]`; no engine or shared fixture changed.
+The first TypeScript execution passed 927 of 928 tests. Its label-order fixture
+declares numeric inputs `[0,1]`, so its independently specified shortest prefix
+is `[0]`; the focused expectation had incorrectly reused the default null input.
+Only that focused expectation changed. Both initial failures and source snapshots
+are preserved, and complete reruns are queued. This source correction is not a
+passing-runtime claim.
+
+Current corrected test SHA-256 values:
+
+- `go/research_test.go`: `76233cb49ea4a8c631a94296aabb6435661b049aa51f78435ec55fe8c6e740c0`.
+- `typescript/test/research.test.mjs`: `56dd23d7ab13ab368411efcbacf43deddb7faf8426a9b04463ae06c1313bd487`.

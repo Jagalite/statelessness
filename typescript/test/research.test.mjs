@@ -39,12 +39,13 @@ test('research compares every observation in Rust precedence order',()=>{
  const variants=[
   ['state checks differ',{checkState:s=>[check(s?'different':'state')]}],
   ['enabled input counts differ',{inputs:s=>s?[null,1]:[null]}],
-  ['enabled input labels or order differ',{inputs:s=>s?[1,0]:[0,1]}],
+  // This fixture reaches state 1 through numeric input 0, rather than the default unit/null input.
+  ['enabled input labels or order differ',{inputs:s=>s?[1,0]:[0,1]},[0]],
   ['ordered effects differ',{step:s=>accepted(1-s,s?[2,1]:[1,2])}],
   ['transition disposition differs',{step:s=>({...accepted(1-s,[1,2]),disposition:{kind:s?'rejected':'accepted',reason:s?'different':''}})}],
   ['transition checks differ',{checkTransition:s=>[check('transition',s?'failed':'passed',s?'different':'')]}],
  ];
- for(const [reason,hooks]of variants){const r=run(toggle(hooks).model);assert.equal(r.status,'Counterexample');assert.equal(r.counterexamples[0].reason,reason);assert.deepEqual(r.counterexamples[0].leftPrefix,[]);assert.deepEqual(r.counterexamples[0].rightPrefix,[null]);}
+ for(const [reason,hooks,rightPrefix=[null]]of variants){const r=run(toggle(hooks).model);assert.equal(r.status,'Counterexample');assert.equal(r.counterexamples[0].reason,reason);assert.deepEqual(r.counterexamples[0].leftPrefix,[]);assert.deepEqual(r.counterexamples[0].rightPrefix,rightPrefix);}
 });
 function concurrent(){return toggle({metadata:()=>metadata('two-machines'),inputs:()=>['Left','Right','Observe'],step:(s,i)=>accepted(i==='Left'?s|1:i==='Right'?s|2:s),checkTransition:(s,i)=>[s===2&&i==='Observe'?check('transition','failed','right machine published before left dependency'):check('transition')] }).model;}
 test('research lossy population projection exposes deterministic replayable lost failure',()=>{

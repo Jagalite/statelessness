@@ -433,7 +433,7 @@
       },
       {
         "path": "go/research_test.go",
-        "sha256": "48a457f6d71cdeba15eeb957aee6552fdc8dbe3c2dd9736159ce43fb441c3060"
+        "sha256": "76233cb49ea4a8c631a94296aabb6435661b049aa51f78435ec55fe8c6e740c0"
       },
       {
         "path": "go/rng.go",
@@ -1037,7 +1037,7 @@
       },
       {
         "path": "typescript/test/research.test.mjs",
-        "sha256": "900f3ae5fbeb0ee08940c6831f556ae8e000fc91ae64a64147189eca90af4959"
+        "sha256": "56dd23d7ab13ab368411efcbacf43deddb7faf8426a9b04463ae06c1313bd487"
       },
       {
         "path": "typescript/test/value-codec.test.mjs",

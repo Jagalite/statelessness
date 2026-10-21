@@ -1,0 +1,9 @@
+[
+  {
+    "job": "cecb24161e1a4d72b070ca0383a135eb",
+    "status": "succeeded",
+    "artifact": "cecb24161e1a4d72b070ca0383a135eb.log.gz",
+    "original_bytes": 97266,
+    "original_sha256": "e509c02ad35b2775189fcb05a610c16da2e1278fe920a6cb0fa3178ca7803fb4"
+  }
+]

@@ -73,13 +73,13 @@ func TestResearchMaterializesUnreachableAndErrorPrecedence(t *testing.T) {
 		if s == 2 {
 			return Transition[int, int]{}, errors.New("unreachable reducer")
 		}
-		return Accept(1 - s), nil
+		return Accept[int, int](1 - s), nil
 	}
 	r, e := CompareEquivalence(m, []int{0, 1, 2}, researchTestProposal(), researchEnabled(), project, researchTestEqual(), researchTestMetadata)
 	if e != nil || r.Status != ExperimentIncomplete || steps != 3 || r.MaterializedEdges != 2 || projectCalls != 0 || !strings.Contains(r.Limitation, "unreachable reducer") {
 		t.Fatalf("%+v %v", r, e)
 	}
-	m.Step = func(s, i int) (Transition[int, int], error) { return Accept(99), nil }
+	m.Step = func(s, i int) (Transition[int, int], error) { return Accept[int, int](99), nil }
 	m.CheckTransition = func(int, int, Transition[int, int]) ([]Check, error) {
 		t.Fatal("edge check before closed-domain validation")
 		return nil, nil
@@ -92,7 +92,7 @@ func TestResearchMaterializesUnreachableAndErrorPrecedence(t *testing.T) {
 func TestResearchPhaseWitnessesAndCounterexampleBeatsPairLimit(t *testing.T) {
 	steps := 0
 	m := researchTestModel(&steps)
-	m.Step = func(s, i int) (Transition[int, int], error) { return Accept((s + 1) % 3), nil }
+	m.Step = func(s, i int) (Transition[int, int], error) { return Accept[int, int]((s + 1) % 3), nil }
 	m.CheckState = func(s int) ([]Check, error) {
 		if s == 2 {
 			return []Check{Failed("same", "state failure")}, nil
@@ -249,7 +249,7 @@ func TestResearchCounterexampleReasonOrder(t *testing.T) {
 func TestResearchRejectsNonReflexiveProjectionBeforeTraversal(t *testing.T) {
 	steps := 0
 	m := researchTestModel(&steps)
-	m.Step = func(s, i int) (Transition[int, int], error) { steps++; return Accept(s), nil }
+	m.Step = func(s, i int) (Transition[int, int], error) { steps++; return Accept[int, int](s), nil }
 	r, e := CompareEquivalence(m, []int{0}, researchTestProposal(), researchEnabled(), func(int) (float64, error) { return math.NaN(), nil }, researchTestEqual(), researchTestMetadata)
 	if e != nil || r.Status != ExperimentIncomplete || r.Exact != nil || r.Reduced != nil || steps != 1 || !strings.Contains(r.Limitation, "not reflexive") {
 		t.Fatalf("%+v %v", r, e)
