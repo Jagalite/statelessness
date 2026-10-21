@@ -1,0 +1,11 @@
+[package]
+name = "lean-assurance-bridge"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+stateless = { package = "statelessness", path = "../../.." }
+
+# Development-only; do not change the library workspace or its dependencies.
+[workspace]

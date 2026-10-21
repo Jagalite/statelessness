@@ -6,3 +6,6 @@ package «statelessness-assurance» where
 
 @[default_target]
 lean_lib Assurance
+
+lean_exe assurance_check where
+  root := `Main
