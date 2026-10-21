@@ -11,6 +11,9 @@ CASES={
  'duplicate_tag': ('#[derive(TraceEncode)] enum E {#[trace(tag=1)] A,#[trace(tag=1)] B}', 'SM107'),
  'missing_tag': ('#[derive(TraceEncode)] enum E { A }', 'SM106'),
  'overflow_tag': ('#[derive(TraceEncode)] enum E {#[trace(tag=256)] A}', 'SM107'),
+ 'negative_tag': ('#[derive(TraceEncode)] enum E {#[trace(tag=-1)] A}', 'SM106'),
+ 'u32_overflow_tag': ('#[derive(TraceEncode)] #[trace(tag_type="u32")] enum E {#[trace(tag=4294967296)] A}', 'SM106'),
+ 'unknown_type_option': ('#[derive(TraceEncode)] #[trace(unknown)] struct S;', 'SM100'),
  'invalid_tag_width': ('#[derive(TraceEncode)] #[trace(tag_type="u64")] enum E {#[trace(tag=1)] A}', 'SM102'),
  'struct_tag_width': ('#[derive(TraceEncode)] #[trace(tag_type="u16")] struct S;', 'SM102'),
  'discriminant': ('#[derive(TraceEncode)] enum E {#[trace(tag=1)] A=1}', 'SM109'),
@@ -51,7 +54,7 @@ def main():
   passed=result.returncode!=0 and all(part.encode() in log.read_bytes() for part in required)
   rows.append({'case':name,'expected':required,'exit_code':result.returncode,'passed':passed,**digest(log)})
   print('KYOTO_PROGRESS '+json.dumps({'completed':len(rows),'total':len(CASES),'phase':'compile-fail'}),flush=True)
- report={'scope':'22 compile-fail declarations; no runtime execution','worktree':str(ROOT),'temporary_directory':str(work),'cases':rows,'passed':all(x['passed'] for x in rows)}
+ report={'scope':str(len(CASES))+' compile-fail declarations; no runtime execution','worktree':str(ROOT),'temporary_directory':str(work),'cases':rows,'passed':all(x['passed'] for x in rows)}
  (OUT/'report.json').write_text(json.dumps(report,indent=2)+'\n')
  if not report['passed']: raise SystemExit(1)
 if __name__=='__main__': main()

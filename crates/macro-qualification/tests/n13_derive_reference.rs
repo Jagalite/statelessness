@@ -28,7 +28,7 @@ struct Text8(#[trace(length = "u8")] String);
 struct Text16(#[trace(length = "u16")] String);
 #[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
 struct Text32(#[trace(length = "u32")] String);
-#[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, TraceEncode, TraceDecode)]
 enum Event8 {
     #[trace(tag = 7)]
     Idle,
@@ -66,7 +66,7 @@ struct BigEndian(#[trace(with = "be")] u16);
 struct Generic<T, const N: usize>([T; N]);
 #[derive(TraceEncode)]
 struct EncodeOnly(u8);
-#[derive(TraceDecode)]
+#[derive(Debug, TraceDecode)]
 struct DecodeOnly(u8);
 
 fn golden<
@@ -165,11 +165,11 @@ fn exact_guard_and_direct_field_budgets() {
 }
 #[test]
 fn raw_unknown_tag_can_be_swallowed_but_guarded_and_structural_errors_stick() {
-    let mut raw = Decoder::new(&[99, 7], DecodeLimits::default()).unwrap();
+    let mut raw = Decoder::new(&[8, 9], DecodeLimits::default()).unwrap();
     assert!(Event8::trace_decode(&mut raw).is_err());
-    assert_eq!(raw.value::<u8>().unwrap(), 7);
+    assert_eq!(raw.value::<u8>().unwrap(), 9);
     raw.finish().unwrap();
-    let mut guarded = Decoder::new(&[99, 7], DecodeLimits::default()).unwrap();
+    let mut guarded = Decoder::new(&[8, 9], DecodeLimits::default()).unwrap();
     let first = guarded.value::<Event8>().unwrap_err().to_string();
     assert_eq!(guarded.value::<u8>().unwrap_err().to_string(), first);
     assert_eq!(guarded.finish().unwrap_err().to_string(), first);
@@ -188,7 +188,8 @@ mod binding {
     static LIMIT_CALLS: AtomicUsize = AtomicUsize::new(0);
     fn fresh_limits() -> DecodeLimits {
         LIMIT_CALLS.fetch_add(1, Ordering::SeqCst);
-        limits(1, 1)
+        let calls = LIMIT_CALLS.load(Ordering::SeqCst);
+        if calls <= 2 { limits(1, 1) } else if calls == 4 { limits(1, 2) } else { limits(2, 2) }
     }
     #[derive(Debug, Clone, PartialEq, Eq, Hash, TraceEncode, TraceDecode)]
     struct Value(u8);
@@ -302,6 +303,22 @@ mod binding {
         assert!(model.decode_state(&[7]).is_err());
         assert!(model.decode_input(&[7]).is_err());
         assert_eq!(LIMIT_CALLS.load(Ordering::SeqCst), 2);
+        // Consecutive calls receive changed limits; no reader budget is reused.
+        assert_eq!(model.decode_state(&[7]).unwrap(), value);
+        assert!(model.decode_input(&[7]).is_err());
+        assert_eq!(model.decode_input(&[7]).unwrap(), value);
+        assert!(model.decode_state(&[7, 8]).unwrap_err().to_string().contains("trailing"));
+        assert!(model.decode_input(&[7, 8]).unwrap_err().to_string().contains("trailing"));
+        assert!(model.decode_state(&[]).unwrap_err().to_string().contains("truncated"));
+        assert!(model.decode_input(&[]).unwrap_err().to_string().contains("truncated"));
+        assert_eq!(LIMIT_CALLS.load(Ordering::SeqCst), 9);
+        let mut encoded = vec![];
+        { let mut sink = EncodeBuffer::new(&mut encoded, 3);
+          model.encode_state_into(&value, &mut sink).unwrap();
+          model.encode_input_into(&value, &mut sink).unwrap();
+          model.encode_output_into(&output, &mut sink).unwrap(); sink.finish().unwrap(); }
+        assert_eq!(encoded, [7, 7, 7]);
+        assert_eq!(LIMIT_CALLS.load(Ordering::SeqCst), 9);
         assert_eq!(model.metadata().model_version, 9);
         assert_eq!(model.step(&Value(0), &value).unwrap().outputs, vec![output]);
     }
@@ -375,7 +392,263 @@ mod independent_length {
     #[test]
     fn length_only_field_needs_no_ordinary_direction() {
         golden(LengthRecord(LengthOnly("abc".into())), &[3, 97, 98, 99]);
+        budget::<LengthRecord>(&[3, 97, 98, 99], 5, 2, 3, 3);
         golden(EmptyTuple(), &[]);
         assert!(LengthRecord::from_trace(&[3, 97, 98, 99], limits(5, 2)).is_ok());
     }
+}
+
+#[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
+struct Words8(#[trace(length = "u8")] Vec<u16>);
+#[derive(TraceEncode)]
+enum EncodeEvent { #[trace(tag = 7)] Idle, #[trace(tag = 2)] Value(EncodeOnly) }
+#[derive(Debug, TraceDecode)]
+enum DecodeEvent { #[trace(tag = 7)] Idle, #[trace(tag = 2)] Value(DecodeOnly) }
+#[derive(TraceEncode)]
+enum Renamed { #[trace(tag = 7)] Waiting }
+#[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
+enum NamedEvent { #[trace(tag = 255)] Ready { ready: bool, byte: u8 } }
+#[derive(Debug, PartialEq, TraceEncode, TraceDecode)]
+#[trace(tag_type = "u32")]
+enum MaxPayload { #[trace(tag = 4294967295)] Maximum(u8) }
+
+#[test]
+fn literal_draft_routes_and_diagnostics() {
+    golden(Text16("é".into()), &[2, 0, 0xc3, 0xa9]);
+    golden(Text32("\u{feff}".into()), &[3, 0, 0, 0, 0xef, 0xbb, 0xbf]);
+    golden(Text8("".into()), &[0]);
+    golden(Words8(vec![258, 65535]), &[2, 2, 1, 255, 255]);
+    golden(Words8(vec![]), &[0]);
+    golden(Nested { marker: 9, pair: Pair(1, 258) }, &[9, 1, 2, 1]);
+    golden(NamedEvent::Ready { ready: true, byte: 9 }, &[255, 1, 9]);
+    golden(MaxPayload::Maximum(7), &[255, 255, 255, 255, 7]);
+    assert_eq!(EncodeEvent::Idle.trace_bytes(1).unwrap(), [7]);
+    assert_eq!(EncodeEvent::Value(EncodeOnly(9)).trace_bytes(2).unwrap(), [2, 9]);
+    assert!(matches!(DecodeEvent::from_trace(&[7], limits(2, 2)).unwrap(), DecodeEvent::Idle));
+    assert!(matches!(DecodeEvent::from_trace(&[2, 9], limits(3, 2)).unwrap(), DecodeEvent::Value(DecodeOnly(9))));
+    assert_eq!(NamedEvent::Ready { ready: true, byte: 9 }.trace_variant(), Some("Ready"));
+    assert_eq!(Renamed::Waiting.trace_variant(), Some("Waiting"));
+    assert_eq!(Renamed::Waiting.trace_bytes(1).unwrap(), Event8::Idle.trace_bytes(1).unwrap());
+    for token in ["struct", "Record", "byte"] { assert!(Record::trace_schema().contains(token)); }
+}
+
+#[test]
+fn exact_and_one_under_all_quotas_and_error_routes() {
+    let bytes = [3, 97, 98, 99];
+    let exact = DecodeLimits { bytes: 4, allocation: 3, elements: 3, work: 5, depth: 2 };
+    assert_eq!(Text8::from_trace(&bytes, exact).unwrap(), Text8("abc".into()));
+    for (limited, expected) in [
+        (DecodeLimits { bytes: 3, ..exact }, "decode byte limit"),
+        (DecodeLimits { allocation: 2, ..exact }, "decode allocation limit"),
+        (DecodeLimits { elements: 2, ..exact }, "decode element limit"),
+        (DecodeLimits { work: 4, ..exact }, "decode work limit"),
+        (DecodeLimits { depth: 1, ..exact }, "decode nesting limit"),
+    ] { assert_eq!(Text8::from_trace(&bytes, limited).unwrap_err().to_string(), expected); }
+    assert!(Pair::from_trace(&[7, 0x34, 0x12], limits(3, 2)).is_ok());
+    assert_eq!(Pair::from_trace(&[7, 0x34, 0x12], limits(2, 2)).unwrap_err().to_string(), "decode work limit");
+    assert_eq!(Pair::from_trace(&[7, 0x34, 0x12], limits(3, 1)).unwrap_err().to_string(), "decode nesting limit");
+    assert_eq!(Text::from_trace(&[3, 0, 0, 0, 97, 98, 99], limits(5, 3)).unwrap_err().to_string(), "decode work limit");
+    assert_eq!(Text::from_trace(&[3, 0, 0, 0, 97, 98, 99], limits(6, 2)).unwrap_err().to_string(), "decode nesting limit");
+    let mut raw = Decoder::new(&[], limits(0, 0)).unwrap();
+    assert_eq!(Unit::trace_decode(&mut raw).unwrap(), Unit); raw.finish().unwrap();
+    // This Rust64 layout is asserted, not inferred from summed wire widths.
+    assert_eq!(std::mem::size_of::<Pair>(), 4);
+    let pairs = [2, 0, 0, 0, 7, 0x34, 0x12, 1, 2, 1];
+    assert_eq!(Vec::<Pair>::from_trace(&pairs, DecodeLimits { allocation: 8, elements: 2, work: 8, depth: 3, bytes: 10 }).unwrap(), vec![Pair(7, 4660), Pair(1, 258)]);
+    assert_eq!(Vec::<Pair>::from_trace(&pairs, DecodeLimits { allocation: 7, ..Default::default() }).unwrap_err().to_string(), "decode allocation limit");
+    assert_eq!(Pair::from_trace(&[7, 0x34, 0x12, 0], DecodeLimits::default()).unwrap_err().to_string(), "trailing value bytes");
+    assert_eq!(Record::from_trace(&[7, 2, 0x34, 0x12], DecodeLimits::default()).unwrap_err().to_string(), "invalid boolean");
+    assert_eq!(Text8::from_trace(&[1, 255], DecodeLimits::default()).unwrap_err().to_string(), "invalid UTF-8");
+    assert_eq!(Text8::from_trace(&[3, 97], DecodeLimits::default()).unwrap_err().to_string(), "truncated value");
+    let mut bytes = vec![];
+    { let mut sink = EncodeBuffer::new(&mut bytes, 3); assert!(Record { byte: 7, ready: true, count: 4660 }.trace_encode(&mut sink).is_err()); }
+    assert_eq!(bytes, [7, 1]);
+    let mut bytes = vec![];
+    { let mut sink = EncodeBuffer::new(&mut bytes, 999); assert_eq!(Text8("x".repeat(256)).trace_encode(&mut sink).unwrap_err().to_string(), "length overflow"); }
+    assert!(bytes.is_empty());
+}
+
+mod script_callbacks {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static CALLS: AtomicUsize = AtomicUsize::new(0);
+    struct Later;
+    impl stateless::value_codec::TraceDecode for Later {
+        fn trace_decode(r: &mut Decoder<'_>) -> Result<Self, ModelError> {
+            CALLS.fetch_add(1, Ordering::SeqCst);
+            let _ = Event8::trace_decode(r);
+            Err(ModelError::new("later callback error"))
+        }
+    }
+    #[test]
+    fn all_sticky_script_callback_counts() {
+        CALLS.store(0, Ordering::SeqCst);
+        let mut r = Decoder::new(&[], DecodeLimits::default()).unwrap();
+        assert_eq!(Event8::trace_decode(&mut r).unwrap_err().to_string(), "truncated value");
+        assert_eq!(r.value::<Later>().err().unwrap().to_string(), "truncated value");
+        assert_eq!(CALLS.load(Ordering::SeqCst), 0);
+        assert_eq!(r.finish().unwrap_err().to_string(), "truncated value");
+        let mut r = Decoder::new(&[], DecodeLimits::default()).unwrap();
+        assert_eq!(r.value::<Later>().err().unwrap().to_string(), "truncated value");
+        assert_eq!(CALLS.load(Ordering::SeqCst), 1);
+        assert_eq!(r.finish().unwrap_err().to_string(), "truncated value");
+    }
+}
+
+mod callback_order {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static CALLS: AtomicUsize = AtomicUsize::new(0);
+    mod field {
+        use super::*;
+        pub fn decode(r: &mut Decoder<'_>) -> Result<u8, ModelError> {
+            CALLS.fetch_add(1, Ordering::SeqCst); Ok(r.take(1)?[0])
+        }
+    }
+    #[derive(Debug, TraceDecode)]
+    struct Observed(#[trace(with = "field")] u8);
+    #[derive(Debug, TraceDecode)]
+    enum ObservedEnum { #[trace(tag = 7)] Value(#[trace(with = "field")] u8) }
+    #[test]
+    fn admission_and_unknown_tag_precede_field_callbacks() {
+        CALLS.store(0, Ordering::SeqCst);
+        assert_eq!(Observed::from_trace(&[1, 2, 3, 4], DecodeLimits { bytes: 3, ..Default::default() }).unwrap_err().to_string(), "decode byte limit");
+        assert_eq!(CALLS.load(Ordering::SeqCst), 0);
+        assert_eq!(ObservedEnum::from_trace(&[8, 9], DecodeLimits::default()).unwrap_err().to_string(), "unknown enum tag");
+        assert_eq!(CALLS.load(Ordering::SeqCst), 0);
+        assert_eq!(Observed::from_trace(&[9], DecodeLimits::default()).unwrap().0, 9);
+        assert_eq!(CALLS.load(Ordering::SeqCst), 1);
+        assert!(matches!(ObservedEnum::from_trace(&[7, 9], DecodeLimits::default()).unwrap(), ObservedEnum::Value(9)));
+        assert_eq!(CALLS.load(Ordering::SeqCst), 2);
+    }
+}
+
+mod literal_raw_sink {
+    use super::*;
+    mod rejected {
+        use super::*;
+        pub fn encode(_: &u8, sink: &mut EncodeBuffer<'_>) -> Result<(), ModelError> {
+            sink.extend_from_slice(&[0xaa])?; Err(ModelError::new("adapter rejected"))
+        }
+    }
+    #[derive(TraceEncode)]
+    struct AdapterError { prefix: u8, #[trace(with = "rejected")] value: u8 }
+    #[test]
+    fn raw_adapter_literal_prefix_and_sticky_write() {
+        let mut bytes = vec![];
+        { let mut sink = EncodeBuffer::new(&mut bytes, 3);
+          assert_eq!(AdapterError { prefix: 7, value: 0 }.trace_encode(&mut sink).unwrap_err().to_string(), "adapter rejected");
+          sink.finish().unwrap(); sink.extend_from_slice(&[0xbb]).unwrap(); sink.finish().unwrap(); }
+        assert_eq!(bytes, [7, 0xaa, 0xbb]);
+        let mut bytes = vec![];
+        { let mut sink = EncodeBuffer::new(&mut bytes, 1);
+          let first = BigEndian(4660).trace_encode(&mut sink).unwrap_err().to_string();
+          assert_eq!(first, "encoded blob exceeds byte or allocation limit");
+          assert_eq!(sink.finish().unwrap_err().to_string(), first); }
+        assert!(bytes.is_empty());
+    }
+}
+
+mod literal_binding {
+    use super::*;
+    use stateless::{Check, Model, ModelCodec, ModelMetadata, Transition};
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    static CALLS: AtomicUsize = AtomicUsize::new(0);
+    fn fresh() -> DecodeLimits {
+        CALLS.fetch_add(1, Ordering::SeqCst);
+        DecodeLimits { bytes: 3, allocation: 0, elements: 0, work: 3, depth: 2 }
+    }
+    #[derive(Clone, Debug, PartialEq, Eq, Hash, TraceEncode, TraceDecode)]
+    struct State(u8, u16);
+    // The adapter has only encode; neither this output nor its field needs a decoder.
+    mod output_be {
+        use super::*;
+        pub fn encode(value: &u16, sink: &mut EncodeBuffer<'_>) -> Result<(), ModelError> {
+            sink.extend_from_slice(&value.to_be_bytes())
+        }
+    }
+    #[derive(Clone, Debug, PartialEq, Eq, TraceEncode)]
+    struct Output(#[trace(with = "output_be")] u16);
+    #[derive(statelessness_macros::ModelCodec)]
+    #[model_codec(version=1, decode_limits=fresh())]
+    struct Bound;
+    impl Model for Bound {
+        type State = State; type Input = State; type Output = Output;
+        fn metadata(&self) -> ModelMetadata { ModelMetadata { name: "n13-literal".into(), model_version: 9, properties_version: 3, codec_version: 1, build: "finite".into() } }
+        fn initial_state(&self) -> Result<State, ModelError> { Ok(State(0, 0)) }
+        fn step(&self, _: &State, input: &State) -> Result<Transition<State, Output>, ModelError> { Ok(Transition::accepted(input.clone(), vec![Output(input.1)])) }
+        fn check_state(&self, _: &State) -> Result<Vec<Check>, ModelError> { Ok(vec![]) }
+    }
+    #[test]
+    fn literal_model_exact_fresh_limits_and_encode_only_big_endian_output() {
+        CALLS.store(0, Ordering::SeqCst);
+        let model = Bound;
+        assert_eq!(model.decode_state(&[7, 0x34, 0x12]).unwrap(), State(7, 4660));
+        assert_eq!(CALLS.load(Ordering::SeqCst), 1);
+        assert_eq!(model.decode_state(&[7, 0x34, 0x12]).unwrap(), State(7, 4660));
+        assert_eq!(CALLS.load(Ordering::SeqCst), 2);
+        assert_eq!(model.encode_output(&Output(4660)).unwrap(), [0x12, 0x34]);
+        let mut bytes = vec![];
+        { let mut sink = EncodeBuffer::new(&mut bytes, 8);
+          model.encode_state_into(&State(7, 4660), &mut sink).unwrap();
+          model.encode_input_into(&State(7, 4660), &mut sink).unwrap();
+          model.encode_output_into(&Output(4660), &mut sink).unwrap(); sink.finish().unwrap(); }
+        assert_eq!(bytes, [7, 0x34, 0x12, 7, 0x34, 0x12, 0x12, 0x34]);
+        assert_eq!(CALLS.load(Ordering::SeqCst), 2);
+        // With exact byte admission a trailing input first exceeds bytes. The
+        // independently tested custom fresh limits above admit trailing bytes.
+        assert_eq!(model.decode_state(&[7, 0x34]).unwrap_err().to_string(), "truncated value");
+        assert_eq!(model.decode_input(&[7, 0x34]).unwrap_err().to_string(), "truncated value");
+    }
+    #[derive(statelessness_macros::ModelCodec)]
+    struct EventBound;
+    impl Model for EventBound {
+        type State = Event8; type Input = Event8; type Output = Output;
+        fn metadata(&self) -> ModelMetadata { Bound.metadata() }
+        fn initial_state(&self) -> Result<Event8, ModelError> { Ok(Event8::Idle) }
+        fn step(&self, _: &Event8, input: &Event8) -> Result<Transition<Event8, Output>, ModelError> { Ok(Transition::accepted(input.clone(), vec![])) }
+        fn check_state(&self, _: &Event8) -> Result<Vec<Check>, ModelError> { Ok(vec![]) }
+    }
+    #[test]
+    fn literal_bound_enum_trailing() {
+        assert_eq!(EventBound.decode_state(&[7, 0]).unwrap_err().to_string(), "trailing value bytes");
+        assert_eq!(EventBound.decode_input(&[7, 0]).unwrap_err().to_string(), "trailing value bytes");
+        assert_eq!(EventBound.decode_state(&[7]).unwrap(), Event8::Idle);
+    }
+
+}
+
+// Literal positive-row budgets, calculated from the public Rust call graph.
+fn budget<T: stateless::value_codec::TraceDecode + std::fmt::Debug>(bytes: &[u8], work: usize, depth: usize, allocation: usize, elements: usize) {
+    let exact = DecodeLimits { bytes: bytes.len(), work, depth, allocation, elements };
+    assert!(T::from_trace(bytes, exact).is_ok());
+    if work > 0 { assert_eq!(T::from_trace(bytes, DecodeLimits { work: work - 1, ..exact }).unwrap_err().to_string(), "decode work limit"); }
+    if depth > 0 { assert_eq!(T::from_trace(bytes, DecodeLimits { depth: depth - 1, ..exact }).unwrap_err().to_string(), "decode nesting limit"); }
+    if allocation > 0 { assert_eq!(T::from_trace(bytes, DecodeLimits { allocation: allocation - 1, ..exact }).unwrap_err().to_string(), "decode allocation limit"); }
+    if elements > 0 { assert_eq!(T::from_trace(bytes, DecodeLimits { elements: elements - 1, ..exact }).unwrap_err().to_string(), "decode element limit"); }
+}
+#[test]
+fn literal_positive_row_budgets() {
+    budget::<Record>(&[7, 1, 0x34, 0x12], 5, 3, 0, 0);
+    budget::<Pair>(&[7, 0x34, 0x12], 3, 2, 0, 0);
+    budget::<Unit>(&[], 1, 1, 0, 0);
+    budget::<Empty>(&[], 1, 1, 0, 0);
+    budget::<Nested>(&[9, 1, 2, 1], 5, 3, 0, 0);
+    budget::<Text>(&[3, 0, 0, 0, 97, 98, 99], 6, 3, 3, 3);
+    budget::<Text8>(&[3, 97, 98, 99], 5, 2, 3, 3);
+    budget::<Text16>(&[2, 0, 0xc3, 0xa9], 4, 2, 2, 2);
+    budget::<Text32>(&[3, 0, 0, 0, 0xef, 0xbb, 0xbf], 5, 2, 3, 3);
+    budget::<Text8>(&[0], 2, 2, 0, 0);
+    budget::<Words8>(&[2, 2, 1, 255, 255], 4, 2, 4, 2);
+    budget::<Words8>(&[0], 2, 2, 0, 0);
+    budget::<BigEndian>(&[0x12, 0x34], 1, 1, 0, 0);
+    budget::<Event8>(&[7], 2, 2, 0, 0);
+    budget::<Event8>(&[2, 0x34, 0x12], 3, 2, 0, 0);
+    budget::<NamedEvent>(&[255, 1, 9], 5, 3, 0, 0);
+    budget::<Event16>(&[0x90, 1, 0x34, 0x12], 3, 2, 0, 0);
+    budget::<MaxPayload>(&[255, 255, 255, 255, 7], 3, 2, 0, 0);
+    budget::<Vec<Pair>>(&[2, 0, 0, 0, 7, 0x34, 0x12, 1, 2, 1], 8, 3, 8, 2);
+    budget::<Event16>(&[255, 255], 2, 2, 0, 0);
+    budget::<DecodeOnly>(&[7], 2, 2, 0, 0);
+    budget::<DecodeEvent>(&[7], 2, 2, 0, 0);
 }

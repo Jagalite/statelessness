@@ -1,0 +1,22 @@
+{
+  "bb68025039bd4e6f99d0f52c4cbf07a8.show.json": {
+    "sha256": "5afadbf886e95ac2984db6d7d96ebdb7ed8fea32e97599403b80884e87151bc8",
+    "bytes": 1700
+  },
+  "authored-source-snapshot.json": {
+    "sha256": "a0c61435063cc4336377e05b6f90dbf3389294ceb731ac9db4c1b133c4c28fe7",
+    "bytes": 854
+  },
+  "4fc3e41063e346678c943140823ea9bc.show.json": {
+    "sha256": "005c0e7714d29c799d72d751a9430903feaf8ca5b5741fde0beaddcf7d813f5f",
+    "bytes": 1611
+  },
+  "jobs.json": {
+    "sha256": "d35a9e60c6d112e05b35916cd06316088c54770ccd91b42c86577e4331b8b670",
+    "bytes": 414
+  },
+  "reviewed-source-snapshot.json": {
+    "sha256": "0f78a545716a7372d497f665bed61dc543566975082937260ee0c0979cb2977a",
+    "bytes": 816
+  }
+}

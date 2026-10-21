@@ -1,0 +1,757 @@
+{
+  "format": "n13-rust-case-dispositions/1",
+  "scope": "90 mixed-class source dispositions; not 90 runtime executions; finite macOS arm64; qualification receipts separate",
+  "rows": [
+    {
+      "case": "named-ordered",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "tuple-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "unit-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "empty-named-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "nested-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "ordinary-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length8-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length16-utf8",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length32-bom",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length8-empty-string",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length8-vector-u16",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length8-empty-vector",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "custom-big-endian",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "length-only-field",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::independent_length::length_only_field_needs_no_ordinary_direction",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::independent_length::length_only_field_needs_no_ordinary_direction"
+    },
+    {
+      "case": "enum8-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "enum8-tuple",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "enum8-named-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "enum16-sparse-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "enum32-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "explicit-record-storage-weight",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "enum16-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "positive-encode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "positive-decode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "positive-encode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "positive-decode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner.",
+      "budget_assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_positive_row_budgets"
+    },
+    {
+      "case": "pair-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "pair-depth-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "ordinary-text-extra-guard-work",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "ordinary-text-extra-guard-depth",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "direct-length-field-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "direct-length-field-allocation-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "direct-length-field-elements-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "adapter-no-field-value-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_guard_and_direct_field_budgets",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "raw-pair-no-record-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_guard_and_direct_field_budgets",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "raw-unit-zero-value-budget",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "record-collection-weight-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "reader-byte-admission-before-fields",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::callback_order::admission_and_unknown_tag_precede_field_callbacks",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "unknown-tag-before-payload",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::callback_order::admission_and_unknown_tag_precede_field_callbacks",
+      "qualification": "authored_pending_execution",
+      "notes": "Unknown tag prevents payload callback; Rust derive constructs only after fields via expansion. No separately observable constructor callback exists."
+    },
+    {
+      "case": "ordinary-bool-invalid",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "length-field-invalid-utf8",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "length-field-truncated",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "record-trailing",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "raw-adapter-returned-error",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write",
+      "qualification": "authored_pending_execution",
+      "notes": "Literal independently authored prefix and sink-failure expectations; raw returned callback errors remain recoverable."
+    },
+    {
+      "case": "raw-adapter-failed-write-sticky",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write",
+      "qualification": "authored_pending_execution",
+      "notes": "Literal independently authored prefix and sink-failure expectations; raw returned callback errors remain recoverable."
+    },
+    {
+      "case": "record-encode-cap-one-under",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "length8-overflow-before-prefix",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::exact_and_one_under_all_quotas_and_error_routes",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "missing-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[missing_tag]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "duplicate-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[duplicate_tag]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "tag8-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[overflow_tag]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "tag-negative",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[negative_tag]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "tag32-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[u32_overflow_tag]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "tag-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[invalid_tag_width]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "record-tag-width",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[struct_tag_width]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "rust-discriminant",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[discriminant]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "skip-field",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[skip]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "default-field",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[default]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "length-and-adapter",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[conflicting_field]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "duplicate-length",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[duplicate_field]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "length-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[invalid_length]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "unknown-type-option",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[unknown_type_option]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "model-version-zero",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[model_zero]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "model-version-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[model_overflow]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "model-unknown-option",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[model_unknown]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "model-duplicate-option",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[model_duplicate]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "model-enum-target",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[model_enum]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[missing_decode]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "enum-unselected-field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[unselected_missing_decode]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "field-length-only-missing-encode",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[missing_length_encode]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "adapter-direction-missing",
+      "family": "declaration_negative_cases",
+      "disposition": "compiler",
+      "assertion_reference": "validation/native-parity/derive-model/rust/compile_fail.py::CASES[missing_adapter_decode]",
+      "qualification": "authored_pending_execution",
+      "notes": "Real source compiler rejection with required diagnostic; never runtime case."
+    },
+    {
+      "case": "version-mismatch-encode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-encode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-encode_output",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-encode_state_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-encode_input_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-encode_output_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-decode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "version-mismatch-decode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix.",
+      "supplementary_assertion_reference": "crates/macro-qualification/src/bin/n13-model-interchange.rs::controls (installed callback-zero gates; qualification separate)"
+    },
+    {
+      "case": "model-decode-exact-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_binding::literal_model_exact_fresh_limits_and_encode_only_big_endian_output",
+      "qualification": "authored_pending_execution",
+      "notes": "Literal Pair wire shape and custom encode-only BE output; per-decode fresh supplier calls and exact limits. No Output decoder exists."
+    },
+    {
+      "case": "model-limits-fresh-each-decode",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_binding::literal_model_exact_fresh_limits_and_encode_only_big_endian_output",
+      "qualification": "authored_pending_execution",
+      "notes": "Literal Pair wire shape and custom encode-only BE output; per-decode fresh supplier calls and exact limits. No Output decoder exists."
+    },
+    {
+      "case": "model-encode-no-decode-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_binding::literal_model_exact_fresh_limits_and_encode_only_big_endian_output",
+      "qualification": "authored_pending_execution",
+      "notes": "Literal Pair wire shape and custom encode-only BE output; per-decode fresh supplier calls and exact limits. No Output decoder exists."
+    },
+    {
+      "case": "model-decode-trailing",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_binding::literal_bound_enum_trailing",
+      "qualification": "authored_pending_execution",
+      "notes": "Eight version-gated actual derive hooks, changing fresh limits and both State/Input malformed/trailing routes. Preferred sinks retain prefix."
+    },
+    {
+      "case": "record-no-variant",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "enum-selected-unit-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::finite_independent_wire_goldens",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "enum-selected-named-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "enum-label-renamed-same-tag",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "rust-derived-schema-token-spelling",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::literal_draft_routes_and_diagnostics",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "raw-unknown-enum-error-swallowed",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::raw_unknown_tag_can_be_swallowed_but_guarded_and_structural_errors_stick",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "guarded-unknown-enum-error-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::raw_unknown_tag_can_be_swallowed_but_guarded_and_structural_errors_stick",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "raw-failed-tag-read-first-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::script_callbacks::all_sticky_script_callback_counts",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    },
+    {
+      "case": "guarded-callback-first-structural-error-beats-later",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "crates/macro-qualification/tests/n13_derive_reference.rs::script_callbacks::all_sticky_script_callback_counts",
+      "qualification": "authored_pending_execution",
+      "notes": "Concrete source assertion; execution tracked separately. Does not claim JSON runtime runner."
+    }
+  ]
+}
