@@ -1,5 +1,5 @@
 {
-  "status": "native-reference-passed-installed-retry-queued",
+  "status": "finite-native-reference-and-installed-passed",
   "scope": "Finite macOS arm64 research candidate; no production pruning, profile promotion or broad parity closure",
   "source_candidate_commit": "cdc0a5a",
   "fixture_commit": "0b9056d",
@@ -61,7 +61,7 @@
     "typed_or_language_exclusions": 5
   },
   "installed": {
-    "status": "retry-queued",
+    "status": "passed",
     "job": "85473e6a66014122bd427ec1ba2e6376",
     "prior_attempts": [
       {
@@ -75,7 +75,16 @@
         "reason": "User requested build cancellation on 2026-10-20; remaining Kyoto log retained; temporary output unavailable on 2026-10-22."
       }
     ],
-    "output": "consumers/installed-r3/output"
+    "output": "consumers/installed-r3/output",
+    "source_commit": "32325900335ccf770a33a5b00dff4ab536dfd82f",
+    "engines": 5,
+    "shared_cases_per_engine": 67,
+    "commands": 27,
+    "logs_preserved": 28,
+    "baseline_cases_per_engine": 717,
+    "fresh_process_replays": 550,
+    "source_inputs_reconciled": 243,
+    "execution_frozen_source_files": 241
   },
   "broad_qualification_cells_pending": 144,
   "profiles_promoted": false,

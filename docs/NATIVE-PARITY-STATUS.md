@@ -369,13 +369,35 @@ unknown compound value semantics need explicitly faithful native comparators.
 
 Finite Kyoto execution passed the 67-case Rust reference, Go tests and vet,
 Python (275 tests, 12 ABI skips), TypeScript (928 tests), and Swift (147 tests).
-Installed qualification remains pending: r1 exposed an application-only TypeScript
-iterator annotation issue, preserved with unchanged source hashes. The user
-cancelled corrected r2; a fresh r3 was submitted on October 22 after all 243
-previously captured source and binary hashes matched. See [receipts](../validation/native-parity/research-slice/README.md). Candidate source
-mapping does not promote any profile or change the 144 broad qualification-pending
-cells. General POR, symmetry renaming, liveness, production reduction, performance
-and broader platform/resource qualification remain open.
+Installed job `85473e6a66014122bd427ec1ba2e6376` then passed all 67 shared
+cases in each of the five actual engines, plus 717 baseline cases per engine
+and 550 fresh-process replays. All 243 pre-submit source/binary inputs matched
+after execution, as did the driver's 241 frozen source files. The earlier failed
+and user-cancelled attempts remain preserved in the
+[receipts](../validation/native-parity/research-slice/README.md).
+This evidence covers the finite local candidate at runtime source `3232590`.
+It does not promote a profile or close the 144 broad qualification-pending cells.
+General POR, symmetry renaming, liveness, production reduction, performance and
+broader platform/resource qualification remain open.
+
+## Candidates awaiting integration
+
+The N13 model codec branch has reviewed source and receipts at `9daee75e`.
+Its native suites, Go vet, Rust workspace execution and five disposition ledgers
+passed within their recorded scopes. The final ten driver regressions
+(`b4822433e1d7413a83d77efab4ecd25c`) and installed five-producer/25-pair check
+(`7daea984bfc5457083db9f4451a6ca35`) remain queued at this handoff. Earlier
+installed attempts reached no qualifying producer or pair. These branch results
+do not qualify an integrated parent candidate.
+
+The N05 guided implementation is committed separately as `0a26bf5a`. Its reviewed
+source includes the four public native APIs, shared fuzz kernels and fresh public
+consumers, including Rust. Earlier-snapshot native tests passed, but final
+corrections, the reviewed 90-case corpus materialization/seal, and installed
+five-engine qualification remain pending. The source audit and review are
+committed here; the native guided implementation is not yet integrated here.
+N06 implementation is proceeding in an isolated branch based on that candidate;
+N06 and N10 qualification remain open.
 
 ## Next work
 
