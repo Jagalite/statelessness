@@ -55,6 +55,79 @@ def require_snapshot_equal(expected, actual, label):
         raise RuntimeError(f'{label} identity changed or unavailable')
 
 
+class PreparedHostArtifacts:
+    """Bind assembled hosts once; retain distinct failed observations compactly."""
+
+    def __init__(self, output, hosts):
+        self.output, self.hosts = output, hosts
+        self.before, self.records = {}, {}
+        wire.save(output / 'artifacts-prepared.json', self.before)
+        self.save()
+
+    def save(self):
+        wire.save(self.output / 'host-artifact-bindings.json', self.records)
+
+    def failure(self, record, stage, evidence):
+        record['stable'] = False
+        for previous in record['failures']:
+            if previous['evidence'] == evidence:
+                previous['last_stage'] = stage
+                previous['observations'] += 1
+                return
+        record['failures'].append({'first_stage': stage, 'last_stage': stage,
+                                   'observations': 1, 'evidence': evidence})
+
+    def bind(self, language, host):
+        if language in self.records:
+            raise RuntimeError(f'host artifact baseline already established: {language}')
+        self.hosts[language] = host
+        record = self.records[language] = {
+            'baseline': None, 'stable': False, 'checks': 0, 'failures': []}
+        try:
+            snapshot = wire.artifact_snapshot(host)
+            if not snapshot:
+                raise RuntimeError(f'empty host artifact identity: {language}')
+            self.before[language] = snapshot
+            wire.save(self.output / 'artifacts-prepared.json', self.before)
+            record.update({'baseline': f'artifacts-prepared.json#{language}', 'stable': True})
+        except BaseException as error:
+            self.failure(record, 'bind', {'error': {'type': type(error).__name__, 'message': str(error)}})
+            raise
+        finally:
+            self.save()
+
+    def check(self, stage):
+        for language, record in self.records.items():
+            record['checks'] += 1
+            record['last_stage'] = stage
+            record['last_matches'] = False
+            try:
+                actual = wire.artifact_snapshot(self.hosts[language])
+                expected = self.before.get(language)
+                record['last_matches'] = expected is not None and actual == expected
+                if not record['last_matches']:
+                    # Successful observations refer to the original baseline;
+                    # each distinct mismatch has just one full saved snapshot.
+                    record['stable'] = False
+                    raw = (json.dumps(actual, indent=2, sort_keys=True, ensure_ascii=False) + '\n').encode('utf-8')
+                    relative = Path('host-artifact-snapshots') / (wire.digest(raw)['sha256'] + '.json')
+                    path = self.output / relative
+                    path.parent.mkdir(exist_ok=True)
+                    if not path.exists():
+                        path.write_bytes(raw)
+                    changed = [name for name in sorted((expected or {}).keys() | actual.keys())
+                               if (expected or {}).get(name) != actual.get(name)]
+                    self.failure(record, stage, {'snapshot': str(relative), 'changed_paths': changed})
+            except BaseException as error:
+                self.failure(record, stage, {'error': {'type': type(error).__name__, 'message': str(error)}})
+        self.save()
+        return all(record['stable'] for record in self.records.values())
+
+    def require(self, stage):
+        if not self.check(stage):
+            raise RuntimeError('prepared host artifact identity changed or unavailable; inspect host-artifact-bindings.json')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--artifacts', type=Path, required=True)
@@ -139,6 +212,7 @@ def prepare(args):
     (packages / draft).parent.mkdir(parents=True, exist_ok=True)
     copy_tree(frozen / draft, packages / draft)
     commands, failures, hosts = [], {}, {}
+    host_artifacts = PreparedHostArtifacts(args.output, hosts)
     compiler_before = None
     swift_tests_before = None
     env = os.environ.copy()
@@ -179,6 +253,7 @@ def prepare(args):
                    'env_removed': removed, 'passed': False}
         commands.append(receipt)
         try:
+            host_artifacts.require(f'before:{index:02}-{label}')
             with (out / 'stdout.log').open('wb') as stdout, (out / 'stderr.log').open('wb') as stderr:
                 child = subprocess.Popen(receipt['argv'], cwd=cwd, env=command_env, stdout=stdout, stderr=stderr, start_new_session=True)
                 try:
@@ -202,14 +277,21 @@ def prepare(args):
                 receipt['passed'] = receipt['passed'] and receipt['required_output_matched']
             if not receipt['passed']:
                 raise RuntimeError(f'{label}: command/assertion failed; inspect {out}')
-            return (out / 'stdout.log').read_bytes()
+            result = (out / 'stdout.log').read_bytes()
         except BaseException as error:
             receipt['exception'] = {'type': type(error).__name__, 'message': str(error)}
             raise
         finally:
+            receipt['host_artifacts_stable'] = host_artifacts.check(f'after:{index:02}-{label}')
+            if not receipt['host_artifacts_stable']:
+                receipt['passed'] = False
+                failures['host-artifacts-identity'] = 'inspect host-artifact-bindings.json'
             receipt['logs'] = {name: wire.digest((out / name).read_bytes()) for name in ('stdout.log', 'stderr.log') if (out / name).exists()}
             wire.save(out / 'receipt.json', receipt)
             print(json.dumps({'stage': label, 'passed': receipt['passed']}, sort_keys=True), flush=True)
+        if not receipt['host_artifacts_stable']:
+            raise RuntimeError(f'{label}: prepared host artifact identity changed or unavailable')
+        return result
 
     def copy_package(name, paths):
         package = packages / name
@@ -255,8 +337,8 @@ def prepare(args):
                     run('rust-consumer-build', ['cargo', 'build', '--offline', '--manifest-path', manifest], consumer,
                         {'CARGO_TARGET_DIR': str(target), 'CARGO_BUILD_JOBS': '2'})
                     binary = target / 'debug/n12-wire-rust'
-                    hosts[language] = {'argv': [str(binary)], 'cwd': str(consumer),
-                        'artifacts': [str(binary), str(consumer), str(frozen / 'src'), str(frozen / 'crates/statelessness-debug/src')]}
+                    host_artifacts.bind(language, {'argv': [str(binary)], 'cwd': str(consumer),
+                        'artifacts': [str(binary), str(consumer), str(frozen / 'src'), str(frozen / 'crates/statelessness-debug/src')]})
                 elif language == 'go':
                     run('go-version', ['go', 'version'])
                     package = packages / 'go'
@@ -265,7 +347,7 @@ def prepare(args):
                     rewrite_manifest(manifest, manifest.read_text().replace('../../../../go', str(package)))
                     binary = builds / 'n12-wire-go'
                     run('go-consumer-build', ['go', 'build', '-mod=readonly', '-o', binary, '.'], consumer)
-                    hosts[language] = {'argv': [str(binary)], 'cwd': str(consumer), 'artifacts': [str(binary), str(consumer), str(package)]}
+                    host_artifacts.bind(language, {'argv': [str(binary)], 'cwd': str(consumer), 'artifacts': [str(binary), str(consumer), str(package)]})
                     go_exec = shlex.join([sys.executable, str(frozen / 'scripts/qualify-native-integration.py'), '--go-exec'])
                     regression('go-full-tests', ['go', 'test', '-count=1', '-exec', go_exec, './...'], package,
                                {'INTEGRATION_GO_EXEC_DIR': env['INTEGRATION_GO_EXEC_DIR']},
@@ -287,13 +369,13 @@ def prepare(args):
                     python = installed / 'bin/python'
                     wheel, = wheels.glob('statelessness-*.whl')
                     run('python-consumer-install', [python, '-m', 'pip', 'install', '--no-deps', '--no-index', wheel])
+                    host_artifacts.bind(language, {'argv': [str(python), '-I', '-B', str(consumer / 'host.py')], 'cwd': str(consumer),
+                        'artifacts': [str(consumer), str(wheel)]})
                     raw = run('python-installed-path', [python, '-I', '-B', '-c',
                         'import pathlib,statelessness; print(pathlib.Path(statelessness.__file__).resolve())'])
                     module = Path(raw.decode().strip())
                     if installed not in module.parents:
                         raise RuntimeError('Python resolved outside fresh installation')
-                    hosts[language] = {'argv': [str(python), '-I', '-B', str(consumer / 'host.py')], 'cwd': str(consumer),
-                        'artifacts': [str(consumer), str(wheel)]}
                     regression('python-full-installed-tests', [python, '-I', '-B', '-m', 'unittest', 'discover', '-s', package / 'tests', '-v'], consumer,
                                required=['test_debugger_wire', '\nOK'])
                 elif language == 'typescript':
@@ -314,10 +396,10 @@ def prepare(args):
                     package_metadata['dependencies'] = {'@jagalite/statelessness': 'file:' + str(tarball)}
                     rewrite_manifest(manifest, json.dumps(package_metadata, indent=2) + '\n')
                     run('typescript-consumer-install', ['npm', 'install', '--ignore-scripts', '--no-audit', '--no-fund'], consumer)
+                    host_artifacts.bind(language, {'argv': [shutil.which('node'), str(consumer / 'host.mjs')], 'cwd': str(consumer),
+                        'artifacts': [str(consumer), str(tarball)]})
                     run('typescript-installed-path', ['node', '--input-type=module', '-e',
                         "console.log(import.meta.resolve('@jagalite/statelessness/debug/protocol'))"], consumer)
-                    hosts[language] = {'argv': [shutil.which('node'), str(consumer / 'host.mjs')], 'cwd': str(consumer),
-                        'artifacts': [str(consumer), str(tarball)]}
                     regression('typescript-full-tests', ['node', '--test', '--test-reporter=tap', *sorted((package / 'test').glob('*.test.mjs'))], package,
                                required=['# fail 0'])
                 elif language == 'swift':
@@ -330,8 +412,8 @@ def prepare(args):
                     run('swift-consumer-build', ['swift', 'build', '--package-path', consumer, '--scratch-path', target,
                         '--configuration', 'debug', '--jobs', '2', '--product', 'n12-wire-swift'], consumer, swift_env)
                     binary = target / 'debug/n12-wire-swift'
-                    hosts[language] = {'argv': [str(binary.resolve())], 'cwd': str(consumer),
-                        'artifacts': [str(binary.resolve()), str(consumer), str(package / 'Package.swift'), str(package / 'swift/Sources')]}
+                    host_artifacts.bind(language, {'argv': [str(binary.resolve())], 'cwd': str(consumer),
+                        'artifacts': [str(binary.resolve()), str(consumer), str(package / 'Package.swift'), str(package / 'swift/Sources')]})
                     run('swift-test-build', ['swift', 'build', '--build-tests', '--package-path', package,
                         '--scratch-path', builds / 'swift-tests', '--configuration', 'debug', '--jobs', '2'], package)
                     swift_tests_before = swift_test_snapshot(builds / 'swift-tests')
@@ -347,10 +429,10 @@ def prepare(args):
                            'PYTHONDONTWRITEBYTECODE': '1'}
         report['launch_specification'] = hosts
         wire.save(args.output / 'hosts.json', hosts)
-        wire.save(args.output / 'artifacts-prepared.json', {name: wire.artifact_snapshot(host) for name, host in hosts.items()})
         report['hosts_ready'] = sorted(hosts)
         report['passed'] = not failures and len(hosts) == 5
     finally:
+        report['host_artifact_bindings'] = 'host-artifact-bindings.json'
         for label, expected, capture in (
                 ('typescript-compiler', compiler_before,
                  lambda: compiler_snapshot(packages / 'typescript/node_modules/typescript')),
@@ -397,7 +479,10 @@ def prepare(args):
             report['changed_copied_source_paths'] = [p for p in sorted(before.keys() | copied_after.keys()) if before.get(p) != copied_after.get(p)]
         except Exception as error:
             failures['copied-source-after'] = {'type': type(error).__name__, 'message': str(error), 'traceback': traceback.format_exc()}
-        report['passed'] = report['passed'] and not failures and report['source_stable'] and report['copied_source_stable'] and report['build_input_copies_stable']
+        report['host_artifacts_stable'] = host_artifacts.check('finalization')
+        if not report['host_artifacts_stable']:
+            failures['host-artifacts-identity'] = 'inspect host-artifact-bindings.json'
+        report['passed'] = report['passed'] and not failures and report['host_artifacts_stable'] and report['source_stable'] and report['copied_source_stable'] and report['build_input_copies_stable']
         wire.save(args.output / 'preparation.json', report)
     print(json.dumps({'passed': report['passed'], 'hosts_ready': report.get('hosts_ready', []), 'failures': failures}), flush=True)
     return 0 if report['passed'] else 1

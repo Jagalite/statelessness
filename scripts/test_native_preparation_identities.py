@@ -1,4 +1,4 @@
-"""Mutation controls for package compiler and XCTest proof; run through Kyoto."""
+"""Mutation controls for prepared hosts, compiler and XCTest proof; run through Kyoto."""
 import importlib.util
 import hashlib
 import json
@@ -7,7 +7,9 @@ import tempfile
 import os
 import subprocess
 import sys
+from types import SimpleNamespace
 import unittest
+from unittest import mock
 
 SPEC = importlib.util.spec_from_file_location(
     'native_preparation', Path(__file__).parent / 'native-parity/n12-wire/prepare.py')
@@ -20,6 +22,151 @@ INTEGRATION_SPEC.loader.exec_module(INTEGRATION)
 
 
 class PreparationIdentities(unittest.TestCase):
+    def test_first_host_replacement_during_later_preparation_is_retained(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source, output, scratch = root / 'source', root / 'receipts', root / 'artifacts'
+            output.mkdir()
+            # Only the first two consumer inputs are needed: the replacement
+            # must fail during Go preparation, before later hosts even exist.
+            for name, contents in {
+                    'conformance/fixture.tsv': 'authored corpus',
+                    'docs/native-parity/derive-model-draft/fixture.json': '{}',
+                    'scripts/native-parity/n12-wire/rust/Cargo.toml': 'path = "../../../.."\n',
+                    'scripts/native-parity/n12-wire/go/go.mod': 'module fixture\n',
+                    'src/lib.rs': '// root source',
+                    'crates/statelessness-debug/src/lib.rs': '// debugger source',
+            }.items():
+                path = source / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(contents)
+            binary = scratch / 'builds/rust/debug/n12-wire-rust'
+            original, replacement = b'first built host; never executed', b'replaced during later preparation'
+            launched = []
+
+            def launch(argv, **_kwargs):
+                launched.append(argv[:2])
+                if argv[:2] == ['cargo', 'build']:
+                    binary.parent.mkdir(parents=True)
+                    binary.write_bytes(original)
+                    binary.chmod(0o755)
+                elif argv[:2] == ['go', 'version']:
+                    baseline = json.loads((output / 'artifacts-prepared.json').read_text())
+                    self.assertEqual(baseline['rust'][str(binary)]['sha256'], hashlib.sha256(original).hexdigest())
+                    binary.write_bytes(replacement)
+                else:
+                    self.assertEqual(argv[:2], ['rustc', '--version'])
+                return mock.Mock(wait=mock.Mock(return_value=0))
+
+            with mock.patch.object(PREPARE, 'ROOT', source), \
+                    mock.patch.object(PREPARE.wire, 'source_snapshot', side_effect=lambda: PREPARE.wire.tree_snapshot(source)), \
+                    mock.patch.object(PREPARE.subprocess, 'check_output', return_value=b'fixture-source\n'), \
+                    mock.patch.object(PREPARE.subprocess, 'Popen', side_effect=launch), \
+                    mock.patch.dict(os.environ, {'CARGO_HOME': str(root / 'unused-cargo')}):
+                result = PREPARE.prepare(SimpleNamespace(artifacts=scratch, output=output))
+            self.assertEqual(launched, [['rustc', '--version'], ['cargo', 'build'], ['go', 'version']])
+            self.assertEqual(result, 1)
+            report = json.loads((output / 'preparation.json').read_text())
+            self.assertFalse(report['passed'])
+            self.assertFalse(report['host_artifacts_stable'])
+            self.assertIn('host-artifacts-identity', report['failures'])
+            record = json.loads((output / 'host-artifact-bindings.json').read_text())['rust']
+            self.assertEqual(record['failures'][0]['first_stage'], 'after:02-go-version')
+            failed = json.loads((output / record['failures'][0]['evidence']['snapshot']).read_text())
+            self.assertEqual(failed[str(binary)]['sha256'], hashlib.sha256(replacement).hexdigest())
+            baseline = json.loads((output / 'artifacts-prepared.json').read_text())
+            self.assertEqual(baseline['rust'][str(binary)]['sha256'], hashlib.sha256(original).hexdigest())
+            receipt = json.loads((output / '02-go-version/receipt.json').read_text())
+            self.assertEqual(receipt['exit_code'], 0)
+            self.assertFalse(receipt['passed'])
+
+    def test_host_mutate_detect_restore_recollect_is_sticky_and_compact(self):
+        for mutation in ('executable', 'import', 'add', 'remove'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                output, package, binary = root / 'receipts', root / 'package', root / 'host'
+                output.mkdir()
+                package.mkdir()
+                binary.write_bytes(b'original executable')
+                imported, added = package / 'imported.py', package / 'added.py'
+                imported.write_bytes(b'original imported source')
+                guard = PREPARE.PreparedHostArtifacts(output, {})
+                guard.bind('fixture', {'argv': [str(binary)], 'artifacts': [str(package)]})
+                baseline = (output / 'artifacts-prepared.json').read_bytes()
+                self.assertTrue(guard.check('unchanged'))
+                if mutation == 'executable':
+                    binary.write_bytes(b'replaced executable')
+                elif mutation == 'import':
+                    imported.write_bytes(b'replaced imported source')
+                elif mutation == 'add':
+                    added.write_bytes(b'new imported source')
+                else:
+                    imported.unlink()
+                offending = PREPARE.wire.artifact_snapshot(guard.hosts['fixture'])
+                self.assertFalse(guard.check('detected'))
+                self.assertFalse(guard.check('repeated-failure-collection'))
+                binary.write_bytes(b'original executable')
+                imported.write_bytes(b'original imported source')
+                if added.exists():
+                    added.unlink()
+                self.assertFalse(guard.check('restored-failure-collection'))
+                with self.assertRaisesRegex(RuntimeError, 'artifact identity changed'):
+                    guard.require('later-command')
+                record = json.loads((output / 'host-artifact-bindings.json').read_text())['fixture']
+                self.assertTrue(record['last_matches'])
+                self.assertFalse(record['stable'])
+                self.assertEqual(len(record['failures']), 1)
+                self.assertEqual(record['failures'][0]['observations'], 2)
+                self.assertEqual(record['failures'][0]['first_stage'], 'detected')
+                path = output / record['failures'][0]['evidence']['snapshot']
+                self.assertEqual(json.loads(path.read_text()), offending)
+                self.assertEqual(path.stem, hashlib.sha256(path.read_bytes()).hexdigest())
+                self.assertEqual(len(list((output / 'host-artifact-snapshots').glob('*.json'))), 1)
+                self.assertEqual((output / 'artifacts-prepared.json').read_bytes(), baseline)
+
+    def test_host_snapshot_exception_survives_restoration_and_recollection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            binary = root / 'host'
+            binary.write_bytes(b'original executable')
+            output = root / 'receipts'
+            output.mkdir()
+            guard = PREPARE.PreparedHostArtifacts(output, {})
+            guard.bind('fixture', {'argv': [str(binary)], 'artifacts': [str(binary)]})
+            baseline = (output / 'artifacts-prepared.json').read_bytes()
+            binary.unlink()
+            self.assertFalse(guard.check('missing-executable'))
+            binary.write_bytes(b'original executable')
+            self.assertFalse(guard.check('restored-failure-collection'))
+            record = json.loads((output / 'host-artifact-bindings.json').read_text())['fixture']
+            self.assertTrue(record['last_matches'])
+            self.assertFalse(record['stable'])
+            self.assertEqual(record['failures'][0]['evidence']['error']['type'], 'FileNotFoundError')
+            self.assertEqual(record['failures'][0]['first_stage'], 'missing-executable')
+            self.assertEqual((output / 'artifacts-prepared.json').read_bytes(), baseline)
+            with self.assertRaisesRegex(RuntimeError, 'baseline already established'):
+                guard.bind('fixture', guard.hosts['fixture'])
+
+    def test_failed_host_binding_cannot_be_rebased_after_repair(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            binary, output = root / 'host', root / 'receipts'
+            output.mkdir()
+            guard = PREPARE.PreparedHostArtifacts(output, {})
+            host = {'argv': [str(binary)], 'artifacts': [str(binary)]}
+            with self.assertRaises(FileNotFoundError):
+                guard.bind('fixture', host)
+            binary.write_bytes(b'late replacement executable')
+            self.assertFalse(guard.check('repaired-failure-collection'))
+            with self.assertRaisesRegex(RuntimeError, 'baseline already established'):
+                guard.bind('fixture', host)
+            record = json.loads((output / 'host-artifact-bindings.json').read_text())['fixture']
+            self.assertIsNone(record['baseline'])
+            self.assertFalse(record['stable'])
+            self.assertEqual(record['failures'][0]['first_stage'], 'bind')
+            self.assertEqual(record['failures'][0]['evidence']['error']['type'], 'FileNotFoundError')
+            self.assertEqual(json.loads((output / 'artifacts-prepared.json').read_text()), {})
+
     def test_rewritten_source_or_tool_manifest_cannot_rebase_queued_pin(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
