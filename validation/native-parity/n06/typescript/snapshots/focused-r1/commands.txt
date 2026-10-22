@@ -1,0 +1,11 @@
+Metadata-only preparation:
+/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -B /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/freeze.py
+
+Submitted from /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336:
+python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit --estimate 1200 --cpu-slots 2 --memory-mb 2048 --resource /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/runs/focused-r1 -- /Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -B /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source/validation/native-parity/n06/typescript/qualify.py --source /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source --manifest /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source-manifest.json --manifest-sha256 d5fa4f4fe098aaca7389518f542e859e578257777579ee088868255c8af21c41 --output /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/runs/focused-r1
+
+Requested command (identical effective command):
+/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -B /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source/validation/native-parity/n06/typescript/qualify.py --source /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source --manifest /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/snapshots/focused-r1/source-manifest.json --manifest-sha256 d5fa4f4fe098aaca7389518f542e859e578257777579ee088868255c8af21c41 --output /Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/typescript/runs/focused-r1
+
+Status observation:
+python3 /Volumes/seed1/Projects/kyoto/kyoto.py show 84048d5f31b4404ba8a6c07e1af98f6a
