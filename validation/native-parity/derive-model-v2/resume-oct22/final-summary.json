@@ -1,0 +1,86 @@
+{
+  "status": "pending_external_queue_admission",
+  "recorded_at": "2026-10-22T14:44:24.963549+00:00",
+  "source_commits": {
+    "base": "57cc38b0abb1c8dcb586d80f44455ab23a8f7a19",
+    "fixture_actor_correction": "79f7fe5f8428172924a34280a59f5a725ebe586e",
+    "installed_apps": "373ba71945426cc13dde07cbf2e47d20be235473",
+    "driver_and_hash_oracle": "0b10386196e467663259a6fe86f79d38fb374b7d"
+  },
+  "source_manifest": "sealed-source-before.json",
+  "latest_executed_counts": {
+    "rust_workspace": {
+      "passed": 644,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 0,
+      "summaries": 69
+    },
+    "python": {
+      "discovered": 267,
+      "passed": 255,
+      "skipped": 12
+    },
+    "go": {
+      "top_level_passed": 171,
+      "named_pass_events_including_subtests": 929,
+      "named_skip_events": 30
+    },
+    "typescript": {
+      "passed": 848
+    },
+    "swift": {
+      "passed": 149
+    },
+    "driver_previous_candidate": {
+      "passed_methods": 5
+    },
+    "installed_resumed_attempts": {
+      "qualifying_producers": 0,
+      "qualifying_ordered_pairs": 0
+    }
+  },
+  "accounting": "Five 90-row source disposition ledgers passed; not 450 runtime cases",
+  "compiler_rejections": "25 inherited for unchanged compiler/harness/production inputs; not rerun",
+  "pending_jobs": {
+    "sealed-driver": {
+      "id": "b4822433e1d7413a83d77efab4ecd25c",
+      "status": "queued",
+      "command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-driver",
+        "--",
+        "python3",
+        "scripts/test_native_model_receipts.py",
+        "-v"
+      ],
+      "log": "/Users/jagatranvo/.local/state/kyoto/b4822433e1d7413a83d77efab4ecd25c.log"
+    },
+    "sealed-installed-wrapper": {
+      "id": "7daea984bfc5457083db9f4451a6ca35",
+      "status": "queued",
+      "command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed-wrapper",
+        "--",
+        "python3",
+        "scripts/check-native-model-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed"
+      ],
+      "log": "/Users/jagatranvo/.local/state/kyoto/7daea984bfc5457083db9f4451a6ca35.log"
+    }
+  },
+  "remaining_gap": "Execute final ten driver regression methods and final installed five producers/all25orderedpairs with independent bytes/config/phase/provenance/counters and unchanged source/runner identities. Parent integration/requalification remains separate.",
+  "limitations": [
+    "finite macOS arm64 only",
+    "optional ABI skips preserved",
+    "no broad144/generated-model-helper/default/profile promotion",
+    "no push/PR/parent merge"
+  ],
+  "source_inputs_for_completed_suites": "suite-input-inheritance.json"
+}

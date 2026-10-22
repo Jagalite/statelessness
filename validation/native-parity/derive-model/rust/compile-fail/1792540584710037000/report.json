@@ -1,0 +1,263 @@
+{
+  "scope": "22 compile-fail declarations; no runtime execution",
+  "worktree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-b71b6b32",
+  "temporary_directory": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/n13-compile-fail-0i4yafdi",
+  "cases": [
+    {
+      "case": "duplicate_tag",
+      "expected": [
+        "SM107"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/duplicate_tag.log",
+      "bytes": 677,
+      "sha256": "b95c78d5e89d59f012b6fefdb944fbecc0568ea1d76c4f71739037cce3dad94f"
+    },
+    {
+      "case": "missing_tag",
+      "expected": [
+        "SM106"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_tag.log",
+      "bytes": 648,
+      "sha256": "5b6dba76429b9ad01494da1c2d614482c32b8cf8e3669fc9092b58b7a439f563"
+    },
+    {
+      "case": "overflow_tag",
+      "expected": [
+        "SM107"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/overflow_tag.log",
+      "bytes": 661,
+      "sha256": "8dad4ebd72884b711c074bfa993fdba6f335c3641f3e147b36e4e8e8e3cbb49e"
+    },
+    {
+      "case": "invalid_tag_width",
+      "expected": [
+        "SM102"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/invalid_tag_width.log",
+      "bytes": 682,
+      "sha256": "23e37590f892766916418c5d19d6c2e36881e79157473a7bb7311a64aca44d3e"
+    },
+    {
+      "case": "struct_tag_width",
+      "expected": [
+        "SM102"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/struct_tag_width.log",
+      "bytes": 658,
+      "sha256": "06d95432c8ffbee1ea8b534a8e27024570cc2bd936d1a71a492405670ece9f01"
+    },
+    {
+      "case": "discriminant",
+      "expected": [
+        "SM109"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/discriminant.log",
+      "bytes": 673,
+      "sha256": "64f32fb01a631abf8b66745e26c550ab6efb6574a1aebc7a9ab384587c079938"
+    },
+    {
+      "case": "skip",
+      "expected": [
+        "SM112"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/skip.log",
+      "bytes": 655,
+      "sha256": "f16269314efef7d26bd2d6707ed81a78963d6b3ac33760e2f0a91c2c3f55cc58"
+    },
+    {
+      "case": "default",
+      "expected": [
+        "SM112"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/default.log",
+      "bytes": 646,
+      "sha256": "a79be12955a9338c79faefdbd455e7931616e0b57b083972f4b1070cf0959668"
+    },
+    {
+      "case": "duplicate_field",
+      "expected": [
+        "SM115"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/duplicate_field.log",
+      "bytes": 681,
+      "sha256": "82a4c14af7462b49377c3de13229a58885b01c1134fd9fcc24c742efe2cf6190"
+    },
+    {
+      "case": "conflicting_field",
+      "expected": [
+        "SM113"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/conflicting_field.log",
+      "bytes": 693,
+      "sha256": "5a00561019c39674e4d2e924caede92be95d0a9abad90edee5b45b47ca8e26c3"
+    },
+    {
+      "case": "invalid_length",
+      "expected": [
+        "SM111"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/invalid_length.log",
+      "bytes": 671,
+      "sha256": "3e1e47499c0ca42d78375e7f13f67394c725bb34443a2bf90206ccafdfa5e053"
+    },
+    {
+      "case": "missing_encode",
+      "expected": [
+        "E0277",
+        "No: TraceEncode",
+        "not satisfied"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_encode.log",
+      "bytes": 1192,
+      "sha256": "f03c46997f380eb326707f07332ab85bbf1d1b2209bf7fc81c71297c9137a71c"
+    },
+    {
+      "case": "missing_decode",
+      "expected": [
+        "E0277",
+        "No: TraceDecode",
+        "not satisfied"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_decode.log",
+      "bytes": 1180,
+      "sha256": "1239ae283098b085642da47c6dd900e905d3a52fbace02912e551a93b8ae2efb"
+    },
+    {
+      "case": "unselected_missing_decode",
+      "expected": [
+        "E0277",
+        "No: TraceDecode",
+        "not satisfied"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/unselected_missing_decode.log",
+      "bytes": 1256,
+      "sha256": "2196d62d0aef0f9750cead431d2b9f49a27b42009e96882595dc452e783ebc05"
+    },
+    {
+      "case": "missing_length_encode",
+      "expected": [
+        "E0277",
+        "No: LengthEncode",
+        "not satisfied"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_length_encode.log",
+      "bytes": 1344,
+      "sha256": "172947d0234d17753bb462a53c4054f750aa9eb6a33fd0a2503239b64e09abc5"
+    },
+    {
+      "case": "missing_length_decode",
+      "expected": [
+        "E0277",
+        "No: LengthDecode",
+        "not satisfied"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_length_decode.log",
+      "bytes": 1332,
+      "sha256": "a1d1254deb52d3d4207508c1bb3a0fa628d13da53a6b7ec9e28c65d7477f87b3"
+    },
+    {
+      "case": "missing_adapter_decode",
+      "expected": [
+        "E0425",
+        "cannot find function",
+        "decode",
+        "adapter"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/missing_adapter_decode.log",
+      "bytes": 795,
+      "sha256": "0567e7a181ec02ae873a215b519561e18a922d45c899a0eb57a7dc6f9d3ade1f"
+    },
+    {
+      "case": "model_zero",
+      "expected": [
+        "SM401"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/model_zero.log",
+      "bytes": 746,
+      "sha256": "fbb4080118f3ac8a6067b9fa61638d43c8dc7f32b4ff351e939c472ef6ddf4c8"
+    },
+    {
+      "case": "model_overflow",
+      "expected": [
+        "SM401"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/model_overflow.log",
+      "bytes": 769,
+      "sha256": "7dcb4bddbb1d2090a033e5b44ebf98978498e9303576c11ab127c860e45956d4"
+    },
+    {
+      "case": "model_unknown",
+      "expected": [
+        "SM400"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/model_unknown.log",
+      "bytes": 740,
+      "sha256": "88e3d7ebe4cdcf7b97cc980bbd8e2784bb0adf4c995382cc2fdb9b664d3fafa3"
+    },
+    {
+      "case": "model_duplicate",
+      "expected": [
+        "SM400"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/model_duplicate.log",
+      "bytes": 754,
+      "sha256": "e1d840789d77dc09383a9be1cf0fa4d6490ae780ec759d1b6e3fc6d7672019db"
+    },
+    {
+      "case": "model_enum",
+      "expected": [
+        "SM402"
+      ],
+      "exit_code": 101,
+      "passed": true,
+      "path": "1792540584710037000/model_enum.log",
+      "bytes": 734,
+      "sha256": "2cbb72afa2ea7ce5a6ea81903b2272068ab5b4f0058c8b73943abc919bf03741"
+    }
+  ],
+  "passed": true
+}

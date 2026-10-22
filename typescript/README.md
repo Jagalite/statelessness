@@ -480,3 +480,32 @@ including `research.production_pruning_enabled: 'false'`. Every outcome qualifie
 only this explicit fixture and its stated assumptions. This candidate API implies
 no general reduction theorem, renamed-effect symmetry, timing abstraction,
 history compaction, profile promotion or automatic pruning.
+
+Explicit derive-equivalent declarations are opt-in. `codecField<T>()` binds
+ordered ordinary, length (width 1/2/4), accessor, or direct adapter fields;
+`orderedRecord`, `tupleRecord`, and `unitRecord` add no wire framing.
+`enumCases<T, K>(key)` and `taggedEnum` use explicit u8/u16/u32 tags.
+Constructors run after all fields succeed. Directions are inferred across every
+field and case; `require: 'encode' | 'decode' | 'both'` eagerly checks a required
+direction. Supply `logicalLayout` explicitly for collection decoding of new
+record/enum types; these builders do not infer Rust layout.
+
+```ts
+const field = codecField<{ code: number; note: string }>();
+const pair = orderedRecord({
+  name: 'Pair',
+  fields: [field.value('code', valueCodecs.u8),
+           field.length('note', valueCodecs.string, 1)],
+  construct: fields => ({ code: fields.code, note: fields.note }),
+  require: 'both',
+});
+```
+
+`bindModelCodec(model, { state, input, output, version: 1, decodeLimits })`
+returns a facade that preserves original model receivers, including private
+fields and frozen models. State and input require both ordinary directions;
+output requires only encoding. Each of its eight hooks checks current model
+metadata before inspecting values, sinks, bytes, or decode limits. A limits
+provider runs afresh per decode, and encoding never evaluates it. Extra model
+methods remain available through the facade. Existing model methods that invoke
+other methods on `this` continue to use the original model.

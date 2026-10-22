@@ -1,0 +1,18 @@
+{
+  "typescript/test/derive-model.test.mjs": {
+    "sha256": "ecd8c0c34f3b1a74a8727837b24c3bc19f5417b53c743f475381cff079d47b88",
+    "size": 23704
+  },
+  "swift/Tests/StatelessnessTests/DeriveCodecTests.swift": {
+    "sha256": "0147a9f23823ea8d7aee98f04172dc871fe9bf1e4390265e6eb3380edbdbb30f",
+    "size": 33022
+  },
+  "docs/native-parity/derive-model-draft/typescript-dispositions.json": {
+    "sha256": "6dda7304a7938709831632ab0f659ed780b515c67b72f8ff28e561ec2e7f28e4",
+    "size": 37616
+  },
+  "docs/native-parity/derive-model-draft/swift-dispositions.json": {
+    "sha256": "e3bb8831d030fa6922abdbaca32beee4f38bc9028aea25e9df1e5890df6326b8",
+    "size": 38313
+  }
+}

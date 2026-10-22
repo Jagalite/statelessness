@@ -22,3 +22,6 @@ export type {DecodeLimits,ResolvedDecodeLimits,LogicalLayout,ValueSchema,LengthS
 // Explicit opt-in finite research; no production exploration settings change.
 export {compareEquivalence,qualificationParameters,DEFAULT_EXPERIMENT_CONFIG} from './research.js';
 export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProperty,PropertyPhase,ViolationWitness,Reachability,EquivalenceCounterexample,ExperimentReport,ResearchEquality,ResearchModel} from './research.js';
+
+export {codecField,orderedRecord,tupleRecord,unitRecord,enumCases,taggedEnum,bindModelCodec} from './value_codec.js';
+export type {ValueEncoder,ValueDecoder,LengthEncoder,LengthDecoder,CodecField,RecordDeclaration,EnumCase} from './value_codec.js';

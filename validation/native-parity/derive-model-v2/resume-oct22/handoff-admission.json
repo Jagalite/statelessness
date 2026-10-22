@@ -1,0 +1,11 @@
+{
+  "sampled_at": 1792680263.735988,
+  "pressure": "warning",
+  "available_mb": 1315.25,
+  "swap_used_mb": 7277.12,
+  "effective_max_running": 0,
+  "admission_reason": "OS memory pressure: warning",
+  "recovery_ready": true,
+  "sample_fresh": true,
+  "paused": false
+}

@@ -1,0 +1,30 @@
+{
+  "scope": "90 mixed-class dispositions per engine; source accounting only",
+  "languages": {
+    "rust": {
+      "runtime": 67,
+      "compiler": 23
+    },
+    "python": {
+      "runtime": 66,
+      "builder": 19,
+      "native-static-exclusion": 3,
+      "native-compiler": 2
+    },
+    "typescript": {
+      "runtime": 66,
+      "builder": 16,
+      "native-only-boundary": 8
+    },
+    "go": {
+      "runtime": 66,
+      "native-static-exclusion": 15,
+      "builder": 9
+    },
+    "swift": {
+      "runtime": 66,
+      "native-only-boundary": 17,
+      "builder": 7
+    }
+  }
+}

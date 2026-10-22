@@ -459,3 +459,16 @@ The canonical decoder owns built-in `ModelError` payloads in sticky failures and
 Agreement qualifies only the supplied finite fixture and caller-established assumptions. This harness does not change BFS, replay equality, fuzzing, or production pruning. Clones must be faithful and detached; equality/projection callbacks must be pure, and pointer/interface-containing comparable keys must not hide mutable equivalence data or unsupported dynamic comparability. State/input/output values passed to callbacks are cloned, but callback execution, iterator termination, allocations and hidden external effects remain cooperative. Limits are exact `uint64` state/edge/pair counters, not execution-time or RSS guarantees.
 
 Projection keys must satisfy equivalence laws corresponding to Rust `Eq`. Go admits comparable values such as floating NaN that violate reflexivity; the harness rejects any key unequal to itself before either traversal. Equality callback laws and faithful cloning remain caller obligations.
+
+Canonical derive-style declarations are opt-in: `OrderedRecord` composes a typed
+`FieldProduct` from `OrdinaryField`, `LengthField`, or `AdapterField` descriptors;
+`TaggedEnum` selects explicit numeric `TaggedCase` declarations. Record and enum
+layouts stay unknown unless `RecordOptions.Layout` or `EnumOptions.Layout`
+explicitly supplies a logical Rust64 collection weight. Inference retains every
+available direction, including neither; `Require` checks eagerly without
+filtering other available directions. `DefaultEnumOptions()` supplies a one-byte
+tag, and `DefaultModelCodecOptions()` supplies codec version 1. Their zero option
+values intentionally fail validation rather than silently choosing a format.
+`BindModelCodec` returns a new model codec for explicit assignment, requires only
+encoding for Output, and preserves metadata and engine behavior. It checks the
+current metadata version on every hook and evaluates decode limits afresh.

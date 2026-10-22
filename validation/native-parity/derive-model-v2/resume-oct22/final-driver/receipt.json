@@ -1,0 +1,31 @@
+{
+  "command": [
+    "python3",
+    "scripts/test_native_model_receipts.py",
+    "-v"
+  ],
+  "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+  "started_ns": 1792675825650267000,
+  "source_commit": "79f7fe5f8428172924a34280a59f5a725ebe586e",
+  "command_exit_code": 0,
+  "finished_ns": 1792675826032307000,
+  "source_before_after_equal": true,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "files": {
+    "source-before.json": {
+      "sha256": "90ea796f52c00a4310551397e1176fa8f4c6eb91320bb6dde2caa67b2bfb17bd",
+      "size_bytes": 1051130
+    },
+    "source-after.json": {
+      "sha256": "90ea796f52c00a4310551397e1176fa8f4c6eb91320bb6dde2caa67b2bfb17bd",
+      "size_bytes": 1051130
+    },
+    "raw.log": {
+      "sha256": "d590bad6143a4233607cb531d16344ec2f841f8f429bb54c37baf90b307573df",
+      "size_bytes": 836
+    }
+  },
+  "status": "passed"
+}

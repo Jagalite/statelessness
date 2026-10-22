@@ -1,0 +1,23 @@
+ssssssssssss...............................................F...............F...............................................................................................................................................................................................
+======================================================================
+FAIL: test_all_eight_version_gates_and_fresh_limits (test_codec_declarations.Binding.test_all_eight_version_gates_and_fresh_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/python/tests/test_codec_declarations.py", line 156, in test_all_eight_version_gates_and_fresh_limits
+    self.assertEqual(m.calls,8); self.assertEqual(limits,[]);self.assertEqual(prefix,b'p');existing_sink.finish()
+                                                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: bytearray(b'') != b'p'
+
+======================================================================
+FAIL: test_field_errors_admission_and_overflow_before_prefix (test_codec_declarations.DraftRows.test_field_errors_admission_and_overflow_before_prefix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/python/tests/test_codec_declarations.py", line 300, in test_field_errors_admission_and_overflow_before_prefix
+    self.assertEqual(dest,b'p'); sink.finish()
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: bytearray(b'') != b'p'
+
+----------------------------------------------------------------------
+Ran 267 tests in 0.342s
+
+FAILED (failures=2, skipped=12)

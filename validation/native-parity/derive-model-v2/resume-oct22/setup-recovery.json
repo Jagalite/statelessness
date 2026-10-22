@@ -1,0 +1,16 @@
+{
+  "branch": "t3/resume-n13-native-parity",
+  "worktree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+  "requested_base": "57cc38b0abb1c8dcb586d80f44455ab23a8f7a19",
+  "interrupted_prior_tree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfcbf123",
+  "interrupted_prior_tree_status": "git status --porcelain returned empty; no uncommitted work recovered; read only",
+  "setup_issue": "T3 branch rename left HEAD pointing to missing old branch with orphan HEAD.lock; lock had no lsof owner. Backed up metadata, restored renamed branch symbolic HEAD. Ordinary ff checkout was interrupted only after it made slow partial progress; no Kyoto job stopped. Verified source index equals target commit, ancestor relation, and all copied Git blob IDs; replaced only own index and advanced own branch to target.",
+  "metadata_backup": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/n13-git-setup-recovery-thcj5yvv",
+  "metadata_hashes": {
+    "ORIG_HEAD": "1409bae3c615d29198c1f107c6c042579561de35232df2c91c0d814d2c649389",
+    "logs-HEAD": "1a23d0c6b22a93cbea9bb1f5bda69e5b4cd1cc26ac734ddc79b33aabb1c40ed7",
+    "HEAD": "d94ce809701204892b356ad6da9797b1f347af1ea23d926f9b4f461ed6e866f4",
+    "HEAD.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "index": "c144ed697afe513bf66ce165ebb43330b643ba553d2a2e2a4aaa7f20e18a07e3"
+  }
+}

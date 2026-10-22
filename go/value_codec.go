@@ -146,6 +146,7 @@ type ValueCodec[T any] struct {
 	variantFor func(T) (string, bool)
 	layout     *ValueLayout
 	builtin    string
+	declared   bool // initialized declaration may intentionally expose neither direction
 }
 
 func NewValueCodec[T any](schema string, encode func(T, *EncodeBuffer) error, decode func(*Decoder) (T, error), layout *ValueLayout) (ValueCodec[T], error) {
@@ -203,6 +204,12 @@ func (c ValueCodec[T]) EncodeRaw(v T, out *EncodeBuffer) error {
 	return encodeValueCallback(c, v, out, false)
 }
 func encodeValueCallback[T any](c ValueCodec[T], v T, out *EncodeBuffer, sticky bool) (err error) {
+	if c.encode == nil {
+		if c.decode == nil && !c.declared {
+			return &ConfigError{"invalid value codec"}
+		}
+		return &ConfigError{"value codec has no encoder"}
+	}
 	batch, e := out.batch()
 	if e != nil {
 		return e
@@ -224,15 +231,7 @@ func encodeValueCallback[T any](c ValueCodec[T], v T, out *EncodeBuffer, sticky 
 			}
 		}
 	}()
-	if c.encode == nil {
-		if c.decode == nil {
-			err = &ConfigError{"invalid value codec"}
-		} else {
-			err = &ConfigError{"value codec has no encoder"}
-		}
-	} else {
-		err = c.encode(v, child)
-	}
+	err = c.encode(v, child)
 	if sticky {
 		if batch.failure != nil {
 			return batch.failure
@@ -262,7 +261,7 @@ func (c ValueCodec[T]) DecodeRaw(d *Decoder) (v T, err error) {
 		return v, &ConfigError{"nil value decoder"}
 	}
 	if c.decode == nil {
-		if c.encode == nil {
+		if c.encode == nil && !c.declared {
 			return v, &ConfigError{"invalid value codec"}
 		}
 		return v, &ConfigError{"value codec has no decoder"}
@@ -275,6 +274,12 @@ func ReadValue[T any](d *Decoder, c ValueCodec[T]) (v T, err error) {
 	}
 	if d.failure != nil {
 		return v, copyValueDecodeError(d.failure)
+	}
+	if c.decode == nil {
+		if c.encode == nil && !c.declared {
+			return v, &ConfigError{"invalid value codec"}
+		}
+		return v, &ConfigError{"value codec has no decoder"}
 	}
 	if d.limits.Work == 0 {
 		return v, d.reject(&ModelError{"decode work limit"})

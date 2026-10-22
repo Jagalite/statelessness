@@ -1,0 +1,39 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write ModelConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/22] Compiling Statelessness AuditRecording.swift
+[6/22] Compiling Statelessness AuditTrace.swift
+[7/22] Compiling Statelessness CheckSink.swift
+[8/22] Compiling Statelessness CheckedResults.swift
+[9/22] Compiling Statelessness DeriveCodec.swift
+[10/22] Compiling Statelessness EncodeBuffer.swift
+[11/22] Compiling Statelessness Evidence.swift
+[12/22] Compiling Statelessness EvidenceCodec.swift
+[13/22] Compiling Statelessness EvidenceExports.swift
+[14/22] Compiling Statelessness EvidenceRecorder.swift
+[15/22] Compiling Statelessness Execution.swift
+[16/22] Compiling Statelessness ExecutionBudget.swift
+[17/22] Compiling Statelessness Explore.swift
+[18/22] Compiling Statelessness Fuzz.swift
+[19/22] Emitting module Statelessness
+[20/36] Compiling Statelessness Generate.swift
+[21/36] Compiling Statelessness JSON.swift
+[22/36] Compiling Statelessness Model.swift
+[23/36] Compiling Statelessness Oracle.swift
+[24/36] Compiling Statelessness Recorder.swift
+[25/36] Compiling Statelessness Replay.swift
+[26/36] Compiling Statelessness Rng.swift
+[27/36] Compiling Statelessness Shrink.swift
+[28/36] Compiling Statelessness TraceJSON.swift
+[29/36] Compiling Statelessness ValueCodec.swift
+[30/36] Compiling Statelessness ValueCodec128.swift
+[31/36] Compiling Statelessness ValueCodecBuiltins.swift
+[32/36] Compiling Statelessness ValueCodecDecoder.swift
+[33/36] Compiling Statelessness ValueCodecLayouts.swift
+[34/38] Emitting module ModelConsumer
+[35/38] Compiling ModelConsumer main.swift
+[35/38] Write Objects.LinkFileList
+[36/38] Linking ModelConsumer
+[37/38] Applying ModelConsumer
+Build complete! (123.26s)

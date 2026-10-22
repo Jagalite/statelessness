@@ -1,0 +1,24 @@
+{
+  "inherited_job": "cfe860eae13e4c88942e4f7b8079f5a2",
+  "scope": "25 compiler rejections inherited; production Rust, manifests, build scripts and rejection harness inputs unchanged; installed app bin and runtime fixture changes are not compile-fail harness inputs",
+  "added": [
+    "scripts/test_native_model_receipts.py"
+  ],
+  "removed": [],
+  "changed": [
+    "crates/macro-qualification/src/bin/n13-model-interchange.rs",
+    "crates/macro-qualification/tests/n13_derive_reference.rs",
+    "docs/native-parity/derive-model-draft/go-dispositions.json",
+    "docs/native-parity/derive-model-draft/rust-dispositions.json",
+    "docs/native-parity/derive-model-draft/swift-dispositions.json",
+    "examples/native-model/README.md",
+    "examples/native-model/go/main.go",
+    "examples/native-model/python/consumer.py",
+    "examples/native-model/swift/Sources/ModelConsumer/main.swift",
+    "examples/native-model/typescript/consumer.ts",
+    "go/value_derive_test.go",
+    "python/tests/test_codec_declarations.py",
+    "scripts/check-native-model-consumers.py",
+    "swift/Tests/StatelessnessTests/DeriveCodecTests.swift"
+  ]
+}

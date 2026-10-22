@@ -493,3 +493,14 @@ models generally need explicit equality hooks compatible with faithful snapshots
 Typed ModelError messages are retained in incomplete limitations; other Python
 exceptions receive safe contextual diagnostics. Successful reducer returns count
 as materialized edges before native result validation or snapshot errors.
+
+Explicit N13 declarations are opt-in via `statelessness.codec_declarations` (also
+exported at package root). `ordered_record`, `tuple_record`, and `unit_record`
+concatenate explicit fields; `tagged_enum` requires explicit U8/U16/U32 tags.
+Fields choose ordinary, `length=1/2/4`, or adapter routes. Builders capture their
+configuration and infer encode/decode independently; `require=("encode",)` asserts
+availability without filtering other capabilities. Record/enum layouts remain
+unknown unless `layout=Rust64Layout(...)` supplies an explicit logical weight.
+`model_codec(state=..., input=..., output=...).bind(model)` preserves model
+methods while replacing its eight codec hooks; output requires encoding only.
+These APIs do not promote a compatibility profile or infer Rust object layout.
