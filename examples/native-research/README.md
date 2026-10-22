@@ -29,6 +29,13 @@ matching finite output does not qualify the candidate. All research and baseline
 runner identities, including the later Swift baseline executable, are retained
 and checked after execution.
 
+Installed package/consumer trees and copied fixtures are checked before and
+after use, including Python bytecode. The baseline records exact binary
+input/stdout/stderr in `portable-baseline-receipts/`, using shared SHA-256 blobs
+and an invocation journal. Retain that directory alongside the partial or final
+`portable-baseline.json`; process failures and malformed responses do not erase
+earlier comparisons or stream bytes.
+
 Use the [combined qualification plan](../../validation/native-parity/derive-model-v2/integration-oct22/combined-n12/qualification-plan.json)
 for exact prerequisite build and consumer commands. The full candidate proof
 includes both Rust binaries, all five engines, and the existing portable baseline;
