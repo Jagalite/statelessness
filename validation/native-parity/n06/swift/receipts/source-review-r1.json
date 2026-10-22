@@ -1,0 +1,15 @@
+{
+  "schema": "n06-swift-source-review-v1",
+  "base_commit": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f",
+  "review_task": "node:delegated-task:command%3Amcp%3A0edc9f38-3739-48fd-9efc-62526732889c%3Adelegate-task%3An06-swift-runtime-review-r1",
+  "disposition": "No confirmed production findings requiring a fix in the reviewed scope",
+  "scope": "Source review of worker ownership, delivery, control, lifecycle, errors, accounting and static Swift 6 risks; no compiler or runtime qualification",
+  "files": {
+    "swift/Sources/Statelessness/Campaign.swift": "3fd338b59ddc1c7f4b66db003b9996caf458b3635f90247c3e2be960e1ff52ea",
+    "swift/Sources/Statelessness/CampaignRuntime.swift": "082d2967d52fff1238221520682dfbed59b4633c58c4ef10555d4a4561fbcb0d",
+    "swift/Sources/Statelessness/CampaignLifecycle.swift": "598fab867564f79c350a7ea4bf170a3be0adbb8ae13e5483f914ec6a3a4c827f"
+  },
+  "resolved_before_review": "Four checked conditional Sendable conformances moved to their nominal type defining files; no N05 algorithm change",
+  "known_boundary": "N05 callback wrappers normalize thrown CampaignPanic markers to ModelError; feedback-metadata-panic differs from the Rust unwind fixture",
+  "execution": "not performed"
+}
