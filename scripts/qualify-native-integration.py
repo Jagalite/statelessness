@@ -272,6 +272,8 @@ def main():
                        '-p', 'test_native_preparation_identities.py', '-v']) and okay
             okay = run('consumer-provenance', [sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts',
                        '-p', 'test_native_consumer_provenance.py', '-v']) and okay
+            okay = run('baseline-failure-receipts', [sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts',
+                       '-p', 'test_conformance_failure_receipts.py', '-v']) and okay
             okay = run('dispositions', [sys.executable, 'scripts/check-n13-dispositions.py']) and okay
         elif args.scope == 'native':
             okay = run('python', [sys.executable,'-m','unittest','discover','-s','python/tests','-v'],
