@@ -24,19 +24,76 @@ func executionRunSize(_ metadata: Metadata, _ config: RunConfig, _ state: [UInt8
 }
 func executionStepFixed(_ input: [UInt8], _ disposition: Disposition, _ outputCount: Int, _ checks: [Check], _ limits: BinaryTraceLimits) throws -> (bytes: UInt64, items: UInt64) {
     var size = AuditSizer(limits: limits)
-    try size.count(outputCount, limits.maxOutputsPerStep, "outputs per step")
-    var fixed = try auditAdd(8, try size.blob(input), "frame bytes")
-    fixed = try auditAdd(fixed, 1, "frame bytes")
+    // Rust trace::step_size admits the STEP item before its collections. This
+    // affects which limit wins when a check also has an oversized string.
+    size.items = 1
+    try auditBound(size.items, limits.maxItems, "aggregate items")
+    var fixed: UInt64 = 0
+    func append(_ bytes: UInt64) throws {
+        fixed = try auditAdd(fixed, bytes, "frame bytes")
+        try auditBound(fixed, min(limits.maxFrameBytes, UInt64(UInt32.max)), "frame bytes")
+    }
+    // Admit fields in wire order: an earlier frame overflow must win over a
+    // later collection or string limit, just as trace::Encoder::bytes does.
+    try append(8)
+    try append(size.blob(input))
+    try append(1)
     switch disposition {
     case .accepted: break
-    case let .rejected(s), let .ignored(s): fixed = try auditAdd(fixed, try size.string(s), "frame bytes")
+    case let .rejected(s), let .ignored(s): try append(size.string(s))
     }
-    fixed = try auditAdd(fixed, 8, "frame bytes") // output count, state length
-    fixed = try auditAdd(fixed, UInt64(outputCount) * 4, "frame bytes")
-    fixed = try auditAdd(fixed, try size.checks(checks), "frame bytes")
-    try auditBound(fixed, min(limits.maxFrameBytes, UInt64(UInt32.max)), "frame bytes")
-    let items = try auditAdd(size.items, 1, "aggregate items")
+    try size.count(outputCount, limits.maxOutputsPerStep, "outputs per step")
+    try append(4)
+    try append(UInt64(outputCount) * 4) // empty provisional output blobs
+    try append(4) // empty provisional post-state blob
+    try size.count(checks.count, limits.maxChecksPerStep, "checks per step")
+    try append(4)
+    for check in checks {
+        guard check.status != .passed || check.details.isEmpty else {
+            throw BinaryTraceError.invalidData("passing checks have no details")
+        }
+        try append(size.string(check.id))
+        try append(1)
+        if check.status != .passed { try append(size.string(check.details)) }
+    }
+    return (fixed, size.items)
+}
+/// Replay has a different preflight from monitor STEP serialization: validate
+/// the isolated check batch before combining its items with outputs and STEP.
+func executionReplayStepFixed(_ input: [UInt8], _ disposition: Disposition, _ outputCount: Int, _ checks: [Check], _ limits: BinaryTraceLimits) throws -> (bytes: UInt64, items: UInt64) {
+    try auditBound(UInt64(outputCount), min(limits.maxOutputsPerStep, UInt64(UInt32.max)), "outputs per step")
+    var size = AuditSizer(limits: limits)
+    var batch: UInt64 = 0
+    func appendCheckBytes(_ bytes: UInt64) throws {
+        batch = try auditAdd(batch, bytes, "frame bytes")
+        try auditBound(batch, min(limits.maxFrameBytes, UInt64(UInt32.max)), "frame bytes")
+    }
+    // Match trace::checked_batch_size, including each field's frame admission.
+    // A frame overflow at a status byte precedes a later oversized detail/ID.
+    try size.count(checks.count, limits.maxChecksPerStep, "checks per step")
+    try appendCheckBytes(4)
+    for check in checks {
+        guard check.status != .passed || check.details.isEmpty else {
+            throw BinaryTraceError.invalidData("passing checks have no details")
+        }
+        try appendCheckBytes(size.string(check.id))
+        try appendCheckBytes(1)
+        if check.status != .passed { try appendCheckBytes(size.string(check.details)) }
+    }
+    let items = try auditAdd(try auditAdd(size.items, UInt64(outputCount), "aggregate items"), 1, "aggregate items")
     try auditBound(items, limits.maxItems, "aggregate items")
+    let reason: UInt64
+    switch disposition {
+    case .accepted: reason = 0
+    case let .rejected(text), let .ignored(text): reason = try size.string(text)
+    }
+    // sequence + input length + disposition + output count + post-state length,
+    // followed by input/reason bodies, empty output prefixes and check batch.
+    var fixed = try auditAdd(21, UInt64(input.count), "frame bytes")
+    fixed = try auditAdd(fixed, reason, "frame bytes")
+    fixed = try auditAdd(fixed, UInt64(outputCount) * 4, "frame bytes")
+    fixed = try auditAdd(fixed, batch, "frame bytes")
+    try auditBound(fixed, min(limits.maxFrameBytes, UInt64(UInt32.max)), "frame bytes")
     return (fixed, items)
 }
 func executionRemaining(_ fixed: UInt64, _ bytes: UInt64, footer: UInt64, limits: BinaryTraceLimits) throws -> UInt64 {

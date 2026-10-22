@@ -13,6 +13,8 @@ export {CheckedInitial,CheckedTurn,checkInitial,checkTurn,checkTurnExact,FULL_CH
 export type {ExactCheckPolicy,TurnObservation} from './checked.js';
 export {Recorder} from './runtime_recorder.js';
 export type {RecorderOptions} from './runtime_recorder.js';
+export {LogLevel,SnapshotPolicy,DEFAULT_OBSERVATION_OPTIONS,NoPayloads,EncodedPayloads,TextObserver,TextObservationError} from './observation.js';
+export type {Event,Observer,ObservationOptions,PayloadFormat,PayloadWriter,ObservationWriter,TextObservationErrorStage} from './observation.js';
 export {DEFAULT_EVIDENCE_LIMITS,resolveEvidenceLimits,emptyCausalContext,validateTraceV2,snapshotTraceV2,writeTraceV2,writeTraceV2To,readArtifact,artifactTrace,checkPhase,replayTraceV2,verifyUpgrade,diagnosticJSON} from './evidence.js';
 export type {Provenance,OutputOrigin,CausalContext,StepEvidence,TraceV2,Artifact,EvidenceLimits,EvidenceLimitOptions,EvidenceCheckPhase,ExportPolicy} from './evidence.js';
 export {EvidenceRecorder} from './evidence_recorder.js';

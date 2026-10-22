@@ -1,0 +1,1809 @@
+{
+  "schema": "statelessness.observation.v1",
+  "cases": [
+    {
+      "id": "default-off-inert",
+      "stream": "s",
+      "options": {},
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [
+            {
+              "id": "bad",
+              "status": "Failed",
+              "message": "fail"
+            }
+          ],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "ordinary-filtered-error",
+      "stream": "s",
+      "options": {
+        "level": "Error",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "ordinary-filtered-warn",
+      "stream": "s",
+      "options": {
+        "level": "Warn",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "ordinary-filtered-info",
+      "stream": "s",
+      "options": {
+        "level": "Info",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "debug-no-payloads",
+      "stream": "s",
+      "options": {
+        "level": "Debug",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [
+            {
+              "id": "ok",
+              "status": "Passed"
+            }
+          ],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=1 checks=1\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d310a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "trace-payload-order",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2,
+            255
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [
+            {
+              "id": "ok",
+              "status": "Passed"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=2 checks=1 check=\"ok\":Passed input=hex:01 output[0]=hex:02 output[1]=hex:ff post_state=hex:03\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3220636865636b733d3120636865636b3d226f6b223a50617373656420696e7075743d6865783a3031206f75747075745b305d3d6865783a3032206f75747075745b315d3d6865783a666620706f73745f73746174653d6865783a30330a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_output:2",
+          "encode_output:255",
+          "encode_state:3"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "error-wins-skip",
+      "stream": "s",
+      "options": {
+        "level": "Error"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [
+            {
+              "id": "ok",
+              "status": "Passed"
+            },
+            {
+              "id": "skip",
+              "status": "Skipped",
+              "message": "policy"
+            },
+            {
+              "id": "bad",
+              "status": "Failed",
+              "message": "bad\nline"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "record_text": "Error stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=1 checks=3 check=\"skip\":Skipped(\"policy\") check=\"bad\":Failed(\"bad\\nline\")\n",
+        "record_hex": "4572726f722073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3320636865636b3d22736b6970223a536b69707065642822706f6c696379222920636865636b3d22626164223a4661696c656428226261645c6e6c696e6522290a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "error-trace-still-payloads",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [
+            {
+              "id": "bad",
+              "status": "Failed",
+              "message": "x"
+            },
+            {
+              "id": "skip",
+              "status": "Skipped",
+              "message": "y"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "record_text": "Error stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=1 checks=2 check=\"bad\":Failed(\"x\") check=\"skip\":Skipped(\"y\") input=hex:01 output[0]=hex:02 post_state=hex:03\n",
+        "record_hex": "4572726f722073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3220636865636b3d22626164223a4661696c6564282278222920636865636b3d22736b6970223a536b6970706564282279222920696e7075743d6865783a3031206f75747075745b305d3d6865783a303220706f73745f73746174653d6865783a30330a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "skip-warn",
+      "stream": "s",
+      "options": {
+        "level": "Warn",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "checkpoint",
+          "sequence": "0",
+          "state": 3,
+          "checks": [
+            {
+              "id": "ok",
+              "status": "Passed"
+            },
+            {
+              "id": "skip",
+              "status": "Skipped",
+              "message": "policy"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "record_text": "Warn stream=\"s\" event=checkpoint sequence=0 checks=2 check=\"skip\":Skipped(\"policy\")\n",
+        "record_hex": "5761726e2073747265616d3d227322206576656e743d636865636b706f696e742073657175656e63653d3020636865636b733d3220636865636b3d22736b6970223a536b69707065642822706f6c69637922290a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "skip-filtered-at-error",
+      "stream": "s",
+      "options": {
+        "level": "Error"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "checkpoint",
+          "sequence": "0",
+          "state": 3,
+          "checks": [
+            {
+              "id": "skip",
+              "status": "Skipped",
+              "message": "policy"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "dispositions-not-warnings",
+      "stream": "s",
+      "options": {
+        "level": "Warn"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Rejected",
+            "reason": "no"
+          },
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Ignored",
+            "reason": "dup"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "rejected-ignored-text",
+      "stream": "s",
+      "options": {
+        "level": "Debug"
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Rejected",
+            "reason": "no"
+          },
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Ignored",
+            "reason": "dup"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Rejected(\"no\") outputs=0 checks=0\nDebug stream=\"s\" event=transition sequence=2 disposition=Ignored(\"dup\") outputs=0 checks=0\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d52656a656374656428226e6f2229206f7574707574733d3020636865636b733d300a44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d49676e6f72656428226475702229206f7574707574733d3020636865636b733d300a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "no-payloads",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=1 checks=0 input=unavailable output[0]=unavailable post_state=unavailable\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d756e617661696c61626c65206f75747075745b305d3d756e617661696c61626c6520706f73745f73746174653d756e617661696c61626c650a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "periodic-explicit-and-setters",
+      "stream": "s",
+      "options": {
+        "level": "Off",
+        "snapshots": {
+          "every": "2"
+        }
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Trace"
+        },
+        {
+          "kind": "checkpoint",
+          "sequence": "1",
+          "state": 3,
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "3",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_snapshots",
+          "snapshots": "None"
+        },
+        {
+          "kind": "checkpoint",
+          "sequence": "4",
+          "state": 3,
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "4",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "5",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "Trace stream=\"s\" event=checkpoint sequence=1 checks=0 state=hex:03\nDebug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=0 checks=0 input=hex:01 post_state=hex:03\nDebug stream=\"s\" event=transition sequence=3 disposition=Accepted outputs=0 checks=0 input=hex:01\nTrace stream=\"s\" event=checkpoint sequence=4 checks=0\nDebug stream=\"s\" event=transition sequence=4 disposition=Accepted outputs=0 checks=0 input=hex:01\n",
+        "record_hex": "54726163652073747265616d3d227322206576656e743d636865636b706f696e742073657175656e63653d3120636865636b733d302073746174653d6865783a30330a44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d6865783a303120706f73745f73746174653d6865783a30330a44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3320646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d6865783a30310a54726163652073747265616d3d227322206576656e743d636865636b706f696e742073657175656e63653d3420636865636b733d300a44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3420646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d6865783a30310a",
+        "callbacks": [
+          "encode_state:3",
+          "encode_input:1",
+          "encode_state:3",
+          "encode_input:1",
+          "encode_input:1"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "max-u64-and-no-continuity",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": {
+          "every": "18446744073709551615"
+        }
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "18446744073709551615",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "message",
+          "level": "Error",
+          "sequence": "18446744073709551615",
+          "message": "ok"
+        },
+        {
+          "kind": "finished",
+          "transitions": "18446744073709551615",
+          "reason": "done"
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=18446744073709551615 disposition=Accepted outputs=0 checks=0 input=hex:01 post_state=hex:03\nDebug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=0 checks=0 input=hex:01\nError stream=\"s\" event=message sequence=Some(18446744073709551615) message=\"ok\"\nInfo stream=\"s\" event=finished transitions=18446744073709551615 reason=\"done\"\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d313834343637343430373337303935353136313520646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d6865783a303120706f73745f73746174653d6865783a30330a44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d6865783a30310a4572726f722073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d536f6d6528313834343637343430373337303935353136313529206d6573736167653d226f6b220a496e666f2073747265616d3d227322206576656e743d66696e6973686564207472616e736974696f6e733d313834343637343430373337303935353136313520726561736f6e3d22646f6e65220a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_state:3",
+          "encode_input:1"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "message-levels",
+      "stream": "s",
+      "options": {
+        "level": "Debug"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "message",
+          "level": "Off",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "message",
+          "level": "Error",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "message",
+          "level": "Warn",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "message",
+          "level": "Debug",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "message",
+          "level": "Trace",
+          "sequence": null,
+          "message": "ok"
+        }
+      ],
+      "expected": {
+        "record_text": "Error stream=\"s\" event=message sequence=None message=\"ok\"\nWarn stream=\"s\" event=message sequence=None message=\"ok\"\nInfo stream=\"s\" event=message sequence=None message=\"ok\"\nDebug stream=\"s\" event=message sequence=None message=\"ok\"\n",
+        "record_hex": "4572726f722073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d226f6b220a5761726e2073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d226f6b220a496e666f2073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d226f6b220a44656275672073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d226f6b220a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "lifecycle",
+      "stream": "s",
+      "options": {
+        "level": "Info"
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "started",
+          "metadata": {
+            "name": "fixture",
+            "model_version": 1,
+            "properties_version": 2,
+            "codec_version": 3,
+            "build": "pinned"
+          },
+          "config": {
+            "strategy": "manual",
+            "seed": "18446744073709551615",
+            "parameters": [
+              [
+                "k",
+                "v"
+              ]
+            ]
+          }
+        },
+        {
+          "kind": "finished",
+          "transitions": "0",
+          "reason": "done"
+        }
+      ],
+      "expected": {
+        "record_text": "Info stream=\"s\" event=started metadata=ModelMetadata { name: \"fixture\", model_version: 1, properties_version: 2, codec_version: 3, build: \"pinned\" } config=RunConfig { strategy: \"manual\", seed: Some(18446744073709551615), parameters: [(\"k\", \"v\")] }\nInfo stream=\"s\" event=finished transitions=0 reason=\"done\"\n",
+        "record_hex": "496e666f2073747265616d3d227322206576656e743d73746172746564206d657461646174613d4d6f64656c4d65746164617461207b206e616d653a202266697874757265222c206d6f64656c5f76657273696f6e3a20312c2070726f706572746965735f76657273696f6e3a20322c20636f6465635f76657273696f6e3a20332c206275696c643a202270696e6e656422207d20636f6e6669673d52756e436f6e666967207b2073747261746567793a20226d616e75616c222c20736565643a20536f6d65283138343436373434303733373039353531363135292c20706172616d65746572733a205b28226b222c20227622295d207d0a496e666f2073747265616d3d227322206576656e743d66696e6973686564207472616e736974696f6e733d3020726561736f6e3d22646f6e65220a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "ascii-escaped-common-utf8",
+      "stream": "s\n\"é",
+      "options": {
+        "level": "Info"
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": "0",
+          "message": "é😀\n\r\t\"\\"
+        }
+      ],
+      "expected": {
+        "record_text": "Info stream=\"s\\n\\\"é\" event=message sequence=Some(0) message=\"é😀\\n\\r\\t\\\"\\\\\"\n",
+        "record_hex": "496e666f2073747265616d3d22735c6e5c22c3a922206576656e743d6d6573736167652073657175656e63653d536f6d65283029206d6573736167653d22c3a9f09f98805c6e5c725c745c225c5c220a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "utf8-exact-bound-includes-lf",
+      "stream": "s",
+      "options": {
+        "level": "Info",
+        "max_record_bytes": 57
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": null,
+          "message": "é"
+        }
+      ],
+      "expected": {
+        "record_text": "Info stream=\"s\" event=message sequence=None message=\"é\"\n",
+        "record_hex": "496e666f2073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d22c3a9220a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "utf8-bound-one-short-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Info",
+        "max_record_bytes": 56
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": null,
+          "message": "é"
+        },
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": null,
+          "message": "a"
+        }
+      ],
+      "expected": {
+        "record_text": "Info stream=\"s\" event=message sequence=None message=\"a\"\n",
+        "record_hex": "496e666f2073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d2261220a",
+        "callbacks": [],
+        "error_stage": "record_limit",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "zero-bound-off-then-error",
+      "stream": "s",
+      "options": {
+        "level": "Off",
+        "max_record_bytes": 0
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Debug"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": "record_limit",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "trace-zero-bound-callback-cutoff-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition",
+        "max_record_bytes": 0
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "flush"
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 3,
+          "input": 1,
+          "state": 4,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        }
+      ],
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": "record_limit",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "trace-input-bound-callback-cutoff-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition",
+        "max_record_bytes": 97
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Debug"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 3,
+          "input": 1,
+          "state": 4,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        },
+        {
+          "kind": "flush"
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d300a",
+        "callbacks": [
+          "encode_input:1"
+        ],
+        "error_stage": "record_limit",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "codec-input-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        },
+        {
+          "kind": "set_level",
+          "level": "Trace"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=hex:01 output[0]=hex:02 post_state=hex:03\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d6865783a3031206f75747075745b305d3d6865783a303220706f73745f73746174653d6865783a30330a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3"
+        ],
+        "error_stage": "encode_input",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "codec-output-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_output"
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_output"
+        },
+        {
+          "kind": "set_level",
+          "level": "Trace"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=hex:01 output[0]=hex:02 post_state=hex:03\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d6865783a3031206f75747075745b305d3d6865783a303220706f73745f73746174653d6865783a30330a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_output:2",
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3"
+        ],
+        "error_stage": "encode_output",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "codec-state-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_state"
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_state"
+        },
+        {
+          "kind": "set_level",
+          "level": "Trace"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=hex:01 output[0]=hex:02 post_state=hex:03\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d6865783a3031206f75747075745b305d3d6865783a303220706f73745f73746174653d6865783a30330a",
+        "callbacks": [
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3",
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3"
+        ],
+        "error_stage": "encode_state",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "codec-bound-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 0
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Debug"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d300a",
+        "callbacks": [
+          "encode_input:1"
+        ],
+        "error_stage": "encode_input",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "format-input-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "custom",
+        "text": "v"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "format_input"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=v output[0]=v post_state=v\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d76206f75747075745b305d3d7620706f73745f73746174653d760a",
+        "callbacks": [
+          "format_input:1",
+          "format_input:1",
+          "format_output:2",
+          "format_state:3"
+        ],
+        "error_stage": "format_input",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "format-output-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "custom",
+        "text": "v"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "format_output"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=v output[0]=v post_state=v\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d76206f75747075745b305d3d7620706f73745f73746174653d760a",
+        "callbacks": [
+          "format_input:1",
+          "format_output:2",
+          "format_input:1",
+          "format_output:2",
+          "format_state:3"
+        ],
+        "error_stage": "format_output",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "format-state-recovery",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "custom",
+        "text": "v"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "format_state"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=1 checks=0 input=v output[0]=v post_state=v\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d76206f75747075745b305d3d7620706f73745f73746174653d760a",
+        "callbacks": [
+          "format_input:1",
+          "format_output:2",
+          "format_state:3",
+          "format_input:1",
+          "format_output:2",
+          "format_state:3"
+        ],
+        "error_stage": "format_state",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "swallowed-write-sticky",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "max_record_bytes": 256
+      },
+      "payloads": {
+        "kind": "custom",
+        "text": "v"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "swallow_input"
+        },
+        {
+          "kind": "set_level",
+          "level": "Debug"
+        },
+        {
+          "kind": "transition",
+          "sequence": "2",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=2 disposition=Accepted outputs=0 checks=0\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3220646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d300a",
+        "callbacks": [
+          "format_input:1"
+        ],
+        "error_stage": "record_limit",
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "custom-multiline-is-not-sanitized",
+      "stream": "s",
+      "options": {
+        "level": "Trace"
+      },
+      "payloads": {
+        "kind": "custom",
+        "text": "a\nb"
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=0 checks=0 input=a\nb\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3020636865636b733d3020696e7075743d610a620a",
+        "callbacks": [
+          "format_input:1"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "sink-write-prefix-poison-even-off",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "set_level",
+          "level": "Off"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        },
+        {
+          "kind": "flush"
+        }
+      ],
+      "sink": {
+        "fail_after_bytes": 5
+      },
+      "expected": {
+        "record_text": "Debug",
+        "record_hex": "4465627567",
+        "callbacks": [
+          "encode_input:1",
+          "encode_output:2",
+          "encode_state:3"
+        ],
+        "error_stage": "sink_write",
+        "sink_poisoned": true
+      }
+    },
+    {
+      "id": "sink-flush-poison-even-off",
+      "stream": "s",
+      "options": {
+        "level": "Off"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "flush"
+        },
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 0,
+          "input": 1,
+          "state": 3,
+          "outputs": [
+            2
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": [],
+          "fault": "encode_input"
+        },
+        {
+          "kind": "flush"
+        }
+      ],
+      "sink": {
+        "fail_flush": true
+      },
+      "expected": {
+        "record_text": "",
+        "record_hex": "",
+        "callbacks": [],
+        "error_stage": "sink_flush",
+        "sink_poisoned": true
+      }
+    },
+    {
+      "id": "healthy-flush-extraction",
+      "stream": "s",
+      "options": {
+        "level": "Info"
+      },
+      "payloads": {
+        "kind": "none"
+      },
+      "events": [
+        {
+          "kind": "message",
+          "level": "Info",
+          "sequence": null,
+          "message": "ok"
+        },
+        {
+          "kind": "flush"
+        }
+      ],
+      "expected": {
+        "record_text": "Info stream=\"s\" event=message sequence=None message=\"ok\"\n",
+        "record_hex": "496e666f2073747265616d3d227322206576656e743d6d6573736167652073657175656e63653d4e6f6e65206d6573736167653d226f6b220a",
+        "callbacks": [],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    },
+    {
+      "id": "declaration-bound-codec",
+      "stream": "s",
+      "options": {
+        "level": "Trace",
+        "snapshots": "EveryTransition"
+      },
+      "payloads": {
+        "kind": "encoded",
+        "max_blob_bytes": 16
+      },
+      "events": [
+        {
+          "kind": "transition",
+          "sequence": "1",
+          "before": 199,
+          "input": 17,
+          "state": 34,
+          "outputs": [
+            51
+          ],
+          "disposition": {
+            "kind": "Accepted"
+          },
+          "checks": []
+        }
+      ],
+      "binding": "declaration",
+      "expected": {
+        "record_text": "Debug stream=\"s\" event=transition sequence=1 disposition=Accepted outputs=1 checks=0 input=hex:11 output[0]=hex:33 post_state=hex:22\n",
+        "record_hex": "44656275672073747265616d3d227322206576656e743d7472616e736974696f6e2073657175656e63653d3120646973706f736974696f6e3d4163636570746564206f7574707574733d3120636865636b733d3020696e7075743d6865783a3131206f75747075745b305d3d6865783a333320706f73745f73746174653d6865783a32320a",
+        "callbacks": [
+          "encode_input:17",
+          "encode_output:51",
+          "encode_state:34"
+        ],
+        "error_stage": null,
+        "sink_poisoned": false
+      }
+    }
+  ]
+}

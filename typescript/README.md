@@ -332,6 +332,97 @@ borrow: callbacks cannot observe another turn or transfer the recorder midway
 through capture. A prior terminal failure remains primary. Sealed immutable check
 batches are quota-validated before the recorder copies them into retained storage.
 
+`observation-v1` adds optional synchronous diagnostics through `Event`, `Observer`,
+`PayloadFormat`, `NoPayloads`, `EncodedPayloads` and `TextObserver`. The event union
+uses `kind: 'started' | 'checkpoint' | 'transition' | 'message' | 'finished'`.
+The caller supplies metadata/config, actual application transitions and completed
+checks; observation never runs initial-state, reducer, check or effect callbacks.
+NoPayloads and custom formatters work with a base `Model` without a codec.
+Events are diagnostic data: they neither prove continuity nor authorize a checked
+recorder handoff. Existing checked tokens, periodic checking and Recorder behavior
+are unchanged. To share already completed checks, pass
+`{kind: 'transition', ...token.observation()}` to the logger and the actual token to
+`recorder.observeChecked(token)`.
+
+```ts
+const chunks: Uint8Array[] = [];
+const writer = {
+  write(bytes: Uint8Array): number { chunks.push(bytes.slice()); return bytes.length; },
+  flush(): void {},
+};
+const log = new TextObserver<number, number, number>(writer, 'application', {
+  level: LogLevel.Trace,
+  snapshots: SnapshotPolicy.Every(2n),
+}, new NoPayloads());
+// Supply an already executed turn; the observer does not call model.step().
+log.observe(model, {kind: 'transition', sequence: 2n, before: 1, input: 1,
+  transition: accepted(2, [2]), checks: []});
+```
+
+`DEFAULT_OBSERVATION_OPTIONS` is Off, SnapshotPolicy.None and 1 MiB per record.
+Options accept `level`, `snapshots`, and `maxRecordBytes`; zero record bytes is
+valid. `LogLevel` increases through Off, Error, Warn, Info, Debug, Trace. Failures
+take Error precedence over skipped Warn checks. Ordinary checkpoints are Trace,
+transitions Debug (including rejected/ignored), and start/finish Info. Messages
+use their own level and explicit Off is always filtered. Filtering precedes
+payload formatting, cloning and codec dispatch. Only configured Trace renders
+payloads and passed check details, even for an event promoted to Error/Warn.
+
+Snapshots select None, Every(nonzero u64 bigint), or EveryTransition. All event
+sequences, transition totals and seeds are exact u64 `bigint`; transition sequence
+is positive. At Trace every explicit checkpoint includes state under any non-None
+policy, independently of the interval. Transition formatting visits input, ordered
+outputs and selected post-state; it never reads before-state. `setLevel` and
+`setSnapshots` change future events without filling omitted history.
+
+Events borrow their application values for the synchronous call; they are not
+retained or cloned by the observer. Keep payloads, arrays and fields immutable
+during observation, and keep formatters pure. EncodedPayloads uses the existing
+model encoding dispatcher, including its clone hooks, bounded reusable
+EncodeBuffer storage and declaration-bound/version-gated codecs. Prefer
+`new EncodedPayloads<State, Input, Output>(maxBlobBytes)` with a CodecModel-typed
+observer. It emits lowercase `hex:` bytes. Legacy encode callbacks may allocate
+before admission; clone/callback allocations and work are outside the limits.
+Bounded snapshots copy admitted bytes for publication. Limits bound logical
+record/blob bytes, not process memory or all transient allocations.
+
+`PayloadWriter.write`/`writeAll` accept UTF-8 strings or Uint8Array bytes. A lease
+expires when its formatter returns, including on errors; callbacks must return
+undefined synchronously. Record and encoding overflow remain sticky even if a
+callback catches the rejected write. A complete record (including LF) is staged
+before destination writes. Formatting, codec and record-limit errors publish no
+bytes for that event and allow the next event to recover. `TextObservationError.stage`
+identifies `format_input/output/state`, `encode_input/output/state`, `record_limit`,
+`sink_write`, `sink_flush`, `sink_poisoned`, or native validation/ownership `format`.
+Its stage type is `TextObservationErrorStage`. The existing `ObservationError`
+export remains the oracle-advance error carrying the retained actual transition.
+Public error stages confer no attribution: a formatter that throws a constructed
+or nested observer error reports the current `format_input/output/state` stage.
+Only record failures and EncodedPayloads failures tied to the current callback's
+writer retain their internal stages; earlier calls and other writers do not.
+Hostile thrown diagnostics are contained without invoking a reducer or checker.
+
+`ObservationWriter.write` must synchronously return the consumed prefix length.
+The observer completes short writes, retries errors with `code: 'EINTR'`, and
+rejects zero/invalid/async returns. This is not a Node Writable stream interface.
+A write failure may expose a partial record; write/flush failures permanently
+poison the observer, including after changing to Off. `isPoisoned` reports health,
+`getRef` exposes the caller's writer, and `intoInner` transfers its handle and
+disables the observer without flushing, closing or disposing it. `flush` is
+explicit. Writers must consume/copy the supplied byte view during the call and
+must not mutate it. Reentrant observation, setters, flush and transfer are rejected.
+
+Native text follows the Rust field order and variant spellings in the shared
+`spec/observation-v1.md` profile. Library fields quote and escape newline, carriage
+return, tab, NUL, quote, backslash and nonprinting characters, preserving common
+printable UTF-8. JavaScript Unicode category tables can differ from Rust Debug;
+universal Unicode/future aggregate Debug byte compatibility is not claimed.
+Custom payloads are written verbatim: escaping and single-line output are the
+formatter's responsibility. Diagnostic text is never an exact replay artifact.
+The module is browser-safe and imports no Node APIs. Implementation and fixtures
+are source-authored candidates pending integrated Kyoto qualification; this
+addition alone does not establish N07 completion or browser/runtime qualification.
+
 `causal-evidence-v2` is an experimental candidate. `TraceV2` wraps an unchanged
 binary-v1 `AuditTrace` with exact `bigint` checkpoint/host sequences, ordered
 provenance and per-turn state-check boundaries/causes. `readArtifact` accepts

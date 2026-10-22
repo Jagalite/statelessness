@@ -35,9 +35,12 @@ public func recordAudit<S,I,O>(_ m: Model<S,I,O>, inputs: InputIterator<I>, conf
             let turn = try perform(m, state, input)
             try checkObservedInto(m, before: state, input: input, transition: turn, sequence: UInt64(steps.count + 1), checks: &checks)
             try auditBound(UInt64(turn.outputs.count), min(limits.maxOutputsPerStep, UInt64(UInt32.max)), "outputs per step")
-            let fixed = try executionStepFixed(encodedInput, turn.disposition, 0, checks, limits)
-            let nextItems = try auditAdd(items, try auditAdd(fixed.items, UInt64(turn.outputs.count), "aggregate items"), "aggregate items")
+            // Rust recording admits cumulative check + STEP + output items
+            // before measuring the provisional frame or inspecting check text.
+            let fixedItems = try auditAdd(try auditAdd(items, UInt64(checks.count), "aggregate items"), 1, "aggregate items")
+            let nextItems = try auditAdd(fixedItems, UInt64(turn.outputs.count), "aggregate items")
             try auditBound(nextItems, limits.maxItems, "aggregate items")
+            let fixed = try executionStepFixed(encodedInput, turn.disposition, 0, checks, limits)
             var remaining = try executionRemaining(fixed.bytes, bytes, footer: 18, limits: limits)
             var encodedOutputs: [[UInt8]] = []
             for output in turn.outputs {

@@ -45,6 +45,9 @@ public final class Recorder {
         self.baseConfig = RunConfig(strategy: config.strategy, seed: config.seed, parameters: parameters)
         let pristineCheckpoint = try copied(model.cloneState, state)
         self.metadata = try call("runtime metadata", codec.metadata)
+        // Rust validates the reserved error footer after metadata, before any
+        // checkpoint encoding/checking, even if that checkpoint will fail.
+        try auditBound(13 + UInt64(executionErrorTextLimit(options.limits)), min(options.limits.maxFrameBytes, UInt64(UInt32.max)), "frame bytes")
         var effective = options.limits; effective.maxTotalBytes = min(effective.maxTotalBytes, options.maxRetainedBytes)
         let checkpoint = try copied(model.cloneState, pristineCheckpoint)
         self.initialState = try encodedValue("runtime encode checkpoint", codec.encodeState, codec.encodeStateInto, checkpoint, maximum: executionBlobLimit(effective))
@@ -201,7 +204,8 @@ public final class Recorder {
         let beforeBytes = try encodedValue("runtime encode before state", codec.encodeState, codec.encodeStateInto, beforeSnapshot, maximum: maximum)
         try requireActive()
         guard beforeBytes == (entries.last?.step.postState ?? initialState) else { throw ModelError("runtime before state is discontinuous; observations are missing or reordered") }
-        try auditBound(UInt64(transition.outputs.count), min(limits.maxOutputsPerStep, limits.maxItems), "outputs per step")
+        try auditBound(UInt64(transition.outputs.count), limits.maxOutputsPerStep, "outputs per step")
+        try auditBound(UInt64(transition.outputs.count), limits.maxItems, "aggregate items")
         let fullFrameBudget = min(try auditAdd(min(limits.maxFrameBytes, UInt64(UInt32.max)), 9, "frame bytes"), limits.maxTotalBytes, options.maxRetainedBytes)
         guard fullFrameBudget >= 9 else { throw BinaryTraceError.limitExceeded("frame bytes") }
         let frameBudget = fullFrameBudget - 9
