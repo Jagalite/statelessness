@@ -54,10 +54,14 @@ def source_snapshot():
     for directory in (ROOT / 'src', *(ROOT / 'crates').glob('*/src')):
         names.update(str(p.relative_to(ROOT)) for p in directory.rglob('*')
                      if p.is_file() or p.is_symlink())
-    # Retain historical input membership as well. Only this pre-existing receipt
-    # family and ignored build products are excluded; no executed source lives in it.
+    # Historical executable fixtures remain source, even inside receipt families.
+    # Only receipt data in this pre-existing family and ignored build products
+    # are mutable. Newly added executable validation sources are always sealed.
+    source_extensions = {'.py', '.go', '.mjs', '.js', '.ts', '.swift', '.rs', '.sh', '.toml'}
     return {name: identity(ROOT / name) for name in sorted(set(names))
-            if name and not name.startswith(('validation/native-parity/derive-model-v2/', 'target/'))}
+            if name and not name.startswith('target/') and (
+                not name.startswith('validation/native-parity/derive-model-v2/')
+                or Path(name).suffix in source_extensions or os.access(ROOT / name, os.X_OK))}
 
 
 def tree_snapshot(path):
@@ -108,7 +112,7 @@ def tool_files(env):
             if result.returncode == 0:
                 paths['rustup-' + name] = result.stdout.decode().strip()
     if sys.platform == 'darwin':
-        for name in ('swift', 'swiftc', 'swift-test', 'swift-package', 'clang'):
+        for name in ('swift', 'swiftc', 'swift-test', 'swift-package', 'clang', 'xctest'):
             result = subprocess.run(['xcrun', '--find', name], env=env,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if result.returncode != 0:
@@ -175,9 +179,11 @@ def artifacts():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--scope', choices=('native', 'rust-runtime', 'command'), default='command')
+    parser.add_argument('--scope', choices=('native', 'packages', 'rust-runtime', 'command'), default='command')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--expected-source', type=Path, required=True)
+    parser.add_argument('--expected-tools', type=Path, help='sealed pre-submit tool/configuration manifest')
+    parser.add_argument('--artifacts', type=Path, help='fresh copied package/build directory for packages scope')
     parser.add_argument('command', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     out = args.output.resolve()
@@ -196,7 +202,7 @@ def main():
         env.pop(key, None)
     env.update(PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', PYTHONPATH='',
                CARGO_INCREMENTAL='0', CARGO_TARGET_DIR=str(ROOT / 'target/integration'),
-               CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off', GOFLAGS='',
+               CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off', GOENV='off', GOFLAGS='',
                INTEGRATION_GO_EXEC_DIR=str(out / 'go-executables'),
                INTEGRATION_RUSTDOC_EXEC_DIR=str(out / 'rustdoc-executables'))
     if args.scope == 'rust-runtime':
@@ -207,7 +213,7 @@ def main():
             '--test-runtool-arg=--rustdoc-exec'])
     report['environment'] = {k: env.get(k) for k in ('PATH','PYTHONDONTWRITEBYTECODE',
         'PYTHONNOUSERSITE','PYTHONPATH','CARGO_INCREMENTAL','CARGO_TARGET_DIR','CGO_ENABLED',
-        'GOPROXY','GOTOOLCHAIN','GOWORK','GOFLAGS','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS',
+        'GOPROXY','GOTOOLCHAIN','GOWORK','GOENV','GOFLAGS','RUSTFLAGS','CARGO_ENCODED_RUSTFLAGS',
         'RUSTUP_TOOLCHAIN','DEVELOPER_DIR','SDKROOT','CARGO_HOME','INTEGRATION_GO_EXEC_DIR',
         'INTEGRATION_RUSTDOC_EXEC_DIR','CARGO_ENCODED_RUSTDOCFLAGS')}
     report['cleared_fixture_overrides'] = sorted(k for k in os.environ if k.startswith('STATELESS_'))
@@ -242,7 +248,12 @@ def main():
         expected = json.loads(args.expected_source.read_text())
         if initial != expected:
             raise RuntimeError('candidate differs from sealed pre-submit source')
-        report['tools_before'] = manifest(tool_files(env))
+        current_tools = tool_files(env)
+        report['tools_before'] = manifest(current_tools)
+        if args.expected_tools:
+            report['expected_tools'] = str(args.expected_tools)
+            if current_tools != json.loads(args.expected_tools.read_text()):
+                raise RuntimeError('toolchain/configuration differs from sealed pre-submit identities')
         report['typescript_dependencies_before'] = manifest(tree_snapshot(ROOT / 'typescript/node_modules/typescript'))
         report['artifacts_before'] = manifest(artifacts())
         save()
@@ -250,7 +261,19 @@ def main():
                               ('go-version',['go','version']), ('node-version',['node','--version']),
                               ('swift-version',['swift','--version']), ('rustc-version',['rustc','-vV'])]:
             okay = run(name, command) and okay
-        if args.scope == 'native':
+        if args.scope == 'packages':
+            if args.artifacts is None:
+                raise RuntimeError('packages scope requires a fresh --artifacts directory')
+            okay = run('native-packages', [sys.executable, 'scripts/native-parity/n12-wire/prepare.py',
+                       '--artifacts', str(args.artifacts.resolve()), '--output', str(out / 'prepare')]) and okay
+            okay = run('n13-driver', [sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts',
+                       '-p', 'test_native_model_receipts.py', '-v']) and okay
+            okay = run('preparation-identities', [sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts',
+                       '-p', 'test_native_preparation_identities.py', '-v']) and okay
+            okay = run('consumer-provenance', [sys.executable, '-m', 'unittest', 'discover', '-s', 'scripts',
+                       '-p', 'test_native_consumer_provenance.py', '-v']) and okay
+            okay = run('dispositions', [sys.executable, 'scripts/check-n13-dispositions.py']) and okay
+        elif args.scope == 'native':
             okay = run('python', [sys.executable,'-m','unittest','discover','-s','python/tests','-v'],
                        changes={'PYTHONPATH':str(ROOT / 'python/src')}) and okay
             go_wrapper = shlex.join([sys.executable, str(Path(__file__).resolve()), '--go-exec'])
@@ -310,8 +333,8 @@ def main():
         except BaseException as error:
             report.setdefault('collection_errors', {})['logs'] = repr(error)
             okay = False
-        if args.scope in ('native', 'rust-runtime'):
-            kind = 'go' if args.scope == 'native' else 'rustdoc'
+        if args.scope in ('native', 'packages', 'rust-runtime'):
+            kind = 'rustdoc' if args.scope == 'rust-runtime' else 'go'
             def executable_proofs():
                 evidence = tree_snapshot(out / (kind + '-executables'))
                 if evidence.get('missing') or not evidence.get('files'):

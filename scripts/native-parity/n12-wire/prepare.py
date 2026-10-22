@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import signal
 import subprocess
 import sys
@@ -20,6 +21,38 @@ spec = importlib.util.spec_from_file_location('n12_compare', Path(__file__).with
 wire = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(wire)
 ROOT = wire.ROOT
+
+
+def compiler_snapshot(directory):
+    rows = wire.tree_snapshot(directory)
+    for name in ('package.json', 'bin/tsc', 'lib/_tsc.js'):
+        if rows.get(name, {}).get('type') != 'regular':
+            raise RuntimeError(f'prepared TypeScript compiler input missing: {name}')
+    return rows
+
+
+def compiler_command(directory, node):
+    # npm's .bin launcher is generated outside the compiler tree we seal.
+    # Invoke the sealed compiler entry directly, with the identified Node tool.
+    return [str(node), str(directory / 'bin/tsc'), '-p', 'tsconfig.json']
+
+
+def swift_test_snapshot(directory):
+    rows = {}
+    for path in sorted(directory.rglob('*')):
+        if path.is_file() and os.access(path, os.X_OK) and (
+                path.suffix == '.xctest' or
+                path.parent.name == 'MacOS' and path.parent.parent.name == 'Contents'
+                and path.parent.parent.parent.suffix == '.xctest'):
+            rows.update(wire.resolution_snapshot(path))
+    if not rows:
+        raise RuntimeError('Swift XCTest executable identity missing')
+    return rows
+
+
+def require_snapshot_equal(expected, actual, label):
+    if not expected or expected != actual:
+        raise RuntimeError(f'{label} identity changed or unavailable')
 
 
 def main():
@@ -99,7 +132,15 @@ def prepare(args):
         wire.save(args.output / 'build-input-copies.json', input_copies)
 
     copy_tree(frozen / 'conformance', packages / 'conformance')
+    # The combined N13 Python/TypeScript suites read the authored draft
+    # relative to the copied package, outside typescript/. Preserve that input
+    # and guard its membership and bytes alongside the package copies.
+    draft = Path('docs/native-parity/derive-model-draft')
+    (packages / draft).parent.mkdir(parents=True, exist_ok=True)
+    copy_tree(frozen / draft, packages / draft)
     commands, failures, hosts = [], {}, {}
+    compiler_before = None
+    swift_tests_before = None
     env = os.environ.copy()
     inherited_cargo_home = Path(env.get('CARGO_HOME', str(Path.home() / '.cargo')))
     private_cargo_home = scratch / 'cargo-home'
@@ -107,6 +148,7 @@ def prepare(args):
     if (inherited_cargo_home / 'registry').is_dir():
         (private_cargo_home / 'registry').symlink_to((inherited_cargo_home / 'registry').resolve(), target_is_directory=True)
     env.update({'CARGO_INCREMENTAL': '0', 'PYTHONDONTWRITEBYTECODE': '1', 'GOWORK': 'off',
+                'CGO_ENABLED': '0', 'GOPROXY': 'off', 'GOTOOLCHAIN': 'local',
                 'GOENV': 'off', 'GOFLAGS': '', 'CARGO_HOME': str(private_cargo_home),
                 'GOCACHE': str(scratch / 'go-cache'), 'GOMODCACHE': str(scratch / 'go-mod-cache')})
     removed = sorted({key for key in env if key.startswith('STATELESS_') or
@@ -123,6 +165,7 @@ def prepare(args):
                'VALUE_CORPUS': 'canonical-value-codec-v1.json', 'APPEND_CORPUS': 'append-checks-v1.json'}
     corpus_env = {'STATELESS_' + key: str(frozen / 'conformance' / value) for key, value in corpora.items()}
     env.update(corpus_env)
+    env.setdefault('INTEGRATION_GO_EXEC_DIR', str(args.output.resolve() / 'go-executables'))
 
     def run(label, argv, cwd=scratch, extra_env=None, required=None):
         index = len(commands)
@@ -131,7 +174,7 @@ def prepare(args):
         command_env = dict(env)
         command_env.update(extra_env or {})
         receipt = {'label': label, 'argv': list(map(str, argv)), 'cwd': str(cwd),
-                   'env_overrides': {key: command_env[key] for key in ('CARGO_HOME', 'CARGO_INCREMENTAL', 'PYTHONDONTWRITEBYTECODE', 'GOWORK', 'GOENV', 'GOFLAGS', 'GOCACHE', 'GOMODCACHE')}
+                   'env_overrides': {key: command_env[key] for key in ('CARGO_HOME', 'CARGO_INCREMENTAL', 'PYTHONDONTWRITEBYTECODE', 'GOWORK', 'GOENV', 'GOFLAGS', 'GOCACHE', 'GOMODCACHE', 'CGO_ENABLED', 'GOPROXY', 'GOTOOLCHAIN')}
                                     | corpus_env | (extra_env or {}),
                    'env_removed': removed, 'passed': False}
         commands.append(receipt)
@@ -223,7 +266,10 @@ def prepare(args):
                     binary = builds / 'n12-wire-go'
                     run('go-consumer-build', ['go', 'build', '-mod=readonly', '-o', binary, '.'], consumer)
                     hosts[language] = {'argv': [str(binary)], 'cwd': str(consumer), 'artifacts': [str(binary), str(consumer), str(package)]}
-                    regression('go-full-tests', ['go', 'test', '-count=1', './...'], package, required=['github.com/Jagalite/statelessness/go/debug'])
+                    go_exec = shlex.join([sys.executable, str(frozen / 'scripts/qualify-native-integration.py'), '--go-exec'])
+                    regression('go-full-tests', ['go', 'test', '-count=1', '-exec', go_exec, './...'], package,
+                               {'INTEGRATION_GO_EXEC_DIR': env['INTEGRATION_GO_EXEC_DIR']},
+                               required=['github.com/Jagalite/statelessness/go/debug'])
                     regression('go-vet', ['go', 'vet', './...'], package)
                 elif language == 'python':
                     run('python-version', [sys.executable, '--version'])
@@ -256,7 +302,9 @@ def prepare(args):
                     package = packages / 'typescript'
                     copy_tree(frozen / 'typescript', package, generated=('node_modules/', 'dist/'))
                     run('typescript-dependencies', ['npm', 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], package)
-                    run('typescript-build', ['npm', 'run', 'build'], package)
+                    compiler_before = compiler_snapshot(package / 'node_modules/typescript')
+                    wire.save(args.output / 'typescript-compiler-before.json', compiler_before)
+                    run('typescript-build', compiler_command(package / 'node_modules/typescript', shutil.which('node')), package)
                     tarballs = scratch / 'tarballs'
                     tarballs.mkdir()
                     result = run('typescript-pack', ['npm', 'pack', '--json', '--ignore-scripts', '--pack-destination', tarballs], package)
@@ -284,7 +332,11 @@ def prepare(args):
                     binary = target / 'debug/n12-wire-swift'
                     hosts[language] = {'argv': [str(binary.resolve())], 'cwd': str(consumer),
                         'artifacts': [str(binary.resolve()), str(consumer), str(package / 'Package.swift'), str(package / 'swift/Sources')]}
-                    regression('swift-full-tests', ['swift', 'test', '--package-path', package, '--scratch-path', builds / 'swift-tests',
+                    run('swift-test-build', ['swift', 'build', '--build-tests', '--package-path', package,
+                        '--scratch-path', builds / 'swift-tests', '--configuration', 'debug', '--jobs', '2'], package)
+                    swift_tests_before = swift_test_snapshot(builds / 'swift-tests')
+                    wire.save(args.output / 'swift-tests-before.json', swift_tests_before)
+                    regression('swift-full-tests', ['swift', 'test', '--skip-build', '--package-path', package, '--scratch-path', builds / 'swift-tests',
                         '--configuration', 'debug', '--jobs', '2'], package,
                         required=['Executed ', '0 failures'])
             except Exception as error:
@@ -299,6 +351,19 @@ def prepare(args):
         report['hosts_ready'] = sorted(hosts)
         report['passed'] = not failures and len(hosts) == 5
     finally:
+        for label, expected, capture in (
+                ('typescript-compiler', compiler_before,
+                 lambda: compiler_snapshot(packages / 'typescript/node_modules/typescript')),
+                ('swift-tests', swift_tests_before,
+                 lambda: swift_test_snapshot(builds / 'swift-tests'))):
+            report[label + '-stable'] = False
+            try:
+                actual = capture()
+                wire.save(args.output / (label + '-after.json'), actual)
+                require_snapshot_equal(expected, actual, label)
+                report[label + '-stable'] = True
+            except BaseException as error:
+                failures[label + '-identity'] = {'type': type(error).__name__, 'message': str(error)}
         report['build_input_copies_stable'] = True
         for record in input_copies:
             try:
@@ -332,7 +397,7 @@ def prepare(args):
             report['changed_copied_source_paths'] = [p for p in sorted(before.keys() | copied_after.keys()) if before.get(p) != copied_after.get(p)]
         except Exception as error:
             failures['copied-source-after'] = {'type': type(error).__name__, 'message': str(error), 'traceback': traceback.format_exc()}
-        report['passed'] = report['passed'] and report['source_stable'] and report['copied_source_stable'] and report['build_input_copies_stable']
+        report['passed'] = report['passed'] and not failures and report['source_stable'] and report['copied_source_stable'] and report['build_input_copies_stable']
         wire.save(args.output / 'preparation.json', report)
     print(json.dumps({'passed': report['passed'], 'hosts_ready': report.get('hosts_ready', []), 'failures': failures}), flush=True)
     return 0 if report['passed'] else 1
