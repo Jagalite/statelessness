@@ -459,3 +459,9 @@ The canonical decoder owns built-in `ModelError` payloads in sticky failures and
 Agreement qualifies only the supplied finite fixture and caller-established assumptions. This harness does not change BFS, replay equality, fuzzing, or production pruning. Clones must be faithful and detached; equality/projection callbacks must be pure, and pointer/interface-containing comparable keys must not hide mutable equivalence data or unsupported dynamic comparability. State/input/output values passed to callbacks are cloned, but callback execution, iterator termination, allocations and hidden external effects remain cooperative. Limits are exact `uint64` state/edge/pair counters, not execution-time or RSS guarantees.
 
 Projection keys must satisfy equivalence laws corresponding to Rust `Eq`. Go admits comparable values such as floating NaN that violate reflexivity; the harness rejects any key unequal to itself before either traversal. Equality callback laws and faithful cloning remain caller obligations.
+
+`GuidedFuzz`, `GuidedFuzzWithLimits`, and `GuidedFuzzObserved` implement bounded
+`feature-corpus-v2` exploration with explicit mutable-feature clone/equality/hash
+hooks, callback-scoped feature buffers, and owned corpus witnesses. See
+[the Go guidance contract](GUIDED.md) and [example](examples/guided/main.go).
+This opt-in API leaves ordinary fuzz defaults and advertised profiles unchanged.

@@ -28,6 +28,12 @@ __all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "F
             "FuzzReport", "RunLimits", "SearchLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
             "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
 
+from .guided import (CorpusEntry, Feedback, FeedbackMetadata, FeatureBuffer,
+                     GuidanceConfig, GuidanceReport, StateFeedback, exact_state,
+                     guided_fuzz)
+__all__ += ["CorpusEntry", "Feedback", "FeedbackMetadata", "FeatureBuffer",
+            "GuidanceConfig", "GuidanceReport", "StateFeedback", "exact_state", "guided_fuzz"]
+
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)
 
 from .trace_binary import (AuditTrace, BinaryLimits, BinaryTraceError, RunConfig,

@@ -22,3 +22,6 @@ export type {DecodeLimits,ResolvedDecodeLimits,LogicalLayout,ValueSchema,LengthS
 // Explicit opt-in finite research; no production exploration settings change.
 export {compareEquivalence,qualificationParameters,DEFAULT_EXPERIMENT_CONFIG} from './research.js';
 export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProperty,PropertyPhase,ViolationWitness,Reachability,EquivalenceCounterexample,ExperimentReport,ResearchEquality,ResearchModel} from './research.js';
+
+export { GUIDANCE_ALGORITHM, DEFAULT_GUIDANCE, FeatureBuffer, StateFeedback, exactStateFeedback, validateGuidanceConfig, fuzzGuided, fuzzGuidedObserved } from './guided.js';
+export type { FeedbackMetadata, FeatureIdentity, Feedback, GuidanceConfig, CorpusEntry, GuidanceReport, GuidedFuzzReport } from './guided.js';

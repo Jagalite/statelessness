@@ -67,8 +67,9 @@ qualified `PROFILES`. Rust runtime parity and independent specification review
 remain pending. `test/paired.test.mjs` exercises independent bounded-queue reducers,
 shared golden results, fail-fast recording, checkpoint restart, and exact replay.
 
-Not implemented: Rust's advanced fuzzing/shrinking, guided/campaign/
-composition helpers, ring recording, and binary `.sttrace` audit format.
+Native guided exploration is available as an explicit candidate API below.
+Campaign execution and assurance integration are separate work; this addition
+does not qualify or promote a portable profile.
 The archive is installable locally; this change does not publish to npm.
 
 ### Independent generation, fuzzing and shrinking
@@ -120,6 +121,109 @@ separate state/transition check batches, and defensive copies of all model data.
 `checkError(phase, checks, complete)` reports partial iterable output on checker
 failure; a transition-check failure reports the completed state batch first.
 Observer exceptions propagate as contextual `ModelError` values.
+
+### Native guided exploration
+
+`fuzzGuided(model, config, guidance, feedback, limits?, observer?)` shares the
+ordinary fuzz kernel and all property checks. `fuzzGuidedObserved(model, config,
+guidance, feedback, observer, limits?)` puts observation before optional controls.
+Both return a normal fuzz report plus a non-null `guidance` report identified by
+`feature-corpus-v2`. Ordinary fuzz keeps its existing defaults and report shape.
+
+```ts
+import { StateFeedback, fuzzGuided, DEFAULT_FUZZ, DEFAULT_GUIDANCE }
+  from '@jagalite/statelessness';
+
+const feedback = new StateFeedback<number, number>(
+  { name: 'counter-depth', version: 1, build: 'app-v1' },
+  state => state,
+  { cloneFeature: key => key, equalFeatures: (a, b) => a === b,
+    hashFeature: key => key },
+);
+const result = fuzzGuided(counter, { ...DEFAULT_FUZZ, seed: 42n },
+  DEFAULT_GUIDANCE, feedback);
+```
+
+See [the complete counter example](examples/guided.ts). Custom
+`Feedback<S, I, O, K>` provides `metadata()`, `transitionFeatures(before, input,
+after, out)`, `cloneFeature`, and `equalFeatures`. Optional `initialFeatures`
+defaults to no emissions. `StateFeedback` projects initial and successor states;
+`exactStateFeedback(model)` uses full state clones and `equalStates`, with optional
+`hashState`, and identity `exact-state/1/clone-eq-hash-v1`. Its state must include
+any represented oracle history. Feature equality never substitutes for model
+state equality, replay evidence, or exhaustive coverage.
+
+Optional `hashFeature` accelerates lookup; omitted hashes use one bucket and exact
+equality. Hashes are strings, finite numbers, or bigints. Equal features must hash
+equally; collisions are resolved by `equalFeatures`, which must return a boolean.
+Provide lawful, deterministic equality rather than relying on object identity or
+NaN equality. Clone hooks must not mutate their argument and must detach nested
+mutable data. Every push snapshots its feature; equality and hash hooks receive
+detached copies. Inputs, states, and outputs supplied to feedback/observers are
+detached using the model's clone hooks. Retained corpus prefixes own separate input
+clones, including independent copies of shared prefixes.
+
+`FeatureBuffer.push(key)` counts every emission, including duplicates. The buffer
+is an engine-issued capability valid only during that callback. Retaining it does
+not retain a writable corpus or reusable scratch; all pushes after return/error
+throw `ModelError`. A swallowed overrun remains fatal. A callback's own thrown
+value takes precedence over that sticky error. Failed feedback teaches no keys
+and returns no successful partial report. Buffers are revoked in internal
+`finally` cleanup, which invokes no application disposal callback. Arbitrary
+feedback/feature-hook throwables are contextualized as `ModelError`; unprintable
+thrown values receive a fixed placeholder. This normalization is guided-only.
+Ordinary fuzz retains its existing exception formatting, including secondary
+exceptions from a throwing `Error.message` getter or string conversion. Shared
+model/checker/observer dispatch retains its existing exception precedence in both
+paths. These are explicit TypeScript host policies.
+Reentrant `push` calls from a clone hook are rejected and remain sticky, so
+application cloning cannot bypass the per-observation emission bound.
+
+Guided callbacks are synchronous. Promises and thenables returned by feedback,
+feature identity/projection, model, or observer hooks are rejected. Void hooks
+must return `undefined`; TypeScript's `void` annotation alone cannot enforce
+this. Native Promise rejections are handled after rejection of the hook, and
+escaped buffers remain expired when async continuations run. Arbitrary thenables
+are never awaited or invoked. The engine cannot prevent unrelated application
+side effects scheduled by an async callback. Search remains browser-compatible
+and dependency-free; these rules do not constitute a browser/platform runtime
+qualification.
+
+Guidance limits are positive safe integers: `maxCorpusEntries` (default 256),
+`maxCorpusInputs` (25,600), `maxFeatures` (100,000), and
+`maxFeaturesPerObservation` (256). They bound counts, not bytes or RSS. Feature
+and input allocations and callback duration remain application responsibilities.
+The report includes `unique_features`, `corpus_inputs`, ordered `corpus` entries,
+`mutation_cases`, bigint `dropped_prefixes`/`evicted_prefixes`, and saturation
+flags. Each entry records cloned `inputs`, `new_features`, 1-based
+`discovered_case`, and bigint global `discovered_transition`. Other u64 search
+counts remain bigint; skipped-check totals saturate at u64 max.
+
+Initial features are witnessed without retaining an empty entry. Novel passing
+prefixes are retained FIFO, evicting oldest entries to satisfy both corpus limits.
+Eviction leaves their features witnessed. Overlong novel prefixes are counted as
+drops; a later fitting prefix can recover an unwitnessed key even at the feature
+cap, with `new_features: 0`. Repeated overlong known keys do not add drops. Flags
+record attempted excess, so exactly filling a limit does not set them. Reports
+are evidence snapshots; there is no corpus import or checkpoint/resume API.
+
+Admission validates guidance and fuzz budgets, starts the cooperative clock, then
+queries feedback metadata once. Empty names/builds and version zero are allowed;
+bare search does not query model metadata. Pre-cancelled and zero-duration runs
+still query feedback metadata. Metadata duration counts toward the deadline.
+Checks and observers run before property failure extraction; a property failure
+suppresses feedback. Checker/observer errors preserve existing partial check
+batches and primary-error precedence. Passing feedback learns before the next
+control poll, so cancellation can return its discovery. A callback error takes
+precedence over that cancellation. Controls never interrupt a callback.
+
+Candidate selection uses the source SplitMix64 rejection-index call order: percent,
+corpus index, mode, and only the selected mode's deletion/replacement draws. A
+replacement regenerates one position; later enabled inputs remain reusable.
+Generation and mutation share the stream. Steps-zero cases still run initial
+checks/feedback and candidate selection; a transition cap is tested only at step
+entry. Replay passing retained witnesses with `record`/`replay`; only actual
+property failures are valid `shrink` inputs.
 
 `WithOracle` forwards generation, enabled checks, simplification hints and input
 identity to the actual model (using the actual component of the combined state).

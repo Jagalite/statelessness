@@ -1,0 +1,5 @@
+88d9d2922c96864c87c17710fb32f8494a2dc982bf33dc242e9002297b0a4d86  conformance/guided-v2/receipts/superseded-78-cases/FREEZE.json
+6b9b18bc5c2056e2587691457d43693822257ae05848f433be304fc8ca47955e  conformance/guided-v2/receipts/superseded-78-cases/corpus.json
+cf0f3adb42bff4e30724a71cfb396658614bd88f26e3c9fad754474316f21915  conformance/guided-v2/receipts/superseded-78-cases/oracle.py
+57ca3b05f91275020c0b89514eb8053f6630d7baa856f6eeae2c973dc428565b  conformance/guided-v2/receipts/superseded-78-cases/README.md
+0406f74de8052ce625e8727e3b412f6306ce668ef5c410229013a57fec7ac9b7  conformance/guided-v2/receipts/superseded-78-cases/N05-SOURCE-CONTRACT.md

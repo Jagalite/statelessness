@@ -1,3 +1,4 @@
+import { runFuzz, snapshotFuzzConfig } from './fuzz_kernel.js';
 import { runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver } from './search_support.js';
 export type { RunLimits, SearchObserver } from './search_support.js';
 /** Independent generation and causal search. All control is cooperative between callbacks. */
@@ -132,91 +133,7 @@ export interface FuzzReport<I> {
     failure: Failure<I> | null;
 }
 export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DEFAULT_FUZZ, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I> {
-    // Rust receives copied configs; callback-side mutation cannot change validated budgets.
-    const {seed,cases,maxSteps,maxTransitions,mutationPercent}=config;
-    config={seed,cases,maxSteps,maxTransitions,mutationPercent};
-    u64(config.seed, 'seed');
-    u64(config.maxTransitions, 'maxTransitions');
-    natural(config.cases, 'cases');
-    natural(config.maxSteps, 'maxSteps');
-    natural(config.mutationPercent, 'mutationPercent', 0, 100);
-    const stop = runControl(limits), rng = new Rng(config.seed);
-    let previous: I[] = [];
-    const checkStorage:Check[]=[];
-    const r: FuzzReport<I> = { termination: 'cases_completed', seed: config.seed, cases: 0, transitions: 0n, skipped_checks: 0n, failure: null };
-    const stopped = () => {
-        const reason = stop();
-        if (reason)
-            r.termination = reason;
-        return reason !== null;
-    };
-    if (stopped())
-        return r;
-    for (let c = 0; c < config.cases; c++) {
-        if (stopped())
-            return r;
-        let s = state(m, call('initial_state', () => m.initialState()));
-        r.cases++;
-        const initial = searchChecks(m, s, undefined, undefined, undefined, observer,[],checkStorage);
-        r.skipped_checks = addSkippedChecks(r.skipped_checks,initial.skipped);
-        if (initial.violations.length) {
-            r.termination = 'failure_found';
-            r.failure = { inputs: [], violations: initial.violations };
-            return r;
-        }
-        if (stopped())
-            return r;
-        let mutated: I[] = [], replace: number | null = null;
-        if (previous.length && (rng.index(100n) as bigint) < BigInt(config.mutationPercent)) {
-            mutated = previous.map(i => input(m, i));
-            const start = Number(rng.index(BigInt(mutated.length)));
-            const length = 1 + Number(rng.index(BigInt(mutated.length - start)));
-            mutated.splice(start, length);
-            replace = Number(rng.index(BigInt(mutated.length + 1)));
-        }
-        const inputs: I[] = [];
-        for (let n = 0; n < config.maxSteps; n++) {
-            if (r.transitions === config.maxTransitions) {
-                r.termination = 'transition_limit';
-                return r;
-            }
-            if (stopped())
-                return r;
-            let next: I | typeof NO_INPUT = NO_INPUT, reused = false;
-            if (n !== replace && n < mutated.length && enabled(m, s, mutated[n])) {
-                next = input(m, mutated[n]);
-                reused = true;
-            }
-            if (stopped())
-                return r;
-            if (!reused)
-                next = call('generate', () => { const v = m.generate(state(m, s), rng); return v === NO_INPUT ? NO_INPUT : input(m, v); });
-            if (stopped())
-                return r;
-            if (next === NO_INPUT)
-                break;
-            const valid = reused || enabled(m, s, next);
-            if (stopped())
-                return r;
-            if (!valid)
-                throw new ModelError('generate returned a causally disabled input');
-            const t = step(m, s, next);
-            r.transitions++;
-            inputs.push(input(m, next));
-            const observed = searchChecks(m, t.state, s, next, t, observer, inputs,checkStorage);
-            r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
-            if (observed.violations.length) {
-                r.termination = 'failure_found';
-                r.failure = { inputs: inputs.map(i => input(m, i)), violations: observed.violations };
-                return r;
-            }
-            if (stopped())
-                return r;
-            s = t.state;
-        }
-        previous = inputs;
-    }
-    return r;
+    return runFuzz(m, snapshotFuzzConfig(config), runControl(limits), observer);
 }
 /** Observe every fully checked edge, including the first failing edge. */
 export function fuzzObserved<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, observer: SearchObserver<S, I, O>, limits: RunLimits = {}): FuzzReport<I> { return fuzz(m, config, limits, observer); }

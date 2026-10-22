@@ -1,0 +1,4 @@
+    Updating crates.io index
+       Fetch 0 complete; 1 pending                                                   Fetch 3 complete; 5 pending                                                 Locking 12 packages to highest Rust 1.99.0 compatible versions
+
+[Kyoto: stopping for sustained memory/swap pressure; will retry]

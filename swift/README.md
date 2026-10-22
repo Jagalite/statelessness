@@ -513,3 +513,122 @@ reflexive: non-reflexive host values such as NaN reject before traversal. An
 exact-state-index guard additionally keeps traversal finite if an invalid
 stateful comparator later changes behavior; that does not qualify such a
 comparator as lawful Rust Eq. These are native boundary safeguards.
+
+## Experimental native guided exploration (N05)
+
+`guidedFuzz` takes the same `Generate`, `FuzzConfig`, `RunLimits`, and optional
+`SearchObserver` as ordinary `fuzz`, plus `GuidanceConfig` and feedback. Both use
+one reducer/check/observer kernel. Ordinary fuzz keeps its previous-sequence
+policy, defaults and existing control polling; guided search uses
+`feature-corpus-v2`. This candidate does not promote a conformance profile or add
+N06 campaigns or N10 assurance.
+
+```swift
+let features = StateFeedback<Int, Int>(
+    metadata: { FeedbackMetadata(name: "depth", version: 1, build: "depth-v1") },
+    cloneFeature: { $0 }, project: { $0 })
+let report = try guidedFuzz(generator,
+    config: FuzzConfig(seed: 42, cases: 100, maxSteps: 20),
+    guidance: GuidanceConfig(maxCorpusEntries: 64, maxCorpusInputs: 1_000),
+    feedback: features)
+for entry in report.guidance!.corpus {
+    print(entry.inputs, entry.newFeatures, entry.discoveredCase,
+          entry.discoveredTransition)
+}
+```
+
+`Feedback<S,I,O,K: Hashable>` supplies throwing `metadata`, required
+`cloneFeature`, an optional (default-empty) `initialFeatures`, and required
+`transitionFeatures`. Both hooks receive a `FeatureBuffer<K>` with throwing
+`push`. `StateFeedback<S,K>` projects the initial and every checked successor
+state; pass it directly or adapt with `.feedback()`. `exactStateFeedback(model)`
+uses the model's `cloneState`, the state's `Hashable` identity, and metadata
+`exact-state`/1/`clone-eq-hash-v1`. `OracleState` is conditionally `Hashable` and
+includes both model and oracle fields, so exact-state novelty retains represented
+history. A projection may deliberately omit that history; all property checks
+still run on the full state.
+
+Feature `Hashable` equality is independent of `Model.equalStates`, replay
+comparison and state hashing callbacks. Dictionary hash collisions resolve with
+`==`; randomized Swift hashing cannot reorder admission, since only ordered
+emissions are traversed. Use lawful, stable keys. For textual byte identity use
+`ExactString`; native `String` equality intentionally remains Swift's canonical
+equivalence. `Hashable` cannot throw. Traps, process termination and data races
+are not recoverable callback errors.
+
+`cloneFeature` is required even for value types: `{ $0 }` is valid for immutable
+or wholly value-owned keys. A class key or value containing mutable references
+must be copied into independently owned storage preserving equality and hash.
+Each push copies immediately, protecting earlier emissions if the producer
+mutates its key later in the callback. The model's existing clone closures also
+isolate feedback state/input/output snapshots, candidate inputs, observer payloads
+and each retained corpus prefix. The engine cannot repair a clone closure that
+aliases mutable storage or changes semantic identity.
+
+A sink is a synchronous lease, revoked on both callback success and error.
+Escaped sinks always throw `feature buffer lease expired`; they cannot mutate a
+later observation and retain neither engine feature storage nor the application
+clone closure/captures. Sinks, feedback and
+callbacks are deliberately not `Sendable` and have no async overload. Swift's
+type system rejects async callbacks and sending sinks as `Sendable`. Keep each
+run on its owning actor/thread and do not defeat these restrictions with unchecked
+conformance or unsafe task capture. The sink clones feature values but does not
+make concurrent callback use safe.
+
+The per-observation limit counts emissions, including duplicates. Reentering
+`push` from `cloneFeature` throws and poisons the observation; cloning never holds
+an array mutation access, and the outer push checks that sticky error before
+appending. Ignoring an overrun, reentry or feature-clone error leaves a sticky
+error; callback success then fails.
+If the callback throws its own error, that error wins over the sticky one.
+Successful callbacks teach before the following control poll, so a cancellation
+set by feedback can return the discovery. Failed checks win before feedback;
+checks and normal observers run before property failure extraction, and checker
+errors preserve complete/partial observer batches. Swift observers may throw and
+abort without a partial report, as in ordinary Swift fuzz. Feedback errors carry
+`initial feedback` or `transition feedback` context. Clone errors additionally
+carry `snapshot` context.
+
+Admission validates positive guidance limits, fuzz settings and duration, then
+calls feedback metadata exactly once (including pre-cancelled and zero-case
+runs). Metadata time counts against the monotonic deadline. Empty metadata text
+and version zero are allowed. Bare guided search never calls model metadata.
+Limits are cooperative and cannot interrupt a callback.
+
+`GuidanceReport` exposes ordered FIFO `CorpusEntry` values, exact retained input
+count, tracked features, mutation cases, dropped/evicted prefixes and attempted
+feature/corpus saturation. Entries include cloned inputs, newly tracked feature
+count, 1-based case and global transition. Filling a limit exactly does not set
+saturation. Overlong discoveries remain tracked but unwitnessed; later retainable
+recovery can admit `newFeatures == 0`. FIFO eviction preserves witnessed bits, so
+rediscovering an evicted feature alone does not reinsert it. Initial features
+have empty witnesses and never add corpus entries.
+
+Counts use platform `Int` for Swift collections/cases and `UInt64` for transition,
+drop and eviction counts. Admission arithmetic subtracts the incoming length
+before comparing totals, avoiding overflow. Drop/eviction counts cannot exceed
+successful transition admissions; transition increments are bounded by the step
+entry cap. Skipped-check counts retain ordinary fuzz's saturating UInt64 behavior.
+These limits bound counts, not allocation sizes or RSS. Callback allocations,
+large keys and prefix/input sizes remain application responsibilities.
+
+Guided mutation shares the generator's SplitMix64/rejection-index stream. It
+selects a retained prefix and preserves it, deletes one range, or replaces one
+position; later positions remain eligible for causal reuse. No eager transition
+cap is added before initial checks, feedback or candidate selection. Reports
+represent finite exploration, not exhaustive coverage, and are not resumable
+checkpoints. Replay retained passing witnesses; shrink actual property failures.
+
+The separate public SwiftPM consumer lives in
+`scripts/native-guided-consumers/swift`. It consumes independently frozen
+`conformance/guided-v2` expectations. Native ownership, lifetime, callback-error
+and concurrency checks live in `GuidedTests` and `swift/validation/n05`;
+qualification records there distinguish submitted, failed and executed work.
+
+`swift/Examples/Guided` is a complete public consumer that replays retained
+passing witnesses, shrinks the property failure, and records/replays that failure:
+
+```sh
+python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit -- \
+  swift run --package-path swift/Examples/Guided -j 2 GuidedExample
+```

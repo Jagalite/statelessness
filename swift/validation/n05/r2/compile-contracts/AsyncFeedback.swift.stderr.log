@@ -1,0 +1,8 @@
+/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/compile-contracts/AsyncFeedback.swift:7:29: error: cannot pass function of type '(Int, Int, Transition<Int, Int>, FeatureBuffer<Int>) async -> ()' to parameter expecting synchronous function type
+5 |         metadata: { FeedbackMetadata(name: "async", build: "must-not-compile") },
+6 |         cloneFeature: { $0 },
+7 |         transitionFeatures: { _, _, _, _ in await Task.yield() })
+  |                             |               `- note: 'async' inferred from asynchronous operation used here
+  |                             `- error: cannot pass function of type '(Int, Int, Transition<Int, Int>, FeatureBuffer<Int>) async -> ()' to parameter expecting synchronous function type
+8 | }
+9 | 
