@@ -1,0 +1,68 @@
+{
+  "scope": "Historical prior-source references, preserved by merge lineage; not integrated candidate execution",
+  "inputs": {
+    "validation/native-parity/derive-model-v2/resume-oct22/HANDOFF.md": {
+      "sha256": "afc4fce61319d6c732181a832ef479a7b9b151e2f5267d2efa5e91224d18eb81",
+      "size_bytes": 7354
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/final-summary.json": {
+      "sha256": "27869bc987e817fc2e90a59ec955cbdc59654f40c7233ab812f67589b60f2f6c",
+      "size_bytes": 2899
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/final-native-counts.json": {
+      "sha256": "9b3e4233e14d868e968da76df6609d2f3610162efceb71a004b97196902cdc87",
+      "size_bytes": 1557
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/final-rust-runtime/receipt.json": {
+      "sha256": "609210717602daf0a7699bbf991beb6617d9ddf5db382f44ee7515652f60568b",
+      "size_bytes": 900
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/final-rust-runtime/raw.log": {
+      "sha256": "34bdbcec3e470e9367ab729980f39133e2e70b207f93c677d4faf47e26fe28da",
+      "size_bytes": 63799
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/installed-attempts.json": {
+      "sha256": "90bfa545a2b2ba53e83f0d0c2e7008c8e330ad3e3d8109ffe01dc200615301e9",
+      "size_bytes": 1190
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/installed/qualification.json": {
+      "sha256": "488a8adc198a72a1b940ceb46ae0c2b96740e5b8ea1c95e99abf78fc9ed388cc",
+      "size_bytes": 1824304
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/final-installed/qualification.json": {
+      "sha256": "5d9d8258b64bd5379c0edc0013b44adf7286ac9c21eff7ce06f4f23e4546b8a4",
+      "size_bytes": 1824671
+    },
+    "validation/native-parity/derive-model-v2/resume-oct22/sealed-source-before.json": {
+      "sha256": "e0a905f6dbde6649f557a016606b2ffeee62b5ec9e45de38f931110c871b8c58",
+      "size_bytes": 1051131
+    },
+    "validation/native-parity/research-slice/consumers/installed-r3/output/qualification.json": {
+      "sha256": "da9f3da581f33eb585fe41de82ef29b8369a0e48d93294598bd65a8eddbc6f62",
+      "size_bytes": 1577325
+    },
+    "validation/native-parity/research-slice/consumers/installed-r3/source-reconciliation.json": {
+      "sha256": "5ca29da4881100f847ade3136d0a12a814ffcb0d8de4d646dc2f15b8ec32bf5d",
+      "size_bytes": 437
+    }
+  },
+  "research": {
+    "proof_commit": "ac52c17570522411642b575b243a9fd4636dc8eb",
+    "runtime_source": "3232590",
+    "job": "85473e6a66014122bd427ec1ba2e6376",
+    "shared_cases_per_engine": 67,
+    "engines": 5,
+    "baseline_per_engine": 717,
+    "fresh_replays": 550
+  },
+  "n13": {
+    "proof_commit": "9daee75e4dd93ce746956954120d7d3e2f95d1ec",
+    "prior_workspace_passes": 644,
+    "prior_installed_qualifying_producers": 0,
+    "prior_installed_qualifying_pairs": 0,
+    "old_live_handles": [
+      "b4822433e1d7413a83d77efab4ecd25c",
+      "7daea984bfc5457083db9f4451a6ca35"
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "state": "source_reviewed_and_sealed_execution_queued",
+  "source_commit": "800a591aa69aa213a17632520a3d5fc864fa2fae",
+  "merge_commit": "0fb93be273b2c257536c084d519d2882e0e288d9",
+  "correction_commit": "1e3d8417e7f471da49b6756938517c63e4416e1f",
+  "worktree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ec9c0a88",
+  "branch": "t3/integrate-native-parity",
+  "sampled_ns": 1792683217283368000,
+  "source_manifest": {
+    "path": "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+    "sha256": "558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481",
+    "size_bytes": 949381,
+    "entries": 4706
+  },
+  "source_seal_matches": true,
+  "independent_review": "all concrete integration and runner findings addressed and statically cleared; see integration-review.json and review-runner-r3.json",
+  "integrated_actual_executed_scope": [],
+  "jobs": {
+    "old-driver": {
+      "id": "b4822433e1d7413a83d77efab4ecd25c",
+      "status": "queued",
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+      "started": null,
+      "finished": null,
+      "exit_code": null,
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-driver",
+        "--",
+        "python3",
+        "scripts/test_native_model_receipts.py",
+        "-v"
+      ],
+      "command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-driver",
+        "--",
+        "python3",
+        "scripts/test_native_model_receipts.py",
+        "-v"
+      ],
+      "policy_message": null,
+      "log": "/Users/jagatranvo/.local/state/kyoto/b4822433e1d7413a83d77efab4ecd25c.log",
+      "archived_log": "no log exists yet; job has not executed"
+    },
+    "old-installed": {
+      "id": "7daea984bfc5457083db9f4451a6ca35",
+      "status": "queued",
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+      "started": null,
+      "finished": null,
+      "exit_code": null,
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed-wrapper",
+        "--",
+        "python3",
+        "scripts/check-native-model-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed"
+      ],
+      "command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed-wrapper",
+        "--",
+        "python3",
+        "scripts/check-native-model-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/resume-oct22/sealed-installed"
+      ],
+      "policy_message": null,
+      "log": "/Users/jagatranvo/.local/state/kyoto/7daea984bfc5457083db9f4451a6ca35.log",
+      "archived_log": "no log exists yet; job has not executed"
+    },
+    "rust-compile": {
+      "id": "34122687ff5b49fa9c716e69b1c852d0",
+      "status": "queued",
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ec9c0a88",
+      "started": null,
+      "finished": null,
+      "exit_code": null,
+      "requested_command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "--message-format=json-render-diagnostics"
+      ],
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked",
+        "--offline",
+        "-j",
+        "2",
+        "--message-format=json-render-diagnostics",
+        "--no-run"
+      ],
+      "policy_message": "Test/benchmark execution is disabled by shared policy; this job compiles only (--no-run). Tests/benchmarks will not run.",
+      "log": "/Users/jagatranvo/.local/state/kyoto/34122687ff5b49fa9c716e69b1c852d0.log",
+      "archived_log": "no log exists yet; job has not executed"
+    },
+    "native": {
+      "id": "5f4c49e2e3eb43e499bcff0c04abe9ed",
+      "status": "queued",
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ec9c0a88",
+      "started": null,
+      "finished": null,
+      "exit_code": null,
+      "requested_command": [
+        "python3",
+        "scripts/qualify-native-integration.py",
+        "--scope",
+        "native",
+        "--expected-source",
+        "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+        "--output",
+        "validation/native-parity/derive-model-v2/integration-oct22/native-r1"
+      ],
+      "command": [
+        "python3",
+        "scripts/qualify-native-integration.py",
+        "--scope",
+        "native",
+        "--expected-source",
+        "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+        "--output",
+        "validation/native-parity/derive-model-v2/integration-oct22/native-r1"
+      ],
+      "policy_message": null,
+      "log": "/Users/jagatranvo/.local/state/kyoto/5f4c49e2e3eb43e499bcff0c04abe9ed.log",
+      "archived_log": "no log exists yet; job has not executed"
+    }
+  },
+  "admission": [
+    {
+      "id": "b4822433e1d7413a83d77efab4ecd25c",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    },
+    {
+      "id": "7daea984bfc5457083db9f4451a6ca35",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    },
+    {
+      "id": "34122687ff5b49fa9c716e69b1c852d0",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    },
+    {
+      "id": "5f4c49e2e3eb43e499bcff0c04abe9ed",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    }
+  ],
+  "rust_workspace_inherited": false,
+  "rust_runtime_state": "not submitted; requires successful direct compile and input/artifact reconciliation",
+  "installed_model_state": "unqualified; not submitted while exact old driver/installed jobs remain live",
+  "installed_research_state": "unqualified; not submitted; requires newly built separate research/corpus tools",
+  "protected_trees_unchanged": true,
+  "separately_open": [
+    "full N13 modeling/domain/inspection helpers",
+    "N05",
+    "N06",
+    "N12 direct wire",
+    "broad144",
+    "profile promotion",
+    "broader platforms/performance"
+  ],
+  "no_parent_merge_push_pr_or_promotion": true
+}

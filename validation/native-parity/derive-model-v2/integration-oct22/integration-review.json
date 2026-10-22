@@ -1,0 +1,40 @@
+{
+  "merge": "0fb93be273b2c257536c084d519d2882e0e288d9",
+  "correction_commit": "1e3d8417e7f471da49b6756938517c63e4416e1f",
+  "scope": "independent static integration review, not executable qualification",
+  "go_swift": {
+    "result": "no concrete integration defects found",
+    "evidence": "review-go-swift.json"
+  },
+  "python_typescript": {
+    "initial": "review-python-typescript-r1.json",
+    "clearance": "review-python-typescript-r2.json",
+    "fixed": [
+      {
+        "severity": "P2",
+        "problem": "N13 root ModelCodec dataclass shadowed existing generic protocol",
+        "fix": "retain root generic protocol, expose new ModelCodecBinding alias; new unit and installed consumer compatibility controls"
+      },
+      {
+        "severity": "P2",
+        "problem": "TypeScript binder retained stale metadata method while facade exposed current metadata",
+        "fix": "resolve callable metadata per hook with original receiver; eight gate controls and record/Recorder/checked/causal bootstrap rejection regressions"
+      }
+    ]
+  },
+  "rust": {
+    "result": "root compile/runtime input closure matches, but complete compiler/executable identity is not established; no integrated workspace inheritance",
+    "evidence": "review-rust-inheritance.json"
+  },
+  "boundaries": [
+    "native actual execution pending",
+    "installed model five producers and all25 pairs pending",
+    "research all5engines x67 and baseline717/engine plus550fresh pending on integrated source",
+    "full N13 helpers,N05,N06,N12,broad144 separately open"
+  ],
+  "provenance_runner": {
+    "clearance": "review-runner-r3.json",
+    "sha256": "07a38b9bd45c4cf227afe1e778541b7e4dd38e512484bf441c0fb784c41cd279",
+    "result": "all concrete runner findings addressed; static clearance only"
+  }
+}
