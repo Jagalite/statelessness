@@ -47,6 +47,17 @@ hostile values/readers/sinks and provider callbacks, default/custom/fresh decode
 admission, malformed and trailing State/Input, and all encoder hooks avoiding
 decode providers. Rust uses typed values and codec counters at its static type
 boundary. These controls remain separate from the success artifact prefixes.
+Separate Recorder and EvidenceRecorder controls retain one successful turn,
+then fail the actual bound Output encoder during the next checked handoff.
+They check the public error type/stage, retained trace and causal/phase journal,
+exact callback counts, and an inert retry after the recorder freezes.
+
+Stdout includes measured `capture_counts` and `replay_counts` using the same ten
+counter names in every engine. The driver checks every field against the
+independent oracle and rejects missing fields, unexpected keys, and non-integer
+counts. TypeScript replay binds a counted decode-limit provider; the omitted
+provider path remains a separate control. `capture_failure_controls: true` is
+emitted only after the separate failing-capture assertions complete.
 
 Run only through Kyoto after the source candidate freezes:
 
@@ -59,6 +70,10 @@ checkout, and installs the staged Rust binary with Cargo. It launches five
 fresh producers and all 25 ordered fresh consumer processes, comparing every
 artifact against the independent oracle and checking exact rewrites. Commands,
 timeout partial bytes, failed logs, package bytes and artifacts retain SHA256
-and byte sizes. Before/after source membership and hashes are compared even
+and byte sizes. The Rust engine build stamp is selected from its own package's
+compiler log entry; the macro crate's distinct stamp is retained in the raw log.
+Executed native binaries, interpreters, and application scripts retain path,
+resolved path, SHA256 and size before execution and are checked again afterward.
+Before/after source membership and hashes are compared even
 on failure. A queued job is pending evidence; compile-only success is not a
 test pass. Qualification receipts, not this authored README, establish execution.

@@ -124,7 +124,9 @@ def rust_build_id(source, rustc_version, target, flags=''):
         nonlocal value
         for byte in uint(len(data), 8) + data:
             value = ((value ^ byte) * 0x100000001b3) & ((1 << 64) - 1)
-    for relative in sorted(files, key=lambda path: path.as_posix().encode()):
+    # Rust PathBuf::Ord compares components: campaign/ precedes campaign.rs.
+    # A whole-path byte sort reverses that order at the dot versus slash.
+    for relative in sorted(files, key=lambda path: tuple(part.encode() for part in path.parts)):
         add(relative.as_posix().encode())
         add((root / relative).read_bytes())
     if not isinstance(rustc_version, bytes):

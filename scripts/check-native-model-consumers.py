@@ -12,6 +12,57 @@ import importlib.util
 _spec=importlib.util.spec_from_file_location('n13_expected',ROOT/'examples/native-model/expected.py')
 _oracle=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_oracle)
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def rust_engine_build_identity(output):
+ # The proc-macro crate emits its own STATELESS_BUILD_ID. Select the engine's
+ # package-prefixed build-script line, preserving the full log for both crates.
+ ids=set(re.findall(r'^\[statelessness [^\]\r\n]+\] cargo:rustc-env=STATELESS_BUILD_ID=(source-fnv1a64:[0-9a-f]{16})\s*$',output,re.MULTILINE))
+ if len(ids)!=1:raise RuntimeError('expected exactly one retained statelessness engine build identity')
+ return ids.pop()
+def validate_receipt(engine, mode, receipt):
+ if not isinstance(receipt,dict) or receipt.get('engine',receipt.get('producer'))!=engine:
+  raise AssertionError(f'{engine}: missing or incorrect receipt engine')
+ if receipt.get('capture_failure_controls') is not True:
+  raise AssertionError(f'{engine}: missing executed capture failure controls')
+ def counts(actual,expected,label):
+  if (not isinstance(actual,dict) or set(actual)!=set(expected)
+      or any(type(value) is not int for value in actual.values()) or actual!=expected):
+   raise AssertionError(f'{engine}: {label} measured callback counts differ: {actual!r}')
+ if mode=='produce':counts(receipt.get('capture_counts'),_oracle.CAPTURE_COUNTS,'capture')
+ elif receipt.get('capture_counts') is not None:
+  raise AssertionError(f'{engine}: transcode unexpectedly reports capture counts')
+ replays=receipt.get('replay_counts')
+ if not isinstance(replays,dict):raise AssertionError(f'{engine}: missing replay count object')
+ if mode=='transcode' and not {'v1','v2'}<=set(replays):
+  raise AssertionError(f'{engine}: missing v1/v2 measured replay counts')
+ for version,actual in replays.items():
+  if version not in ('v1','v2','v2_causal'):raise AssertionError(f'{engine}: unknown replay {version}')
+  counts(actual,_oracle.REPLAY_COUNTS,version+' replay')
+def runner_snapshot(runners, path_env=None):
+ # Retain every available identity even if another file disappeared or cannot be
+ # read. These fixed runner arguments contain only flags and application paths.
+ identities={}
+ for name,argv in runners.items():
+  files=[]
+  for index,arg in enumerate(argv):
+   if index and arg.startswith('-'):continue
+   path=Path(shutil.which(arg,path=path_env) or arg) if index==0 else Path(arg)
+   item=dict(argument_index=index,path=str(path))
+   try:
+    resolved=path.resolve(strict=True);item['resolved_path']=str(resolved)
+    item.update(sha256=sha(resolved),size_bytes=resolved.stat().st_size)
+   except (OSError,RuntimeError) as error:item['identity_error']=repr(error)
+   files.append(item)
+  identities[name]=files
+ return identities
+def record_runner_snapshot(report, phase, path_env=None):
+ if phase not in ('before','after'):raise ValueError('unknown runner identity phase')
+ before=report.get('runner_files_before')
+ current=runner_snapshot(report['runners'],path_env)
+ report['runner_files_'+phase]=current
+ def valid(value):
+  return bool(value) and all(files and all('identity_error' not in item for item in files) for files in value.values())
+ if phase=='after':report['runner_snapshot_unchanged']=valid(before) and valid(current) and before==current
+ return valid(current)
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);a=p.parse_args();out=a.output.resolve()
  if out.exists() and any(out.iterdir()):raise RuntimeError('output must be new or empty; preserve prior receipts')
@@ -58,29 +109,38 @@ def main():
   rustc_verbose=run('rustc-host',['rustc','-vV']);target=next(line.split(': ',1)[1]for line in rustc_verbose.splitlines()if line.startswith('host: '))
   # Pin install flags so the independent build identity has explicit inputs.
   env['CARGO_ENCODED_RUSTFLAGS']='';env['RUSTFLAGS']=''
+  env['CARGO_TARGET_DIR']=str(work/'rust-target');env['CARGO_INCREMENTAL']='0'
   independently_expected_build=_oracle.rust_build_id(work/'rust-source',rustc_version.encode(),target,flags='')
   rust_build_output=run('rust-install',['cargo','install','-vv','--path',work/'rust-source/crates/macro-qualification','--bin','n13-model-interchange','--root',work/'rust-install','--locked','--offline'],work/'rust-source')
-  rust_ids=set(re.findall(r'cargo:rustc-env=STATELESS_BUILD_ID=(source-fnv1a64:[0-9a-f]{16})',rust_build_output))
-  if len(rust_ids)!=1:raise RuntimeError('expected exactly one retained Rust compiler build identity')
-  rust_build=rust_ids.pop()
+  rust_build=rust_engine_build_identity(rust_build_output)
   if rust_build!=independently_expected_build:raise RuntimeError('compiler build identity differs from independent source/compiler-input hash')
   report['rust_build_identity']=rust_build;report['rust_build_inputs']={'rustc_version':rustc_version,'target':target,'profile':'release','opt_level':'3','debug':'false','encoded_rustflags':''}
   runners['rust']=[str(work/'rust-install/bin/n13-model-interchange')]
   report['staged_source_files']={str(f.relative_to(work)):{'sha256':sha(f),'size_bytes':f.stat().st_size}for d in ('python-package','go-package','typescript-package','swift-package','go-consumer','typescript-consumer','swift-consumer','rust-source')for f in (work/d).rglob('*')if f.is_file()and not any(x in f.parts for x in ('.build','node_modules','dist','__pycache__','build','target'))};report['staged_source_files']['python-consumer.py']={'sha256':sha(work/'python-consumer.py'),'size_bytes':(work/'python-consumer.py').stat().st_size};report['runners']=runners
+  identities_valid=record_runner_snapshot(report,'before',env.get('PATH'));save()
+  if not identities_valid:raise RuntimeError('executed runner identity unavailable before execution')
   for name,runner in runners.items():
    dest=values/(name+'.json');receipt=json.loads(run(name+'-produce',runner+['produce',str(dest)]).splitlines()[-1]);actual=json.loads(dest.read_text());expected=_oracle.expected(name,rust_build=rust_build)
    if actual!=expected:raise AssertionError(f'{name}: literal independent artifact oracle mismatch')
+   validate_receipt(name,'produce',receipt)
    report['producers'][name]=receipt;save()
   for producer in runners:
    for consumer,runner in runners.items():
     dest=values/(producer+'-to-'+consumer+'.json');receipt=json.loads(run(producer+'-to-'+consumer,runner+['transcode',str(values/(producer+'.json')),str(dest)]).splitlines()[-1])
     if json.loads(dest.read_text())!=_oracle.expected(producer,rust_build=rust_build):raise AssertionError(f'{producer}->{consumer}: exact rewrite mismatch')
+    validate_receipt(consumer,'transcode',receipt)
     report['pairs'].append(dict(producer=producer,consumer=consumer,receipt=receipt));save()
+  record_runner_snapshot(report,'after',env.get('PATH'))
+  if not report['runner_snapshot_unchanged']:raise RuntimeError('executed runner identity changed during qualification')
   report['source_files_after']=snapshot();report['source_snapshot_unchanged']=report['source_files_after']==report['source_files']
   if not report['source_snapshot_unchanged']:raise RuntimeError('source additions/removals/hash drift during qualification; preserve and requalify')
   report['status']='passed';save();print(f'Finite installed N13 passed: 5 producers, 25 fresh-process pairs; {out}',flush=True)
  except BaseException as e:
   report['status']='failed';report['error']=str(e)
+  if 'runner_files_before' in report:
+   try:
+    record_runner_snapshot(report,'after',env.get('PATH'))
+   except BaseException as identity_error:report['runner_identity_error']=repr(identity_error)
   try:
    report['source_files_after']=snapshot();report['source_snapshot_unchanged']=report['source_files_after']==report.get('source_files')
   except BaseException as snapshot_error:report['after_snapshot_error']=repr(snapshot_error)
