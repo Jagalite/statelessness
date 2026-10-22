@@ -53,3 +53,16 @@ attachment. Language-local regression passes remain distinct from the four
 native-to-Rust direct comparisons. No broad N12 closure, 144-cell qualification,
 capability/profile/default promotion, parent integration, push, PR or release
 is asserted by this ledger.
+
+Public Rust source anchors for the remaining acceptance families:
+
+| Families | Source |
+| --- | --- |
+| Passive evidence; verification; minimization | [evidence.rs](../../../../crates/statelessness-debug/src/evidence.rs), [workbench.rs](../../../../crates/statelessness-debug/src/workbench.rs) |
+| Typed simulation; candidates; verified forks | [session.rs](../../../../crates/statelessness-debug/src/session.rs), [workbench.rs](../../../../crates/statelessness-debug/src/workbench.rs) |
+| Structural inspection and diff | [inspect.rs](../../../../crates/statelessness-debug/src/inspect.rs) |
+| Watches and scoped diagnostics | [watches.rs](../../../../crates/statelessness-debug/src/watches.rs), [diagnostic.rs](../../../../crates/statelessness-debug/src/diagnostic.rs) |
+| Wire schemas; authority; revisions; identities; admission; process serving | [protocol.rs](../../../../crates/statelessness-debug/src/protocol.rs) |
+| Live observation/control and effects | [live.rs](../../../../crates/statelessness-debug/src/live.rs), [effects.rs](../../../../crates/statelessness-debug/src/effects.rs) |
+| Metrics/catalogs/windows and dashboards/causal joins | [metrics.rs](../../../../crates/statelessness-debug/src/metrics.rs), [dashboard.rs](../../../../crates/statelessness-debug/src/dashboard.rs) |
+| Distribution and unchanged baseline | [acceptance proposal](../../../../docs/native-parity/DEBUGGER-DIAGNOSTICS-AUDIT.md#finite-implementation-and-acceptance-proposal), [preparation runner](../../../../scripts/native-parity/n12-wire/prepare.py) |

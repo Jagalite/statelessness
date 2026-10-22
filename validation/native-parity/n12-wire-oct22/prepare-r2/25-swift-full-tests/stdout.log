@@ -1,0 +1,548 @@
+Test Suite 'All tests' started at 2026-10-22 10:59:43.111.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-22 10:59:43.114.
+Test Suite 'AppendChecksTests' started at 2026-10-22 10:59:43.114.
+Test Case '-[StatelessnessTests.AppendChecksTests testFirstValidationFailureWinsOverLaterCallbackError]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testFirstValidationFailureWinsOverLaterCallbackError]' passed (0.005 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testInvalidOperationsAreStickyAndKeepOnlyValidPrefix]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testInvalidOperationsAreStickyAndKeepOnlyValidPrefix]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testLeasesExpireAndSnapshotsDetachOnEveryExit]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testLeasesExpireAndSnapshotsDetachOnEveryExit]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testNestedWrapperLeasesExpireWithoutRevokingOuter]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testNestedWrapperLeasesExpireWithoutRevokingOuter]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testObservedIntoClearsEveryErrorAndRetainsCapacity]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testObservedIntoClearsEveryErrorAndRetainsCapacity]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testSearchPartialBatchesAndPrimaryErrorSurviveObserverErrors]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testSearchPartialBatchesAndPrimaryErrorSurviveObserverErrors]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AppendChecksTests testSharedAppendCorpus]' started.
+Test Case '-[StatelessnessTests.AppendChecksTests testSharedAppendCorpus]' passed (0.011 seconds).
+Test Suite 'AppendChecksTests' passed at 2026-10-22 10:59:43.133.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.018 (0.019) seconds
+Test Suite 'AuditTraceTests' started at 2026-10-22 10:59:43.133.
+Test Case '-[StatelessnessTests.AuditTraceTests testAllNineWriterQuotasAndLateFailurePublishNothing]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testAllNineWriterQuotasAndLateFailurePublishNothing]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testCRCAndExplicitPortableLossRules]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testCRCAndExplicitPortableLossRules]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testEveryValidFixturePrefixIsTruncated]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testEveryValidFixturePrefixIsTruncated]' passed (0.396 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testFrameLimitBeforePayloadReadAndIOFailurePropagation]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testFrameLimitBeforePayloadReadAndIOFailurePropagation]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testIncrementalReaderAllFixturesAndChunkSizes]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testIncrementalReaderAllFixturesAndChunkSizes]' passed (0.058 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testSharedGoldenAndNegativeCorpus]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testSharedGoldenAndNegativeCorpus]' passed (0.016 seconds).
+Test Suite 'AuditTraceTests' passed at 2026-10-22 10:59:43.607.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.472 (0.474) seconds
+Test Suite 'BFSControlsTests' started at 2026-10-22 10:59:43.607.
+Test Case '-[StatelessnessTests.BFSControlsTests testAdmittedByteTotalsAndInitialCap]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testAdmittedByteTotalsAndInitialCap]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testDetachedDiamondHistoriesAndOptionalHistory]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testDetachedDiamondHistoriesAndOptionalHistory]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testOracleNativePaddingUnknownOverflowAndPairedForwarding]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testOracleNativePaddingUnknownOverflowAndPairedForwarding]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testPrimaryCheckerErrorAndValidatedPrefix]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testPrimaryCheckerErrorAndValidatedPrefix]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testPromotedConformanceProjectionStaysStable]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testPromotedConformanceProjectionStaysStable]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testRealDeadlineDuringChecksPreservesFailure]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testRealDeadlineDuringChecksPreservesFailure]' passed (1.015 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testSharedBFSControlsCorpus]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testSharedBFSControlsCorpus]' passed (0.005 seconds).
+Test Suite 'BFSControlsTests' passed at 2026-10-22 10:59:44.633.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 1.025 (1.026) seconds
+Test Suite 'BranchTests' started at 2026-10-22 10:59:44.633.
+Test Case '-[StatelessDebugTests.BranchTests testBuildMismatchMustBeExplicitAndFailureBoundaryRejects]' started.
+Test Case '-[StatelessDebugTests.BranchTests testBuildMismatchMustBeExplicitAndFailureBoundaryRejects]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.BranchTests testFixedWidthDigestParameter]' started.
+Test Case '-[StatelessDebugTests.BranchTests testFixedWidthDigestParameter]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.BranchTests testVerifiedForkIsolationAndProvenance]' started.
+Test Case '-[StatelessDebugTests.BranchTests testVerifiedForkIsolationAndProvenance]' passed (0.003 seconds).
+Test Suite 'BranchTests' passed at 2026-10-22 10:59:44.638.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.004 (0.004) seconds
+Test Suite 'CheckedResultsTests' started at 2026-10-22 10:59:44.638.
+Test Case '-[StatelessnessTests.CheckedResultsTests testErrorsNeverMintPartialTokensOrRepeatCallbacks]' started.
+Test Case '-[StatelessnessTests.CheckedResultsTests testErrorsNeverMintPartialTokensOrRepeatCallbacks]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.CheckedResultsTests testSharedCheckedResultsCorpus]' started.
+Test Case '-[StatelessnessTests.CheckedResultsTests testSharedCheckedResultsCorpus]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.CheckedResultsTests testTokensCertifyPristineSnapshotsAndGettersDetach]' started.
+Test Case '-[StatelessnessTests.CheckedResultsTests testTokensCertifyPristineSnapshotsAndGettersDetach]' passed (0.000 seconds).
+Test Suite 'CheckedResultsTests' passed at 2026-10-22 10:59:44.642.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.004 (0.004) seconds
+Test Suite 'DashboardTests' started at 2026-10-22 10:59:44.642.
+Test Case '-[StatelessDebugTests.DashboardTests testExactFullWidthWireGoldenAndUnknownSeries]' started.
+Test Case '-[StatelessDebugTests.DashboardTests testExactFullWidthWireGoldenAndUnknownSeries]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.DashboardTests testFullWidthCorrelationIdentityBoundaries]' started.
+Test Case '-[StatelessDebugTests.DashboardTests testFullWidthCorrelationIdentityBoundaries]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DashboardTests testHistogramQuantilesScopesAndPassiveCapture]' started.
+Test Case '-[StatelessDebugTests.DashboardTests testHistogramQuantilesScopesAndPassiveCapture]' passed (0.001 seconds).
+Test Suite 'DashboardTests' passed at 2026-10-22 10:59:44.645.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.003 (0.003) seconds
+Test Suite 'DiagnosticLiveTests' started at 2026-10-22 10:59:44.645.
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testDisconnectAdmittedDeliveryAndDispatchUncertainty]' started.
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testDisconnectAdmittedDeliveryAndDispatchUncertainty]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testProbeNoInterestRevisionAndExporterFault]' started.
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testProbeNoInterestRevisionAndExporterFault]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testSafePointAndSingleUsePermits]' started.
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testSafePointAndSingleUsePermits]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testThresholdStrictGreaterAndHysteresis]' started.
+Test Case '-[StatelessDebugTests.DiagnosticLiveTests testThresholdStrictGreaterAndHysteresis]' passed (0.000 seconds).
+Test Suite 'DiagnosticLiveTests' passed at 2026-10-22 10:59:44.647.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'DiagnosticsTests' started at 2026-10-22 10:59:44.647.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testBaselineEvictionAndExporterFaultPreserveUntouchedQueue]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testBaselineEvictionAndExporterFaultPreserveUntouchedQueue]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testExplicitAcknowledgementKeepsOldConfigurationAndProducerIsolation]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testExplicitAcknowledgementKeepsOldConfigurationAndProducerIsolation]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testManualEventJSONGoldenAndBoundedExactSidecarBinding]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testManualEventJSONGoldenAndBoundedExactSidecarBinding]' passed (0.002 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testReconfiguredTypeUnavailableAndStaleEffectiveBoundary]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testReconfiguredTypeUnavailableAndStaleEffectiveBoundary]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testSamplingOccursAfterTriggerAndBaselineUpdates]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testSamplingOccursAfterTriggerAndBaselineUpdates]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testScopedPublicationIncompleteDropAndIndependentSinkPolicies]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testScopedPublicationIncompleteDropAndIndependentSinkPolicies]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testSourceSchemaGapSelectorAndProducerBaselinesAreIndependent]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testSourceSchemaGapSelectorAndProducerBaselinesAreIndependent]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testThresholdSignedPositiveFullWidthCooldownAndIncompleteReset]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testThresholdSignedPositiveFullWidthCooldownAndIncompleteReset]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testTurnBudgetAndRedactedProjectionNeverEvaluatesGetter]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testTurnBudgetAndRedactedProjectionNeverEvaluatesGetter]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testTypedConfigurationRejectsInvalidMetadataWithoutRevisionChange]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testTypedConfigurationRejectsInvalidMetadataWithoutRevisionChange]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.DiagnosticsTests testValueExactlyOnceAcrossPathsAndNoInterestSkipsFactory]' started.
+Test Case '-[StatelessDebugTests.DiagnosticsTests testValueExactlyOnceAcrossPathsAndNoInterestSkipsFactory]' passed (0.000 seconds).
+Test Suite 'DiagnosticsTests' passed at 2026-10-22 10:59:44.654.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.006 (0.007) seconds
+Test Suite 'EffectDashboardTests' started at 2026-10-22 10:59:44.654.
+Test Case '-[StatelessDebugTests.EffectDashboardTests testDetailEvictionPreservesActiveAuthorityAndRetryPauseSamples]' started.
+Test Case '-[StatelessDebugTests.EffectDashboardTests testDetailEvictionPreservesActiveAuthorityAndRetryPauseSamples]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.EffectDashboardTests testHostLifecycleExplicitClockAndPassiveReport]' started.
+Test Case '-[StatelessDebugTests.EffectDashboardTests testHostLifecycleExplicitClockAndPassiveReport]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.EffectDashboardTests testTimingDisabledReadsNoClockAndForeignTokenRejects]' started.
+Test Case '-[StatelessDebugTests.EffectDashboardTests testTimingDisabledReadsNoClockAndForeignTokenRejects]' passed (0.000 seconds).
+Test Suite 'EffectDashboardTests' passed at 2026-10-22 10:59:44.657.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'EffectsTests' started at 2026-10-22 10:59:44.657.
+Test Case '-[StatelessDebugTests.EffectsTests testARCAbandonmentNeverInventsAttemptTermination]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testARCAbandonmentNeverInventsAttemptTermination]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testBoundedDetailEvictionPreservesActiveHandlesAndUnknownClock]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testBoundedDetailEvictionPreservesActiveHandlesAndUnknownClock]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testCancellationAbandonmentLateFinishAndIndependentSettlement]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testCancellationAbandonmentLateFinishAndIndependentSettlement]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testDroppingUnusedWrapperReportsAbandonmentWhileHostRetainsAttempt]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testDroppingUnusedWrapperReportsAbandonmentWhileHostRetainsAttempt]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testFailedPublicationAndForeignHandlesCannotBecomeCompletion]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testFailedPublicationAndForeignHandlesCannotBecomeCompletion]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testHostBaselineNormalizesPopulationAndTracksScope]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testHostBaselineNormalizesPopulationAndTracksScope]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testIndependentEndpointGoldenAndPassiveSlowSelection]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testIndependentEndpointGoldenAndPassiveSlowSelection]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testLazyInstrumentPreservesRealResultDespiteForeignHooksAndClassifierFailure]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testLazyInstrumentPreservesRealResultDespiteForeignHooksAndClassifierFailure]' passed (0.034 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testPauseWholeIntervalIsProvenanceNotSubtraction]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testPauseWholeIntervalIsProvenanceNotSubtraction]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testRetryWithoutClockAndResolvedAdmissionBoundary]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testRetryWithoutClockAndResolvedAdmissionBoundary]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EffectsTests testSlowQueryBoundsDisabledDetailsAndPendingAge]' started.
+Test Case '-[StatelessDebugTests.EffectsTests testSlowQueryBoundsDisabledDetailsAndPendingAge]' passed (0.000 seconds).
+Test Suite 'EffectsTests' passed at 2026-10-22 10:59:44.694.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.036 (0.037) seconds
+Test Suite 'EncodeReplayTests' started at 2026-10-22 10:59:44.694.
+Test Case '-[StatelessnessTests.EncodeReplayTests testAuditRecordPreferredCodecsStampAndCoherentFailurePrefix]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testAuditRecordPreferredCodecsStampAndCoherentFailurePrefix]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedActualSharedFrameTotalFooterAndItemBudgets]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedActualSharedFrameTotalFooterAndItemBudgets]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedArtifactAllNineQuotasBeforeDecodeAndIdentityFirst]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedArtifactAllNineQuotasBeforeDecodeAndIdentityFirst]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testEncodeLeasesAndCallbackFailureCannotPublish]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testEncodeLeasesAndCallbackFailureCannotPublish]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testReplayErrorEvidenceStagesAndNoRepeatedExecution]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testReplayErrorEvidenceStagesAndNoRepeatedExecution]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichObservationsDetachMutableValuesAndEncodedStorage]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichObservationsDetachMutableValuesAndEncodedStorage]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichReplayAllFlagsFailureIdentityAndObserverPriority]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichReplayAllFlagsFailureIdentityAndObserverPriority]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testSharedEncodeCorpus]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testSharedEncodeCorpus]' passed (0.002 seconds).
+Test Suite 'EncodeReplayTests' passed at 2026-10-22 10:59:44.703.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.009 (0.009) seconds
+Test Suite 'EvidenceExportsTests' started at 2026-10-22 10:59:44.703.
+Test Case '-[StatelessnessTests.EvidenceExportsTests testBoundedDiagnosticPhasesAndExactAllowlist]' started.
+Test Case '-[StatelessnessTests.EvidenceExportsTests testBoundedDiagnosticPhasesAndExactAllowlist]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EvidenceExportsTests testPrivateExclusiveFilesAndPreflight]' started.
+Test Case '-[StatelessnessTests.EvidenceExportsTests testPrivateExclusiveFilesAndPreflight]' passed (0.008 seconds).
+Test Case '-[StatelessnessTests.EvidenceExportsTests testSharedExportCorpus]' started.
+Test Case '-[StatelessnessTests.EvidenceExportsTests testSharedExportCorpus]' passed (0.003 seconds).
+Test Suite 'EvidenceExportsTests' passed at 2026-10-22 10:59:44.716.
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+Test Suite 'EvidenceRecorderTests' started at 2026-10-22 10:59:44.716.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testCurrentRetainedOriginsCannotBeExcusedByPlannedEviction]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testCurrentRetainedOriginsCannotBeExcusedByPlannedEviction]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testMetadataAndCauseOnlyEvictionsAreCoordinated]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testMetadataAndCauseOnlyEvictionsAreCoordinated]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testNoRecheckingAndTraceEvictionsAlignJournal]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testNoRecheckingAndTraceEvictionsAlignJournal]' passed (0.007 seconds).
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testOriginPropertyFailureTransferAndReentry]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testOriginPropertyFailureTransferAndReentry]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testPreparationAndCommitFailuresPreserveAtomicJournal]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testPreparationAndCommitFailuresPreserveAtomicJournal]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testSharedEvidenceRecorderCorpus]' started.
+Test Case '-[StatelessnessTests.EvidenceRecorderTests testSharedEvidenceRecorderCorpus]' passed (0.211 seconds).
+Test Suite 'EvidenceRecorderTests' passed at 2026-10-22 10:59:44.939.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.223 (0.224) seconds
+Test Suite 'EvidenceTests' started at 2026-10-22 10:59:44.939.
+Test Case '-[StatelessnessTests.EvidenceTests testIndependentStructuralDecoderBudgetsAndStickyFailure]' started.
+Test Case '-[StatelessnessTests.EvidenceTests testIndependentStructuralDecoderBudgetsAndStickyFailure]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EvidenceTests testSharedReplayAndUpgrade]' started.
+Test Case '-[StatelessnessTests.EvidenceTests testSharedReplayAndUpgrade]' passed (0.008 seconds).
+Test Case '-[StatelessnessTests.EvidenceTests testSharedWireAndEveryPrefixReader]' started.
+Test Case '-[StatelessnessTests.EvidenceTests testSharedWireAndEveryPrefixReader]' passed (0.139 seconds).
+Test Case '-[StatelessnessTests.EvidenceTests testStructuralLogicalAllocationAndExactBudgetBoundaries]' started.
+Test Case '-[StatelessnessTests.EvidenceTests testStructuralLogicalAllocationAndExactBudgetBoundaries]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EvidenceTests testWriterPreflightsBeforeUserSinkAndOwnedMetadataRemainsIndependent]' started.
+Test Case '-[StatelessnessTests.EvidenceTests testWriterPreflightsBeforeUserSinkAndOwnedMetadataRemainsIndependent]' passed (0.006 seconds).
+Test Suite 'EvidenceTests' passed at 2026-10-22 10:59:45.094.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.154 (0.155) seconds
+Test Suite 'EvidenceViewerTests' started at 2026-10-22 10:59:45.094.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testCheckpointShrinkChargesVerificationAndPolicy]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testCheckpointShrinkChargesVerificationAndPolicy]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testExactVerificationBudgetsAndPhase]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testExactVerificationBudgetsAndPhase]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testLegacyCheckpointAcceptsRustUnsignedTextGrammar]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testLegacyCheckpointAcceptsRustUnsignedTextGrammar]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testLegacyUnknownAndSemanticValidation]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testLegacyUnknownAndSemanticValidation]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testPassiveCursorPreviewsAndIndependentOutputDecoder]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testPassiveCursorPreviewsAndIndependentOutputDecoder]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testPassiveManualGoldenAndFullWidthCheckpoint]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testPassiveManualGoldenAndFullWidthCheckpoint]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testV2InsufficientWorkbenchBudgetStillChargesPhasePass]' started.
+Test Case '-[StatelessDebugTests.EvidenceViewerTests testV2InsufficientWorkbenchBudgetStillChargesPhasePass]' passed (0.001 seconds).
+Test Suite 'EvidenceViewerTests' passed at 2026-10-22 10:59:45.099.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'InspectionTests' started at 2026-10-22 10:59:45.099.
+Test Case '-[StatelessDebugTests.InspectionTests testRedactionSkipsClosureAndPartialDiffStaysUnknown]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testRedactionSkipsClosureAndPartialDiffStaysUnknown]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.InspectionTests testSequenceAndMapMetadataRespectValueAndByteBudgets]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testSequenceAndMapMetadataRespectValueAndByteBudgets]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.InspectionTests testTypedRuntimeAdmissionAndStructuralWorkBudget]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testTypedRuntimeAdmissionAndStructuralWorkBudget]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.InspectionTests testUnstableMapAndSchemaMismatchUnknown]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testUnstableMapAndSchemaMismatchUnknown]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.InspectionTests testUTF8PagingAndBoundedWork]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testUTF8PagingAndBoundedWork]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.InspectionTests testVariantPathMatchesRustStructureAndUTF8Identity]' started.
+Test Case '-[StatelessDebugTests.InspectionTests testVariantPathMatchesRustStructureAndUTF8Identity]' passed (0.000 seconds).
+Test Suite 'InspectionTests' passed at 2026-10-22 10:59:45.101.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'LiveBridgeTests' started at 2026-10-22 10:59:45.101.
+Test Case '-[StatelessDebugTests.LiveBridgeTests testCausalJoinRetainedAndBeforeCheckpoint]' started.
+Test Case '-[StatelessDebugTests.LiveBridgeTests testCausalJoinRetainedAndBeforeCheckpoint]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.LiveBridgeTests testSealedHostObservationGapAndDispatchFacts]' started.
+Test Case '-[StatelessDebugTests.LiveBridgeTests testSealedHostObservationGapAndDispatchFacts]' passed (0.000 seconds).
+Test Suite 'LiveBridgeTests' passed at 2026-10-22 10:59:45.102.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'MetricsTests' started at 2026-10-22 10:59:45.102.
+Test Case '-[StatelessDebugTests.MetricsTests testBoundedEndpointsCatalogAndGaugeScopeCompatibility]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testBoundedEndpointsCatalogAndGaugeScopeCompatibility]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testExplicitClockAndHistogramOverflowGolden]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testExplicitClockAndHistogramOverflowGolden]' passed (0.007 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testFullWidthSumWindowsAndImportedExclusion]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testFullWidthSumWindowsAndImportedExclusion]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testGaugeUnderflowScopeAndSnapshotTransaction]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testGaugeUnderflowScopeAndSnapshotTransaction]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testImportedInvalidLabelsNeverIngestAndHealthCannotOverflow]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testImportedInvalidLabelsNeverIngestAndHealthCannotOverflow]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testManualHistogramEmptyOverflowOnlyAndFullWidthCatalog]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testManualHistogramEmptyOverflowOnlyAndFullWidthCatalog]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testTransactionalDisjointMergeProductionAndSumCarry]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testTransactionalDisjointMergeProductionAndSumCarry]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.MetricsTests testWindowRetainsNewSeries]' started.
+Test Case '-[StatelessDebugTests.MetricsTests testWindowRetainsNewSeries]' passed (0.000 seconds).
+Test Suite 'MetricsTests' passed at 2026-10-22 10:59:45.111.
+	 Executed 8 tests, with 0 failures (0 unexpected) in 0.009 (0.010) seconds
+Test Suite 'NativeTests' started at 2026-10-22 10:59:45.111.
+Test Case '-[StatelessnessTests.NativeTests testBuildOverrideDoesNotWaiveVersions]' started.
+Test Case '-[StatelessnessTests.NativeTests testBuildOverrideDoesNotWaiveVersions]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testByteOrderMarkInsideAStringIsNotRemoved]' started.
+Test Case '-[StatelessnessTests.NativeTests testByteOrderMarkInsideAStringIsNotRemoved]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInitialBytes]' started.
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInitialBytes]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInputBytes]' started.
+Test Case '-[StatelessnessTests.NativeTests testCanonicalInputBytes]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCheckerErrorDiscardsPartialFindings]' started.
+Test Case '-[StatelessnessTests.NativeTests testCheckerErrorDiscardsPartialFindings]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testCodecError]' started.
+Test Case '-[StatelessnessTests.NativeTests testCodecError]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testDepthBoundaryOnlyProbesOnce]' started.
+Test Case '-[StatelessnessTests.NativeTests testDepthBoundaryOnlyProbesOnce]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testDuplicateFailureIDs]' started.
+Test Case '-[StatelessnessTests.NativeTests testDuplicateFailureIDs]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testExactStringEqualityNotCanonicalEquivalence]' started.
+Test Case '-[StatelessnessTests.NativeTests testExactStringEqualityNotCanonicalEquivalence]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testFalseTerminationAndContinuation]' started.
+Test Case '-[StatelessnessTests.NativeTests testFalseTerminationAndContinuation]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInitialErrorHasNoTrace]' started.
+Test Case '-[StatelessnessTests.NativeTests testInitialErrorHasNoTrace]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInvalidChecksAreErrors]' started.
+Test Case '-[StatelessnessTests.NativeTests testInvalidChecksAreErrors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testInvalidConfiguration]' started.
+Test Case '-[StatelessnessTests.NativeTests testInvalidConfiguration]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testJSONKeysPreserveScalarIdentity]' started.
+Test Case '-[StatelessnessTests.NativeTests testJSONKeysPreserveScalarIdentity]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testJSONLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testJSONLimits]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testLaterErrorRetainsOnlyCoherentPrefix]' started.
+Test Case '-[StatelessnessTests.NativeTests testLaterErrorRetainsOnlyCoherentPrefix]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testLazyIteratorError]' started.
+Test Case '-[StatelessnessTests.NativeTests testLazyIteratorError]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testMalformedJSONRejected]' started.
+Test Case '-[StatelessnessTests.NativeTests testMalformedJSONRejected]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testMutableReferenceBranchesAreIndependent]' started.
+Test Case '-[StatelessnessTests.NativeTests testMutableReferenceBranchesAreIndependent]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testNativeStructCollisionWitness]' started.
+Test Case '-[StatelessnessTests.NativeTests testNativeStructCollisionWitness]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testObjectFieldsPreserveExactUnicodeKeys]' started.
+Test Case '-[StatelessnessTests.NativeTests testObjectFieldsPreserveExactUnicodeKeys]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testObservationNeverSteps]' started.
+Test Case '-[StatelessnessTests.NativeTests testObservationNeverSteps]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testPeriodicPolicy]' started.
+Test Case '-[StatelessnessTests.NativeTests testPeriodicPolicy]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRecordReplayJSONRoundtrip]' started.
+Test Case '-[StatelessnessTests.NativeTests testRecordReplayJSONRoundtrip]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.NativeTests testReplayDoesNotReconstructInitialState]' started.
+Test Case '-[StatelessnessTests.NativeTests testReplayDoesNotReconstructInitialState]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRetentionLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testRetentionLimits]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testReturnedCodecArraysAreIndependent]' started.
+Test Case '-[StatelessnessTests.NativeTests testReturnedCodecArraysAreIndependent]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testRngEmptyDomainAndVectors]' started.
+Test Case '-[StatelessnessTests.NativeTests testRngEmptyDomainAndVectors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testUnicodeReplayDetailsStayExact]' started.
+Test Case '-[StatelessnessTests.NativeTests testUnicodeReplayDetailsStayExact]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.NativeTests testZeroAndExactStepLimits]' started.
+Test Case '-[StatelessnessTests.NativeTests testZeroAndExactStepLimits]' passed (0.000 seconds).
+Test Suite 'NativeTests' passed at 2026-10-22 10:59:45.123.
+	 Executed 30 tests, with 0 failures (0 unexpected) in 0.010 (0.012) seconds
+Test Suite 'OracleTests' started at 2026-10-22 10:59:45.123.
+Test Case '-[StatelessnessTests.OracleTests testCheckOrderAndExactFailureReplay]' started.
+Test Case '-[StatelessnessTests.OracleTests testCheckOrderAndExactFailureReplay]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.OracleTests testExactUnicodeOutcomeAndIdentity]' started.
+Test Case '-[StatelessnessTests.OracleTests testExactUnicodeOutcomeAndIdentity]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testHistoryEqualityFramingAndRestart]' started.
+Test Case '-[StatelessnessTests.OracleTests testHistoryEqualityFramingAndRestart]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.OracleTests testHistoryOnlyBFSDoesNotMerge]' started.
+Test Case '-[StatelessnessTests.OracleTests testHistoryOnlyBFSDoesNotMerge]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testObservationErrorRetainsActualAndDoesNotExecute]' started.
+Test Case '-[StatelessnessTests.OracleTests testObservationErrorRetainsActualAndDoesNotExecute]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testObservationSnapshotFailureRetainsCompletedTransition]' started.
+Test Case '-[StatelessnessTests.OracleTests testObservationSnapshotFailureRetainsCompletedTransition]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testReferenceSemanticsRemainStrictWithBuildOverride]' started.
+Test Case '-[StatelessnessTests.OracleTests testReferenceSemanticsRemainStrictWithBuildOverride]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testReplayRejectsNoncanonicalInitialAndInput]' started.
+Test Case '-[StatelessnessTests.OracleTests testReplayRejectsNoncanonicalInitialAndInput]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.OracleTests testSharedGoldenFixture]' started.
+Test Case '-[StatelessnessTests.OracleTests testSharedGoldenFixture]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.OracleTests testUnsupportedCapabilitiesAndCallbackErrors]' started.
+Test Case '-[StatelessnessTests.OracleTests testUnsupportedCapabilitiesAndCallbackErrors]' passed (0.001 seconds).
+Test Suite 'OracleTests' passed at 2026-10-22 10:59:45.132.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.008 (0.009) seconds
+Test Suite 'ProtocolTests' started at 2026-10-22 10:59:45.132.
+Test Case '-[StatelessDebugTests.ProtocolTests testAuthorityDedupRetirementAndCallbackOrder]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testAuthorityDedupRetirementAndCallbackOrder]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testBoundedOSPipeRoundTripAndPartialEOF]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testBoundedOSPipeRoundTripAndPartialEOF]' passed (0.002 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testConcreteWatchProbeAndInspectionHostBindings]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testConcreteWatchProbeAndInspectionHostBindings]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testHostMutationWaitsForCompleteReplyPreflight]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testHostMutationWaitsForCompleteReplyPreflight]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testManualWireGoldenAndFullWidth]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testManualWireGoldenAndFullWidth]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testNativeCandidatesInvalidateAcrossRevisionsAndReconnect]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testNativeCandidatesInvalidateAcrossRevisionsAndReconnect]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testPartialFramesAndBoundBeforeDispatch]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testPartialFramesAndBoundBeforeDispatch]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testSnapshotStalenessEpochAndIndependentAuthority]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testSnapshotStalenessEpochAndIndependentAuthority]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.ProtocolTests testTypedHostAuthorityAndConfigurationBeforeCallbacks]' started.
+Test Case '-[StatelessDebugTests.ProtocolTests testTypedHostAuthorityAndConfigurationBeforeCallbacks]' passed (0.001 seconds).
+Test Suite 'ProtocolTests' passed at 2026-10-22 10:59:45.140.
+	 Executed 9 tests, with 0 failures (0 unexpected) in 0.007 (0.008) seconds
+Test Suite 'RecorderTests' started at 2026-10-22 10:59:45.140.
+Test Case '-[StatelessnessTests.RecorderTests testAllFormatQuotasAndRetainedBudgetRejectWithoutEviction]' started.
+Test Case '-[StatelessnessTests.RecorderTests testAllFormatQuotasAndRetainedBudgetRejectWithoutEviction]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCallbackStopsAndNestedMutationCannotPublishOrReplaceFirstCause]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCallbackStopsAndNestedMutationCannotPublishOrReplaceFirstCause]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCallbackTransferIsRejectedWithoutPublishingCandidate]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCallbackTransferIsRejectedWithoutPublishingCandidate]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCertifiedBatchPreflightBeforeOutputEncodingAndAdmission]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCertifiedBatchPreflightBeforeOutputEncodingAndAdmission]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCheckedHandoffDoesNotRecheckAndTokenCanFeedTwoRecorders]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCheckedHandoffDoesNotRecheckAndTokenCanFeedTwoRecorders]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCoverageOrderingOriginOverflowAndMetadataAreEnforced]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCoverageOrderingOriginOverflowAndMetadataAreEnforced]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testCumulativeTotalBytesPrecedeCumulativeItems]' started.
+Test Case '-[StatelessnessTests.RecorderTests testCumulativeTotalBytesPrecedeCumulativeItems]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testDifferentContextRepresentationsShareCanonicalEncoding]' started.
+Test Case '-[StatelessnessTests.RecorderTests testDifferentContextRepresentationsShareCanonicalEncoding]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testDispositionFramePreflightRunsBeforeInputAndChecks]' started.
+Test Case '-[StatelessnessTests.RecorderTests testDispositionFramePreflightRunsBeforeInputAndChecks]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testErrorsFreezeCoherentPrefixAndCannotOverwriteFailure]' started.
+Test Case '-[StatelessnessTests.RecorderTests testErrorsFreezeCoherentPrefixAndCannotOverwriteFailure]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testIntoTraceTransfersOnceAndRejectsAllLaterMutations]' started.
+Test Case '-[StatelessnessTests.RecorderTests testIntoTraceTransfersOnceAndRejectsAllLaterMutations]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testOrdinaryCaptureKeepsPristineReferenceContext]' started.
+Test Case '-[StatelessnessTests.RecorderTests testOrdinaryCaptureKeepsPristineReferenceContext]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testRingPromotesOnlyStatePrefixAndWireAccounting]' started.
+Test Case '-[StatelessnessTests.RecorderTests testRingPromotesOnlyStatePrefixAndWireAccounting]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testSharedRecorderCorpus]' started.
+Test Case '-[StatelessnessTests.RecorderTests testSharedRecorderCorpus]' passed (0.049 seconds).
+Test Case '-[StatelessnessTests.RecorderTests testStopReasonFormatterCannotReenterOrReplaceFirstFreeze]' started.
+Test Case '-[StatelessnessTests.RecorderTests testStopReasonFormatterCannotReenterOrReplaceFirstFreeze]' passed (0.001 seconds).
+Test Suite 'RecorderTests' passed at 2026-10-22 10:59:45.203.
+	 Executed 15 tests, with 0 failures (0 unexpected) in 0.062 (0.063) seconds
+Test Suite 'RecordingErrorTests' started at 2026-10-22 10:59:45.203.
+Test Case '-[StatelessnessTests.RecordingErrorTests testInitialCloneErrorHasNoTrace]' started.
+Test Case '-[StatelessnessTests.RecordingErrorTests testInitialCloneErrorHasNoTrace]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.RecordingErrorTests testLaterCloneErrorRetainsOnlyCoherentPrefix]' started.
+Test Case '-[StatelessnessTests.RecordingErrorTests testLaterCloneErrorRetainsOnlyCoherentPrefix]' passed (0.000 seconds).
+Test Suite 'RecordingErrorTests' passed at 2026-10-22 10:59:45.204.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.000 (0.001) seconds
+Test Suite 'ReplayCorpusTests' started at 2026-10-22 10:59:45.204.
+Test Case '-[StatelessnessTests.ReplayCorpusTests testSharedAuditRecordingCorpus]' started.
+Test Case '-[StatelessnessTests.ReplayCorpusTests testSharedAuditRecordingCorpus]' passed (0.007 seconds).
+Test Case '-[StatelessnessTests.ReplayCorpusTests testSharedReplayEvidenceCorpus]' started.
+Test Case '-[StatelessnessTests.ReplayCorpusTests testSharedReplayEvidenceCorpus]' passed (0.011 seconds).
+Test Suite 'ReplayCorpusTests' passed at 2026-10-22 10:59:45.222.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.018 (0.018) seconds
+Test Suite 'SearchTests' started at 2026-10-22 10:59:45.222.
+Test Case '-[StatelessnessTests.SearchTests testControlAndFailurePriority]' started.
+Test Case '-[StatelessnessTests.SearchTests testControlAndFailurePriority]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testDisabledGeneratedAndThrowingHooksAreErrors]' started.
+Test Case '-[StatelessnessTests.SearchTests testDisabledGeneratedAndThrowingHooksAreErrors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testExactMutationRngAndDisabledReuseFallback]' started.
+Test Case '-[StatelessnessTests.SearchTests testExactMutationRngAndDisabledReuseFallback]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testGeneratedPairedFuzzShrinkRecordReplay]' started.
+Test Case '-[StatelessnessTests.SearchTests testGeneratedPairedFuzzShrinkRecordReplay]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.SearchTests testLazySimplificationCancellationAndErrorPriority]' started.
+Test Case '-[StatelessnessTests.SearchTests testLazySimplificationCancellationAndErrorPriority]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testNestedOptionalInputIsPresent]' started.
+Test Case '-[StatelessnessTests.SearchTests testNestedOptionalInputIsPresent]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testObserverCheckErrorBatchesAndObserverErrors]' started.
+Test Case '-[StatelessnessTests.SearchTests testObserverCheckErrorBatchesAndObserverErrors]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testObserverGetsFailingPrefixAndCannotMutateExecution]' started.
+Test Case '-[StatelessnessTests.SearchTests testObserverGetsFailingPrefixAndCannotMutateExecution]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testReservoirRngCommitRollbackAndOneExtraProbe]' started.
+Test Case '-[StatelessnessTests.SearchTests testReservoirRngCommitRollbackAndOneExtraProbe]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.SearchTests testSharedSearchCorpusAndShrinkHistory]' started.
+Test Case '-[StatelessnessTests.SearchTests testSharedSearchCorpusAndShrinkHistory]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.SearchTests testShrinkRejectsInvalidOriginalAndPreservesSuppliedEvidenceOnBudgetStop]' started.
+Test Case '-[StatelessnessTests.SearchTests testShrinkRejectsInvalidOriginalAndPreservesSuppliedEvidenceOnBudgetStop]' passed (0.000 seconds).
+Test Suite 'SearchTests' passed at 2026-10-22 10:59:45.230.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.007 (0.008) seconds
+Test Suite 'SessionTests' started at 2026-10-22 10:59:45.230.
+Test Case '-[StatelessDebugTests.SessionTests testAdmissionBreakpointRevisionAndCommittedObserverFailure]' started.
+Test Case '-[StatelessDebugTests.SessionTests testAdmissionBreakpointRevisionAndCommittedObserverFailure]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.SessionTests testCandidateSessionBindingAndLookaheadBudget]' started.
+Test Case '-[StatelessDebugTests.SessionTests testCandidateSessionBindingAndLookaheadBudget]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.SessionTests testContinueIteratorCannotReenterOwner]' started.
+Test Case '-[StatelessDebugTests.SessionTests testContinueIteratorCannotReenterOwner]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.SessionTests testReentrantMutationRejectedAndInitialCheckFailure]' started.
+Test Case '-[StatelessDebugTests.SessionTests testReentrantMutationRejectedAndInitialCheckFailure]' passed (0.000 seconds).
+Test Suite 'SessionTests' passed at 2026-10-22 10:59:45.231.
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'ValueCodecDecoderTests' started at 2026-10-22 10:59:45.231.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testAdmissionOwnedSlicesAndReusableFinish]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testAdmissionOwnedSlicesAndReusableFinish]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testCollectionExactArithmeticOrderAndIndependentCounters]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testCollectionExactArithmeticOrderAndIndependentCounters]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testGuardedFirstFailurePrecedenceAndNestedDepthRestoration]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testGuardedFirstFailurePrecedenceAndNestedDepthRestoration]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testRawTakeHasNoWorkOrDepthChargeAndHugeCountsCannotNarrow]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testRawTakeHasNoWorkOrDepthChargeAndHugeCountsCannotNarrow]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testStringByteWorkAndRawValidationStayDistinct]' started.
+Test Case '-[StatelessnessTests.ValueCodecDecoderTests testStringByteWorkAndRawValidationStayDistinct]' passed (0.000 seconds).
+Test Suite 'ValueCodecDecoderTests' passed at 2026-10-22 10:59:45.233.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'ValueCodecDirectionsTests' started at 2026-10-22 10:59:45.233.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testDecodeOnlyProtocolAndAllBuiltinComposition]' started.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testDecodeOnlyProtocolAndAllBuiltinComposition]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testEncodeOnlyProtocolAndAllBuiltinCompositionWithoutLayouts]' started.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testEncodeOnlyProtocolAndAllBuiltinCompositionWithoutLayouts]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testIndependentCustomLengthTraitsAndSelectedWidthAdapter]' started.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testIndependentCustomLengthTraitsAndSelectedWidthAdapter]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testMixedDirectionTupleAndOptionalCallbackAdmission]' started.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testMixedDirectionTupleAndOptionalCallbackAdmission]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testUnavailableDirectionsRejectEmptyPayloadsBeforeOperations]' started.
+Test Case '-[StatelessnessTests.ValueCodecDirectionsTests testUnavailableDirectionsRejectEmptyPayloadsBeforeOperations]' passed (0.000 seconds).
+Test Suite 'ValueCodecDirectionsTests' passed at 2026-10-22 10:59:45.235.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'ValueCodecEncoderCorpusTests' started at 2026-10-22 10:59:45.235.
+Test Case '-[StatelessnessTests.ValueCodecEncoderCorpusTests testRawCallbackLeaseExpiresWithoutPoisoningCaller]' started.
+Test Case '-[StatelessnessTests.ValueCodecEncoderCorpusTests testRawCallbackLeaseExpiresWithoutPoisoningCaller]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecEncoderCorpusTests testSharedRawEncoderScriptsAndStickyWriter]' started.
+Test Case '-[StatelessnessTests.ValueCodecEncoderCorpusTests testSharedRawEncoderScriptsAndStickyWriter]' passed (0.031 seconds).
+Test Suite 'ValueCodecEncoderCorpusTests' passed at 2026-10-22 10:59:45.267.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.031 (0.032) seconds
+Test Suite 'ValueCodecReaderCorpusTests' started at 2026-10-22 10:59:45.267.
+Test Case '-[StatelessnessTests.ValueCodecReaderCorpusTests testSharedReaderScriptsAndExactCallbackEvents]' started.
+Test Case '-[StatelessnessTests.ValueCodecReaderCorpusTests testSharedReaderScriptsAndExactCallbackEvents]' passed (0.002 seconds).
+Test Suite 'ValueCodecReaderCorpusTests' passed at 2026-10-22 10:59:45.269.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'ValueCodecTests' started at 2026-10-22 10:59:45.269.
+Test Case '-[StatelessnessTests.ValueCodecTests testCustomEncoderLeasesAndAppend]' started.
+Test Case '-[StatelessnessTests.ValueCodecTests testCustomEncoderLeasesAndAppend]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecTests testNative128AdmissionTypedOptionsAndUnknownLayouts]' started.
+Test Case '-[StatelessnessTests.ValueCodecTests testNative128AdmissionTypedOptionsAndUnknownLayouts]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecTests testNativeAdmissionRowsAreClassifiedAtTheirActualBoundary]' started.
+Test Case '-[StatelessnessTests.ValueCodecTests testNativeAdmissionRowsAreClassifiedAtTheirActualBoundary]' passed (0.059 seconds).
+Test Case '-[StatelessnessTests.ValueCodecTests testRawCallbacksRunOnFailedSinkAndKeepOwnReturnPrimary]' started.
+Test Case '-[StatelessnessTests.ValueCodecTests testRawCallbacksRunOnFailedSinkAndKeepOwnReturnPrimary]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.ValueCodecTests testSharedValuesErrorsAndAllPrefixes]' started.
+Test Case '-[StatelessnessTests.ValueCodecTests testSharedValuesErrorsAndAllPrefixes]' passed (0.039 seconds).
+Test Suite 'ValueCodecTests' passed at 2026-10-22 10:59:45.368.
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.099 (0.099) seconds
+Test Suite 'WatchTests' started at 2026-10-22 10:59:45.368.
+Test Case '-[StatelessDebugTests.WatchTests testIncompleteProjectionNeverEqualAndGapResetsBaseline]' started.
+Test Case '-[StatelessDebugTests.WatchTests testIncompleteProjectionNeverEqualAndGapResetsBaseline]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.WatchTests testNoInterestSkipsProjectionAndConfigurationAuthority]' started.
+Test Case '-[StatelessDebugTests.WatchTests testNoInterestSkipsProjectionAndConfigurationAuthority]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.WatchTests testPropertyFailureBypassesEvaluationAndDeliverySampling]' started.
+Test Case '-[StatelessDebugTests.WatchTests testPropertyFailureBypassesEvaluationAndDeliverySampling]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.WatchTests testRevisionSamplingBaselinesAndBoundedLoss]' started.
+Test Case '-[StatelessDebugTests.WatchTests testRevisionSamplingBaselinesAndBoundedLoss]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.WatchTests testSelectorSharedProjectionSourceAndSchemaBoundaries]' started.
+Test Case '-[StatelessDebugTests.WatchTests testSelectorSharedProjectionSourceAndSchemaBoundaries]' passed (0.000 seconds).
+Test Case '-[StatelessDebugTests.WatchTests testValidatedRedactionTTLAndUpdate]' started.
+Test Case '-[StatelessDebugTests.WatchTests testValidatedRedactionTTLAndUpdate]' passed (0.000 seconds).
+Test Suite 'WatchTests' passed at 2026-10-22 10:59:45.370.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'WireParityTests' started at 2026-10-22 10:59:45.370.
+Test Case '-[StatelessDebugTests.WireParityTests testCompleteStatusSchemaAndNativeInitialQueries]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testCompleteStatusSchemaAndNativeInitialQueries]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testDecoderCannotReenterSessionAndAuthorityPrecedesRevision]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testDecoderCannotReenterSessionAndAuthorityPrecedesRevision]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testFailureIdentityAndDecodeBeforeEnded]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testFailureIdentityAndDecodeBeforeEnded]' passed (0.002 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testMalformedPipeRequestsDoNotRetireIDsAndEOFDisconnects]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testMalformedPipeRequestsDoNotRetireIDsAndEOFDisconnects]' passed (0.001 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testNativeOutputEncodingDispositionAndCallbackOrder]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testNativeOutputEncodingDispositionAndCallbackOrder]' passed (0.002 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testTerminalStopsRetainCommittedHandleChecksAndExactOutput]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testTerminalStopsRetainCommittedHandleChecksAndExactOutput]' passed (0.004 seconds).
+Test Case '-[StatelessDebugTests.WireParityTests testTypedDecodeCanonicalizationAndStrictUTF8]' started.
+Test Case '-[StatelessDebugTests.WireParityTests testTypedDecodeCanonicalizationAndStrictUTF8]' passed (0.001 seconds).
+Test Suite 'WireParityTests' passed at 2026-10-22 10:59:45.383.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.012 (0.013) seconds
+Test Suite 'StatelessnessPackageTests.xctest' passed at 2026-10-22 10:59:45.383.
+	 Executed 218 tests, with 0 failures (0 unexpected) in 2.248 (2.269) seconds
+Test Suite 'All tests' passed at 2026-10-22 10:59:45.383.
+	 Executed 218 tests, with 0 failures (0 unexpected) in 2.248 (2.272) seconds
+native admission: 5 public runtime rejections; 26 statically excluded by typed Swift API; not Rust execution
+length rows: 3 actual public length encodes, 6 arithmetic-only witnesses not executed
+canonical values executable: 83 values, 30 decode errors, 8 encode errors; length rows 9 separately executed/classified; native-only 31 separately classified
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.
