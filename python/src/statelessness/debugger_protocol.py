@@ -28,6 +28,9 @@ class ProtocolLimits:
     max_handles: int = 64
     max_candidates: int = 256
     max_candidate_bytes: int = 256 * 1024
+    max_telemetry_snapshot_bytes: int = 8 * 1024 * 1024
+    max_event_entries: int = 1024
+    max_event_bytes: int = 256 * 1024
     def __post_init__(self):
         for name in self.__dataclass_fields__:
             if type(getattr(self, name)) is not int or getattr(self, name) < 1: raise ValueError(name)
@@ -49,13 +52,18 @@ def _u64(value):
 
 def _number(field):
     if not re.fullmatch(r'u64:[0-9]+', field): raise ProtocolError('malformed')
-    try: return _u64(int(field[4:]))
+    # Leading zeroes are valid Rust u64 syntax, even beyond Python's integer
+    # string conversion limit. Bound the significant digits before conversion.
+    decimal=field[4:].lstrip('0') or '0'
+    if len(decimal)>20: raise ProtocolError('malformed')
+    try: return _u64(int(decimal))
     except ValueError: raise ProtocolError('malformed') from None
 
 def escape(value):
     return ''.join(chr(b) if b in _SAFE else '%%%02X' % b for b in value.encode('utf-8'))
 
 def _unescape(value, maximum):
+    if len(value)>maximum*3: raise ProtocolError('limit')
     output = bytearray(); index = 0
     while index < len(value):
         b = value[index]
@@ -76,6 +84,18 @@ def _encode(fields, limits):
     result = '\t'.join(map(escape, fields)).encode('ascii')
     if not result or len(result) > limits.max_frame_bytes: raise ProtocolError('limit')
     return result
+
+def _decode_fields(payload, limits, maximum):
+    if len(payload)>limits.max_frame_bytes: raise ProtocolError('limit')
+    # Rust validates raw UTF-8 before any per-field length/syntax checks, then
+    # visits each field in order. Preserve which error wins on mixed faults.
+    try: payload.decode('utf-8',errors='strict')
+    except UnicodeError: raise ProtocolError('malformed') from None
+    fields=[]
+    for raw in payload.split(b'\t'):
+        if len(fields)==maximum: raise ProtocolError('limit')
+        fields.append(_unescape(raw,limits.max_field_bytes))
+    return fields
 
 @dataclass(frozen=True)
 class Request:
@@ -99,13 +119,16 @@ def encode_request(request, limits=ProtocolLimits()):
 
 
 def decode_request(payload, limits=ProtocolLimits()):
-    if not payload or len(payload) > limits.max_frame_bytes: raise ProtocolError('limit')
-    raw = payload.split(b'\t')
-    if len(raw)>limits.max_fields: raise ProtocolError('limit')
-    f = [_unescape(v,limits.max_field_bytes) for v in raw]
-    if len(f)<9 or f[0]!='DDBG' or f[2]!='request' or not f[3].startswith('string:'): raise ProtocolError('malformed')
-    if not re.fullmatch(r'u32:[0-9]{1,10}',f[1]) or int(f[1][4:]) > (1<<32)-1: raise ProtocolError('malformed')
-    return Request(f[3][7:],*map(_number,f[4:8]),f[8],tuple(f[9:]),int(f[1][4:]))
+    f = _decode_fields(payload,limits,limits.max_fields)
+    if len(f)<9 or f[0]!='DDBG' or f[2]!='request': raise ProtocolError('malformed')
+    if not re.fullmatch(r'u32:\+?[0-9]+',f[1]): raise ProtocolError('malformed')
+    decimal=f[1][4:].lstrip('+').lstrip('0') or '0'
+    if len(decimal)>10 or int(decimal)>(1<<32)-1: raise ProtocolError('malformed')
+    version=int(decimal)
+    if version!=1: raise ProtocolError('unsupported_version')
+    arguments=_decode_arguments(f[8],tuple(f[9:]),limits)
+    if not f[3].startswith('string:'): raise ProtocolError('malformed')
+    return Request(f[3][7:],*map(_number,f[4:8]),f[8],arguments,version)
 
 @dataclass(frozen=True)
 class Response:
@@ -125,10 +148,7 @@ def encode_response(response, limits=ProtocolLimits()):
         *(v for pair in response.fields for v in pair)), limits)
 
 def decode_response(payload, limits=ProtocolLimits()):
-    if not payload or len(payload)>limits.max_frame_bytes: raise ProtocolError('limit')
-    raw=payload.split(b'\t')
-    if len(raw)>limits.max_response_fields: raise ProtocolError('limit')
-    f=[_unescape(v,limits.max_field_bytes) for v in raw]
+    f=_decode_fields(payload,limits,limits.max_response_fields)
     if len(f)<11 or f[:3]!=['DDBG','u32:1','response'] or not f[3].startswith('string:') or f[8] not in ('ok','error'): raise ProtocolError('malformed')
     n=_number(f[10])
     if len(f)!=11+2*n or (f[8]=='ok') != (f[9]=='none'): raise ProtocolError('malformed')
@@ -202,7 +222,7 @@ def _path(value):
         if (-(1<<(bits-1)) if signed else 0)<=number<(1<<(bits-1 if signed else bits)): return (kind,number)
     raise ProtocolError('malformed')
 
-def _parse_adapter(command,arguments,limits):
+def _parse_adapter(command,arguments,limits,*,check_limits=True):
     spec=_ADAPTER_COMMANDS[command][0]; rest=spec[-1:] in ('*','+'); base=spec[:-1] if rest else spec
     if len(arguments)<len(base) or (not rest and len(arguments)!=len(base)): raise ProtocolError('malformed')
     values=[]
@@ -212,14 +232,37 @@ def _parse_adapter(command,arguments,limits):
         elif tag=='b' and value in ('bool:true','bool:false'): values.append(value=='bool:true')
         else: raise ProtocolError('malformed')
     if rest: values.append(tuple((_path(v) if spec[-1]=='*' else _number(v)) for v in arguments[len(base):]))
-    pages={'inputs':(1,), 'events':(0,), 'inspect':(3,), 'metric_catalog':(1,), 'metric_snapshot':(2,), 'metric_window':(2,), 'effect_timeline':(3,), 'probe_status':(1,), 'probe_events':(1,)}
-    for index in pages.get(command,()):
-        if not 0<values[index]<=limits.max_page_size: raise ProtocolError('limit')
     if command in ('inspect','watch') and values[1 if command=='inspect' else 0]>(1<<32)-1: raise ProtocolError('malformed')
     if command=='watch' and values[1]>_U64: raise ProtocolError('malformed')
-    if command=='export_trace' and (not values[2] or values[2]>(limits.max_field_bytes-6)//2 or values[1]+values[2]>_U64): raise ProtocolError('limit')
-    if command=='probe_configure' and len(values[-1])!=len(set(values[-1])): raise ProtocolError('malformed')
+    if spec.endswith('*') and len(values[-1])>32: raise ProtocolError('limit')
+    if check_limits:
+        pages={'inputs':(1,), 'events':(0,), 'inspect':(3,), 'metric_catalog':(1,), 'metric_snapshot':(2,), 'metric_window':(2,), 'effect_timeline':(3,), 'probe_status':(1,), 'probe_events':(1,)}
+        for index in pages.get(command,()):
+            if not 0<values[index]<=limits.max_page_size: raise ProtocolError('limit')
+        if command=='export_trace' and (not values[2] or values[2]>(limits.max_field_bytes-6)//2 or values[1]+values[2]>_U64): raise ProtocolError('limit')
+        if command=='probe_configure' and len(values[-1])!=len(set(values[-1])): raise ProtocolError('malformed')
     return tuple(values)
+
+def _decode_arguments(command,arguments,limits):
+    """Decode command shape before admission, as Rust's typed Command does.
+
+    Page/revision/authority checks belong to execution. Invalid command syntax
+    instead produces a request-zero response and never retires an envelope ID.
+    Canonical scalar arguments preserve typed-command duplicate identity.
+    """
+    if command in ('status','snapshot','cancel'):
+        if arguments: raise ProtocolError('malformed')
+        return ()
+    if command=='step':
+        if len(arguments)!=1 or not arguments[0].startswith('bytes:'): raise ProtocolError('malformed')
+        encoded=arguments[0][6:]
+        if len(encoded)%2: raise ProtocolError('malformed')
+        if len(encoded)//2>limits.max_input_bytes: raise ProtocolError('limit')
+        if not re.fullmatch(r'[0-9a-fA-F]*',encoded): raise ProtocolError('malformed')
+        return ('bytes:'+encoded.lower(),)
+    if command not in _ADAPTER_COMMANDS: raise ProtocolError('unsupported')
+    _parse_adapter(command,arguments,limits,check_limits=False)
+    return tuple('u64:'+str(_number(value)) if value.startswith('u64:') else value for value in arguments)
 
 class _TraceWindow:
     def __init__(self,offset,limit): self.offset,self.limit,self.position,self.chunk=offset,limit,0,bytearray()
@@ -249,13 +292,35 @@ class ProtocolSession:
     def configuration(self): return _u64(0 if self._configuration_revision is None else self._configuration_revision())
     def reconnect(self):
         if getattr(self,'_busy',False): raise ProtocolError('busy')
-        self.epoch=_u64(next(_epochs)); self.connected=True; self._cache=OrderedDict(); self._cache_bytes=0; self._high=0; self._handles={}; self._next_handle=1; self._candidates={}; self._candidate_bytes=0; self._next_candidate=1
+        if getattr(self,'connected',False): raise ProtocolError('invalid_input')
+        reconnecting=hasattr(self,'epoch')
+        self.epoch=_u64(next(_epochs)); self.connected=True; self._cache=OrderedDict(); self._cache_bytes=0; self._high=0; self._handles={}; self._next_handle=getattr(self,'_next_handle',1); self._candidates={}; self._candidate_bytes=0; self._next_candidate=getattr(self,'_next_candidate',1)
+        self._events=OrderedDict(); self._event_bytes=0; self._event_sequence=0
+        self._event_drops=getattr(self,'_event_drops',0)
+        if reconnecting: self._publish('reconnected')
         return self.epoch
     def disconnect(self):
         if self._busy: raise ProtocolError('busy')
         self.connected=False
     def _response(self,id,error=None,fields=()):
         return Response(self.session.id,self.epoch,id,self.session.revision,self.configuration,error,tuple(fields))
+    def _publish(self,kind):
+        if self._event_sequence==_U64:
+            self._event_drops=min(_U64,self._event_drops+1)
+            return
+        self._event_sequence+=1
+        # Logical retained-byte accounting matches the public Rust 64-bit
+        # ProtocolEvent layout (88 bytes plus owned string bytes), not Python RSS.
+        size=88+len(self.session.id.encode('utf-8'))+len(kind.encode('utf-8'))
+        if len(self._events)>=self.limits.max_event_entries or self._event_bytes+size>self.limits.max_event_bytes:
+            self._event_drops=min(_U64,self._event_drops+1)
+            return
+        fields=(('version','u64:1'),('session','string:'+self.session.id),
+                ('epoch',f'u64:{self.epoch}'),('sequence',f'u64:{self._event_sequence}'),
+                ('revision',f'u64:{self.session.revision}'),('configuration',f'u64:{self.configuration}'),
+                ('kind','enum:'+kind))
+        self._events[self._event_sequence]=(fields,size)
+        self._event_bytes+=size
     def _encode_owned(self,callback,*args):
         # Rust holds the typed session borrow while codecs run. Preserve that
         # ownership against direct reentrant Python session mutation too.
@@ -295,17 +360,39 @@ class ProtocolSession:
         finally: self._busy=False
     def _execute(self,r):
         c,a=r.command,r.arguments
-        if c in _ADAPTER_COMMANDS: _parse_adapter(c,a,self.limits)
-        if c in ('status','snapshot','cancel') and a: raise ProtocolError('malformed')
-        if c=='status': return (('mode','enum:simulation'),('phase','enum:'+self.session.phase.capitalize()),('sequence',f'u64:{self.session.sequence}'),('capability.effects','bool:false'),('capability.input_delivery','bool:'+str(self.authority.deliver_inputs).lower()),*(('capability.'+name,'bool:true') for name in sorted(self._adapters)))
+        _decode_arguments(c,a,self.limits)
+        if c=='status':
+            boolean=lambda value:'bool:'+str(bool(value)).lower()
+            probes='probe_status' in self._adapters
+            telemetry='telemetry_health' in self._adapters
+            return (
+                ('mode','enum:simulation'),('phase','enum:'+self.session.phase.capitalize()),
+                ('sequence',f'u64:{self.session.sequence}'),('environment','string:'+self.session.policy.label),
+                ('capability.input_delivery',boolean(self.authority.deliver_inputs)),
+                ('capability.inspection',boolean('inspect' in self._adapters)),
+                ('capability.watch_configuration',boolean(self.authority.configure_watches and 'watch' in self._adapters)),
+                ('capability.exact_values',boolean(self.authority.read_exact_values)),
+                ('capability.live_control','bool:false'),('capability.live_restore','bool:false'),
+                ('capability.effects','bool:false'),('capability.probe_queries',boolean(probes)),
+                ('capability.probe_configuration',boolean(probes and self.authority.configure_diagnostics)),
+                ('capability.trace_export',boolean(self.authority.export_exact_trace and self.session.capabilities['exact_recording'])),
+                ('capability.effect_telemetry',boolean(telemetry)),('capability.metric_queries',boolean('metric_catalog' in self._adapters)),
+                ('limits.telemetry_snapshot_bytes',f'u64:{self.limits.max_telemetry_snapshot_bytes}'),
+                ('limits.frame_bytes',f'u64:{self.limits.max_frame_bytes}'),
+                ('limits.dedup_entries',f'u64:{self.limits.max_cache_entries}'),
+                ('limits.dedup_bytes',f'u64:{self.limits.max_cache_bytes}'),
+                ('limits.page_size',f'u64:{self.limits.max_page_size}'),
+                ('events.dropped',f'u64:{self._event_drops}'),('stop','enum:'+('none' if self.session.stop is None else self.session.stop.kind)),
+            )
+        permission=('deliver_inputs' if c in ('step','cancel') else
+                    _ADAPTER_COMMANDS.get(c,('',None))[1])
+        if permission and not getattr(self.authority,permission): raise ProtocolError('unauthorized')
+        if c in ('watch','unwatch') and r.expected_configuration!=self.configuration: raise ProtocolError('stale_configuration')
         if c in self._adapters:
             typed=_parse_adapter(c,a,self.limits)
-            permission=_ADAPTER_COMMANDS[c][1]
-            if permission and not getattr(self.authority,permission): raise ProtocolError('unauthorized')
-            if c not in _FRESH_READS and r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
-            if c in ('watch','unwatch') and r.expected_configuration!=self.configuration: raise ProtocolError('stale_configuration')
-            if c=='watch' and typed[1]!=self.session.revision: raise ProtocolError('stale_revision')
             if c in _HANDLE_COMMANDS and self._handles.get(typed[0])!=self.session.revision: raise ProtocolError('stale_handle')
+            if c in ('inspect','export_trace','inputs','select','watch') and r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
+            if c=='watch' and typed[1]!=self.session.revision: raise ProtocolError('stale_revision')
             prepared=self._adapters[c](typed)
             if c in ('watch','unwatch','probe_configure','select') and type(prepared) is not ProtocolPrepared: raise ProtocolError('callback')
             source=prepared.fields if type(prepared) is ProtocolPrepared else prepared
@@ -326,8 +413,11 @@ class ProtocolSession:
             encode_response(response,self.limits)
             if type(prepared) is ProtocolPrepared and prepared.commit is not None:
                 if prepared.commit() is not None: raise ProtocolError('callback')
+                if c in ('watch','unwatch'):
+                    self._publish('watch_configured' if c=='watch' else 'watch_removed')
             return tuple(fields)
-        if r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
+        if c in ('snapshot','inputs','select','step','cancel','watch') and r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
+        if c=='watch' and _number(a[1])!=self.session.revision: raise ProtocolError('stale_revision')
         if c=='inputs':
             offset,limit=_parse_adapter(c,a,self.limits)
             if self.encode_input is None or self.decode_input is None or not hasattr(self.session,'inputs'): raise ProtocolError('unsupported')
@@ -364,7 +454,21 @@ class ProtocolSession:
             except Exception as error:
                 if 'not permitted' in str(error): raise ProtocolError('invalid_input') from None
                 raise
+            if result.delivered: self._publish('transition')
             return (('delivered','bool:'+str(result.delivered).lower()),('sequence',f'u64:{result.sequence}'))
+        if c=='events':
+            (limit,)=_parse_adapter(c,a,self.limits)
+            count=min(limit,len(self._events))
+            fields=[('events.dropped',f'u64:{self._event_drops}')]
+            for index,(event,_) in enumerate(self._events.values()):
+                if index==count: break
+                fields.extend((f'events.{index}.{key}',value) for key,value in event)
+            fields.append(('events.returned',f'u64:{count}'))
+            encode_response(self._response(r.request_id,fields=fields),self.limits)
+            for _ in range(count):
+                _,(_,size)=self._events.popitem(last=False)
+                self._event_bytes-=size
+            return tuple(fields)
         if c=='snapshot':
             if self._next_handle>_U64: raise ProtocolError('exhausted')
             h=_u64(self._next_handle)
@@ -377,6 +481,7 @@ class ProtocolSession:
             if not a: raise ProtocolError('malformed')
             handle=_number(a[0])
             if self._handles.get(handle)!=self.session.revision: raise ProtocolError('stale_handle')
+            if c in ('inspect','export_trace') and r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
             if c=='checks':
                 observation=self.session.observation
                 checks=self.session.initial_checks if observation is None else observation.checks
@@ -421,17 +526,22 @@ class ProtocolSession:
             raise ProtocolError('unsupported')
         if c in ('step','cancel'):
             if not self.authority.deliver_inputs: raise ProtocolError('unauthorized')
-            if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
-            if c=='cancel': self.session.cancel(r.expected_revision); return ()
+            if c=='cancel':
+                if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
+                self.session.cancel(r.expected_revision)
+                self._publish('cancelled')
+                return ()
             if len(a)!=1 or not re.fullmatch(r'bytes:(?:[0-9a-fA-F]{2})*',a[0]): raise ProtocolError('malformed')
             if len(a[0][6:])//2>self.limits.max_input_bytes: raise ProtocolError('limit')
             if self.decode_input is None: raise ProtocolError('unsupported')
             try: value=self._encode_owned(self.decode_input,bytes.fromhex(a[0][6:]))
             except Exception: raise ProtocolError('invalid_input') from None
+            if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
             try: result=self.session.step(r.expected_revision,value)
             except Exception as e:
                 if 'not permitted' in str(e): raise ProtocolError('invalid_input') from None
                 raise
+            if result.delivered: self._publish('transition')
             return (('delivered','bool:'+str(result.delivered).lower()),('sequence',f'u64:{result.sequence}'))
         raise ProtocolError('unsupported')
 

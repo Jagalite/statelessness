@@ -42,6 +42,8 @@ export class DebugSession<S,I,O>{
  exportTrace():AuditTrace{if(!this.#nativeRecorder)throw new ModelError('exact recording unavailable');return this.#read(()=>this.#nativeRecorder!.snapshot());}
  #read<T>(callback:()=>T):T{const old=this.#busy;this.#busy=true;try{return callback();}finally{this.#busy=old;}}
  get state():S{return this.#read(()=>this.#model.cloneState(this.#state));}get sequence():bigint{return this.#sequence;}get revision():bigint{return this.#revision;}get phase():SessionPhase{return this.#phase;}get stopReason():SessionStop|null{return this.#stop?{...this.#stop}:null;}get initialChecks():readonly Check[]{return this.#initialChecks.map(c=>({...c}));}get diagnosticErrors():readonly string[]{return [...this.#issues];}
+ get inputPolicy():string{return this.#policy.label??(this.#policy.kind==='unrestricted'?'out-of-domain-injection':this.#policy.kind==='enumerated'?'enumerated-domain':'declared');}
+ get checksComplete():boolean{return this.#last?.completeChecks??this.#stop?.kind!=='initial_check_error';}
  get capabilities(){return {mode:'simulation' as const,typedInput:true,exactRecording:this.#nativeRecorder!==undefined,enumerateInputs:this.#domain!==undefined,effectsDispatched:false,liveRestore:false};}
  /** External protocol decoders borrow session ownership before input delivery. */
  decodeInputWith(bytes:Uint8Array,decode:(bytes:Uint8Array)=>I):I{return this.#read(()=>decode(bytes.slice()));}

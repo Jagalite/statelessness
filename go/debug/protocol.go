@@ -17,13 +17,16 @@ type ProtocolError string
 
 func (e ProtocolError) Error() string { return string(e) }
 
-type ProtocolLimits struct{ MaxFrame, MaxField, MaxFields, MaxInput, MaxCache, MaxCacheBytes, MaxHandles int }
+type ProtocolLimits struct {
+	MaxFrame, MaxField, MaxFields, MaxInput, MaxCache, MaxCacheBytes, MaxHandles int
+	MaxPage, MaxTelemetrySnapshot                                            int
+}
 
 func DefaultProtocolLimits() ProtocolLimits {
-	return ProtocolLimits{65536, 8192, 4096, 8192, 64, 4 << 20, 64}
+	return ProtocolLimits{MaxFrame: 65536, MaxField: 8192, MaxFields: 4096, MaxInput: 8192, MaxCache: 64, MaxCacheBytes: 4 << 20, MaxHandles: 64, MaxPage: 100, MaxTelemetrySnapshot: 8 << 20}
 }
 func (l ProtocolLimits) valid() bool {
-	return l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0
+	return l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0 && l.MaxPage > 0 && l.MaxTelemetrySnapshot > 0
 }
 func ReadFrame(r io.Reader, max int) ([]byte, error) {
 	var h [4]byte
@@ -40,6 +43,9 @@ func ReadFrame(r io.Reader, max int) ([]byte, error) {
 	}
 	b := make([]byte, int(size))
 	_, e = io.ReadFull(r, b)
+	if e == io.EOF {
+		e = io.ErrUnexpectedEOF
+	}
 	return b, e
 }
 func WriteFrame(w io.Writer, b []byte, max int) error {
@@ -59,6 +65,9 @@ func WriteFrame(w io.Writer, b []byte, max int) error {
 			}
 			v = v[n:]
 		}
+	}
+	if flusher, ok := w.(interface{ Flush() error }); ok {
+		return flusher.Flush()
 	}
 	return nil
 }
@@ -96,14 +105,20 @@ func encodeFields(f []string, l ProtocolLimits) ([]byte, error) {
 	return []byte(strings.Join(out, "\t")), nil
 }
 func decodeFields(b []byte, l ProtocolLimits) ([]string, error) {
-	if !l.valid() || len(b) == 0 || len(b) > l.MaxFrame {
+	if !l.valid() || len(b) > l.MaxFrame {
 		return nil, ProtocolError("limit")
 	}
-	if strings.Count(string(b), "\t") >= l.MaxFields {
-		return nil, ProtocolError("limit")
+	if !utf8.Valid(b) {
+		return nil, ProtocolError("malformed")
 	}
 	f := strings.Split(string(b), "\t")
 	for i, s := range f {
+		if i == l.MaxFields {
+			return nil, ProtocolError("limit")
+		}
+		if len(s) > l.MaxField*3 {
+			return nil, ProtocolError("limit")
+		}
 		var v []byte
 		for j := 0; j < len(s); j++ {
 			c := s[j]
@@ -167,19 +182,36 @@ type ProtocolResponse struct {
 
 func EncodeRequest(r ProtocolRequest, l ProtocolLimits) ([]byte, error) {
 	f := []string{"DDBG", "u32:1", "request", "string:" + r.Session, number(r.Epoch), number(r.ID), number(r.Revision), number(r.Configuration), r.Command}
+	l.MaxFields = min(l.MaxFields, 64)
 	return encodeFields(append(f, r.Args...), l)
 }
 func DecodeRequest(b []byte, l ProtocolLimits) (ProtocolRequest, error) {
 	var r ProtocolRequest
+	l.MaxFields = min(l.MaxFields, 64)
 	f, e := decodeFields(b, l)
 	if e != nil {
 		return r, e
 	}
-	if len(f) < 9 || len(f) > 64 || f[0] != "DDBG" || f[2] != "request" || !strings.HasPrefix(f[3], "string:") {
+	if len(f) < 9 || f[0] != "DDBG" || f[2] != "request" {
 		return r, ProtocolError("malformed")
 	}
-	if f[1] != "u32:1" {
+	if !strings.HasPrefix(f[1], "u32:") {
+		return r, ProtocolError("malformed")
+	}
+	version, e := strconv.ParseUint(strings.TrimPrefix(f[1][4:], "+"), 10, 32)
+	if e != nil {
+		return r, ProtocolError("malformed")
+	}
+	if version != 1 {
 		return r, ProtocolError("unsupported_version")
+	}
+	r.Command = f[8]
+	r.Args, e = commandArguments(r.Command, f[9:], l)
+	if e != nil {
+		return r, e
+	}
+	if !strings.HasPrefix(f[3], "string:") {
+		return r, ProtocolError("malformed")
 	}
 	r.Session = f[3][7:]
 	p := []*uint64{&r.Epoch, &r.ID, &r.Revision, &r.Configuration}
@@ -189,11 +221,13 @@ func DecodeRequest(b []byte, l ProtocolLimits) (ProtocolRequest, error) {
 			return r, e
 		}
 	}
-	r.Command = f[8]
-	r.Args = append([]string{}, f[9:]...)
 	return r, nil
 }
 func EncodeResponse(r ProtocolResponse, l ProtocolLimits) ([]byte, error) {
+	if len(r.Fields) > l.MaxFields {
+		return nil, ProtocolError("limit")
+	}
+	l.MaxFields = l.MaxFields*2 + 11
 	status, category := "ok", "none"
 	if r.Error != "" {
 		status, category = "error", r.Error
@@ -206,6 +240,7 @@ func EncodeResponse(r ProtocolResponse, l ProtocolLimits) ([]byte, error) {
 }
 func DecodeResponse(b []byte, l ProtocolLimits) (ProtocolResponse, error) {
 	var r ProtocolResponse
+	l.MaxFields = l.MaxFields*2 + 11
 	f, e := decodeFields(b, l)
 	if e != nil {
 		return r, e
@@ -243,6 +278,7 @@ type protocolCache struct {
 }
 type ProtocolSession[S, I, O any] struct {
 	busy                    bool
+	connected               bool
 	configuration           uint64
 	adapters                map[string]ProtocolAdapter
 	session                 *Session[S, I, O]
@@ -254,6 +290,7 @@ type ProtocolSession[S, I, O any] struct {
 	order                   []uint64
 	cacheBytes              int
 	handles                 map[uint64]uint64
+	handleOrder             []uint64
 }
 
 func NewProtocolSession[S, I, O any](s *Session[S, I, O], decode func([]byte) (I, error), a ProtocolAuthority, l ProtocolLimits) (*ProtocolSession[S, I, O], error) {
@@ -267,9 +304,20 @@ func NewProtocolSession[S, I, O any](s *Session[S, I, O], decode func([]byte) (I
 	return p, nil
 }
 func (p *ProtocolSession[S, I, O]) Epoch() uint64 { return p.epoch }
+
+// Disconnect closes protocol admission without cancelling the modeled session
+// or changing its state, revision or sequence. Repeated calls are harmless.
+func (p *ProtocolSession[S, I, O]) Disconnect() { p.connected = false }
+
+// Reconnect preserves the session, authority and configuration. It requires a
+// disconnected connection and starts fresh request admission in a new epoch.
+// Snapshot identifiers remain monotonic so an old handle cannot be revived.
 func (p *ProtocolSession[S, I, O]) Reconnect() error {
 	if p.busy {
 		return ProtocolError("busy")
+	}
+	if p.connected {
+		return ProtocolError("invalid_input")
 	}
 	for {
 		old := epochs.Load()
@@ -286,7 +334,8 @@ func (p *ProtocolSession[S, I, O]) Reconnect() error {
 	p.order = nil
 	p.cacheBytes = 0
 	p.handles = map[uint64]uint64{}
-	p.nextHandle = 1
+	p.handleOrder = nil
+	p.connected = true
 	return nil
 }
 func cloneResponse(r ProtocolResponse) ProtocolResponse {
@@ -304,9 +353,23 @@ func (p *ProtocolSession[S, I, O]) Handle(r ProtocolRequest) ProtocolResponse {
 	if r.Session != p.session.ID() {
 		return fail("wrong_session")
 	}
-	if r.Epoch != p.epoch && !(r.Epoch == 0 && r.Command == "status") {
+	if r.Epoch == 0 && r.Command == "status" {
+		r.Epoch = p.epoch
+	}
+	if r.Epoch != p.epoch {
 		return fail("wrong_epoch")
 	}
+	if !p.connected {
+		return fail("disconnected")
+	}
+	if r.ID == 0 {
+		return fail("malformed")
+	}
+	args, e := commandArguments(r.Command, r.Args, p.limits)
+	if e != nil {
+		return fail(e.Error())
+	}
+	r.Args = args
 	raw, e := EncodeRequest(r, p.limits)
 	if e != nil {
 		return fail("limit")
@@ -359,18 +422,7 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if len(r.Args) != 0 {
 			return fail("malformed")
 		}
-		field("mode", "enum:simulation")
-		field("phase", "enum:"+string(p.session.Phase()))
-		field("sequence", number(p.session.Sequence()))
-		field("capabilities.deliver_inputs", "bool:"+strconv.FormatBool(p.authority.DeliverInputs))
-		for _, pair := range [][2]string{{"inspect", "inspect"}, {"watches", "watch_status"}, {"telemetry", "telemetry_health"}, {"probes", "probe_status"}, {"export_trace", "export_trace"}} {
-			capability, command := pair[0], pair[1]
-			enabled := p.adapters[command] != nil
-			if capability == "export_trace" {
-				enabled = enabled && p.authority.ExportExactTrace
-			}
-			field("capabilities."+capability, "bool:"+strconv.FormatBool(enabled))
-		}
+		return p.status(out)
 	case "snapshot":
 		if r.Revision != p.session.Revision() {
 			return fail("stale_revision")
@@ -378,16 +430,23 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if len(r.Args) != 0 {
 			return fail("malformed")
 		}
-		if len(p.handles) >= p.limits.MaxHandles || p.nextHandle == math.MaxUint64 {
+		if p.nextHandle == math.MaxUint64 {
+			return fail("exhausted")
+		}
+		if !reserve([]ProtocolField{{"handle", number(math.MaxUint64)}, {"snapshot.revision", number(math.MaxUint64)}, {"snapshot.sequence", number(math.MaxUint64)}}) {
 			return fail("limit")
 		}
-		if !reserve([]ProtocolField{{"snapshot.handle", number(math.MaxUint64)}}) {
-			return fail("limit")
-		}
-		id := p.nextHandle
 		p.nextHandle++
+		id := p.nextHandle
+		if len(p.handleOrder) == p.limits.MaxHandles {
+			delete(p.handles, p.handleOrder[0])
+			p.handleOrder = p.handleOrder[1:]
+		}
+		p.handleOrder = append(p.handleOrder, id)
 		p.handles[id] = p.session.Revision()
-		field("snapshot.handle", number(id))
+		field("handle", number(id))
+		field("snapshot.revision", number(p.session.Revision()))
+		field("snapshot.sequence", number(p.session.Sequence()))
 	case "checks", "outputs":
 		if len(r.Args) != 1 {
 			return fail("malformed")
@@ -400,7 +459,10 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if !ok || v != p.session.Revision() {
 			return fail("stale_handle")
 		}
-		return p.adapter(r, out)
+		if p.adapters[r.Command] != nil {
+			return p.adapter(r, out)
+		}
+		return p.observationFields(r.Command, out)
 	case "step":
 		if !p.authority.DeliverInputs {
 			return fail("unauthorized")
@@ -417,7 +479,7 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if len(r.Args[0])-6 > 2*p.limits.MaxInput {
 			return fail("limit")
 		}
-		if !reserve([]ProtocolField{{"step.delivered", "bool:false"}, {"sequence", number(math.MaxUint64)}}) {
+		if !reserve([]ProtocolField{{"delivered", "bool:false"}, {"sequence", number(math.MaxUint64)}}) {
 			return fail("limit")
 		}
 		b, e := hex.DecodeString(r.Args[0][6:])
@@ -440,7 +502,7 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if e != nil {
 			return fail("invalid_input")
 		}
-		field("step.delivered", "bool:"+strconv.FormatBool(result.Delivered))
+		field("delivered", "bool:"+strconv.FormatBool(result.Delivered))
 		field("sequence", number(result.Sequence))
 	case "cancel":
 		if !p.authority.DeliverInputs {
@@ -467,8 +529,11 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 	return out
 }
 
-// Serve stops on transport errors. A failed write may follow a committed transition.
+// Serve disconnects on clean EOF and every transport error without cancelling
+// the model. A failed write may follow a committed transition; reconnect needs
+// state reconciliation rather than blindly retrying an input in the new epoch.
 func (p *ProtocolSession[S, I, O]) Serve(r io.Reader, w io.Writer) error {
+	defer p.Disconnect()
 	for {
 		b, e := ReadFrame(r, p.limits.MaxFrame)
 		if e == io.EOF {
@@ -480,7 +545,7 @@ func (p *ProtocolSession[S, I, O]) Serve(r io.Reader, w io.Writer) error {
 		q, e := DecodeRequest(b, p.limits)
 		var out ProtocolResponse
 		if e != nil {
-			out = ProtocolResponse{Session: p.session.ID(), Epoch: p.epoch, Revision: p.session.Revision(), Error: e.Error()}
+			out = ProtocolResponse{Session: p.session.ID(), Epoch: p.epoch, Revision: p.session.Revision(), Configuration: p.configuration, Error: e.Error()}
 		} else {
 			out = p.Handle(q)
 		}
@@ -558,64 +623,11 @@ func (p *ProtocolSession[S, I, O]) adapter(r ProtocolRequest, out ProtocolRespon
 	if !ok {
 		return fail("unsupported")
 	}
-	if len(r.Args) < len(shape.tags) || (!shape.path && r.Command != "probe_configure" && len(r.Args) != len(shape.tags)) || len(r.Args)-len(shape.tags) > 32 {
-		return fail("malformed")
+	args, err := commandArguments(r.Command, r.Args, p.limits)
+	if err != nil {
+		return fail(err.Error())
 	}
-	for i, tag := range shape.tags {
-		switch tag {
-		case "u64:":
-			if _, e := parseNumber(r.Args[i]); e != nil {
-				return fail("malformed")
-			}
-		case "handle":
-			if r.Args[i] != "none" {
-				if _, e := parseNumber(r.Args[i]); e != nil {
-					return fail("malformed")
-				}
-			}
-		case "bool:":
-			if r.Args[i] != "bool:true" && r.Args[i] != "bool:false" {
-				return fail("malformed")
-			}
-		}
-	}
-	if r.Command == "probe_configure" {
-		for _, arg := range r.Args[1:] {
-			if _, e := parseNumber(arg); e != nil {
-				return fail("malformed")
-			}
-		}
-	}
-	if shape.path {
-		for _, segment := range r.Args[len(shape.tags):] {
-			i := strings.IndexByte(segment, ':')
-			if i < 0 {
-				return fail("malformed")
-			}
-			kind, value := segment[:i], segment[i+1:]
-			switch kind {
-			case "field", "variant", "key.string":
-			case "key.bool":
-				if value != "true" && value != "false" {
-					return fail("malformed")
-				}
-			case "key.char":
-				if len([]rune(value)) != 1 {
-					return fail("malformed")
-				}
-			case "key.u8", "key.u16", "key.u32", "key.u64", "key.u128", "key.i8", "key.i16", "key.i32", "key.i64", "key.i128":
-				if !validIntegerKey(kind, value) {
-					return fail("malformed")
-				}
-			case "index":
-				if _, e := parseNumber("u64:" + value); e != nil {
-					return fail("malformed")
-				}
-			default:
-				return fail("unsupported")
-			}
-		}
-	}
+	r.Args = args
 	allowed := true
 	switch shape.authority {
 	case "deliver":

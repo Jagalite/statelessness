@@ -15,6 +15,7 @@ public struct ProtocolLimits {
     public var maxCandidateBytes = 256 * 1024
     public var maxHandles = 64
     public var maxPageSize = 100
+    public var maxTelemetrySnapshotBytes = 8 * 1024 * 1024
     public var maxProbeProfiles = 64
     public init() {}
 }
@@ -62,6 +63,7 @@ public enum ProtocolWire {
     public static func escape(_ value: String) -> String { value.utf8.map { safe($0) ? String(UnicodeScalar($0)) : String(format: "%%%02X", $0) }.joined() }
     public static func unescape(_ value: String, maximum: Int) throws -> String {
         var out: [UInt8] = []; let bytes = Array(value.utf8); var i = 0
+        guard maximum >= 0, maximum > Int.max / 3 || bytes.count <= maximum * 3 else { throw ProtocolError.limit }
         func nibble(_ b: UInt8) throws -> UInt8 {
             switch b { case 48...57: return b-48; case 65...70: return b-55; case 97...102: return b-87; default: throw ProtocolError.malformed }
         }
@@ -70,12 +72,103 @@ public enum ProtocolWire {
             else { guard safe(bytes[i]) else { throw ProtocolError.malformed }; out.append(bytes[i]); i += 1 }
             guard out.count <= maximum else { throw ProtocolError.limit }
         }
-        guard let result = String(bytes: out, encoding: .utf8) else { throw ProtocolError.malformed }; return result
+        guard String(bytes: out, encoding: .utf8) != nil else { throw ProtocolError.malformed }
+        return String(decoding: out, as: UTF8.self)
     }
     public static func quantity(_ value: String) throws -> UInt64 {
         guard value.hasPrefix("u64:") else { throw ProtocolError.malformed }
         let digits = value.dropFirst(4)
         guard !digits.isEmpty, digits.utf8.allSatisfy({ (48...57).contains($0) }), let number = UInt64(digits) else { throw ProtocolError.malformed }; return number
+    }
+    static func inputBytes(_ value: String, maximum: Int) throws -> Data {
+        guard value.hasPrefix("bytes:") else { throw ProtocolError.malformed }
+        let chars = Array(value.dropFirst(6).utf8)
+        guard chars.count % 2 == 0 else { throw ProtocolError.malformed }
+        guard chars.count / 2 <= maximum else { throw ProtocolError.limit }
+        func nibble(_ byte: UInt8) throws -> UInt8 {
+            switch byte {
+            case 48...57: return byte - 48
+            case 65...70: return byte - 55
+            case 97...102: return byte - 87
+            default: throw ProtocolError.malformed
+            }
+        }
+        var bytes = Data()
+        for index in stride(from: 0, to: chars.count, by: 2) {
+            bytes.append(try nibble(chars[index]) * 16 + nibble(chars[index + 1]))
+        }
+        return bytes
+    }
+    // Rust decodes its typed Command before parsing the envelope or admitting
+    // its ID. Keep malformed syntax out of the deduplication/revision machinery.
+    private static func commandArguments(_ command: String, _ a: [String], limits: ProtocolLimits) throws -> [String] {
+        func exact(_ count: Int) throws { guard a.count == count else { throw ProtocolError.malformed } }
+        func q(_ index: Int) throws -> String { "u64:\(try quantity(a[index]))" }
+        func schema(_ index: Int) throws -> String {
+            let value = try quantity(a[index]); guard value <= UInt64(UInt32.max) else { throw ProtocolError.malformed }
+            return "u64:\(value)"
+        }
+        switch command {
+        case "status", "snapshot", "cancel", "watch_status", "telemetry_health":
+            try exact(0); return []
+        case "step":
+            try exact(1)
+            return ["bytes:" + (try inputBytes(a[0], maximum: limits.maxInputBytes)).map { String(format: "%02x", $0) }.joined()]
+        case "checks", "outputs", "select", "events", "unwatch", "watch_current":
+            try exact(1); return [try q(0)]
+        case "inputs", "metric_catalog", "probe_status":
+            try exact(2); return try [q(0), q(1)]
+        case "export_trace", "metric_window", "effect_details":
+            try exact(3); return try [q(0), q(1), q(2)]
+        case "metric_snapshot":
+            try exact(3); return [a[0] == "none" ? "none" : try q(0), try q(1), try q(2)]
+        case "effect_timeline":
+            try exact(4); return try [q(0), q(1), q(2), q(3)]
+        case "probe_events":
+            try exact(3)
+            let sink = try q(0), limit = try q(1)
+            guard a[2] == "bool:true" || a[2] == "bool:false" else { throw ProtocolError.malformed }
+            return [sink, limit, a[2]]
+        case "probe_configure":
+            guard !a.isEmpty else { throw ProtocolError.malformed }; return try a.indices.map(q)
+        case "inspect":
+            guard a.count >= 4 else { throw ProtocolError.malformed }
+            return try [q(0), schema(1), q(2), q(3)] + decodedPath(Array(a.dropFirst(4)))
+        case "watch":
+            guard a.count >= 2 else { throw ProtocolError.malformed }
+            return try [schema(0), q(1)] + decodedPath(Array(a.dropFirst(2)))
+        default: throw ProtocolError.unsupported
+        }
+    }
+    static func decodedPath(_ segments: [String]) throws -> [String] {
+        guard segments.count <= 32 else { throw ProtocolError.limit }
+        return try segments.map { segment in
+            guard let colon = segment.firstIndex(of: ":") else { throw ProtocolError.malformed }
+            let kind = String(segment[..<colon]), value = String(segment[segment.index(after: colon)...])
+            switch kind {
+            case "field", "variant", "key.string": return segment
+            case "index":
+                let digits = value.hasPrefix("+") ? String(value.dropFirst()) : value
+                let number = try quantity("u64:" + digits); return "index:\(number)"
+            case "key.bool":
+                guard value == "true" || value == "false" else { throw ProtocolError.malformed }; return segment
+            case "key.char":
+                guard value.unicodeScalars.count == 1 else { throw ProtocolError.malformed }; return segment
+            default:
+                let unsignedBounds = ["key.u8":"255","key.u16":"65535","key.u32":"4294967295","key.u64":"18446744073709551615","key.usize":"18446744073709551615","key.u128":"340282366920938463463374607431768211455"]
+                let signedBounds = ["key.i8":("127","128"),"key.i16":("32767","32768"),"key.i32":("2147483647","2147483648"),"key.i64":("9223372036854775807","9223372036854775808"),"key.isize":("9223372036854775807","9223372036854775808"),"key.i128":("170141183460469231731687303715884105727","170141183460469231731687303715884105728")]
+                let negative = value.hasPrefix("-")
+                let raw = value.hasPrefix("+") || negative ? String(value.dropFirst()) : value
+                guard !raw.isEmpty, raw.utf8.allSatisfy({ (48...57).contains($0) }) else { throw ProtocolError.malformed }
+                let digits = String(raw.drop(while: { $0 == "0" })), bound: String
+                let canonical = digits.isEmpty ? "0" : digits
+                if let unsigned = unsignedBounds[kind], !negative { bound = unsigned }
+                else if let pair = signedBounds[kind] { bound = negative ? pair.1 : pair.0 }
+                else { throw ProtocolError.malformed }
+                guard canonical.count < bound.count || (canonical.count == bound.count && !bound.lexicographicallyPrecedes(canonical)) else { throw ProtocolError.malformed }
+                return kind + ":" + (negative && canonical != "0" ? "-" : "") + canonical
+            }
+        }
     }
     private static func encode(_ fields: [String], limits: ProtocolLimits, maximum: Int) throws -> Data {
         guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, fields.count <= maximum else { throw ProtocolError.limit }
@@ -92,13 +185,19 @@ public enum ProtocolWire {
     }
     public static func decodeRequest(_ data: Data, limits: ProtocolLimits = ProtocolLimits()) throws -> ProtocolRequest {
         guard data.count <= limits.maxFrameBytes else { throw ProtocolError.limit }
-        guard let raw = String(data: data, encoding: .utf8) else { throw ProtocolError.malformed }
+        guard String(data: data, encoding: .utf8) != nil else { throw ProtocolError.malformed }
+        let raw = String(decoding: data, as: UTF8.self)
         let parts = raw.split(separator: "\t", omittingEmptySubsequences: false)
-        guard parts.count <= limits.maxRequestFields else { throw ProtocolError.limit }
-        let f = try parts.map { try unescape(String($0), maximum: limits.maxFieldBytes) }
-        guard f.count >= 9, f[0] == "DDBG", f[2] == "request", f[1].hasPrefix("u32:"), let version = UInt32(f[1].dropFirst(4)), f[3].hasPrefix("string:") else { throw ProtocolError.malformed }
+        var f: [String] = []
+        for part in parts {
+            guard f.count < limits.maxRequestFields else { throw ProtocolError.limit }
+            f.append(try unescape(String(part), maximum: limits.maxFieldBytes))
+        }
+        guard f.count >= 9, f[0] == "DDBG", f[2] == "request", f[1].hasPrefix("u32:"), let version = UInt32(f[1].dropFirst(4)) else { throw ProtocolError.malformed }
         guard version == 1 else { throw ProtocolError.unsupportedVersion }
-        return ProtocolRequest(session: String(f[3].dropFirst(7)),epoch: try quantity(f[4]),requestID: try quantity(f[5]),expectedRevision: try quantity(f[6]),expectedConfiguration: try quantity(f[7]),command: f[8],arguments: Array(f.dropFirst(9)))
+        let arguments = try commandArguments(f[8], Array(f.dropFirst(9)), limits: limits)
+        guard f[3].hasPrefix("string:") else { throw ProtocolError.malformed }
+        return ProtocolRequest(session: String(f[3].dropFirst(7)),epoch: try quantity(f[4]),requestID: try quantity(f[5]),expectedRevision: try quantity(f[6]),expectedConfiguration: try quantity(f[7]),command: f[8],arguments: arguments)
     }
     public static func encodeResponse(_ r: ProtocolResponse, limits: ProtocolLimits = ProtocolLimits()) throws -> Data {
         guard limits.maxResponseFields <= (Int.max-11)/2, r.fields.count <= limits.maxResponseFields else { throw ProtocolError.limit }
@@ -108,7 +207,8 @@ public enum ProtocolWire {
     }
     public static func decodeResponse(_ data: Data, limits: ProtocolLimits = ProtocolLimits()) throws -> ProtocolResponse {
         guard data.count <= limits.maxFrameBytes else { throw ProtocolError.limit }
-        guard let raw = String(data:data,encoding:.utf8) else { throw ProtocolError.malformed }
+        guard String(data:data,encoding:.utf8) != nil else { throw ProtocolError.malformed }
+        let raw = String(decoding: data, as: UTF8.self)
         let parts = raw.split(separator:"\t",omittingEmptySubsequences:false)
         guard limits.maxResponseFields <= (Int.max-11)/2, parts.count <= 11+limits.maxResponseFields*2 else { throw ProtocolError.limit }
         let f = try parts.map { try unescape(String($0),maximum:limits.maxFieldBytes) }
@@ -199,7 +299,7 @@ public final class ProtocolAdapter<S,I,O> {
     private var candidateBytes = 0
     private var nextCandidate: UInt64 = 0
     public init(session: DebugSession<S,I,O>, authority: ProtocolAuthority = ProtocolAuthority(), limits: ProtocolLimits = ProtocolLimits(), decodeInput: ((Data) throws -> I)? = nil, encodeInput: ((I) throws -> Data)? = nil, host: ProtocolHostBindings? = nil) throws {
-        guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, limits.maxRequestFields >= 9, limits.maxResponseFields > 0, limits.maxInputBytes >= 0, limits.maxCacheEntries > 0, limits.maxCacheBytes > 0, limits.maxHandles > 0, limits.maxCandidates > 0, limits.maxCandidateBytes > 0, limits.maxPageSize > 0, limits.maxProbeProfiles >= 0 else { throw ProtocolError.limit }
+        guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, limits.maxRequestFields >= 9, limits.maxResponseFields > 0, limits.maxInputBytes >= 0, limits.maxCacheEntries > 0, limits.maxCacheBytes > 0, limits.maxHandles > 0, limits.maxCandidates > 0, limits.maxCandidateBytes > 0, limits.maxPageSize > 0, limits.maxTelemetrySnapshotBytes > 0, limits.maxProbeProfiles >= 0 else { throw ProtocolError.limit }
         self.session = session; self.authority = authority; self.limits = limits; self.decodeInput = decodeInput; self.encodeInput = encodeInput; self.host = host; epoch = try ProtocolEpochs.shared.take()
     }
     public func disconnect() throws { guard !busy else { throw ProtocolError.busy }; connected = false; handles.removeAll(); candidates.removeAll(); candidateBytes = 0; cache.removeAll(); cacheBytes = 0 }
@@ -238,6 +338,7 @@ public final class ProtocolAdapter<S,I,O> {
     /// Hosts own scheduling, pipe closure and cancellation of blocking OS I/O.
     @discardableResult public func serve(input: FileHandle, output: FileHandle, maxRequests: Int) throws -> Int {
         guard maxRequests > 0 else { throw ProtocolError.limit }
+        defer { try? disconnect() }
         func read(_ count: Int, cleanEOF: Bool = false) throws -> Data? {
             var data = Data()
             while data.count < count {
@@ -262,26 +363,78 @@ public final class ProtocolAdapter<S,I,O> {
         switch r.command {
         case "status":
             guard r.arguments.isEmpty else { throw ProtocolError.malformed }
-            return ["mode":"enum:simulation","phase":"enum:\(session.phase.rawValue.prefix(1).uppercased()+session.phase.rawValue.dropFirst())","sequence":"u64:\(session.sequence)","capability.input_delivery":"bool:\(authority.deliverInputs)","capability.inspection":"bool:\(host?.commands.contains("inspect") == true)","capability.watches":"bool:\(host?.commands.contains("watch") == true)","capability.diagnostics":"bool:\(host?.commands.contains("probe_status") == true)"]
+            return [
+                "mode":"enum:simulation",
+                "phase":"enum:\(session.phase.rawValue.prefix(1).uppercased()+session.phase.rawValue.dropFirst())",
+                "sequence":"u64:\(session.sequence)",
+                "environment":"string:\(session.inputPolicy)",
+                "capability.input_delivery":"bool:\(authority.deliverInputs)",
+                "capability.inspection":"bool:\(host?.commands.contains("inspect") == true)",
+                "capability.watch_configuration":"bool:\(authority.configureWatches && host?.commands.contains("watch") == true)",
+                "capability.exact_values":"bool:\(authority.readExactValues)",
+                "capability.live_control":"bool:false",
+                "capability.live_restore":"bool:false",
+                "capability.effects":"bool:false",
+                "capability.probe_queries":"bool:\(host?.commands.contains("probe_status") == true)",
+                "capability.probe_configuration":"bool:\(authority.configureDiagnostics && host?.commands.contains("probe_status") == true)",
+                "capability.trace_export":"bool:\(authority.exportExactTrace && session.capabilities.exactRecording)",
+                "capability.effect_telemetry":"bool:\(host?.commands.contains("telemetry_health") == true)",
+                "capability.metric_queries":"bool:\(host?.commands.contains("metric_catalog") == true)",
+                "limits.telemetry_snapshot_bytes":"u64:\(limits.maxTelemetrySnapshotBytes)",
+                "limits.frame_bytes":"u64:\(limits.maxFrameBytes)",
+                "limits.dedup_entries":"u64:\(limits.maxCacheEntries)",
+                "limits.dedup_bytes":"u64:\(limits.maxCacheBytes)",
+                "limits.page_size":"u64:\(limits.maxPageSize)",
+                "events.dropped":"u64:0",
+                "stop":"enum:\(stopCode)"
+            ]
         case "snapshot":
             guard r.arguments.isEmpty else { throw ProtocolError.malformed }; try session.checkRevision(r.expectedRevision)
             guard nextHandle < .max else { throw ProtocolError.exhausted }; nextHandle += 1
             if handles.count == limits.maxHandles { handles.removeFirst() }; handles.append((nextHandle,session.revision,session.sequence))
             return ["handle":"u64:\(nextHandle)","snapshot.revision":"u64:\(session.revision)","snapshot.sequence":"u64:\(session.sequence)"]
+        case "checks" where host?.commands.contains("checks") != true:
+            guard r.arguments.count == 1 else { throw ProtocolError.malformed }
+            try validateHandle(ProtocolWire.quantity(r.arguments[0]))
+            let observation = try session.observation()
+            let checks = observation?.checks ?? session.initialChecks
+            let count = min(checks.count, limits.maxPageSize)
+            var fields = ["checks.complete":"bool:\(session.checksComplete)","checks.total":"u64:\(checks.count)","checks.returned":"u64:\(count)","checks.truncated":"bool:\(count < checks.count)"]
+            if let index = checks.firstIndex(where: { $0.status == .failed }) {
+                fields["checks.first_failure.id"] = "string:\(checks[index].id)"
+                fields["checks.first_failure.index"] = "u64:\(index)"
+                fields["checks.first_failure.phase"] = "enum:" + (observation.map { index < $0.stateCheckCount ? "post_state" : "transition" } ?? "initial_state")
+                fields["checks.first_failure.sequence"] = "u64:\(session.sequence)"
+            } else { fields["checks.first_failure"] = "none" }
+            for (index, check) in checks.prefix(count).enumerated() {
+                fields["checks.\(index).id"] = "string:\(check.id)"
+                fields["checks.\(index).status"] = "enum:\(check.status.rawValue)"
+            }
+            return fields
+        case "outputs" where host?.commands.contains("outputs") != true:
+            guard r.arguments.count == 1 else { throw ProtocolError.malformed }
+            try validateHandle(ProtocolWire.quantity(r.arguments[0]))
+            guard let observation = try session.observation() else { return ["outputs.total":"u64:0"] }
+            let outputs = observation.transition.outputs, disposition: String
+            switch observation.transition.disposition {
+            case .accepted: disposition = "accepted"
+            case .ignored: disposition = "ignored"
+            case .rejected: disposition = "rejected"
+            }
+            var fields = ["outputs.total":"u64:\(outputs.count)","disposition":"enum:\(disposition)","outputs.provenance":"enum:simulated","outputs.payloads":authority.readExactValues ? "enum:exact_sensitive" : "enum:unavailable"]
+            if authority.readExactValues {
+                for (index, output) in outputs.prefix(limits.maxPageSize).enumerated() {
+                    let bytes = try session.encodedOutput(output, maximum: limits.maxInputBytes)
+                    fields["outputs.\(index).encoded"] = "bytes:" + bytes.map { String(format:"%02x", $0) }.joined()
+                }
+                fields["outputs.truncated"] = "bool:\(outputs.count > limits.maxPageSize)"
+            }
+            return fields
         case "step":
             guard r.arguments.count == 1 else { throw ProtocolError.malformed }
             guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision)
-            guard r.arguments[0].hasPrefix("bytes:") else { throw ProtocolError.malformed }
-            let chars = Array(r.arguments[0].dropFirst(6).utf8)
-            guard chars.count % 2 == 0 else { throw ProtocolError.malformed }; guard chars.count/2 <= limits.maxInputBytes else { throw ProtocolError.limit }
-            var data = Data()
-            for i in stride(from: 0,to: chars.count,by: 2) {
-                guard let text = String(bytes: chars[i...i+1],encoding: .ascii), let byte = UInt8(text,radix: 16) else { throw ProtocolError.malformed }; data.append(byte)
-            }
-            guard let decodeInput else { throw ProtocolError.unsupported }
-            let input: I
-            do { input = try decodeInput(data) } catch { throw ProtocolError.invalidInput }
-            let result = try session.step(expectedRevision: r.expectedRevision,input: input)
+            let data = try ProtocolWire.inputBytes(r.arguments[0], maximum: limits.maxInputBytes)
+            let result = try session.stepEncoded(expectedRevision: r.expectedRevision, bytes: data, decodeInput: decodeInput)
             return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
         case "inputs" where encodeInput != nil:
             guard r.arguments.count == 2 else { throw ProtocolError.malformed }; try session.checkRevision(r.expectedRevision)
@@ -314,6 +467,21 @@ public final class ProtocolAdapter<S,I,O> {
         default: return try executeHost(r)
         }
     }
+    private var stopCode: String {
+        switch session.stop {
+        case nil: return "none"
+        case .preBreakpoint: return "pre_breakpoint"
+        case .postBreakpoint: return "post_breakpoint"
+        case .propertyFailure: return "property_failure"
+        case .initialCheckError: return "initial_check_error"
+        case .modelError: return "model_error"
+        case .checkerError: return "checker_error"
+        case .observerError: return "observer_error"
+        case .recordingError: return "recording_error"
+        case .budgetExhausted: return "budget_exhausted"
+        case .cancelled: return "cancelled"
+        }
+    }
     private func executeHost(_ r: ProtocolRequest) throws -> [String:String] {
         let a = r.arguments
         func exact(_ n: Int) throws { guard a.count == n else { throw ProtocolError.malformed } }
@@ -321,30 +489,8 @@ public final class ProtocolAdapter<S,I,O> {
         func page(_ value: UInt64) throws -> UInt64 { guard value > 0, value <= UInt64(limits.maxPageSize) else { throw ProtocolError.limit }; return value }
         func schema(_ i: Int) throws -> UInt32 { let v = try q(i); guard let s = UInt32(exactly: v) else { throw ProtocolError.malformed }; return s }
         func path(_ start: Int) throws -> [String] {
-            guard a.count >= start, a.count-start <= 32 else { throw ProtocolError.limit }
-            return try a.dropFirst(start).map { segment in
-                guard let colon = segment.firstIndex(of: ":") else { throw ProtocolError.malformed }
-                let kind = String(segment[..<colon]), value = String(segment[segment.index(after:colon)...])
-                switch kind {
-                case "field", "variant", "key.string": break
-                case "index": guard !value.isEmpty, value.utf8.allSatisfy({(48...57).contains($0)}), UInt64(value) != nil else { throw ProtocolError.malformed }
-                case "key.bool": guard value == "true" || value == "false" else { throw ProtocolError.malformed }
-                case "key.char": guard value.unicodeScalars.count == 1 else { throw ProtocolError.malformed }
-                default:
-                    let unsignedBounds = ["key.u8":"255","key.u16":"65535","key.u32":"4294967295","key.u64":"18446744073709551615","key.usize":"18446744073709551615","key.u128":"340282366920938463463374607431768211455"]
-                    let signedBounds = ["key.i8":("127","128"),"key.i16":("32767","32768"),"key.i32":("2147483647","2147483648"),"key.i64":("9223372036854775807","9223372036854775808"),"key.isize":("9223372036854775807","9223372036854775808"),"key.i128":("170141183460469231731687303715884105727","170141183460469231731687303715884105728")]
-                    let negative = value.hasPrefix("-")
-                    let raw = value.hasPrefix("+") || negative ? String(value.dropFirst()) : value
-                    guard !raw.isEmpty, raw.utf8.allSatisfy({(48...57).contains($0)}) else { throw ProtocolError.malformed }
-                    let digits = String(raw.drop(while: {$0 == "0"})); let canonical = digits.isEmpty ? "0" : digits
-                    let bound: String
-                    if let u = unsignedBounds[kind], !negative { bound = u }
-                    else if let pair = signedBounds[kind] { bound = negative ? pair.1 : pair.0 }
-                    else { throw ProtocolError.malformed }
-                    guard canonical.count < bound.count || (canonical.count == bound.count && !bound.lexicographicallyPrecedes(canonical)) else { throw ProtocolError.malformed }
-                    return kind + ":" + (negative && canonical != "0" ? "-" : "") + canonical
-                }; return segment
-            }
+            guard a.count >= start else { throw ProtocolError.limit }
+            return try ProtocolWire.decodedPath(Array(a.dropFirst(start)))
         }
         let command: ProtocolHostCommand
         var changesConfiguration = false, changesCapture = false

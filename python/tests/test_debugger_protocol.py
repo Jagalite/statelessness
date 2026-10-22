@@ -106,7 +106,7 @@ class ProtocolTests(unittest.TestCase):
         self.assertIsNone(p.handle(self.request(p,3)).error)
         self.assertEqual(p.handle(request).error,'retired_request')
         self.assertEqual(p.handle(self.request(p,2)).error,'retired_request')
-        old=p.epoch; p.reconnect(); self.assertNotEqual(old,p.epoch); self.assertEqual(p.session.state,1)
+        old=p.epoch; p.disconnect(); p.reconnect(); self.assertNotEqual(old,p.epoch); self.assertEqual(p.session.state,1)
         self.assertEqual(p.handle(request).error,'wrong_epoch')
         discovered=p.handle(replace(self.request(p),epoch=0))
         self.assertIsNone(discovered.error)

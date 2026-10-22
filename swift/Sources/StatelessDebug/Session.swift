@@ -74,6 +74,7 @@ public final class DebugSession<S,I,O> {
     private var recorder: Recorder?
     private var checkPolicy = CheckPolicy()
     public var capabilities: SessionCapabilities { SessionCapabilities(exactRecording: recorder != nil) }
+    public var inputPolicy: String { policy.label }
     public var state: S { get throws { try model.cloneState(current) } }
     public convenience init(id: String, model: Model<S,I,O>, policy: InputPolicy<S,I,O>, limits: SessionLimits = SessionLimits(), equalInputs: @escaping (I,I) throws -> Bool, recording: RecorderOptions? = nil) throws {
         let state = try model.initialState()
@@ -225,6 +226,40 @@ extension InputPolicy {
 }
 
 extension DebugSession {
+    // The protocol uses the model's native codec; a fixture must not synthesize
+    // checks, outputs, or wire fields through a custom host binding.
+    public func stepEncoded(expectedRevision: UInt64, bytes: Data, decodeInput: ((Data) throws -> I)? = nil) throws -> StepResult {
+        let input: I
+        do {
+            try enter(); defer { busy = false }
+            try checkRevision(expectedRevision)
+            // As in Rust step_encoded, decoding precedes the terminal phase
+            // check, but a decoder cannot reenter and mutate this session.
+            if let decodeInput {
+                do { input = try decodeInput(bytes) } catch { throw ProtocolError.invalidInput }
+            } else {
+                guard let codec = model.codec else { throw ProtocolError.unsupported }
+                do { input = try codec.decodeInput(Array(bytes)) } catch { throw ProtocolError.invalidInput }
+            }
+        }
+        return try step(expectedRevision: expectedRevision, input: input)
+    }
+    func encodedOutput(_ output: O, maximum: Int) throws -> Data {
+        try enter(); defer { busy = false }
+        guard let codec = model.codec else { throw ProtocolError.unsupported }
+        var bytes: [UInt8] = []
+        try EncodeBuffer.withBuffer(&bytes, maximum: maximum) { sink in
+            // Rust distinguishes an encoder error from a rejected write which
+            // the encoder swallows and only exposes at buffer finalization.
+            do {
+                if let encode = codec.encodeOutputInto { try encode(output, sink) }
+                else { try sink.extendFromVec(codec.encodeOutput(output)) }
+            } catch { throw ProtocolError.callback }
+            do { try sink.finish() } catch { throw ProtocolError.limit }
+        }
+        return Data(bytes)
+    }
+
     /// Encode a validated detached candidate for explicit transport. Tokens retain
     /// their private typed value; stale/cross-session handles reject before codec.
     public func encodedCandidate(_ token: CandidateToken<I>,encode: (I) throws -> Data) throws -> Data {

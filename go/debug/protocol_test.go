@@ -89,7 +89,10 @@ func TestProtocolDedupAuthorityAndHandles(t *testing.T) {
 		t.Fatal("handle")
 	}
 	old := p.Epoch()
-	p.Reconnect()
+	p.Disconnect()
+	if err := p.Reconnect(); err != nil {
+		t.Fatal(err)
+	}
 	r.ID = 1
 	r.Command = "status"
 	r.Args = nil
