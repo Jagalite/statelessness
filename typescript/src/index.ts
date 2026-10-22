@@ -25,3 +25,6 @@ export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProp
 
 export { GUIDANCE_ALGORITHM, DEFAULT_GUIDANCE, FeatureBuffer, StateFeedback, exactStateFeedback, validateGuidanceConfig, fuzzGuided, fuzzGuidedObserved } from './guided.js';
 export type { FeedbackMetadata, FeatureIdentity, Feedback, GuidanceConfig, CorpusEntry, GuidanceReport, GuidedFuzzReport } from './guided.js';
+
+export { DEFAULT_CAMPAIGN, CampaignCancellation, jobSeed, validateCampaignConfig, runCampaign, runGuidedCampaign } from './campaign.js';
+export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, CampaignFeedback, JobOutcome, JobReport, CampaignSink, CampaignReport, CampaignTermination } from './campaign.js';

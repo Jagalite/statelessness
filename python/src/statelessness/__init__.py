@@ -85,3 +85,10 @@ EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("canonical-value-codec-v1",)
 
 # Opt-in finite research tooling; production pruning remains disabled.
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("research-equivalence-v1",)
+
+from .campaign import (CampaignConfig, CampaignReport, JobOutcome, JobReport,
+    CampaignCancellation, InputTransfer, PickleInputTransfer, ProcessWorkers,
+    job_seed, run_campaign, run_guided_campaign)
+__all__ += ["CampaignConfig", "CampaignReport", "JobOutcome", "JobReport",
+    "CampaignCancellation", "InputTransfer", "PickleInputTransfer", "ProcessWorkers",
+    "job_seed", "run_campaign", "run_guided_campaign"]
