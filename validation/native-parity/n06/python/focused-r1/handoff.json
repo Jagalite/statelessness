@@ -1,0 +1,107 @@
+{
+  "authored_tests": 53,
+  "checkout": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "created": "2026-10-22T15:48:21.533878+00:00",
+  "effective_command": [
+    "python3",
+    "-B",
+    "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/run.py",
+    "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc"
+  ],
+  "files": {
+    "docs/native-parity/N06-PYTHON.md": {
+      "mode": "0o644",
+      "sha256": "42ebf2bcfe0c02c020b31bc3b5b5116d8cf891be5f1ed885aedc69a04b2efa9e",
+      "size": 13985,
+      "type": "file"
+    },
+    "examples/native-campaign/python/README.md": {
+      "mode": "0o644",
+      "sha256": "3d6b7f965b1aff05748e5be7db1e8585dda954d47f303d371a9f1568d8a3b111",
+      "size": 6330,
+      "type": "file"
+    },
+    "examples/native-campaign/python/consumer.py": {
+      "mode": "0o644",
+      "sha256": "401993bf223e02051f0f813ac316cc27ffee42f6306b02eb18043d70e6cc2fd6",
+      "size": 24955,
+      "type": "file"
+    },
+    "python/src/statelessness/__init__.py": {
+      "mode": "0o644",
+      "sha256": "fbb84a87d5d1736b4c699254e4dc28cabb9ca43b7c73cd40f23201edb3f77b00",
+      "size": 5553,
+      "type": "file"
+    },
+    "python/src/statelessness/_campaign_lifecycle.py": {
+      "mode": "0o644",
+      "sha256": "122243c6c10dd48758a1d021b18354d1943408f38b26f7f916d7e2119ab07743",
+      "size": 6861,
+      "type": "file"
+    },
+    "python/src/statelessness/campaign.py": {
+      "mode": "0o644",
+      "sha256": "2901518ab33f887864fb2f0b689fc2e588f889dc20755006f5a9c1942bc2c01c",
+      "size": 21795,
+      "type": "file"
+    },
+    "python/tests/campaign_lifecycle_fixture.py": {
+      "mode": "0o644",
+      "sha256": "03e9e4b3e6612766836e85e2ee1728c5ddd4ad92daf264b9249937472c116b94",
+      "size": 31963,
+      "type": "file"
+    },
+    "python/tests/qualify_campaign_install.py": {
+      "mode": "0o644",
+      "sha256": "a87c1c4d2b5592357ea6a284069247fbc7a89e9b94dcbeac3d139d6b74162e8a",
+      "size": 18425,
+      "type": "file"
+    },
+    "python/tests/test_campaign.py": {
+      "mode": "0o644",
+      "sha256": "4c05d49a54ebb2b15e0bdb12c74986eacfd996bbc863e50decad685cae4c2c5c",
+      "size": 38167,
+      "type": "file"
+    },
+    "python/tests/test_campaign_lifecycle.py": {
+      "mode": "0o644",
+      "sha256": "8d0805ce35d700fe6f7fe9e4b8eb419d9f9c5a1e4a0e76037ecc39074942b5d2",
+      "size": 31472,
+      "type": "file"
+    },
+    "validation/native-parity/n06/python/focused-r1/run.py": {
+      "mode": "0o444",
+      "sha256": "4545398d812c034dbe9ba0222af2e4272d5448f2763c733bf47498770feeb8c0",
+      "size": 9273,
+      "type": "file"
+    }
+  },
+  "focused_manifest_sha256": "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc",
+  "job_id": "be50a84c471f4fb6908ce960e2a54fd7",
+  "observed_exit_code": null,
+  "observed_started": null,
+  "observed_status": "queued",
+  "pending": [
+    "focused runtime execution",
+    "baseline Python execution",
+    "fresh wheel and sdist consumers",
+    "independent Rust exact comparison and lifecycle fixtures",
+    "root integration review and source seal",
+    "N05 final qualification, including explicit Swift feedback provenance gap"
+  ],
+  "public_adapter_rows": 49,
+  "requested_command": [
+    "python3",
+    "-B",
+    "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/run.py",
+    "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc"
+  ],
+  "review_disposition": "All requested source/review fixes addressed; final bounded source review found no new concrete defect. No runtime result yet.",
+  "schema": "n06-python-source-handoff/1",
+  "source_commit": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f",
+  "unchanged_n05_sources": [
+    "python/src/statelessness/core.py",
+    "python/src/statelessness/search.py",
+    "python/src/statelessness/guided.py"
+  ]
+}

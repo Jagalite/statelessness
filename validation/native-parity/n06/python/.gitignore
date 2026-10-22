@@ -1,0 +1,5 @@
+# Immutable snapshot stays on disk; source.json binds its path and SHA-256.
+focused-r1/source.tar.gz
+# Retain compact receipts/manifests, not extracted copies or generated raw logs.
+*/execution/source/
+**/*.log
