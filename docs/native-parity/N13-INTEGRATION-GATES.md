@@ -1,5 +1,20 @@
 # N13 parent integration gates
 
+## Integrated candidate, October 22
+
+Merge `0fb93be273b2c257536c084d519d2882e0e288d9` combines `ac52c17` and
+`9daee75e` in the isolated `t3/integrate-native-parity` tree. Both research and
+codec public exports and documentation are retained. The historical audit below
+is unchanged evidence about earlier candidates. Current independent review,
+exact source manifests, Kyoto execution and unresolved gates live in the
+[integration handoff](../../validation/native-parity/derive-model-v2/integration-oct22/HANDOFF.md).
+Independent integration review corrected the Python root `ModelCodec` protocol
+collision and stale TypeScript metadata-method capture, retaining both API families
+and enforcing all eight current-version gates. Static clearance is separate from
+the new regression and consumer execution gates.
+Neither the parent research runtime nor the earlier N13 native/workspace runs
+qualify this merged candidate automatically. Full N13 helpers remain open.
+
 ## Follow-up candidate received
 
 The source audit below pins the earlier work-in-progress snapshot. A separate

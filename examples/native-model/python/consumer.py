@@ -9,6 +9,16 @@ from statelessness import (Metadata, Transition, Check, ordered_record, field,
     EvidenceRecorder, EvidenceLimits, Provenance, CausalContext, OutputOrigin,
     Artifact, replay_with_observations_bounded)
 from statelessness.trace_binary import RunConfig, BinaryLimits, audit_to_bytes
+from statelessness import ModelCodec as PublicModelCodec, ModelCodecBinding
+from statelessness.core import ModelCodec as ProtocolModelCodec
+from statelessness.codec_declarations import ModelCodec as DeclarationModelCodec
+
+# Installed public API compatibility is independent of the binder's wire bytes.
+assert PublicModelCodec is ProtocolModelCodec
+assert ModelCodecBinding is DeclarationModelCodec
+class ExistingProtocolConsumer(PublicModelCodec[int, int, int]):
+    pass
+
 
 @dataclass(frozen=True)
 class State:

@@ -504,3 +504,7 @@ unknown unless `layout=Rust64Layout(...)` supplies an explicit logical weight.
 `model_codec(state=..., input=..., output=...).bind(model)` preserves model
 methods while replacing its eight codec hooks; output requires encoding only.
 These APIs do not promote a compatibility profile or infer Rust object layout.
+
+The package-root `ModelCodec[S, I, O]` remains the existing generic protocol.
+The explicit declaration object is exported as `ModelCodecBinding`; it is also
+available as `codec_declarations.ModelCodec`, alongside the `model_codec` factory.

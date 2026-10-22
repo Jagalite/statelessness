@@ -380,7 +380,29 @@ It does not promote a profile or close the 144 broad qualification-pending cells
 General POR, symmetry renaming, liveness, production reduction, performance and
 broader platform/resource qualification remain open.
 
-## Candidates awaiting integration
+## N13 isolated integration candidate
+
+The isolated `t3/integrate-native-parity` candidate merges research proof parent
+`ac52c17` and N13 source/proof `9daee75e` with preserved commit ancestry at merge
+`0fb93be273b2c257536c084d519d2882e0e288d9`. Four README and two public-export
+conflicts retain both parent research APIs and N13 codec declarations/binders.
+Parent and earlier N13 worktrees remain sealed for their existing Kyoto jobs.
+Independent review found and corrected a Python `ModelCodec` root-export collision
+and a TypeScript binder that retained a stale metadata method. The generic Python
+protocol now coexists with `ModelCodecBinding`; all TypeScript codec hooks resolve
+current metadata before values, sinks or limits. Focused compatibility and capture
+regressions, including an installed Python API assertion, accompany the fixes.
+
+Integration-specific review, source/command identities and current qualification
+state are recorded separately in the
+[integration handoff](../validation/native-parity/derive-model-v2/integration-oct22/HANDOFF.md).
+Prior N13 suite results and the parent installed research result do not qualify
+this combined source. Fresh combined native execution and installed model plus
+research consumers remain gates until exact-candidate receipts establish them.
+Full N13 modeling/domain/inspection helpers, N05/N06, N12 direct wire and broad144
+remain separately open; no profile, release or parent integration is promoted.
+
+## Other candidate evidence
 
 The N13 model codec branch has reviewed source and receipts at `9daee75e`.
 Its native suites, Go vet, Rust workspace execution and five disposition ledgers

@@ -82,7 +82,7 @@ EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("research-equivalence-v1",)
 
 from .codec_declarations import (DECLARATION_API_V1, adapter, field,
     positional_field, adapted_field, ordered_record, tuple_record, unit_record,
-    case, tagged_enum, ModelCodec, model_codec)
+    case, tagged_enum, ModelCodec as ModelCodecBinding, model_codec)
 __all__ += ["DECLARATION_API_V1", "adapter", "field", "positional_field",
     "adapted_field", "ordered_record", "tuple_record", "unit_record", "case",
-    "tagged_enum", "ModelCodec", "model_codec"]
+    "tagged_enum", "ModelCodecBinding", "model_codec"]
