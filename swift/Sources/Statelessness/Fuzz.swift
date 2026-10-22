@@ -110,6 +110,7 @@ public struct FuzzReport<I> {
     public var failure: Failure<I>?
     public var guidance: GuidanceReport<I>? = nil
 }
+extension FuzzReport: Sendable where I: Sendable {}
 func validateFuzzConfig(_ config: FuzzConfig) throws {
     guard config.cases >= 0, config.maxSteps >= 0, (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
 }

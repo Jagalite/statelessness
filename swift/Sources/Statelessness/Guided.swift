@@ -129,6 +129,7 @@ public struct CorpusEntry<I> {
     public let discoveredTransition: UInt64
 }
 extension CorpusEntry: Equatable where I: Equatable {}
+extension CorpusEntry: Sendable where I: Sendable {}
 public struct GuidanceReport<I> {
     public let algorithm: String
     public let config: GuidanceConfig
@@ -143,6 +144,7 @@ public struct GuidanceReport<I> {
     public internal(set) var corpusLimitReached = false
 }
 extension GuidanceReport: Equatable where I: Equatable {}
+extension GuidanceReport: Sendable where I: Sendable {}
 
 private final class GuidedDriver<S, I, O, K: Hashable> {
     let model: Model<S, I, O>
