@@ -48,6 +48,30 @@ test('unit and tuple records have no framing',()=>{
  const u=unitRecord({name:'U',construct:()=>null}); assert.equal(hex(encodeValue(u,null,0)),'');assert.equal(decodeValue(u,new Uint8Array()),null);
  const t=tupleRecord({name:'T',fields:[f.value(0,valueCodecs.u8),f.value(1,valueCodecs.u16)],construct:v=>v});assert.deepEqual(decodeValue(t,Uint8Array.of(1,2,3)),[1,770]);
 });
+test('field aliases reject before decoding while distinct symbols retain their identity',()=>{
+ let decoded=0,constructed=0;
+ const byte=customValueSchema({name:'CountedByte',encodeInto(v,out){out.extend(Uint8Array.of(v));},decodeFrom(r){decoded++;return r.take(1)[0];}});
+ for(const key of [0,-0]) {
+  assert.throws(()=>orderedRecord({name:'Alias',fields:[f.value(key,byte),f.value('0',byte)],construct:v=>{constructed++;return v;},require:'both'}),/duplicate field key/);
+ }
+ assert.equal(decoded,0);assert.equal(constructed,0);
+ const a=Symbol('0'),b=Symbol('0');
+ const distinct=orderedRecord({name:'Symbols',fields:[f.value(a,byte),f.value(b,byte)],construct:v=>{constructed++;return v;},require:'both'});
+ const value=decodeValue(distinct,Uint8Array.of(1,2));
+ assert.equal(value[a],1);assert.equal(value[b],2);assert.equal(hex(encodeValue(distinct,value,2)),'0102');
+ assert.equal(decoded,2);assert.equal(constructed,1);
+});
+test('tuple enum constructors validate before advertising a decoder',()=>{
+ const c=enumCases('kind'),fields=[f.value('x',valueCodecs.u8)];
+ for(const construct of [1,0,null,false,'constructor',{}]) {
+  assert.throws(()=>taggedEnum({name:'BadTuple',discriminator:'kind',cases:[c.tuple('T',1,{fields,construct,require:'both'})]}),/invalid declaration callback/);
+ }
+ const entry=c.tuple('T',1,{fields});
+ const enc=taggedEnum({name:'EncodeTuple',discriminator:'kind',cases:[entry],require:'encode'});
+ assert.equal(hex(encodeValue(enc,{kind:'T',x:7},2)),'0107');
+ assert.throws(()=>decodeValue(enc,Uint8Array.of(1,7)),/no decoder/);
+ assert.throws(()=>taggedEnum({name:'RequireDecoder',discriminator:'kind',cases:[entry],require:'both'}),/no decoder/);
+});
 test('all eight model hooks version gate first and limits are fresh per decode',()=>{
  class M { #version=2; metadata(){return {codec_version:this.#version};} setVersion(v){this.#version=v;} get marker(){return this.#version;} extra(){return this.#version;} }
  const model=Object.freeze(new M()); let limits=0;const out=customValueSchema({name:'Output',encodeInto(v,o){o.extend(Uint8Array.of(v));}});
