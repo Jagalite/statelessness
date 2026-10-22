@@ -15,7 +15,14 @@ public struct ControllerOptions {
     public var maxOutputs = 4096
     public init() {}
 }
-public struct EffectOrigin: Hashable { public let epoch: UInt64; public let transition: UInt64; public let outputIndex: Int }
+public struct EffectOrigin: Hashable {
+    public let epoch: UInt64
+    public let transition: UInt64
+    public let outputIndex: Int
+    public init(epoch: UInt64, transition: UInt64, outputIndex: Int) {
+        self.epoch = epoch; self.transition = transition; self.outputIndex = outputIndex
+    }
+}
 public struct PauseAck { public let generation: UInt64; public let epoch: UInt64; public let revision: UInt64; public let effectPhase: EffectPhase }
 fileprivate final class PermitOwner {}
 /// Private construction and controller bookkeeping enforce single consumption,

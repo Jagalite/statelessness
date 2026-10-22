@@ -61,6 +61,54 @@ enum WireFixture {
         )
     }
 
+    static func checkObservationOnlyEffectOrigin() throws {
+        // Separate, silent public-client regression: the finite wire model and
+        // its callback log remain untouched, and no controller is required.
+        let codec = Codec<Int,Int,Int>(
+            metadata: { Metadata(name: "effect-origin-self-check",build: "n12-wire-v1") },
+            encodeState: { [UInt8($0)] },decodeState: { Int($0[0]) },
+            encodeInput: { [UInt8($0)] },decodeInput: { Int($0[0]) },
+            encodeOutput: { [UInt8($0)] }
+        )
+        let model = Model<Int,Int,Int>(
+            initialState: { throw ModelError("observation must not initialize the host") },
+            step: { _,_ in throw ModelError("observation must not execute the reducer") },
+            checkState: { _ in [] },cloneState: { $0 },cloneInput: { $0 },cloneOutput: { $0 },codec: codec
+        )
+        let epoch = UInt64.max,sequence = UInt64.max
+        let initial = try checkInitial(model,state: 7)
+        let bridge = try LiveBridge(initial: initial,hostSequence: sequence-1,epoch: epoch,config: RunConfig(strategy: "host"))
+        func expectDispatchError(_ origin: EffectOrigin,_ expected: LiveError) throws {
+            do {
+                try bridge.effectDispatched(origin)
+                throw ModelError("effect origin self-check accepted an invalid dispatch")
+            } catch let error as LiveError {
+                guard error == expected else { throw ModelError("effect origin self-check returned the wrong dispatch error") }
+            }
+        }
+        let origin = EffectOrigin(epoch: epoch,transition: sequence,outputIndex: 0)
+        try expectDispatchError(origin,.unknownEffect)
+        let checked = try checkTurn(model,before: 7,input: 1,transition: Transition(state: 8,outputs: [8]),sequence: sequence)
+        try bridge.observe(hostSequence: sequence,checked: checked)
+        for unknown in [
+            EffectOrigin(epoch: epoch-1,transition: sequence,outputIndex: 0),
+            EffectOrigin(epoch: epoch,transition: sequence-1,outputIndex: 0),
+            EffectOrigin(epoch: epoch,transition: sequence,outputIndex: -1),
+            EffectOrigin(epoch: epoch,transition: sequence,outputIndex: 1)
+        ] { try expectDispatchError(unknown,.unknownEffect) }
+        try bridge.effectDispatched(origin)
+        try expectDispatchError(EffectOrigin(epoch: epoch,transition: sequence,outputIndex: 0),.duplicate)
+        var dispatched: [EffectOrigin] = []
+        while let event = bridge.popEvent() {
+            if case .effectDispatched(let observed) = event.kind { dispatched.append(observed) }
+        }
+        guard origin.epoch == epoch,origin.transition == sequence,origin.outputIndex == 0,
+              dispatched == [origin],bridge.health.recordedSteps == 1,bridge.health.captureComplete,
+              bridge.health.eventDrops == 0,try bridge.export().steps.count == 1 else {
+            throw ModelError("effect origin self-check lost the observed turn or dispatch fact")
+        }
+    }
+
     static func run() throws {
         // Let the public transport return a real broken-pipe write error so its
         // already committed session can still be inspected before process exit.
@@ -69,6 +117,7 @@ enum WireFixture {
         guard arguments.allSatisfy({ ["--read-only", "--exact", "--cache-one"].contains($0) }) else {
             throw ModelError("expected only --read-only, --exact, or --cache-one")
         }
+        try checkObservationOnlyEffectOrigin()
         var authority = ProtocolAuthority()
         authority.deliverInputs = !arguments.contains("--read-only")
         authority.readExactValues = arguments.contains("--exact")

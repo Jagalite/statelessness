@@ -75,7 +75,13 @@ public final class DebugSession<S,I,O> {
     private var checkPolicy = CheckPolicy()
     public var capabilities: SessionCapabilities { SessionCapabilities(exactRecording: recorder != nil) }
     public var inputPolicy: String { policy.label }
-    public var state: S { get throws { try model.cloneState(current) } }
+    public var state: S {
+        get throws {
+            // Clone callbacks may read recursively, but cannot mutate the owner.
+            let wasBusy = busy; busy = true; defer { busy = wasBusy }
+            return try model.cloneState(current)
+        }
+    }
     public convenience init(id: String, model: Model<S,I,O>, policy: InputPolicy<S,I,O>, limits: SessionLimits = SessionLimits(), equalInputs: @escaping (I,I) throws -> Bool, recording: RecorderOptions? = nil) throws {
         let state = try model.initialState()
         try self.init(id: id, model: model, state: state, policy: policy, limits: limits, equalInputs: equalInputs, recording: recording)
@@ -123,6 +129,7 @@ public final class DebugSession<S,I,O> {
         guard let recorder else { throw DebugError.unsupported("exact recording not enabled") }; return recorder.snapshot()
     }
     public func observation() throws -> TurnObservation<S,I,O>? {
+        let wasBusy = busy; busy = true; defer { busy = wasBusy }
         guard let last else { return nil }
         return try detached(last)
     }
