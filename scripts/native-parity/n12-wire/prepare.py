@@ -274,7 +274,9 @@ def prepare(args):
                                required=['# fail 0'])
                 elif language == 'swift':
                     run('swift-version', ['swift', '--version'])
-                    package = copy_package('swift', ['Package.swift', 'swift', 'conformance'])
+                    # SwiftPM derives local package identity from the directory
+                    # basename; it must differ from the consumer's "swift".
+                    package = copy_package('statelessness-swift', ['Package.swift', 'swift', 'conformance'])
                     target = builds / 'swift-consumer'
                     swift_env = {'N12_SWIFT_PACKAGE_PATH': str(package)}
                     run('swift-consumer-build', ['swift', 'build', '--package-path', consumer, '--scratch-path', target,
