@@ -1,0 +1,30 @@
+{
+  "taskId": "node:delegated-task:command%3Amcp%3A5d4de703-b093-4a0e-8695-ba82ce55b6e7%3Adelegate-task%3Astateless-n13-review-driver-r7-20261022",
+  "childThreadId": "thread:delegated-task:command%3Amcp%3A5d4de703-b093-4a0e-8695-ba82ce55b6e7%3Adelegate-task%3Astateless-n13-review-driver-r7-20261022",
+  "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A5d4de703-b093-4a0e-8695-ba82ce55b6e7%253Adelegate-task%253Astateless-n13-review-driver-r7-20261022:ordinal:1",
+  "childNodeId": "node:delegated-task:command%3Amcp%3A5d4de703-b093-4a0e-8695-ba82ce55b6e7%3Adelegate-task%3Astateless-n13-review-driver-r7-20261022",
+  "status": "running",
+  "workState": "working",
+  "hasPendingChildRuns": false,
+  "latestTerminalRunId": null,
+  "latestTerminalStatus": null,
+  "latestTerminalSummary": null,
+  "latestTerminalResultContextTransferId": null,
+  "providerInstanceId": "codex",
+  "model": "gpt-6-astra",
+  "options": [
+    {
+      "id": "reasoningEffort",
+      "value": "ultra"
+    },
+    {
+      "id": "serviceTier",
+      "value": "default"
+    }
+  ],
+  "summary": null,
+  "resultContextTransferId": null,
+  "hasPendingQuestion": false,
+  "pendingApproval": null,
+  "waitTimedOut": false
+}

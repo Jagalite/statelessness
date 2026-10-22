@@ -1,0 +1,2922 @@
+[
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "effect_ledger_model",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/effect_ledger_model.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/effect_ledger_model-4bbf0c44824e9851"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/effect_ledger_model-4bbf0c44824e9851",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "354085227fdc0e7756a3dbdfa1e169b7c54b1a16e59f3022cc032c0e48841b37",
+      "size_bytes": 1915048
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "ergonomics",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/ergonomics.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ergonomics-5340c205b50bfc0a"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ergonomics-5340c205b50bfc0a",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "bcd6a5dda8e9849430f09e32a484212b660b49a6f2d8222be1abf5e85a995cef",
+      "size_bytes": 1125688
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "codecs",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/codecs.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/codecs-1cfff9f8a4f108cf"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/codecs-1cfff9f8a4f108cf",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "59b9dc923dd24dbac359dd448a25863dd10d77538af3795cfa690d60aa831c94",
+      "size_bytes": 1102184
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "behavior",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/behavior.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/behavior-6d37404421952614"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/behavior-6d37404421952614",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "dfd4a0f5a77228e2327b087b8675080b86f471e6cb50ec1670b4b5dd01ee9011",
+      "size_bytes": 2584472
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "n13-interchange",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/n13-interchange.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/n13-interchange"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/n13-interchange",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "cf0c3c925154f7b01d2e25d069432b182f343d4e417afdf1baf01e61009989c8",
+      "size_bytes": 607696
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "jobs",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/jobs.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/jobs"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/jobs",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "f71fa42ba27acf9e26054c8afe2915218892e5813540740a804bb74e5e8c2ff2",
+      "size_bytes": 1087992
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "n13-model-interchange",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/n13-model-interchange.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_model_interchange-d31e142bf6665dd1"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_model_interchange-d31e142bf6665dd1",
+    "fresh": false,
+    "executable_identity": {
+      "sha256": "04313ccaba1ccc43e0134c0c290f5cbd1ae2fad85d45ba4d18bcdf4e73e7c65c",
+      "size_bytes": 951192
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "n13-interchange",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/n13-interchange.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_interchange-771a1360a38ffed3"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_interchange-771a1360a38ffed3",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "502686943e45c059d10fd86ecc1e7e50eaba07b5832cde847d94a9d33170f1c2",
+      "size_bytes": 951104
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "jobs",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/jobs.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/jobs-ecdfc5f06b02307a"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/jobs-ecdfc5f06b02307a",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "ac381cae4d2eb6c93eb8088e234515f8a63d650bbae13f29eb64297917e2747b",
+      "size_bytes": 950936
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "measure",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/examples/measure.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/measure"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/measure",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "19b830916c664ffd22ca5db9e4e0e51dd2f2169ae9a612302898b1f1924d0cb5",
+      "size_bytes": 533512
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "review_regressions",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/review_regressions.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_regressions-aaa8793b495febbc"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_regressions-aaa8793b495febbc",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "a0ae9574d74ae2f389252d9d858050d9fa7aede66c8ea206360cca11a421bd99",
+      "size_bytes": 1082128
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "n13_derive_reference",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/n13_derive_reference.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_derive_reference-3d13583438ceca45"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/n13_derive_reference-3d13583438ceca45",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "91bded975508f8346da13a4e8f7e425aad04bed8c479ebc3f0b1790dd87a4e28",
+      "size_bytes": 1539000
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "monitor_release",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/tests/monitor_release.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_release-9c740f3739c59084"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_release-9c740f3739c59084",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "edada8a93ef5f230d07d36f6b67b646d9250a25c6a5a4ddfcb2b3f91953e513f",
+      "size_bytes": 1957616
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "diagnostic_selectors",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/diagnostic_selectors.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic_selectors-481fa6cce79330c5"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic_selectors-481fa6cce79330c5",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "fb40d5e4e61ffb8de98be8055a9f389eb26a03586bf50f0a508f70dda14b17bc",
+      "size_bytes": 1855960
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "diagnostic_controller_model",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/diagnostic_controller_model.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic_controller_model-28fc30ab7f68bd51"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic_controller_model-28fc30ab7f68bd51",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "721f625a454a5e81e9afda4729d66327208abf3fec7c0fdfdbabfa59e251fb3e",
+      "size_bytes": 1927456
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "diagnostic",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/diagnostic.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic-e26ab98ca61dfa5e"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/diagnostic-e26ab98ca61dfa5e",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "f74d03d077063e90ad5f65c1180aa934be818a637665195fe9c85bf1bc2502e8",
+      "size_bytes": 2204632
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "lib"
+      ],
+      "crate_types": [
+        "lib"
+      ],
+      "name": "statelessness_debug",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/statelessness_debug-d9056f1a5a4e6eeb"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/statelessness_debug-d9056f1a5a4e6eeb",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "4878dba95e2d997a8ea08fd1cd6693baf909ffaeb3e9bbf9a0e6b2c06c51ea34",
+      "size_bytes": 1719432
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "measure_watches",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/measure_watches.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/measure_watches"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/measure_watches",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "df04352df74a60a1c10a67c28fb2e515dbacdfdb925999c04d36582cf853f825",
+      "size_bytes": 1424208
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "live_host",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/live_host.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/live_host"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/live_host",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "b25949624e10078b379e938c508428dacb60b2bb409719d3353f969f141b719d",
+      "size_bytes": 1929992
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "effect_overhead",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/effect_overhead.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/effect_overhead"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/effect_overhead",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "a90c183825c8c759788f587af4387d3839f25ea778bbad912c6a1e3a5c033625",
+      "size_bytes": 1157328
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "debug_stdio",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/debug_stdio.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_stdio"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_stdio",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "b307d642fd481d36d8f2a69ef85b0be05e92113c7e3449b80584cd0e4dc48225",
+      "size_bytes": 3044160
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "lib"
+      ],
+      "crate_types": [
+        "lib"
+      ],
+      "name": "macro_qualification",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/macro_qualification-12436186cbf0a942"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/macro_qualification-12436186cbf0a942",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "55e124f7e9057c4b0d277b0d8b2ce88ee9ee0baf8f18ec717f9f872e8a8c6a1e",
+      "size_bytes": 1712664
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "debug_request",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/debug_request.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_request"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_request",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "0a7aa5ad850791f43e602b743f2b63e13ff5701711d692e821904d8633ad6a1e",
+      "size_bytes": 1486368
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "debug_counter",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/debug_counter.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_counter"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_counter",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "8055ad95481cf003828bcc6e004057cf5c161a337b37433b99104c9479c7b588",
+      "size_bytes": 787648
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "instrumentation_parity",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/instrumentation_parity.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/instrumentation_parity"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/instrumentation_parity",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "787d5c65d4fa34c44cf6e0822eab1e7bcdda1222ea4d075fc547af75ef40b66b",
+      "size_bytes": 1526296
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "debug_composition",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/examples/debug_composition.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_composition"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/debug_composition",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "7b0e67f1291ec067a956cc2842481c94ea97ee0c812f24efe106de9428add13b",
+      "size_bytes": 1267248
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "workbench",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/workbench.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/workbench-892c5befd82b6c88"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/workbench-892c5befd82b6c88",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "e17bceb5437fe3cc668f168b86a3a5eafd263af05dacb7c98b0a4ef197f205a6",
+      "size_bytes": 2042664
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "watches",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/watches.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/watches-25a50e01458e711d"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/watches-25a50e01458e711d",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "962a12afcb73f5a2990e9efef57a32e6386b9dd949b385ca188363bbadad0c98",
+      "size_bytes": 2404600
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "session",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/session.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/session-38904849c53bd3da"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/session-38904849c53bd3da",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "eeb9238b4f29013e5808612fe215039e2dc94626662bad5246b259b5ef57a6aa",
+      "size_bytes": 1800696
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "review_debugger",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/review_debugger.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_debugger-db682c4b8f185a10"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_debugger-db682c4b8f185a10",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "71ad9af1fa8cd00fb2f35ae18c8a4809206ec5773ceb238b0fca0d4c0c095ba1",
+      "size_bytes": 2573040
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "protocol",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/protocol.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/protocol-8ba57fb05bd6f4ce"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/protocol-8ba57fb05bd6f4ce",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "623395db05687ce8d82a56080d4903eaaae271c98ee6de708c14ec0249e29f2b",
+      "size_bytes": 4910024
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_sessions",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/pr_review_sessions.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_sessions-4184322a97f07d03"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_sessions-4184322a97f07d03",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "6b40baf85ec61a369b65d618bd7b8c0e1daf6fcdbc633ae60506eb06536b2af6",
+      "size_bytes": 2431344
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_protocol",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/pr_review_protocol.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_protocol-856bddcfbbcee5b5"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_protocol-856bddcfbbcee5b5",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "cc20833f2b10c373e835b37bca2b4a6478f3f24713dd9f47d9e7f1f2d32c90be",
+      "size_bytes": 4213472
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_live_effects",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/pr_review_live_effects.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_live_effects-b2cf0e43775e897f"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_live_effects-b2cf0e43775e897f",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "5d13e41af5a13d7ebaa4ab6301ce8b156c4973fc8fdb04379745fcc6baca688c",
+      "size_bytes": 2885528
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_inspection",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/pr_review_inspection.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_inspection-1e372d3b76fb9dd6"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_inspection-1e372d3b76fb9dd6",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "a2606f2baef54f6ccb451535bdb365e594d6cea96602f29ec231e53f483b878b",
+      "size_bytes": 2533128
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "oracle_lifecycle",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/oracle_lifecycle.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/oracle_lifecycle-19eb407b878982dd"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/oracle_lifecycle-19eb407b878982dd",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "37f72740594785ec283398840333ae38661761c1c84346021f034f5298a30d03",
+      "size_bytes": 2251840
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "live",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/live.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/live-ed86546a182ba8f2"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/live-ed86546a182ba8f2",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "c455e3b6fa0c8afc6083ddc0423ecbcb190b819c094cbdc1cb03e8f936699ab8",
+      "size_bytes": 1945960
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "inspection",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/inspection.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/inspection-bc1aa73a3745c852"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/inspection-bc1aa73a3745c852",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "b1a353ec95eb22334c577874128f67cb557c8a9dc39f2aa82f26776feb7c854c",
+      "size_bytes": 1599656
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "inspect_derive",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/inspect_derive.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/inspect_derive-73819230d3f82262"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/inspect_derive-73819230d3f82262",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "19ba6c5ab2d1d261c50b86aa84f248b23fb44e0467ff33eca76f70ede3415a28",
+      "size_bytes": 1367792
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "evidence_dashboard",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/evidence_dashboard.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/evidence_dashboard-af161ce0fde0323c"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/evidence_dashboard-af161ce0fde0323c",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "48e6fd9a52bf24f4f4b260ee64fd4ad458a51af45ae7151e42b6b09c73994069",
+      "size_bytes": 2250768
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "effects_metrics",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-debug/tests/effects_metrics.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/effects_metrics-5fc5a57ced7c7c76"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/effects_metrics-5fc5a57ced7c7c76",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "a8ba24bf7746380a37f51562e36933f6c0b816b7a7d2ba3597d8ed864be3550e",
+      "size_bytes": 2304464
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-macros#0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-macros/Cargo.toml",
+    "target": {
+      "kind": [
+        "proc-macro"
+      ],
+      "crate_types": [
+        "proc-macro"
+      ],
+      "name": "statelessness_macros",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/statelessness-macros/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/statelessness_macros-226782a36ea6c0c4"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/statelessness_macros-226782a36ea6c0c4",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "1231af9e79769a31c7281e6fad129959e0d36fcfe4f6ade2370359f59f7104ac",
+      "size_bytes": 475272
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "logging",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/examples/logging.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/logging"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/logging",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "4ad41f47db72a89a81f2e66d4ef36e753e74d77ed7a6d68293d7349a3403cb8e",
+      "size_bytes": 1114696
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "counter",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/examples/counter.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/counter"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/counter",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "40c985ec5edd88fb03fd6fe34d2b4769f26a6c6f7246d2bd3251b4fb284dfb0c",
+      "size_bytes": 694088
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "controller",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/examples/controller.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/controller"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/controller",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "9cc13302b90b4953f31689e03d186230436df671abe6e72c7db21781298d3b62",
+      "size_bytes": 3655576
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "example"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "application",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/examples/application.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": false
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/application"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/examples/application",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "7faa8f0eee5c5649be174b1bfb01550f0543522c2c8781eb3155fb4390f9d387",
+      "size_bytes": 1332352
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "value_codec",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/value_codec.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/value_codec-2169bf701bbe34d7"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/value_codec-2169bf701bbe34d7",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "3b4da26ba51a927bd619bac1cced9739b17b4a65401f3aa6b8d7877497fc7800",
+      "size_bytes": 1221904
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "trace_format",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/trace_format.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/trace_format-aaefdc292d27c71c"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/trace_format-aaefdc292d27c71c",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "c7c7475487fe725db0e6cb40eca34d2f89297264ffe38e02d0a254e35ba6a4f4",
+      "size_bytes": 1435600
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "review_replay_bounds",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/review_replay_bounds.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_replay_bounds-96a8310c3c7f2d9a"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/review_replay_bounds-96a8310c3c7f2d9a",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "2056f8bdb8dbbe1aaff4d63e1e8be73963ac3bf4bfb66d59956be228b1b44f0a",
+      "size_bytes": 1844024
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "research",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/research.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/research-7fe50d807ddb316e"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/research-7fe50d807ddb316e",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "26cd48e6a8467117748c2fcea264557f35799e67426dc6315740985fdb53f6d8",
+      "size_bytes": 2320232
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "reference_controller",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/reference_controller.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/reference_controller-dcc7adc4adc22471"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/reference_controller-dcc7adc4adc22471",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "0219b617f3407fa589507e13827bf35627d017c3b850a3cc5bc4d619a8409a92",
+      "size_bytes": 3813384
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "pr_review_core",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/pr_review_core.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_core-9e5f7103e70f14a6"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/pr_review_core-9e5f7103e70f14a6",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "cc2bb7e1231c0b7dfc28732ccbe0529dc6c0eea6e34a9fec74444e80d193b7fe",
+      "size_bytes": 1828448
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "performance_contracts",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/performance_contracts.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/performance_contracts-a4d288458b060339"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/performance_contracts-a4d288458b060339",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "2aa85581f5824d95ca19591bd7031409cacec2c6e9550b8ca2724b3603ba91ca",
+      "size_bytes": 1761896
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "paired_profile",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/paired_profile.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/paired_profile-aa1150827b9963fb"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/paired_profile-aa1150827b9963fb",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "5dbf7b61f8c50f78fba1953bd4d4f3791f1ef1be11bafa42d935ae1b39b4f69f",
+      "size_bytes": 2032432
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "oracle",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/oracle.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/oracle-7342ec0c77d2a894"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/oracle-7342ec0c77d2a894",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "077ed21ca0ce8bec9eab4222856181c7d15fd9f221060f2ea636d4bb2c5286fa",
+      "size_bytes": 1920872
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "observation",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/observation.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/observation-181269e57fc612fe"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/observation-181269e57fc612fe",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "667740f8a5befb04f9e352c9ad6d6e58956790cc5307cb1ec6ca0d7b7e7c0a0d",
+      "size_bytes": 1759744
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "network",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/network.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/network-6ca0810bae128de6"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/network-6ca0810bae128de6",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "4d031b1c1f6594f8a904f37953b618675bfa4874774284aeb64f0c8bdeb6bac5",
+      "size_bytes": 2010584
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "native_search_profile",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/native_search_profile.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/native_search_profile-242e9789c6350fed"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/native_search_profile-242e9789c6350fed",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "4f4438367abdf2e0216b9df9f3509daeb845e2e7d1eedb3bcd19b22487ffaa65",
+      "size_bytes": 1570088
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "monitor_review",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/monitor_review.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_review-b3ff868ad672221b"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_review-b3ff868ad672221b",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "4b8f61f06500ed1fe98b7087bffbefaf252bcb83274f75fb7e9dce3f587bfff2",
+      "size_bytes": 1594576
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "monitor_limits",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/monitor_limits.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_limits-d13fe3fdeb4ffd4e"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor_limits-d13fe3fdeb4ffd4e",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "859e9d60f416c3615b12840837c9b4ed9cd14465e381434c7947d341b794732e",
+      "size_bytes": 1692048
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "monitor",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/monitor.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor-72f717602805d960"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/monitor-72f717602805d960",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "35c019ae27c89461d5fa1479d92f7c006a771d5a8ae00a7f7082cf43774c8bfd",
+      "size_bytes": 1629560
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "modeling",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/modeling.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/modeling-3dad7e833d03073e"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/modeling-3dad7e833d03073e",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "543d1335bf3cfb0d8edab14b4e03d1ae08b25745cebcc389508055eaf5fa4984",
+      "size_bytes": 1073384
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "lifecycle_templates",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/lifecycle_templates.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/lifecycle_templates-178b2a62e920073b"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/lifecycle_templates-178b2a62e920073b",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "54772224296599e51128424d79c227ba0f5b4221298549bcc8953d9dd4658e85",
+      "size_bytes": 1262040
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "lifecycle_indexed",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/lifecycle_indexed.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/lifecycle_indexed-31272a3e9fcd6230"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/lifecycle_indexed-31272a3e9fcd6230",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "ed3f962a0ffff584aec465f808a74ddb6c8af4378e7358edfc314cfccd9bf033",
+      "size_bytes": 1635632
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "guided",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/guided.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/guided-722165f63f519c6f"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/guided-722165f63f519c6f",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "1e08a1dd990296e178bd64658e2e0c570f4001f314b421784508ad18567128ca",
+      "size_bytes": 2696200
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "ffi_v2",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/ffi_v2.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ffi_v2-fb4da09a2364f01b"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ffi_v2-fb4da09a2364f01b",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "fc9ec031eacc894dfe2267837ce1e3e4c19f2885d41bdd193a78ec0d9c45483a",
+      "size_bytes": 3081672
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "ffi",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/ffi.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ffi-55f4887faf5c7038"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/ffi-55f4887faf5c7038",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "81a046ff0e62f0f92837c495becf8bcada31169fe315ef5009f30077d4920c98",
+      "size_bytes": 1849832
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "exploration",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/exploration.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/exploration-d76ddf6c78a43545"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/exploration-d76ddf6c78a43545",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "6c6191d67250985aef6eaa2092a690c40e1574047774ec801c1d25b85560a0d0",
+      "size_bytes": 2012912
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "execution",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/execution.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/execution-3097ba6469fac4e6"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/execution-3097ba6469fac4e6",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "5ce87d1dca3a196ce319946c871d0214ab6cf639b3d9b205daa8416db0690be1",
+      "size_bytes": 1866408
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "evidence_v2",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/evidence_v2.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/evidence_v2-af5e2e1324e63ba9"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/evidence_v2-af5e2e1324e63ba9",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "762726aed0a140dce31e205b2e08e674eff457a91cd8795ad8695f8933430907",
+      "size_bytes": 2338320
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "assurance",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/assurance.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/assurance-d1797b76a0a03c7a"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/assurance-d1797b76a0a03c7a",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "ebff7b78d0ef65ec4cdb3b82ef35103e7a4baf36853279e3716db45cb285cd3a",
+      "size_bytes": 3925352
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "conformance",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/conformance.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/conformance-3b5c7871b8b9d304"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/conformance-3b5c7871b8b9d304",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "c90223945dd857b0051faeae8b8ce1c2d8e22bc62425c59b27954b062d9c1d4c",
+      "size_bytes": 1139952
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "composition",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/composition.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/composition-16f00cfa943806fd"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/composition-16f00cfa943806fd",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "f21b97610f5ea4be07a5548a2fab8056cfd27ffdea5609e289e6641cfeaf533c",
+      "size_bytes": 1721808
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "stateless",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/src/main.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/stateless"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/stateless",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "6c44d2acf6f3b0a85a2a9089d40fab0b580131910223ed3a5e715c478b63e305",
+      "size_bytes": 2855816
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "cli",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/cli.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/cli-f3440a6e36da2b33"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/cli-f3440a6e36da2b33",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "ee73347174dec037b1ca7839fe0623da3b950cd7efed83e2bf24d30cfa9d0f3e",
+      "size_bytes": 2009976
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "stateless",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/src/main.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/stateless-7c4f5d1cec92622d"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/stateless-7c4f5d1cec92622d",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "b0a61cc7e195b48486b00063961ef278559a09f28da91544c492a56d24eb0218",
+      "size_bytes": 950968
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "checked_replay",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/checked_replay.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/checked_replay-9087f096d32110f2"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/checked_replay-9087f096d32110f2",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "0c01dbd0d77b4f3574a0725f5266ce0b007ce36d9ddc94b2575abcf3ee4c2548",
+      "size_bytes": 2335888
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "campaign",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/campaign.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/campaign-df5b15a8f7619c30"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/campaign-df5b15a8f7619c30",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "fefb093ee7f5b168b3054898c7386008b3b45ace2b461a06a942af287e4a60f2",
+      "size_bytes": 3000728
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "test"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "automatic",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/tests/automatic.rs",
+      "edition": "2024",
+      "doc": false,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/automatic-55e23e95f4c6781c"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/automatic-55e23e95f4c6781c",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "05473391fc20a6decd1cc49a24d7a4f83788656aadc16401c0110c82f308983b",
+      "size_bytes": 1606872
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040#statelessness@0.2.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/Cargo.toml",
+    "target": {
+      "kind": [
+        "rlib",
+        "cdylib",
+        "staticlib"
+      ],
+      "crate_types": [
+        "rlib",
+        "cdylib",
+        "staticlib"
+      ],
+      "name": "stateless",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/src/lib.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": true
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/stateless-8bd7b3d71e3ff36f"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/deps/stateless-8bd7b3d71e3ff36f",
+    "fresh": true,
+    "executable_identity": {
+      "sha256": "012ea76ee7dd49dee9a91ebc815be8015cb20cd3e4dccc48922b57f355785e80",
+      "size_bytes": 3589112
+    }
+  },
+  {
+    "reason": "compiler-artifact",
+    "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification#0.0.0",
+    "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/Cargo.toml",
+    "target": {
+      "kind": [
+        "bin"
+      ],
+      "crate_types": [
+        "bin"
+      ],
+      "name": "n13-model-interchange",
+      "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/crates/macro-qualification/src/bin/n13-model-interchange.rs",
+      "edition": "2024",
+      "doc": true,
+      "doctest": false,
+      "test": true
+    },
+    "profile": {
+      "opt_level": "0",
+      "debuginfo": 2,
+      "debug_assertions": true,
+      "overflow_checks": true,
+      "test": false
+    },
+    "features": [],
+    "filenames": [
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/n13-model-interchange"
+    ],
+    "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/target/n13-resume-oct22/debug/n13-model-interchange",
+    "fresh": false,
+    "executable_identity": {
+      "sha256": "2de2a7b85b62db9fca6daf98e6af9562b46193376a7790b08862dcc3423fbdbe",
+      "size_bytes": 1771992
+    }
+  }
+]

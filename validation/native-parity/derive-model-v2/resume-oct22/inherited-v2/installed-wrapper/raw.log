@@ -1,0 +1,66 @@
+[python-builder-venv] /opt/homebrew/opt/python@3.14/bin/python3.14 -m venv /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/builder
+[python-builder-tools] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/builder/bin/python -m pip install setuptools>=77 wheel
+[python-wheel] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/builder/bin/python -m pip wheel --no-deps --no-build-isolation --wheel-dir /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/validation/native-parity/derive-model-v2/installed/packages /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/python-package
+[python-venv] /opt/homebrew/opt/python@3.14/bin/python3.14 -m venv /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/venv
+[python-install] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/venv/bin/python -m pip install --no-index --no-deps /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/validation/native-parity/derive-model-v2/installed/packages/statelessness-0.1.0-py3-none-any.whl
+[go-build] go build -trimpath -o /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/go-consumer-bin .
+[typescript-package-build] node /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/typescript/node_modules/typescript/bin/tsc -p tsconfig.json
+[typescript-pack] npm pack --ignore-scripts --pack-destination /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/validation/native-parity/derive-model-v2/installed/packages
+[typescript-install] npm install --offline --ignore-scripts --no-audit --no-fund --package-lock=false --omit=dev /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/validation/native-parity/derive-model-v2/installed/packages/jagalite-statelessness-0.1.0.tgz
+[typescript-declarations] node /Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/typescript/node_modules/typescript/bin/tsc -p tsconfig.json
+[swift-build] swift build --package-path /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/swift-consumer -j 2
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/scripts/check-native-model-consumers.py", line 88, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/scripts/check-native-model-consumers.py", line 51, in main
+    run('swift-build',['swift','build','--package-path',work/'swift-consumer','-j','2']);bindir=run('swift-bin-path',['swift','build','--package-path',work/'swift-consumer','--show-bin-path']);runners['swift']=[str(Path(bindir)/'ModelConsumer')]
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9/scripts/check-native-model-consumers.py", line 30, in run
+    if r.returncode:raise RuntimeError(f'{name} failed ({r.returncode}): '+r.stdout.decode(errors='replace')[-4000:])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: swift-build failed (1): mitting module ModelConsumer
+[35/38] Compiling ModelConsumer main.swift
+/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/swift-consumer/Sources/ModelConsumer/main.swift:96:182: error: main actor-isolated let 'provenance' can not be referenced from a nonisolated context
+ 42 | }
+ 43 | let config = RunConfig(strategy: "manual", seed: 7, parameters: [AuditParameter("region", "test")])
+ 44 | let provenance = Provenance(run: "n13-installed-run", epoch: 7, manifest: "manifest-v1", source: "consumer-source", environment: [AuditParameter("region", "test")])
+    |     `- note: let declared here
+ 45 | func binaryLimits() -> BinaryTraceLimits {
+ 46 |     var result = BinaryTraceLimits()
+    :
+ 89 |     try require(app.c.limits == before, "encoders consulted limits")
+ 90 | }
+ 91 | func produce() throws -> [String:String] {
+    |      `- note: add '@MainActor' to make global function 'produce()' part of global actor 'MainActor'
+ 92 |     let app = try Application()
+ 93 |     var state = State(count: 0)
+ 94 |     let initial = try checkInitial(app.model, state: state)
+ 95 |     let recorder = try Recorder(checkedInitial: initial, config: config, options: RecorderOptions(maxSteps: 3, maxRetainedBytes: 16384, limits: binaryLimits()))
+ 96 |     let evidence = try EvidenceRecorder(checkedInitial: initial, config: config, options: RecorderOptions(maxSteps: 3, maxRetainedBytes: 16384, limits: binaryLimits()), provenance: provenance, limits: evidenceLimits())
+    |                                                                                                                                                                                      `- error: main actor-isolated let 'provenance' can not be referenced from a nonisolated context
+ 97 |     try require(app.c.checks == [0,1,0,0], "initial handoff repeated checks")
+ 98 |     for sequence in 1...3 {
+
+/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-o10kchc8/swift-consumer/Sources/ModelConsumer/main.swift:134:48: error: main actor-isolated let 'provenance' can not be referenced from a nonisolated context
+ 42 | }
+ 43 | let config = RunConfig(strategy: "manual", seed: 7, parameters: [AuditParameter("region", "test")])
+ 44 | let provenance = Provenance(run: "n13-installed-run", epoch: 7, manifest: "manifest-v1", source: "consumer-source", environment: [AuditParameter("region", "test")])
+    |     `- note: let declared here
+ 45 | func binaryLimits() -> BinaryTraceLimits {
+ 46 |     var result = BinaryTraceLimits()
+    :
+114 | func hex(_ bytes: [UInt8]) -> String { bytes.map { String(format: "%02x", $0) }.joined() }
+115 | func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try require(a.count % 2 == 0, "odd hex"); return try stride(from: 0, to: a.count, by: 2).map { i in guard let value = UInt8(String(decoding: a[i..<i+2], as: UTF8.self), radix: 16) else { throw ModelError("invalid hex") }; return value } }
+116 | func transcode(_ source: [String:String]) throws -> [String:String] {
+    |      `- note: add '@MainActor' to make global function 'transcode' part of global actor 'MainActor'
+117 |     var result: [String:String] = [:]
+118 |     for version in ["v1", "v2"] {
+    :
+132 |         case .v1: rewritten = try encodeAuditTrace(trace, limits: binaryLimits())
+133 |         case .v2(let evidence):
+134 |             try require(evidence.provenance == provenance && evidence.steps.count == 3 && evidence.checkPhase(sequence: 3, checkIndex: 0) == .state, "causal provenance/phase")
+    |                                                `- error: main actor-isolated let 'provenance' can not be referenced from a nonisolated context
+135 |             let fresh = try Application(), report = try evidence.replay(fresh.model, limits: evidenceLimits())
+136 |             try require(report.outcome == "exact" && report.failureReproduced && fresh.c.checks == [3,4,3,0] && fresh.c.codecs == [4,1,3,3,3,4], "causal replay/counts")
+

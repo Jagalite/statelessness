@@ -1,0 +1,282 @@
+{
+  "accounting/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "accounting/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "accounting/raw.log": {
+    "sha256": "fd0cd6fea22e6ddd76768cd6fbc567a0b2b6bf7fc496d82b33e2ea41abdf43b8",
+    "size_bytes": 585
+  },
+  "accounting/receipt.json": {
+    "sha256": "9fa604b53e3f87d064040fd11aefc01b8b2bc08a04c5cb0c559b071127da3809",
+    "size_bytes": 858
+  },
+  "go-vet/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "go-vet/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "go-vet/raw.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "go-vet/receipt.json": {
+    "sha256": "7380cb0b30d898b852680ff80f3f8a5116da256e2f20e99b21cc38ba5b792dcb",
+    "size_bytes": 854
+  },
+  "installed/qualification.json": {
+    "sha256": "c33874934ac9240c84efb35c0c04308bffd150cbf21a48603f5babdb3f35a5f5",
+    "size_bytes": 1825772
+  },
+  "typescript-full/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "typescript-full/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "typescript-full/raw.log": {
+    "sha256": "15e6bee304d5a56e2313382a744b1df4f43a443185e53ca00e42b664468565f2",
+    "size_bytes": 59017
+  },
+  "typescript-full/receipt.json": {
+    "sha256": "48b7fe8a7db23060d93c29c3faa3d0260e1ca253ee610f717e347f0780be637b",
+    "size_bytes": 861
+  },
+  "python-full/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "python-full/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "python-full/raw.log": {
+    "sha256": "8b421d57cda73b1c5820bc8f3366968678cb4fc1b9f449e01bfedc272951cd44",
+    "size_bytes": 1733
+  },
+  "python-full/receipt.json": {
+    "sha256": "dcb615c61b8c55c1bec21407ea8939b3d8a93433cd8c4fe779763df8eb05a887",
+    "size_bytes": 930
+  },
+  "swift-full/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "swift-full/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "swift-full/raw.log": {
+    "sha256": "f93e2041aa3144ef8b8674dbfbde706cab7c44379f0f31f53cf5ae6c3fbcc56e",
+    "size_bytes": 39269
+  },
+  "swift-full/receipt.json": {
+    "sha256": "7fd3eacd9b7c90c0416c1697c57dc5140749a68b5e5ff0e3b56fd8fbceba079c",
+    "size_bytes": 848
+  },
+  "terminal-jobs/focused.kyoto.log": {
+    "sha256": "0daa10c57d9e575a8e55bb8d36aeaa0e8c874974ceaa5e326a22258d83cf87ae",
+    "size_bytes": 785
+  },
+  "terminal-jobs/dependencies.json": {
+    "sha256": "4229b4c0196a187fc4979f8699ce91fe4bc063384daa0d19fc93712e47def38f",
+    "size_bytes": 1773
+  },
+  "terminal-jobs/python-full.kyoto.log": {
+    "sha256": "a80a12a9ac64c8075aab35b981df8cef0b4c15358d56191236ec9939eeda1df6",
+    "size_bytes": 798
+  },
+  "terminal-jobs/rust-workspace-runtime.json": {
+    "sha256": "141626bad93042aee3286fbc3782ba4fb13b2348e7a8761f6952821d3e074e87",
+    "size_bytes": 2000
+  },
+  "terminal-jobs/accounting.kyoto.log": {
+    "sha256": "8216dfa7b4c312c7feef05dc6aa7190be398643f65cd6aa9f3c3d707a3d12115",
+    "size_bytes": 750
+  },
+  "terminal-jobs/rust-workspace-compile.kyoto.log": {
+    "sha256": "9f423beec399f61cc946751f8fa1e4043909cc56d73028e8f4192e5fe75c84af",
+    "size_bytes": 12958
+  },
+  "terminal-jobs/go-full.kyoto.log": {
+    "sha256": "cfd7e612c99b249414bb4596219dc360a108e5ea66039d3834e8568fc0c24ce8",
+    "size_bytes": 737
+  },
+  "terminal-jobs/rust-workspace-runtime.kyoto.log": {
+    "sha256": "3e6776a50b8a802b66c61cf61678c4b2d7374f503baaa79d844739a803f3ae67",
+    "size_bytes": 737
+  },
+  "terminal-jobs/swift-full.json": {
+    "sha256": "d5ea10fffad259f52b9f838c30b3667f07c05d8698c538fe6fb9b2d29093c753",
+    "size_bytes": 1953
+  },
+  "terminal-jobs/dependencies.kyoto.log": {
+    "sha256": "b1121ca3f3d751dcf17350477b39d940bfd47c0114fec511ac2c0ca561ded1fc",
+    "size_bytes": 75
+  },
+  "terminal-jobs/focused.json": {
+    "sha256": "0f61afda07b08e69c2dda3d7c5e6c123503900ff0e7bd6d473ec9e4d5fbefc4e",
+    "size_bytes": 2067
+  },
+  "terminal-jobs/installed-five-engine.kyoto.log": {
+    "sha256": "366df4d6fa48b8cf65aaad90209b656dda83c5bae338043aa73748914326fb58",
+    "size_bytes": 823
+  },
+  "terminal-jobs/accounting.json": {
+    "sha256": "536bc87553fa4546858c88b5cfcb2d37e2d487a3b0ab10308c565201d1056f0e",
+    "size_bytes": 1981
+  },
+  "terminal-jobs/go-vet.json": {
+    "sha256": "9797ce17c5603e6b76e8fa33312cfa8f2dbfb4fe1d65899d69f3d38fb02cc315",
+    "size_bytes": 1952
+  },
+  "terminal-jobs/compiler.json": {
+    "sha256": "2e5a151d2098c0b74ad8b32b1a523f26ff9f5d36fcf7beea14053470c28aa58e",
+    "size_bytes": 2065
+  },
+  "terminal-jobs/installed-five-engine.json": {
+    "sha256": "a13f92adb24435c1690b272f7f094b2976f5650e6476b8e66f962171cad1f64f",
+    "size_bytes": 2145
+  },
+  "terminal-jobs/typescript-full.json": {
+    "sha256": "1247d7b290e7ebcdf5a064a45beac112c7f31e49c42005cefa40c7f0244b4b25",
+    "size_bytes": 1997
+  },
+  "terminal-jobs/python-full.json": {
+    "sha256": "5cbfad93c745b2fcbdc2b58b29bc4df08beb46fbb752c82dab86ca5e098b1272",
+    "size_bytes": 2075
+  },
+  "terminal-jobs/go-vet.kyoto.log": {
+    "sha256": "235614c518af03ff7c6aca12f1efabe8979a5f3902bd30403704be3441032e94",
+    "size_bytes": 734
+  },
+  "terminal-jobs/go-full.json": {
+    "sha256": "0a5b08e4c93b1b36b62de306efbc2d789c6ea299070a0130fd29adbcfcf3555f",
+    "size_bytes": 1964
+  },
+  "terminal-jobs/typescript-full.kyoto.log": {
+    "sha256": "b7056b9ce2d8cb0fd41de49b1b0ddf3aa22cd647a9ffd3f9ac12d42e562be97c",
+    "size_bytes": 745
+  },
+  "terminal-jobs/compiler.kyoto.log": {
+    "sha256": "16a8277efce8157ad12de52858dad7c8584c0a6708fb75a78d20c0c369d062e4",
+    "size_bytes": 776
+  },
+  "terminal-jobs/swift-full.kyoto.log": {
+    "sha256": "cbc725e2fa77d89dd1a19ca92f3077f1fcab6196649f2c2a8738e08d8de104da",
+    "size_bytes": 732
+  },
+  "terminal-jobs/rust-workspace-compile.json": {
+    "sha256": "0ed05bbb37e491b11cd5bf95ee928aa5f28ccd0c07aaae2eaa196d917204e2f0",
+    "size_bytes": 1983
+  },
+  "installed-wrapper/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "installed-wrapper/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "installed-wrapper/raw.log": {
+    "sha256": "f4d18d49c0cc88319377492ea0bf8b118377c1736164d22812ae8ef5a2981904",
+    "size_bytes": 7305
+  },
+  "installed-wrapper/receipt.json": {
+    "sha256": "87f5d5fe6c65f326a204ff3314a3e5eb12cb2cad00a993fb11935222b7f51990",
+    "size_bytes": 939
+  },
+  "go-full/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "go-full/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "go-full/raw.log": {
+    "sha256": "445d423fbe15bb7785b31e95862a353ac6ede84f4258217038e7acd8c8bab16c",
+    "size_bytes": 757
+  },
+  "go-full/receipt.json": {
+    "sha256": "665ca87bfd44cfd02c70d8afaeda37a0b05e0f6020f876ee7bb3e2a004913c37",
+    "size_bytes": 857
+  },
+  "rust-workspace-runtime/source-before.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "rust-workspace-runtime/source-after.json": {
+    "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+    "size_bytes": 1050935
+  },
+  "rust-workspace-runtime/raw.log": {
+    "sha256": "edcb23c44e9ba3ea2202204495f06d2fa3ee128a33cb5dd2c5e89f48039ac9a4",
+    "size_bytes": 5297
+  },
+  "rust-workspace-runtime/receipt.json": {
+    "sha256": "93980a4ebe0f18d7552fa8dd9a97a9081b4cda650aa7a44346bd8f4545667cca",
+    "size_bytes": 849
+  },
+  "installed/logs/python-builder-tools.log": {
+    "sha256": "d53fd62b7973a5d7a6816f81a2778c4b8e13af3bce5484f95cb2df8135c4a24c",
+    "size_bytes": 795
+  },
+  "installed/logs/python-venv.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "installed/logs/swift-build.log": {
+    "sha256": "bd21d550d814ef0bedd6e7718473aedc3b43942ecce1a21cfcd47b59bf9f46e5",
+    "size_bytes": 5559
+  },
+  "installed/logs/typescript-package-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "installed/logs/typescript-declarations.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "installed/logs/typescript-pack.log": {
+    "sha256": "460881a2c5c9436d246598609e1bb500b72264e8d6ffc502edd40729d0fd0782",
+    "size_bytes": 4375
+  },
+  "installed/logs/python-wheel.log": {
+    "sha256": "2cb7da4af359a6d2109943839e7a6bc8d4e5a5d39ad8db9b5f2ce0d37945d51b",
+    "size_bytes": 886
+  },
+  "installed/logs/go-build.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "installed/logs/python-builder-venv.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  "installed/logs/typescript-install.log": {
+    "sha256": "267e47e8511fb1f2ba8e68604dbc2843f3773743d66ea20f202346f355f98f10",
+    "size_bytes": 26
+  },
+  "installed/logs/python-install.log": {
+    "sha256": "5cc3008f1ed2aa2445c58db95204afcd783f63217ff1c851f7c819cb2c600a20",
+    "size_bytes": 250
+  },
+  "installed/packages/statelessness-0.1.0-py3-none-any.whl": {
+    "sha256": "da5aeb57a6e86b793c2dfdc82e7e974cacbe48f2a23b617d1695ab36b3a6369f",
+    "size_bytes": 85068
+  },
+  "installed/packages/jagalite-statelessness-0.1.0.tgz": {
+    "sha256": "c653812e5fa77ddd586bd5c445e6a5490a5f3b4fbeeb6c9bf7aefd95e4d90fbb",
+    "size_bytes": 196761
+  }
+}

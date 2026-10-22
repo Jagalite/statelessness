@@ -1,0 +1,31 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--workspace"
+  ],
+  "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9",
+  "started_ns": 1792542377191948000,
+  "source_commit": "eaf87d8bedfe6ec903ea12e96ba189099945ba30",
+  "command_exit_code": 101,
+  "finished_ns": 1792542379117060000,
+  "source_before_after_equal": true,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "files": {
+    "source-before.json": {
+      "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+      "size_bytes": 1050935
+    },
+    "source-after.json": {
+      "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+      "size_bytes": 1050935
+    },
+    "raw.log": {
+      "sha256": "edcb23c44e9ba3ea2202204495f06d2fa3ee128a33cb5dd2c5e89f48039ac9a4",
+      "size_bytes": 5297
+    }
+  },
+  "status": "failed"
+}

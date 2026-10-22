@@ -1,0 +1,16 @@
+{
+  "inherited_job": "cfe860eae13e4c88942e4f7b8079f5a2",
+  "scope": "25 compiler rejections inherited for unchanged production Rust, compiler harness and rejection sources; not rerun",
+  "added": [],
+  "removed": [],
+  "changed": [
+    "crates/macro-qualification/tests/n13_derive_reference.rs",
+    "docs/native-parity/derive-model-draft/go-dispositions.json",
+    "docs/native-parity/derive-model-draft/rust-dispositions.json",
+    "docs/native-parity/derive-model-draft/swift-dispositions.json",
+    "examples/native-model/swift/Sources/ModelConsumer/main.swift",
+    "go/value_derive_test.go",
+    "python/tests/test_codec_declarations.py",
+    "swift/Tests/StatelessnessTests/DeriveCodecTests.swift"
+  ]
+}

@@ -1,0 +1,1255 @@
+diff --git a/crates/macro-qualification/src/bin/n13-model-interchange.rs b/crates/macro-qualification/src/bin/n13-model-interchange.rs
+index e27f295..ffdc978 100644
+--- a/crates/macro-qualification/src/bin/n13-model-interchange.rs
++++ b/crates/macro-qualification/src/bin/n13-model-interchange.rs
+@@ -10,13 +10,16 @@ use stateless::{
+ use statelessness_macros::{TraceDecode, TraceEncode};
+ use std::{
+     cell::Cell,
+-    sync::atomic::{AtomicUsize, Ordering},
++    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
+ };
+ static STATE_E: AtomicUsize = AtomicUsize::new(0);
+ static STATE_D: AtomicUsize = AtomicUsize::new(0);
+ static INPUT_E: AtomicUsize = AtomicUsize::new(0);
+ static INPUT_D: AtomicUsize = AtomicUsize::new(0);
+ static OUTPUT_E: AtomicUsize = AtomicUsize::new(0);
++static FAIL_OUTPUT: AtomicBool = AtomicBool::new(false);
++static OUTPUT_FAILURES: AtomicUsize = AtomicUsize::new(0);
++const OUTPUT_FAILURE: &str = "n13 output encode failure";
+ static LIMIT_CALLS: AtomicUsize = AtomicUsize::new(0);
+ static BYTE_LIMIT: AtomicUsize = AtomicUsize::new(64);
+ mod count {
+@@ -56,7 +59,13 @@ struct Output(u32);
+ impl stateless::value_codec::TraceEncode for Output {
+     fn trace_encode(&self, o: &mut EncodeBuffer<'_>) -> Result<(), ModelError> {
+         OUTPUT_E.fetch_add(1, Ordering::SeqCst);
+-        self.0.trace_encode(o)
++        self.0.trace_encode(o)?;
++        // Fail inside the actual bound Output encoder, after candidate bytes exist.
++        if FAIL_OUTPUT.load(Ordering::SeqCst) {
++            OUTPUT_FAILURES.fetch_add(1, Ordering::SeqCst);
++            return Err(ModelError::new(OUTPUT_FAILURE));
++        }
++        Ok(())
+     }
+ }
+ fn fresh_limits() -> DecodeLimits {
+@@ -228,6 +237,8 @@ fn codecs() -> [usize; 6] {
+     ]
+ }
+ fn reset() {
++    FAIL_OUTPUT.store(false, Ordering::SeqCst);
++    OUTPUT_FAILURES.store(0, Ordering::SeqCst);
+     for x in [
+         &STATE_E,
+         &INPUT_E,
+@@ -246,7 +257,12 @@ fn encode(t: &Trace, v: &TraceV2) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::err
+     v.write(&mut b, &el())?;
+     Ok((a, b))
+ }
+-fn produce() -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
++fn measured_counts(m: &Bound) -> String {
++    let [initial, reducer, state, transition] = m.counts();
++    let [encode_state, encode_input, encode_output, decode_state, decode_input, limits] = codecs();
++    format!("{{\"initial\":{initial},\"reducer\":{reducer},\"state\":{state},\"transition\":{transition},\"encode_state\":{encode_state},\"encode_input\":{encode_input},\"encode_output\":{encode_output},\"decode_state\":{decode_state},\"decode_input\":{decode_input},\"limits\":{limits}}}")
++}
++fn produce() -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
+     reset();
+     let m = Bound::new();
+     let mut state = State { count: 0 };
+@@ -275,7 +291,8 @@ fn produce() -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
+             .collect::<Vec<_>>(),
+         vec![1, 1, 1]
+     );
+-    encode(&rec.snapshot(), &v)
++    let (a, b) = encode(&rec.snapshot(), &v)?;
++    Ok((a, b, measured_counts(&m)))
+ }
+ fn validate_trace(t: &Trace) {
+     assert_eq!(t.metadata, Bound::new().metadata());
+@@ -292,7 +309,7 @@ fn validate_trace(t: &Trace) {
+     }
+     assert_eq!(t.termination, stateless::trace::Termination::PropertyFailed);
+ }
+-fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
++fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
+     reset();
+     let t = Trace::read_from(a, &limits())?;
+     let artifact = Artifact::read(b, &el())?;
+@@ -309,6 +326,7 @@ fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::erro
+         assert_eq!(s.state_check_count, 1);
+         assert_eq!(s.causal, causal(n as u64 + 1));
+     }
++    let mut replay_counts = Vec::new();
+     for (t, v2) in [(&t, false), (&v.trace, true)] {
+         reset();
+         let m = Bound::new();
+@@ -322,11 +340,186 @@ fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::erro
+         assert!(r.failure_reproduced && r.build_matches);
+         assert_eq!(m.counts(), [0, 3, 4, 3]);
+         assert_eq!(codecs(), [4, 3, 3, 1, 3, 4]);
++        replay_counts.push(format!("\"{}\":{}", if v2 { "v2" } else { "v1" }, measured_counts(&m)));
+     }
+     let rewritten = encode(&t, &v)?;
+     assert_eq!(rewritten.0, a);
+     assert_eq!(rewritten.1, b);
+-    Ok(rewritten)
++    Ok((rewritten.0, rewritten.1, format!("{{{}}}", replay_counts.join(","))))
++}
++// Negative captures are local controls; none of their bytes enter success artifacts.
++fn assert_capture_counts(m: &Bound, model: [usize; 4], codec: [usize; 6], failures: usize) {
++    assert_eq!(m.counts(), model);
++    assert_eq!(codecs(), codec);
++    assert_eq!(OUTPUT_FAILURES.load(Ordering::SeqCst), failures);
++}
++fn assert_first_capture(t: &Trace) {
++    assert_eq!(t.metadata, Bound::new().metadata());
++    assert_eq!(t.config.strategy, "manual");
++    assert_eq!(t.config.seed, Some(7));
++    for (key, value) in [
++        ("region", "test"),
++        ("stateless.monitor.checking", "full"),
++        ("stateless.monitor.observed_steps", "1"),
++        ("stateless.monitor.evicted_steps", "0"),
++        ("stateless.monitor.checkpoint_after_sequence", "0"),
++    ] {
++        assert_eq!(
++            t.config
++                .parameters
++                .iter()
++                .find(|(k, _)| k == key)
++                .map(|(_, v)| v.as_str()),
++            Some(value)
++        );
++    }
++    assert_eq!(t.initial_state, [0, 0, 0, 0]);
++    assert_eq!(t.initial_checks, vec![Check::passed("threshold.bound")]);
++    assert_eq!(
++        t.steps,
++        vec![stateless::trace::TraceStep {
++            input: vec![1, 1],
++            disposition: Disposition::Accepted,
++            outputs: vec![vec![1, 0, 0, 0]],
++            post_state: vec![1, 0, 0, 0],
++            checks: vec![
++                Check::passed("threshold.bound"),
++                Check::passed("edge.checked")
++            ],
++        }]
++    );
++    assert_eq!(t.termination, stateless::trace::Termination::Interrupted);
++}
++fn assert_failed_prefix(t: &Trace, prefix: &Trace, message: &str) {
++    assert_eq!(t.metadata, prefix.metadata);
++    assert_eq!(t.config, prefix.config);
++    assert_eq!(t.initial_state, prefix.initial_state);
++    assert_eq!(t.initial_checks, prefix.initial_checks);
++    assert_eq!(t.steps, prefix.steps);
++    assert_eq!(
++        t.termination,
++        stateless::trace::Termination::ModelError(message.into())
++    );
++}
++fn capture_failure_controls() -> Result<(), Box<dyn std::error::Error>> {
++    reset();
++    let m = Bound::new();
++    let state = State { count: 0 };
++    let input = Input::Add(1);
++    let initial = execution::check_initial(&m, &state)?;
++    assert_capture_counts(&m, [0, 0, 1, 0], [0; 6], 0);
++    let mut rec = Recorder::with_checked_initial(&initial, config(), options())?;
++    assert_capture_counts(&m, [0, 0, 1, 0], [1, 0, 0, 0, 0, 0], 0);
++    let mut ev = EvidenceRecorder::new(&initial, 0, config(), options(), provenance(), el())?;
++    assert_capture_counts(&m, [0, 0, 1, 0], [2, 0, 0, 0, 0, 0], 0);
++
++    let first = m.step(&state, &input)?;
++    let checked = execution::check_turn(&m, &state, &input, &first, 1, CheckPolicy::default())?;
++    assert_capture_counts(&m, [0, 1, 2, 1], [2, 0, 0, 0, 0, 0], 0);
++    assert_eq!(rec.observe_checked(&checked)?, checked.checks());
++    assert_capture_counts(&m, [0, 1, 2, 1], [4, 1, 1, 0, 0, 0], 0);
++    ev.observe(&checked, causal(1))?;
++    assert_capture_counts(&m, [0, 1, 2, 1], [6, 2, 2, 0, 0, 0], 0);
++    let prefix = rec.snapshot();
++    let evidence_prefix = ev.snapshot();
++    assert_first_capture(&prefix);
++    assert_first_capture(&evidence_prefix.trace);
++    assert!(!rec.is_frozen() && !ev.is_frozen());
++    assert_eq!(evidence_prefix.checkpoint_after, 0);
++    assert_eq!(evidence_prefix.provenance, provenance());
++    assert_eq!(
++        evidence_prefix.steps,
++        vec![StepEvidence {
++            sequence: 1,
++            state_check_count: 1,
++            causal: causal(1),
++        }]
++    );
++
++    let second = m.step(&first.state, &input)?;
++    let checked =
++        execution::check_turn(&m, &first.state, &input, &second, 2, CheckPolicy::default())?;
++    assert_eq!(second.state, State { count: 2 });
++    assert_eq!(
++        checked.checks(),
++        &[
++            Check::passed("threshold.bound"),
++            Check::passed("edge.checked")
++        ]
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [6, 2, 2, 0, 0, 0], 0);
++    // Arm only after successful checking. Both failures must come from capture.
++    FAIL_OUTPUT.store(true, Ordering::SeqCst);
++    let message = format!("runtime encode output: {OUTPUT_FAILURE}");
++    assert_eq!(
++        rec.observe_checked(&checked).unwrap_err(),
++        ModelError::new(&message)
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [7, 3, 3, 0, 0, 0], 1);
++    // This valid causal reference resolves to the retained first output.
++    assert_eq!(
++        ev.observe(&checked, causal(2)).unwrap_err(),
++        ModelError::new(&message)
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
++    assert!(rec.is_frozen() && ev.is_frozen());
++    assert_eq!(
++        (
++            rec.observed_steps(),
++            rec.retained_steps(),
++            rec.evicted_steps()
++        ),
++        (1, 1, 0)
++    );
++    let failed = rec.snapshot();
++    let failed_evidence = ev.snapshot();
++    assert_failed_prefix(&failed, &prefix, &message);
++    assert_failed_prefix(&failed_evidence.trace, &evidence_prefix.trace, &message);
++    assert_eq!(
++        failed_evidence.checkpoint_after,
++        evidence_prefix.checkpoint_after
++    );
++    assert_eq!(failed_evidence.provenance, evidence_prefix.provenance);
++    assert_eq!(failed_evidence.steps, evidence_prefix.steps);
++    assert_eq!(
++        failed_evidence.check_phase(0, 0),
++        Some(stateless::explore::CheckPhase::InitialState)
++    );
++    assert_eq!(
++        failed_evidence.check_phase(1, 0),
++        Some(stateless::explore::CheckPhase::State)
++    );
++    assert_eq!(
++        failed_evidence.check_phase(1, 1),
++        Some(stateless::explore::CheckPhase::Transition)
++    );
++    assert_eq!(failed_evidence.check_phase(2, 0), None);
++
++    // A repaired encoder cannot resume a frozen recorder or overwrite its error.
++    FAIL_OUTPUT.store(false, Ordering::SeqCst);
++    assert_eq!(
++        rec.observe_checked(&checked).unwrap_err(),
++        ModelError::new("runtime recorder is frozen; export its retained trace")
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
++    assert_eq!(
++        ev.observe(&checked, causal(2)).unwrap_err(),
++        ModelError::new("runtime evidence recorder is frozen; export its retained trace")
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
++    assert_eq!(rec.snapshot(), failed);
++    assert_eq!(ev.snapshot(), failed_evidence);
++    // Persist/read only these negative snapshots in memory; never replay the
++    // prefix as proof that its terminal callback failure has been reproduced.
++    let (a, b) = encode(&failed, &failed_evidence)?;
++    assert_eq!(Trace::read_from(a.as_slice(), &limits())?, failed);
++    assert_eq!(
++        Artifact::read(b.as_slice(), &el())?,
++        Artifact::V2(failed_evidence)
++    );
++    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
++    reset();
++    Ok(())
+ }
+ fn controls() -> Result<(), Box<dyn std::error::Error>> {
+     reset();
+@@ -429,16 +622,17 @@ fn field<'a>(s: &'a str, key: &str) -> Result<&'a str, Box<dyn std::error::Error
+ }
+ fn main() -> Result<(), Box<dyn std::error::Error>> {
+     controls()?;
++    capture_failure_controls()?;
+     let args = std::env::args().skip(1).collect::<Vec<_>>();
+-    let (a, b, out) = match args.as_slice() {
++    let (a, b, out, capture_counts, replay_counts) = match args.as_slice() {
+         [mode, out] if mode == "produce" => {
+-            let (a, b) = produce()?;
+-            (a, b, out)
++            let (a, b, counts) = produce()?;
++            (a, b, out, counts, "{}".to_owned())
+         }
+         [mode, input, out] if mode == "transcode" => {
+             let text = std::fs::read_to_string(input)?;
+-            let (a, b) = transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
+-            (a, b, out)
++            let (a, b, counts) = transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
++            (a, b, out, "null".to_owned(), counts)
+         }
+         _ => return Err("produce DEST | transcode SOURCE DEST".into()),
+     };
+@@ -447,7 +641,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
+         format!("{{\"v1\":\"{}\",\"v2\":\"{}\"}}\n", hex(&a), hex(&b)),
+     )?;
+     println!(
+-        "{{\"engine\":\"rust\",\"version_hooks\":8,\"fresh_limits\":true,\"encode_only_output\":true,\"checked_handoff\":true,\"reducer\":3,\"state_checks\":4,\"transition_checks\":3}}"
++        "{{\"engine\":\"rust\",\"capture_failure_controls\":true,\"capture_counts\":{capture_counts},\"replay_counts\":{replay_counts},\"version_hooks\":8,\"fresh_limits\":true,\"encode_only_output\":true,\"checked_handoff\":true}}"
+     );
+     Ok(())
+ }
+diff --git a/examples/native-model/README.md b/examples/native-model/README.md
+index df13ab1..c92aaf3 100644
+--- a/examples/native-model/README.md
++++ b/examples/native-model/README.md
+@@ -47,6 +47,17 @@ hostile values/readers/sinks and provider callbacks, default/custom/fresh decode
+ admission, malformed and trailing State/Input, and all encoder hooks avoiding
+ decode providers. Rust uses typed values and codec counters at its static type
+ boundary. These controls remain separate from the success artifact prefixes.
++Separate Recorder and EvidenceRecorder controls retain one successful turn,
++then fail the actual bound Output encoder during the next checked handoff.
++They check the public error type/stage, retained trace and causal/phase journal,
++exact callback counts, and an inert retry after the recorder freezes.
++
++Stdout includes measured `capture_counts` and `replay_counts` using the same ten
++counter names in every engine. The driver checks every field against the
++independent oracle and rejects missing fields, unexpected keys, and non-integer
++counts. TypeScript replay binds a counted decode-limit provider; the omitted
++provider path remains a separate control. `capture_failure_controls: true` is
++emitted only after the separate failing-capture assertions complete.
+ 
+ Run only through Kyoto after the source candidate freezes:
+ 
+@@ -59,6 +70,10 @@ checkout, and installs the staged Rust binary with Cargo. It launches five
+ fresh producers and all 25 ordered fresh consumer processes, comparing every
+ artifact against the independent oracle and checking exact rewrites. Commands,
+ timeout partial bytes, failed logs, package bytes and artifacts retain SHA256
+-and byte sizes. Before/after source membership and hashes are compared even
++and byte sizes. The Rust engine build stamp is selected from its own package's
++compiler log entry; the macro crate's distinct stamp is retained in the raw log.
++Executed native binaries, interpreters, and application scripts retain path,
++resolved path, SHA256 and size before execution and are checked again afterward.
++Before/after source membership and hashes are compared even
+ on failure. A queued job is pending evidence; compile-only success is not a
+ test pass. Qualification receipts, not this authored README, establish execution.
+diff --git a/examples/native-model/go/main.go b/examples/native-model/go/main.go
+index ad81564..ed3f450 100644
+--- a/examples/native-model/go/main.go
++++ b/examples/native-model/go/main.go
+@@ -8,18 +8,29 @@ import (
+ 	"fmt"
+ 	s "github.com/Jagalite/statelessness/go"
+ 	"os"
++	"reflect"
+ )
+ 
+ type State struct{ Count uint32 }
+ type Input struct{ Amount uint8 }
+ type Output struct{ Count uint32 }
+ type Counts struct {
++	// Private negative-control state does not alter the success count receipt.
++	outputFailure                                                                                                       *s.ModelError
++	outputCalls, outputFailures                                                                                         int
+ 	Reducer, State, Transition, Initial, DecodeLimits, StateEncode, InputEncode, OutputEncode, StateDecode, InputDecode int
+ 	version                                                                                                             uint32
+ 	hostile, custom                                                                                                     bool
+ 	work                                                                                                                uint64
+ }
+ 
++func normalizedCounts(c Counts) map[string]int {
++	return map[string]int{"initial": c.Initial, "reducer": c.Reducer, "state": c.State,
++		"transition": c.Transition, "encode_state": c.StateEncode,
++		"encode_input": c.InputEncode, "encode_output": c.OutputEncode,
++		"decode_state": c.StateDecode, "decode_input": c.InputDecode, "limits": c.DecodeLimits}
++}
++
+ func must(e error) {
+ 	if e != nil {
+ 		panic(e)
+@@ -52,10 +63,19 @@ func applicationWithProvider(withProvider bool) (s.Model[State, Input, Output],
+ 	}, s.DefaultEnumOptions(), add)
+ 	must(e)
+ 	output, e := s.NewValueCodec("Output", func(v Output, b *s.EncodeBuffer) error {
++		c.outputCalls++
+ 		if c.hostile {
+ 			panic("hostile output visited")
+ 		}
+-		return s.Uint32Codec().EncodeRaw(v.Count, b)
++		if e := s.Uint32Codec().EncodeRaw(v.Count, b); e != nil {
++			return e
++		}
++		// Fail in the bound encoder after writing candidate bytes, not in glue.
++		if c.outputFailure != nil {
++			c.outputFailures++
++			return c.outputFailure
++		}
++		return nil
+ 	}, nil, nil)
+ 	must(e)
+ 	opts := s.DefaultModelCodecOptions()
+@@ -202,6 +222,132 @@ func transcode(path string) (map[string]string, map[string]Counts) {
+ 	return out, counts
+ }
+ 
++// Negative captures stay separate from every produced/transcoded success artifact.
++func requireCaptureCounts(c *Counts, model [4]int, codec [6]int, failures int) {
++	require([4]int{c.Initial, c.Reducer, c.State, c.Transition} == model, "negative capture model counts")
++	require([6]int{c.StateEncode, c.InputEncode, c.OutputEncode, c.StateDecode, c.InputDecode, c.DecodeLimits} == codec, "negative capture codec counts")
++	require(c.outputCalls == codec[2] && c.outputFailures == failures, "negative capture actual Output callbacks")
++}
++func requireCaptureError(e error, message string) {
++	owned, ok := e.(*s.ModelError)
++	// The public recorder owns a staged ModelError, not the raw callback pointer.
++	require(ok && owned.Message == message, "negative capture error owner/stage")
++}
++func requireFirstCapture(t *s.AuditTrace) {
++	require(t.Metadata == s.Identity("n13-installed-model", "application-v1"), "negative prefix identity")
++	require(t.Config.Strategy == "manual" && t.Config.Seed != nil && *t.Config.Seed == 7, "negative prefix producer config")
++	params := map[string]string{}
++	for _, p := range t.Config.Parameters {
++		params[p[0]] = p[1]
++	}
++	require(params["region"] == "test" && params["stateless.monitor.checking"] == "full" && params["stateless.monitor.observed_steps"] == "1" && params["stateless.monitor.evicted_steps"] == "0" && params["stateless.monitor.checkpoint_after_sequence"] == "0", "negative prefix recorder config")
++	require(bytes.Equal(t.InitialState, []byte{0, 0, 0, 0}) && reflect.DeepEqual(t.InitialChecks, []s.Check{s.Passed("threshold.bound")}), "negative prefix checkpoint")
++	want := []s.TraceStep{{Input: []byte{1, 1}, Disposition: s.Accepted(), Outputs: [][]byte{{1, 0, 0, 0}}, PostState: []byte{1, 0, 0, 0}, Checks: []s.Check{s.Passed("threshold.bound"), s.Passed("edge.checked")}}}
++	require(reflect.DeepEqual(t.Steps, want), "negative prefix first captured turn")
++	require(t.Termination == "interrupted" && t.Error == "", "negative prefix unexpectedly terminal")
++}
++func requireFailedPrefix(t, prefix *s.AuditTrace, message string) {
++	require(t.Metadata == prefix.Metadata && reflect.DeepEqual(t.Config, prefix.Config), "failure changed identity/config")
++	require(bytes.Equal(t.InitialState, prefix.InitialState) && reflect.DeepEqual(t.InitialChecks, prefix.InitialChecks), "failure changed checkpoint")
++	require(reflect.DeepEqual(t.Steps, prefix.Steps), "failure changed retained trace prefix")
++	require(t.Termination == "model_error" && t.Error == message, "failure footer lost callback ownership")
++}
++func captureFailureControls() {
++	m, c := application()
++	initial, e := s.CheckInitial(m, State{})
++	must(e)
++	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{}, 0)
++	config := s.RunConfig{Strategy: "manual", Seed: up(7), Parameters: [][2]string{{"region", "test"}}}
++	opts := s.RecorderOptions{MaxSteps: 3, MaxRetainedBytes: 16384, Limits: binaryLimits()}
++	r, e := s.NewRecorderWithCheckedInitial(initial, config, opts)
++	must(e)
++	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{1, 0, 0, 0, 0, 0}, 0)
++	p := s.Provenance{Run: "n13-installed-run", Epoch: 7, Manifest: sp("manifest-v1"), Source: sp("consumer-source"), Environment: [][2]string{{"region", "test"}}}
++	er, e := s.NewEvidenceRecorder(initial, 0, config, opts, p, evidenceLimits())
++	must(e)
++	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{2, 0, 0, 0, 0, 0}, 0)
++	causal := func(seq uint64) s.CausalContext {
++		v := s.CausalContext{Machine: sp("worker-a"), Generation: up(9), Correlation: sp("request-1"), LogicalTime: up(10 + seq)}
++		if seq > 1 {
++			v.Causes = []s.OutputOrigin{{Sequence: seq - 1, Output: 0}}
++		}
++		return v
++	}
++	in := Input{1}
++	first, e := m.Step(State{}, in)
++	must(e)
++	checked, e := s.CheckTurn(m, State{}, in, first, 1, s.FullChecks())
++	must(e)
++	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{2, 0, 0, 0, 0, 0}, 0)
++	checks, e := s.ObserveCheckedRecorder(r, checked)
++	must(e)
++	require(reflect.DeepEqual(checks, checked.Checks()), "checked recorder changed check batch")
++	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{4, 1, 1, 0, 0, 0}, 0)
++	must(s.ObserveEvidenceRecorder(er, checked, causal(1)))
++	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{6, 2, 2, 0, 0, 0}, 0)
++	prefix, evidencePrefix := r.Snapshot(), er.Snapshot()
++	requireFirstCapture(prefix)
++	requireFirstCapture(&evidencePrefix.Trace)
++	require(!r.IsFrozen() && !er.IsFrozen(), "negative first capture froze")
++	require(evidencePrefix.CheckpointAfter == 0 && reflect.DeepEqual(evidencePrefix.Provenance, p), "negative evidence origin/provenance")
++	require(len(evidencePrefix.Steps) == 1 && evidencePrefix.Steps[0].Sequence == 1 && evidencePrefix.Steps[0].StateCheckCount == 1, "negative evidence first phase row")
++	firstCausal := evidencePrefix.Steps[0].Causal
++	wantCausal := causal(1)
++	require(reflect.DeepEqual(firstCausal.Machine, wantCausal.Machine) && reflect.DeepEqual(firstCausal.Generation, wantCausal.Generation) && reflect.DeepEqual(firstCausal.Correlation, wantCausal.Correlation) && reflect.DeepEqual(firstCausal.LogicalTime, wantCausal.LogicalTime) && len(firstCausal.Causes) == 0, "negative evidence first causal context")
++
++	second, e := m.Step(first.State, in)
++	must(e)
++	checked, e = s.CheckTurn(m, first.State, in, second, 2, s.FullChecks())
++	must(e)
++	require(second.State == (State{2}) && reflect.DeepEqual(checked.Checks(), []s.Check{s.Passed("threshold.bound"), s.Passed("edge.checked")}), "second checked turn must pass before capture")
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{6, 2, 2, 0, 0, 0}, 0)
++	// The token is already checked; arm only the actual Output callback now.
++	c.outputFailure = &s.ModelError{Message: "n13 output encode failure"}
++	message := "runtime encode output: encode callback: n13 output encode failure"
++	checks, e = s.ObserveCheckedRecorder(r, checked)
++	requireCaptureError(e, message)
++	require(checks == nil, "failed capture returned a successful check batch")
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{7, 3, 3, 0, 0, 0}, 1)
++	// A valid link to retained output 1:0 must reach the same failing encoder.
++	requireCaptureError(s.ObserveEvidenceRecorder(er, checked, causal(2)), message)
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
++	require(r.IsFrozen() && er.IsFrozen(), "capture error did not freeze")
++	require(r.ObservedSteps() == 1 && r.RetainedSteps() == 1 && r.EvictedSteps() == 0, "failed capture changed recorder counters")
++	failed, failedEvidence := r.Snapshot(), er.Snapshot()
++	requireFailedPrefix(failed, prefix, message)
++	requireFailedPrefix(&failedEvidence.Trace, &evidencePrefix.Trace, message)
++	require(failedEvidence.CheckpointAfter == evidencePrefix.CheckpointAfter && reflect.DeepEqual(failedEvidence.Provenance, evidencePrefix.Provenance) && reflect.DeepEqual(failedEvidence.Steps, evidencePrefix.Steps), "failure changed evidence phase/causal journal")
++	for _, want := range []struct {
++		seq, check uint64
++		phase      s.CheckPhase
++	}{{0, 0, s.PhaseInitialState}, {1, 0, s.PhaseState}, {1, 1, s.PhaseTransition}} {
++		phase, ok := failedEvidence.CheckPhase(want.seq, want.check)
++		require(ok && phase == want.phase, "retained property phase changed")
++	}
++	_, present := failedEvidence.CheckPhase(2, 0)
++	require(!present, "failed capture added a phase row")
++
++	c.outputFailure = nil
++	checks, e = s.ObserveCheckedRecorder(r, checked)
++	requireCaptureError(e, "runtime recorder is frozen; export its retained trace")
++	require(checks == nil, "frozen recorder returned checks")
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
++	requireCaptureError(s.ObserveEvidenceRecorder(er, checked, causal(2)), "runtime evidence recorder is frozen; export its retained trace")
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
++	require(reflect.DeepEqual(r.Snapshot(), failed) && reflect.DeepEqual(er.Snapshot(), failedEvidence), "frozen retry changed retained error/evidence")
++	// Only in-memory negative round trips: no success envelope or output decoder.
++	a, e := s.MarshalAuditTrace(failed, binaryLimits())
++	must(e)
++	b, e := s.MarshalTraceV2(failedEvidence, evidenceLimits())
++	must(e)
++	x, e := s.ReadArtifact(bytes.NewReader(a), evidenceLimits())
++	must(e)
++	y, e := s.ReadArtifact(bytes.NewReader(b), evidenceLimits())
++	must(e)
++	require(reflect.DeepEqual(x.V1, failed) && reflect.DeepEqual(y.V2, failedEvidence), "negative artifact round trip changed prefix/diagnostic")
++	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
++}
++
+ // Controls run in each fresh installed process, separately from artifact counters.
+ func controls() {
+ 	// This construction genuinely omits DecodeLimits, selecting binder defaults.
+@@ -288,15 +434,26 @@ func controls() {
+ }
+ func main() {
+ 	controls()
++	captureFailureControls()
+ 	require(len(os.Args) >= 3, "usage: produce DEST | transcode SOURCE DEST")
+ 	var env map[string]string
+ 	var receipt any
++	var captureCounts map[string]int
++	replayCounts := map[string]map[string]int{}
+ 	switch os.Args[1] {
+ 	case "produce":
+-		env, receipt = produce()
++		var counts Counts
++		env, counts = produce()
++		receipt = counts
++		captureCounts = normalizedCounts(counts)
+ 	case "transcode":
+ 		require(len(os.Args) == 4, "transcode SOURCE DEST")
+-		env, receipt = transcode(os.Args[2])
++		var counts map[string]Counts
++		env, counts = transcode(os.Args[2])
++		receipt = counts
++		for version, c := range counts {
++			replayCounts[version] = normalizedCounts(c)
++		}
+ 	default:
+ 		panic("unknown command")
+ 	}
+@@ -304,7 +461,7 @@ func main() {
+ 	b, e := json.Marshal(env)
+ 	must(e)
+ 	must(os.WriteFile(dst, b, 0600))
+-	b, e = json.Marshal(map[string]any{"engine": "go", "counts": receipt, "controls": "eight-version-hooks,fresh-limits,malformed-trailing,encode-no-limits", "custom_output_encode_only": true, "checked_handoff_no_reexecution": true})
++	b, e = json.Marshal(map[string]any{"engine": "go", "capture_failure_controls": true, "capture_counts": captureCounts, "replay_counts": replayCounts, "counts": receipt, "controls": "eight-version-hooks,fresh-limits,malformed-trailing,encode-no-limits", "custom_output_encode_only": true, "checked_handoff_no_reexecution": true})
+ 	must(e)
+ 	fmt.Println(string(b))
+ }
+diff --git a/examples/native-model/python/consumer.py b/examples/native-model/python/consumer.py
+index 8fa4bf8..8350019 100644
+--- a/examples/native-model/python/consumer.py
++++ b/examples/native-model/python/consumer.py
+@@ -1,5 +1,5 @@
+ """Installed five-engine N13 application; Output deliberately has no decoder."""
+-from dataclasses import dataclass
++from dataclasses import dataclass, replace
+ from pathlib import Path
+ import json
+ import sys
+@@ -25,6 +25,7 @@ LIMITS = BinaryLimits(max_total_bytes=16384, max_frame_bytes=4096, max_blob_byte
+     max_outputs_per_step=16, max_parameters=32, max_items=256)
+ ELIMITS = EvidenceLimits(LIMITS, 1024, 8, 128, 4, 8)
+ OPTIONS = RecorderOptions(3, 16384, LIMITS)
++OUTPUT_FAILURE = 'n13 controlled Output encoder failure'
+ 
+ class Model:
+     def __init__(self):
+@@ -33,6 +34,7 @@ class Model:
+                            decode_state=0, decode_input=0, limits=0)
+         self.version = 1
+         self.limits = DecodeLimits()
++        self.fail_output = False
+     def metadata(self): return Metadata('n13-installed-model', build='application-v1', codec_version=self.version)
+     def initial_state(self): self.counts['initial'] += 1; return State(0)
+     def step(self, state, input):
+@@ -60,6 +62,9 @@ class Output:
+     def __init__(self, model): self.model = model
+     def encode_into(self, value, sink):
+         self.model.counts['encode_output'] += 1
++        if self.model.fail_output:
++            sink.extend(b'\xee')
++            raise ModelError(OUTPUT_FAILURE)
+         U32.encode_into(value, sink)
+ 
+ STATE = ordered_record('State', value_type=State,
+@@ -125,6 +130,99 @@ def controls():
+     return dict(version_hooks=8, fresh_limit_calls=m.counts['limits'], encoder_limit_calls=0,
+                 malformed_trailing=4, output_decoder=False)
+ 
++def reject_exact(call, message):
++    try: call()
++    except ModelError as error:
++        assert str(error) == message, str(error)
++        return
++    raise AssertionError('expected ModelError: ' + message)
++
++def capture_failure_controls():
++    """Fresh applications; negative prefixes never enter the success envelope."""
++    receipts = {}
++    diagnostic = 'runtime encode output: ' + OUTPUT_FAILURE
++    options = RecorderOptions(1, 16384, LIMITS)
++    first_causal = CausalContext('worker-a', 9, 'request-1', 11, ())
++    second_causal = CausalContext('worker-a', 9, 'request-1', 12, (OutputOrigin(1, 0),))
++    for kind in ('recorder', 'evidence'):
++        m = Model(); b = bind(m)
++        initial = check_initial(b, State(0))
++        if kind == 'evidence':
++            recorder = EvidenceRecorder(initial, 0, CONFIG, options, PROVENANCE, ELIMITS)
++            observe = recorder.observe
++            snapshot = lambda: recorder.snapshot().trace
++        else:
++            recorder = Recorder.with_checked_initial(initial, CONFIG, options)
++            observe = lambda token, causal: recorder.observe_checked(token)
++            snapshot = recorder.snapshot
++        want = dict(initial=0, reducer=0, state=1, transition=0, encode_state=1,
++                    encode_input=0, encode_output=0, decode_state=0, decode_input=0, limits=0)
++        assert m.counts == want, m.counts
++        stages = dict(after_initial=dict(m.counts))
++        first = check_turn(b, State(0), Add(1), b.step(State(0), Add(1)), 1)
++        want.update(reducer=1, state=2, transition=1)
++        assert m.counts == want, m.counts
++        observe(first, first_causal)
++        want.update(encode_state=3, encode_input=1, encode_output=1)
++        assert m.counts == want, m.counts
++        stages['after_first_capture'] = dict(m.counts)
++        prefix = snapshot()
++        journal = recorder.snapshot() if kind == 'evidence' else None
++        assert prefix.termination == 'interrupted' and prefix.error == ''
++        assert prefix.metadata == m.metadata() and prefix.initial_state == bytes(4)
++        assert prefix.initial_checks == (Check('threshold.bound'),)
++        assert len(prefix.steps) == 1
++        step = prefix.steps[0]
++        assert step.input == b'\1\1' and step.post_state == b'\1\0\0\0'
++        assert step.outputs == (b'\1\0\0\0',)
++        assert step.disposition.kind == 'accepted' and step.disposition.reason == ''
++        assert step.checks == (Check('threshold.bound'), Check('edge.checked'))
++        retained = dict(prefix.config.parameters)
++        assert prefix.config.strategy == CONFIG.strategy and prefix.config.seed == CONFIG.seed
++        assert prefix.config.parameters[0] == ('region', 'test')
++        assert retained['stateless.monitor.max_steps'] == '1'
++        assert retained['stateless.monitor.observed_steps'] == '1'
++        assert retained['stateless.monitor.evicted_steps'] == '0'
++        assert retained['stateless.monitor.checkpoint_after_sequence'] == '0'
++        # The second checked token is valid. Only its bound Output callback fails.
++        second = check_turn(b, State(1), Add(1), b.step(State(1), Add(1)), 2)
++        want.update(reducer=2, state=3, transition=2)
++        assert m.counts == want, m.counts
++        stages['before_failed_capture'] = dict(m.counts)
++        m.fail_output = True
++        reject_exact(lambda: observe(second, second_causal), diagnostic)
++        want.update(encode_state=4, encode_input=2, encode_output=2)
++        assert m.counts == want, m.counts
++        stages['after_failed_capture'] = dict(m.counts)
++        frozen = snapshot()
++        assert recorder.is_frozen()
++        assert frozen == replace(prefix, termination='model_error', error=diagnostic)
++        if journal is not None:
++            value = recorder.snapshot()
++            assert value == replace(journal, trace=frozen)
++            assert value.provenance == PROVENANCE and value.checkpoint_after == 0
++            assert len(value.steps) == 1 and value.steps[0].sequence == 1
++            assert value.steps[0].state_check_count == 1 and value.steps[0].causal == first_causal
++            assert value.check_phase(1, 0) == 'state' and value.check_phase(1, 1) == 'transition'
++            assert value.check_phase(2, 0) is None
++            assert Artifact.from_bytes(value.to_bytes(limits=ELIMITS), limits=ELIMITS).value == value
++        else:
++            assert recorder.observed_steps() == 1 and recorder.evicted_steps() == 0
++            assert recorder.retained_steps() == 1
++            assert Artifact.from_bytes(audit_to_bytes(frozen, limits=LIMITS), limits=ELIMITS).trace == frozen
++        # Reusing the already checked token after freeze must do no callback work.
++        m.fail_output = False
++        owner = 'runtime evidence recorder' if journal is not None else 'runtime recorder'
++        reject_exact(lambda: observe(second, second_causal), owner + ' is frozen; export its retained trace')
++        assert snapshot() == frozen and m.counts == want
++        if journal is not None:
++            assert recorder.into_trace() == value
++        else:
++            assert recorder.into_trace() == frozen
++        assert m.counts == want, m.counts
++        receipts[kind] = stages
++    return receipts
++
+ def produce():
+     m = Model(); b = bind(m)
+     initial = check_initial(b, State(0))
+@@ -189,13 +287,19 @@ def consume(envelope):
+ def main():
+     mode = sys.argv[1]
+     control = controls()
++    failures = capture_failure_controls()
++    replay_counts = {}; capture = {}
+     if mode == 'produce':
+         envelope, counts = produce(); destination = sys.argv[2]
+         receipt = dict(production_counts=counts)
++        capture = dict(capture_counts=counts)
+     elif mode == 'transcode':
+         envelope, receipt = consume(json.loads(Path(sys.argv[2]).read_text())); destination = sys.argv[3]
++        replay_counts = {version: result['counts'] for version, result in receipt.items()}
+     else: raise ValueError('unknown mode')
+     Path(destination).write_text(json.dumps(envelope, sort_keys=True))
+-    print(json.dumps(dict(engine='python', controls=control, receipt=receipt)))
++    print(json.dumps(dict(engine='python', controls=control, receipt=receipt,
++        capture_failure_controls=True, capture_failure_counts=failures,
++        replay_counts=replay_counts, **capture)))
+ 
+ if __name__ == '__main__': main()
+diff --git a/examples/native-model/swift/Sources/ModelConsumer/main.swift b/examples/native-model/swift/Sources/ModelConsumer/main.swift
+index 8a08946..650d7dd 100644
+--- a/examples/native-model/swift/Sources/ModelConsumer/main.swift
++++ b/examples/native-model/swift/Sources/ModelConsumer/main.swift
+@@ -4,6 +4,13 @@ import Statelessness
+ func require(_ condition: Bool, _ message: String) throws { if !condition { throw ModelError(message) } }
+ func rejectsVersion(_ operation: () throws -> Void) throws { do { try operation() } catch { try require(String(describing: error).contains("version does not match"), "wrong version rejection"); return }; throw ModelError("expected version rejection") }
+ func rejects(_ operation: () throws -> Void) throws { do { try operation() } catch { return }; throw ModelError("expected rejection") }
++func rejectExact(_ message: String, _ operation: () throws -> Void) throws {
++    do { try operation() } catch {
++        guard let error = error as? ModelError else { throw ModelError("expected ModelError: \(error)") }
++        try require(exactText(error.description, message), "wrong capture rejection: \(error)"); return
++    }
++    throw ModelError("expected ModelError: \(message)")
++}
+ struct State { let count: UInt32 }
+ enum Input { case add(UInt8) }
+ struct Output { let count: UInt32 }
+@@ -12,11 +19,17 @@ final class Counters {
+     var stateEncode = 0, stateDecode = 0, inputEncode = 0, inputDecode = 0, outputEncode = 0, limits = 0
+     var checks: [Int] { [reducer, state, transition, initial] }
+     var codecs: [Int] { [stateEncode, stateDecode, inputEncode, inputDecode, outputEncode, limits] }
++    var receipt: [String:Int] {
++        ["initial": initial, "reducer": reducer, "state": state, "transition": transition,
++         "encode_state": stateEncode, "encode_input": inputEncode, "encode_output": outputEncode,
++         "decode_state": stateDecode, "decode_input": inputDecode, "limits": limits]
++    }
+ }
+ final class Application {
+     let c = Counters()
+     var version: UInt32 = 1
+     var limits = DecodeLimits()
++    var failOutput = false
+     var model: Model<State,Input,Output>!
+     var codec: Codec<State,Input,Output>!
+     init(customLimits: Bool = true) throws {
+@@ -26,7 +39,11 @@ final class Application {
+         let add = TraceEnumCase<Input,UInt8>(tag: 1, label: "Add", payload: ValueCodecs.u8, construct: { .add($0) })
+         let enumeration = try TraceEnums.codec(schema: "Input", tagWidth: .u8, cases: [add.erased()], select: { value in switch value { case .add(let amount): return add.select(amount) } }, require: .both)
+         let input = TraceValueCodec<Input>(schema: "Input", encode: { [self] value,sink in c.inputEncode += 1; try enumeration.encodeRaw(value, into: sink) }, decode: { [self] reader in c.inputDecode += 1; return try enumeration.decode(from: reader) })
+-        let output = TraceValueCodec<Output>(schema: "Output", encodeOnly: { [self] value,sink in c.outputEncode += 1; try ValueCodecs.u32.encodeRaw(value.count, into: sink) })
++        let output = TraceValueCodec<Output>(schema: "Output", encodeOnly: { [self] value,sink in
++            c.outputEncode += 1
++            if failOutput { try sink.extend([0xee]); throw ModelError("n13 controlled Output encoder failure") }
++            try ValueCodecs.u32.encodeRaw(value.count, into: sink)
++        })
+         try require(!output.supportsDecoding, "Output must have no decoder")
+         let metadata = { [self] in Metadata(name: "n13-installed-model", codecVersion: version, build: "application-v1") }
+         if customLimits {
+@@ -88,7 +105,89 @@ func gates() throws {
+     try EncodeBuffer.withBuffer(&bytes, maximum: 20) { sink in try codec.encodeStateInto!(State(count: 1), sink); try codec.encodeInputInto!(.add(1), sink); try codec.encodeOutputInto!(Output(count: 1), sink) }
+     try require(app.c.limits == before, "encoders consulted limits")
+ }
+-@MainActor func produce() throws -> [String:String] {
++@MainActor func captureFailureControls() throws -> [String:[String:[String:Int]]] {
++    var receipts: [String:[String:[String:Int]]] = [:]
++    let diagnostic = "runtime encode output: n13 controlled Output encoder failure"
++    let options = RecorderOptions(maxSteps: 1, maxRetainedBytes: 16384, limits: binaryLimits())
++    let firstCausal = CausalContext(machine: "worker-a", generation: 9, correlation: "request-1", logicalTime: 11)
++    let secondCausal = CausalContext(machine: "worker-a", generation: 9, correlation: "request-1", logicalTime: 12, causes: [OutputOrigin(sequence: 1, output: 0)])
++    for useEvidence in [false, true] {
++        let app = try Application(), initial = try checkInitial(app.model, state: State(count: 0))
++        let recorder: Recorder?, evidence: EvidenceRecorder?
++        if useEvidence {
++            recorder = nil
++            evidence = try EvidenceRecorder(checkedInitial: initial, config: config, options: options, provenance: provenance, limits: evidenceLimits())
++        } else {
++            recorder = try Recorder(checkedInitial: initial, config: config, options: options)
++            evidence = nil
++        }
++        func observe(_ token: CheckedTurn<State,Input,Output>, _ causal: CausalContext) throws {
++            if let evidence { try evidence.observe(token, causal: causal) }
++            else { try recorder!.observeChecked(token) }
++        }
++        func snapshot() -> AuditTrace { evidence?.snapshot().trace ?? recorder!.snapshot() }
++        try require(app.c.checks == [0,1,0,0] && app.c.codecs == [1,0,0,0,0,0], "negative initial handoff counts")
++        var stages = ["after_initial": app.c.receipt]
++        let input = Input.add(1), firstTransition = try app.model.step(State(count: 0), input)
++        let first = try checkTurn(app.model, before: State(count: 0), input: input, transition: firstTransition, sequence: 1)
++        try require(app.c.checks == [1,2,1,0] && app.c.codecs == [1,0,0,0,0,0], "first checked turn counts")
++        try observe(first, firstCausal)
++        try require(app.c.checks == [1,2,1,0] && app.c.codecs == [3,0,1,0,1,0], "first capture repeated checks or codecs")
++        stages["after_first_capture"] = app.c.receipt
++        let prefix = snapshot(), journal = evidence?.snapshot()
++        try require(prefix.termination == .interrupted && prefix.metadata == Metadata(name: "n13-installed-model", build: "application-v1"), "successful prefix identity")
++        try require(prefix.initialState == [0,0,0,0] && prefix.initialChecks == [.passed("threshold.bound")] && prefix.steps.count == 1, "successful checkpoint/prefix")
++        let step = prefix.steps[0]
++        try require(step.input == [1,1] && step.postState == [1,0,0,0] && step.outputs == [[1,0,0,0]] && step.disposition == .accepted, "successful step bytes")
++        try require(step.checks == [.passed("threshold.bound"),.passed("edge.checked")], "successful step checks")
++        try require(prefix.config.strategy == config.strategy && prefix.config.seed == config.seed && prefix.config.parameters.first == AuditParameter("region", "test"), "producer config")
++        for (key,value) in [("max_steps","1"),("observed_steps","1"),("evicted_steps","0"),("checkpoint_after_sequence","0")] {
++            try require(prefix.config.parameters.contains(AuditParameter("stateless.monitor." + key, value)), "retained counters")
++        }
++        let secondTransition = try app.model.step(State(count: 1), input)
++        let second = try checkTurn(app.model, before: State(count: 1), input: input, transition: secondTransition, sequence: 2)
++        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [3,0,1,0,1,0], "second checked turn counts")
++        stages["before_failed_capture"] = app.c.receipt
++        app.failOutput = true
++        try rejectExact(diagnostic) { try observe(second, secondCausal) }
++        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "failed capture repeated checks or codecs")
++        stages["after_failed_capture"] = app.c.receipt
++        let frozen = snapshot()
++        try require(evidence?.isFrozen ?? recorder!.isFrozen, "capture must freeze")
++        let expected = AuditTrace(metadata: prefix.metadata, config: prefix.config, initialState: prefix.initialState, initialChecks: prefix.initialChecks, steps: prefix.steps, termination: .modelError(diagnostic))
++        try require(frozen == expected, "failed capture changed retained prefix or diagnostic")
++        if let evidence, let journal {
++            let value = evidence.snapshot()
++            try require(value == TraceV2(trace: frozen, checkpointAfter: journal.checkpointAfter, provenance: journal.provenance, steps: journal.steps), "failed capture changed causal journal")
++            try require(value.provenance == provenance && value.checkpointAfter == 0 && value.steps == [StepEvidence(sequence: 1, stateCheckCount: 1, causal: firstCausal)], "retained provenance/causal row")
++            try require(value.checkPhase(sequence: 1, checkIndex: 0) == .state && value.checkPhase(sequence: 1, checkIndex: 1) == .transition && value.checkPhase(sequence: 2, checkIndex: 0) == nil, "retained phase journal")
++            let artifact = try decodeArtifact(encodeEvidence(value, limits: evidenceLimits()), limits: evidenceLimits())
++            guard case .v2(let restored) = artifact else { throw ModelError("negative evidence kind") }
++            try require(restored == value, "negative evidence roundtrip")
++        } else {
++            try require(recorder!.observedSteps == 1 && recorder!.evictedSteps == 0 && recorder!.retainedSteps == 1, "retained recorder counters")
++            let artifact = try decodeArtifact(encodeAuditTrace(frozen, limits: binaryLimits()), limits: evidenceLimits())
++            guard case .v1(let restored) = artifact else { throw ModelError("negative audit kind") }
++            try require(restored == frozen, "negative audit roundtrip")
++        }
++        // Retry the same sealed token without the fault; freeze wins before callbacks.
++        app.failOutput = false
++        let owner = useEvidence ? "runtime evidence recorder" : "runtime recorder"
++        try rejectExact(owner + " is frozen; export its retained trace") { try observe(second, secondCausal) }
++        try require(snapshot() == frozen && app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "frozen retry changed evidence or counts")
++        if let evidence, let journal {
++            let transferred = try evidence.intoTrace()
++            try require(transferred == TraceV2(trace: frozen, checkpointAfter: journal.checkpointAfter, provenance: journal.provenance, steps: journal.steps), "evidence transfer changed prefix")
++        } else {
++            let transferred = try recorder!.intoTrace()
++            try require(transferred == frozen, "recorder transfer changed prefix")
++        }
++        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "export repeated callbacks")
++        receipts[useEvidence ? "evidence" : "recorder"] = stages
++    }
++    return receipts
++}
++@MainActor func produce() throws -> (envelope: [String:String], counts: [String:Int]) {
+     let app = try Application()
+     var state = State(count: 0)
+     let initial = try checkInitial(app.model, state: state)
+@@ -109,12 +208,13 @@ func gates() throws {
+     let v1 = try recorder.intoTrace(), v2 = try evidence.intoTrace()
+     try require(v1.steps.map { $0.outputs } == [[[1,0,0,0]],[[2,0,0,0]],[[3,0,0,0]]], "output bytes")
+     try require(v2.checkPhase(sequence: 3, checkIndex: 0) == .state && v2.checkPhase(sequence: 3, checkIndex: 1) == .transition, "phase evidence")
+-    return ["v1": hex(try encodeAuditTrace(v1, limits: binaryLimits())), "v2": hex(try encodeEvidence(v2, limits: evidenceLimits()))]
++    return (["v1": hex(try encodeAuditTrace(v1, limits: binaryLimits())), "v2": hex(try encodeEvidence(v2, limits: evidenceLimits()))], app.c.receipt)
+ }
+ func hex(_ bytes: [UInt8]) -> String { bytes.map { String(format: "%02x", $0) }.joined() }
+ func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try require(a.count % 2 == 0, "odd hex"); return try stride(from: 0, to: a.count, by: 2).map { i in guard let value = UInt8(String(decoding: a[i..<i+2], as: UTF8.self), radix: 16) else { throw ModelError("invalid hex") }; return value } }
+-@MainActor func transcode(_ source: [String:String]) throws -> [String:String] {
++@MainActor func transcode(_ source: [String:String]) throws -> (envelope: [String:String], replayCounts: [String:[String:Int]]) {
+     var result: [String:String] = [:]
++    var replayCounts: [String:[String:Int]] = [:]
+     for version in ["v1", "v2"] {
+         let bytes = try unhex(source[version]!), artifact = try decodeArtifact(bytes, limits: evidenceLimits()), app = try Application()
+         let trace = artifact.trace
+@@ -127,6 +227,7 @@ func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try r
+         }
+         try require(report.outcome == "exact" && report.stepsVerified == 3 && report.failureReproduced && observations == 4, "replay report")
+         try require(app.c.checks == [3,4,3,0] && app.c.codecs == [4,1,3,3,3,4], "replay callback counts")
++        replayCounts[version] = app.c.receipt
+         let rewritten: [UInt8]
+         switch artifact {
+         case .v1: rewritten = try encodeAuditTrace(trace, limits: binaryLimits())
+@@ -134,21 +235,30 @@ func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try r
+             try require(evidence.provenance == provenance && evidence.steps.count == 3 && evidence.checkPhase(sequence: 3, checkIndex: 0) == .state, "causal provenance/phase")
+             let fresh = try Application(), report = try evidence.replay(fresh.model, limits: evidenceLimits())
+             try require(report.outcome == "exact" && report.failureReproduced && fresh.c.checks == [3,4,3,0] && fresh.c.codecs == [4,1,3,3,3,4], "causal replay/counts")
++            replayCounts["v2_causal"] = fresh.c.receipt
+             rewritten = try encodeEvidence(evidence, limits: evidenceLimits())
+         }
+         try require(rewritten == bytes, "artifact rewrite changed bytes/config")
+         result[version] = hex(rewritten)
+     }
+-    return result
++    return (result, replayCounts)
+ }
+ do {
+     try gates()
++    let failures = try captureFailureControls()
+     let args = CommandLine.arguments
+     let result: [String:String]
+-    if args.count == 3 && args[1] == "produce" { result = try produce() }
+-    else if args.count == 4 && args[1] == "transcode" { result = try transcode(JSONDecoder().decode([String:String].self, from: Data(contentsOf: URL(fileURLWithPath: args[2])))) }
++    var receipt: [String:Any] = ["engine": "swift", "version_gates": 8, "output_decoder": false, "checked_handoff": true,
++                                 "capture_failure_controls": true, "capture_failure_counts": failures, "replay_counts": [String:[String:Int]]()]
++    if args.count == 3 && args[1] == "produce" {
++        let produced = try produce(); result = produced.envelope; receipt["capture_counts"] = produced.counts
++    }
++    else if args.count == 4 && args[1] == "transcode" {
++        let rewritten = try transcode(JSONDecoder().decode([String:String].self, from: Data(contentsOf: URL(fileURLWithPath: args[2]))))
++        result = rewritten.envelope; receipt["replay_counts"] = rewritten.replayCounts
++    }
+     else { throw ModelError("usage: ModelConsumer produce DEST | transcode SOURCE DEST") }
+     let destination = args.last!
+     try JSONEncoder().encode(result).write(to: URL(fileURLWithPath: destination))
+-    print("{\"engine\":\"swift\",\"version_gates\":8,\"output_decoder\":false,\"checked_handoff\":true}")
++    print(String(decoding: try JSONSerialization.data(withJSONObject: receipt, options: [.sortedKeys]), as: UTF8.self))
+ } catch { FileHandle.standardError.write(Data("\(error)\n".utf8)); exit(1) }
+diff --git a/examples/native-model/typescript/consumer.ts b/examples/native-model/typescript/consumer.ts
+index fd5e88f..b7aae07 100644
+--- a/examples/native-model/typescript/consumer.ts
++++ b/examples/native-model/typescript/consumer.ts
+@@ -1,4 +1,4 @@
+-import {accepted,check,metadata,codecField,orderedRecord,enumCases,taggedEnum,valueCodecs,customValueSchema,bindModelCodec,Recorder,EvidenceRecorder,checkInitial,checkTurnExact,readArtifact,writeAuditTrace,writeTraceV2,replayTraceV2,replayWithObservationsBounded,withEncodeBuffer,EncodeStorage,type DecodeLimits,type AuditTrace,type TraceV2} from '@jagalite/statelessness';
++import {accepted,check,metadata,codecField,orderedRecord,enumCases,taggedEnum,valueCodecs,customValueSchema,bindModelCodec,Recorder,EvidenceRecorder,checkInitial,checkTurnExact,checkPhase,ModelError,readArtifact,writeAuditTrace,writeTraceV2,replayTraceV2,replayWithObservationsBounded,withEncodeBuffer,EncodeStorage,type DecodeLimits,type AuditTrace,type TraceV2,type CheckedTurn,type CausalContext} from '@jagalite/statelessness';
+ // @ts-ignore Node builtins supplied by the independently installed host.
+ import {readFileSync,writeFileSync} from 'node:fs';
+ // @ts-ignore Node builtins supplied by the independently installed host.
+@@ -11,13 +11,15 @@ const json=(v:unknown)=>JSON.stringify(v,(_k,x)=>typeof x==='bigint'?x.toString(
+ const eq=(a:unknown,b:unknown)=>require(json(a)===json(b),'assertion mismatch: '+json([a,b]));
+ function rejects(f:()=>unknown,part?:string){try{f();}catch(e){if(part)require(String(e).includes(part),'wrong rejection '+String(e));return;}throw Error('expected rejection');}
+ type State={count:number};type Input={kind:'Add';amount:number};
++const outputFailure='n13 controlled Output encoder failure';
+ function application(provider?:()=>Partial<DecodeLimits>){
+  const stats={initial:0,reducer:0,state:0,transition:0,state_encode:0,input_encode:0,output_encode:0,state_decode:0,input_decode:0,limits:0};
+  const sf=codecField<State>(), inf=codecField<Input>(),ec=enumCases<Input,'kind'>('kind');
+  const state=orderedRecord<State>({name:'State',fields:[sf.value('count',valueCodecs.u32)],construct:v=>({count:v.count}),require:'both'});
+  const input=taggedEnum<Input>({name:'Input',discriminator:'kind',cases:[ec.record('Add',1,{fields:[inf.value('amount',valueCodecs.u8)],construct:v=>({kind:'Add',amount:v.amount})})],require:'both'});
+  const counted=<T>(schema:{encodeRaw:(v:T,o:any)=>void;decodeFrom:(r:any)=>T},kind:'state'|'input')=>customValueSchema<T>({name:kind,encodeInto(v,o){stats[`${kind}_encode`]++;schema.encodeRaw(v,o);},decodeFrom(r){stats[`${kind}_decode`]++;return schema.decodeFrom(r);}});
+- const output=customValueSchema<number>({name:'OnlyOutput',encodeInto(v,o){stats.output_encode++;valueCodecs.u32.encodeRaw(v,o);}});
++ let failOutput=false;
++ const output=customValueSchema<number>({name:'OnlyOutput',encodeInto(v,o){stats.output_encode++;if(failOutput){o.extend(Uint8Array.of(0xee));throw new ModelError(outputFailure);}valueCodecs.u32.encodeRaw(v,o);}});
+  let version=1;
+  class Model {
+   #marker='private-receiver';
+@@ -30,13 +32,14 @@ function application(provider?:()=>Partial<DecodeLimits>){
+   cloneState(s:State){return {...s};}cloneInput(i:Input){return {...i};}cloneOutput(o:number){return o;}
+  }
+  const model=bindModelCodec(new Model(),{state:counted(state,'state'),input:counted(input,'input'),output,...(provider?{decodeLimits:()=>{stats.limits++;return provider();}}:{})});
+- return {model,stats,setVersion:(v:number)=>{version=v;}};
++ return {model,stats,setVersion:(v:number)=>{version=v;},setOutputFailure:(v:boolean)=>{failOutput=v;}};
+ }
+ const config={strategy:'manual',seed:7n,parameters:[['region','test']] as [string,string][]};
+ const provenance={run:'n13-installed-run',epoch:7n,manifest:'manifest-v1',source:'consumer-source',environment:[['region','test']] as [string,string][]};
+ const limits={max_total_bytes:16384,max_frame_bytes:4096,max_blob_bytes:64,max_string_bytes:256,max_steps:16,max_checks_per_step:16,max_outputs_per_step:16,max_parameters:32,max_items:256};
+ const options={maxSteps:3,maxRetainedBytes:16384n,limits};const evidenceLimits={trace:limits,maxMetadataBytes:1024,maxLabels:8,maxLabelBytes:128,maxCausesPerStep:4,maxTotalCauses:8};
+ const semantic=(s:ReturnType<typeof application>['stats'])=>({initial:s.initial,reducer:s.reducer,state:s.state,transition:s.transition});
++const counts=(s:ReturnType<typeof application>['stats'])=>({...semantic(s),encode_state:s.state_encode,encode_input:s.input_encode,encode_output:s.output_encode,decode_state:s.state_decode,decode_input:s.input_decode,limits:s.limits});
+ function gates(){
+  let budget=100,providerCalls=0;const a=application(()=>{providerCalls++;return {bytes:budget,work:100};});
+  const {model:m,stats}=a;
+@@ -53,21 +56,79 @@ function gates(){
+  for(const name of ['encodeStateInto','encodeInputInto','encodeOutputInto'] as const)withEncodeBuffer(new EncodeStorage(),100,o=>{o.extend(Uint8Array.of(99));rejects(()=>m[name]!(hostile as never,o),'version');require(o.length===1,'sink prefix changed');});
+  require(JSON.stringify(stats)===counters&&providerCalls===before,'version gate touched callbacks');
+  const defaults=application();eq(defaults.model.decodeState(state),{count:1});eq(defaults.model.decodeInput(input),{kind:'Add',amount:1});
++ require(defaults.stats.limits===0&&defaults.stats.state_decode===1&&defaults.stats.input_decode===1,'omitted-provider control');
+  require(!('decodeOutput' in m),'output decoder fabricated');
+  return {version_hooks:8,fresh_limits:true,default_limits:true,malformed_trailing:true,encoders_ignore_limits:true};
+ }
++function rejectExact(f:()=>unknown,message:string){try{f();}catch(e){require(e instanceof ModelError&&e.message===message,'wrong capture rejection: '+String(e));return;}throw Error('expected ModelError: '+message);}
++function captureFailureControls(){
++ const receipts:Record<string,Record<string,ReturnType<typeof counts>>>={};
++ const diagnostic='runtime encode output: '+outputFailure;
++ const negativeOptions={...options,maxSteps:1};
++ const firstCausal:CausalContext={machine:'worker-a',generation:9n,correlation:'request-1',logicalTime:11n,causes:[]};
++ const secondCausal:CausalContext={...firstCausal,logicalTime:12n,causes:[{sequence:1n,output:0}]};
++ for(const kind of ['recorder','evidence']){
++  const app=application(()=>({})),{model,stats}=app,initial=checkInitial(model,{count:0});
++  const evidence=kind==='evidence'?new EvidenceRecorder(initial,0n,config,negativeOptions,provenance,evidenceLimits):null;
++  const recorder=evidence?null:Recorder.withCheckedInitial(initial,config,negativeOptions);
++  const observe=(token:CheckedTurn<State,Input,number>,causal:CausalContext)=>{if(evidence)evidence.observe(token,causal);else recorder!.observeChecked(token);};
++  const snapshot=()=>evidence?evidence.snapshot().trace:recorder!.snapshot();
++  const want={initial:0,reducer:0,state:1,transition:0,encode_state:1,encode_input:0,encode_output:0,decode_state:0,decode_input:0,limits:0};
++  eq(counts(stats),want);
++  const stages:Record<string,ReturnType<typeof counts>>={after_initial:counts(stats)};
++  const input:Input={kind:'Add',amount:1};
++  const first=checkTurnExact(model,{count:0},input,model.step({count:0},input),1n);
++  Object.assign(want,{reducer:1,state:2,transition:1});eq(counts(stats),want);
++  observe(first,firstCausal);
++  Object.assign(want,{encode_state:3,encode_input:1,encode_output:1});eq(counts(stats),want);
++  stages.after_first_capture=counts(stats);
++  const prefix=snapshot(),journal=evidence?.snapshot();
++  require(prefix.termination==='interrupted'&&prefix.error==='','successful prefix termination');
++  eq(prefix.metadata,metadata('n13-installed-model','application-v1'));require(hex(prefix.initialState)==='00000000','checkpoint');
++  eq(prefix.initialChecks,[check('threshold.bound')]);require(prefix.steps.length===1,'retained prefix length');
++  const step=prefix.steps[0];require(hex(step.input)==='0101'&&hex(step.postState)==='01000000','retained input/state');
++  eq(step.outputs.map(hex),['01000000']);eq(step.disposition,{kind:'accepted',reason:''});eq(step.checks,[check('threshold.bound'),check('edge.checked')]);
++  require(prefix.config.strategy===config.strategy&&prefix.config.seed===config.seed,'producer config');eq(prefix.config.parameters[0],['region','test']);
++  const retained=new Map(prefix.config.parameters);
++  require(retained.get('stateless.monitor.max_steps')==='1'&&retained.get('stateless.monitor.observed_steps')==='1'&&retained.get('stateless.monitor.evicted_steps')==='0'&&retained.get('stateless.monitor.checkpoint_after_sequence')==='0','retained counters');
++  const second=checkTurnExact(model,{count:1},input,model.step({count:1},input),2n);
++  Object.assign(want,{reducer:2,state:3,transition:2});eq(counts(stats),want);
++  stages.before_failed_capture=counts(stats);app.setOutputFailure(true);
++  rejectExact(()=>observe(second,secondCausal),diagnostic);
++  Object.assign(want,{encode_state:4,encode_input:2,encode_output:2});eq(counts(stats),want);
++  stages.after_failed_capture=counts(stats);
++  const frozen=snapshot();require(evidence?evidence.isFrozen():recorder!.isFrozen(),'capture must freeze');
++  eq(frozen,{...prefix,termination:'model_error',error:diagnostic});
++  if(evidence){
++   const value=evidence.snapshot();eq(value,{...journal,trace:frozen});eq(value.provenance,provenance);require(value.checkpointAfter===0n,'retained checkpoint');
++   eq(value.steps,[{sequence:1n,stateCheckCount:1,causal:firstCausal}]);
++   const artifact=readArtifact(writeTraceV2(value,evidenceLimits),evidenceLimits);require(artifact.kind==='v2','negative evidence kind');eq(artifact.evidence,value);
++   require(checkPhase(artifact,1,0)==='state'&&checkPhase(artifact,1,1)==='transition'&&checkPhase(artifact,2,0)===null,'retained phase journal');
++  }else{
++   require(recorder!.observedSteps()===1n&&recorder!.evictedSteps()===0n&&recorder!.retainedSteps()===1,'retained recorder counters');
++   const artifact=readArtifact(writeAuditTrace(frozen,limits),evidenceLimits);require(artifact.kind==='v1','negative audit kind');eq(artifact.trace,frozen);
++  }
++  // Reuse the sealed token; even disabling the fault cannot unfreeze capture.
++  app.setOutputFailure(false);
++  rejectExact(()=>observe(second,secondCausal),'runtime '+(evidence?'evidence recorder':'recorder')+' is frozen; export its retained trace');
++  eq(snapshot(),frozen);eq(counts(stats),want);
++  if(evidence)eq(evidence.intoTrace(),{...journal,trace:frozen});else eq(recorder!.intoTrace(),frozen);
++  eq(counts(stats),want);receipts[kind]=stages;
++ }
++ return receipts;
++}
+ function produce(){
+- const {model,stats}=application(),initial=checkInitial(model,{count:0});
++ const {model,stats}=application(()=>({})),initial=checkInitial(model,{count:0});
+  const recorder=Recorder.withCheckedInitial(initial,config,options),evidence=new EvidenceRecorder(initial,0n,config,options,provenance,evidenceLimits);
+  for(let sequence=1;sequence<=3;sequence++){
+   const before={count:sequence-1},input:Input={kind:'Add',amount:1},turn=model.step(before,input),token=checkTurnExact(model,before,input,turn,BigInt(sequence));
+   const checked=semantic(stats);recorder.observeChecked(token);evidence.observe(token,{machine:'worker-a',generation:9n,correlation:'request-1',logicalTime:BigInt(10+sequence),causes:sequence===1?[]:[{sequence:BigInt(sequence-1),output:0}]});eq(semantic(stats),checked);
+  }
+  eq(semantic(stats),{initial:0,reducer:3,state:4,transition:3});
+- eq({state:stats.state_encode,input:stats.input_encode,output:stats.output_encode},{state:14,input:6,output:6});
++ eq(counts(stats),{initial:0,reducer:3,state:4,transition:3,encode_state:14,encode_input:6,encode_output:6,decode_state:0,decode_input:0,limits:0});
+  const v2=evidence.snapshot(),v1=recorder.snapshot();
+  // Each recorder stamps its own retained budget; both carry the application config.
+- return {envelope:{v1:hex(writeAuditTrace(v1)),v2:hex(writeTraceV2(v2,evidenceLimits))},receipt:{capture_counts:{...stats},checked_handoff:true}};
++ return {envelope:{v1:hex(writeAuditTrace(v1)),v2:hex(writeTraceV2(v2,evidenceLimits))},receipt:{capture_counts:counts(stats),checked_handoff:true}};
+ }
+ function inspect(v1:AuditTrace,v2:TraceV2){
+  for(const [index,t] of [v1,v2.trace].entries()){
+@@ -80,12 +141,13 @@ function inspect(v1:AuditTrace,v2:TraceV2){
+  v2.steps.forEach((s,i)=>{require(s.sequence===BigInt(i+1)&&s.stateCheckCount===1,'phase');eq(s.causal,{machine:'worker-a',generation:9n,correlation:'request-1',logicalTime:BigInt(11+i),causes:i===0?[]:[{sequence:BigInt(i),output:0}]});});
+ }
+ const [mode,source,destination]=process.argv.slice(2);require(mode==='produce'||mode==='transcode','mode');
++const captureFailureCounts=captureFailureControls();
+ const produced=mode==='produce'?produce():null;
+ const envelope=produced?.envelope??JSON.parse(readFileSync(source,'utf8'));
+ const a=readArtifact(unhex(envelope.v1)),b=readArtifact(unhex(envelope.v2),evidenceLimits);require(a.kind==='v1'&&b.kind==='v2','artifact versions');inspect(a.trace,b.evidence);
+ const replayReceipts=[];
+-for(const version of [1,2]){const {model,stats}=application();let observations=0;const report=version===1?replayWithObservationsBounded(model,a.trace,{}, {},()=>{observations++;}):replayTraceV2(b.evidence,model,{},evidenceLimits);
+- require(report.outcome==='exact'&&report.steps_verified===3&&report.failure_reproduced&&report.build_matches,'replay report');eq(semantic(stats),{initial:0,reducer:3,state:4,transition:3});eq({state:stats.state_encode,input:stats.input_encode,output:stats.output_encode,sd:stats.state_decode,id:stats.input_decode},{state:4,input:3,output:3,sd:1,id:3});if(version===1)require(observations===4,'rich observations');replayReceipts.push({version,counts:stats,observations});}
++for(const version of [1,2]){const {model,stats}=application(()=>({}));let observations=0;const report=version===1?replayWithObservationsBounded(model,a.trace,{}, {},()=>{observations++;}):replayTraceV2(b.evidence,model,{},evidenceLimits);
++ require(report.outcome==='exact'&&report.steps_verified===3&&report.failure_reproduced&&report.build_matches,'replay report');eq(counts(stats),{initial:0,reducer:3,state:4,transition:3,encode_state:4,encode_input:3,encode_output:3,decode_state:1,decode_input:3,limits:4});if(version===1)require(observations===4,'rich observations');replayReceipts.push({version,counts:counts(stats),observations});}
+ const rewritten={v1:hex(writeAuditTrace(a.trace)),v2:hex(writeTraceV2(b.evidence,evidenceLimits))};eq(rewritten,envelope);
+ writeFileSync(mode==='produce'?source:destination,JSON.stringify(rewritten)+'\n');
+-console.log(JSON.stringify({producer:'typescript',mode,...produced?.receipt,replays:replayReceipts,gates:gates(),exact_artifact_rewrite:true}));
++console.log(JSON.stringify({producer:'typescript',mode,...produced?.receipt,replays:replayReceipts,replay_counts:Object.fromEntries(replayReceipts.map(r=>['v'+r.version,r.counts])),capture_failure_controls:true,capture_failure_counts:captureFailureCounts,gates:gates(),exact_artifact_rewrite:true}));
+diff --git a/scripts/check-native-model-consumers.py b/scripts/check-native-model-consumers.py
+index cae56ce..6e0db0f 100644
+--- a/scripts/check-native-model-consumers.py
++++ b/scripts/check-native-model-consumers.py
+@@ -12,6 +12,31 @@ import importlib.util
+ _spec=importlib.util.spec_from_file_location('n13_expected',ROOT/'examples/native-model/expected.py')
+ _oracle=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(_oracle)
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
++def rust_engine_build_identity(output):
++ # The proc-macro crate emits its own STATELESS_BUILD_ID. Select the engine's
++ # package-prefixed build-script line, preserving the full log for both crates.
++ ids=set(re.findall(r'^\[statelessness [^\]\r\n]+\] cargo:rustc-env=STATELESS_BUILD_ID=(source-fnv1a64:[0-9a-f]{16})\s*$',output,re.MULTILINE))
++ if len(ids)!=1:raise RuntimeError('expected exactly one retained statelessness engine build identity')
++ return ids.pop()
++def validate_receipt(engine, mode, receipt):
++ if not isinstance(receipt,dict) or receipt.get('engine',receipt.get('producer'))!=engine:
++  raise AssertionError(f'{engine}: missing or incorrect receipt engine')
++ if receipt.get('capture_failure_controls') is not True:
++  raise AssertionError(f'{engine}: missing executed capture failure controls')
++ def counts(actual,expected,label):
++  if (not isinstance(actual,dict) or set(actual)!=set(expected)
++      or any(type(value) is not int for value in actual.values()) or actual!=expected):
++   raise AssertionError(f'{engine}: {label} measured callback counts differ: {actual!r}')
++ if mode=='produce':counts(receipt.get('capture_counts'),_oracle.CAPTURE_COUNTS,'capture')
++ elif receipt.get('capture_counts') is not None:
++  raise AssertionError(f'{engine}: transcode unexpectedly reports capture counts')
++ replays=receipt.get('replay_counts')
++ if not isinstance(replays,dict):raise AssertionError(f'{engine}: missing replay count object')
++ if mode=='transcode' and not {'v1','v2'}<=set(replays):
++  raise AssertionError(f'{engine}: missing v1/v2 measured replay counts')
++ for version,actual in replays.items():
++  if version not in ('v1','v2','v2_causal'):raise AssertionError(f'{engine}: unknown replay {version}')
++  counts(actual,_oracle.REPLAY_COUNTS,version+' replay')
+ def main():
+  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);a=p.parse_args();out=a.output.resolve()
+  if out.exists() and any(out.iterdir()):raise RuntimeError('output must be new or empty; preserve prior receipts')
+@@ -58,29 +83,48 @@ def main():
+   rustc_verbose=run('rustc-host',['rustc','-vV']);target=next(line.split(': ',1)[1]for line in rustc_verbose.splitlines()if line.startswith('host: '))
+   # Pin install flags so the independent build identity has explicit inputs.
+   env['CARGO_ENCODED_RUSTFLAGS']='';env['RUSTFLAGS']=''
++  env['CARGO_TARGET_DIR']=str(work/'rust-target');env['CARGO_INCREMENTAL']='0'
+   independently_expected_build=_oracle.rust_build_id(work/'rust-source',rustc_version.encode(),target,flags='')
+   rust_build_output=run('rust-install',['cargo','install','-vv','--path',work/'rust-source/crates/macro-qualification','--bin','n13-model-interchange','--root',work/'rust-install','--locked','--offline'],work/'rust-source')
+-  rust_ids=set(re.findall(r'cargo:rustc-env=STATELESS_BUILD_ID=(source-fnv1a64:[0-9a-f]{16})',rust_build_output))
+-  if len(rust_ids)!=1:raise RuntimeError('expected exactly one retained Rust compiler build identity')
+-  rust_build=rust_ids.pop()
++  rust_build=rust_engine_build_identity(rust_build_output)
+   if rust_build!=independently_expected_build:raise RuntimeError('compiler build identity differs from independent source/compiler-input hash')
+   report['rust_build_identity']=rust_build;report['rust_build_inputs']={'rustc_version':rustc_version,'target':target,'profile':'release','opt_level':'3','debug':'false','encoded_rustflags':''}
+   runners['rust']=[str(work/'rust-install/bin/n13-model-interchange')]
+   report['staged_source_files']={str(f.relative_to(work)):{'sha256':sha(f),'size_bytes':f.stat().st_size}for d in ('python-package','go-package','typescript-package','swift-package','go-consumer','typescript-consumer','swift-consumer','rust-source')for f in (work/d).rglob('*')if f.is_file()and not any(x in f.parts for x in ('.build','node_modules','dist','__pycache__','build','target'))};report['staged_source_files']['python-consumer.py']={'sha256':sha(work/'python-consumer.py'),'size_bytes':(work/'python-consumer.py').stat().st_size};report['runners']=runners
++  def runner_snapshot():
++   identities={}
++   for name,argv in runners.items():
++    files=[]
++    for index,arg in enumerate(argv):
++     path=Path(shutil.which(arg,path=env.get('PATH')) or arg) if index==0 else Path(arg)
++     if index and not path.is_file():continue
++     resolved=path.resolve(strict=True)
++     files.append(dict(argument_index=index,path=str(path),resolved_path=str(resolved),sha256=sha(resolved),size_bytes=resolved.stat().st_size))
++    identities[name]=files
++   return identities
++  report['runner_files_before']=runner_snapshot();save()
+   for name,runner in runners.items():
+    dest=values/(name+'.json');receipt=json.loads(run(name+'-produce',runner+['produce',str(dest)]).splitlines()[-1]);actual=json.loads(dest.read_text());expected=_oracle.expected(name,rust_build=rust_build)
+    if actual!=expected:raise AssertionError(f'{name}: literal independent artifact oracle mismatch')
++   validate_receipt(name,'produce',receipt)
+    report['producers'][name]=receipt;save()
+   for producer in runners:
+    for consumer,runner in runners.items():
+     dest=values/(producer+'-to-'+consumer+'.json');receipt=json.loads(run(producer+'-to-'+consumer,runner+['transcode',str(values/(producer+'.json')),str(dest)]).splitlines()[-1])
+     if json.loads(dest.read_text())!=_oracle.expected(producer,rust_build=rust_build):raise AssertionError(f'{producer}->{consumer}: exact rewrite mismatch')
++    validate_receipt(consumer,'transcode',receipt)
+     report['pairs'].append(dict(producer=producer,consumer=consumer,receipt=receipt));save()
++  report['runner_files_after']=runner_snapshot();report['runner_snapshot_unchanged']=report['runner_files_after']==report['runner_files_before']
++  if not report['runner_snapshot_unchanged']:raise RuntimeError('executed runner identity changed during qualification')
+   report['source_files_after']=snapshot();report['source_snapshot_unchanged']=report['source_files_after']==report['source_files']
+   if not report['source_snapshot_unchanged']:raise RuntimeError('source additions/removals/hash drift during qualification; preserve and requalify')
+   report['status']='passed';save();print(f'Finite installed N13 passed: 5 producers, 25 fresh-process pairs; {out}',flush=True)
+  except BaseException as e:
+   report['status']='failed';report['error']=str(e)
++  if 'runner_files_before' in report:
++   try:
++    report['runner_files_after']=runner_snapshot();report['runner_snapshot_unchanged']=report['runner_files_after']==report['runner_files_before']
++   except BaseException as identity_error:report['runner_identity_error']=repr(identity_error)
+   try:
+    report['source_files_after']=snapshot();report['source_snapshot_unchanged']=report['source_files_after']==report.get('source_files')
+   except BaseException as snapshot_error:report['after_snapshot_error']=repr(snapshot_error)
+diff --git a/scripts/test_native_model_receipts.py b/scripts/test_native_model_receipts.py
+new file mode 100644
+index 0000000..915487a
+--- /dev/null
++++ b/scripts/test_native_model_receipts.py
+@@ -0,0 +1,94 @@
++"""Regression controls for installed N13 callback receipts; execute via Kyoto."""
++import copy
++import importlib.util
++from pathlib import Path
++import unittest
++
++SPEC = importlib.util.spec_from_file_location(
++    "native_model_consumers", Path(__file__).with_name("check-native-model-consumers.py")
++)
++DRIVER = importlib.util.module_from_spec(SPEC)
++SPEC.loader.exec_module(DRIVER)
++
++# Scenario expectations, independently literal here: dual capture and one replay.
++CAPTURE = dict(initial=0, reducer=3, state=4, transition=3, encode_state=14,
++               encode_input=6, encode_output=6, decode_state=0, decode_input=0, limits=0)
++REPLAY = dict(initial=0, reducer=3, state=4, transition=3, encode_state=4,
++              encode_input=3, encode_output=3, decode_state=1, decode_input=3, limits=4)
++
++
++def receipt(engine, mode):
++    return dict(engine=engine, capture_failure_controls=True,
++                capture_counts=copy.deepcopy(CAPTURE) if mode == "produce" else None,
++                replay_counts={} if mode == "produce" else
++                {"v1": copy.deepcopy(REPLAY), "v2": copy.deepcopy(REPLAY)})
++
++
++class InstalledCallbackReceipts(unittest.TestCase):
++    def test_engine_build_identity_excludes_macro_crate(self):
++        output = (
++            "[statelessness-macros 0.2.0] cargo:rustc-env=STATELESS_BUILD_ID=source-fnv1a64:ae9df36b08c1cafc\n"
++            "[statelessness 0.2.0] cargo:rustc-env=STATELESS_BUILD_ID=source-fnv1a64:8aa7d4daeb850d74\n"
++        )
++        self.assertEqual(DRIVER.rust_engine_build_identity(output),
++                         "source-fnv1a64:8aa7d4daeb850d74")
++        for invalid in (output.splitlines()[0], output + output.splitlines()[1].replace(
++                "8aa7d4daeb850d74", "1111111111111111")):
++            with self.assertRaises(RuntimeError):
++                DRIVER.rust_engine_build_identity(invalid)
++
++    def test_all_engines_and_actual_extra_replays(self):
++        for engine in ("rust", "python", "go", "typescript", "swift"):
++            for mode in ("produce", "transcode"):
++                with self.subTest(engine=engine, mode=mode):
++                    value = receipt(engine, mode)
++                    DRIVER.validate_receipt(engine, mode, value)
++                    value["replay_counts"] = {
++                        "v1": dict(REPLAY), "v2": dict(REPLAY), "v2_causal": dict(REPLAY)
++                    }
++                    DRIVER.validate_receipt(engine, mode, value)
++
++    def test_missing_or_wrong_measured_counter_fails_closed(self):
++        for mode, bucket in (("produce", "capture_counts"), ("transcode", "v1"),
++                             ("transcode", "v2")):
++            for key in CAPTURE:
++                for mutation in ("missing", "wrong", "boolean"):
++                    with self.subTest(mode=mode, bucket=bucket, key=key, mutation=mutation):
++                        value = receipt("typescript", mode)
++                        counts = value[bucket] if mode == "produce" else value["replay_counts"][bucket]
++                        if mutation == "missing":
++                            del counts[key]
++                        elif mutation == "wrong":
++                            counts[key] += 1
++                        else:
++                            counts[key] = bool(counts[key])
++                        with self.assertRaises(AssertionError):
++                            DRIVER.validate_receipt("typescript", mode, value)
++
++    def test_old_typescript_zero_provider_count_is_rejected(self):
++        value = receipt("typescript", "transcode")
++        value["replay_counts"]["v1"]["limits"] = 0
++        with self.assertRaises(AssertionError):
++            DRIVER.validate_receipt("typescript", "transcode", value)
++
++    def test_missing_controls_engine_replay_or_extra_counts_are_rejected(self):
++        mutations = (
++            lambda r: r.pop("capture_failure_controls"),
++            lambda r: r.update(capture_failure_controls=1),
++            lambda r: r.update(engine="different"),
++            lambda r: r.pop("replay_counts"),
++            lambda r: r["replay_counts"].pop("v2"),
++            lambda r: r["replay_counts"].update(unexpected=dict(REPLAY)),
++            lambda r: r["replay_counts"]["v2"].update(unexpected=0),
++            lambda r: r.update(capture_counts=dict(CAPTURE)),
++        )
++        for index, mutate in enumerate(mutations):
++            with self.subTest(mutation=index):
++                value = receipt("swift", "transcode")
++                mutate(value)
++                with self.assertRaises(AssertionError):
++                    DRIVER.validate_receipt("swift", "transcode", value)
++
++
++if __name__ == "__main__":
++    unittest.main()

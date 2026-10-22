@@ -1,0 +1,14 @@
+--- FAIL: TestBoundModelCodecGatesAllHooks (0.00s)
+    value_derive_test.go:185: version mismatch changed sink []
+--- FAIL: TestDerivedLiteralLengthRoutesAndAdmission (0.00s)
+    --- FAIL: TestDerivedLiteralLengthRoutesAndAdmission/empty (0.00s)
+        value_derive_test.go:430: [] <nil>
+    --- FAIL: TestDerivedLiteralLengthRoutesAndAdmission/abc (0.00s)
+        value_derive_test.go:430: [] <nil>
+FAIL
+FAIL	github.com/Jagalite/statelessness/go	0.584s
+?   	github.com/Jagalite/statelessness/go/cmd/stateless-corpus	[no test files]
+?   	github.com/Jagalite/statelessness/go/conformance	[no test files]
+?   	github.com/Jagalite/statelessness/go/examples/counter	[no test files]
+ok  	github.com/Jagalite/statelessness/go/internal/portablejson	(cached)
+FAIL
