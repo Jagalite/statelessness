@@ -21,8 +21,12 @@ results and lossless raw logs. [source-inputs-candidate.json](source-inputs-cand
 is an aggregate current snapshot captured after submission; it is not retroactive
 pre-start provenance. Installed attempt r1 failed on a TypeScript application iterator declaration;
 its source reconciliation and complete logs are preserved. The explicit local
-iterator annotation fixes only application typing. Fresh r2 is queued as
-`d2ea10c5d4d847d2b4105ed9df5642bf`; no installed pass is claimed.
+iterator annotation fixes only application typing. The user cancelled r2 (`d2ea10c5d4d847d2b4105ed9df5642bf`) on October 20;
+its terminal record and remaining Kyoto log are retained. Its temporary output
+was unavailable on resumption. All 243 captured inputs and binaries matched
+on October 22. Fresh r3 is queued as `85473e6a66014122bd427ec1ba2e6376`,
+with durable output under `consumers/installed-r3/output`; no installed pass
+is claimed.
 
 This finite candidate does not promote a profile, change the 144 broad pending
 qualification cells, prove arbitrary native heap/RSS bounds or callback

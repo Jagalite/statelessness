@@ -62,16 +62,23 @@
   },
   "installed": {
     "status": "retry-queued",
-    "job": "d2ea10c5d4d847d2b4105ed9df5642bf",
+    "job": "85473e6a66014122bd427ec1ba2e6376",
     "prior_attempts": [
       {
         "job": "8b5dc9cf01444cf8ab9fcf6f08412b57",
         "status": "failed",
         "reason": "TypeScript installed application iterator inferred as Iterable rather than Iterator; explicit IterableIterator annotation added without runtime behavior changes"
+      },
+      {
+        "job": "d2ea10c5d4d847d2b4105ed9df5642bf",
+        "status": "cancelled",
+        "reason": "User requested build cancellation on 2026-10-20; remaining Kyoto log retained; temporary output unavailable on 2026-10-22."
       }
-    ]
+    ],
+    "output": "consumers/installed-r3/output"
   },
   "broad_qualification_cells_pending": 144,
   "profiles_promoted": false,
-  "source_corrections": "Only Go and TypeScript focused test files changed; native algorithms and independent shared goldens are unchanged."
+  "source_corrections": "Go and TypeScript focused test corrections plus an explicit TypeScript installed application iterator annotation; native algorithms and independent shared goldens are unchanged.",
+  "source_resume_comparison": "All 243 prior installed inputs and binaries matched before fresh 2026-10-22 submission."
 }

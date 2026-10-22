@@ -370,8 +370,9 @@ unknown compound value semantics need explicitly faithful native comparators.
 Finite Kyoto execution passed the 67-case Rust reference, Go tests and vet,
 Python (275 tests, 12 ABI skips), TypeScript (928 tests), and Swift (147 tests).
 Installed qualification remains pending: r1 exposed an application-only TypeScript
-iterator annotation issue, preserved with unchanged source hashes; corrected r2
-is queued. See [receipts](../validation/native-parity/research-slice/README.md). Candidate source
+iterator annotation issue, preserved with unchanged source hashes. The user
+cancelled corrected r2; a fresh r3 was submitted on October 22 after all 243
+previously captured source and binary hashes matched. See [receipts](../validation/native-parity/research-slice/README.md). Candidate source
 mapping does not promote any profile or change the 144 broad qualification-pending
 cells. General POR, symmetry renaming, liveness, production reduction, performance
 and broader platform/resource qualification remain open.
