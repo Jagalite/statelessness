@@ -8,16 +8,27 @@ import (
 	"fmt"
 	s "github.com/Jagalite/statelessness/go"
 	"os"
+	"reflect"
 )
 
 type State struct{ Count uint32 }
 type Input struct{ Amount uint8 }
 type Output struct{ Count uint32 }
 type Counts struct {
+	// Private negative-control state does not alter the success count receipt.
+	outputFailure                                                                                                       *s.ModelError
+	outputCalls, outputFailures                                                                                         int
 	Reducer, State, Transition, Initial, DecodeLimits, StateEncode, InputEncode, OutputEncode, StateDecode, InputDecode int
 	version                                                                                                             uint32
 	hostile, custom                                                                                                     bool
 	work                                                                                                                uint64
+}
+
+func normalizedCounts(c Counts) map[string]int {
+	return map[string]int{"initial": c.Initial, "reducer": c.Reducer, "state": c.State,
+		"transition": c.Transition, "encode_state": c.StateEncode,
+		"encode_input": c.InputEncode, "encode_output": c.OutputEncode,
+		"decode_state": c.StateDecode, "decode_input": c.InputDecode, "limits": c.DecodeLimits}
 }
 
 func must(e error) {
@@ -52,10 +63,19 @@ func applicationWithProvider(withProvider bool) (s.Model[State, Input, Output], 
 	}, s.DefaultEnumOptions(), add)
 	must(e)
 	output, e := s.NewValueCodec("Output", func(v Output, b *s.EncodeBuffer) error {
+		c.outputCalls++
 		if c.hostile {
 			panic("hostile output visited")
 		}
-		return s.Uint32Codec().EncodeRaw(v.Count, b)
+		if e := s.Uint32Codec().EncodeRaw(v.Count, b); e != nil {
+			return e
+		}
+		// Fail in the bound encoder after writing candidate bytes, not in glue.
+		if c.outputFailure != nil {
+			c.outputFailures++
+			return c.outputFailure
+		}
+		return nil
 	}, nil, nil)
 	must(e)
 	opts := s.DefaultModelCodecOptions()
@@ -202,6 +222,132 @@ func transcode(path string) (map[string]string, map[string]Counts) {
 	return out, counts
 }
 
+// Negative captures stay separate from every produced/transcoded success artifact.
+func requireCaptureCounts(c *Counts, model [4]int, codec [6]int, failures int) {
+	require([4]int{c.Initial, c.Reducer, c.State, c.Transition} == model, "negative capture model counts")
+	require([6]int{c.StateEncode, c.InputEncode, c.OutputEncode, c.StateDecode, c.InputDecode, c.DecodeLimits} == codec, "negative capture codec counts")
+	require(c.outputCalls == codec[2] && c.outputFailures == failures, "negative capture actual Output callbacks")
+}
+func requireCaptureError(e error, message string) {
+	owned, ok := e.(*s.ModelError)
+	// The public recorder owns a staged ModelError, not the raw callback pointer.
+	require(ok && owned.Message == message, "negative capture error owner/stage")
+}
+func requireFirstCapture(t *s.AuditTrace) {
+	require(t.Metadata == s.Identity("n13-installed-model", "application-v1"), "negative prefix identity")
+	require(t.Config.Strategy == "manual" && t.Config.Seed != nil && *t.Config.Seed == 7, "negative prefix producer config")
+	params := map[string]string{}
+	for _, p := range t.Config.Parameters {
+		params[p[0]] = p[1]
+	}
+	require(params["region"] == "test" && params["stateless.monitor.checking"] == "full" && params["stateless.monitor.observed_steps"] == "1" && params["stateless.monitor.evicted_steps"] == "0" && params["stateless.monitor.checkpoint_after_sequence"] == "0", "negative prefix recorder config")
+	require(bytes.Equal(t.InitialState, []byte{0, 0, 0, 0}) && reflect.DeepEqual(t.InitialChecks, []s.Check{s.Passed("threshold.bound")}), "negative prefix checkpoint")
+	want := []s.TraceStep{{Input: []byte{1, 1}, Disposition: s.Accepted(), Outputs: [][]byte{{1, 0, 0, 0}}, PostState: []byte{1, 0, 0, 0}, Checks: []s.Check{s.Passed("threshold.bound"), s.Passed("edge.checked")}}}
+	require(reflect.DeepEqual(t.Steps, want), "negative prefix first captured turn")
+	require(t.Termination == "interrupted" && t.Error == "", "negative prefix unexpectedly terminal")
+}
+func requireFailedPrefix(t, prefix *s.AuditTrace, message string) {
+	require(t.Metadata == prefix.Metadata && reflect.DeepEqual(t.Config, prefix.Config), "failure changed identity/config")
+	require(bytes.Equal(t.InitialState, prefix.InitialState) && reflect.DeepEqual(t.InitialChecks, prefix.InitialChecks), "failure changed checkpoint")
+	require(reflect.DeepEqual(t.Steps, prefix.Steps), "failure changed retained trace prefix")
+	require(t.Termination == "model_error" && t.Error == message, "failure footer lost callback ownership")
+}
+func captureFailureControls() {
+	m, c := application()
+	initial, e := s.CheckInitial(m, State{})
+	must(e)
+	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{}, 0)
+	config := s.RunConfig{Strategy: "manual", Seed: up(7), Parameters: [][2]string{{"region", "test"}}}
+	opts := s.RecorderOptions{MaxSteps: 3, MaxRetainedBytes: 16384, Limits: binaryLimits()}
+	r, e := s.NewRecorderWithCheckedInitial(initial, config, opts)
+	must(e)
+	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{1, 0, 0, 0, 0, 0}, 0)
+	p := s.Provenance{Run: "n13-installed-run", Epoch: 7, Manifest: sp("manifest-v1"), Source: sp("consumer-source"), Environment: [][2]string{{"region", "test"}}}
+	er, e := s.NewEvidenceRecorder(initial, 0, config, opts, p, evidenceLimits())
+	must(e)
+	requireCaptureCounts(c, [4]int{0, 0, 1, 0}, [6]int{2, 0, 0, 0, 0, 0}, 0)
+	causal := func(seq uint64) s.CausalContext {
+		v := s.CausalContext{Machine: sp("worker-a"), Generation: up(9), Correlation: sp("request-1"), LogicalTime: up(10 + seq)}
+		if seq > 1 {
+			v.Causes = []s.OutputOrigin{{Sequence: seq - 1, Output: 0}}
+		}
+		return v
+	}
+	in := Input{1}
+	first, e := m.Step(State{}, in)
+	must(e)
+	checked, e := s.CheckTurn(m, State{}, in, first, 1, s.FullChecks())
+	must(e)
+	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{2, 0, 0, 0, 0, 0}, 0)
+	checks, e := s.ObserveCheckedRecorder(r, checked)
+	must(e)
+	require(reflect.DeepEqual(checks, checked.Checks()), "checked recorder changed check batch")
+	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{4, 1, 1, 0, 0, 0}, 0)
+	must(s.ObserveEvidenceRecorder(er, checked, causal(1)))
+	requireCaptureCounts(c, [4]int{0, 1, 2, 1}, [6]int{6, 2, 2, 0, 0, 0}, 0)
+	prefix, evidencePrefix := r.Snapshot(), er.Snapshot()
+	requireFirstCapture(prefix)
+	requireFirstCapture(&evidencePrefix.Trace)
+	require(!r.IsFrozen() && !er.IsFrozen(), "negative first capture froze")
+	require(evidencePrefix.CheckpointAfter == 0 && reflect.DeepEqual(evidencePrefix.Provenance, p), "negative evidence origin/provenance")
+	require(len(evidencePrefix.Steps) == 1 && evidencePrefix.Steps[0].Sequence == 1 && evidencePrefix.Steps[0].StateCheckCount == 1, "negative evidence first phase row")
+	firstCausal := evidencePrefix.Steps[0].Causal
+	wantCausal := causal(1)
+	require(reflect.DeepEqual(firstCausal.Machine, wantCausal.Machine) && reflect.DeepEqual(firstCausal.Generation, wantCausal.Generation) && reflect.DeepEqual(firstCausal.Correlation, wantCausal.Correlation) && reflect.DeepEqual(firstCausal.LogicalTime, wantCausal.LogicalTime) && len(firstCausal.Causes) == 0, "negative evidence first causal context")
+
+	second, e := m.Step(first.State, in)
+	must(e)
+	checked, e = s.CheckTurn(m, first.State, in, second, 2, s.FullChecks())
+	must(e)
+	require(second.State == (State{2}) && reflect.DeepEqual(checked.Checks(), []s.Check{s.Passed("threshold.bound"), s.Passed("edge.checked")}), "second checked turn must pass before capture")
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{6, 2, 2, 0, 0, 0}, 0)
+	// The token is already checked; arm only the actual Output callback now.
+	c.outputFailure = &s.ModelError{Message: "n13 output encode failure"}
+	message := "runtime encode output: encode callback: n13 output encode failure"
+	checks, e = s.ObserveCheckedRecorder(r, checked)
+	requireCaptureError(e, message)
+	require(checks == nil, "failed capture returned a successful check batch")
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{7, 3, 3, 0, 0, 0}, 1)
+	// A valid link to retained output 1:0 must reach the same failing encoder.
+	requireCaptureError(s.ObserveEvidenceRecorder(er, checked, causal(2)), message)
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
+	require(r.IsFrozen() && er.IsFrozen(), "capture error did not freeze")
+	require(r.ObservedSteps() == 1 && r.RetainedSteps() == 1 && r.EvictedSteps() == 0, "failed capture changed recorder counters")
+	failed, failedEvidence := r.Snapshot(), er.Snapshot()
+	requireFailedPrefix(failed, prefix, message)
+	requireFailedPrefix(&failedEvidence.Trace, &evidencePrefix.Trace, message)
+	require(failedEvidence.CheckpointAfter == evidencePrefix.CheckpointAfter && reflect.DeepEqual(failedEvidence.Provenance, evidencePrefix.Provenance) && reflect.DeepEqual(failedEvidence.Steps, evidencePrefix.Steps), "failure changed evidence phase/causal journal")
+	for _, want := range []struct {
+		seq, check uint64
+		phase      s.CheckPhase
+	}{{0, 0, s.PhaseInitialState}, {1, 0, s.PhaseState}, {1, 1, s.PhaseTransition}} {
+		phase, ok := failedEvidence.CheckPhase(want.seq, want.check)
+		require(ok && phase == want.phase, "retained property phase changed")
+	}
+	_, present := failedEvidence.CheckPhase(2, 0)
+	require(!present, "failed capture added a phase row")
+
+	c.outputFailure = nil
+	checks, e = s.ObserveCheckedRecorder(r, checked)
+	requireCaptureError(e, "runtime recorder is frozen; export its retained trace")
+	require(checks == nil, "frozen recorder returned checks")
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
+	requireCaptureError(s.ObserveEvidenceRecorder(er, checked, causal(2)), "runtime evidence recorder is frozen; export its retained trace")
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
+	require(reflect.DeepEqual(r.Snapshot(), failed) && reflect.DeepEqual(er.Snapshot(), failedEvidence), "frozen retry changed retained error/evidence")
+	// Only in-memory negative round trips: no success envelope or output decoder.
+	a, e := s.MarshalAuditTrace(failed, binaryLimits())
+	must(e)
+	b, e := s.MarshalTraceV2(failedEvidence, evidenceLimits())
+	must(e)
+	x, e := s.ReadArtifact(bytes.NewReader(a), evidenceLimits())
+	must(e)
+	y, e := s.ReadArtifact(bytes.NewReader(b), evidenceLimits())
+	must(e)
+	require(reflect.DeepEqual(x.V1, failed) && reflect.DeepEqual(y.V2, failedEvidence), "negative artifact round trip changed prefix/diagnostic")
+	requireCaptureCounts(c, [4]int{0, 2, 3, 2}, [6]int{8, 4, 4, 0, 0, 0}, 2)
+}
+
 // Controls run in each fresh installed process, separately from artifact counters.
 func controls() {
 	// This construction genuinely omits DecodeLimits, selecting binder defaults.
@@ -288,15 +434,26 @@ func controls() {
 }
 func main() {
 	controls()
+	captureFailureControls()
 	require(len(os.Args) >= 3, "usage: produce DEST | transcode SOURCE DEST")
 	var env map[string]string
 	var receipt any
+	var captureCounts map[string]int
+	replayCounts := map[string]map[string]int{}
 	switch os.Args[1] {
 	case "produce":
-		env, receipt = produce()
+		var counts Counts
+		env, counts = produce()
+		receipt = counts
+		captureCounts = normalizedCounts(counts)
 	case "transcode":
 		require(len(os.Args) == 4, "transcode SOURCE DEST")
-		env, receipt = transcode(os.Args[2])
+		var counts map[string]Counts
+		env, counts = transcode(os.Args[2])
+		receipt = counts
+		for version, c := range counts {
+			replayCounts[version] = normalizedCounts(c)
+		}
 	default:
 		panic("unknown command")
 	}
@@ -304,7 +461,7 @@ func main() {
 	b, e := json.Marshal(env)
 	must(e)
 	must(os.WriteFile(dst, b, 0600))
-	b, e = json.Marshal(map[string]any{"engine": "go", "counts": receipt, "controls": "eight-version-hooks,fresh-limits,malformed-trailing,encode-no-limits", "custom_output_encode_only": true, "checked_handoff_no_reexecution": true})
+	b, e = json.Marshal(map[string]any{"engine": "go", "capture_failure_controls": true, "capture_counts": captureCounts, "replay_counts": replayCounts, "counts": receipt, "controls": "eight-version-hooks,fresh-limits,malformed-trailing,encode-no-limits", "custom_output_encode_only": true, "checked_handoff_no_reexecution": true})
 	must(e)
 	fmt.Println(string(b))
 }

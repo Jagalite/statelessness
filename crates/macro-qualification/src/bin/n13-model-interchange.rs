@@ -10,13 +10,16 @@ use stateless::{
 use statelessness_macros::{TraceDecode, TraceEncode};
 use std::{
     cell::Cell,
-    sync::atomic::{AtomicUsize, Ordering},
+    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
 };
 static STATE_E: AtomicUsize = AtomicUsize::new(0);
 static STATE_D: AtomicUsize = AtomicUsize::new(0);
 static INPUT_E: AtomicUsize = AtomicUsize::new(0);
 static INPUT_D: AtomicUsize = AtomicUsize::new(0);
 static OUTPUT_E: AtomicUsize = AtomicUsize::new(0);
+static FAIL_OUTPUT: AtomicBool = AtomicBool::new(false);
+static OUTPUT_FAILURES: AtomicUsize = AtomicUsize::new(0);
+const OUTPUT_FAILURE: &str = "n13 output encode failure";
 static LIMIT_CALLS: AtomicUsize = AtomicUsize::new(0);
 static BYTE_LIMIT: AtomicUsize = AtomicUsize::new(64);
 mod count {
@@ -56,7 +59,13 @@ struct Output(u32);
 impl stateless::value_codec::TraceEncode for Output {
     fn trace_encode(&self, o: &mut EncodeBuffer<'_>) -> Result<(), ModelError> {
         OUTPUT_E.fetch_add(1, Ordering::SeqCst);
-        self.0.trace_encode(o)
+        self.0.trace_encode(o)?;
+        // Fail inside the actual bound Output encoder, after candidate bytes exist.
+        if FAIL_OUTPUT.load(Ordering::SeqCst) {
+            OUTPUT_FAILURES.fetch_add(1, Ordering::SeqCst);
+            return Err(ModelError::new(OUTPUT_FAILURE));
+        }
+        Ok(())
     }
 }
 fn fresh_limits() -> DecodeLimits {
@@ -228,6 +237,8 @@ fn codecs() -> [usize; 6] {
     ]
 }
 fn reset() {
+    FAIL_OUTPUT.store(false, Ordering::SeqCst);
+    OUTPUT_FAILURES.store(0, Ordering::SeqCst);
     for x in [
         &STATE_E,
         &INPUT_E,
@@ -246,7 +257,12 @@ fn encode(t: &Trace, v: &TraceV2) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::err
     v.write(&mut b, &el())?;
     Ok((a, b))
 }
-fn produce() -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
+fn measured_counts(m: &Bound) -> String {
+    let [initial, reducer, state, transition] = m.counts();
+    let [encode_state, encode_input, encode_output, decode_state, decode_input, limits] = codecs();
+    format!("{{\"initial\":{initial},\"reducer\":{reducer},\"state\":{state},\"transition\":{transition},\"encode_state\":{encode_state},\"encode_input\":{encode_input},\"encode_output\":{encode_output},\"decode_state\":{decode_state},\"decode_input\":{decode_input},\"limits\":{limits}}}")
+}
+fn produce() -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
     reset();
     let m = Bound::new();
     let mut state = State { count: 0 };
@@ -275,7 +291,8 @@ fn produce() -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
             .collect::<Vec<_>>(),
         vec![1, 1, 1]
     );
-    encode(&rec.snapshot(), &v)
+    let (a, b) = encode(&rec.snapshot(), &v)?;
+    Ok((a, b, measured_counts(&m)))
 }
 fn validate_trace(t: &Trace) {
     assert_eq!(t.metadata, Bound::new().metadata());
@@ -292,7 +309,7 @@ fn validate_trace(t: &Trace) {
     }
     assert_eq!(t.termination, stateless::trace::Termination::PropertyFailed);
 }
-fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::error::Error>> {
+fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
     reset();
     let t = Trace::read_from(a, &limits())?;
     let artifact = Artifact::read(b, &el())?;
@@ -309,6 +326,7 @@ fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::erro
         assert_eq!(s.state_check_count, 1);
         assert_eq!(s.causal, causal(n as u64 + 1));
     }
+    let mut replay_counts = Vec::new();
     for (t, v2) in [(&t, false), (&v.trace, true)] {
         reset();
         let m = Bound::new();
@@ -322,11 +340,186 @@ fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::erro
         assert!(r.failure_reproduced && r.build_matches);
         assert_eq!(m.counts(), [0, 3, 4, 3]);
         assert_eq!(codecs(), [4, 3, 3, 1, 3, 4]);
+        replay_counts.push(format!("\"{}\":{}", if v2 { "v2" } else { "v1" }, measured_counts(&m)));
     }
     let rewritten = encode(&t, &v)?;
     assert_eq!(rewritten.0, a);
     assert_eq!(rewritten.1, b);
-    Ok(rewritten)
+    Ok((rewritten.0, rewritten.1, format!("{{{}}}", replay_counts.join(","))))
+}
+// Negative captures are local controls; none of their bytes enter success artifacts.
+fn assert_capture_counts(m: &Bound, model: [usize; 4], codec: [usize; 6], failures: usize) {
+    assert_eq!(m.counts(), model);
+    assert_eq!(codecs(), codec);
+    assert_eq!(OUTPUT_FAILURES.load(Ordering::SeqCst), failures);
+}
+fn assert_first_capture(t: &Trace) {
+    assert_eq!(t.metadata, Bound::new().metadata());
+    assert_eq!(t.config.strategy, "manual");
+    assert_eq!(t.config.seed, Some(7));
+    for (key, value) in [
+        ("region", "test"),
+        ("stateless.monitor.checking", "full"),
+        ("stateless.monitor.observed_steps", "1"),
+        ("stateless.monitor.evicted_steps", "0"),
+        ("stateless.monitor.checkpoint_after_sequence", "0"),
+    ] {
+        assert_eq!(
+            t.config
+                .parameters
+                .iter()
+                .find(|(k, _)| k == key)
+                .map(|(_, v)| v.as_str()),
+            Some(value)
+        );
+    }
+    assert_eq!(t.initial_state, [0, 0, 0, 0]);
+    assert_eq!(t.initial_checks, vec![Check::passed("threshold.bound")]);
+    assert_eq!(
+        t.steps,
+        vec![stateless::trace::TraceStep {
+            input: vec![1, 1],
+            disposition: Disposition::Accepted,
+            outputs: vec![vec![1, 0, 0, 0]],
+            post_state: vec![1, 0, 0, 0],
+            checks: vec![
+                Check::passed("threshold.bound"),
+                Check::passed("edge.checked")
+            ],
+        }]
+    );
+    assert_eq!(t.termination, stateless::trace::Termination::Interrupted);
+}
+fn assert_failed_prefix(t: &Trace, prefix: &Trace, message: &str) {
+    assert_eq!(t.metadata, prefix.metadata);
+    assert_eq!(t.config, prefix.config);
+    assert_eq!(t.initial_state, prefix.initial_state);
+    assert_eq!(t.initial_checks, prefix.initial_checks);
+    assert_eq!(t.steps, prefix.steps);
+    assert_eq!(
+        t.termination,
+        stateless::trace::Termination::ModelError(message.into())
+    );
+}
+fn capture_failure_controls() -> Result<(), Box<dyn std::error::Error>> {
+    reset();
+    let m = Bound::new();
+    let state = State { count: 0 };
+    let input = Input::Add(1);
+    let initial = execution::check_initial(&m, &state)?;
+    assert_capture_counts(&m, [0, 0, 1, 0], [0; 6], 0);
+    let mut rec = Recorder::with_checked_initial(&initial, config(), options())?;
+    assert_capture_counts(&m, [0, 0, 1, 0], [1, 0, 0, 0, 0, 0], 0);
+    let mut ev = EvidenceRecorder::new(&initial, 0, config(), options(), provenance(), el())?;
+    assert_capture_counts(&m, [0, 0, 1, 0], [2, 0, 0, 0, 0, 0], 0);
+
+    let first = m.step(&state, &input)?;
+    let checked = execution::check_turn(&m, &state, &input, &first, 1, CheckPolicy::default())?;
+    assert_capture_counts(&m, [0, 1, 2, 1], [2, 0, 0, 0, 0, 0], 0);
+    assert_eq!(rec.observe_checked(&checked)?, checked.checks());
+    assert_capture_counts(&m, [0, 1, 2, 1], [4, 1, 1, 0, 0, 0], 0);
+    ev.observe(&checked, causal(1))?;
+    assert_capture_counts(&m, [0, 1, 2, 1], [6, 2, 2, 0, 0, 0], 0);
+    let prefix = rec.snapshot();
+    let evidence_prefix = ev.snapshot();
+    assert_first_capture(&prefix);
+    assert_first_capture(&evidence_prefix.trace);
+    assert!(!rec.is_frozen() && !ev.is_frozen());
+    assert_eq!(evidence_prefix.checkpoint_after, 0);
+    assert_eq!(evidence_prefix.provenance, provenance());
+    assert_eq!(
+        evidence_prefix.steps,
+        vec![StepEvidence {
+            sequence: 1,
+            state_check_count: 1,
+            causal: causal(1),
+        }]
+    );
+
+    let second = m.step(&first.state, &input)?;
+    let checked =
+        execution::check_turn(&m, &first.state, &input, &second, 2, CheckPolicy::default())?;
+    assert_eq!(second.state, State { count: 2 });
+    assert_eq!(
+        checked.checks(),
+        &[
+            Check::passed("threshold.bound"),
+            Check::passed("edge.checked")
+        ]
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [6, 2, 2, 0, 0, 0], 0);
+    // Arm only after successful checking. Both failures must come from capture.
+    FAIL_OUTPUT.store(true, Ordering::SeqCst);
+    let message = format!("runtime encode output: {OUTPUT_FAILURE}");
+    assert_eq!(
+        rec.observe_checked(&checked).unwrap_err(),
+        ModelError::new(&message)
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [7, 3, 3, 0, 0, 0], 1);
+    // This valid causal reference resolves to the retained first output.
+    assert_eq!(
+        ev.observe(&checked, causal(2)).unwrap_err(),
+        ModelError::new(&message)
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
+    assert!(rec.is_frozen() && ev.is_frozen());
+    assert_eq!(
+        (
+            rec.observed_steps(),
+            rec.retained_steps(),
+            rec.evicted_steps()
+        ),
+        (1, 1, 0)
+    );
+    let failed = rec.snapshot();
+    let failed_evidence = ev.snapshot();
+    assert_failed_prefix(&failed, &prefix, &message);
+    assert_failed_prefix(&failed_evidence.trace, &evidence_prefix.trace, &message);
+    assert_eq!(
+        failed_evidence.checkpoint_after,
+        evidence_prefix.checkpoint_after
+    );
+    assert_eq!(failed_evidence.provenance, evidence_prefix.provenance);
+    assert_eq!(failed_evidence.steps, evidence_prefix.steps);
+    assert_eq!(
+        failed_evidence.check_phase(0, 0),
+        Some(stateless::explore::CheckPhase::InitialState)
+    );
+    assert_eq!(
+        failed_evidence.check_phase(1, 0),
+        Some(stateless::explore::CheckPhase::State)
+    );
+    assert_eq!(
+        failed_evidence.check_phase(1, 1),
+        Some(stateless::explore::CheckPhase::Transition)
+    );
+    assert_eq!(failed_evidence.check_phase(2, 0), None);
+
+    // A repaired encoder cannot resume a frozen recorder or overwrite its error.
+    FAIL_OUTPUT.store(false, Ordering::SeqCst);
+    assert_eq!(
+        rec.observe_checked(&checked).unwrap_err(),
+        ModelError::new("runtime recorder is frozen; export its retained trace")
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
+    assert_eq!(
+        ev.observe(&checked, causal(2)).unwrap_err(),
+        ModelError::new("runtime evidence recorder is frozen; export its retained trace")
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
+    assert_eq!(rec.snapshot(), failed);
+    assert_eq!(ev.snapshot(), failed_evidence);
+    // Persist/read only these negative snapshots in memory; never replay the
+    // prefix as proof that its terminal callback failure has been reproduced.
+    let (a, b) = encode(&failed, &failed_evidence)?;
+    assert_eq!(Trace::read_from(a.as_slice(), &limits())?, failed);
+    assert_eq!(
+        Artifact::read(b.as_slice(), &el())?,
+        Artifact::V2(failed_evidence)
+    );
+    assert_capture_counts(&m, [0, 2, 3, 2], [8, 4, 4, 0, 0, 0], 2);
+    reset();
+    Ok(())
 }
 fn controls() -> Result<(), Box<dyn std::error::Error>> {
     reset();
@@ -429,16 +622,17 @@ fn field<'a>(s: &'a str, key: &str) -> Result<&'a str, Box<dyn std::error::Error
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     controls()?;
+    capture_failure_controls()?;
     let args = std::env::args().skip(1).collect::<Vec<_>>();
-    let (a, b, out) = match args.as_slice() {
+    let (a, b, out, capture_counts, replay_counts) = match args.as_slice() {
         [mode, out] if mode == "produce" => {
-            let (a, b) = produce()?;
-            (a, b, out)
+            let (a, b, counts) = produce()?;
+            (a, b, out, counts, "{}".to_owned())
         }
         [mode, input, out] if mode == "transcode" => {
             let text = std::fs::read_to_string(input)?;
-            let (a, b) = transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
-            (a, b, out)
+            let (a, b, counts) = transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
+            (a, b, out, "null".to_owned(), counts)
         }
         _ => return Err("produce DEST | transcode SOURCE DEST".into()),
     };
@@ -447,7 +641,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("{{\"v1\":\"{}\",\"v2\":\"{}\"}}\n", hex(&a), hex(&b)),
     )?;
     println!(
-        "{{\"engine\":\"rust\",\"version_hooks\":8,\"fresh_limits\":true,\"encode_only_output\":true,\"checked_handoff\":true,\"reducer\":3,\"state_checks\":4,\"transition_checks\":3}}"
+        "{{\"engine\":\"rust\",\"capture_failure_controls\":true,\"capture_counts\":{capture_counts},\"replay_counts\":{replay_counts},\"version_hooks\":8,\"fresh_limits\":true,\"encode_only_output\":true,\"checked_handoff\":true}}"
     );
     Ok(())
 }

@@ -4,6 +4,13 @@ import Statelessness
 func require(_ condition: Bool, _ message: String) throws { if !condition { throw ModelError(message) } }
 func rejectsVersion(_ operation: () throws -> Void) throws { do { try operation() } catch { try require(String(describing: error).contains("version does not match"), "wrong version rejection"); return }; throw ModelError("expected version rejection") }
 func rejects(_ operation: () throws -> Void) throws { do { try operation() } catch { return }; throw ModelError("expected rejection") }
+func rejectExact(_ message: String, _ operation: () throws -> Void) throws {
+    do { try operation() } catch {
+        guard let error = error as? ModelError else { throw ModelError("expected ModelError: \(error)") }
+        try require(exactText(error.description, message), "wrong capture rejection: \(error)"); return
+    }
+    throw ModelError("expected ModelError: \(message)")
+}
 struct State { let count: UInt32 }
 enum Input { case add(UInt8) }
 struct Output { let count: UInt32 }
@@ -12,11 +19,17 @@ final class Counters {
     var stateEncode = 0, stateDecode = 0, inputEncode = 0, inputDecode = 0, outputEncode = 0, limits = 0
     var checks: [Int] { [reducer, state, transition, initial] }
     var codecs: [Int] { [stateEncode, stateDecode, inputEncode, inputDecode, outputEncode, limits] }
+    var receipt: [String:Int] {
+        ["initial": initial, "reducer": reducer, "state": state, "transition": transition,
+         "encode_state": stateEncode, "encode_input": inputEncode, "encode_output": outputEncode,
+         "decode_state": stateDecode, "decode_input": inputDecode, "limits": limits]
+    }
 }
 final class Application {
     let c = Counters()
     var version: UInt32 = 1
     var limits = DecodeLimits()
+    var failOutput = false
     var model: Model<State,Input,Output>!
     var codec: Codec<State,Input,Output>!
     init(customLimits: Bool = true) throws {
@@ -26,7 +39,11 @@ final class Application {
         let add = TraceEnumCase<Input,UInt8>(tag: 1, label: "Add", payload: ValueCodecs.u8, construct: { .add($0) })
         let enumeration = try TraceEnums.codec(schema: "Input", tagWidth: .u8, cases: [add.erased()], select: { value in switch value { case .add(let amount): return add.select(amount) } }, require: .both)
         let input = TraceValueCodec<Input>(schema: "Input", encode: { [self] value,sink in c.inputEncode += 1; try enumeration.encodeRaw(value, into: sink) }, decode: { [self] reader in c.inputDecode += 1; return try enumeration.decode(from: reader) })
-        let output = TraceValueCodec<Output>(schema: "Output", encodeOnly: { [self] value,sink in c.outputEncode += 1; try ValueCodecs.u32.encodeRaw(value.count, into: sink) })
+        let output = TraceValueCodec<Output>(schema: "Output", encodeOnly: { [self] value,sink in
+            c.outputEncode += 1
+            if failOutput { try sink.extend([0xee]); throw ModelError("n13 controlled Output encoder failure") }
+            try ValueCodecs.u32.encodeRaw(value.count, into: sink)
+        })
         try require(!output.supportsDecoding, "Output must have no decoder")
         let metadata = { [self] in Metadata(name: "n13-installed-model", codecVersion: version, build: "application-v1") }
         if customLimits {
@@ -88,7 +105,89 @@ func gates() throws {
     try EncodeBuffer.withBuffer(&bytes, maximum: 20) { sink in try codec.encodeStateInto!(State(count: 1), sink); try codec.encodeInputInto!(.add(1), sink); try codec.encodeOutputInto!(Output(count: 1), sink) }
     try require(app.c.limits == before, "encoders consulted limits")
 }
-@MainActor func produce() throws -> [String:String] {
+@MainActor func captureFailureControls() throws -> [String:[String:[String:Int]]] {
+    var receipts: [String:[String:[String:Int]]] = [:]
+    let diagnostic = "runtime encode output: n13 controlled Output encoder failure"
+    let options = RecorderOptions(maxSteps: 1, maxRetainedBytes: 16384, limits: binaryLimits())
+    let firstCausal = CausalContext(machine: "worker-a", generation: 9, correlation: "request-1", logicalTime: 11)
+    let secondCausal = CausalContext(machine: "worker-a", generation: 9, correlation: "request-1", logicalTime: 12, causes: [OutputOrigin(sequence: 1, output: 0)])
+    for useEvidence in [false, true] {
+        let app = try Application(), initial = try checkInitial(app.model, state: State(count: 0))
+        let recorder: Recorder?, evidence: EvidenceRecorder?
+        if useEvidence {
+            recorder = nil
+            evidence = try EvidenceRecorder(checkedInitial: initial, config: config, options: options, provenance: provenance, limits: evidenceLimits())
+        } else {
+            recorder = try Recorder(checkedInitial: initial, config: config, options: options)
+            evidence = nil
+        }
+        func observe(_ token: CheckedTurn<State,Input,Output>, _ causal: CausalContext) throws {
+            if let evidence { try evidence.observe(token, causal: causal) }
+            else { try recorder!.observeChecked(token) }
+        }
+        func snapshot() -> AuditTrace { evidence?.snapshot().trace ?? recorder!.snapshot() }
+        try require(app.c.checks == [0,1,0,0] && app.c.codecs == [1,0,0,0,0,0], "negative initial handoff counts")
+        var stages = ["after_initial": app.c.receipt]
+        let input = Input.add(1), firstTransition = try app.model.step(State(count: 0), input)
+        let first = try checkTurn(app.model, before: State(count: 0), input: input, transition: firstTransition, sequence: 1)
+        try require(app.c.checks == [1,2,1,0] && app.c.codecs == [1,0,0,0,0,0], "first checked turn counts")
+        try observe(first, firstCausal)
+        try require(app.c.checks == [1,2,1,0] && app.c.codecs == [3,0,1,0,1,0], "first capture repeated checks or codecs")
+        stages["after_first_capture"] = app.c.receipt
+        let prefix = snapshot(), journal = evidence?.snapshot()
+        try require(prefix.termination == .interrupted && prefix.metadata == Metadata(name: "n13-installed-model", build: "application-v1"), "successful prefix identity")
+        try require(prefix.initialState == [0,0,0,0] && prefix.initialChecks == [.passed("threshold.bound")] && prefix.steps.count == 1, "successful checkpoint/prefix")
+        let step = prefix.steps[0]
+        try require(step.input == [1,1] && step.postState == [1,0,0,0] && step.outputs == [[1,0,0,0]] && step.disposition == .accepted, "successful step bytes")
+        try require(step.checks == [.passed("threshold.bound"),.passed("edge.checked")], "successful step checks")
+        try require(prefix.config.strategy == config.strategy && prefix.config.seed == config.seed && prefix.config.parameters.first == AuditParameter("region", "test"), "producer config")
+        for (key,value) in [("max_steps","1"),("observed_steps","1"),("evicted_steps","0"),("checkpoint_after_sequence","0")] {
+            try require(prefix.config.parameters.contains(AuditParameter("stateless.monitor." + key, value)), "retained counters")
+        }
+        let secondTransition = try app.model.step(State(count: 1), input)
+        let second = try checkTurn(app.model, before: State(count: 1), input: input, transition: secondTransition, sequence: 2)
+        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [3,0,1,0,1,0], "second checked turn counts")
+        stages["before_failed_capture"] = app.c.receipt
+        app.failOutput = true
+        try rejectExact(diagnostic) { try observe(second, secondCausal) }
+        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "failed capture repeated checks or codecs")
+        stages["after_failed_capture"] = app.c.receipt
+        let frozen = snapshot()
+        try require(evidence?.isFrozen ?? recorder!.isFrozen, "capture must freeze")
+        let expected = AuditTrace(metadata: prefix.metadata, config: prefix.config, initialState: prefix.initialState, initialChecks: prefix.initialChecks, steps: prefix.steps, termination: .modelError(diagnostic))
+        try require(frozen == expected, "failed capture changed retained prefix or diagnostic")
+        if let evidence, let journal {
+            let value = evidence.snapshot()
+            try require(value == TraceV2(trace: frozen, checkpointAfter: journal.checkpointAfter, provenance: journal.provenance, steps: journal.steps), "failed capture changed causal journal")
+            try require(value.provenance == provenance && value.checkpointAfter == 0 && value.steps == [StepEvidence(sequence: 1, stateCheckCount: 1, causal: firstCausal)], "retained provenance/causal row")
+            try require(value.checkPhase(sequence: 1, checkIndex: 0) == .state && value.checkPhase(sequence: 1, checkIndex: 1) == .transition && value.checkPhase(sequence: 2, checkIndex: 0) == nil, "retained phase journal")
+            let artifact = try decodeArtifact(encodeEvidence(value, limits: evidenceLimits()), limits: evidenceLimits())
+            guard case .v2(let restored) = artifact else { throw ModelError("negative evidence kind") }
+            try require(restored == value, "negative evidence roundtrip")
+        } else {
+            try require(recorder!.observedSteps == 1 && recorder!.evictedSteps == 0 && recorder!.retainedSteps == 1, "retained recorder counters")
+            let artifact = try decodeArtifact(encodeAuditTrace(frozen, limits: binaryLimits()), limits: evidenceLimits())
+            guard case .v1(let restored) = artifact else { throw ModelError("negative audit kind") }
+            try require(restored == frozen, "negative audit roundtrip")
+        }
+        // Retry the same sealed token without the fault; freeze wins before callbacks.
+        app.failOutput = false
+        let owner = useEvidence ? "runtime evidence recorder" : "runtime recorder"
+        try rejectExact(owner + " is frozen; export its retained trace") { try observe(second, secondCausal) }
+        try require(snapshot() == frozen && app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "frozen retry changed evidence or counts")
+        if let evidence, let journal {
+            let transferred = try evidence.intoTrace()
+            try require(transferred == TraceV2(trace: frozen, checkpointAfter: journal.checkpointAfter, provenance: journal.provenance, steps: journal.steps), "evidence transfer changed prefix")
+        } else {
+            let transferred = try recorder!.intoTrace()
+            try require(transferred == frozen, "recorder transfer changed prefix")
+        }
+        try require(app.c.checks == [2,3,2,0] && app.c.codecs == [4,0,2,0,2,0], "export repeated callbacks")
+        receipts[useEvidence ? "evidence" : "recorder"] = stages
+    }
+    return receipts
+}
+@MainActor func produce() throws -> (envelope: [String:String], counts: [String:Int]) {
     let app = try Application()
     var state = State(count: 0)
     let initial = try checkInitial(app.model, state: state)
@@ -109,12 +208,13 @@ func gates() throws {
     let v1 = try recorder.intoTrace(), v2 = try evidence.intoTrace()
     try require(v1.steps.map { $0.outputs } == [[[1,0,0,0]],[[2,0,0,0]],[[3,0,0,0]]], "output bytes")
     try require(v2.checkPhase(sequence: 3, checkIndex: 0) == .state && v2.checkPhase(sequence: 3, checkIndex: 1) == .transition, "phase evidence")
-    return ["v1": hex(try encodeAuditTrace(v1, limits: binaryLimits())), "v2": hex(try encodeEvidence(v2, limits: evidenceLimits()))]
+    return (["v1": hex(try encodeAuditTrace(v1, limits: binaryLimits())), "v2": hex(try encodeEvidence(v2, limits: evidenceLimits()))], app.c.receipt)
 }
 func hex(_ bytes: [UInt8]) -> String { bytes.map { String(format: "%02x", $0) }.joined() }
 func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try require(a.count % 2 == 0, "odd hex"); return try stride(from: 0, to: a.count, by: 2).map { i in guard let value = UInt8(String(decoding: a[i..<i+2], as: UTF8.self), radix: 16) else { throw ModelError("invalid hex") }; return value } }
-@MainActor func transcode(_ source: [String:String]) throws -> [String:String] {
+@MainActor func transcode(_ source: [String:String]) throws -> (envelope: [String:String], replayCounts: [String:[String:Int]]) {
     var result: [String:String] = [:]
+    var replayCounts: [String:[String:Int]] = [:]
     for version in ["v1", "v2"] {
         let bytes = try unhex(source[version]!), artifact = try decodeArtifact(bytes, limits: evidenceLimits()), app = try Application()
         let trace = artifact.trace
@@ -127,6 +227,7 @@ func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try r
         }
         try require(report.outcome == "exact" && report.stepsVerified == 3 && report.failureReproduced && observations == 4, "replay report")
         try require(app.c.checks == [3,4,3,0] && app.c.codecs == [4,1,3,3,3,4], "replay callback counts")
+        replayCounts[version] = app.c.receipt
         let rewritten: [UInt8]
         switch artifact {
         case .v1: rewritten = try encodeAuditTrace(trace, limits: binaryLimits())
@@ -134,21 +235,30 @@ func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try r
             try require(evidence.provenance == provenance && evidence.steps.count == 3 && evidence.checkPhase(sequence: 3, checkIndex: 0) == .state, "causal provenance/phase")
             let fresh = try Application(), report = try evidence.replay(fresh.model, limits: evidenceLimits())
             try require(report.outcome == "exact" && report.failureReproduced && fresh.c.checks == [3,4,3,0] && fresh.c.codecs == [4,1,3,3,3,4], "causal replay/counts")
+            replayCounts["v2_causal"] = fresh.c.receipt
             rewritten = try encodeEvidence(evidence, limits: evidenceLimits())
         }
         try require(rewritten == bytes, "artifact rewrite changed bytes/config")
         result[version] = hex(rewritten)
     }
-    return result
+    return (result, replayCounts)
 }
 do {
     try gates()
+    let failures = try captureFailureControls()
     let args = CommandLine.arguments
     let result: [String:String]
-    if args.count == 3 && args[1] == "produce" { result = try produce() }
-    else if args.count == 4 && args[1] == "transcode" { result = try transcode(JSONDecoder().decode([String:String].self, from: Data(contentsOf: URL(fileURLWithPath: args[2])))) }
+    var receipt: [String:Any] = ["engine": "swift", "version_gates": 8, "output_decoder": false, "checked_handoff": true,
+                                 "capture_failure_controls": true, "capture_failure_counts": failures, "replay_counts": [String:[String:Int]]()]
+    if args.count == 3 && args[1] == "produce" {
+        let produced = try produce(); result = produced.envelope; receipt["capture_counts"] = produced.counts
+    }
+    else if args.count == 4 && args[1] == "transcode" {
+        let rewritten = try transcode(JSONDecoder().decode([String:String].self, from: Data(contentsOf: URL(fileURLWithPath: args[2]))))
+        result = rewritten.envelope; receipt["replay_counts"] = rewritten.replayCounts
+    }
     else { throw ModelError("usage: ModelConsumer produce DEST | transcode SOURCE DEST") }
     let destination = args.last!
     try JSONEncoder().encode(result).write(to: URL(fileURLWithPath: destination))
-    print("{\"engine\":\"swift\",\"version_gates\":8,\"output_decoder\":false,\"checked_handoff\":true}")
+    print(String(decoding: try JSONSerialization.data(withJSONObject: receipt, options: [.sortedKeys]), as: UTF8.self))
 } catch { FileHandle.standardError.write(Data("\(error)\n".utf8)); exit(1) }

@@ -1,5 +1,5 @@
 """Installed five-engine N13 application; Output deliberately has no decoder."""
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import json
 import sys
@@ -25,6 +25,7 @@ LIMITS = BinaryLimits(max_total_bytes=16384, max_frame_bytes=4096, max_blob_byte
     max_outputs_per_step=16, max_parameters=32, max_items=256)
 ELIMITS = EvidenceLimits(LIMITS, 1024, 8, 128, 4, 8)
 OPTIONS = RecorderOptions(3, 16384, LIMITS)
+OUTPUT_FAILURE = 'n13 controlled Output encoder failure'
 
 class Model:
     def __init__(self):
@@ -33,6 +34,7 @@ class Model:
                            decode_state=0, decode_input=0, limits=0)
         self.version = 1
         self.limits = DecodeLimits()
+        self.fail_output = False
     def metadata(self): return Metadata('n13-installed-model', build='application-v1', codec_version=self.version)
     def initial_state(self): self.counts['initial'] += 1; return State(0)
     def step(self, state, input):
@@ -60,6 +62,9 @@ class Output:
     def __init__(self, model): self.model = model
     def encode_into(self, value, sink):
         self.model.counts['encode_output'] += 1
+        if self.model.fail_output:
+            sink.extend(b'\xee')
+            raise ModelError(OUTPUT_FAILURE)
         U32.encode_into(value, sink)
 
 STATE = ordered_record('State', value_type=State,
@@ -125,6 +130,99 @@ def controls():
     return dict(version_hooks=8, fresh_limit_calls=m.counts['limits'], encoder_limit_calls=0,
                 malformed_trailing=4, output_decoder=False)
 
+def reject_exact(call, message):
+    try: call()
+    except ModelError as error:
+        assert str(error) == message, str(error)
+        return
+    raise AssertionError('expected ModelError: ' + message)
+
+def capture_failure_controls():
+    """Fresh applications; negative prefixes never enter the success envelope."""
+    receipts = {}
+    diagnostic = 'runtime encode output: ' + OUTPUT_FAILURE
+    options = RecorderOptions(1, 16384, LIMITS)
+    first_causal = CausalContext('worker-a', 9, 'request-1', 11, ())
+    second_causal = CausalContext('worker-a', 9, 'request-1', 12, (OutputOrigin(1, 0),))
+    for kind in ('recorder', 'evidence'):
+        m = Model(); b = bind(m)
+        initial = check_initial(b, State(0))
+        if kind == 'evidence':
+            recorder = EvidenceRecorder(initial, 0, CONFIG, options, PROVENANCE, ELIMITS)
+            observe = recorder.observe
+            snapshot = lambda: recorder.snapshot().trace
+        else:
+            recorder = Recorder.with_checked_initial(initial, CONFIG, options)
+            observe = lambda token, causal: recorder.observe_checked(token)
+            snapshot = recorder.snapshot
+        want = dict(initial=0, reducer=0, state=1, transition=0, encode_state=1,
+                    encode_input=0, encode_output=0, decode_state=0, decode_input=0, limits=0)
+        assert m.counts == want, m.counts
+        stages = dict(after_initial=dict(m.counts))
+        first = check_turn(b, State(0), Add(1), b.step(State(0), Add(1)), 1)
+        want.update(reducer=1, state=2, transition=1)
+        assert m.counts == want, m.counts
+        observe(first, first_causal)
+        want.update(encode_state=3, encode_input=1, encode_output=1)
+        assert m.counts == want, m.counts
+        stages['after_first_capture'] = dict(m.counts)
+        prefix = snapshot()
+        journal = recorder.snapshot() if kind == 'evidence' else None
+        assert prefix.termination == 'interrupted' and prefix.error == ''
+        assert prefix.metadata == m.metadata() and prefix.initial_state == bytes(4)
+        assert prefix.initial_checks == (Check('threshold.bound'),)
+        assert len(prefix.steps) == 1
+        step = prefix.steps[0]
+        assert step.input == b'\1\1' and step.post_state == b'\1\0\0\0'
+        assert step.outputs == (b'\1\0\0\0',)
+        assert step.disposition.kind == 'accepted' and step.disposition.reason == ''
+        assert step.checks == (Check('threshold.bound'), Check('edge.checked'))
+        retained = dict(prefix.config.parameters)
+        assert prefix.config.strategy == CONFIG.strategy and prefix.config.seed == CONFIG.seed
+        assert prefix.config.parameters[0] == ('region', 'test')
+        assert retained['stateless.monitor.max_steps'] == '1'
+        assert retained['stateless.monitor.observed_steps'] == '1'
+        assert retained['stateless.monitor.evicted_steps'] == '0'
+        assert retained['stateless.monitor.checkpoint_after_sequence'] == '0'
+        # The second checked token is valid. Only its bound Output callback fails.
+        second = check_turn(b, State(1), Add(1), b.step(State(1), Add(1)), 2)
+        want.update(reducer=2, state=3, transition=2)
+        assert m.counts == want, m.counts
+        stages['before_failed_capture'] = dict(m.counts)
+        m.fail_output = True
+        reject_exact(lambda: observe(second, second_causal), diagnostic)
+        want.update(encode_state=4, encode_input=2, encode_output=2)
+        assert m.counts == want, m.counts
+        stages['after_failed_capture'] = dict(m.counts)
+        frozen = snapshot()
+        assert recorder.is_frozen()
+        assert frozen == replace(prefix, termination='model_error', error=diagnostic)
+        if journal is not None:
+            value = recorder.snapshot()
+            assert value == replace(journal, trace=frozen)
+            assert value.provenance == PROVENANCE and value.checkpoint_after == 0
+            assert len(value.steps) == 1 and value.steps[0].sequence == 1
+            assert value.steps[0].state_check_count == 1 and value.steps[0].causal == first_causal
+            assert value.check_phase(1, 0) == 'state' and value.check_phase(1, 1) == 'transition'
+            assert value.check_phase(2, 0) is None
+            assert Artifact.from_bytes(value.to_bytes(limits=ELIMITS), limits=ELIMITS).value == value
+        else:
+            assert recorder.observed_steps() == 1 and recorder.evicted_steps() == 0
+            assert recorder.retained_steps() == 1
+            assert Artifact.from_bytes(audit_to_bytes(frozen, limits=LIMITS), limits=ELIMITS).trace == frozen
+        # Reusing the already checked token after freeze must do no callback work.
+        m.fail_output = False
+        owner = 'runtime evidence recorder' if journal is not None else 'runtime recorder'
+        reject_exact(lambda: observe(second, second_causal), owner + ' is frozen; export its retained trace')
+        assert snapshot() == frozen and m.counts == want
+        if journal is not None:
+            assert recorder.into_trace() == value
+        else:
+            assert recorder.into_trace() == frozen
+        assert m.counts == want, m.counts
+        receipts[kind] = stages
+    return receipts
+
 def produce():
     m = Model(); b = bind(m)
     initial = check_initial(b, State(0))
@@ -189,13 +287,19 @@ def consume(envelope):
 def main():
     mode = sys.argv[1]
     control = controls()
+    failures = capture_failure_controls()
+    replay_counts = {}; capture = {}
     if mode == 'produce':
         envelope, counts = produce(); destination = sys.argv[2]
         receipt = dict(production_counts=counts)
+        capture = dict(capture_counts=counts)
     elif mode == 'transcode':
         envelope, receipt = consume(json.loads(Path(sys.argv[2]).read_text())); destination = sys.argv[3]
+        replay_counts = {version: result['counts'] for version, result in receipt.items()}
     else: raise ValueError('unknown mode')
     Path(destination).write_text(json.dumps(envelope, sort_keys=True))
-    print(json.dumps(dict(engine='python', controls=control, receipt=receipt)))
+    print(json.dumps(dict(engine='python', controls=control, receipt=receipt,
+        capture_failure_controls=True, capture_failure_counts=failures,
+        replay_counts=replay_counts, **capture)))
 
 if __name__ == '__main__': main()
