@@ -53,8 +53,8 @@ are not recoverable model findings. Native trace limits count retained data, not
 hidden callback allocations or process RSS.
 
 Implements `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, `trace-json-v1`.
-Guided search, campaign/composition helpers, ring recording,
-and binary `.sttrace` interoperability are not provided by this release. See
+Additional candidate APIs, including [guided search](GUIDED.md) and
+[campaigns](CAMPAIGN.md), do not expand that qualified profile list. See
 `../spec/README.md`; passing finite tests is not universal correctness proof.
 
 No module release/tag or registry publication is performed by this change. Future
