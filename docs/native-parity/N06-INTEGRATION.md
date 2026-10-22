@@ -119,7 +119,7 @@ the caller. Browser multiworker execution is not supplied by the Node adapter.
 
 The independent reviews are retained in `N06-CONTRACT-REVIEW.md`,
 `N06-CONTRACT-REVIEW-R2.md`, both rounds of `N06-REVIEW-GO-SWIFT`, both rounds of
-`N06-REVIEW-PYTHON-TYPESCRIPT`, and `N06-REVIEW-HARNESS-R1.md`. Each report binds
+`N06-REVIEW-PYTHON-TYPESCRIPT`, and both rounds of `N06-REVIEW-HARNESS`. Each report binds
 its observations to hashes; later source changes are not implicitly covered.
 Source review is not compilation or runtime qualification.
 
@@ -141,10 +141,13 @@ driver hash and new failure/cleanup fixtures still require authenticated
 preparation and execution; two receipt-correction branches lack dedicated fault
 tests. These changes do
 not mutate frozen queued snapshots. The installed harness has a stable manifest
-and a fresh independent second review covering controlled tool environments,
-toolchain identity, seeded multi-case callback comparisons and guidance-validation
-precedence. The completed review documents remain historical observations;
-fix dispositions identify later source. Every execution gate remains pending.
+and a completed independent second review. Four P2 harness findings remain:
+actual Python driver/control identity, substituted FIFO receipt finalization,
+independent after-capture/terminal receipt recovery, and Rust seeded report-envelope
+and requested-membership assertions. The harness owner is correcting H6–H9;
+root will request a fresh independent review before freezing it. The completed
+review documents remain historical observations; fix dispositions identify later
+source. Every execution gate remains pending.
 
 The contract round-two finding about Swift example diagnostic rewriting is
 source-addressed after that review cutoff. Root inspected `jobJSON` in

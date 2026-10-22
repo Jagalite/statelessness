@@ -5,6 +5,15 @@
   "purpose": "implementation/reference/review ownership; these are T3 tasks, not Kyoto execution receipts",
   "tasks": [
     {
+      "owner": "harness-h6-h9-fixes-r3",
+      "threadId": "thread:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-installed-harness-r1-20261022",
+      "messageId": "message:mcp:7bfe674e-555a-4365-b5c8-152496869fed:thread-send:n06-harness-h6-h9-implementation-fixes-r3-20261022",
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A7bfe674e-555a-4365-b5c8-152496869fed%253Adelegate-task%253An06-installed-harness-r1-20261022:ordinal:3",
+      "taskId": "node:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Athread-send%3An06-harness-h6-h9-implementation-fixes-r3-20261022",
+      "status": "starting",
+      "delivery": "started"
+    },
+    {
       "owner": "review-harness-r2",
       "taskId": "node:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-harness-independent-review-r2-20261022",
       "childThreadId": "thread:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-harness-independent-review-r2-20261022",
