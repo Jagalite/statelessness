@@ -1,7 +1,11 @@
 # Oct22 direct native/Rust wire continuation
 
-Qualification is in progress. Full optional N12 acceptance remains open.
-This file will be finalized against terminal receipts before handoff.
+Implementation, static review and fresh native preparation are complete.
+Direct wire qualification is blocked on default shared Kyoto admission: after
+more than one hour, the submitted comparison is still queued with
+`OS memory pressure: warning`. It has not launched any fixture process.
+Full optional N12 acceptance remains open. This is an incomplete qualification
+handoff, not a direct parity pass or a completion claim.
 
 ## Ownership and source
 
@@ -17,6 +21,10 @@ were clean at the base; no interrupted uncommitted implementation existed.
   same-model consumers, strict comparator, preparation runner and acceptance ledger.
 - `dd9ce859ed1fabb6b4d60eaf24d2fc73b6ca0ddb`: copied Swift dependency directory
   identity differs from the external consumer's identity.
+- `aef388c5b53ba55231d33fe9e68ee528a1f33419`: lossless failed/successful
+  preparation receipts, source/artifact manifests, static reviews and acceptance
+  ledger. This changes validation evidence only; prepared source remains the
+  exact `dd9ce859...` candidate.
 
 The [base inventory](checkout-source-base.json) captures candidate membership,
 types, modes, sizes and SHA-256 values. Every preparation and comparison captures
@@ -31,7 +39,7 @@ have separate manifests. See [review resolutions](review/RESOLUTION.md).
 | --- | --- | --- |
 | Preparation r1 | `9ff64d83403c47b5927ba648bb1bc8db` | Failed at Swift consumer package resolution; Rust/Go/Python/TypeScript hosts built. Go suite and vet passed; Python 351 tests with 12 optional ABI skips; TypeScript 941 passed. All three source/copy guards passed. |
 | Preparation r2 | `e8bf69e8a61c40399b99bbc6ec6817ab` | Passed: five hosts built; Go full suite and vet, Python installed suite (339 pass, 12 optional ABI skips), TypeScript 941/941 and Swift 218/218 passed. Source, frozen source and copied build-input guards all passed. |
-| Direct comparison r2 | `47bc958139944ce49c458a294853308b` | Pending terminal evidence. |
+| Direct comparison r2 | `47bc958139944ce49c458a294853308b` | Queued, not started, no case results. Blocked by shared scheduler OS memory pressure; retained for execution. |
 
 Preparation r1's exact Swift failure was:
 
@@ -57,14 +65,41 @@ an explicit multi-language build/install/test runner; Rust uses `cargo build`
 for the external public consumer. Rust execution evidence must come from the
 separate comparison. Native regression passes alone are not direct parity proof.
 
+## Resume the existing comparison
+
+Do not submit a duplicate. The existing job uses the exact requested command,
+with no policy substitution:
+
+```
+env PYTHONDONTWRITEBYTECODE=1 python3 scripts/native-parity/n12-wire/compare.py --hosts validation/native-parity/n12-wire-oct22/prepare-r2/hosts.json --output /private/tmp/n12-wire-oct22-r2-comparison
+```
+
+Inspect `python3 /Volumes/seed1/Projects/kyoto/kyoto.py show
+47bc958139944ce49c458a294853308b` and its logs. The
+[handoff scheduler snapshot](queue/compare-r2-pending-handoff.json) and
+[admission snapshot](queue/compare-r2-admission-handoff.json) distinguish this
+queued state from execution. No shared policy or other job was changed. The
+local waiting client is stopped at handoff; the queued comparison is not
+cancelled, and no watcher fleet is left running.
+
+After terminal execution, archive its exact Kyoto log and metadata using
+`scripts/capture-kyoto-receipt.py`. Preserve every file in the private comparison
+output losslessly, including all failed cases and source/artifact before/after
+manifests. Review `qualification.json` and every failed per-case receipt. Fix
+concrete mismatches against public Rust source without weakening normalization
+or independent assertions; any source change requires a new frozen preparation.
+Commit the final comparison receipts and update this handoff with actual case
+counts and passed scope. Those steps remain required.
+
 ## Scope and remaining gates
 
 The [fixture specification](../../../../scripts/native-parity/n12-wire/SPEC.md)
-defines one source-authored model and independent expected assertions. Each case
-runs fresh native and Rust processes over actual pipes. Comparison permits only
+defines one source-authored model and independent expected assertions. The runner
+launches fresh native and Rust processes over actual pipes for each case. It permits only
 validated process-local epoch mapping and field ordering. Exact strings, integer
 values, field presence, errors, callback order, binary outputs and final session
-state remain observable. Raw input/output/error streams are retained losslessly.
+state remain observable. The pending run is configured to retain raw
+input/output/error streams losslessly; no direct comparison streams exist yet.
 
 The [full optional acceptance ledger](ACCEPTANCE.md) maps every audit family to
 this finite fixture and remaining gates. Those include replay/minimization/forks,
