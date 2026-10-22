@@ -16,6 +16,9 @@ include = [
     "/CHANGELOG.md", "validation/adoption-2026-10-07.json", "docs/**",
     "spec/**", "conformance/paired-v1.tsv", "conformance/test_paired_profile.py",
     "conformance/search-v1.tsv", "conformance/search-v1-history.json",
+    "conformance/fixtures/native-campaign-public.rs",
+    "conformance/fixtures/native-campaign-golden.py",
+    "conformance/fixtures/native-campaign-v1.schema.json",
     "!**/node_modules/**", "!**/.build/**", "!**/__pycache__/**", "!**/target/**",
 ]
 
