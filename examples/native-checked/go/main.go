@@ -128,6 +128,12 @@ func expectedView(t s.TraceStep) map[string]any {
 	return map[string]any{"input": hex.EncodeToString(t.Input), "disposition": t.Disposition, "outputs": hexOutputs(t.Outputs), "post_state": hex.EncodeToString(t.PostState), "checks": t.Checks}
 }
 func replayRun(trace *s.AuditTrace, bounded bool, variant string, l s.BinaryLimits) (map[string]any, *counts, error) {
+	if bounded {
+		return replaySession(&trace.Trace, trace, variant, l)
+	}
+	return replaySession(&trace.Trace, nil, variant, l)
+}
+func replaySession(trace *s.Trace, audit *s.AuditTrace, variant string, l s.BinaryLimits) (map[string]any, *counts, error) {
 	m, c := application(variant)
 	events := []map[string]any{}
 	observer := s.ReplayObserver[int, int, string]{Initial: func(o s.ReplayInitialObservation[int]) error {
@@ -139,10 +145,10 @@ func replayRun(trace *s.AuditTrace, bounded bool, variant string, l s.BinaryLimi
 	}}
 	var r *s.ReplayReport
 	var err error
-	if bounded {
-		r, err = s.ReplayWithObservationsBounded(m, trace, false, l, observer)
+	if audit != nil {
+		r, err = s.ReplayWithObservationsBounded(m, audit, false, l, observer)
 	} else {
-		r, err = s.ReplayWithObservations(m, &trace.Trace, false, observer)
+		r, err = s.ReplayWithObservations(m, trace, false, observer)
 	}
 	return map[string]any{"report": reportView(*r), "observations": events}, c, err
 }
@@ -155,6 +161,9 @@ func options(n int) s.RecorderOptions {
 }
 func count(c *counts) map[string]int {
 	return map[string]int{"initial_state": c.initial, "reducer": c.step, "state": c.stateChecks, "transition": c.edgeChecks}
+}
+func applicationCounts(c *counts) [4]int {
+	return [4]int{c.initial, c.step, c.stateChecks, c.edgeChecks}
 }
 func attach(m s.Model[int, int, string], state int, origin uint64, n int) *s.Recorder {
 	t, e := s.CheckInitial(m, state)
@@ -268,7 +277,7 @@ func controls() (map[string]any, map[string]any) {
 }
 func main() {
 	if len(os.Args) != 3 {
-		panic("expected record PREFIX, replay BIN, or replay-json JSON")
+		panic("expected record PREFIX, record-suffix PREFIX, record-failing-suffix PREFIX, replay BIN, replay-suffix BIN, replay-json JSON, or replay-suffix-json JSON")
 	}
 	mode, path := os.Args[1], os.Args[2]
 	var receipt map[string]any
@@ -309,7 +318,124 @@ func main() {
 		bounded, bc, err := replayRun(trace, true, "", limits())
 		must(err)
 		receipt = map[string]any{"controls": control, "ring": ring, "main_counts": mainCounts, "checked": map[string]any{"initial_checks": initial.StateCheckCount(), "state_check_count": firstChecked.StateCheckCount(), "full_checking": firstChecked.FullChecking(), "sequence": strconv.FormatUint(firstChecked.Sequence(), 10)}, "rich": rich, "bounded": bounded, "retained_config": configView(trace.Config), "legacy_encoder_calls": c.legacy + rc.legacy + bc.legacy, "codec_into_calls": c.state + c.input + c.output + rc.state + rc.input + rc.output + bc.state + bc.input + bc.output, "steps": len(trace.Steps), "termination": trace.Termination}
-	case "replay":
+	case "record-suffix", "record-failing-suffix":
+		failing := mode == "record-failing-suffix"
+		turns := 2
+		termination := "interrupted"
+		lastCheck := s.Passed("threshold.bound")
+		if failing {
+			turns = 3
+			termination = "property_failed"
+			lastCheck = s.Failed("threshold.bound", "at least three")
+		}
+		m, c := application("")
+		state := 0
+		initial, err := s.CheckInitial(m, state)
+		must(err)
+		before := applicationCounts(c)
+		rec, err := s.NewRecorderWithCheckedInitialAt(initial, 40, s.RunConfig{Strategy: "manual"}, options(1))
+		must(err)
+		require(applicationCounts(c) == before, "suffix attach reran application")
+		observerPrefix := "suffix-observer\n"
+		var writer bytes.Buffer
+		_, err = writer.WriteString(observerPrefix)
+		must(err)
+		logOptions := s.DefaultObservationOptions()
+		logOptions.Level, logOptions.Snapshots = s.LogTrace, s.SnapshotEveryTransition()
+		logOptions.MaxRecordBytes = 1024
+		observer, err := s.NewTextObserver(&writer, "suffix", logOptions, s.NoPayloads[int, int, string]{})
+		must(err)
+		checkpoint, err := initial.State()
+		must(err)
+		beforeCallbacks := *c
+		must(observer.Observe(m, s.Event[int, int, string]{Kind: s.EventCheckpoint, Sequence: 40, State: checkpoint, Checks: initial.Checks()}))
+		require(*c == beforeCallbacks, "suffix checkpoint observer ran application or codec callbacks")
+		var firstChecked, lastChecked *s.CheckedTurn[int, int, string]
+		for seq := uint64(41); seq <= 40+uint64(turns); seq++ {
+			actual, e := m.Step(state, 1)
+			must(e)
+			checked, e := s.CheckTurn(m, state, 1, actual, seq, full())
+			must(e)
+			if seq == 41 {
+				firstChecked = checked
+			}
+			lastChecked = checked
+			before = applicationCounts(c)
+			// Detached diagnostics do not authorize exact recording; retain the token.
+			view, e := checked.Observation()
+			must(e)
+			beforeCallbacks = *c
+			must(observer.Observe(m, view.Event()))
+			require(*c == beforeCallbacks, "suffix turn observer ran application or codec callbacks")
+			must(observe(rec, checked))
+			require(applicationCounts(c) == before, "suffix checked handoff reran application")
+			state = actual.State
+		}
+		beforeCallbacks = *c
+		must(observer.Flush())
+		require(*c == beforeCallbacks, "suffix observer flush ran application or codec callbacks")
+		trace := rec.Snapshot()
+		mainCounts := count(c)
+		require(applicationCounts(c) == [4]int{0, turns, turns + 1, turns}, "suffix check-once counts differ")
+		require(state == turns && lastChecked.Sequence() == 40+uint64(turns), "suffix final application turn differs")
+		require(string(trace.InitialState) == strconv.Itoa(turns-1) && len(trace.InitialChecks) == 2, "suffix checkpoint differs")
+		require(trace.InitialChecks[0] == s.Passed("threshold.bound") && trace.InitialChecks[1] == s.Passed("state.appended"), "suffix checkpoint lost state-only checks")
+		require(len(trace.Steps) == 1 && string(trace.Steps[0].PostState) == strconv.Itoa(turns) && len(trace.Steps[0].Checks) == 3, "suffix retained turn differs")
+		for i, check := range []s.Check{lastCheck, s.Passed("state.appended"), s.Passed("edge.checked")} {
+			require(trace.Steps[0].Checks[i] == check, "suffix retained checks differ")
+		}
+		require(trace.Termination == termination && rec.IsFrozen() == failing && rec.ObservedSteps() == uint64(turns) && rec.EvictedSteps() == uint64(turns-1), "suffix recorder status differs")
+		parameters := map[string]string{}
+		for _, pair := range trace.Config.Parameters {
+			parameters[pair[0]] = pair[1]
+		}
+		for name, expected := range map[string]string{"sequence_origin": "40", "checkpoint_after_sequence": strconv.Itoa(turns - 1), "observed_steps": strconv.Itoa(turns), "evicted_steps": strconv.Itoa(turns - 1)} {
+			require(parameters["stateless.monitor."+name] == expected, "suffix local metadata differs: "+name)
+		}
+		binary, err := s.MarshalAuditTrace(trace, limits())
+		must(err)
+		portable, _, err := trace.Portable()
+		must(err)
+		text, err := s.MarshalTrace(&portable)
+		must(err)
+		var freezeWriter bytes.Buffer
+		if failing {
+			beforeCallbacks = *c
+			freezeObserver, e := s.NewTextObserver(&freezeWriter, "suffix", logOptions, s.NoPayloads[int, int, string]{})
+			must(e)
+			// A detached checkpoint has no continuity or checked authority.
+			must(freezeObserver.Observe(m, s.Event[int, int, string]{Kind: s.EventCheckpoint, Sequence: 44, State: 999, Checks: []s.Check{}}))
+			must(freezeObserver.Flush())
+			require(*c == beforeCallbacks, "frozen diagnostic ran application or codec callbacks")
+			// Reuse the authentic final token; do not execute or check another turn.
+			require(observe(rec, lastChecked) != nil, "frozen checked handoff accepted")
+			require(*c == beforeCallbacks, "frozen handoff ran application or codec callbacks")
+			after := rec.Snapshot()
+			afterBinary, e := s.MarshalAuditTrace(after, limits())
+			must(e)
+			afterPortable, _, e := after.Portable()
+			must(e)
+			afterText, e := s.MarshalTrace(&afterPortable)
+			must(e)
+			require(bytes.Equal(binary, afterBinary) && bytes.Equal(text, afterText) && rec.IsFrozen(), "first failure artifacts changed after freeze")
+			require(*c == beforeCallbacks, "frozen artifact comparison ran application or codec callbacks")
+			require(freezeWriter.String() == "Trace stream=\"suffix\" event=checkpoint sequence=44 checks=0 state=unavailable\n", "frozen diagnostic differs")
+		}
+		must(os.WriteFile(path+".bin", binary, 0600))
+		must(os.WriteFile(path+".json", text, 0600))
+		rich, rc, err := replayRun(trace, false, "", limits())
+		must(err)
+		bounded, bc, err := replayRun(trace, true, "", limits())
+		must(err)
+		require(applicationCounts(rc) == [4]int{0, 1, 2, 1}, "suffix rich replay counts differ")
+		require(applicationCounts(bc) == [4]int{0, 1, 2, 1}, "suffix bounded replay counts differ")
+		receipt = map[string]any{"main_counts": mainCounts, "checked": map[string]any{"initial_checks": initial.StateCheckCount(), "state_check_count": firstChecked.StateCheckCount(), "full_checking": firstChecked.FullChecking(), "sequence": strconv.FormatUint(firstChecked.Sequence(), 10)}, "rich": rich, "bounded": bounded, "retained_config": configView(trace.Config), "observer_prefix": observerPrefix, "observer_text": writer.String(), "legacy_encoder_calls": c.legacy + rc.legacy + bc.legacy, "codec_into_calls": c.state + c.input + c.output + rc.state + rc.input + rc.output + bc.state + bc.input + bc.output, "steps": len(trace.Steps), "termination": trace.Termination}
+		receipt["rich_counts"], receipt["bounded_counts"] = count(rc), count(bc)
+		if failing {
+			receipt["freeze_verified"] = true
+			receipt["freeze_observer_text"] = freezeWriter.String()
+		}
+	case "replay", "replay-suffix":
 		data, err := os.ReadFile(path)
 		must(err)
 		trace, err := s.ParseAuditTrace(data, limits())
@@ -319,6 +445,27 @@ func main() {
 		bounded, bc, err := replayRun(trace, true, "", limits())
 		must(err)
 		receipt = map[string]any{"rich": rich, "bounded": bounded, "retained_config": configView(trace.Config), "legacy_encoder_calls": rc.legacy + bc.legacy, "codec_into_calls": rc.state + rc.input + rc.output + bc.state + bc.input + bc.output}
+		if mode == "replay-suffix" {
+			require(applicationCounts(rc) == [4]int{0, 1, 2, 1}, "suffix rich replay counts differ")
+			require(applicationCounts(bc) == [4]int{0, 1, 2, 1}, "suffix bounded replay counts differ")
+			receipt["rich_counts"], receipt["bounded_counts"] = count(rc), count(bc)
+		}
+	case "replay-suffix-json":
+		data, err := os.ReadFile(path)
+		must(err)
+		portable, err := s.ParseTrace(data)
+		must(err)
+		rich, rc, err := replaySession(portable, nil, "", limits())
+		must(err)
+		// Portable JSON has no audit configuration. Supply defaults only for
+		// the public bounded API; these are not retained producer metadata.
+		audit, err := s.AuditFromPortable(*portable, s.RunConfig{Strategy: "manual"})
+		must(err)
+		bounded, bc, err := replayRun(audit, true, "", limits())
+		must(err)
+		require(applicationCounts(rc) == [4]int{0, 1, 2, 1}, "suffix JSON rich replay counts differ")
+		require(applicationCounts(bc) == [4]int{0, 1, 2, 1}, "suffix JSON bounded replay counts differ")
+		receipt = map[string]any{"rich": rich, "bounded": bounded, "rich_counts": count(rc), "bounded_counts": count(bc), "legacy_encoder_calls": rc.legacy + bc.legacy, "codec_into_calls": rc.state + rc.input + rc.output + bc.state + bc.input + bc.output}
 	case "replay-json":
 		data, err := os.ReadFile(path)
 		must(err)

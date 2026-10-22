@@ -3,9 +3,12 @@
 Pinned Rust reference: `54ba3f32796fc5c71458fb4cda14b2ab9290ee83`,
 `src/observation.rs`. This is diagnostic text, never a trace, continuity proof,
 checked token, reducer execution, check execution, or effect execution.
-Existing checked tokens and bounded Recorder remain authoritative and unchanged.
+Existing checked tokens and bounded Recorder remain the authoritative evidence
+path. Reviewed Swift admission-order corrections are recorded separately in the
+[integration ledger](../docs/native-parity/OBSERVATION-REVIEW-RESOLUTION.md).
 Fixtures are authored from source, not captured from implementation execution.
-Execution/qualification is pending the parent's integrated source freeze.
+Executable qualification requires the parent's integrated source freeze and
+source-bound Kyoto receipts; this contract does not claim a passing run.
 
 ## Consumer protocol (shared now)
 
