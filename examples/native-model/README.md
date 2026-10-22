@@ -59,11 +59,19 @@ counts. TypeScript replay binds a counted decode-limit provider; the omitted
 provider path remains a separate control. `capture_failure_controls: true` is
 emitted only after the separate failing-capture assertions complete.
 
-Run only through Kyoto after the source candidate freezes:
+Run only through Kyoto after the source candidate freezes. The driver requires
+`--typescript-compiler` pointing to the prepared `node_modules/typescript`
+directory and `--typescript-compiler-manifest` pointing to preparation's
+`typescript-compiler-before.json`. Pass its literal pre-submission SHA-256 as
+`--typescript-compiler-manifest-sha256`; never compute that pin at job startup.
+There is no global `tsc` fallback. The pinned
+version, package/lock inputs, complete compiler tree and Node identity must match
+before compilation and remain stable afterward.
 
-```sh
-python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit -- python3 scripts/n13-qualify.py --output validation/native-parity/derive-model-v2/installed-wrapper -- python3 scripts/check-native-model-consumers.py --output validation/native-parity/derive-model-v2/installed
-```
+Use the exact source/tool manifests and fresh output directories in the
+[combined qualification plan](../../validation/native-parity/derive-model-v2/integration-oct22/combined-n12/qualification-plan.json).
+Its command wraps this driver with `qualify-native-integration.py --scope command`
+and `--expected-source`/`--expected-tools` to reject pre-start queue drift.
 
 The new driver builds wheels/tarballs, installs native packages outside the
 checkout, and installs the staged Rust binary with Cargo. It launches five

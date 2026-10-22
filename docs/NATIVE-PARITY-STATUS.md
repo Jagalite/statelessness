@@ -404,6 +404,27 @@ remain separately open; no profile, release or parent integration is promoted.
 
 ## Other candidate evidence
 
+The separate `t3/integrate-n12-n13-native-parity` candidate combines reviewed
+N13/research parent `54ba3f32796fc5c71458fb4cda14b2ab9290ee83` with reviewed
+N12 parent `58415d887899bac24a05e59d336b903750d0b9aa`, preserving both lineages.
+The merge-base audit found disjoint changed paths. Optional debugger modules
+coexist with the core, research and declaration APIs; Python retains the generic
+`ModelCodec` protocol plus `ModelCodecBinding`, and TypeScript codec hooks retain
+dynamic metadata lookup and receiver ownership. The browser base export remains
+separate from optional Node transports. Independent review and fresh combined
+qualification are recorded in the
+[combined handoff](../validation/native-parity/derive-model-v2/integration-oct22/combined-n12/HANDOFF.md).
+Integration review corrected TypeScript numeric/string field aliases and tuple
+constructor admission, Swift reentrant snapshot reads, and public effect-origin
+construction for observation-only applications. Focused regressions accompany
+the changes. Package preparation now carries the authored N13 draft input and
+seals its private compiler, Go test executables and Swift XCTest executables.
+Source and toolchain guards, installed-driver build provenance and current
+executed-versus-queued evidence remain separately recorded in that handoff.
+Historical native passes and queued jobs do not qualify this combined candidate.
+Full optional N12 acceptance, remaining N13 helpers, N05/N06/N07 and broad144
+remain open. N06/N07 independent work and their dirty trees are not integrated.
+
 The N13 model codec branch has reviewed source and receipts at `9daee75e`.
 Its native suites, Go vet, Rust workspace execution and five disposition ledgers
 passed within their recorded scopes. The final ten driver regressions
