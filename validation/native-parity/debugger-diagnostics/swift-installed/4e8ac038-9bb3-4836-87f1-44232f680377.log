@@ -1,0 +1,54 @@
+Building for debugging...
+[0/8] Write swift-version--58304C5D6DBC2206.txt
+[1/8] Write sources
+[4/9] Emitting module Statelessness
+[5/23] Compiling Statelessness AuditRecording.swift
+[6/23] Compiling Statelessness AuditTrace.swift
+[7/23] Compiling Statelessness CheckSink.swift
+[8/23] Compiling Statelessness CheckedResults.swift
+[9/23] Compiling Statelessness EncodeBuffer.swift
+[10/23] Compiling Statelessness Evidence.swift
+[11/23] Compiling Statelessness EvidenceCodec.swift
+[12/23] Compiling Statelessness EvidenceExports.swift
+[13/23] Compiling Statelessness EvidenceRecorder.swift
+[14/23] Compiling Statelessness Execution.swift
+[15/23] Compiling Statelessness ExecutionBudget.swift
+[16/23] Compiling Statelessness Explore.swift
+[17/23] Compiling Statelessness Fuzz.swift
+[18/23] Compiling Statelessness Generate.swift
+[19/36] Compiling Statelessness JSON.swift
+[20/36] Compiling Statelessness Model.swift
+[21/36] Compiling Statelessness Oracle.swift
+[22/36] Compiling Statelessness Recorder.swift
+[23/36] Compiling Statelessness Replay.swift
+[24/36] Compiling Statelessness Rng.swift
+[25/36] Compiling Statelessness Shrink.swift
+[26/36] Compiling Statelessness TraceJSON.swift
+[27/36] Compiling Statelessness ValueCodec.swift
+[28/36] Compiling Statelessness ValueCodec128.swift
+[29/36] Compiling Statelessness ValueCodecBuiltins.swift
+[30/36] Compiling Statelessness ValueCodecDecoder.swift
+[31/36] Compiling Statelessness ValueCodecLayouts.swift
+[31/36] Write sources
+[33/37] Emitting module StatelessDebug
+[34/50] Compiling StatelessDebug Branch.swift
+[35/50] Compiling StatelessDebug Dashboard.swift
+[36/50] Compiling StatelessDebug Diagnostics.swift
+[37/50] Compiling StatelessDebug Effects.swift
+[38/50] Compiling StatelessDebug EvidenceViewer.swift
+[39/50] Compiling StatelessDebug Inspection.swift
+[40/50] Compiling StatelessDebug Live.swift
+[41/50] Compiling StatelessDebug LiveBridge.swift
+[42/50] Compiling StatelessDebug Metrics.swift
+[43/50] Compiling StatelessDebug Protocol.swift
+[44/50] Compiling StatelessDebug Session.swift
+[45/50] Compiling StatelessDebug TraceViewer.swift
+[46/50] Compiling StatelessDebug Watches.swift
+[46/50] Write DebugConsumer-entitlement.plist
+[48/51] Emitting module DebugConsumer
+[49/52] Compiling DebugConsumer main.swift
+[49/52] Write Objects.LinkFileList
+[50/52] Linking DebugConsumer
+[51/52] Applying DebugConsumer
+Build of product 'DebugConsumer' complete! (28.11s)
+installed optional StatelessDebug fresh-process proof passed: viewer, verification, typed session, isolated fork, full-width inspection, histogram, cooperative host permit

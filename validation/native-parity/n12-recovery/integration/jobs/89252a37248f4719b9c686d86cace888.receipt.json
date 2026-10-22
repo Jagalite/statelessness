@@ -1,0 +1,20 @@
+{
+  "job": "89252a37248f4719b9c686d86cace888",
+  "status": "succeeded",
+  "terminal": true,
+  "raw_log": {
+    "bytes": 67,
+    "sha256": "ad7a5ab6cdc03b70b6e522eac76c667c5dda78e62b87f6e7250a7a744dbe3ba6"
+  },
+  "effective_command": [
+    "python3",
+    "-c",
+    "import ast,json,pathlib; ast.parse(pathlib.Path(\"scripts/native-parity/qualify-n12-integration.py\").read_text()); [json.loads(p.read_text()) for p in pathlib.Path(\"validation/native-parity/n12-recovery/integration\").glob(\"*goldens.json\")]; print(\"integration helper syntax and independent golden JSON parse passed\")"
+  ],
+  "requested_command": [
+    "python3",
+    "-c",
+    "import ast,json,pathlib; ast.parse(pathlib.Path(\"scripts/native-parity/qualify-n12-integration.py\").read_text()); [json.loads(p.read_text()) for p in pathlib.Path(\"validation/native-parity/n12-recovery/integration\").glob(\"*goldens.json\")]; print(\"integration helper syntax and independent golden JSON parse passed\")"
+  ],
+  "policy_message": null
+}

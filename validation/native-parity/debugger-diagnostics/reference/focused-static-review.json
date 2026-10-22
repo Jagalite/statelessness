@@ -1,0 +1,136 @@
+{
+  "qualification": "Focused independent static review only, not complete line-by-line module review or executed qualification. Hashes identify inspected snapshot; later edits require rereview.",
+  "runtime": "Rust reference compile47fbcc6ce3c941bf8d74727338f51e08 queued, execution pending. Shared queue OS memory-pressure warning blocks new work.",
+  "files": [
+    {
+      "path": "go/debug/evidence.go",
+      "sha256": "af74bd0f2b0291d6a7d258bcd6724c7cd3ecc31d6cbba1b59dc5c75fafd9c52f",
+      "scope": "passive ownership, v1 structural vs semantic validation, checkpoint identities, explicit verification"
+    },
+    {
+      "path": "go/debug/minimize.go",
+      "sha256": "79c57b3e8fd5177357c769f86463e0a47c34aa084bb356113c2739d1798535eb",
+      "scope": "phase/policy preservation, checkpoint roots, shared verification/time/transition budget"
+    },
+    {
+      "path": "go/debug/session.go",
+      "sha256": "b5e04515588d0ac4174f310e2e74b369034d4f99886ecf1c026968e576621ca7",
+      "scope": "counters, breakpoint/observer order, cancel, continue, candidate domain revalidation"
+    },
+    {
+      "path": "go/debug/fork.go",
+      "sha256": "142bd76a0f7a0fd5dabcbd9abfd74c9fd5da9f34b7c03b124936a651346291e0",
+      "scope": "verified prefix before restore, build override, reserved provenance, sidecar binding"
+    },
+    {
+      "path": "go/debug/effects.go",
+      "sha256": "12667a330265ae965605902971b6bb20952f9c3fd68c68b7a55637b149df4617",
+      "scope": "focused lifecycle admission/settlement/pause/abandonment and bounded details"
+    },
+    {
+      "path": "go/debug/metrics.go",
+      "sha256": "094a1a06d42f6343ad3edc6a660392d8619bac384c184cdfba50359dcac17f15",
+      "scope": "focused full-width sums/quantiles, detached snapshots, windows, endpoint ownership"
+    },
+    {
+      "path": "go/debug/live.go",
+      "sha256": "09646b05f7dcbf1c5c1127327750e87a2d44c7b97c2fe289d2bdec378c89a177",
+      "scope": "focused single-use permits, uncertain dispatch, bounded output-origin tail"
+    },
+    {
+      "path": "go/debug/diagnostic.go",
+      "sha256": "702f3c26f30ff4e357f0d09882e720133ca0a5115ed9b85d4a8c4df5b18f90ab",
+      "scope": "focused unknown property metadata and independent sink health"
+    },
+    {
+      "path": "python/src/statelessness/debugger.py",
+      "sha256": "9828e46f4add5fa3a113038a72464ee78fb974699beb4373bdc9afb6add844c0",
+      "scope": "offline phase/policy/budget and passive ownership"
+    },
+    {
+      "path": "python/src/statelessness/debugger_session.py",
+      "sha256": "488654c3dacf8af14f928138d59e1ce8d46ce7ce8ce89a96071448f54eb8639e",
+      "scope": "ordinary session counters, ordering, errors and recorder handoff"
+    },
+    {
+      "path": "python/src/statelessness/debugger_workbench.py",
+      "sha256": "3eb1ee95fd88bf18d073d253573c746c317f8d922ab7e12f52501c6e751ca1a5",
+      "scope": "candidate revalidation and verified fork provenance"
+    },
+    {
+      "path": "python/src/statelessness/debugger_inspect.py",
+      "sha256": "a7ef986dc71916dee23e023a8e4e63258ae8745e0dfe3e78e6e5e9bf87c898a2",
+      "scope": "focused bounded UTF8/metadata/children and typed scalars"
+    },
+    {
+      "path": "python/src/statelessness/debugger_watches.py",
+      "sha256": "3d84a5d31773cd51c35507ed65f1d5c8b2ddfac7487c8f77899d0d41b12b445d",
+      "scope": "focused no-interest, boundary observation and independent retention"
+    },
+    {
+      "path": "python/src/statelessness/debugger_diagnostic.py",
+      "sha256": "6aab0258a9c501cf49c29db5799facef08bc61d9d88fc90d879f45017647fa85",
+      "scope": "focused config acknowledgement, optional metadata, lazy projection/export faults"
+    },
+    {
+      "path": "python/src/statelessness/debugger_protocol.py",
+      "sha256": "2bbb0b2a6fb528577f39768bd8135b91fed285ce15e34cd1d8d257d17cf62d7c",
+      "scope": "focused framing/dedup/wire field shapes/candidate authority; protocol owner final fixes pending"
+    },
+    {
+      "path": "typescript/src/debug.ts",
+      "sha256": "3ec1cb3a1f9d310525f0ee3adf57b2f82e4898e4a718830ed2b04e52e5f4f84b",
+      "scope": "offline phase/policy/shared budgets and detached ownership"
+    },
+    {
+      "path": "typescript/src/debug_session.ts",
+      "sha256": "dbed749e113a742f9b2cdc86df248999a12a3bf9a8ff6556b5c2a881c1afd2d9",
+      "scope": "ordinary session ordering/counters, direct predicate policies, reserved provenance"
+    },
+    {
+      "path": "typescript/src/debug_fork.ts",
+      "sha256": "c919a5e4ae57e0b2e76cb8a94a1ce2fc9db3eab8df8c14d0d6dda2cf786af0a3",
+      "scope": "prefix verification and recorded sidecar binding"
+    },
+    {
+      "path": "typescript/src/debug_inspect.ts",
+      "sha256": "321250c70b3e9d739a8c0fd3206f3590e480ca58e7a127350018b5750fc79ec1",
+      "scope": "focused schema/source aggregate bound, unknown completeness and exact typed quantities"
+    },
+    {
+      "path": "typescript/src/debug_diagnostic.ts",
+      "sha256": "bc753df5fd0595821d28153757dfd071ce550c30c67860b3a48431a8cc75160e",
+      "scope": "focused no-interest/single-evaluation optional selectors/config/boundaries"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/EvidenceViewer.swift",
+      "sha256": "a2e175b90dfef25c5baec48918b5b351a54ff4be579717eaf27feb04f8f7184a",
+      "scope": "offline phase/policy/shared budget and value ownership"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/Session.swift",
+      "sha256": "ce3b18507a996e18d83ce747766aecf02f490dbb56c941c8ad782b6683482ad5",
+      "scope": "ordinary counters/breakpoints/observer/tokens; module-internal provenance constructor verified"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/Branch.swift",
+      "sha256": "86d86ce750efd94548733d02e945f699cceb2d905af3fcfc88606adfa7c7f6f6",
+      "scope": "prefix verify/build override/provenance and fixed16 digest parameter formatting verified"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/Metrics.swift",
+      "sha256": "7a741c975039f5cb7eebb565c490a280eec308bf52e6d9448fd0b89441b24359",
+      "scope": "focused UInt128 sums and fullwidth quantile arithmetic"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/Effects.swift",
+      "sha256": "1465d80c284bdfbd759dac2f5cbde036b23a582d14bf4c17e8ecd8426740324b",
+      "scope": "focused handle/lifecycle/pause/future-result preservation; wrapper-drop fix pending"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/Live.swift",
+      "sha256": "3841e0f43828222d35a49fd56cd34547987ac0e94bebd776b8a6ed67acf35b85",
+      "scope": "focused copied-permit one-use and failed uncertainty"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+    Blocking waiting for file lock on build directory
+   Compiling statelessness-debug v0.2.0 (/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/crates/statelessness-debug)
+    Building [========================>    ] 7/8: n12_reference(test)         
+[Kyoto: stopping for sustained memory/swap pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness-debug v0.2.0 (/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/crates/statelessness-debug)
+    Building [========================>    ] 7/8: n12_reference(test)             Finished `test` profile [unoptimized] target(s) in 3.45s
+  Executable tests/n12_reference.rs (target/n12-recovery/debug/deps/n12_reference-d8e214de9c5d60da)

@@ -1,0 +1,4715 @@
+TAP version 13
+# Subtest: all native engine paths prefer append hooks exactly once over throwing legacy methods
+ok 1 - all native engine paths prefer append hooks exactly once over throwing legacy methods
+  ---
+  duration_ms: 11.658916
+  ...
+# Subtest: sink stores detached validated checks, immutable snapshots and logical caller-buffer reuse
+ok 2 - sink stores detached validated checks, immutable snapshots and logical caller-buffer reuse
+  ---
+  duration_ms: 0.662375
+  ...
+# Subtest: observedInto clears entry and every failure, including config/snapshot/throwundefined and malformed late append
+ok 3 - observedInto clears entry and every failure, including config/snapshot/throwundefined and malformed late append
+  ---
+  duration_ms: 0.433583
+  ...
+# Subtest: validation errors are sticky even when caught and no expired lease can poison another batch
+ok 4 - validation errors are sticky even when caught and no expired lease can poison another batch
+  ---
+  duration_ms: 0.399917
+  ...
+# Subtest: search retains state and partial transition batches while diagnostics cannot replace checker error
+ok 5 - search retains state and partial transition batches while diagnostics cannot replace checker error
+  ---
+  duration_ms: 0.504417
+  ...
+# Subtest: nested oracle leases expire independently, see full preceding prefix and preserve actual-oracle order
+ok 6 - nested oracle leases expire independently, see full preceding prefix and preserve actual-oracle order
+  ---
+  duration_ms: 0.475792
+  ...
+# Subtest: nested invalid child cannot be swallowed into successful outer batch; expired old child is isolated
+ok 7 - nested invalid child cannot be swallowed into successful outer batch; expired old child is isolated
+  ---
+  duration_ms: 0.218625
+  ...
+# Subtest: Paired forwards reference append hooks before projection checks
+ok 8 - Paired forwards reference append hooks before projection checks
+  ---
+  duration_ms: 0.417541
+  ...
+# Subtest: automatic forwards append capabilities from frozen models with private method receivers
+ok 9 - automatic forwards append capabilities from frozen models with private method receivers
+  ---
+  duration_ms: 0.857334
+  ...
+# Subtest: append hooks must synchronously return undefined, including promises and thenables
+ok 10 - append hooks must synchronously return undefined, including promises and thenables
+  ---
+  duration_ms: 0.602625
+  ...
+# Subtest: nested malformed append freezes the valid prefix before any caught outer continuation
+ok 11 - nested malformed append freezes the valid prefix before any caught outer continuation
+  ---
+  duration_ms: 0.280708
+  ...
+# Subtest: expired root and nested leases release backing storage even while sink objects survive
+ok 12 - expired root and nested leases release backing storage even while sink objects survive
+  ---
+  duration_ms: 203.649167
+  ...
+# Subtest: present noncallable append hooks fail closed instead of falling back to legacy
+ok 13 - present noncallable append hooks fail closed instead of falling back to legacy
+  ---
+  duration_ms: 1.221125
+  ...
+# Subtest: append-checks-v1 legacy-direct-state
+ok 14 - append-checks-v1 legacy-direct-state
+  ---
+  duration_ms: 1.764125
+  ...
+# Subtest: append-checks-v1 legacy-direct-transition
+ok 15 - append-checks-v1 legacy-direct-transition
+  ---
+  duration_ms: 0.428584
+  ...
+# Subtest: append-checks-v1 legacy-observed
+ok 16 - append-checks-v1 legacy-observed
+  ---
+  duration_ms: 0.260583
+  ...
+# Subtest: append-checks-v1 legacy-observed-state-skip
+ok 17 - append-checks-v1 legacy-observed-state-skip
+  ---
+  duration_ms: 0.167667
+  ...
+# Subtest: append-checks-v1 legacy-observed-edge-skip
+ok 18 - append-checks-v1 legacy-observed-edge-skip
+  ---
+  duration_ms: 0.282792
+  ...
+# Subtest: append-checks-v1 legacy-observed-both-skip
+ok 19 - append-checks-v1 legacy-observed-both-skip
+  ---
+  duration_ms: 0.296917
+  ...
+# Subtest: append-checks-v1 legacy-observed-sequence-zero
+ok 20 - append-checks-v1 legacy-observed-sequence-zero
+  ---
+  duration_ms: 0.499125
+  ...
+# Subtest: append-checks-v1 legacy-bfs
+ok 21 - append-checks-v1 legacy-bfs
+  ---
+  duration_ms: 2.123375
+  ...
+# Subtest: append-checks-v1 legacy-fuzz
+ok 22 - append-checks-v1 legacy-fuzz
+  ---
+  duration_ms: 2.221917
+  ...
+# Subtest: append-checks-v1 legacy-shrink
+ok 23 - append-checks-v1 legacy-shrink
+  ---
+  duration_ms: 2.268625
+  ...
+# Subtest: append-checks-v1 legacy-record
+ok 24 - append-checks-v1 legacy-record
+  ---
+  duration_ms: 2.515625
+  ...
+# Subtest: append-checks-v1 legacy-replay
+ok 25 - append-checks-v1 legacy-replay
+  ---
+  duration_ms: 2.189959
+  ...
+# Subtest: append-checks-v1 legacy-observed-state-error
+ok 26 - append-checks-v1 legacy-observed-state-error
+  ---
+  duration_ms: 0.314083
+  ...
+# Subtest: append-checks-v1 legacy-bfs-state-error
+ok 27 - append-checks-v1 legacy-bfs-state-error
+  ---
+  duration_ms: 0.397292
+  ...
+# Subtest: append-checks-v1 legacy-observed-transition-error
+ok 28 - append-checks-v1 legacy-observed-transition-error
+  ---
+  duration_ms: 0.166666
+  ...
+# Subtest: append-checks-v1 legacy-bfs-transition-error
+ok 29 - append-checks-v1 legacy-bfs-transition-error
+  ---
+  duration_ms: 0.257792
+  ...
+# Subtest: append-checks-v1 legacy-bfs-initial-error
+ok 30 - append-checks-v1 legacy-bfs-initial-error
+  ---
+  duration_ms: 0.370792
+  ...
+# Subtest: append-checks-v1 legacy-record-turn-error
+ok 31 - append-checks-v1 legacy-record-turn-error
+  ---
+  duration_ms: 0.324333
+  ...
+# Subtest: append-checks-v1 legacy-record-initial-error
+ok 32 - append-checks-v1 legacy-record-initial-error
+  ---
+  duration_ms: 0.162625
+  ...
+# Subtest: append-checks-v1 legacy-replay-initial-error
+ok 33 - append-checks-v1 legacy-replay-initial-error
+  ---
+  duration_ms: 0.797584
+  ...
+# Subtest: append-checks-v1 legacy-replay-turn-error
+ok 34 - append-checks-v1 legacy-replay-turn-error
+  ---
+  duration_ms: 0.505667
+  ...
+# Subtest: append-checks-v1 legacy-fuzz-state-failure
+ok 35 - append-checks-v1 legacy-fuzz-state-failure
+  ---
+  duration_ms: 0.49625
+  ...
+# Subtest: append-checks-v1 append-direct-state
+ok 36 - append-checks-v1 append-direct-state
+  ---
+  duration_ms: 0.204917
+  ...
+# Subtest: append-checks-v1 append-direct-transition
+ok 37 - append-checks-v1 append-direct-transition
+  ---
+  duration_ms: 0.156291
+  ...
+# Subtest: append-checks-v1 append-observed
+ok 38 - append-checks-v1 append-observed
+  ---
+  duration_ms: 0.140958
+  ...
+# Subtest: append-checks-v1 append-observed-state-skip
+ok 39 - append-checks-v1 append-observed-state-skip
+  ---
+  duration_ms: 0.126667
+  ...
+# Subtest: append-checks-v1 append-observed-edge-skip
+ok 40 - append-checks-v1 append-observed-edge-skip
+  ---
+  duration_ms: 0.344083
+  ...
+# Subtest: append-checks-v1 append-observed-both-skip
+ok 41 - append-checks-v1 append-observed-both-skip
+  ---
+  duration_ms: 0.144042
+  ...
+# Subtest: append-checks-v1 append-observed-sequence-zero
+ok 42 - append-checks-v1 append-observed-sequence-zero
+  ---
+  duration_ms: 0.130083
+  ...
+# Subtest: append-checks-v1 append-bfs
+ok 43 - append-checks-v1 append-bfs
+  ---
+  duration_ms: 0.651208
+  ...
+# Subtest: append-checks-v1 append-fuzz
+ok 44 - append-checks-v1 append-fuzz
+  ---
+  duration_ms: 0.266292
+  ...
+# Subtest: append-checks-v1 append-shrink
+ok 45 - append-checks-v1 append-shrink
+  ---
+  duration_ms: 1.300459
+  ...
+# Subtest: append-checks-v1 append-record
+ok 46 - append-checks-v1 append-record
+  ---
+  duration_ms: 0.252458
+  ...
+# Subtest: append-checks-v1 append-replay
+ok 47 - append-checks-v1 append-replay
+  ---
+  duration_ms: 0.8885
+  ...
+# Subtest: append-checks-v1 append-observed-state-error
+ok 48 - append-checks-v1 append-observed-state-error
+  ---
+  duration_ms: 0.100625
+  ...
+# Subtest: append-checks-v1 append-bfs-state-error
+ok 49 - append-checks-v1 append-bfs-state-error
+  ---
+  duration_ms: 2.5025
+  ...
+# Subtest: append-checks-v1 append-observed-transition-error
+ok 50 - append-checks-v1 append-observed-transition-error
+  ---
+  duration_ms: 0.189208
+  ...
+# Subtest: append-checks-v1 append-bfs-transition-error
+ok 51 - append-checks-v1 append-bfs-transition-error
+  ---
+  duration_ms: 0.66825
+  ...
+# Subtest: append-checks-v1 append-bfs-initial-error
+ok 52 - append-checks-v1 append-bfs-initial-error
+  ---
+  duration_ms: 0.184542
+  ...
+# Subtest: append-checks-v1 append-record-turn-error
+ok 53 - append-checks-v1 append-record-turn-error
+  ---
+  duration_ms: 2.664791
+  ...
+# Subtest: append-checks-v1 append-record-initial-error
+ok 54 - append-checks-v1 append-record-initial-error
+  ---
+  duration_ms: 0.108667
+  ...
+# Subtest: append-checks-v1 append-replay-initial-error
+ok 55 - append-checks-v1 append-replay-initial-error
+  ---
+  duration_ms: 0.15225
+  ...
+# Subtest: append-checks-v1 append-replay-turn-error
+ok 56 - append-checks-v1 append-replay-turn-error
+  ---
+  duration_ms: 0.149375
+  ...
+# Subtest: append-checks-v1 append-fuzz-state-failure
+ok 57 - append-checks-v1 append-fuzz-state-failure
+  ---
+  duration_ms: 0.324292
+  ...
+# Subtest: append-checks-v1 oracle_state
+ok 58 - append-checks-v1 oracle_state
+  ---
+  duration_ms: 0.22675
+  ...
+# Subtest: append-checks-v1 oracle_state-error
+ok 59 - append-checks-v1 oracle_state-error
+  ---
+  duration_ms: 0.077375
+  ...
+# Subtest: append-checks-v1 oracle_transition
+ok 60 - append-checks-v1 oracle_transition
+  ---
+  duration_ms: 0.167875
+  ...
+# Subtest: append-checks-v1 oracle_transition-error
+ok 61 - append-checks-v1 oracle_transition-error
+  ---
+  duration_ms: 0.070166
+  ...
+# Subtest: append-checks-v1 paired-state
+ok 62 - append-checks-v1 paired-state
+  ---
+  duration_ms: 0.106834
+  ...
+# Subtest: append-checks-v1 paired-reference-error
+ok 63 - append-checks-v1 paired-reference-error
+  ---
+  duration_ms: 0.0685
+  ...
+# Subtest: append-checks-v1 paired-projection-error
+ok 64 - append-checks-v1 paired-projection-error
+  ---
+  duration_ms: 0.071583
+  ...
+# Subtest: append-checks-v1 paired-transition
+ok 65 - append-checks-v1 paired-transition
+  ---
+  duration_ms: 1.366916
+  ...
+# Subtest: BFS estimates exact fit, initial and successor rejection; state cap precedes estimate
+ok 66 - BFS estimates exact fit, initial and successor rejection; state cap precedes estimate
+  ---
+  duration_ms: 2.802041
+  ...
+# Subtest: BFS unknown/overflow estimates and duplicate suppression
+ok 67 - BFS unknown/overflow estimates and duplicate suppression
+  ---
+  duration_ms: 1.314625
+  ...
+# Subtest: BFS pre-start stop has zero callbacks, cancellation priority and no clock absent deadline
+ok 68 - BFS pre-start stop has zero callbacks, cancellation priority and no clock absent deadline
+  ---
+  duration_ms: 0.750292
+  ...
+# Subtest: BFS polls after iterator creation/advancement, hashing, equality and estimates
+ok 69 - BFS polls after iterator creation/advancement, hashing, equality and estimates
+  ---
+  duration_ms: 0.271333
+  ...
+# Subtest: BFS completed checking failure and checker error beat simultaneous cancellation
+ok 70 - BFS completed checking failure and checker error beat simultaneous cancellation
+  ---
+  duration_ms: 0.539959
+  ...
+# Subtest: BFS single exhaustion probes and latest-first hash collision comparisons
+ok 71 - BFS single exhaustion probes and latest-first hash collision comparisons
+  ---
+  duration_ms: 0.34225
+  ...
+# Subtest: BFS observes duplicate and failing edges with detached rooted history
+ok 72 - BFS observes duplicate and failing edges with detached rooted history
+  ---
+  duration_ms: 0.584792
+  ...
+# Subtest: BFS check_error partial batches retain primary checker errors
+ok 73 - BFS check_error partial batches retain primary checker errors
+  ---
+  duration_ms: 0.639417
+  ...
+# Subtest: Oracle estimate overhead explicit, checked, optional; Paired delegates reference estimate
+ok 74 - Oracle estimate overhead explicit, checked, optional; Paired delegates reference estimate
+  ---
+  duration_ms: 0.808958
+  ...
+# Subtest: BFS fake-clock deadline triggered inside a turn respects complete check boundary
+ok 75 - BFS fake-clock deadline triggered inside a turn respects complete check boundary
+  ---
+  duration_ms: 0.646417
+  ...
+# Subtest: wide BFS accepts exact full-u64 transition budgets and returns bigint counters
+ok 76 - wide BFS accepts exact full-u64 transition budgets and returns bigint counters
+  ---
+  duration_ms: 3.41175
+  ...
+# Subtest: shared skipped-check accounting saturates at u64 maximum
+ok 77 - shared skipped-check accounting saturates at u64 maximum
+  ---
+  duration_ms: 0.540375
+  ...
+# Subtest: BFS captures validated config fields once and ignores callback budget mutation
+ok 78 - BFS captures validated config fields once and ignores callback budget mutation
+  ---
+  duration_ms: 0.711625
+  ...
+# Subtest: run controls snapshot duration/callback once, preserve receiver and keep external flags live
+ok 79 - run controls snapshot duration/callback once, preserve receiver and keep external flags live
+  ---
+  duration_ms: 0.8145
+  ...
+# Subtest: bfs-controls-v1 chain-exhausted
+ok 80 - bfs-controls-v1 chain-exhausted
+  ---
+  duration_ms: 5.501292
+  ...
+# Subtest: bfs-controls-v1 exact-edge-budget
+ok 81 - bfs-controls-v1 exact-edge-budget
+  ---
+  duration_ms: 1.315042
+  ...
+# Subtest: bfs-controls-v1 exact-depth-leaf
+ok 82 - bfs-controls-v1 exact-depth-leaf
+  ---
+  duration_ms: 1.123541
+  ...
+# Subtest: bfs-controls-v1 exact-byte-cap
+ok 83 - bfs-controls-v1 exact-byte-cap
+  ---
+  duration_ms: 0.639
+  ...
+# Subtest: bfs-controls-v1 zero-state-config
+ok 84 - bfs-controls-v1 zero-state-config
+  ---
+  duration_ms: 1.070917
+  ...
+# Subtest: bfs-controls-v1 entry-cancelled
+ok 85 - bfs-controls-v1 entry-cancelled
+  ---
+  duration_ms: 0.220875
+  ...
+# Subtest: bfs-controls-v1 entry-deadline
+ok 86 - bfs-controls-v1 entry-deadline
+  ---
+  duration_ms: 1.663875
+  ...
+# Subtest: bfs-controls-v1 entry-both
+ok 87 - bfs-controls-v1 entry-both
+  ---
+  duration_ms: 0.196166
+  ...
+# Subtest: bfs-controls-v1 initial-over-cap
+ok 88 - bfs-controls-v1 initial-over-cap
+  ---
+  duration_ms: 1.029917
+  ...
+# Subtest: bfs-controls-v1 initial-missing-cap
+ok 89 - bfs-controls-v1 initial-missing-cap
+  ---
+  duration_ms: 1.329041
+  ...
+# Subtest: bfs-controls-v1 initial-failure-wins
+ok 90 - bfs-controls-v1 initial-failure-wins
+  ---
+  duration_ms: 0.239167
+  ...
+# Subtest: bfs-controls-v1 step-failure-wins
+ok 91 - bfs-controls-v1 step-failure-wins
+  ---
+  duration_ms: 0.25
+  ...
+# Subtest: bfs-controls-v1 cancel-initial
+ok 92 - bfs-controls-v1 cancel-initial
+  ---
+  duration_ms: 0.111833
+  ...
+# Subtest: bfs-controls-v1 cancel-state-0
+ok 93 - bfs-controls-v1 cancel-state-0
+  ---
+  duration_ms: 0.04075
+  ...
+# Subtest: bfs-controls-v1 cancel-estimate-0
+ok 94 - bfs-controls-v1 cancel-estimate-0
+  ---
+  duration_ms: 0.037917
+  ...
+# Subtest: bfs-controls-v1 cancel-hash-0
+ok 95 - bfs-controls-v1 cancel-hash-0
+  ---
+  duration_ms: 1.476917
+  ...
+# Subtest: bfs-controls-v1 cancel-inputs-0
+ok 96 - bfs-controls-v1 cancel-inputs-0
+  ---
+  duration_ms: 0.278917
+  ...
+# Subtest: bfs-controls-v1 cancel-next-0-1
+ok 97 - bfs-controls-v1 cancel-next-0-1
+  ---
+  duration_ms: 0.131791
+  ...
+# Subtest: bfs-controls-v1 cancel-step-0-1
+ok 98 - bfs-controls-v1 cancel-step-0-1
+  ---
+  duration_ms: 0.213917
+  ...
+# Subtest: bfs-controls-v1 cancel-hash-1
+ok 99 - bfs-controls-v1 cancel-hash-1
+  ---
+  duration_ms: 0.152792
+  ...
+# Subtest: bfs-controls-v1 cancel-equal-0-1
+ok 100 - bfs-controls-v1 cancel-equal-0-1
+  ---
+  duration_ms: 0.148334
+  ...
+# Subtest: bfs-controls-v1 cancel-estimate-1
+ok 101 - bfs-controls-v1 cancel-estimate-1
+  ---
+  duration_ms: 0.158083
+  ...
+# Subtest: bfs-controls-v1 cancel-next-0-end
+ok 102 - bfs-controls-v1 cancel-next-0-end
+  ---
+  duration_ms: 0.175542
+  ...
+# Subtest: bfs-controls-v1 cancel-initial-estimate-before-cap
+ok 103 - bfs-controls-v1 cancel-initial-estimate-before-cap
+  ---
+  duration_ms: 0.103084
+  ...
+# Subtest: bfs-controls-v1 cancel-missing-estimate-before-error
+ok 104 - bfs-controls-v1 cancel-missing-estimate-before-error
+  ---
+  duration_ms: 0.096291
+  ...
+# Subtest: bfs-controls-v1 zero-edge-probe
+ok 105 - bfs-controls-v1 zero-edge-probe
+  ---
+  duration_ms: 0.123833
+  ...
+# Subtest: bfs-controls-v1 cancel-probe-before-edge-limit
+ok 106 - bfs-controls-v1 cancel-probe-before-edge-limit
+  ---
+  duration_ms: 0.133458
+  ...
+# Subtest: bfs-controls-v1 depth-zero-probe
+ok 107 - bfs-controls-v1 depth-zero-probe
+  ---
+  duration_ms: 0.142834
+  ...
+# Subtest: bfs-controls-v1 depth-one-probe
+ok 108 - bfs-controls-v1 depth-one-probe
+  ---
+  duration_ms: 0.162583
+  ...
+# Subtest: bfs-controls-v1 state-cap-before-estimate
+ok 109 - bfs-controls-v1 state-cap-before-estimate
+  ---
+  duration_ms: 0.157166
+  ...
+# Subtest: bfs-controls-v1 successor-byte-cap
+ok 110 - bfs-controls-v1 successor-byte-cap
+  ---
+  duration_ms: 0.147583
+  ...
+# Subtest: bfs-controls-v1 successor-missing-cap
+ok 111 - bfs-controls-v1 successor-missing-cap
+  ---
+  duration_ms: 0.202625
+  ...
+# Subtest: bfs-controls-v1 unknown-sticky
+ok 112 - bfs-controls-v1 unknown-sticky
+  ---
+  duration_ms: 0.184
+  ...
+# Subtest: bfs-controls-v1 overflow-uncapped
+ok 113 - bfs-controls-v1 overflow-uncapped
+  ---
+  duration_ms: 0.22475
+  ...
+# Subtest: bfs-controls-v1 overflow-capped
+ok 114 - bfs-controls-v1 overflow-capped
+  ---
+  duration_ms: 0.170291
+  ...
+# Subtest: bfs-controls-v1 duplicate-not-charged
+ok 115 - bfs-controls-v1 duplicate-not-charged
+  ---
+  duration_ms: 0.696584
+  ...
+# Subtest: bfs-controls-v1 duplicate-skipped-counts
+ok 116 - bfs-controls-v1 duplicate-skipped-counts
+  ---
+  duration_ms: 2.481209
+  ...
+# Subtest: bfs-controls-v1 empty-depth-zero
+ok 117 - bfs-controls-v1 empty-depth-zero
+  ---
+  duration_ms: 0.074667
+  ...
+# Subtest: bfs-controls-v1 initial-check-error
+ok 118 - bfs-controls-v1 initial-check-error
+  ---
+  duration_ms: 0.2645
+  ...
+# Subtest: bfs-controls-v1 state-check-error
+ok 119 - bfs-controls-v1 state-check-error
+  ---
+  duration_ms: 0.099208
+  ...
+# Subtest: bfs-controls-v1 transition-check-error
+ok 120 - bfs-controls-v1 transition-check-error
+  ---
+  duration_ms: 0.101667
+  ...
+# Subtest: bfs-controls-v1 diamond-fifo-histories
+ok 121 - bfs-controls-v1 diamond-fifo-histories
+  ---
+  duration_ms: 0.116459
+  ...
+# Subtest: bfs-controls-v1 history-not-requested
+ok 122 - bfs-controls-v1 history-not-requested
+  ---
+  duration_ms: 0.073375
+  ...
+# Subtest: bfs-controls-v1 zero-estimates-zero-cap
+ok 123 - bfs-controls-v1 zero-estimates-zero-cap
+  ---
+  duration_ms: 0.064583
+  ...
+# Subtest: bfs-controls-v1 unknown-initial-uncapped
+ok 124 - bfs-controls-v1 unknown-initial-uncapped
+  ---
+  duration_ms: 0.065334
+  ...
+# Subtest: bfs-controls-v1 cancel-depth-exhaustion-probe
+ok 125 - bfs-controls-v1 cancel-depth-exhaustion-probe
+  ---
+  duration_ms: 0.054917
+  ...
+# Subtest: bfs-controls-v1 cancel-depth-boundary-probe
+ok 126 - bfs-controls-v1 cancel-depth-boundary-probe
+  ---
+  duration_ms: 0.037625
+  ...
+# Subtest: binary defaults and independent CRC check vector
+ok 127 - binary defaults and independent CRC check vector
+  ---
+  duration_ms: 1.752125
+  ...
+# Subtest: binary-v1 empty
+ok 128 - binary-v1 empty
+  ---
+  duration_ms: 1.721292
+  ...
+# Subtest: binary-v1 single-step
+ok 129 - binary-v1 single-step
+  ---
+  duration_ms: 0.966542
+  ...
+# Subtest: binary-v1 property-failed
+ok 130 - binary-v1 property-failed
+  ---
+  duration_ms: 0.684042
+  ...
+# Subtest: binary-v1 initial-property-failed
+ok 131 - binary-v1 initial-property-failed
+  ---
+  duration_ms: 0.374583
+  ...
+# Subtest: binary-v1 unicode-config-full-u64
+ok 132 - binary-v1 unicode-config-full-u64
+  ---
+  duration_ms: 3.575292
+  ...
+# Subtest: binary-v1 zero-seed
+ok 133 - binary-v1 zero-seed
+  ---
+  duration_ms: 0.19775
+  ...
+# Subtest: binary-v1 rejected-ignored
+ok 134 - binary-v1 rejected-ignored
+  ---
+  duration_ms: 0.372834
+  ...
+# Subtest: binary-v1 step_limit
+ok 135 - binary-v1 step_limit
+  ---
+  duration_ms: 0.432625
+  ...
+# Subtest: binary-v1 interrupted
+ok 136 - binary-v1 interrupted
+  ---
+  duration_ms: 0.481666
+  ...
+# Subtest: binary-v1 model_error
+ok 137 - binary-v1 model_error
+  ---
+  duration_ms: 0.654958
+  ...
+# Subtest: binary-v1 bad-magic
+ok 138 - binary-v1 bad-magic
+  ---
+  duration_ms: 0.663208
+  ...
+# Subtest: binary-v1 unsupported-version
+ok 139 - binary-v1 unsupported-version
+  ---
+  duration_ms: 0.146167
+  ...
+# Subtest: binary-v1 unsupported-flags
+ok 140 - binary-v1 unsupported-flags
+  ---
+  duration_ms: 0.10625
+  ...
+# Subtest: binary-v1 bad-checksum
+ok 141 - binary-v1 bad-checksum
+  ---
+  duration_ms: 0.157625
+  ...
+# Subtest: binary-v1 short-header
+ok 142 - binary-v1 short-header
+  ---
+  duration_ms: 0.104042
+  ...
+# Subtest: binary-v1 missing-footer
+ok 143 - binary-v1 missing-footer
+  ---
+  duration_ms: 0.132416
+  ...
+# Subtest: binary-v1 short-checksum
+ok 144 - binary-v1 short-checksum
+  ---
+  duration_ms: 0.132583
+  ...
+# Subtest: binary-v1 trailing-byte
+ok 145 - binary-v1 trailing-byte
+  ---
+  duration_ms: 0.157666
+  ...
+# Subtest: binary-v1 first-record-step
+ok 146 - binary-v1 first-record-step
+  ---
+  duration_ms: 3.947334
+  ...
+# Subtest: binary-v1 unknown-record
+ok 147 - binary-v1 unknown-record
+  ---
+  duration_ms: 0.177542
+  ...
+# Subtest: binary-v1 duplicate-run
+ok 148 - binary-v1 duplicate-run
+  ---
+  duration_ms: 0.233708
+  ...
+# Subtest: binary-v1 run-trailing-fields
+ok 149 - binary-v1 run-trailing-fields
+  ---
+  duration_ms: 0.068167
+  ...
+# Subtest: binary-v1 footer-trailing-fields
+ok 150 - binary-v1 footer-trailing-fields
+  ---
+  duration_ms: 0.062916
+  ...
+# Subtest: binary-v1 footer-count
+ok 151 - binary-v1 footer-count
+  ---
+  duration_ms: 0.080667
+  ...
+# Subtest: binary-v1 termination-tag
+ok 152 - binary-v1 termination-tag
+  ---
+  duration_ms: 0.060459
+  ...
+# Subtest: binary-v1 seed-tag
+ok 153 - binary-v1 seed-tag
+  ---
+  duration_ms: 0.052834
+  ...
+# Subtest: binary-v1 invalid-utf8
+ok 154 - binary-v1 invalid-utf8
+  ---
+  duration_ms: 0.345875
+  ...
+# Subtest: binary-v1 field-outside-frame
+ok 155 - binary-v1 field-outside-frame
+  ---
+  duration_ms: 0.054042
+  ...
+# Subtest: binary-v1 oversized-string-length
+ok 156 - binary-v1 oversized-string-length
+  ---
+  duration_ms: 0.160375
+  ...
+# Subtest: binary-v1 parameter-count-outside-frame
+ok 157 - binary-v1 parameter-count-outside-frame
+  ---
+  duration_ms: 0.060709
+  ...
+# Subtest: binary-v1 check-count-outside-frame
+ok 158 - binary-v1 check-count-outside-frame
+  ---
+  duration_ms: 0.076792
+  ...
+# Subtest: binary-v1 oversized-frame-declaration
+ok 159 - binary-v1 oversized-frame-declaration
+  ---
+  duration_ms: 0.040834
+  ...
+# Subtest: binary-v1 transition-index
+ok 160 - binary-v1 transition-index
+  ---
+  duration_ms: 0.068667
+  ...
+# Subtest: binary-v1 disposition-tag
+ok 161 - binary-v1 disposition-tag
+  ---
+  duration_ms: 0.061125
+  ...
+# Subtest: binary-v1 check-status-tag
+ok 162 - binary-v1 check-status-tag
+  ---
+  duration_ms: 0.060875
+  ...
+# Subtest: binary-v1 total-limit
+ok 163 - binary-v1 total-limit
+  ---
+  duration_ms: 0.061667
+  ...
+# Subtest: binary-v1 frame-limit
+ok 164 - binary-v1 frame-limit
+  ---
+  duration_ms: 0.041292
+  ...
+# Subtest: binary-v1 blob-limit
+ok 165 - binary-v1 blob-limit
+  ---
+  duration_ms: 0.070167
+  ...
+# Subtest: binary-v1 string-limit
+ok 166 - binary-v1 string-limit
+  ---
+  duration_ms: 0.047584
+  ...
+# Subtest: binary-v1 step-limit
+ok 167 - binary-v1 step-limit
+  ---
+  duration_ms: 0.076375
+  ...
+# Subtest: binary-v1 check-limit
+ok 168 - binary-v1 check-limit
+  ---
+  duration_ms: 2.330333
+  ...
+# Subtest: binary-v1 output-limit
+ok 169 - binary-v1 output-limit
+  ---
+  duration_ms: 0.446666
+  ...
+# Subtest: binary-v1 parameter-limit
+ok 170 - binary-v1 parameter-limit
+  ---
+  duration_ms: 0.088541
+  ...
+# Subtest: binary-v1 item-limit
+ok 171 - binary-v1 item-limit
+  ---
+  duration_ms: 0.063083
+  ...
+# Subtest: binary-v1 exact-total-limit
+ok 172 - binary-v1 exact-total-limit
+  ---
+  duration_ms: 0.133292
+  ...
+# Subtest: binary-v1 exact-frame-limit
+ok 173 - binary-v1 exact-frame-limit
+  ---
+  duration_ms: 0.083334
+  ...
+# Subtest: binary-v1 empty-model-error-reason
+ok 174 - binary-v1 empty-model-error-reason
+  ---
+  duration_ms: 0.104042
+  ...
+# Subtest: binary-v1 structural-completed-with-failure
+ok 175 - binary-v1 structural-completed-with-failure
+  ---
+  duration_ms: 0.105417
+  ...
+# Subtest: binary-v1 structural-property-failed-without-failure
+ok 176 - binary-v1 structural-property-failed-without-failure
+  ---
+  duration_ms: 0.089625
+  ...
+# Subtest: binary-v1 ordered-duplicate-check-ids
+ok 177 - binary-v1 ordered-duplicate-check-ids
+  ---
+  duration_ms: 0.204959
+  ...
+# Subtest: binary-v1 exact-item-limit
+ok 178 - binary-v1 exact-item-limit
+  ---
+  duration_ms: 0.183583
+  ...
+# Subtest: binary-v1 exact-parameter-limit
+ok 179 - binary-v1 exact-parameter-limit
+  ---
+  duration_ms: 0.146042
+  ...
+# Subtest: binary-v1 exact-check-limit
+ok 180 - binary-v1 exact-check-limit
+  ---
+  duration_ms: 0.149959
+  ...
+# Subtest: binary-v1 exact-output-limit
+ok 181 - binary-v1 exact-output-limit
+  ---
+  duration_ms: 0.464458
+  ...
+# Subtest: every proper valid artifact prefix is rejected, including every checksum/footer byte
+ok 182 - every proper valid artifact prefix is rejected, including every checksum/footer byte
+  ---
+  duration_ms: 71.126417
+  ...
+# Subtest: chunked readers preserve all bytes and detect I/O/short EOF, including footer EOF probe
+ok 183 - chunked readers preserve all bytes and detect I/O/short EOF, including footer EOF probe
+  ---
+  duration_ms: 1.947166
+  ...
+# Subtest: writer validates late fields and every quota before publishing any byte
+ok 184 - writer validates late fields and every quota before publishing any byte
+  ---
+  duration_ms: 2.032375
+  ...
+# Subtest: lossless explicit conversions retain run config, duplicate pairs, seed and error reason
+ok 185 - lossless explicit conversions retain run config, duplicate pairs, seed and error reason
+  ---
+  duration_ms: 2.925
+  ...
+# Subtest: conversion owns Buffer bytes and fields are captured once before writer preflight
+ok 186 - conversion owns Buffer bytes and fields are captured once before writer preflight
+  ---
+  duration_ms: 1.16475
+  ...
+# Subtest: writer snapshots bounded indexed collections without invoking custom array iterators
+ok 187 - writer snapshots bounded indexed collections without invoking custom array iterators
+  ---
+  duration_ms: 0.499208
+  ...
+# Subtest: byte quotas measure intrinsic typed-array storage instead of overridden length
+ok 188 - byte quotas measure intrinsic typed-array storage instead of overridden length
+  ---
+  duration_ms: 0.26925
+  ...
+# Subtest: checked corpus supplied-checkpoint
+ok 189 - checked corpus supplied-checkpoint
+  ---
+  duration_ms: 1.850834
+  ...
+# Subtest: checked corpus initial-empty
+ok 190 - checked corpus initial-empty
+  ---
+  duration_ms: 0.210584
+  ...
+# Subtest: checked corpus initial-failed
+ok 191 - checked corpus initial-failed
+  ---
+  duration_ms: 1.423958
+  ...
+# Subtest: checked corpus initial-ordered
+ok 192 - checked corpus initial-ordered
+  ---
+  duration_ms: 0.340709
+  ...
+# Subtest: checked corpus turn-empty
+ok 193 - checked corpus turn-empty
+  ---
+  duration_ms: 1.465583
+  ...
+# Subtest: checked corpus turn-failed
+ok 194 - checked corpus turn-failed
+  ---
+  duration_ms: 0.592291
+  ...
+# Subtest: checked corpus turn-ordered
+ok 195 - checked corpus turn-ordered
+  ---
+  duration_ms: 0.233125
+  ...
+# Subtest: checked corpus turn-accepted
+ok 196 - checked corpus turn-accepted
+  ---
+  duration_ms: 0.1505
+  ...
+# Subtest: checked corpus turn-rejected
+ok 197 - checked corpus turn-rejected
+  ---
+  duration_ms: 0.524917
+  ...
+# Subtest: checked corpus turn-ignored
+ok 198 - checked corpus turn-ignored
+  ---
+  duration_ms: 0.422083
+  ...
+# Subtest: checked corpus sequence-0
+ok 199 - checked corpus sequence-0
+  ---
+  duration_ms: 0.316917
+  ...
+# Subtest: checked corpus sequence-2
+ok 200 - checked corpus sequence-2
+  ---
+  duration_ms: 0.111167
+  ...
+# Subtest: checked corpus sequence-18446744073709551615
+ok 201 - checked corpus sequence-18446744073709551615
+  ---
+  duration_ms: 0.075583
+  ...
+# Subtest: checked corpus sequence-9007199254740993
+ok 202 - checked corpus sequence-9007199254740993
+  ---
+  duration_ms: 0.236583
+  ...
+# Subtest: checked corpus sampled-1-true
+ok 203 - checked corpus sampled-1-true
+  ---
+  duration_ms: 0.0785
+  ...
+# Subtest: checked corpus sampled-1-false
+ok 204 - checked corpus sampled-1-false
+  ---
+  duration_ms: 0.071583
+  ...
+# Subtest: checked corpus sampled-2-true
+ok 205 - checked corpus sampled-2-true
+  ---
+  duration_ms: 0.060667
+  ...
+# Subtest: checked corpus sampled-2-false
+ok 206 - checked corpus sampled-2-false
+  ---
+  duration_ms: 0.059458
+  ...
+# Subtest: checked corpus sampled-18446744073709551615-true
+ok 207 - checked corpus sampled-18446744073709551615-true
+  ---
+  duration_ms: 0.053834
+  ...
+# Subtest: checked corpus sampled-18446744073709551615-false
+ok 208 - checked corpus sampled-18446744073709551615-false
+  ---
+  duration_ms: 0.052333
+  ...
+# Subtest: checked corpus transition-disabled
+ok 209 - checked corpus transition-disabled
+  ---
+  duration_ms: 0.057459
+  ...
+# Subtest: checked corpus initial-state-error
+ok 210 - checked corpus initial-state-error
+  ---
+  duration_ms: 0.164042
+  ...
+# Subtest: checked corpus turn-state-error
+ok 211 - checked corpus turn-state-error
+  ---
+  duration_ms: 0.067542
+  ...
+# Subtest: checked corpus turn-transition-error
+ok 212 - checked corpus turn-transition-error
+  ---
+  duration_ms: 0.085125
+  ...
+# Subtest: checked corpus failed-state-does-not-suppress-transition-error
+ok 213 - checked corpus failed-state-does-not-suppress-transition-error
+  ---
+  duration_ms: 0.071541
+  ...
+# Subtest: checked corpus u64-policy-matching
+ok 214 - checked corpus u64-policy-matching
+  ---
+  duration_ms: 0.053583
+  ...
+# Subtest: checked corpus u64-policy-skipped
+ok 215 - checked corpus u64-policy-skipped
+  ---
+  duration_ms: 0.050958
+  ...
+# Subtest: checked tokens authenticate and detach all context and diagnostic accessors
+ok 216 - checked tokens authenticate and detach all context and diagnostic accessors
+  ---
+  duration_ms: 1.828416
+  ...
+# Subtest: exact sequence and policy preserve full u64 and compatibility rejects unsafe numbers
+ok 217 - exact sequence and policy preserve full u64 and compatibility rejects unsafe numbers
+  ---
+  duration_ms: 0.414166
+  ...
+# Subtest: snapshot/check failures never mint tokens or rerun callbacks and supplied turn survives
+ok 218 - snapshot/check failures never mint tokens or rerun callbacks and supplied turn survives
+  ---
+  duration_ms: 0.467083
+  ...
+# Subtest: checker-retained context cannot later mutate the sealed snapshot
+ok 219 - checker-retained context cannot later mutate the sealed snapshot
+  ---
+  duration_ms: 0.332125
+  ...
+# Subtest: policy accessors are captured once before callbacks
+ok 220 - policy accessors are captured once before callbacks
+  ---
+  duration_ms: 0.217375
+  ...
+# Subtest: exact observed checking preserves u64 policy arithmetic and clears all errors
+ok 221 - exact observed checking preserves u64 policy arithmetic and clears all errors
+  ---
+  duration_ms: 0.449875
+  ...
+# Subtest: real inspection and metric catalog execute through typed host protocol bindings
+ok 222 - real inspection and metric catalog execute through typed host protocol bindings
+  ---
+  duration_ms: 6.493083
+  ...
+# Subtest: probe no-interest path avoids thunk/schema/projection and explicit context selectors AND
+ok 223 - probe no-interest path avoids thunk/schema/projection and explicit context selectors AND
+  ---
+  duration_ms: 14.46875
+  ...
+# Subtest: revision and producer effective acknowledgement guard capture boundaries
+ok 224 - revision and producer effective acknowledgement guard capture boundaries
+  ---
+  duration_ms: 4.183125
+  ...
+# Subtest: changed baseline gap source schema and incomplete scope are explicit
+ok 225 - changed baseline gap source schema and incomplete scope are explicit
+  ---
+  duration_ms: 3.8555
+  ...
+# Subtest: threshold hysteresis cooldown and u128 width do not use Number
+ok 226 - threshold hysteresis cooldown and u128 width do not use Number
+  ---
+  duration_ms: 3.853041
+  ...
+# Subtest: sink count byte drops exporter failure and abandon are independent
+ok 227 - sink count byte drops exporter failure and abandon are independent
+  ---
+  duration_ms: 0.8315
+  ...
+# Subtest: scope ownership denies configuration/reentry and sink permission rejects before capture
+ok 228 - scope ownership denies configuration/reentry and sink permission rejects before capture
+  ---
+  duration_ms: 0.335584
+  ...
+# Subtest: selected thunk executes once across different sink paths even when it throws
+ok 229 - selected thunk executes once across different sink paths even when it throws
+  ---
+  duration_ms: 0.335875
+  ...
+# Subtest: complete schema reset stays change-unknown and above-u128 overflow is unavailable
+ok 230 - complete schema reset stays change-unknown and above-u128 overflow is unavailable
+  ---
+  duration_ms: 8.245041
+  ...
+# Subtest: cooldown-suppressed crossover does not consume future crossing alert
+ok 231 - cooldown-suppressed crossover does not consume future crossing alert
+  ---
+  duration_ms: 0.751792
+  ...
+# Subtest: probe delivery sampling follows trigger evaluation and preserves baseline updates
+ok 232 - probe delivery sampling follows trigger evaluation and preserves baseline updates
+  ---
+  duration_ms: 0.6335
+  ...
+# Subtest: producer sequence counts selected sites rather than turns and nested capture is denied
+ok 233 - producer sequence counts selected sites rather than turns and nested capture is denied
+  ---
+  duration_ms: 0.416667
+  ...
+# Subtest: manual golden independent queue, execution, resolution and delivery intervals
+ok 234 - manual golden independent queue, execution, resolution and delivery intervals
+  ---
+  duration_ms: 4.530875
+  ...
+# Subtest: foreign and fabricated tokens cannot grant lifecycle authority
+ok 235 - foreign and fabricated tokens cannot grant lifecycle authority
+  ---
+  duration_ms: 0.459792
+  ...
+# Subtest: cancellation does not resolve or end physical execution
+ok 236 - cancellation does not resolve or end physical execution
+  ---
+  duration_ms: 20.053041
+  ...
+# Subtest: failed publication has no preparation sample; consumer confirms a reservation once
+ok 237 - failed publication has no preparation sample; consumer confirms a reservation once
+  ---
+  duration_ms: 32.733292
+  ...
+# Subtest: unknown timing reasons remain separate from zero and preserve full width
+ok 238 - unknown timing reasons remain separate from zero and preserve full width
+  ---
+  duration_ms: 0.562083
+  ...
+# Subtest: disabled timings never touch explicit clock; passive query does not read it
+ok 239 - disabled timings never touch explicit clock; passive query does not read it
+  ---
+  duration_ms: 0.3855
+  ...
+# Subtest: bounded detail retention, event loss, slow selection and explicit abandon
+ok 240 - bounded detail retention, event loss, slow selection and explicit abandon
+  ---
+  duration_ms: 0.532333
+  ...
+# Subtest: debugger affected observations retain wall time and conservative provenance
+ok 241 - debugger affected observations retain wall time and conservative provenance
+  ---
+  duration_ms: 0.330708
+  ...
+# Subtest: lazy task factory executes once; classifier failure preserves result
+ok 242 - lazy task factory executes once; classifier failure preserves result
+  ---
+  duration_ms: 4.118583
+  ...
+# Subtest: slow threshold selection reports unknown clock duration and bounded truncation
+ok 243 - slow threshold selection reports unknown clock duration and bounded truncation
+  ---
+  duration_ms: 1.654583
+  ...
+# Subtest: adapter hook failures and foreign tokens never replace host outcomes
+ok 244 - adapter hook failures and foreign tokens never replace host outcomes
+  ---
+  duration_ms: 1.897084
+  ...
+# Subtest: clock reentry cannot mutate observation and unavailable endpoints stay unknown
+ok 245 - clock reentry cannot mutate observation and unavailable endpoints stay unknown
+  ---
+  duration_ms: 2.047916
+  ...
+# Subtest: explicit native monotonic source preserves bigint ticks and rejects reversal
+ok 246 - explicit native monotonic source preserves bigint ticks and rejects reversal
+  ---
+  duration_ms: 0.523208
+  ...
+# Subtest: passive typed effect protocol retains exact identity, unknowns, and bounded timeline
+ok 247 - passive typed effect protocol retains exact identity, unknowns, and bounded timeline
+  ---
+  duration_ms: 5.3735
+  ...
+# Subtest: native recording captures initial and turn checks once
+ok 248 - native recording captures initial and turn checks once
+  ---
+  duration_ms: 5.478958
+  ...
+# Subtest: verified fork is isolated bound to parent and checkpoints after exact prefix
+ok 249 - verified fork is isolated bound to parent and checkpoints after exact prefix
+  ---
+  duration_ms: 25.346833
+  ...
+# Subtest: fork refuses failed checkpoints divergence budget and policy mismatch
+ok 250 - fork refuses failed checkpoints divergence budget and policy mismatch
+  ---
+  duration_ms: 16.100167
+  ...
+# Subtest: public recording rejects fabricated debugger provenance
+ok 251 - public recording rejects fabricated debugger provenance
+  ---
+  duration_ms: 0.15325
+  ...
+# Subtest: bounded object path and redaction never evaluates hidden value
+ok 252 - bounded object path and redaction never evaluates hidden value
+  ---
+  duration_ms: 46.511041
+  ...
+# Subtest: sequence pages do bounded work and page positions are not persistent identities
+ok 253 - sequence pages do bounded work and page positions are not persistent identities
+  ---
+  duration_ms: 2.278542
+  ...
+# Subtest: utf8 previews preserve codepoint boundaries and budgets bound builtin work
+ok 254 - utf8 previews preserve codepoint boundaries and budgets bound builtin work
+  ---
+  duration_ms: 0.787959
+  ...
+# Subtest: complete diffs preserve schema/path compatibility and unknown precedes equality
+ok 255 - complete diffs preserve schema/path compatibility and unknown precedes equality
+  ---
+  duration_ms: 1.188625
+  ...
+# Subtest: stable map key identity differs from sequence position; unstable comparison unknown
+ok 256 - stable map key identity differs from sequence position; unstable comparison unknown
+  ---
+  duration_ms: 1.435958
+  ...
+# Subtest: depth/schema/path limits reject or mark incomplete without evaluating deeper nodes
+ok 257 - depth/schema/path limits reject or mark incomplete without evaluating deeper nodes
+  ---
+  duration_ms: 0.644458
+  ...
+# Subtest: schema and source metadata share retained projection byte budget
+ok 258 - schema and source metadata share retained projection byte budget
+  ---
+  duration_ms: 0.53025
+  ...
+# Subtest: projection results retain only declared structural fields and reject cyclic trees
+ok 259 - projection results retain only declared structural fields and reject cyclic trees
+  ---
+  duration_ms: 0.732958
+  ...
+# Subtest: projection captures schema and inspection limits resist callback mutation
+ok 260 - projection captures schema and inspection limits resist callback mutation
+  ---
+  duration_ms: 4.342334
+  ...
+# Subtest: controller full width revision, owner-bound delivery, pause and one delivery
+ok 261 - controller full width revision, owner-bound delivery, pause and one delivery
+  ---
+  duration_ms: 13.205917
+  ...
+# Subtest: dispatch reserve is uncertain, never automatically retried or acknowledged
+ok 262 - dispatch reserve is uncertain, never automatically retried or acknowledged
+  ---
+  duration_ms: 0.560166
+  ...
+# Subtest: disconnect accounts admitted delivery then terminates
+ok 263 - disconnect accounts admitted delivery then terminates
+  ---
+  duration_ms: 0.122042
+  ...
+# Subtest: backpressure returns host input without counting delivery and injection separate authority
+ok 264 - backpressure returns host input without counting delivery and injection separate authority
+  ---
+  duration_ms: 0.164208
+  ...
+# Subtest: exhaustion and output overflow terminate without truncating actual revision
+ok 265 - exhaustion and output overflow terminate without truncating actual revision
+  ---
+  duration_ms: 0.230375
+  ...
+# Subtest: bridge exact capture independent of metadata loss, origin dispatch fact explicit
+ok 266 - bridge exact capture independent of metadata loss, origin dispatch fact explicit
+  ---
+  duration_ms: 10.705875
+  ...
+# Subtest: bridge missed transition freezes exact prefix but retains observation stream
+ok 267 - bridge missed transition freezes exact prefix but retains observation stream
+  ---
+  duration_ms: 2.977208
+  ...
+# Subtest: mismatched sealed sequence does not consume observation admission
+ok 268 - mismatched sealed sequence does not consume observation admission
+  ---
+  duration_ms: 3.827333
+  ...
+# Subtest: pause forbids dispatch until fresh explicit authority and default capture cannot escalate
+ok 269 - pause forbids dispatch until fresh explicit authority and default capture cannot escalate
+  ---
+  duration_ms: 1.55875
+  ...
+# Subtest: admitted arrivals detach retained graphs and clone callback cannot reenter controller
+ok 270 - admitted arrivals detach retained graphs and clone callback cannot reenter controller
+  ---
+  duration_ms: 0.52075
+  ...
+# Subtest: manual histogram arithmetic and overflow quantile with fullwidth schema
+ok 271 - manual histogram arithmetic and overflow quantile with fullwidth schema
+  ---
+  duration_ms: 2.210875
+  ...
+# Subtest: finite labels caps overflow import filtering and production population
+ok 272 - finite labels caps overflow import filtering and production population
+  ---
+  duration_ms: 0.532
+  ...
+# Subtest: window deltas final gauges watermark and bounded retention
+ok 273 - window deltas final gauges watermark and bounded retention
+  ---
+  duration_ms: 1.023666
+  ...
+# Subtest: transactional snapshot validation and disjoint merges
+ok 274 - transactional snapshot validation and disjoint merges
+  ---
+  duration_ms: 0.696208
+  ...
+# Subtest: gauge underflow unknown scope and copy isolation
+ok 275 - gauge underflow unknown scope and copy isolation
+  ---
+  duration_ms: 0.137584
+  ...
+# Subtest: passive report unknowns fullwidth numeric JSON payload-free caps
+ok 276 - passive report unknowns fullwidth numeric JSON payload-free caps
+  ---
+  duration_ms: 4.222291
+  ...
+# Subtest: bounded concrete protocol capture handles and transactions
+ok 277 - bounded concrete protocol capture handles and transactions
+  ---
+  duration_ms: 3.200208
+  ...
+# Subtest: causal join validates identities without claiming execution truth
+ok 278 - causal join validates identities without claiming execution truth
+  ---
+  duration_ms: 0.272417
+  ...
+# Subtest: report byte budget stops before row projection and health cannot carry payloads
+ok 279 - report byte budget stops before row projection and health cannot carry payloads
+  ---
+  duration_ms: 1.294958
+  ...
+# Subtest: catalog rejects lone UTF16 surrogates instead of replacing UTF8 identity
+ok 280 - catalog rejects lone UTF16 surrogates instead of replacing UTF8 identity
+  ---
+  duration_ms: 0.941083
+  ...
+# Subtest: independent manually specified wire golden and full width values
+ok 281 - independent manually specified wire golden and full width values
+  ---
+  duration_ms: 3.883125
+  ...
+# Subtest: framing fragmented, partial, oversized and strict escaping
+ok 282 - framing fragmented, partial, oversized and strict escaping
+  ---
+  duration_ms: 0.702417
+  ...
+# Subtest: actual session authority, handles, stale step, cancellation and independent adapters
+ok 283 - actual session authority, handles, stale step, cancellation and independent adapters
+  ---
+  duration_ms: 4.704584
+  ...
+# Subtest: bounded dedup original responses, conflict, skipped retired IDs, discovery and reconnect
+ok 284 - bounded dedup original responses, conflict, skipped retired IDs, discovery and reconnect
+  ---
+  duration_ms: 1.406708
+  ...
+# Subtest: connected reconnect rejects without changing epoch, cached replies, admission or model state
+ok 285 - connected reconnect rejects without changing epoch, cached replies, admission or model state
+  ---
+  duration_ms: 0.989583
+  ...
+# Subtest: callback reentry rejected and raw transport errors do not deliver
+ok 286 - callback reentry rejected and raw transport errors do not deliver
+  ---
+  duration_ms: 0.485583
+  ...
+# Subtest: real OS pipe framed session with duplicate delivery and clean EOF
+ok 287 - real OS pipe framed session with duplicate delivery and clean EOF
+  ---
+  duration_ms: 144.566833
+  ...
+# Subtest: host adapter whitelist, independent authority, watch CAS and bounded staged commits
+ok 288 - host adapter whitelist, independent authority, watch CAS and bounded staged commits
+  ---
+  duration_ms: 1.815208
+  ...
+# Subtest: host exact export handles and independent grants; structural paths retain typed keys
+ok 289 - host exact export handles and independent grants; structural paths retain typed keys
+  ---
+  duration_ms: 1.001084
+  ...
+# Subtest: u32 versions reject out of range and lossy integers structurally
+ok 290 - u32 versions reject out of range and lossy integers structurally
+  ---
+  duration_ms: 0.587875
+  ...
+# Subtest: exact outputs require independent authority and bounded optional encoder with expired lease
+ok 291 - exact outputs require independent authority and bounded optional encoder with expired lease
+  ---
+  duration_ms: 1.899542
+  ...
+# Subtest: exact output codec receives detached output graph
+ok 292 - exact output codec receives detached output graph
+  ---
+  duration_ms: 0.359875
+  ...
+# Subtest: host commit reserves full revision/configuration wire width before mutation
+ok 293 - host commit reserves full revision/configuration wire width before mutation
+  ---
+  duration_ms: 303.173708
+  ...
+# Subtest: host inspection and watch schemas are bounded u32 identities
+ok 294 - host inspection and watch schemas are bounded u32 identities
+  ---
+  duration_ms: 0.5905
+  ...
+# Subtest: external decoder cannot directly mutate borrowed session before intended input delivery
+ok 295 - external decoder cannot directly mutate borrowed session before intended input delivery
+  ---
+  duration_ms: 1.056041
+  ...
+# Subtest: typed no-codec session one-pass checking disposition counters and detached observers
+ok 296 - typed no-codec session one-pass checking disposition counters and detached observers
+  ---
+  duration_ms: 2.32975
+  ...
+# Subtest: pre breakpoint retains exact input once; post breakpoint commits before observation
+ok 297 - pre breakpoint retains exact input once; post breakpoint commits before observation
+  ---
+  duration_ms: 0.826208
+  ...
+# Subtest: candidate authority is session/revision bound; stale/forged tokens reject
+ok 298 - candidate authority is session/revision bound; stale/forged tokens reject
+  ---
+  duration_ms: 0.653834
+  ...
+# Subtest: checker failure commits transition; reducer failure does not; owner rejects reentrant calls
+ok 299 - checker failure commits transition; reducer failure does not; owner rejects reentrant calls
+  ---
+  duration_ms: 0.3645
+  ...
+# Subtest: initial failures, bounded continue, cancellation, admission lookahead and ignored turns
+ok 300 - initial failures, bounded continue, cancellation, admission lookahead and ignored turns
+  ---
+  duration_ms: 0.794166
+  ...
+# Subtest: constructor initial callback precedes configuration rejection; explicit state avoids initialization
+ok 301 - constructor initial callback precedes configuration rejection; explicit state avoids initialization
+  ---
+  duration_ms: 0.173333
+  ...
+# Subtest: bounded iterator callbacks cannot reenter session
+ok 302 - bounded iterator callbacks cannot reenter session
+  ---
+  duration_ms: 3.046542
+  ...
+# Subtest: post breakpoint exception leaves terminal precommit state and diagnostic
+ok 303 - post breakpoint exception leaves terminal precommit state and diagnostic
+  ---
+  duration_ms: 0.389292
+  ...
+# Subtest: declared predicate policy needs neither enumeration nor codec
+ok 304 - declared predicate policy needs neither enumeration nor codec
+  ---
+  duration_ms: 0.54625
+  ...
+# Subtest: post predicate sees prior session state and completed detached turn before commit
+ok 305 - post predicate sees prior session state and completed detached turn before commit
+  ---
+  duration_ms: 0.441542
+  ...
+# Subtest: snapshot clone callbacks cannot reenter session mutation
+ok 306 - snapshot clone callbacks cannot reenter session mutation
+  ---
+  duration_ms: 0.361833
+  ...
+# Subtest: model input domain remains independent of unrestricted environmental injection
+ok 307 - model input domain remains independent of unrestricted environmental injection
+  ---
+  duration_ms: 4.019459
+  ...
+# Subtest: disabled and filtered watches never materialize projection
+ok 308 - disabled and filtered watches never materialize projection
+  ---
+  duration_ms: 1.825083
+  ...
+# Subtest: watch baseline changed unchanged sampling gap and failure provenance
+ok 309 - watch baseline changed unchanged sampling gap and failure provenance
+  ---
+  duration_ms: 2.409916
+  ...
+# Subtest: equal queries share projection work at a boundary and authorizations precede evaluation
+ok 310 - equal queries share projection work at a boundary and authorizations precede evaluation
+  ---
+  duration_ms: 0.69275
+  ...
+# Subtest: revision generation TTL and eviction stay independent from exact model state
+ok 311 - revision generation TTL and eviction stay independent from exact model state
+  ---
+  duration_ms: 0.661167
+  ...
+# Subtest: ring loss and inspector errors are bounded observable health
+ok 312 - ring loss and inspector errors are bounded observable health
+  ---
+  duration_ms: 0.648875
+  ...
+# Subtest: validated registration rejects redaction and callback mutation reentry
+ok 313 - validated registration rejects redaction and callback mutation reentry
+  ---
+  duration_ms: 1.311333
+  ...
+# Subtest: watch control generation increments and explicit snapshots preserve comparison baseline
+ok 314 - watch control generation increments and explicit snapshots preserve comparison baseline
+  ---
+  duration_ms: 3.395667
+  ...
+# Subtest: marker disabled/capacity paths skip details and truncation respects UTF8
+ok 315 - marker disabled/capacity paths skip details and truncation respects UTF8
+  ---
+  duration_ms: 0.375542
+  ...
+# Subtest: status returns the complete public Rust field schema and actual configured authority/limits
+ok 316 - status returns the complete public Rust field schema and actual configured authority/limits
+  ---
+  duration_ms: 6.156916
+  ...
+# Subtest: step/cancel authority precedes revision, and terminal steps still decode before ended
+ok 317 - step/cancel authority precedes revision, and terminal steps still decode before ended
+  ---
+  duration_ms: 2.914542
+  ...
+# Subtest: accepted/ignored/rejected turns retain complete checks and exact outputs without callback replay
+ok 318 - accepted/ignored/rejected turns retain complete checks and exact outputs without callback replay
+  ---
+  duration_ms: 12.388125
+  ...
+# Subtest: failed checks commit and expose stable failure identity while reducer errors do not commit
+ok 319 - failed checks commit and expose stable failure identity while reducer errors do not commit
+  ---
+  duration_ms: 4.088625
+  ...
+# Subtest: wire parser rejects unknown/version/shape failures with ID zero before request retirement
+ok 320 - wire parser rejects unknown/version/shape failures with ID zero before request retirement
+  ---
+  duration_ms: 2.016333
+  ...
+# Subtest: strict UTF-8 decoding preserves a BOM rather than admitting a changed wire value
+ok 321 - strict UTF-8 decoding preserves a BOM rather than admitting a changed wire value
+  ---
+  duration_ms: 0.81475
+  ...
+# Subtest: path grammar, numeric identities and mixed malformed/count failures match Rust decoding
+ok 322 - path grammar, numeric identities and mixed malformed/count failures match Rust decoding
+  ---
+  duration_ms: 2.112667
+  ...
+# Subtest: watch_current and unwatch ignore envelope revision; inspection checks its handle first
+ok 323 - watch_current and unwatch ignore envelope revision; inspection checks its handle first
+  ---
+  duration_ms: 0.878791
+  ...
+# Subtest: initial checker errors report incomplete checking; native event loss is observable in status
+ok 324 - initial checker errors report incomplete checking; native event loss is observable in status
+  ---
+  duration_ms: 6.682375
+  ...
+# Subtest: serve preserves a committed response before a partial EOF and disconnects on every exit
+ok 325 - serve preserves a committed response before a partial EOF and disconnects on every exit
+  ---
+  duration_ms: 5.763041
+  ...
+# Subtest: offline manual golden passive bounds exact bytes and owned artifact
+ok 326 - offline manual golden passive bounds exact bytes and owned artifact
+  ---
+  duration_ms: 5.462541
+  ...
+# Subtest: viewer rejects structurally readable v1 continuation after failure
+ok 327 - viewer rejects structurally readable v1 continuation after failure
+  ---
+  duration_ms: 0.66075
+  ...
+# Subtest: explicit exact verification does not initialize or change cursor and reports mismatch
+ok 328 - explicit exact verification does not initialize or change cursor and reports mismatch
+  ---
+  duration_ms: 16.565584
+  ...
+# Subtest: v2 minimize charges phase replay and restores checkpoint for every candidate
+ok 329 - v2 minimize charges phase replay and restores checkpoint for every candidate
+  ---
+  duration_ms: 28.100209
+  ...
+# Subtest: declared policy requires explicit matching label and bounded lookahead when no match
+ok 330 - declared policy requires explicit matching label and bounded lookahead when no match
+  ---
+  duration_ms: 8.366542
+  ...
+# Subtest: v1 explicit phase still verifies stored encodings before shrinking
+ok 331 - v1 explicit phase still verifies stored encodings before shrinking
+  ---
+  duration_ms: 0.529917
+  ...
+# Subtest: environment rejection precedes Generate causality callback
+ok 332 - environment rejection precedes Generate causality callback
+  ---
+  duration_ms: 1.054417
+  ...
+# Subtest: checkpoint host identities preserve full u64 width and legacy unsigned parsing
+ok 333 - checkpoint host identities preserve full u64 width and legacy unsigned parsing
+  ---
+  duration_ms: 1.311833
+  ...
+# Subtest: encode-buffers-v1 empty-zero-cap
+ok 334 - encode-buffers-v1 empty-zero-cap
+  ---
+  duration_ms: 3.926416
+  ...
+# Subtest: encode-buffers-v1 empty-chunk-zero-cap
+ok 335 - encode-buffers-v1 empty-chunk-zero-cap
+  ---
+  duration_ms: 0.406667
+  ...
+# Subtest: encode-buffers-v1 exact-chunks
+ok 336 - encode-buffers-v1 exact-chunks
+  ---
+  duration_ms: 0.78525
+  ...
+# Subtest: encode-buffers-v1 reject-whole-chunk
+ok 337 - encode-buffers-v1 reject-whole-chunk
+  ---
+  duration_ms: 0.5615
+  ...
+# Subtest: encode-buffers-v1 ignored-first-error-sticky
+ok 338 - encode-buffers-v1 ignored-first-error-sticky
+  ---
+  duration_ms: 0.598709
+  ...
+# Subtest: encode-buffers-v1 legacy-move-exact
+ok 339 - encode-buffers-v1 legacy-move-exact
+  ---
+  duration_ms: 0.591208
+  ...
+# Subtest: encode-buffers-v1 legacy-rejection-sticky
+ok 340 - encode-buffers-v1 legacy-rejection-sticky
+  ---
+  duration_ms: 0.25475
+  ...
+# Subtest: encode-buffers-v1 frame-empty
+ok 341 - encode-buffers-v1 frame-empty
+  ---
+  duration_ms: 0.334083
+  ...
+# Subtest: encode-buffers-v1 frame-prefix-overflow-no-callback
+ok 342 - encode-buffers-v1 frame-prefix-overflow-no-callback
+  ---
+  duration_ms: 0.984
+  ...
+# Subtest: encode-buffers-v1 frame-exact
+ok 343 - encode-buffers-v1 frame-exact
+  ---
+  duration_ms: 0.853583
+  ...
+# Subtest: encode-buffers-v1 frame-body-overflow
+ok 344 - encode-buffers-v1 frame-body-overflow
+  ---
+  duration_ms: 0.554708
+  ...
+# Subtest: encode-buffers-v1 frame-callback-error-sticky
+ok 345 - encode-buffers-v1 frame-callback-error-sticky
+  ---
+  duration_ms: 0.15325
+  ...
+# Subtest: encode-buffers-v1 nested-frame-exact
+ok 346 - encode-buffers-v1 nested-frame-exact
+  ---
+  duration_ms: 0.081917
+  ...
+# Subtest: encode-buffers-v1 ignored-nested-error-sticky
+ok 347 - encode-buffers-v1 ignored-nested-error-sticky
+  ---
+  duration_ms: 0.108167
+  ...
+# Subtest: encode-buffers-v1 full-u64-cap
+ok 348 - encode-buffers-v1 full-u64-cap
+  ---
+  duration_ms: 0.052875
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-state-cap2
+ok 349 - encode-buffers-v1 dispatch-legacy-state-cap2
+  ---
+  duration_ms: 0.373667
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-state-cap1
+ok 350 - encode-buffers-v1 dispatch-legacy-state-cap1
+  ---
+  duration_ms: 0.097834
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-input-cap2
+ok 351 - encode-buffers-v1 dispatch-legacy-input-cap2
+  ---
+  duration_ms: 0.079041
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-input-cap1
+ok 352 - encode-buffers-v1 dispatch-legacy-input-cap1
+  ---
+  duration_ms: 0.093875
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-output-cap2
+ok 353 - encode-buffers-v1 dispatch-legacy-output-cap2
+  ---
+  duration_ms: 0.057125
+  ...
+# Subtest: encode-buffers-v1 dispatch-legacy-output-cap1
+ok 354 - encode-buffers-v1 dispatch-legacy-output-cap1
+  ---
+  duration_ms: 0.097833
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-state-cap2
+ok 355 - encode-buffers-v1 automatic-legacy-state-cap2
+  ---
+  duration_ms: 0.154209
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-state-cap1
+ok 356 - encode-buffers-v1 automatic-legacy-state-cap1
+  ---
+  duration_ms: 0.096041
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-input-cap2
+ok 357 - encode-buffers-v1 automatic-legacy-input-cap2
+  ---
+  duration_ms: 0.125417
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-input-cap1
+ok 358 - encode-buffers-v1 automatic-legacy-input-cap1
+  ---
+  duration_ms: 0.113542
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-output-cap2
+ok 359 - encode-buffers-v1 automatic-legacy-output-cap2
+  ---
+  duration_ms: 0.0545
+  ...
+# Subtest: encode-buffers-v1 automatic-legacy-output-cap1
+ok 360 - encode-buffers-v1 automatic-legacy-output-cap1
+  ---
+  duration_ms: 0.087042
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-state-cap2
+ok 361 - encode-buffers-v1 dispatch-into-state-cap2
+  ---
+  duration_ms: 0.147208
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-state-cap1
+ok 362 - encode-buffers-v1 dispatch-into-state-cap1
+  ---
+  duration_ms: 2.387125
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-input-cap2
+ok 363 - encode-buffers-v1 dispatch-into-input-cap2
+  ---
+  duration_ms: 1.058084
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-input-cap1
+ok 364 - encode-buffers-v1 dispatch-into-input-cap1
+  ---
+  duration_ms: 0.531834
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-output-cap2
+ok 365 - encode-buffers-v1 dispatch-into-output-cap2
+  ---
+  duration_ms: 0.161583
+  ...
+# Subtest: encode-buffers-v1 dispatch-into-output-cap1
+ok 366 - encode-buffers-v1 dispatch-into-output-cap1
+  ---
+  duration_ms: 0.173708
+  ...
+# Subtest: encode-buffers-v1 automatic-into-state-cap2
+ok 367 - encode-buffers-v1 automatic-into-state-cap2
+  ---
+  duration_ms: 0.141125
+  ...
+# Subtest: encode-buffers-v1 automatic-into-state-cap1
+ok 368 - encode-buffers-v1 automatic-into-state-cap1
+  ---
+  duration_ms: 0.168375
+  ...
+# Subtest: encode-buffers-v1 automatic-into-input-cap2
+ok 369 - encode-buffers-v1 automatic-into-input-cap2
+  ---
+  duration_ms: 0.348959
+  ...
+# Subtest: encode-buffers-v1 automatic-into-input-cap1
+ok 370 - encode-buffers-v1 automatic-into-input-cap1
+  ---
+  duration_ms: 0.263125
+  ...
+# Subtest: encode-buffers-v1 automatic-into-output-cap2
+ok 371 - encode-buffers-v1 automatic-into-output-cap2
+  ---
+  duration_ms: 0.125375
+  ...
+# Subtest: encode-buffers-v1 automatic-into-output-cap1
+ok 372 - encode-buffers-v1 automatic-into-output-cap1
+  ---
+  duration_ms: 0.393708
+  ...
+# Subtest: encode-buffers-v1 oracle-legacy-legacy
+ok 373 - encode-buffers-v1 oracle-legacy-legacy
+  ---
+  duration_ms: 1.23475
+  ...
+# Subtest: encode-buffers-v1 oracle-legacy-into
+ok 374 - encode-buffers-v1 oracle-legacy-into
+  ---
+  duration_ms: 0.269208
+  ...
+# Subtest: encode-buffers-v1 oracle-into-legacy
+ok 375 - encode-buffers-v1 oracle-into-legacy
+  ---
+  duration_ms: 0.162625
+  ...
+# Subtest: encode-buffers-v1 oracle-into-into
+ok 376 - encode-buffers-v1 oracle-into-into
+  ---
+  duration_ms: 0.445791
+  ...
+# Subtest: encode-buffers-v1 oracle-shared-cap
+ok 377 - encode-buffers-v1 oracle-shared-cap
+  ---
+  duration_ms: 0.442709
+  ...
+# Subtest: encode-buffers-v1 oracle-nested
+ok 378 - encode-buffers-v1 oracle-nested
+  ---
+  duration_ms: 0.607167
+  ...
+# Subtest: encode-buffers-v1 oracle-paired
+ok 379 - encode-buffers-v1 oracle-paired
+  ---
+  duration_ms: 0.320167
+  ...
+# Subtest: encoding capacity reuse, atomic chunks, mutable views, framed child expiry and later reuse
+ok 380 - encoding capacity reuse, atomic chunks, mutable views, framed child expiry and later reuse
+  ---
+  duration_ms: 2.061708
+  ...
+# Subtest: codec callback error wins a previously caught limit error; successful return cannot clear sticky failure
+ok 381 - codec callback error wins a previously caught limit error; successful return cannot clear sticky failure
+  ---
+  duration_ms: 0.45925
+  ...
+# Subtest: codec byte limits use intrinsic lengths and validate before copying
+ok 382 - codec byte limits use intrinsic lengths and validate before copying
+  ---
+  duration_ms: 0.147792
+  ...
+# Subtest: portable record/replay all codec paths prefer Into; Audit recorder stamps config and remains wire-valid
+ok 383 - portable record/replay all codec paths prefer Into; Audit recorder stamps config and remains wire-valid
+  ---
+  duration_ms: 5.90925
+  ...
+# Subtest: audit recorder does not commit over-budget turns and shares output/state byte headroom
+ok 384 - audit recorder does not commit over-budget turns and shares output/state byte headroom
+  ---
+  duration_ms: 2.768917
+  ...
+# Subtest: Into callback leases expire after errors, nested writes and reuse; malformed hooks never fall back
+ok 385 - Into callback leases expire after errors, nested writes and reuse; malformed hooks never fall back
+  ---
+  duration_ms: 0.432708
+  ...
+# Subtest: codec hooks preserve private frozen receivers through automatic and nested Oracle framing
+ok 386 - codec hooks preserve private frozen receivers through automatic and nested Oracle framing
+  ---
+  duration_ms: 0.190375
+  ...
+# Subtest: record options and codec getters are captured once; legacy allocators run once
+ok 387 - record options and codec getters are captured once; legacy allocators run once
+  ---
+  duration_ms: 0.126583
+  ...
+# Subtest: audit recording enforces all nine independent binary quotas and reserves future error footer
+ok 388 - audit recording enforces all nine independent binary quotas and reserves future error footer
+  ---
+  duration_ms: 1.402625
+  ...
+# Subtest: audit capture escapes invalid host diagnostics while supplied binary text remains strict
+ok 389 - audit capture escapes invalid host diagnostics while supplied binary text remains strict
+  ---
+  duration_ms: 0.510042
+  ...
+# Subtest: replay-evidence-v1 record-default
+ok 390 - replay-evidence-v1 record-default
+  ---
+  duration_ms: 0.815458
+  ...
+# Subtest: replay-evidence-v1 record-reserved-config
+ok 391 - replay-evidence-v1 record-reserved-config
+  ---
+  duration_ms: 1.321958
+  ...
+# Subtest: replay-evidence-v1 record-error-encode_state-0
+ok 392 - replay-evidence-v1 record-error-encode_state-0
+  ---
+  duration_ms: 0.312708
+  ...
+# Subtest: replay-evidence-v1 record-error-encode_input-1
+ok 393 - replay-evidence-v1 record-error-encode_input-1
+  ---
+  duration_ms: 0.762583
+  ...
+# Subtest: replay-evidence-v1 record-error-encode_output-1
+ok 394 - replay-evidence-v1 record-error-encode_output-1
+  ---
+  duration_ms: 0.715208
+  ...
+# Subtest: replay-evidence-v1 record-error-encode_state-1
+ok 395 - replay-evidence-v1 record-error-encode_state-1
+  ---
+  duration_ms: 0.425917
+  ...
+# Subtest: replay-evidence-v1 record-max_total_bytes
+ok 396 - replay-evidence-v1 record-max_total_bytes
+  ---
+  duration_ms: 0.115583
+  ...
+# Subtest: replay-evidence-v1 record-max_frame_bytes
+ok 397 - replay-evidence-v1 record-max_frame_bytes
+  ---
+  duration_ms: 0.110416
+  ...
+# Subtest: replay-evidence-v1 record-max_blob_bytes
+ok 398 - replay-evidence-v1 record-max_blob_bytes
+  ---
+  duration_ms: 0.2
+  ...
+# Subtest: replay-evidence-v1 record-max_string_bytes
+ok 399 - replay-evidence-v1 record-max_string_bytes
+  ---
+  duration_ms: 0.086125
+  ...
+# Subtest: replay-evidence-v1 record-max_steps
+ok 400 - replay-evidence-v1 record-max_steps
+  ---
+  duration_ms: 0.409291
+  ...
+# Subtest: replay-evidence-v1 record-max_checks_per_step
+ok 401 - replay-evidence-v1 record-max_checks_per_step
+  ---
+  duration_ms: 0.1095
+  ...
+# Subtest: replay-evidence-v1 record-max_outputs_per_step
+ok 402 - replay-evidence-v1 record-max_outputs_per_step
+  ---
+  duration_ms: 0.2195
+  ...
+# Subtest: replay-evidence-v1 record-max_parameters
+ok 403 - replay-evidence-v1 record-max_parameters
+  ---
+  duration_ms: 0.074166
+  ...
+# Subtest: replay-evidence-v1 record-max_items
+ok 404 - replay-evidence-v1 record-max_items
+  ---
+  duration_ms: 0.062917
+  ...
+# Subtest: replay-evidence-v1 record-exact-reserved-total
+ok 405 - replay-evidence-v1 record-exact-reserved-total
+  ---
+  duration_ms: 0.427667
+  ...
+# Subtest: replay-evidence-v1 record-one-less-reserved-total
+ok 406 - replay-evidence-v1 record-one-less-reserved-total
+  ---
+  duration_ms: 1.391584
+  ...
+# Subtest: terminal failed candidates may consume otherwise reserved future-error headroom
+ok 407 - terminal failed candidates may consume otherwise reserved future-error headroom
+  ---
+  duration_ms: 1.077791
+  ...
+# Subtest: audit recording preserves Rust per-output prefix charging and callback order on rejected candidates
+ok 408 - audit recording preserves Rust per-output prefix charging and callback order on rejected candidates
+  ---
+  duration_ms: 0.565333
+  ...
+# Subtest: causal evidence handoff performs no rechecks and step eviction promotes state prefix
+ok 409 - causal evidence handoff performs no rechecks and step eviction promotes state prefix
+  ---
+  duration_ms: 12.144083
+  ...
+# Subtest: metadata-only eviction is coordinated with real recorder minimum evictions
+ok 410 - metadata-only eviction is coordinated with real recorder minimum evictions
+  ---
+  duration_ms: 1.126042
+  ...
+# Subtest: aggregate cause-only evictions retain permitted omitted-prefix links
+ok 411 - aggregate cause-only evictions retain permitted omitted-prefix links
+  ---
+  duration_ms: 5.931083
+  ...
+# Subtest: planned eviction cannot excuse a currently invalid retained output index
+ok 412 - planned eviction cannot excuse a currently invalid retained output index
+  ---
+  duration_ms: 1.648917
+  ...
+# Subtest: trace codec failure after metadata eviction plan preserves both coherent prefixes
+ok 413 - trace codec failure after metadata eviction plan preserves both coherent prefixes
+  ---
+  duration_ms: 1.153917
+  ...
+# Subtest: full selected metadata reservation is independent and never silently shrunk
+ok 414 - full selected metadata reservation is independent and never silently shrunk
+  ---
+  duration_ms: 0.241291
+  ...
+# Subtest: caller provenance/context and returned snapshots cannot rewrite retained evidence
+ok 415 - caller provenance/context and returned snapshots cannot rewrite retained evidence
+  ---
+  duration_ms: 1.506958
+  ...
+# Subtest: origin u64 maximum, initial failure and first capture error retain exact terminal evidence
+ok 416 - origin u64 maximum, initial failure and first capture error retain exact terminal evidence
+  ---
+  duration_ms: 4.445584
+  ...
+# Subtest: recorder internal coordination is absent from public package and cannot authorize a forged owner
+ok 417 - recorder internal coordination is absent from public package and cannot authorize a forged owner
+  ---
+  duration_ms: 1.172084
+  ...
+# Subtest: evidence capture and ownership transfer reject model callback reentry
+ok 418 - evidence capture and ownership transfer reject model callback reentry
+  ---
+  duration_ms: 0.951042
+  ...
+# Subtest: shared causal-evidence-v2 recorder checked-handoff-no-reexecution
+ok 419 - shared causal-evidence-v2 recorder checked-handoff-no-reexecution
+  ---
+  duration_ms: 10.89725
+  ...
+# Subtest: shared causal-evidence-v2 recorder metadata-only-minimum-eviction
+ok 420 - shared causal-evidence-v2 recorder metadata-only-minimum-eviction
+  ---
+  duration_ms: 3.79325
+  ...
+# Subtest: shared causal-evidence-v2 recorder trace-only-ring-eviction
+ok 421 - shared causal-evidence-v2 recorder trace-only-ring-eviction
+  ---
+  duration_ms: 0.964959
+  ...
+# Subtest: shared causal-evidence-v2 recorder simultaneous-retention-alignment
+ok 422 - shared causal-evidence-v2 recorder simultaneous-retention-alignment
+  ---
+  duration_ms: 4.448542
+  ...
+# Subtest: shared causal-evidence-v2 recorder cause-only-minimum-eviction
+ok 423 - shared causal-evidence-v2 recorder cause-only-minimum-eviction
+  ---
+  duration_ms: 1.894875
+  ...
+# Subtest: shared causal-evidence-v2 recorder nonzero-origin-omitted-prefix-link
+ok 424 - shared causal-evidence-v2 recorder nonzero-origin-omitted-prefix-link
+  ---
+  duration_ms: 0.88675
+  ...
+# Subtest: shared causal-evidence-v2 recorder invalid-index-before-planned-eviction
+ok 425 - shared causal-evidence-v2 recorder invalid-index-before-planned-eviction
+  ---
+  duration_ms: 0.761792
+  ...
+# Subtest: shared causal-evidence-v2 recorder invalid-cause-zero
+ok 426 - shared causal-evidence-v2 recorder invalid-cause-zero
+  ---
+  duration_ms: 0.5025
+  ...
+# Subtest: shared causal-evidence-v2 recorder invalid-cause-future
+ok 427 - shared causal-evidence-v2 recorder invalid-cause-future
+  ---
+  duration_ms: 3.371792
+  ...
+# Subtest: shared causal-evidence-v2 recorder invalid-cause-duplicate
+ok 428 - shared causal-evidence-v2 recorder invalid-cause-duplicate
+  ---
+  duration_ms: 0.942917
+  ...
+# Subtest: shared causal-evidence-v2 recorder single-candidate-too-large
+ok 429 - shared causal-evidence-v2 recorder single-candidate-too-large
+  ---
+  duration_ms: 0.267125
+  ...
+# Subtest: shared causal-evidence-v2 recorder causes-candidate-too-large
+ok 430 - shared causal-evidence-v2 recorder causes-candidate-too-large
+  ---
+  duration_ms: 0.437458
+  ...
+# Subtest: shared causal-evidence-v2 recorder full-reservation-no-silent-shrink
+ok 431 - shared causal-evidence-v2 recorder full-reservation-no-silent-shrink
+  ---
+  duration_ms: 0.065625
+  ...
+# Subtest: shared causal-evidence-v2 recorder provenance-base-metadata-budget
+ok 432 - shared causal-evidence-v2 recorder provenance-base-metadata-budget
+  ---
+  duration_ms: 0.061167
+  ...
+# Subtest: shared causal-evidence-v2 recorder causal-preflight-before-sequence-error
+ok 433 - shared causal-evidence-v2 recorder causal-preflight-before-sequence-error
+  ---
+  duration_ms: 3.42675
+  ...
+# Subtest: shared causal-evidence-v2 recorder inner-sampled-rejection-keeps-journal
+ok 434 - shared causal-evidence-v2 recorder inner-sampled-rejection-keeps-journal
+  ---
+  duration_ms: 1.657958
+  ...
+# Subtest: shared causal-evidence-v2 recorder inner-gap-rejection-keeps-journal
+ok 435 - shared causal-evidence-v2 recorder inner-gap-rejection-keeps-journal
+  ---
+  duration_ms: 1.655083
+  ...
+# Subtest: shared causal-evidence-v2 recorder inner-encode-error-keeps-journal
+ok 436 - shared causal-evidence-v2 recorder inner-encode-error-keeps-journal
+  ---
+  duration_ms: 4.2765
+  ...
+# Subtest: shared causal-evidence-v2 recorder initial-failure-preserved
+ok 437 - shared causal-evidence-v2 recorder initial-failure-preserved
+  ---
+  duration_ms: 1.637833
+  ...
+# Subtest: shared causal-evidence-v2 recorder property-failure-preserved
+ok 438 - shared causal-evidence-v2 recorder property-failure-preserved
+  ---
+  duration_ms: 3.067041
+  ...
+# Subtest: recorder constructor encoded provenance and base budgets precede semantic labels
+ok 439 - recorder constructor encoded provenance and base budgets precede semantic labels
+  ---
+  duration_ms: 0.374208
+  ...
+# Subtest: known oversized constructor strings fail before UTF8 scans or payload encoding
+ok 440 - known oversized constructor strings fail before UTF8 scans or payload encoding
+  ---
+  duration_ms: 0.148583
+  ...
+# Subtest: causal wire empty-v2
+ok 441 - causal wire empty-v2
+  ---
+  duration_ms: 17.362166
+  ...
+# Subtest: causal wire legacy-v1-no-invented-phases
+ok 442 - causal wire legacy-v1-no-invented-phases
+  ---
+  duration_ms: 1.19925
+  ...
+# Subtest: causal wire two-turn-causal
+ok 443 - causal wire two-turn-causal
+  ---
+  duration_ms: 4.370958
+  ...
+# Subtest: causal wire unicode-max-integers-omitted-prefix-causes
+ok 444 - causal wire unicode-max-integers-omitted-prefix-causes
+  ---
+  duration_ms: 1.541917
+  ...
+# Subtest: causal wire duplicate-environment
+ok 445 - causal wire duplicate-environment
+  ---
+  duration_ms: 2.366459
+  ...
+# Subtest: causal wire empty-environment-name
+ok 446 - causal wire empty-environment-name
+  ---
+  duration_ms: 0.286041
+  ...
+# Subtest: causal wire missing-phase-row
+ok 447 - causal wire missing-phase-row
+  ---
+  duration_ms: 0.437417
+  ...
+# Subtest: causal wire invalid-phase-boundary
+ok 448 - causal wire invalid-phase-boundary
+  ---
+  duration_ms: 0.585041
+  ...
+# Subtest: causal wire wrong-absolute-sequence
+ok 449 - causal wire wrong-absolute-sequence
+  ---
+  duration_ms: 0.791667
+  ...
+# Subtest: causal wire checkpoint-overflow
+ok 450 - causal wire checkpoint-overflow
+  ---
+  duration_ms: 0.598583
+  ...
+# Subtest: causal wire zero-cause
+ok 451 - causal wire zero-cause
+  ---
+  duration_ms: 0.436792
+  ...
+# Subtest: causal wire future-cause
+ok 452 - causal wire future-cause
+  ---
+  duration_ms: 0.364334
+  ...
+# Subtest: causal wire duplicate-cause
+ok 453 - causal wire duplicate-cause
+  ---
+  duration_ms: 0.389208
+  ...
+# Subtest: causal wire retained-output-index
+ok 454 - causal wire retained-output-index
+  ---
+  duration_ms: 0.317125
+  ...
+# Subtest: causal wire metadata-one-under
+ok 455 - causal wire metadata-one-under
+  ---
+  duration_ms: 0.2355
+  ...
+# Subtest: causal wire environment-label-count
+ok 456 - causal wire environment-label-count
+  ---
+  duration_ms: 1.170959
+  ...
+# Subtest: causal wire label-utf8-bytes
+ok 457 - causal wire label-utf8-bytes
+  ---
+  duration_ms: 0.568209
+  ...
+# Subtest: causal wire causes-per-step
+ok 458 - causal wire causes-per-step
+  ---
+  duration_ms: 0.63225
+  ...
+# Subtest: causal wire total-causes
+ok 459 - causal wire total-causes
+  ---
+  duration_ms: 0.273167
+  ...
+# Subtest: causal wire metadata-exact-fit
+ok 460 - causal wire metadata-exact-fit
+  ---
+  duration_ms: 0.612208
+  ...
+# Subtest: causal wire independent-metadata-elements-from-trace-items
+ok 461 - causal wire independent-metadata-elements-from-trace-items
+  ---
+  duration_ms: 3.754667
+  ...
+# Subtest: causal wire environment-and-cause-exact-limits
+ok 462 - causal wire environment-and-cause-exact-limits
+  ---
+  duration_ms: 1.403
+  ...
+# Subtest: causal wire complete-envelope-total-exact
+ok 463 - causal wire complete-envelope-total-exact
+  ---
+  duration_ms: 0.462417
+  ...
+# Subtest: causal wire complete-envelope-total-one-under
+ok 464 - causal wire complete-envelope-total-one-under
+  ---
+  duration_ms: 1.333958
+  ...
+# Subtest: causal wire invalid-magic
+ok 465 - causal wire invalid-magic
+  ---
+  duration_ms: 0.365959
+  ...
+# Subtest: causal wire unsupported-version
+ok 466 - causal wire unsupported-version
+  ---
+  duration_ms: 0.143209
+  ...
+# Subtest: causal wire nonzero-reserved
+ok 467 - causal wire nonzero-reserved
+  ---
+  duration_ms: 0.06325
+  ...
+# Subtest: causal wire checksum
+ok 468 - causal wire checksum
+  ---
+  duration_ms: 0.077375
+  ...
+# Subtest: causal wire short-header
+ok 469 - causal wire short-header
+  ---
+  duration_ms: 0.050833
+  ...
+# Subtest: causal wire short-v2-header
+ok 470 - causal wire short-v2-header
+  ---
+  duration_ms: 0.153833
+  ...
+# Subtest: causal wire truncated-payload
+ok 471 - causal wire truncated-payload
+  ---
+  duration_ms: 0.066041
+  ...
+# Subtest: causal wire trailing-envelope
+ok 472 - causal wire trailing-envelope
+  ---
+  duration_ms: 0.053958
+  ...
+# Subtest: causal wire length-overflow-12
+ok 473 - causal wire length-overflow-12
+  ---
+  duration_ms: 0.049541
+  ...
+# Subtest: causal wire length-overflow-20
+ok 474 - causal wire length-overflow-20
+  ---
+  duration_ms: 0.047875
+  ...
+# Subtest: causal wire metadata-invalid-option-tag
+ok 475 - causal wire metadata-invalid-option-tag
+  ---
+  duration_ms: 0.131958
+  ...
+# Subtest: causal wire metadata-invalid-utf8
+ok 476 - causal wire metadata-invalid-utf8
+  ---
+  duration_ms: 0.120708
+  ...
+# Subtest: causal wire metadata-trailing-byte
+ok 477 - causal wire metadata-trailing-byte
+  ---
+  duration_ms: 0.082458
+  ...
+# Subtest: causal wire metadata-huge-collection
+ok 478 - causal wire metadata-huge-collection
+  ---
+  duration_ms: 0.10525
+  ...
+# Subtest: causal wire embedded-semantic-invalid-property-footer
+ok 479 - causal wire embedded-semantic-invalid-property-footer
+  ---
+  duration_ms: 1.561667
+  ...
+# Subtest: causal wire unicode-environment-byte-distinct-nfc-nfd
+ok 480 - causal wire unicode-environment-byte-distinct-nfc-nfd
+  ---
+  duration_ms: 1.304958
+  ...
+# Subtest: causal wire distinct-output-indices-same-source
+ok 481 - causal wire distinct-output-indices-same-source
+  ---
+  duration_ms: 0.666792
+  ...
+# Subtest: causal wire legacy-v1-structural-only-invalid-semantic-footer
+ok 482 - causal wire legacy-v1-structural-only-invalid-semantic-footer
+  ---
+  duration_ms: 0.092333
+  ...
+# Subtest: causal wire metadata-allocation-request-before-truncated-elements
+ok 483 - causal wire metadata-allocation-request-before-truncated-elements
+  ---
+  duration_ms: 0.126542
+  ...
+# Subtest: causal wire embedded-v1-quota-max_frame_bytes
+ok 484 - causal wire embedded-v1-quota-max_frame_bytes
+  ---
+  duration_ms: 0.150625
+  ...
+# Subtest: causal wire embedded-v1-quota-max_blob_bytes
+ok 485 - causal wire embedded-v1-quota-max_blob_bytes
+  ---
+  duration_ms: 0.084792
+  ...
+# Subtest: causal wire embedded-v1-quota-max_string_bytes
+ok 486 - causal wire embedded-v1-quota-max_string_bytes
+  ---
+  duration_ms: 0.0725
+  ...
+# Subtest: causal wire embedded-v1-quota-max_steps
+ok 487 - causal wire embedded-v1-quota-max_steps
+  ---
+  duration_ms: 0.130542
+  ...
+# Subtest: causal wire embedded-v1-quota-max_checks_per_step
+ok 488 - causal wire embedded-v1-quota-max_checks_per_step
+  ---
+  duration_ms: 0.092625
+  ...
+# Subtest: causal wire embedded-v1-quota-max_outputs_per_step
+ok 489 - causal wire embedded-v1-quota-max_outputs_per_step
+  ---
+  duration_ms: 0.492375
+  ...
+# Subtest: causal wire embedded-v1-quota-max_parameters
+ok 490 - causal wire embedded-v1-quota-max_parameters
+  ---
+  duration_ms: 0.2495
+  ...
+# Subtest: causal wire embedded-v1-quota-max_items
+ok 491 - causal wire embedded-v1-quota-max_items
+  ---
+  duration_ms: 1.252333
+  ...
+# Subtest: causal wire metadata-rust64-allocation-exact-before-truncation
+ok 492 - causal wire metadata-rust64-allocation-exact-before-truncation
+  ---
+  duration_ms: 1.863792
+  ...
+# Subtest: causal envelope rejects every strict prefix and preserves source ownership
+ok 493 - causal envelope rejects every strict prefix and preserves source ownership
+  ---
+  duration_ms: 7.136416
+  ...
+# Subtest: v2 writer preflights before publishing and snapshots detach mutable evidence
+ok 494 - v2 writer preflights before publishing and snapshots detach mutable evidence
+  ---
+  duration_ms: 1.092
+  ...
+# Subtest: passive v1 phases remain unknown and diagnostics include initial at zero step allowance
+ok 495 - passive v1 phases remain unknown and diagnostics include initial at zero step allowance
+  ---
+  duration_ms: 0.517167
+  ...
+# Subtest: Node private exports create exclusively without overwrite and use private permissions
+ok 496 - Node private exports create exclusively without overwrite and use private permissions
+  ---
+  duration_ms: 25.957333
+  ...
+# Subtest: causal replay phase-aware-exact
+ok 497 - causal replay phase-aware-exact
+  ---
+  duration_ms: 2.745542
+  ...
+# Subtest: causal replay persisted-phase-mismatch
+ok 498 - causal replay persisted-phase-mismatch
+  ---
+  duration_ms: 0.820208
+  ...
+# Subtest: causal replay actual-phase-moved-same-combined-checks
+ok 499 - causal replay actual-phase-moved-same-combined-checks
+  ---
+  duration_ms: 1.177834
+  ...
+# Subtest: causal replay semantic-divergence-before-phase
+ok 500 - causal replay semantic-divergence-before-phase
+  ---
+  duration_ms: 0.763167
+  ...
+# Subtest: causal replay incompatible-valid-evidence
+ok 501 - causal replay incompatible-valid-evidence
+  ---
+  duration_ms: 0.345416
+  ...
+# Subtest: causal replay invalid-evidence-before-identity
+ok 502 - causal replay invalid-evidence-before-identity
+  ---
+  duration_ms: 0.305542
+  ...
+# Subtest: causal replay build-mismatch-incompatible
+ok 503 - causal replay build-mismatch-incompatible
+  ---
+  duration_ms: 0.360667
+  ...
+# Subtest: causal replay build-mismatch-explicitly-allowed
+ok 504 - causal replay build-mismatch-explicitly-allowed
+  ---
+  duration_ms: 1.252917
+  ...
+# Subtest: causal upgrade verified-upgrade-explicit
+ok 505 - causal upgrade verified-upgrade-explicit
+  ---
+  duration_ms: 2.509125
+  ...
+# Subtest: causal upgrade verified-upgrade-nonzero-origin
+ok 506 - causal upgrade verified-upgrade-nonzero-origin
+  ---
+  duration_ms: 0.553833
+  ...
+# Subtest: causal upgrade upgrade-origin-overflow
+ok 507 - causal upgrade upgrade-origin-overflow
+  ---
+  duration_ms: 1.163583
+  ...
+# Subtest: causal upgrade upgrade-invalid-provenance-after-replay
+ok 508 - causal upgrade upgrade-invalid-provenance-after-replay
+  ---
+  duration_ms: 0.44625
+  ...
+# Subtest: causal upgrade upgrade-incompatible-rejected
+ok 509 - causal upgrade upgrade-incompatible-rejected
+  ---
+  duration_ms: 0.151
+  ...
+# Subtest: causal upgrade upgrade-divergence-rejected
+ok 510 - causal upgrade upgrade-divergence-rejected
+  ---
+  duration_ms: 0.210833
+  ...
+# Subtest: causal upgrade upgrade-noncanonical-input-rejected
+ok 511 - causal upgrade upgrade-noncanonical-input-rejected
+  ---
+  duration_ms: 0.189333
+  ...
+# Subtest: causal upgrade upgrade-exact-model-error-prefix
+ok 512 - causal upgrade upgrade-exact-model-error-prefix
+  ---
+  duration_ms: 0.3625
+  ...
+# Subtest: causal diagnostic v2-default-redacts-all
+ok 513 - causal diagnostic v2-default-redacts-all
+  ---
+  duration_ms: 0.299833
+  ...
+# Subtest: causal diagnostic v1-unknown-phases
+ok 514 - causal diagnostic v1-unknown-phases
+  ---
+  duration_ms: 0.322833
+  ...
+# Subtest: causal diagnostic zero-turn-allowance-still-initial
+ok 515 - causal diagnostic zero-turn-allowance-still-initial
+  ---
+  duration_ms: 0.092
+  ...
+# Subtest: causal diagnostic nonzero-checkpoint-omitted-prefix
+ok 516 - causal diagnostic nonzero-checkpoint-omitted-prefix
+  ---
+  duration_ms: 0.090208
+  ...
+# Subtest: causal diagnostic exact-byte-id-allowlist-escaping
+ok 517 - causal diagnostic exact-byte-id-allowlist-escaping
+  ---
+  duration_ms: 1.923416
+  ...
+# Subtest: causal diagnostic whole-diagnostic-byte-exact
+ok 518 - causal diagnostic whole-diagnostic-byte-exact
+  ---
+  duration_ms: 0.398917
+  ...
+# Subtest: causal diagnostic whole-diagnostic-byte-one-under
+ok 519 - causal diagnostic whole-diagnostic-byte-one-under
+  ---
+  duration_ms: 1.115125
+  ...
+# Subtest: causal diagnostic termination-property_failed
+ok 520 - causal diagnostic termination-property_failed
+  ---
+  duration_ms: 0.44
+  ...
+# Subtest: causal diagnostic termination-model_error
+ok 521 - causal diagnostic termination-model_error
+  ---
+  duration_ms: 0.132625
+  ...
+# Subtest: causal diagnostic termination-step_limit
+ok 522 - causal diagnostic termination-step_limit
+  ---
+  duration_ms: 0.080292
+  ...
+# Subtest: causal diagnostic termination-interrupted
+ok 523 - causal diagnostic termination-interrupted
+  ---
+  duration_ms: 0.083625
+  ...
+# Subtest: causal diagnostic canonical-escaping-utf8-exact-fit
+ok 524 - causal diagnostic canonical-escaping-utf8-exact-fit
+  ---
+  duration_ms: 0.110333
+  ...
+# Subtest: causal diagnostic canonical-escaping-utf8-one-under
+ok 525 - causal diagnostic canonical-escaping-utf8-one-under
+  ---
+  duration_ms: 0.102333
+  ...
+# Subtest: diagnostics reject malformed native enums and checkpoint without inspecting omitted payloads
+ok 526 - diagnostics reject malformed native enums and checkpoint without inspecting omitted payloads
+  ---
+  duration_ms: 1.441042
+  ...
+# Subtest: evidence streams preserve receiver and enforce synchronous interfaces
+ok 527 - evidence streams preserve receiver and enforce synchronous interfaces
+  ---
+  duration_ms: 1.420292
+  ...
+# Subtest: Node sync failure reports incomplete exclusive file without overwriting it
+ok 528 - Node sync failure reports incomplete exclusive file without overwriting it
+  ---
+  duration_ms: 2.720375
+  ...
+# Subtest: upgrade owns admitted fields once and defers unfit artifacts until after identity
+ok 529 - upgrade owns admitted fields once and defers unfit artifacts until after identity
+  ---
+  duration_ms: 1.974084
+  ...
+# Subtest: v2 validation reports embedded semantic failure before phase origin errors
+ok 530 - v2 validation reports embedded semantic failure before phase origin errors
+  ---
+  duration_ms: 0.68725
+  ...
+# Subtest: borrowed v2 admission preserves Rust competing-error order before copying
+ok 531 - borrowed v2 admission preserves Rust competing-error order before copying
+  ---
+  duration_ms: 2.414458
+  ...
+# Subtest: borrowed validation snapshots nested accessors once without copying rejected payloads
+ok 532 - borrowed validation snapshots nested accessors once without copying rejected payloads
+  ---
+  duration_ms: 0.84275
+  ...
+# Subtest: known unfit traces scan semantic precedence without retaining an accessor journal
+ok 533 - known unfit traces scan semantic precedence without retaining an accessor journal
+  ---
+  duration_ms: 15.492625
+  ...
+# Subtest: causal structural label work is bounded by remaining metadata allowance
+ok 534 - causal structural label work is bounded by remaining metadata allowance
+  ---
+  duration_ms: 0.346834
+  ...
+# Subtest: cache discard preserves ordered v1 run quota before later step quota
+ok 535 - cache discard preserves ordered v1 run quota before later step quota
+  ---
+  duration_ms: 0.193958
+  ...
+# Subtest: application classes, collision chains, and failure witnesses
+ok 536 - application classes, collision chains, and failure witnesses
+  ---
+  duration_ms: 6.326
+  ...
+# Subtest: record, portable JSON roundtrip, replay
+ok 537 - record, portable JSON roundtrip, replay
+  ---
+  duration_ms: 9.403709
+  ...
+# Subtest: observation does not invoke reducer
+ok 538 - observation does not invoke reducer
+  ---
+  duration_ms: 0.126667
+  ...
+# Subtest: periodic and disabled checks remain visible
+ok 539 - periodic and disabled checks remain visible
+  ---
+  duration_ms: 0.089917
+  ...
+# Subtest: checker error discards partial batch
+ok 540 - checker error discards partial batch
+  ---
+  duration_ms: 0.34875
+  ...
+# Subtest: lazy iterator errors are model errors
+ok 541 - lazy iterator errors are model errors
+  ---
+  duration_ms: 0.163542
+  ...
+# Subtest: depth boundary probes at most one candidate
+ok 542 - depth boundary probes at most one candidate
+  ---
+  duration_ms: 0.156208
+  ...
+# Subtest: initial callback error does not produce a trace
+ok 543 - initial callback error does not produce a trace
+  ---
+  duration_ms: 0.269542
+  ...
+# Subtest: later callback error retains only coherent prefix
+ok 544 - later callback error retains only coherent prefix
+  ---
+  duration_ms: 2.985459
+  ...
+# Subtest: invalid codec results are model errors
+ok 545 - invalid codec results are model errors
+  ---
+  duration_ms: 6.010834
+  ...
+# Subtest: canonical initial bytes are enforced
+ok 546 - canonical initial bytes are enforced
+  ---
+  duration_ms: 0.380125
+  ...
+# Subtest: canonical input bytes are enforced
+ok 547 - canonical input bytes are enforced
+  ---
+  duration_ms: 0.363417
+  ...
+# Subtest: replay never reconstructs the initial state
+ok 548 - replay never reconstructs the initial state
+  ---
+  duration_ms: 0.219583
+  ...
+# Subtest: only explicit build mismatches may be bypassed
+ok 549 - only explicit build mismatches may be bypassed
+  ---
+  duration_ms: 0.383334
+  ...
+# Subtest: duplicate failure IDs and order are retained
+ok 550 - duplicate failure IDs and order are retained
+  ---
+  duration_ms: 1.901833
+  ...
+# Subtest: mutable branches and caller-owned data stay independent
+ok 551 - mutable branches and caller-owned data stay independent
+  ---
+  duration_ms: 0.485
+  ...
+# Subtest: checker mutations cannot change application state or observations
+ok 552 - checker mutations cannot change application state or observations
+  ---
+  duration_ms: 0.104208
+  ...
+# Subtest: codec buffers are owned copies including Node Buffer subclasses
+ok 553 - codec buffers are owned copies including Node Buffer subclasses
+  ---
+  duration_ms: 2.045334
+  ...
+# Subtest: invalid numeric work limits are rejected
+ok 554 - invalid numeric work limits are rejected
+  ---
+  duration_ms: 1.132292
+  ...
+# Subtest: zero random domain consumes no state
+ok 555 - zero random domain consumes no state
+  ---
+  duration_ms: 0.468625
+  ...
+# Subtest: u64 bounds and vector
+ok 556 - u64 bounds and vector
+  ---
+  duration_ms: 0.131125
+  ...
+# Subtest: native retention limits are enforced
+ok 557 - native retention limits are enforced
+  ---
+  duration_ms: 0.281333
+  ...
+# Subtest: JSON byte and aggregate limits
+ok 558 - JSON byte and aggregate limits
+  ---
+  duration_ms: 0.573791
+  ...
+# Subtest: malformed JSON and scalars are not silently normalized
+ok 559 - malformed JSON and scalars are not silently normalized
+  ---
+  duration_ms: 0.412875
+  ...
+# Subtest: false termination and continuation after failures are rejected
+ok 560 - false termination and continuation after failures are rejected
+  ---
+  duration_ms: 0.44975
+  ...
+# Subtest: reason strings and check details are exact Unicode scalars
+ok 561 - reason strings and check details are exact Unicode scalars
+  ---
+  duration_ms: 0.19175
+  ...
+# Subtest: zero and exact step limits distinguish completed from bounded prefix
+ok 562 - zero and exact step limits distinguish completed from bounded prefix
+  ---
+  duration_ms: 0.154875
+  ...
+# Subtest: invalid checks do not become passing observations
+ok 563 - invalid checks do not become passing observations
+  ---
+  duration_ms: 0.180042
+  ...
+# Subtest: all trace entry points reject invalid custom limits before touching input
+ok 564 - all trace entry points reject invalid custom limits before touching input
+  ---
+  duration_ms: 7.724875
+  ...
+# Subtest: zero and exact custom trace limits remain valid
+ok 565 - zero and exact custom trace limits remain valid
+  ---
+  duration_ms: 0.814791
+  ...
+# Subtest: equal actual state retains independently differing reference history
+ok 566 - equal actual state retains independently differing reference history
+  ---
+  duration_ms: 7.6305
+  ...
+# Subtest: paired-v1 independent golden: queue-exhausted
+ok 567 - paired-v1 independent golden: queue-exhausted
+  ---
+  duration_ms: 1.980041
+  ...
+# Subtest: paired-v1 independent golden: queue-exact-edge-budget
+ok 568 - paired-v1 independent golden: queue-exact-edge-budget
+  ---
+  duration_ms: 2.216125
+  ...
+# Subtest: paired-v1 independent golden: queue-depth-zero
+ok 569 - paired-v1 independent golden: queue-depth-zero
+  ---
+  duration_ms: 0.775083
+  ...
+# Subtest: paired-v1 independent golden: queue-depth-one
+ok 570 - paired-v1 independent golden: queue-depth-one
+  ---
+  duration_ms: 0.894541
+  ...
+# Subtest: paired-v1 independent golden: queue-state-cap
+ok 571 - paired-v1 independent golden: queue-state-cap
+  ---
+  duration_ms: 0.241584
+  ...
+# Subtest: paired-v1 independent golden: queue-edge-cap
+ok 572 - paired-v1 independent golden: queue-edge-cap
+  ---
+  duration_ms: 0.138542
+  ...
+# Subtest: paired-v1 independent golden: wrong-next-state
+ok 573 - paired-v1 independent golden: wrong-next-state
+  ---
+  duration_ms: 2.936791
+  ...
+# Subtest: paired-v1 independent golden: effect-reordering
+ok 574 - paired-v1 independent golden: effect-reordering
+  ---
+  duration_ms: 2.561583
+  ...
+# Subtest: paired-v1 independent golden: effect-omission
+ok 575 - paired-v1 independent golden: effect-omission
+  ---
+  duration_ms: 1.737417
+  ...
+# Subtest: paired-v1 independent golden: reason-mismatch
+ok 576 - paired-v1 independent golden: reason-mismatch
+  ---
+  duration_ms: 3.0405
+  ...
+# Subtest: paired-v1 independent golden: initial-mismatch
+ok 577 - paired-v1 independent golden: initial-mismatch
+  ---
+  duration_ms: 0.151334
+  ...
+# Subtest: paired ordering, codec restart, fail-fast and exact replay
+ok 578 - paired ordering, codec restart, fail-fast and exact replay
+  ---
+  duration_ms: 2.562541
+  ...
+# Subtest: paired observation retains executed transition and never reruns actual
+ok 579 - paired observation retains executed transition and never reruns actual
+  ---
+  duration_ms: 0.365
+  ...
+# Subtest: paired malformed checkpoint, strict identity, limits and callback error
+ok 580 - paired malformed checkpoint, strict identity, limits and callback error
+  ---
+  duration_ms: 0.968458
+  ...
+# Subtest: paired rejects malformed reference transitions before history or comparisons
+ok 581 - paired rejects malformed reference transitions before history or comparisons
+  ---
+  duration_ms: 0.766375
+  ...
+# Subtest: exact paired replay rejects noncanonical components accepted by a permissive decoder
+ok 582 - exact paired replay rejects noncanonical components accepted by a permissive decoder
+  ---
+  duration_ms: 0.430125
+  ...
+# Subtest: WithOracle forwards independent generation, causal shrink and codecs through paired search
+ok 583 - WithOracle forwards independent generation, causal shrink and codecs through paired search
+  ---
+  duration_ms: 6.930292
+  ...
+# Subtest: paired/oracle search preserves emitted checks when later checker/projection fails
+ok 584 - paired/oracle search preserves emitted checks when later checker/projection fails
+  ---
+  duration_ms: 1.490542
+  ...
+# Subtest: shared replay-evidence-v1 exact-one
+ok 585 - shared replay-evidence-v1 exact-one
+  ---
+  duration_ms: 4.559917
+  ...
+# Subtest: shared replay-evidence-v1 exact-bounded
+ok 586 - shared replay-evidence-v1 exact-bounded
+  ---
+  duration_ms: 1.863417
+  ...
+# Subtest: shared replay-evidence-v1 exact-two
+ok 587 - shared replay-evidence-v1 exact-two
+  ---
+  duration_ms: 0.872833
+  ...
+# Subtest: shared replay-evidence-v1 build-incompatible
+ok 588 - shared replay-evidence-v1 build-incompatible
+  ---
+  duration_ms: 0.116542
+  ...
+# Subtest: shared replay-evidence-v1 build-mismatch-allowed
+ok 589 - shared replay-evidence-v1 build-mismatch-allowed
+  ---
+  duration_ms: 0.587334
+  ...
+# Subtest: shared replay-evidence-v1 identity-before-invalid-artifact
+ok 590 - shared replay-evidence-v1 identity-before-invalid-artifact
+  ---
+  duration_ms: 0.089208
+  ...
+# Subtest: shared replay-evidence-v1 initial-check-divergence
+ok 591 - shared replay-evidence-v1 initial-check-divergence
+  ---
+  duration_ms: 0.214709
+  ...
+# Subtest: shared replay-evidence-v1 turn-disposition-divergence
+ok 592 - shared replay-evidence-v1 turn-disposition-divergence
+  ---
+  duration_ms: 0.300666
+  ...
+# Subtest: shared replay-evidence-v1 turn-outputs-divergence
+ok 593 - shared replay-evidence-v1 turn-outputs-divergence
+  ---
+  duration_ms: 0.611875
+  ...
+# Subtest: shared replay-evidence-v1 turn-state-divergence
+ok 594 - shared replay-evidence-v1 turn-state-divergence
+  ---
+  duration_ms: 0.512542
+  ...
+# Subtest: shared replay-evidence-v1 turn-checks-divergence
+ok 595 - shared replay-evidence-v1 turn-checks-divergence
+  ---
+  duration_ms: 0.567625
+  ...
+# Subtest: shared replay-evidence-v1 turn-all-divergence
+ok 596 - shared replay-evidence-v1 turn-all-divergence
+  ---
+  duration_ms: 0.2165
+  ...
+# Subtest: shared replay-evidence-v1 failure-details-differ
+ok 597 - shared replay-evidence-v1 failure-details-differ
+  ---
+  duration_ms: 0.220041
+  ...
+# Subtest: shared replay-evidence-v1 failure-phase-move
+ok 598 - shared replay-evidence-v1 failure-phase-move
+  ---
+  duration_ms: 2.553875
+  ...
+# Subtest: shared replay-evidence-v1 error-decode_state-30
+ok 599 - shared replay-evidence-v1 error-decode_state-30
+  ---
+  duration_ms: 0.36075
+  ...
+# Subtest: shared replay-evidence-v1 error-encode_state-0
+ok 600 - shared replay-evidence-v1 error-encode_state-0
+  ---
+  duration_ms: 0.243458
+  ...
+# Subtest: shared replay-evidence-v1 error-check_state-0
+ok 601 - shared replay-evidence-v1 error-check_state-0
+  ---
+  duration_ms: 0.215042
+  ...
+# Subtest: shared replay-evidence-v1 error-decode_input-31
+ok 602 - shared replay-evidence-v1 error-decode_input-31
+  ---
+  duration_ms: 0.171459
+  ...
+# Subtest: shared replay-evidence-v1 error-encode_input-1
+ok 603 - shared replay-evidence-v1 error-encode_input-1
+  ---
+  duration_ms: 0.191708
+  ...
+# Subtest: shared replay-evidence-v1 error-step-0-1
+ok 604 - shared replay-evidence-v1 error-step-0-1
+  ---
+  duration_ms: 0.167042
+  ...
+# Subtest: shared replay-evidence-v1 error-check_state-1
+ok 605 - shared replay-evidence-v1 error-check_state-1
+  ---
+  duration_ms: 0.292333
+  ...
+# Subtest: shared replay-evidence-v1 error-check_transition-0-1-1
+ok 606 - shared replay-evidence-v1 error-check_transition-0-1-1
+  ---
+  duration_ms: 0.200166
+  ...
+# Subtest: shared replay-evidence-v1 error-encode_output-1
+ok 607 - shared replay-evidence-v1 error-encode_output-1
+  ---
+  duration_ms: 0.217625
+  ...
+# Subtest: shared replay-evidence-v1 error-encode_state-1
+ok 608 - shared replay-evidence-v1 error-encode_state-1
+  ---
+  duration_ms: 0.222959
+  ...
+# Subtest: shared replay-evidence-v1 observer-initial-error
+ok 609 - shared replay-evidence-v1 observer-initial-error
+  ---
+  duration_ms: 0.140125
+  ...
+# Subtest: shared replay-evidence-v1 observer-turn-1-error
+ok 610 - shared replay-evidence-v1 observer-turn-1-error
+  ---
+  duration_ms: 0.227167
+  ...
+# Subtest: shared replay-evidence-v1 secondary-error-observer
+ok 611 - shared replay-evidence-v1 secondary-error-observer
+  ---
+  duration_ms: 0.199583
+  ...
+# Subtest: shared replay-evidence-v1 noncanonical-initial
+ok 612 - shared replay-evidence-v1 noncanonical-initial
+  ---
+  duration_ms: 0.13975
+  ...
+# Subtest: shared replay-evidence-v1 noncanonical-input
+ok 613 - shared replay-evidence-v1 noncanonical-input
+  ---
+  duration_ms: 0.139458
+  ...
+# Subtest: shared replay-evidence-v1 initial-failure-continuation
+ok 614 - shared replay-evidence-v1 initial-failure-continuation
+  ---
+  duration_ms: 0.223
+  ...
+# Subtest: shared replay-evidence-v1 nonfinal-failure-continuation
+ok 615 - shared replay-evidence-v1 nonfinal-failure-continuation
+  ---
+  duration_ms: 0.127333
+  ...
+# Subtest: shared replay-evidence-v1 property-footer-without-failure
+ok 616 - shared replay-evidence-v1 property-footer-without-failure
+  ---
+  duration_ms: 0.116542
+  ...
+# Subtest: shared replay-evidence-v1 completed-footer-with-failure
+ok 617 - shared replay-evidence-v1 completed-footer-with-failure
+  ---
+  duration_ms: 0.115416
+  ...
+# Subtest: shared replay-evidence-v1 model-error-prefix-not-reproduced
+ok 618 - shared replay-evidence-v1 model-error-prefix-not-reproduced
+  ---
+  duration_ms: 0.133833
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_total_bytes
+ok 619 - shared replay-evidence-v1 artifact-max_total_bytes
+  ---
+  duration_ms: 0.836792
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_frame_bytes
+ok 620 - shared replay-evidence-v1 artifact-max_frame_bytes
+  ---
+  duration_ms: 0.228125
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_blob_bytes
+ok 621 - shared replay-evidence-v1 artifact-max_blob_bytes
+  ---
+  duration_ms: 1.621042
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_string_bytes
+ok 622 - shared replay-evidence-v1 artifact-max_string_bytes
+  ---
+  duration_ms: 0.780625
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_steps
+ok 623 - shared replay-evidence-v1 artifact-max_steps
+  ---
+  duration_ms: 0.51475
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_checks_per_step
+ok 624 - shared replay-evidence-v1 artifact-max_checks_per_step
+  ---
+  duration_ms: 0.220875
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_outputs_per_step
+ok 625 - shared replay-evidence-v1 artifact-max_outputs_per_step
+  ---
+  duration_ms: 0.149083
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_parameters
+ok 626 - shared replay-evidence-v1 artifact-max_parameters
+  ---
+  duration_ms: 0.145125
+  ...
+# Subtest: shared replay-evidence-v1 artifact-max_items
+ok 627 - shared replay-evidence-v1 artifact-max_items
+  ---
+  duration_ms: 0.41625
+  ...
+# Subtest: shared replay-evidence-v1 artifact-exact-all-quotas
+ok 628 - shared replay-evidence-v1 artifact-exact-all-quotas
+  ---
+  duration_ms: 1.542041
+  ...
+# Subtest: shared replay-evidence-v1 actual-output-shared-total
+ok 629 - shared replay-evidence-v1 actual-output-shared-total
+  ---
+  duration_ms: 0.68475
+  ...
+# Subtest: shared replay-evidence-v1 actual-state-shared-total
+ok 630 - shared replay-evidence-v1 actual-state-shared-total
+  ---
+  duration_ms: 0.652667
+  ...
+# Subtest: shared replay-evidence-v1 actual-output-count-preflight
+ok 631 - shared replay-evidence-v1 actual-output-count-preflight
+  ---
+  duration_ms: 0.326583
+  ...
+# Subtest: shared replay-evidence-v1 actual-disposition-utf8-preflight
+ok 632 - shared replay-evidence-v1 actual-disposition-utf8-preflight
+  ---
+  duration_ms: 0.264084
+  ...
+# Subtest: shared replay-evidence-v1 actual-shared-two-output-total
+ok 633 - shared replay-evidence-v1 actual-shared-two-output-total
+  ---
+  duration_ms: 0.329667
+  ...
+# Subtest: shared replay-evidence-v1 failure-flag-preflight
+ok 634 - shared replay-evidence-v1 failure-flag-preflight
+  ---
+  duration_ms: 0.261459
+  ...
+# Subtest: shared replay-evidence-v1 failure-flag-encoding
+ok 635 - shared replay-evidence-v1 failure-flag-encoding
+  ---
+  duration_ms: 0.231708
+  ...
+# Subtest: shared replay-evidence-v1 actual-current-metadata-run-quota
+ok 636 - shared replay-evidence-v1 actual-current-metadata-run-quota
+  ---
+  duration_ms: 0.326791
+  ...
+# Subtest: shared replay-evidence-v1 initial-complete-checks-quota-before-failure-flag
+ok 637 - shared replay-evidence-v1 initial-complete-checks-quota-before-failure-flag
+  ---
+  duration_ms: 0.208375
+  ...
+# Subtest: shared replay-evidence-v1 actual-aggregate-items-second-turn
+ok 638 - shared replay-evidence-v1 actual-aggregate-items-second-turn
+  ---
+  duration_ms: 0.469208
+  ...
+# Subtest: rich replay reports every difference with disposition priority and stops at first divergence
+ok 639 - rich replay reports every difference with disposition priority and stops at first divergence
+  ---
+  duration_ms: 7.951666
+  ...
+# Subtest: checker failure retains one executed turn with unknown checks and preserves primary observer error
+ok 640 - checker failure retains one executed turn with unknown checks and preserves primary observer error
+  ---
+  duration_ms: 1.163583
+  ...
+# Subtest: normal observer failure retains updated report and does not recursively notify error
+ok 641 - normal observer failure retains updated report and does not recursively notify error
+  ---
+  duration_ms: 0.444166
+  ...
+# Subtest: observer mutations are detached from later replay execution and stored evidence
+ok 642 - observer mutations are detached from later replay execution and stored evidence
+  ---
+  duration_ms: 1.565459
+  ...
+# Subtest: post reducer snapshot failure transfers actual without reexecution or retry
+ok 643 - post reducer snapshot failure transfers actual without reexecution or retry
+  ---
+  duration_ms: 0.47075
+  ...
+# Subtest: encoding failure retains complete checks and exact state-check boundary
+ok 644 - encoding failure retains complete checks and exact state-check boundary
+  ---
+  duration_ms: 0.296708
+  ...
+# Subtest: identity mismatch wins over malformed bounded artifact and does not decode
+ok 645 - identity mismatch wins over malformed bounded artifact and does not decode
+  ---
+  duration_ms: 0.425167
+  ...
+# Subtest: bounded artifact validates total/frame/items before decode while actual expansion retains completed evidence
+ok 646 - bounded artifact validates total/frame/items before decode while actual expansion retains completed evidence
+  ---
+  duration_ms: 2.169667
+  ...
+# Subtest: frozen private receiver and automatic wrapper remain usable for rich replay
+ok 647 - frozen private receiver and automatic wrapper remain usable for rich replay
+  ---
+  duration_ms: 0.841792
+  ...
+# Subtest: noncallback snapshot failure does not retry the failed transition snapshot
+ok 648 - noncallback snapshot failure does not retry the failed transition snapshot
+  ---
+  duration_ms: 0.665375
+  ...
+# Subtest: bounded limits are captured once before metadata and validated after identity
+ok 649 - bounded limits are captured once before metadata and validated after identity
+  ---
+  duration_ms: 0.35025
+  ...
+# Subtest: checked recorder does not rerun checks or reducer and promotes only state checks
+ok 650 - checked recorder does not rerun checks or reducer and promotes only state checks
+  ---
+  duration_ms: 9.099959
+  ...
+# Subtest: tokens can feed two recorders; duplicate freezes only the receiving recorder
+ok 651 - tokens can feed two recorders; duplicate freezes only the receiving recorder
+  ---
+  duration_ms: 1.245458
+  ...
+# Subtest: candidate codec failure freezes coherent prefix without eviction
+ok 652 - candidate codec failure freezes coherent prefix without eviction
+  ---
+  duration_ms: 1.073542
+  ...
+# Subtest: snapshot and returned check mutation cannot alter retained evidence; transfer consumes owner
+ok 653 - snapshot and returned check mutation cannot alter retained evidence; transfer consumes owner
+  ---
+  duration_ms: 0.422666
+  ...
+# Subtest: origin and exact u64 boundaries have no rounding and property failure beats later errors
+ok 654 - origin and exact u64 boundaries have no rounding and property failure beats later errors
+  ---
+  duration_ms: 1.026416
+  ...
+# Subtest: independently typed model representations hand off by metadata and canonical continuity
+ok 655 - independently typed model representations hand off by metadata and canonical continuity
+  ---
+  duration_ms: 1027.981458
+  ...
+# Subtest: shared checked-results recorder handoff-no-rechecks
+ok 656 - shared checked-results recorder handoff-no-rechecks
+  ---
+  duration_ms: 1.887083
+  ...
+# Subtest: shared checked-results recorder ring-state-prefix-only
+ok 657 - shared checked-results recorder ring-state-prefix-only
+  ---
+  duration_ms: 2.167334
+  ...
+# Subtest: shared checked-results recorder origin-nonzero
+ok 658 - shared checked-results recorder origin-nonzero
+  ---
+  duration_ms: 1.304042
+  ...
+# Subtest: shared checked-results recorder origin-u64-last-valid
+ok 659 - shared checked-results recorder origin-u64-last-valid
+  ---
+  duration_ms: 0.704042
+  ...
+# Subtest: shared checked-results recorder origin-u64-overflow
+ok 660 - shared checked-results recorder origin-u64-overflow
+  ---
+  duration_ms: 0.491167
+  ...
+# Subtest: shared checked-results recorder duplicate
+ok 661 - shared checked-results recorder duplicate
+  ---
+  duration_ms: 0.569292
+  ...
+# Subtest: shared checked-results recorder gap
+ok 662 - shared checked-results recorder gap
+  ---
+  duration_ms: 0.500708
+  ...
+# Subtest: shared checked-results recorder reordered
+ok 663 - shared checked-results recorder reordered
+  ---
+  duration_ms: 1.005
+  ...
+# Subtest: shared checked-results recorder reject-policy-{'state_every': '2', 'transition_checks': True}
+ok 664 - shared checked-results recorder reject-policy-{'state_every': '2', 'transition_checks': True}
+  ---
+  duration_ms: 0.224917
+  ...
+# Subtest: shared checked-results recorder reject-policy-{'state_every': '1', 'transition_checks': False}
+ok 665 - shared checked-results recorder reject-policy-{'state_every': '1', 'transition_checks': False}
+  ---
+  duration_ms: 0.271292
+  ...
+# Subtest: shared checked-results recorder metadata-mismatch-freezes
+ok 666 - shared checked-results recorder metadata-mismatch-freezes
+  ---
+  duration_ms: 0.301792
+  ...
+# Subtest: shared checked-results recorder encoded-continuity-freezes
+ok 667 - shared checked-results recorder encoded-continuity-freezes
+  ---
+  duration_ms: 0.274208
+  ...
+# Subtest: shared checked-results recorder equivalent-distinct-model-allowed
+ok 668 - shared checked-results recorder equivalent-distinct-model-allowed
+  ---
+  duration_ms: 0.204
+  ...
+# Subtest: shared checked-results recorder initial-failure-freezes
+ok 669 - shared checked-results recorder initial-failure-freezes
+  ---
+  duration_ms: 0.169125
+  ...
+# Subtest: shared checked-results recorder turn-failure-freezes
+ok 670 - shared checked-results recorder turn-failure-freezes
+  ---
+  duration_ms: 0.355375
+  ...
+# Subtest: shared checked-results recorder external-error-freezes
+ok 671 - shared checked-results recorder external-error-freezes
+  ---
+  duration_ms: 0.465958
+  ...
+# Subtest: shared checked-results recorder encode-output-freezes-coherent-prefix
+ok 672 - shared checked-results recorder encode-output-freezes-coherent-prefix
+  ---
+  duration_ms: 0.504667
+  ...
+# Subtest: shared checked-results recorder output-quota-preflight
+ok 673 - shared checked-results recorder output-quota-preflight
+  ---
+  duration_ms: 0.220333
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_total_bytes
+ok 674 - shared checked-results recorder initial-quota-max_total_bytes
+  ---
+  duration_ms: 0.230792
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_frame_bytes
+ok 675 - shared checked-results recorder initial-quota-max_frame_bytes
+  ---
+  duration_ms: 0.067542
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_blob_bytes
+ok 676 - shared checked-results recorder initial-quota-max_blob_bytes
+  ---
+  duration_ms: 0.098708
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_string_bytes
+ok 677 - shared checked-results recorder initial-quota-max_string_bytes
+  ---
+  duration_ms: 0.079042
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_checks_per_batch
+ok 678 - shared checked-results recorder initial-quota-max_checks_per_batch
+  ---
+  duration_ms: 0.058042
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_parameters
+ok 679 - shared checked-results recorder initial-quota-max_parameters
+  ---
+  duration_ms: 0.192083
+  ...
+# Subtest: shared checked-results recorder initial-quota-max_items
+ok 680 - shared checked-results recorder initial-quota-max_items
+  ---
+  duration_ms: 0.073584
+  ...
+# Subtest: shared checked-results recorder invalid-zero-max-steps
+ok 681 - shared checked-results recorder invalid-zero-max-steps
+  ---
+  duration_ms: 0.056584
+  ...
+# Subtest: shared checked-results recorder invalid-step-limit
+ok 682 - shared checked-results recorder invalid-step-limit
+  ---
+  duration_ms: 0.048917
+  ...
+# Subtest: shared checked-results recorder invalid-zero-byte-budget
+ok 683 - shared checked-results recorder invalid-zero-byte-budget
+  ---
+  duration_ms: 0.042
+  ...
+# Subtest: shared checked-results recorder initial-retained-byte-budget
+ok 684 - shared checked-results recorder initial-retained-byte-budget
+  ---
+  duration_ms: 0.173417
+  ...
+# Subtest: shared checked-results recorder ordinary-constructor-and-observe
+ok 685 - shared checked-results recorder ordinary-constructor-and-observe
+  ---
+  duration_ms: 0.496917
+  ...
+# Subtest: shared checked-results recorder ordinary-ring-promotion
+ok 686 - shared checked-results recorder ordinary-ring-promotion
+  ---
+  duration_ms: 0.584625
+  ...
+# Subtest: shared checked-results recorder checked-initial-ordinary-observe
+ok 687 - shared checked-results recorder checked-initial-ordinary-observe
+  ---
+  duration_ms: 0.349917
+  ...
+# Subtest: shared checked-results recorder cross-representation-same-metadata-canonical-bytes
+ok 688 - shared checked-results recorder cross-representation-same-metadata-canonical-bytes
+  ---
+  duration_ms: 0.206583
+  ...
+# Subtest: shared checked-results recorder retained-only-error-category
+ok 689 - shared checked-results recorder retained-only-error-category
+  ---
+  duration_ms: 0.087917
+  ...
+# Subtest: shared checked-results recorder aggregate-items-before-retained-budget
+ok 690 - shared checked-results recorder aggregate-items-before-retained-budget
+  ---
+  duration_ms: 0.0945
+  ...
+# Subtest: shared checked-results recorder format-total-before-retained-budget
+ok 691 - shared checked-results recorder format-total-before-retained-budget
+  ---
+  duration_ms: 0.105792
+  ...
+# Subtest: retention default stays independent of custom total quota and format errors have Rust priority
+ok 692 - retention default stays independent of custom total quota and format errors have Rust priority
+  ---
+  duration_ms: 0.372
+  ...
+# Subtest: trusted check quota preflight happens before copying immutable token batches
+ok 693 - trusted check quota preflight happens before copying immutable token batches
+  ---
+  duration_ms: 0.564917
+  ...
+# Subtest: reentrant stop preserves first terminal prefix and nested mutation is guarded
+ok 694 - reentrant stop preserves first terminal prefix and nested mutation is guarded
+  ---
+  duration_ms: 0.582833
+  ...
+# Subtest: terminal reason formatting cannot transfer ownership reentrantly
+ok 695 - terminal reason formatting cannot transfer ownership reentrantly
+  ---
+  duration_ms: 0.171458
+  ...
+# Subtest: search-v1 fuzz-singleton
+ok 696 - search-v1 fuzz-singleton
+  ---
+  duration_ms: 5.4635
+  ...
+# Subtest: search-v1 fuzz-zero-cases
+ok 697 - search-v1 fuzz-zero-cases
+  ---
+  duration_ms: 0.233958
+  ...
+# Subtest: search-v1 fuzz-zero-steps
+ok 698 - search-v1 fuzz-zero-steps
+  ---
+  duration_ms: 0.136875
+  ...
+# Subtest: search-v1 fuzz-zero-transitions
+ok 699 - search-v1 fuzz-zero-transitions
+  ---
+  duration_ms: 0.308917
+  ...
+# Subtest: search-v1 fuzz-exact-transitions
+ok 700 - search-v1 fuzz-exact-transitions
+  ---
+  duration_ms: 0.385167
+  ...
+# Subtest: search-v1 fuzz-empty-domain
+ok 701 - search-v1 fuzz-empty-domain
+  ---
+  duration_ms: 0.458417
+  ...
+# Subtest: search-v1 fuzz-binary-seed-zero
+ok 702 - search-v1 fuzz-binary-seed-zero
+  ---
+  duration_ms: 0.487875
+  ...
+# Subtest: search-v1 fuzz-initial-failure
+ok 703 - search-v1 fuzz-initial-failure
+  ---
+  duration_ms: 0.179
+  ...
+# Subtest: search-v1 fuzz-cancelled-entry
+ok 704 - search-v1 fuzz-cancelled-entry
+  ---
+  duration_ms: 0.556375
+  ...
+# Subtest: search-v1 fuzz-deadline-entry
+ok 705 - search-v1 fuzz-deadline-entry
+  ---
+  duration_ms: 2.0375
+  ...
+# Subtest: search-v1 fuzz-mutation-singleton
+ok 706 - search-v1 fuzz-mutation-singleton
+  ---
+  duration_ms: 0.954625
+  ...
+# Subtest: search-v1 shrink-threshold
+ok 707 - search-v1 shrink-threshold
+  ---
+  duration_ms: 2.164208
+  ...
+# Subtest: search-v1 shrink-attempt-limit
+ok 708 - search-v1 shrink-attempt-limit
+  ---
+  duration_ms: 0.383583
+  ...
+# Subtest: search-v1 shrink-zero-transitions
+ok 709 - search-v1 shrink-zero-transitions
+  ---
+  duration_ms: 0.226625
+  ...
+# Subtest: search-v1 shrink-initial
+ok 710 - search-v1 shrink-initial
+  ---
+  duration_ms: 0.217583
+  ...
+# Subtest: search-v1 shrink-causal
+ok 711 - search-v1 shrink-causal
+  ---
+  duration_ms: 0.691875
+  ...
+# Subtest: search-v1 shrink-phase-identity
+ok 712 - search-v1 shrink-phase-identity
+  ---
+  duration_ms: 1.188292
+  ...
+# Subtest: search-v1 shrink-cycle
+ok 713 - search-v1 shrink-cycle
+  ---
+  duration_ms: 0.470333
+  ...
+# Subtest: search-v1 shrink-zero-attempts
+ok 714 - search-v1 shrink-zero-attempts
+  ---
+  duration_ms: 0.216
+  ...
+# Subtest: search-v1 shrink-cancelled-entry
+ok 715 - search-v1 shrink-cancelled-entry
+  ---
+  duration_ms: 0.271458
+  ...
+# Subtest: search-v1 shrink-deadline-entry
+ok 716 - search-v1 shrink-deadline-entry
+  ---
+  duration_ms: 0.161708
+  ...
+# Subtest: search-v1 fuzz-mutation-digits
+ok 717 - search-v1 fuzz-mutation-digits
+  ---
+  duration_ms: 0.431583
+  ...
+# Subtest: search-v1 fuzz-auto-exact-cap
+ok 718 - search-v1 fuzz-auto-exact-cap
+  ---
+  duration_ms: 0.152875
+  ...
+# Subtest: search-v1 fuzz-auto-overflow
+ok 719 - search-v1 fuzz-auto-overflow
+  ---
+  duration_ms: 0.210333
+  ...
+# Subtest: search-v1 fuzz-auto-zero-cap
+ok 720 - search-v1 fuzz-auto-zero-cap
+  ---
+  duration_ms: 0.136167
+  ...
+# Subtest: automatic reservoir consumes no random draw for first, uses full domain and rolls back errors
+ok 721 - automatic reservoir consumes no random draw for first, uses full domain and rolls back errors
+  ---
+  duration_ms: 1.95625
+  ...
+# Subtest: automatic scans maxCandidates plus one and preserves receiver
+ok 722 - automatic scans maxCandidates plus one and preserves receiver
+  ---
+  duration_ms: 1.729833
+  ...
+# Subtest: seeded fuzz is deterministic, checks initial failures and rejects disabled generation
+ok 723 - seeded fuzz is deterministic, checks initial failures and rejects disabled generation
+  ---
+  duration_ms: 3.6895
+  ...
+# Subtest: fuzz generation is state aware; cancellation, deadline and transition bounds are explicit
+ok 724 - fuzz generation is state aware; cancellation, deadline and transition bounds are explicit
+  ---
+  duration_ms: 1.191583
+  ...
+# Subtest: shrink deletes chunks then simplifies, with explicit validation and budgets
+ok 725 - shrink deletes chunks then simplifies, with explicit validation and budgets
+  ---
+  duration_ms: 2.926167
+  ...
+# Subtest: shrink preserves target phase and id, causality and terminates cyclic simplification
+ok 726 - shrink preserves target phase and id, causality and terminates cyclic simplification
+  ---
+  duration_ms: 0.787541
+  ...
+# Subtest: snapshots isolate state/input callbacks and errors remain errors
+ok 727 - snapshots isolate state/input callbacks and errors remain errors
+  ---
+  duration_ms: 0.501875
+  ...
+# Subtest: mutation consumes the specified deletion/replacement draws and replaces without insertion
+ok 728 - mutation consumes the specified deletion/replacement draws and replaces without insertion
+  ---
+  duration_ms: 0.514875
+  ...
+# Subtest: a disabled mutation reuse falls back to generation against current state
+ok 729 - a disabled mutation reuse falls back to generation against current state
+  ---
+  duration_ms: 0.715917
+  ...
+# Subtest: nonboolean control/equality results fail explicitly
+ok 730 - nonboolean control/equality results fail explicitly
+  ---
+  duration_ms: 0.699291
+  ...
+# Subtest: null and undefined inputs are distinct from explicit exhaustion
+ok 731 - null and undefined inputs are distinct from explicit exhaustion
+  ---
+  duration_ms: 0.563292
+  ...
+# Subtest: fuzz observers receive initial and actual failing prefixes without mutating search
+ok 732 - fuzz observers receive initial and actual failing prefixes without mutating search
+  ---
+  duration_ms: 0.606041
+  ...
+# Subtest: observer errors and partial checker failures are explicit and phase ordered
+ok 733 - observer errors and partial checker failures are explicit and phase ordered
+  ---
+  duration_ms: 0.64725
+  ...
+# Subtest: automatic preserves enumeration and codec capabilities with private class receivers
+ok 734 - automatic preserves enumeration and codec capabilities with private class receivers
+  ---
+  duration_ms: 5.199875
+  ...
+# Subtest: checker error remains primary when checkError observer also throws
+ok 735 - checker error remains primary when checkError observer also throws
+  ---
+  duration_ms: 0.415375
+  ...
+# Subtest: completed property failure wins cancellation; callback errors beat simultaneous stop
+ok 736 - completed property failure wins cancellation; callback errors beat simultaneous stop
+  ---
+  duration_ms: 0.207
+  ...
+# Subtest: automatic supports frozen models with own nonconfigurable functions
+ok 737 - automatic supports frozen models with own nonconfigurable functions
+  ---
+  duration_ms: 0.293209
+  ...
+# Subtest: automatic generator overrides stay on the facade and are honored
+ok 738 - automatic generator overrides stay on the facade and are honored
+  ---
+  duration_ms: 0.460834
+  ...
+# Subtest: fuzz, shrink and automatic sampling snapshot validated budget fields once
+ok 739 - fuzz, shrink and automatic sampling snapshot validated budget fields once
+  ---
+  duration_ms: 0.981834
+  ...
+# Subtest: canonical-value-codec-v1 value u8-zero
+ok 740 - canonical-value-codec-v1 value u8-zero
+  ---
+  duration_ms: 6.854375
+  ...
+# Subtest: canonical-value-codec-v1 value u8-max
+ok 741 - canonical-value-codec-v1 value u8-max
+  ---
+  duration_ms: 0.450292
+  ...
+# Subtest: canonical-value-codec-v1 value u16-zero
+ok 742 - canonical-value-codec-v1 value u16-zero
+  ---
+  duration_ms: 0.276083
+  ...
+# Subtest: canonical-value-codec-v1 value u16-max
+ok 743 - canonical-value-codec-v1 value u16-max
+  ---
+  duration_ms: 0.291833
+  ...
+# Subtest: canonical-value-codec-v1 value u32-zero
+ok 744 - canonical-value-codec-v1 value u32-zero
+  ---
+  duration_ms: 0.39975
+  ...
+# Subtest: canonical-value-codec-v1 value u32-max
+ok 745 - canonical-value-codec-v1 value u32-max
+  ---
+  duration_ms: 0.281542
+  ...
+# Subtest: canonical-value-codec-v1 value u64-zero
+ok 746 - canonical-value-codec-v1 value u64-zero
+  ---
+  duration_ms: 0.318666
+  ...
+# Subtest: canonical-value-codec-v1 value u64-max
+ok 747 - canonical-value-codec-v1 value u64-max
+  ---
+  duration_ms: 0.150875
+  ...
+# Subtest: canonical-value-codec-v1 value u128-zero
+ok 748 - canonical-value-codec-v1 value u128-zero
+  ---
+  duration_ms: 1.025209
+  ...
+# Subtest: canonical-value-codec-v1 value u128-max
+ok 749 - canonical-value-codec-v1 value u128-max
+  ---
+  duration_ms: 0.58125
+  ...
+# Subtest: canonical-value-codec-v1 value i8-zero
+ok 750 - canonical-value-codec-v1 value i8-zero
+  ---
+  duration_ms: 0.199958
+  ...
+# Subtest: canonical-value-codec-v1 value i8-min
+ok 751 - canonical-value-codec-v1 value i8-min
+  ---
+  duration_ms: 0.110166
+  ...
+# Subtest: canonical-value-codec-v1 value i8-max
+ok 752 - canonical-value-codec-v1 value i8-max
+  ---
+  duration_ms: 0.06375
+  ...
+# Subtest: canonical-value-codec-v1 value i8-negative-one
+ok 753 - canonical-value-codec-v1 value i8-negative-one
+  ---
+  duration_ms: 0.052292
+  ...
+# Subtest: canonical-value-codec-v1 value i16-zero
+ok 754 - canonical-value-codec-v1 value i16-zero
+  ---
+  duration_ms: 0.048709
+  ...
+# Subtest: canonical-value-codec-v1 value i16-min
+ok 755 - canonical-value-codec-v1 value i16-min
+  ---
+  duration_ms: 0.049625
+  ...
+# Subtest: canonical-value-codec-v1 value i16-max
+ok 756 - canonical-value-codec-v1 value i16-max
+  ---
+  duration_ms: 0.062292
+  ...
+# Subtest: canonical-value-codec-v1 value i16-negative-one
+ok 757 - canonical-value-codec-v1 value i16-negative-one
+  ---
+  duration_ms: 0.043666
+  ...
+# Subtest: canonical-value-codec-v1 value i32-zero
+ok 758 - canonical-value-codec-v1 value i32-zero
+  ---
+  duration_ms: 0.043791
+  ...
+# Subtest: canonical-value-codec-v1 value i32-min
+ok 759 - canonical-value-codec-v1 value i32-min
+  ---
+  duration_ms: 0.043333
+  ...
+# Subtest: canonical-value-codec-v1 value i32-max
+ok 760 - canonical-value-codec-v1 value i32-max
+  ---
+  duration_ms: 0.257584
+  ...
+# Subtest: canonical-value-codec-v1 value i32-negative-one
+ok 761 - canonical-value-codec-v1 value i32-negative-one
+  ---
+  duration_ms: 0.073667
+  ...
+# Subtest: canonical-value-codec-v1 value i64-zero
+ok 762 - canonical-value-codec-v1 value i64-zero
+  ---
+  duration_ms: 0.06125
+  ...
+# Subtest: canonical-value-codec-v1 value i64-min
+ok 763 - canonical-value-codec-v1 value i64-min
+  ---
+  duration_ms: 0.050208
+  ...
+# Subtest: canonical-value-codec-v1 value i64-max
+ok 764 - canonical-value-codec-v1 value i64-max
+  ---
+  duration_ms: 0.047125
+  ...
+# Subtest: canonical-value-codec-v1 value i64-negative-one
+ok 765 - canonical-value-codec-v1 value i64-negative-one
+  ---
+  duration_ms: 0.054833
+  ...
+# Subtest: canonical-value-codec-v1 value i128-zero
+ok 766 - canonical-value-codec-v1 value i128-zero
+  ---
+  duration_ms: 0.124833
+  ...
+# Subtest: canonical-value-codec-v1 value i128-min
+ok 767 - canonical-value-codec-v1 value i128-min
+  ---
+  duration_ms: 0.0495
+  ...
+# Subtest: canonical-value-codec-v1 value i128-max
+ok 768 - canonical-value-codec-v1 value i128-max
+  ---
+  duration_ms: 0.049333
+  ...
+# Subtest: canonical-value-codec-v1 value i128-negative-one
+ok 769 - canonical-value-codec-v1 value i128-negative-one
+  ---
+  duration_ms: 0.099458
+  ...
+# Subtest: canonical-value-codec-v1 value bool-false
+ok 770 - canonical-value-codec-v1 value bool-false
+  ---
+  duration_ms: 0.121833
+  ...
+# Subtest: canonical-value-codec-v1 value bool-true
+ok 771 - canonical-value-codec-v1 value bool-true
+  ---
+  duration_ms: 0.045166
+  ...
+# Subtest: canonical-value-codec-v1 value unit
+ok 772 - canonical-value-codec-v1 value unit
+  ---
+  duration_ms: 0.060417
+  ...
+# Subtest: canonical-value-codec-v1 value string-empty
+ok 773 - canonical-value-codec-v1 value string-empty
+  ---
+  duration_ms: 0.373208
+  ...
+# Subtest: canonical-value-codec-v1 value string-ascii
+ok 774 - canonical-value-codec-v1 value string-ascii
+  ---
+  duration_ms: 0.112041
+  ...
+# Subtest: canonical-value-codec-v1 value string-unicode
+ok 775 - canonical-value-codec-v1 value string-unicode
+  ---
+  duration_ms: 0.356333
+  ...
+# Subtest: canonical-value-codec-v1 value string-nul
+ok 776 - canonical-value-codec-v1 value string-nul
+  ---
+  duration_ms: 0.329833
+  ...
+# Subtest: canonical-value-codec-v1 value string-leading-bom
+ok 777 - canonical-value-codec-v1 value string-leading-bom
+  ---
+  duration_ms: 0.08075
+  ...
+# Subtest: canonical-value-codec-v1 value string-nfc
+ok 778 - canonical-value-codec-v1 value string-nfc
+  ---
+  duration_ms: 0.062084
+  ...
+# Subtest: canonical-value-codec-v1 value string-nfd
+ok 779 - canonical-value-codec-v1 value string-nfd
+  ---
+  duration_ms: 0.066292
+  ...
+# Subtest: canonical-value-codec-v1 value none-unit
+ok 780 - canonical-value-codec-v1 value none-unit
+  ---
+  duration_ms: 0.533
+  ...
+# Subtest: canonical-value-codec-v1 value some-unit
+ok 781 - canonical-value-codec-v1 value some-unit
+  ---
+  duration_ms: 0.112333
+  ...
+# Subtest: canonical-value-codec-v1 value some-empty-string
+ok 782 - canonical-value-codec-v1 value some-empty-string
+  ---
+  duration_ms: 0.193625
+  ...
+# Subtest: canonical-value-codec-v1 value some-none
+ok 783 - canonical-value-codec-v1 value some-none
+  ---
+  duration_ms: 0.22
+  ...
+# Subtest: canonical-value-codec-v1 value some-some-unit
+ok 784 - canonical-value-codec-v1 value some-some-unit
+  ---
+  duration_ms: 0.272875
+  ...
+# Subtest: canonical-value-codec-v1 value vector-empty
+ok 785 - canonical-value-codec-v1 value vector-empty
+  ---
+  duration_ms: 0.239541
+  ...
+# Subtest: canonical-value-codec-v1 value vector-u16-order-duplicates
+ok 786 - canonical-value-codec-v1 value vector-u16-order-duplicates
+  ---
+  duration_ms: 0.130166
+  ...
+# Subtest: canonical-value-codec-v1 value vector-unit-three
+ok 787 - canonical-value-codec-v1 value vector-unit-three
+  ---
+  duration_ms: 1.590958
+  ...
+# Subtest: canonical-value-codec-v1 value array-empty
+ok 788 - canonical-value-codec-v1 value array-empty
+  ---
+  duration_ms: 0.678959
+  ...
+# Subtest: canonical-value-codec-v1 value array-u16-three
+ok 789 - canonical-value-codec-v1 value array-u16-three
+  ---
+  duration_ms: 0.170625
+  ...
+# Subtest: canonical-value-codec-v1 value tuple-one
+ok 790 - canonical-value-codec-v1 value tuple-one
+  ---
+  duration_ms: 0.285167
+  ...
+# Subtest: canonical-value-codec-v1 value tuple-two
+ok 791 - canonical-value-codec-v1 value tuple-two
+  ---
+  duration_ms: 0.077292
+  ...
+# Subtest: canonical-value-codec-v1 value tuple-three
+ok 792 - canonical-value-codec-v1 value tuple-three
+  ---
+  duration_ms: 0.089084
+  ...
+# Subtest: canonical-value-codec-v1 value tuple-four-small-witness
+ok 793 - canonical-value-codec-v1 value tuple-four-small-witness
+  ---
+  duration_ms: 0.171667
+  ...
+# Subtest: canonical-value-codec-v1 value oracle-state-no-orc1-frame
+ok 794 - canonical-value-codec-v1 value oracle-state-no-orc1-frame
+  ---
+  duration_ms: 0.155375
+  ...
+# Subtest: canonical-value-codec-v1 value nested-vectors
+ok 795 - canonical-value-codec-v1 value nested-vectors
+  ---
+  duration_ms: 0.185583
+  ...
+# Subtest: canonical-value-codec-v1 value vector-arrays
+ok 796 - canonical-value-codec-v1 value vector-arrays
+  ---
+  duration_ms: 0.119542
+  ...
+# Subtest: canonical-value-codec-v1 value vector-options-u64
+ok 797 - canonical-value-codec-v1 value vector-options-u64
+  ---
+  duration_ms: 0.471333
+  ...
+# Subtest: canonical-value-codec-v1 value string-length-width-1
+ok 798 - canonical-value-codec-v1 value string-length-width-1
+  ---
+  duration_ms: 0.548417
+  ...
+# Subtest: canonical-value-codec-v1 value vector-length-width-1
+ok 799 - canonical-value-codec-v1 value vector-length-width-1
+  ---
+  duration_ms: 0.19525
+  ...
+# Subtest: canonical-value-codec-v1 value direct-string-width-1
+ok 800 - canonical-value-codec-v1 value direct-string-width-1
+  ---
+  duration_ms: 0.106208
+  ...
+# Subtest: canonical-value-codec-v1 value direct-vector-width-1
+ok 801 - canonical-value-codec-v1 value direct-vector-width-1
+  ---
+  duration_ms: 0.076417
+  ...
+# Subtest: canonical-value-codec-v1 value string-length-width-2
+ok 802 - canonical-value-codec-v1 value string-length-width-2
+  ---
+  duration_ms: 0.068417
+  ...
+# Subtest: canonical-value-codec-v1 value vector-length-width-2
+ok 803 - canonical-value-codec-v1 value vector-length-width-2
+  ---
+  duration_ms: 0.082583
+  ...
+# Subtest: canonical-value-codec-v1 value direct-string-width-2
+ok 804 - canonical-value-codec-v1 value direct-string-width-2
+  ---
+  duration_ms: 0.048209
+  ...
+# Subtest: canonical-value-codec-v1 value direct-vector-width-2
+ok 805 - canonical-value-codec-v1 value direct-vector-width-2
+  ---
+  duration_ms: 0.052541
+  ...
+# Subtest: canonical-value-codec-v1 value string-length-width-4
+ok 806 - canonical-value-codec-v1 value string-length-width-4
+  ---
+  duration_ms: 0.145417
+  ...
+# Subtest: canonical-value-codec-v1 value vector-length-width-4
+ok 807 - canonical-value-codec-v1 value vector-length-width-4
+  ---
+  duration_ms: 0.067667
+  ...
+# Subtest: canonical-value-codec-v1 value direct-string-width-4
+ok 808 - canonical-value-codec-v1 value direct-string-width-4
+  ---
+  duration_ms: 0.04575
+  ...
+# Subtest: canonical-value-codec-v1 value direct-vector-width-4
+ok 809 - canonical-value-codec-v1 value direct-vector-width-4
+  ---
+  duration_ms: 0.056
+  ...
+# Subtest: canonical-value-codec-v1 value integer-all-budgets-exact
+ok 810 - canonical-value-codec-v1 value integer-all-budgets-exact
+  ---
+  duration_ms: 0.091833
+  ...
+# Subtest: canonical-value-codec-v1 value unit-zero-byte-allocation-elements
+ok 811 - canonical-value-codec-v1 value unit-zero-byte-allocation-elements
+  ---
+  duration_ms: 0.065042
+  ...
+# Subtest: canonical-value-codec-v1 value bool-work-depth-exact
+ok 812 - canonical-value-codec-v1 value bool-work-depth-exact
+  ---
+  duration_ms: 0.074833
+  ...
+# Subtest: canonical-value-codec-v1 value some-unit-work-depth-exact
+ok 813 - canonical-value-codec-v1 value some-unit-work-depth-exact
+  ---
+  duration_ms: 0.102959
+  ...
+# Subtest: canonical-value-codec-v1 value some-some-unit-work-depth-exact
+ok 814 - canonical-value-codec-v1 value some-some-unit-work-depth-exact
+  ---
+  duration_ms: 0.071041
+  ...
+# Subtest: canonical-value-codec-v1 value string-budget-exact
+ok 815 - canonical-value-codec-v1 value string-budget-exact
+  ---
+  duration_ms: 0.069958
+  ...
+# Subtest: canonical-value-codec-v1 value vector-unit-budget-exact
+ok 816 - canonical-value-codec-v1 value vector-unit-budget-exact
+  ---
+  duration_ms: 0.758042
+  ...
+# Subtest: canonical-value-codec-v1 value nested-vector-budget-exact
+ok 817 - canonical-value-codec-v1 value nested-vector-budget-exact
+  ---
+  duration_ms: 0.2305
+  ...
+# Subtest: canonical-value-codec-v1 value vector-array-double-storage-exact
+ok 818 - canonical-value-codec-v1 value vector-array-double-storage-exact
+  ---
+  duration_ms: 0.383792
+  ...
+# Subtest: canonical-value-codec-v1 value vector-option-storage-exact
+ok 819 - canonical-value-codec-v1 value vector-option-storage-exact
+  ---
+  duration_ms: 0.224042
+  ...
+# Subtest: canonical-value-codec-v1 value direct-vector-omits-outer-work
+ok 820 - canonical-value-codec-v1 value direct-vector-omits-outer-work
+  ---
+  duration_ms: 0.198
+  ...
+# Subtest: canonical-value-codec-v1 value direct-string-omits-outer-work
+ok 821 - canonical-value-codec-v1 value direct-string-omits-outer-work
+  ---
+  duration_ms: 0.135292
+  ...
+# Subtest: canonical-value-codec-v1 value outer-length-override-keeps-inner-default
+ok 822 - canonical-value-codec-v1 value outer-length-override-keeps-inner-default
+  ---
+  duration_ms: 0.324333
+  ...
+# Subtest: canonical-value-codec-v1 decode error decode-unsupported-width-0
+ok 823 - canonical-value-codec-v1 decode error decode-unsupported-width-0
+  ---
+  duration_ms: 0.649417
+  ...
+# Subtest: canonical-value-codec-v1 decode error decode-unsupported-width-3
+ok 824 - canonical-value-codec-v1 decode error decode-unsupported-width-3
+  ---
+  duration_ms: 0.075709
+  ...
+# Subtest: canonical-value-codec-v1 decode error decode-unsupported-width-8
+ok 825 - canonical-value-codec-v1 decode error decode-unsupported-width-8
+  ---
+  duration_ms: 0.922083
+  ...
+# Subtest: canonical-value-codec-v1 decode error bool-tag2
+ok 826 - canonical-value-codec-v1 decode error bool-tag2
+  ---
+  duration_ms: 0.310416
+  ...
+# Subtest: canonical-value-codec-v1 decode error option-tag2
+ok 827 - canonical-value-codec-v1 decode error option-tag2
+  ---
+  duration_ms: 0.166792
+  ...
+# Subtest: canonical-value-codec-v1 decode error utf8-invalid-byte
+ok 828 - canonical-value-codec-v1 decode error utf8-invalid-byte
+  ---
+  duration_ms: 0.218541
+  ...
+# Subtest: canonical-value-codec-v1 decode error utf8-overlong
+ok 829 - canonical-value-codec-v1 decode error utf8-overlong
+  ---
+  duration_ms: 0.074709
+  ...
+# Subtest: canonical-value-codec-v1 decode error utf8-surrogate
+ok 830 - canonical-value-codec-v1 decode error utf8-surrogate
+  ---
+  duration_ms: 0.100833
+  ...
+# Subtest: canonical-value-codec-v1 decode error utf8-out-of-range
+ok 831 - canonical-value-codec-v1 decode error utf8-out-of-range
+  ---
+  duration_ms: 0.223
+  ...
+# Subtest: canonical-value-codec-v1 decode error utf8-truncated-declared-body
+ok 832 - canonical-value-codec-v1 decode error utf8-truncated-declared-body
+  ---
+  duration_ms: 0.067041
+  ...
+# Subtest: canonical-value-codec-v1 decode error array-missing-element
+ok 833 - canonical-value-codec-v1 decode error array-missing-element
+  ---
+  duration_ms: 0.175667
+  ...
+# Subtest: canonical-value-codec-v1 decode error array-extra-element
+ok 834 - canonical-value-codec-v1 decode error array-extra-element
+  ---
+  duration_ms: 0.071625
+  ...
+# Subtest: canonical-value-codec-v1 decode error unit-trailing-byte
+ok 835 - canonical-value-codec-v1 decode error unit-trailing-byte
+  ---
+  duration_ms: 0.089125
+  ...
+# Subtest: canonical-value-codec-v1 decode error byte-before-work-depth
+ok 836 - canonical-value-codec-v1 decode error byte-before-work-depth
+  ---
+  duration_ms: 0.07075
+  ...
+# Subtest: canonical-value-codec-v1 decode error work-before-depth
+ok 837 - canonical-value-codec-v1 decode error work-before-depth
+  ---
+  duration_ms: 0.062667
+  ...
+# Subtest: canonical-value-codec-v1 decode error depth-zero-after-work
+ok 838 - canonical-value-codec-v1 decode error depth-zero-after-work
+  ---
+  duration_ms: 0.051958
+  ...
+# Subtest: canonical-value-codec-v1 decode error bool-inner-work
+ok 839 - canonical-value-codec-v1 decode error bool-inner-work
+  ---
+  duration_ms: 0.053
+  ...
+# Subtest: canonical-value-codec-v1 decode error bool-inner-depth
+ok 840 - canonical-value-codec-v1 decode error bool-inner-depth
+  ---
+  duration_ms: 0.052584
+  ...
+# Subtest: canonical-value-codec-v1 decode error string-element-before-allocation
+ok 841 - canonical-value-codec-v1 decode error string-element-before-allocation
+  ---
+  duration_ms: 0.065209
+  ...
+# Subtest: canonical-value-codec-v1 decode error string-allocation-before-work
+ok 842 - canonical-value-codec-v1 decode error string-allocation-before-work
+  ---
+  duration_ms: 0.132333
+  ...
+# Subtest: canonical-value-codec-v1 decode error string-work-before-take
+ok 843 - canonical-value-codec-v1 decode error string-work-before-take
+  ---
+  duration_ms: 0.0705
+  ...
+# Subtest: canonical-value-codec-v1 decode error zero-size-count-work
+ok 844 - canonical-value-codec-v1 decode error zero-size-count-work
+  ---
+  duration_ms: 0.070833
+  ...
+# Subtest: canonical-value-codec-v1 decode error huge-zero-size-count-elements
+ok 845 - canonical-value-codec-v1 decode error huge-zero-size-count-elements
+  ---
+  duration_ms: 0.074541
+  ...
+# Subtest: canonical-value-codec-v1 decode error huge-zero-size-count-work
+ok 846 - canonical-value-codec-v1 decode error huge-zero-size-count-work
+  ---
+  duration_ms: 0.059834
+  ...
+# Subtest: canonical-value-codec-v1 decode error vector-declared-count-quota-before-truncation
+ok 847 - canonical-value-codec-v1 decode error vector-declared-count-quota-before-truncation
+  ---
+  duration_ms: 0.060166
+  ...
+# Subtest: canonical-value-codec-v1 decode error nested-elements-aggregate
+ok 848 - canonical-value-codec-v1 decode error nested-elements-aggregate
+  ---
+  duration_ms: 0.122458
+  ...
+# Subtest: canonical-value-codec-v1 decode error nested-allocation-aggregate
+ok 849 - canonical-value-codec-v1 decode error nested-allocation-aggregate
+  ---
+  duration_ms: 0.108875
+  ...
+# Subtest: canonical-value-codec-v1 decode error array-allocation-one-under
+ok 850 - canonical-value-codec-v1 decode error array-allocation-one-under
+  ---
+  duration_ms: 0.064042
+  ...
+# Subtest: canonical-value-codec-v1 decode error vector-array-allocation-one-under
+ok 851 - canonical-value-codec-v1 decode error vector-array-allocation-one-under
+  ---
+  duration_ms: 0.086042
+  ...
+# Subtest: canonical-value-codec-v1 decode error direct-vector-work-one-under
+ok 852 - canonical-value-codec-v1 decode error direct-vector-work-one-under
+  ---
+  duration_ms: 1.236958
+  ...
+# Subtest: canonical-value-codec-v1 encode error u128-max-encode-one-under
+ok 853 - canonical-value-codec-v1 encode error u128-max-encode-one-under
+  ---
+  duration_ms: 0.253667
+  ...
+# Subtest: canonical-value-codec-v1 encode error i128-min-encode-one-under
+ok 854 - canonical-value-codec-v1 encode error i128-min-encode-one-under
+  ---
+  duration_ms: 0.081916
+  ...
+# Subtest: canonical-value-codec-v1 encode error bool-true-encode-one-under
+ok 855 - canonical-value-codec-v1 encode error bool-true-encode-one-under
+  ---
+  duration_ms: 0.064083
+  ...
+# Subtest: canonical-value-codec-v1 encode error string-unicode-encode-one-under
+ok 856 - canonical-value-codec-v1 encode error string-unicode-encode-one-under
+  ---
+  duration_ms: 0.541125
+  ...
+# Subtest: canonical-value-codec-v1 encode error some-unit-encode-one-under
+ok 857 - canonical-value-codec-v1 encode error some-unit-encode-one-under
+  ---
+  duration_ms: 0.198125
+  ...
+# Subtest: canonical-value-codec-v1 encode error vector-u16-order-duplicates-encode-one-under
+ok 858 - canonical-value-codec-v1 encode error vector-u16-order-duplicates-encode-one-under
+  ---
+  duration_ms: 0.226333
+  ...
+# Subtest: canonical-value-codec-v1 encode error tuple-four-small-witness-encode-one-under
+ok 859 - canonical-value-codec-v1 encode error tuple-four-small-witness-encode-one-under
+  ---
+  duration_ms: 0.243291
+  ...
+# Subtest: canonical-value-codec-v1 encode error oracle-state-no-orc1-frame-encode-one-under
+ok 860 - canonical-value-codec-v1 encode error oracle-state-no-orc1-frame-encode-one-under
+  ---
+  duration_ms: 0.1955
+  ...
+# Subtest: canonical-value-codec-v1 public length unsupported-length-width-0
+ok 861 - canonical-value-codec-v1 public length unsupported-length-width-0
+  ---
+  duration_ms: 0.28425
+  ...
+# Subtest: canonical-value-codec-v1 public length unsupported-length-width-3
+ok 862 - canonical-value-codec-v1 public length unsupported-length-width-3
+  ---
+  duration_ms: 0.138666
+  ...
+# Subtest: canonical-value-codec-v1 public length unsupported-length-width-8
+ok 863 - canonical-value-codec-v1 public length unsupported-length-width-8
+  ---
+  duration_ms: 0.112458
+  ...
+# Subtest: native-only canonical length primitive length-prefix-1-exact
+ok 864 - native-only canonical length primitive length-prefix-1-exact
+  ---
+  duration_ms: 0.323458
+  ...
+# Subtest: native-only canonical length primitive length-prefix-1-overflow
+ok 865 - native-only canonical length primitive length-prefix-1-overflow
+  ---
+  duration_ms: 0.153417
+  ...
+# Subtest: native-only canonical length primitive length-prefix-2-exact
+ok 866 - native-only canonical length primitive length-prefix-2-exact
+  ---
+  duration_ms: 0.09075
+  ...
+# Subtest: native-only canonical length primitive length-prefix-2-overflow
+ok 867 - native-only canonical length primitive length-prefix-2-overflow
+  ---
+  duration_ms: 0.106
+  ...
+# Subtest: native-only canonical length primitive length-prefix-4-exact
+ok 868 - native-only canonical length primitive length-prefix-4-exact
+  ---
+  duration_ms: 0.119334
+  ...
+# Subtest: native-only canonical length primitive length-prefix-4-overflow
+ok 869 - native-only canonical length primitive length-prefix-4-overflow
+  ---
+  duration_ms: 0.104625
+  ...
+# Subtest: canonical-value-codec-v1 reader raw-take-no-value-work
+ok 870 - canonical-value-codec-v1 reader raw-take-no-value-work
+  ---
+  duration_ms: 0.407125
+  ...
+# Subtest: canonical-value-codec-v1 reader finish-trailing-is-not-sticky-rust
+ok 871 - canonical-value-codec-v1 reader finish-trailing-is-not-sticky-rust
+  ---
+  duration_ms: 0.08875
+  ...
+# Subtest: canonical-value-codec-v1 reader collection-does-not-consume-work
+ok 872 - canonical-value-codec-v1 reader collection-does-not-consume-work
+  ---
+  duration_ms: 0.10825
+  ...
+# Subtest: canonical-value-codec-v1 reader zero-collection-large-weight-no-overflow
+ok 873 - canonical-value-codec-v1 reader zero-collection-large-weight-no-overflow
+  ---
+  duration_ms: 0.0455
+  ...
+# Subtest: canonical-value-codec-v1 reader element-before-multiplication
+ok 874 - canonical-value-codec-v1 reader element-before-multiplication
+  ---
+  duration_ms: 0.204708
+  ...
+# Subtest: canonical-value-codec-v1 reader multiplication-overflow-before-allocation
+ok 875 - canonical-value-codec-v1 reader multiplication-overflow-before-allocation
+  ---
+  duration_ms: 0.1205
+  ...
+# Subtest: canonical-value-codec-v1 reader swallowed-take-remains-sticky
+ok 876 - canonical-value-codec-v1 reader swallowed-take-remains-sticky
+  ---
+  duration_ms: 0.214334
+  ...
+# Subtest: canonical-value-codec-v1 reader swallowed-guarded-bool-remains-sticky
+ok 877 - canonical-value-codec-v1 reader swallowed-guarded-bool-remains-sticky
+  ---
+  duration_ms: 0.123334
+  ...
+# Subtest: canonical-value-codec-v1 reader swallowed-collection-remains-sticky
+ok 878 - canonical-value-codec-v1 reader swallowed-collection-remains-sticky
+  ---
+  duration_ms: 0.19225
+  ...
+# Subtest: canonical-value-codec-v1 reader first-reader-failure-beats-custom-return-error
+ok 879 - canonical-value-codec-v1 reader first-reader-failure-beats-custom-return-error
+  ---
+  duration_ms: 0.139291
+  ...
+# Subtest: canonical-value-codec-v1 reader callback-return-error-becomes-sticky
+ok 880 - canonical-value-codec-v1 reader callback-return-error-becomes-sticky
+  ---
+  duration_ms: 0.107792
+  ...
+# Subtest: canonical-value-codec-v1 reader swallowed-direct-bool-validation-is-not-reader-failure
+ok 881 - canonical-value-codec-v1 reader swallowed-direct-bool-validation-is-not-reader-failure
+  ---
+  duration_ms: 0.062375
+  ...
+# Subtest: canonical-value-codec-v1 reader direct-unsupported-length-error-is-not-sticky
+ok 882 - canonical-value-codec-v1 reader direct-unsupported-length-error-is-not-sticky
+  ---
+  duration_ms: 0.052916
+  ...
+# Subtest: canonical-value-codec-v1 reader guarded-unsupported-length-error-is-sticky
+ok 883 - canonical-value-codec-v1 reader guarded-unsupported-length-error-is-sticky
+  ---
+  duration_ms: 0.101083
+  ...
+# Subtest: canonical-value-codec-v1 reader swallowed-direct-utf8-validation-is-not-reader-failure
+ok 884 - canonical-value-codec-v1 reader swallowed-direct-utf8-validation-is-not-reader-failure
+  ---
+  duration_ms: 0.076292
+  ...
+# Subtest: canonical-value-codec-v1 reader guard-depth-restored-after-success
+ok 885 - canonical-value-codec-v1 reader guard-depth-restored-after-success
+  ---
+  duration_ms: 0.052333
+  ...
+# Subtest: canonical-value-codec-v1 reader custom-direct-length-field-no-extra-guard
+ok 886 - canonical-value-codec-v1 reader custom-direct-length-field-no-extra-guard
+  ---
+  duration_ms: 0.147875
+  ...
+# Subtest: canonical-value-codec-v1 reader custom-direct-length-field-next-value-work-limit
+ok 887 - canonical-value-codec-v1 reader custom-direct-length-field-next-value-work-limit
+  ---
+  duration_ms: 0.120375
+  ...
+# Subtest: canonical-value-codec-v1 reader constructor-byte-limit-before-custom-entry
+ok 888 - canonical-value-codec-v1 reader constructor-byte-limit-before-custom-entry
+  ---
+  duration_ms: 0.04725
+  ...
+# Subtest: canonical-value-codec-v1 native admission u8-below-min
+ok 889 - canonical-value-codec-v1 native admission u8-below-min
+  ---
+  duration_ms: 0.37025
+  ...
+# Subtest: canonical-value-codec-v1 native admission u8-above-max
+ok 890 - canonical-value-codec-v1 native admission u8-above-max
+  ---
+  duration_ms: 0.160833
+  ...
+# Subtest: canonical-value-codec-v1 native admission u16-below-min
+ok 891 - canonical-value-codec-v1 native admission u16-below-min
+  ---
+  duration_ms: 0.0835
+  ...
+# Subtest: canonical-value-codec-v1 native admission u16-above-max
+ok 892 - canonical-value-codec-v1 native admission u16-above-max
+  ---
+  duration_ms: 0.082875
+  ...
+# Subtest: canonical-value-codec-v1 native admission u32-below-min
+ok 893 - canonical-value-codec-v1 native admission u32-below-min
+  ---
+  duration_ms: 0.082666
+  ...
+# Subtest: canonical-value-codec-v1 native admission u32-above-max
+ok 894 - canonical-value-codec-v1 native admission u32-above-max
+  ---
+  duration_ms: 0.067459
+  ...
+# Subtest: canonical-value-codec-v1 native admission u64-below-min
+ok 895 - canonical-value-codec-v1 native admission u64-below-min
+  ---
+  duration_ms: 0.080583
+  ...
+# Subtest: canonical-value-codec-v1 native admission u64-above-max
+ok 896 - canonical-value-codec-v1 native admission u64-above-max
+  ---
+  duration_ms: 0.056167
+  ...
+# Subtest: canonical-value-codec-v1 native admission u128-below-min
+ok 897 - canonical-value-codec-v1 native admission u128-below-min
+  ---
+  duration_ms: 0.177916
+  ...
+# Subtest: canonical-value-codec-v1 native admission u128-above-max
+ok 898 - canonical-value-codec-v1 native admission u128-above-max
+  ---
+  duration_ms: 0.11925
+  ...
+# Subtest: canonical-value-codec-v1 native admission i8-below-min
+ok 899 - canonical-value-codec-v1 native admission i8-below-min
+  ---
+  duration_ms: 0.068375
+  ...
+# Subtest: canonical-value-codec-v1 native admission i8-above-max
+ok 900 - canonical-value-codec-v1 native admission i8-above-max
+  ---
+  duration_ms: 0.053209
+  ...
+# Subtest: canonical-value-codec-v1 native admission i16-below-min
+ok 901 - canonical-value-codec-v1 native admission i16-below-min
+  ---
+  duration_ms: 0.050875
+  ...
+# Subtest: canonical-value-codec-v1 native admission i16-above-max
+ok 902 - canonical-value-codec-v1 native admission i16-above-max
+  ---
+  duration_ms: 0.125583
+  ...
+# Subtest: canonical-value-codec-v1 native admission i32-below-min
+ok 903 - canonical-value-codec-v1 native admission i32-below-min
+  ---
+  duration_ms: 0.161083
+  ...
+# Subtest: canonical-value-codec-v1 native admission i32-above-max
+ok 904 - canonical-value-codec-v1 native admission i32-above-max
+  ---
+  duration_ms: 0.123916
+  ...
+# Subtest: canonical-value-codec-v1 native admission i64-below-min
+ok 905 - canonical-value-codec-v1 native admission i64-below-min
+  ---
+  duration_ms: 0.061166
+  ...
+# Subtest: canonical-value-codec-v1 native admission i64-above-max
+ok 906 - canonical-value-codec-v1 native admission i64-above-max
+  ---
+  duration_ms: 0.053834
+  ...
+# Subtest: canonical-value-codec-v1 native admission i128-below-min
+ok 907 - canonical-value-codec-v1 native admission i128-below-min
+  ---
+  duration_ms: 0.054458
+  ...
+# Subtest: canonical-value-codec-v1 native admission i128-above-max
+ok 908 - canonical-value-codec-v1 native admission i128-above-max
+  ---
+  duration_ms: 0.085375
+  ...
+# Subtest: canonical-value-codec-v1 native admission strict-bool-0
+ok 909 - canonical-value-codec-v1 native admission strict-bool-0
+  ---
+  duration_ms: 0.151625
+  ...
+# Subtest: canonical-value-codec-v1 native admission strict-bool-1
+ok 910 - canonical-value-codec-v1 native admission strict-bool-1
+  ---
+  duration_ms: 0.138583
+  ...
+# Subtest: canonical-value-codec-v1 native admission strict-bool-false
+ok 911 - canonical-value-codec-v1 native admission strict-bool-false
+  ---
+  duration_ms: 0.069667
+  ...
+# Subtest: canonical-value-codec-v1 native admission strict-bool-None
+ok 912 - canonical-value-codec-v1 native admission strict-bool-None
+  ---
+  duration_ms: 0.052292
+  ...
+# Subtest: canonical-value-codec-v1 native admission integer-reject-bool-u8
+ok 913 - canonical-value-codec-v1 native admission integer-reject-bool-u8
+  ---
+  duration_ms: 0.088917
+  ...
+# Subtest: canonical-value-codec-v1 native admission integer-reject-bool-i64
+ok 914 - canonical-value-codec-v1 native admission integer-reject-bool-i64
+  ---
+  duration_ms: 0.107291
+  ...
+# Subtest: canonical-value-codec-v1 native admission integer-reject-bool-u128
+ok 915 - canonical-value-codec-v1 native admission integer-reject-bool-u128
+  ---
+  duration_ms: 0.065792
+  ...
+# Subtest: canonical-value-codec-v1 native admission lone-surrogate-string
+ok 916 - canonical-value-codec-v1 native admission lone-surrogate-string
+  ---
+  duration_ms: 0.116208
+  ...
+# Subtest: canonical-value-codec-v1 native admission fixed-array-wrong-length
+ok 917 - canonical-value-codec-v1 native admission fixed-array-wrong-length
+  ---
+  duration_ms: 0.109416
+  ...
+# Subtest: canonical-value-codec-v1 native admission typescript-unsafe-number-u64
+ok 918 - canonical-value-codec-v1 native admission typescript-unsafe-number-u64
+  ---
+  duration_ms: 0.0865
+  ...
+# Subtest: canonical-value-codec-v1 native admission integer-fractional-input
+ok 919 - canonical-value-codec-v1 native admission integer-fractional-input
+  ---
+  duration_ms: 0.056292
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder direct-length-unsupported-error-caught-does-not-poison
+ok 920 - canonical-value-codec-v1 raw encoder direct-length-unsupported-error-caught-does-not-poison
+  ---
+  duration_ms: 0.312292
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder direct-length-overflow-caught-does-not-poison
+ok 921 - canonical-value-codec-v1 raw encoder direct-length-overflow-caught-does-not-poison
+  ---
+  duration_ms: 0.069291
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder direct-custom-return-error-retains-prefix-without-poison
+ok 922 - canonical-value-codec-v1 raw encoder direct-custom-return-error-retains-prefix-without-poison
+  ---
+  duration_ms: 0.389167
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder direct-write-rejection-stays-sticky
+ok 923 - canonical-value-codec-v1 raw encoder direct-write-rejection-stays-sticky
+  ---
+  duration_ms: 0.306917
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder raw-custom-swallowed-write-failure-returns-ok-before-finish
+ok 924 - canonical-value-codec-v1 raw encoder raw-custom-swallowed-write-failure-returns-ok-before-finish
+  ---
+  duration_ms: 0.117958
+  ...
+# Subtest: canonical-value-codec-v1 raw encoder raw-custom-callback-error-primary-over-sticky-write
+ok 925 - canonical-value-codec-v1 raw encoder raw-custom-callback-error-primary-over-sticky-write
+  ---
+  duration_ms: 0.116917
+  ...
+# Subtest: canonical public length overrides admit inclusive one/two-byte bounds and reject one over
+ok 926 - canonical public length overrides admit inclusive one/two-byte bounds and reject one over
+  ---
+  duration_ms: 6.448333
+  ...
+# Subtest: canonical owned input preserves subview offsets and decoded values do not alias mutable bytes
+ok 927 - canonical owned input preserves subview offsets and decoded values do not alias mutable bytes
+  ---
+  duration_ms: 0.225042
+  ...
+# Subtest: custom schemas preserve guarded/raw error distinctions and first failure over later callback error
+ok 928 - custom schemas preserve guarded/raw error distinctions and first failure over later callback error
+  ---
+  duration_ms: 0.271917
+  ...
+# Subtest: nested schema encoding keeps sticky sink failures and expires retained custom sink leases
+ok 929 - nested schema encoding keeps sticky sink failures and expires retained custom sink leases
+  ---
+  duration_ms: 0.38025
+  ...
+# Subtest: canonical limits snapshot getters once and account exact u64 collection arithmetic
+ok 930 - canonical limits snapshot getters once and account exact u64 collection arithmetic
+  ---
+  duration_ms: 0.340958
+  ...
+# Subtest: unknown compound allocation layout requires an explicit cooperative descriptor
+ok 931 - unknown compound allocation layout requires an explicit cooperative descriptor
+  ---
+  duration_ms: 0.584167
+  ...
+# Subtest: unit options stay distinct, full 128-bit values remain bigint, and non-builtin schemas stay excluded
+ok 932 - unit options stay distinct, full 128-bit values remain bigint, and non-builtin schemas stay excluded
+  ---
+  duration_ms: 0.355166
+  ...
+# Subtest: collection schemas preserve full-u64 declared weights, zero multiplication, and overflow precedence
+ok 933 - collection schemas preserve full-u64 declared weights, zero multiplication, and overflow precedence
+  ---
+  duration_ms: 0.163209
+  ...
+# Subtest: constructor byte admission uses intrinsic typed-array length before copying or decoding
+ok 934 - constructor byte admission uses intrinsic typed-array length before copying or decoding
+  ---
+  duration_ms: 0.126833
+  ...
+# Subtest: decoder stores the first failure independently of caught mutable Error objects
+ok 935 - decoder stores the first failure independently of caught mutable Error objects
+  ---
+  duration_ms: 0.273875
+  ...
+# Subtest: raw encoder callbacks preserve returned errors, expire child leases and keep actual writes sticky
+ok 936 - raw encoder callbacks preserve returned errors, expire child leases and keep actual writes sticky
+  ---
+  duration_ms: 0.498208
+  ...
+# Subtest: custom directions propagate through every compound even when no elements execute
+ok 937 - custom directions propagate through every compound even when no elements execute
+  ---
+  duration_ms: 1.593833
+  ...
+# Subtest: custom length capabilities are independent of ordinary encode and decode traits
+ok 938 - custom length capabilities are independent of ordinary encode and decode traits
+  ---
+  duration_ms: 1.012208
+  ...
+# Subtest: decoder formatter reentry observes a sticky placeholder before any further input consumption
+ok 939 - decoder formatter reentry observes a sticky placeholder before any further input consumption
+  ---
+  duration_ms: 0.772875
+  ...
+# Subtest: encoding owns sticky errors and publishes placeholder before invoking hostile formatters
+ok 940 - encoding owns sticky errors and publishes placeholder before invoking hostile formatters
+  ---
+  duration_ms: 0.880959
+  ...
+# Subtest: custom length widths admit exactly native u8 values before any callback or descriptor access
+ok 941 - custom length widths admit exactly native u8 values before any callback or descriptor access
+  ---
+  duration_ms: 0.933667
+  ...
+1..941
+# tests 941
+# suites 0
+# pass 941
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2000.065084

@@ -1,0 +1,6 @@
+{
+  "pid": 67124,
+  "command": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python /Volumes/seed1/Projects/kyoto/kyoto.py wait 47bc958139944ce49c458a294853308b",
+  "signal": "SIGTERM",
+  "reason": "stop only the local waiting client at blocked handoff; scheduler job is not cancelled"
+}

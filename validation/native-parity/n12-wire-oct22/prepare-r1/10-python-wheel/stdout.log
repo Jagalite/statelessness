@@ -1,0 +1,9 @@
+Processing ./packages/python
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: statelessness
+  Building wheel for statelessness (pyproject.toml): started
+  Building wheel for statelessness (pyproject.toml): finished with status 'done'
+  Created wheel for statelessness: filename=statelessness-0.1.0-py3-none-any.whl size=141175 sha256=c6d5cfdac4215f5184545a507e5af56e0227995368c2034a643f3660336b949f
+  Stored in directory: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/pip-ephem-wheel-cache-m8c0abnu/wheels/41/8a/2c/141a9eee57ddaea1f63fe4bef131f4c203eb522b8f94d71472
+Successfully built statelessness

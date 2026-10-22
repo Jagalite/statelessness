@@ -1,0 +1,17 @@
+{
+  "source_baseline": "validation/native-parity/n12-recovery/integration/reference-compile-inputs.json",
+  "commands": [
+    {
+      "argv": ["target/n12-recovery/debug/deps/n12_reference-d8e214de9c5d60da", "--nocapture"],
+      "scope": "Actual precompiled public Rust N12 finite reference execution; eleven independently authored tests; compile was a distinct Kyoto --no-run job",
+      "required_stdout": ["running 11 tests", "test result: ok. 11 passed; 0 failed", "N12_PROTOCOL_STATUS", "N12_PROTOCOL_SNAPSHOT", "N12_PROTOCOL_STEP", "N12_PROTOCOL_CANCEL"],
+      "timeout_seconds": 120
+    }
+  ],
+  "stdio_endpoints": [
+    {
+      "argv": ["target/n12-recovery/debug/examples/debug_stdio", "--fixed", "--read-only"],
+      "timeout_seconds": 30
+    }
+  ]
+}

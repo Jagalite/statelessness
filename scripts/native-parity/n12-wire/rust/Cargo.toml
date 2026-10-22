@@ -1,0 +1,14 @@
+[package]
+name = "n12-wire-rust"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+
+# This is an external consumer, not a member of the repository workspace.
+[workspace]
+resolver = "3"
+
+[dependencies]
+stateless = { package = "statelessness", path = "../../../.." }
+statelessness-debug = { path = "../../../../crates/statelessness-debug" }

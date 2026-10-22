@@ -1,0 +1,347 @@
+{
+  "typescript/DEBUGGER.md": {
+    "type": 32768,
+    "sha256": "f75320e1173ade10b9a93136fd9dc5a5be3b26d877e448eeeb0a3cd267272dfe",
+    "size": 5770
+  },
+  "typescript/LICENSE": {
+    "type": 32768,
+    "sha256": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "size": 1068
+  },
+  "typescript/README.md": {
+    "type": 32768,
+    "sha256": "ae6f0edf4bad5be3a39546c9f98640af5c5d4d54cbcbb25e7c5b425fe7bb48eb",
+    "size": 27219
+  },
+  "typescript/bin/corpus.mjs": {
+    "type": 32768,
+    "sha256": "41d2e4be5fb23d7a6542b65bc89b5576eb882f91b58f4e26feda71abe68b6647",
+    "size": 1035
+  },
+  "typescript/examples/counter.ts": {
+    "type": 32768,
+    "sha256": "780ddf1bf6def264286108936b6472a9c3f773b98b1cfd23ab3f917edfb6d4d6",
+    "size": 1769
+  },
+  "typescript/package-lock.json": {
+    "type": 32768,
+    "sha256": "6e8c6388660eac97e89d71eadd9087ab9f9072c09fe54261b53f5b17305d6915",
+    "size": 875
+  },
+  "typescript/package.json": {
+    "type": 32768,
+    "sha256": "93ff29aac7aefa0f046f3f34f6c5d2e1af005cad2fd07e81070698e96675f9bb",
+    "size": 2416
+  },
+  "typescript/src/audit_budget.ts": {
+    "type": 32768,
+    "sha256": "c8ee8e8244ea9407842e99c9a00a977378a362e08e6389ead65a486bb8a92d24",
+    "size": 7841
+  },
+  "typescript/src/audit_record.ts": {
+    "type": 32768,
+    "sha256": "0cf79df2f0b3170338e925a12fcc8059b16c28d0873df6e8a887ec4efb1c2bf8",
+    "size": 5342
+  },
+  "typescript/src/binary.ts": {
+    "type": 32768,
+    "sha256": "9da3c179525b336a779cd88afe396b90bf3ab06e16c9184c117d0b1d2cdb2747",
+    "size": 27234
+  },
+  "typescript/src/checked.ts": {
+    "type": 32768,
+    "sha256": "ee3df47d3b03c09489343184aa2ce2917f29348119dd605b55003aee727ce45d",
+    "size": 9183
+  },
+  "typescript/src/checks.ts": {
+    "type": 32768,
+    "sha256": "29a2d57640cae0534626d3e3768e7ea8c1cef5c4536176a6f11fb6b35abf4859",
+    "size": 6314
+  },
+  "typescript/src/conformance.ts": {
+    "type": 32768,
+    "sha256": "f10b8a0d2c1541b7149040b26098ba495fe4b8835df06ef86d209739e429a49e",
+    "size": 9588
+  },
+  "typescript/src/core.ts": {
+    "type": 32768,
+    "sha256": "31af1c80e8431322300d392c54e1d2448f1201551bedd036395d5091e678abcd",
+    "size": 25277
+  },
+  "typescript/src/debug.ts": {
+    "type": 32768,
+    "sha256": "3ec1cb3a1f9d310525f0ee3adf57b2f82e4898e4a718830ed2b04e52e5f4f84b",
+    "size": 10534
+  },
+  "typescript/src/debug_dashboard.ts": {
+    "type": 32768,
+    "sha256": "42a784b3e29cc426c5d53a45e5c749bd215b9ad420c56bda0c674ed1f5de0512",
+    "size": 9358
+  },
+  "typescript/src/debug_diagnostic.ts": {
+    "type": 32768,
+    "sha256": "bc753df5fd0595821d28153757dfd071ce550c30c67860b3a48431a8cc75160e",
+    "size": 18543
+  },
+  "typescript/src/debug_effects.ts": {
+    "type": 32768,
+    "sha256": "8dd3ca7e3646960272e14f0ba95e1635998cd10de9b556375c9274858e925788",
+    "size": 30581
+  },
+  "typescript/src/debug_fork.ts": {
+    "type": 32768,
+    "sha256": "c919a5e4ae57e0b2e76cb8a94a1ce2fc9db3eab8df8c14d0d6dda2cf786af0a3",
+    "size": 5122
+  },
+  "typescript/src/debug_inspect.ts": {
+    "type": 32768,
+    "sha256": "73bc0ef4791ccc62908c31213dff087232198048ed69e1ce3648928abea58449",
+    "size": 20680
+  },
+  "typescript/src/debug_internal.ts": {
+    "type": 32768,
+    "sha256": "109bc9dab123b018649cccf31b8703ddaa14d7ded2efb2dbb60c2fe5f47ff3a8",
+    "size": 168
+  },
+  "typescript/src/debug_live.ts": {
+    "type": 32768,
+    "sha256": "ef71f8f6989aad87b433f1ab3cd23d0306610ebb2a9d98acfccb465e4780bd29",
+    "size": 16154
+  },
+  "typescript/src/debug_metrics.ts": {
+    "type": 32768,
+    "sha256": "16eee4c479d4ca1ee52c0b51259fbd76ea466f580c6685b44b22c22b315a9270",
+    "size": 26921
+  },
+  "typescript/src/debug_protocol.ts": {
+    "type": 32768,
+    "sha256": "11f3b47b911b441e69859affb5b5843388d625e979ce0a84667ea749331a17f0",
+    "size": 19817
+  },
+  "typescript/src/debug_session.ts": {
+    "type": 32768,
+    "sha256": "5d4cb472cfa8d117e7460f2c62d2245b61e87b33277796d12404b706bb4e3c9b",
+    "size": 16477
+  },
+  "typescript/src/debug_watches.ts": {
+    "type": 32768,
+    "sha256": "531f655f2a7c5a169a17050682b7a51212e3bdb7df3afbb573f6a8810c13dcf2",
+    "size": 23307
+  },
+  "typescript/src/encoding.ts": {
+    "type": 32768,
+    "sha256": "cdf3f58810813dcb555a9479c2a65962f12ca5a6290659e50a41b6b7b9e7f93b",
+    "size": 9746
+  },
+  "typescript/src/errors.ts": {
+    "type": 32768,
+    "sha256": "1d50ab177ce083dae51ed5a0f76107e632df9e35ef386646be766d79b2bee85a",
+    "size": 240
+  },
+  "typescript/src/evidence.ts": {
+    "type": 32768,
+    "sha256": "b4db937ad59a667fbaca66a2b9473461d72a7373b7fc7124637dfafcfd0f1a33",
+    "size": 40920
+  },
+  "typescript/src/evidence_recorder.ts": {
+    "type": 32768,
+    "sha256": "10148303f4f88cb4d7433aacfdbbeff2d53c75a31153569fde29cc57da23e566",
+    "size": 7690
+  },
+  "typescript/src/index.ts": {
+    "type": 32768,
+    "sha256": "0e1f9b9d5d31b9935ec510ffb604fc427aae3dbe56aeb441b214886fe3157264",
+    "size": 1901
+  },
+  "typescript/src/json.ts": {
+    "type": 32768,
+    "sha256": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd",
+    "size": 8969
+  },
+  "typescript/src/node_evidence.ts": {
+    "type": 32768,
+    "sha256": "c659fa34979b129591ec6b9789fdf9383867c931572226c59e26fe914ad7c846",
+    "size": 1742
+  },
+  "typescript/src/oracle.ts": {
+    "type": 32768,
+    "sha256": "5f68186929079747cb44f84c9e94358904bf4370ae3a806483e520960530d533",
+    "size": 15665
+  },
+  "typescript/src/replay.ts": {
+    "type": 32768,
+    "sha256": "207923eb14891e6e99e8199530ec4cf0fb9282e7c12a704545f0ba76dbfd588e",
+    "size": 12623
+  },
+  "typescript/src/runtime_recorder.ts": {
+    "type": 32768,
+    "sha256": "5aeda96d9d961d04632361b017d1ab841a1a3f260cf63c36c1a8be88bab7e732",
+    "size": 23674
+  },
+  "typescript/src/search.ts": {
+    "type": 32768,
+    "sha256": "51c9e22970e93c8943ff959002e09f7ec7802a105e97fb3268766190d4e7bf4c",
+    "size": 20647
+  },
+  "typescript/src/search_support.ts": {
+    "type": 32768,
+    "sha256": "f0ad6fbd97f3e5730327b2d43bfbee26fa5348dc306bb1028aed4bb962f91403",
+    "size": 5749
+  },
+  "typescript/src/value_codec.ts": {
+    "type": 32768,
+    "sha256": "5735f0def5d622d94eddcb5206668900d9396a2bb4ab4f506741386b7ab682a5",
+    "size": 27160
+  },
+  "typescript/test/append-checks.test.mjs": {
+    "type": 32768,
+    "sha256": "23ea5cf2d59f77dce3a4d1c1439702429545c3d86dc176624f566f56ad1da1db",
+    "size": 12338
+  },
+  "typescript/test/append-corpus.test.mjs": {
+    "type": 32768,
+    "sha256": "9f131fb61fb0808057bfaeac3c276fde2eaec425fbf862ed37839e3111303afd",
+    "size": 6205
+  },
+  "typescript/test/bfs-controls.test.mjs": {
+    "type": 32768,
+    "sha256": "c5d50b8582ecd33e07d2379c41ff0cacdff05f1dd9c1f5b3effaa64fca260ad5",
+    "size": 13906
+  },
+  "typescript/test/bfs-corpus.test.mjs": {
+    "type": 32768,
+    "sha256": "07099f4d4be78d109462ea3050cbeb2919703e6b8abe411dec891dc6e676e3e1",
+    "size": 3052
+  },
+  "typescript/test/binary.test.mjs": {
+    "type": 32768,
+    "sha256": "d8ce82d7cf94c72f771737dc085c3edf455265e70563bdadd1986e620a3cd27c",
+    "size": 7427
+  },
+  "typescript/test/checked-results.test.mjs": {
+    "type": 32768,
+    "sha256": "a5ecb1fa347065be80b6840dce3ba736da7cdfd44ecf938ebef207eca4f30c27",
+    "size": 5777
+  },
+  "typescript/test/debug-bindings.test.mjs": {
+    "type": 32768,
+    "sha256": "9cfcad9df58744d8cb95bed7268ac1f0ba45433d8b203ac28120bdcc298d0020",
+    "size": 2513
+  },
+  "typescript/test/debug-diagnostic.test.mjs": {
+    "type": 32768,
+    "sha256": "887c5d15d2a9152c979ce9727424d6b9d0da68e4b2a4c099d542e371eff449e3",
+    "size": 8194
+  },
+  "typescript/test/debug-effects.test.mjs": {
+    "type": 32768,
+    "sha256": "85cb6bc4447b31569fc7bc94f9631410106980d68d515edcef5c5d50ef433840",
+    "size": 10495
+  },
+  "typescript/test/debug-fork.test.mjs": {
+    "type": 32768,
+    "sha256": "3ecf0a5c2a54706a1c5b9a62cb35976ddccec73e76d0b4309127fc8c3f207028",
+    "size": 3390
+  },
+  "typescript/test/debug-inspect.test.mjs": {
+    "type": 32768,
+    "sha256": "9fcc5ac4b48019e136053c34abbc5217e7465aaa7329a44e04ee3f51bc314ccc",
+    "size": 5702
+  },
+  "typescript/test/debug-installed.mjs": {
+    "type": 32768,
+    "sha256": "1af509f79650afece7498ee58ce1a361853751c46d9aec9956394d752f753b63",
+    "size": 7119
+  },
+  "typescript/test/debug-live.test.mjs": {
+    "type": 32768,
+    "sha256": "8068ed3b93e63ca12c3b6e5b8d7f387a0c92d6c6140c05d82ed384cc0f87297f",
+    "size": 6197
+  },
+  "typescript/test/debug-metrics.test.mjs": {
+    "type": 32768,
+    "sha256": "78260317272bdd375f8bd60db7800aa403b76a2fa87397c1028f22dea17774d9",
+    "size": 7276
+  },
+  "typescript/test/debug-protocol.test.mjs": {
+    "type": 32768,
+    "sha256": "650261ce3261c9c713ed6fbc3602457f511c1146182dd27a0ac1cc29e1c76a2b",
+    "size": 10341
+  },
+  "typescript/test/debug-session.test.mjs": {
+    "type": 32768,
+    "sha256": "83d35bd7b3d4d5aa761c193e77a0a6b19c2c1652b9698b40a372c8a4e6485b27",
+    "size": 7395
+  },
+  "typescript/test/debug-watches.test.mjs": {
+    "type": 32768,
+    "sha256": "e8a8d63f996b300a6672eae2e3abd5950f3860befc3c0c662fa2ef1fdecbf83f",
+    "size": 5738
+  },
+  "typescript/test/debug.test.mjs": {
+    "type": 32768,
+    "sha256": "5c71b8632ee879a57bfe66190e3b4a91ee51763a61548bbab4d84cdd5c7381e5",
+    "size": 5724
+  },
+  "typescript/test/encode-buffers.test.mjs": {
+    "type": 32768,
+    "sha256": "f991cbe74c9e171cb4da1721f39023badd853de10916e983fb6fe88d13c7de7a",
+    "size": 15310
+  },
+  "typescript/test/evidence-recorder.test.mjs": {
+    "type": 32768,
+    "sha256": "88bd6d6d79bc167e14705d52125ca97f05fe0dbdd81d43c3102f97d77aef16f5",
+    "size": 14270
+  },
+  "typescript/test/evidence.test.mjs": {
+    "type": 32768,
+    "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f",
+    "size": 14111
+  },
+  "typescript/test/native.test.mjs": {
+    "type": 32768,
+    "sha256": "fcef97a39047a43a3be860e600f447a1f3a7ded00df964dfbdab56935609f02a",
+    "size": 11647
+  },
+  "typescript/test/paired.test.mjs": {
+    "type": 32768,
+    "sha256": "d9a8f169bc78eabb6c0a565bc47e37ec798b37e3d4b3a600a8da2aa2872ba9c5",
+    "size": 14284
+  },
+  "typescript/test/replay-corpus.test.mjs": {
+    "type": 32768,
+    "sha256": "6d88b9ffe9a7a29361ce9c51d9b1ac6dd8c36fd1c04553b323a5810c91188a27",
+    "size": 4460
+  },
+  "typescript/test/replay-rich.test.mjs": {
+    "type": 32768,
+    "sha256": "283aaad981472e4b022793c681d88319adf78a107ced17a9d6e2ed0866dc4b35",
+    "size": 7840
+  },
+  "typescript/test/runtime-recorder.test.mjs": {
+    "type": 32768,
+    "sha256": "4c42b6e1c71d71039d0ff2e899551ef828c60e112573a402d2440e5cf9a225cf",
+    "size": 12677
+  },
+  "typescript/test/search-corpus.test.mjs": {
+    "type": 32768,
+    "sha256": "016f608934132409df276414f8b5fcc841089fd5429372dc3f9df14a89a49b86",
+    "size": 3303
+  },
+  "typescript/test/search.test.mjs": {
+    "type": 32768,
+    "sha256": "88c9afd3f0b31137a9d29c2f5899d1687869bf5a352f4f24980cfda5e307b9bf",
+    "size": 15122
+  },
+  "typescript/test/value-codec.test.mjs": {
+    "type": 32768,
+    "sha256": "0fa55eb47f42badf5409ce3b34426564e23f3a3fa8a66ab3aa90180798532038",
+    "size": 23545
+  },
+  "typescript/tsconfig.json": {
+    "type": 32768,
+    "sha256": "d49ecfd6f8b000fbf1395544bc9b9fe5405f5048a45768af0523cda3891ebe34",
+    "size": 357
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "scope": "Static review of finite offline evidence viewer/verification/minimization slice only; no execution qualification implied. Current code reviewed after findings and responses exchanged with language implementers.",
+  "pending": [
+    "Rust reference execution blocked by Kyoto automatic memory-pressure deferrals",
+    "language latest baseline/installed receipts must match finalized source",
+    "session/fork and subsequent family reviews separate"
+  ],
+  "files": [
+    {
+      "path": "go/debug/evidence.go",
+      "sha256": "c81a68fd73741caac7bc93bdf83809085b46711de158d151390a041b8017fadb"
+    },
+    {
+      "path": "go/debug/minimize.go",
+      "sha256": "e6d4a1ab128fd27a55aea7c5b858d250dc94f1fd178cbd7dc0ad6d92b976421f"
+    },
+    {
+      "path": "python/src/statelessness/debugger.py",
+      "sha256": "9828e46f4add5fa3a113038a72464ee78fb974699beb4373bdc9afb6add844c0"
+    },
+    {
+      "path": "typescript/src/debug.ts",
+      "sha256": "3ec1cb3a1f9d310525f0ee3adf57b2f82e4898e4a718830ed2b04e52e5f4f84b"
+    },
+    {
+      "path": "swift/Sources/StatelessDebug/EvidenceViewer.swift",
+      "sha256": "f01256496f57d9021c62d89e37483e3cc7ec6c20baa9935f48dbf1d1e012bd7c"
+    }
+  ],
+  "note": "Re-read current offline sources after explicit legacy phase and policy fixes. No blocking static finding in reviewed finite offline paths; native execution remains pending."
+}

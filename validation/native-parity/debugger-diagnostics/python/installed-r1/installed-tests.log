@@ -1,0 +1,45 @@
+test_explicit_verification_limits (test_debugger.DebuggerTests.test_explicit_verification_limits) ... ok
+test_legacy_phase_and_semantic_validation (test_debugger.DebuggerTests.test_legacy_phase_and_semantic_validation) ... ok
+test_passive_boundary_and_full_width_checkpoint (test_debugger.DebuggerTests.test_passive_boundary_and_full_width_checkpoint) ... ok
+test_phase_spoof_and_budget_reject_before_execution (test_debugger.DebuggerTests.test_phase_spoof_and_budget_reject_before_execution) ... ok
+test_policy_is_not_fabricated (test_debugger.DebuggerTests.test_policy_is_not_fabricated) ... ok
+test_roundtrip_passive_read (test_debugger.DebuggerTests.test_roundtrip_passive_read) ... ok
+test_v2_three_pass_accounting (test_debugger.DebuggerTests.test_v2_three_pass_accounting) ... ok
+test_bounded_continue_and_counters (test_debugger_session.SessionTests.test_bounded_continue_and_counters) ... ok
+test_constructor_order_and_iterator_ownership (test_debugger_session.SessionTests.test_constructor_order_and_iterator_ownership) ... ok
+test_enumerated_admission_bounds (test_debugger_session.SessionTests.test_enumerated_admission_bounds) ... ok
+test_policy_and_observer_faults (test_debugger_session.SessionTests.test_policy_and_observer_faults) ... ok
+test_pre_breakpoint_pending_and_post_commit (test_debugger_session.SessionTests.test_pre_breakpoint_pending_and_post_commit) ... ok
+test_property_failure_and_checker_error_commit (test_debugger_session.SessionTests.test_property_failure_and_checker_error_commit) ... ok
+test_recording_checks_once_and_no_codecs_default (test_debugger_session.SessionTests.test_recording_checks_once_and_no_codecs_default) ... ERROR
+
+======================================================================
+ERROR: test_recording_checks_once_and_no_codecs_default (test_debugger_session.SessionTests.test_recording_checks_once_and_no_codecs_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/lib/python3.14/site-packages/statelessness/core.py", line 38, in _call
+    return callback(*args)
+  File "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/tests/test_debugger_session.py", line 11, in <lambda>
+    return DebugSession('counter', Counter() if model is None else model, InputPolicy('positive', lambda m,s,i: i > 0), **kwargs)
+                                                                                                                ^^^^^
+TypeError: '>' not supported between instances of 'str' and 'int'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/tests/test_debugger_session.py", line 91, in test_recording_checks_once_and_no_codecs_default
+    self.assertTrue(session.step(0, 'hello').delivered)
+                    ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/lib/python3.14/site-packages/statelessness/debugger_session.py", line 139, in step
+    if not self.policy.permits(self._model, self._state, input, self.limits.max_candidates): raise DebugError('input not permitted')
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/lib/python3.14/site-packages/statelessness/debugger.py", line 74, in permits
+    value = _call('debugger input admission', self.admission, model, _copy(state), _copy(input))
+  File "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/lib/python3.14/site-packages/statelessness/core.py", line 40, in _call
+    raise ModelError(f"{stage}: {error}") from error
+statelessness.core.ModelError: debugger input admission: '>' not supported between instances of 'str' and 'int'
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.010s
+
+FAILED (errors=1)

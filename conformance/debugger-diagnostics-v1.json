@@ -1,0 +1,94 @@
+{
+  "schema": "statelessness.native-debugger-manual-expectations/1",
+  "status": "candidate-not-promoted",
+  "authority": "independently calculated expectations; implementation source remains the Rust public API",
+  "boundaries": {
+    "passive_model_callbacks": 0,
+    "initial_sequence": "0",
+    "initial_revision": "0",
+    "pre_breakpoint_consumed_turns": "0",
+    "completed_ignored_turn_sequence_delta": "1",
+    "completed_rejected_turn_revision_delta": "1",
+    "v1_noninitial_check_phase": null,
+    "histories_restore_os_resources": false,
+    "pause_preempts_callbacks": false,
+    "dispatch_reservation_is_confirmation": false
+  },
+  "full_width_identities": ["0", "9007199254740993", "18446744073709551615"],
+  "histogram": {
+    "bounds_ns": ["10", "20"],
+    "samples_ns": ["0", "10", "11", "30"],
+    "bucket_counts": ["2", "1", "1"],
+    "observations": "4",
+    "p50": {"upper_bound_ns": "10", "observations": "4", "low_sample_warning": true},
+    "p95": {"upper_bound_ns": null, "observations": "4", "low_sample_warning": true},
+    "empty_quantile": null,
+    "invalid_quantile": null
+  },
+  "explicit_clock": {
+    "domain": "manual-test-clock",
+    "request_ns": "0",
+    "ready_ns": "0",
+    "start_ns": "12",
+    "finish_ns": "96",
+    "resolution_ns": "96",
+    "publication_ns": "97",
+    "delivery_begin_ns": "100",
+    "delivery_observed_ns": "102",
+    "expected_ns": {
+      "queue_wait": "12",
+      "attempt_elapsed": "84",
+      "completion_preparation": "1",
+      "completion_queue_wait": "3",
+      "completion_processing": "2",
+      "end_to_end": "100",
+      "end_to_end_observed": "102"
+    },
+    "missing_endpoint_duration": null,
+    "missing_endpoint_status": "unknown",
+    "cross_domain_duration": null,
+    "cross_domain_status": "invalid-domain",
+    "reversed_endpoint_duration": null,
+    "reversed_endpoint_status": "invalid-order",
+    "coincident_observed_endpoint_duration": "0"
+  },
+  "inspection": {
+    "equal_complete_scalar": "equal",
+    "unequal_complete_scalar": "different",
+    "equal_redacted_placeholders": "unknown",
+    "equal_truncated_nodes": "unknown",
+    "equal_unstable_maps": "unknown",
+    "incompatible_schema": "unknown",
+    "redacted_field_evaluations": 0
+  },
+  "probes": {
+    "unselected_closure_evaluations": 0,
+    "selected_closure_evaluations_with_two_sinks": 1,
+    "unknown_selector_metadata_matches": false,
+    "unacknowledged_producer_uses_new_configuration": false
+  },
+  "protocol": {
+    "frame_length_endianness": "big",
+    "frame_length_bytes": 4,
+    "zero_length_admitted": false,
+    "partial_frame_dispatched_commands": 0,
+    "authorities_default": false,
+    "identical_cached_request_reexecutes": false,
+    "retired_request_reexecutes_after_eviction": false,
+    "reconnect_preserves_old_handles": false,
+    "write_failure_rolls_back_committed_transition": false
+  },
+  "metrics": {
+    "replay_harness_ingests_live": false,
+    "imported_live_ingests_live": false,
+    "test_clock_is_production": false,
+    "cancel_request_decreases_running": false,
+    "detail_eviction_terminates_work": false,
+    "missing_series": null
+  },
+  "qualification": {
+    "executed": false,
+    "broad_qualification_cells_pending": 144,
+    "profile_promotion": false
+  }
+}

@@ -1,0 +1,381 @@
+{
+  "workspace": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j",
+  "commands": [
+    {
+      "name": "builder-venv",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "venv",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/builder"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "builder-tools",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/builder/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "setuptools>=77",
+        "wheel"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 801,
+      "sha256": "cc029d27e71e7ddb997f0373e59efe022bd8fd578c3c325979da1fc938982182"
+    },
+    {
+      "name": "builder-freeze",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/builder/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 61,
+      "sha256": "3bc1cee9a2497b7326c8cf8b8dbd55cc7314c5b52d7b4c8acd8e8104d5d63c1e"
+    },
+    {
+      "name": "wheel",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/builder/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--no-build-isolation",
+        "--wheel-dir",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-3f30e40b/validation/native-parity/debugger-diagnostics/python/installed-r3",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/package"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 1022,
+      "sha256": "5105cf9d2abd528d62639635f09f5a59d32db797ce0a11273667a9165a120a42"
+    },
+    {
+      "name": "consumer-venv",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "venv",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/consumer"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "install",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/consumer/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--no-index",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-3f30e40b/validation/native-parity/debugger-diagnostics/python/installed-r3/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 256,
+      "sha256": "52328425e0c01df3cc6d26bfb9f215693fb1c2499d0847eadfec36ef9f46a998"
+    },
+    {
+      "name": "fresh-import",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/consumer/bin/python",
+        "-I",
+        "-c",
+        "import statelessness, sys, importlib; names=('debugger','debugger_session','debugger_workbench','debugger_traceview','debugger_diagnostic','debugger_inspect','debugger_watches','debugger_metrics','debugger_dashboard','debugger_live','debugger_effects','debugger_protocol'); assert all('statelessness.'+name not in sys.modules for name in names); [print(importlib.import_module('statelessness.'+name).__file__) for name in names]"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 2003,
+      "sha256": "567b14edbb02c2b89fb79b9b67c80438afbd4f47d897f164b5c6291d5ec13bb6"
+    },
+    {
+      "name": "installed-tests",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/consumer/bin/python",
+        "-I",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-an47h61j/tests",
+        "-p",
+        "test_debugger*.py",
+        "-v"
+      ],
+      "exit_code": 1,
+      "raw_bytes": 17413,
+      "sha256": "1c8597676d70486e6163e82310521df002fc24ae16c42efcfb54be2e0c348be5"
+    }
+  ],
+  "qualification": "candidate optional Python diagnostics; inspect executed assertions",
+  "python": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+  "executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "staged_files": {
+    "DEBUGGER.md": {
+      "sha256": "55b2796b3924dff8aabff7e6834ec305b56ca32e14a7193a4f0ffc7b8d8544ee",
+      "bytes": 5729
+    },
+    "LICENSE": {
+      "sha256": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+      "bytes": 1068
+    },
+    "README.md": {
+      "sha256": "de5e633cad838ef0e0bccc8bed55a9d0288be900d95df53a2100151edfc71e7c",
+      "bytes": 28400
+    },
+    "benchmarks/abi_v2.py": {
+      "sha256": "60f1cf7e430a0d6815310e679e9be363f16a7e6eabd510cd1e22bb006131ce68",
+      "bytes": 7598
+    },
+    "examples/counter.py": {
+      "sha256": "70b6be7d796d191b9ac5a06d38015fbd004e6c68a3b56761d89fa1600516c913",
+      "bytes": 1614
+    },
+    "pyproject.toml": {
+      "sha256": "dc4f492512f3f0411a7eef9f39c8905686bd923f7d19dcab51a0fc9a56ed872b",
+      "bytes": 754
+    },
+    "qualify_debugger_installed.py": {
+      "sha256": "1af562f96f2e7cb32139f8fd62218f2fd91a45794936c21da1231c1cbca88324",
+      "bytes": 3735
+    },
+    "src/statelessness/__init__.py": {
+      "sha256": "397a1ea891572fbfe6de2d3ba2a5b2e835be2ef3c5751450ef08c7d100d56f72",
+      "bytes": 4618
+    },
+    "src/statelessness/_native_packet.py": {
+      "sha256": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+      "bytes": 4706
+    },
+    "src/statelessness/audit_record.py": {
+      "sha256": "e8f20bbbc76c58bbbe451193089c4793fba46d5708efaa75e1e24b88b8e4db54",
+      "bytes": 7105
+    },
+    "src/statelessness/checked.py": {
+      "sha256": "5a450a24632d2f304d3714cccd1723654d568550d92d47f7ff38d7f8568e0b70",
+      "bytes": 4813
+    },
+    "src/statelessness/codec.py": {
+      "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a",
+      "bytes": 5746
+    },
+    "src/statelessness/conformance.py": {
+      "sha256": "f0939e303f50cbef885ef5ee4770ee1bbe85aa0061dc7766fbbc21601a0403e0",
+      "bytes": 12985
+    },
+    "src/statelessness/core.py": {
+      "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397",
+      "bytes": 28886
+    },
+    "src/statelessness/debugger.py": {
+      "sha256": "9828e46f4add5fa3a113038a72464ee78fb974699beb4373bdc9afb6add844c0",
+      "bytes": 13913
+    },
+    "src/statelessness/debugger_dashboard.py": {
+      "sha256": "bd337e5f62db94f342dcc7ab331246aad1800298d71a871efb0659a79f3b82d1",
+      "bytes": 7628
+    },
+    "src/statelessness/debugger_diagnostic.py": {
+      "sha256": "6aab0258a9c501cf49c29db5799facef08bc61d9d88fc90d879f45017647fa85",
+      "bytes": 23226
+    },
+    "src/statelessness/debugger_effects.py": {
+      "sha256": "00bc25ea321b94cd46ec6b6c603aee756d6bffed9989cea8b6593f7a03d73496",
+      "bytes": 37611
+    },
+    "src/statelessness/debugger_inspect.py": {
+      "sha256": "a7ef986dc71916dee23e023a8e4e63258ae8745e0dfe3e78e6e5e9bf87c898a2",
+      "bytes": 18744
+    },
+    "src/statelessness/debugger_live.py": {
+      "sha256": "985e8a7f0f525602fb6978f97033e9c620b3dda0d8f90c38ae71d03ced58a890",
+      "bytes": 14887
+    },
+    "src/statelessness/debugger_metrics.py": {
+      "sha256": "54f6eddeab8b6082677fe6cdb29cba0b383808c95e6cb612c4e340329cbf8fff",
+      "bytes": 24269
+    },
+    "src/statelessness/debugger_protocol.py": {
+      "sha256": "2bbb0b2a6fb528577f39768bd8135b91fed285ce15e34cd1d8d257d17cf62d7c",
+      "bytes": 30356
+    },
+    "src/statelessness/debugger_session.py": {
+      "sha256": "488654c3dacf8af14f928138d59e1ce8d46ce7ce8ce89a96071448f54eb8639e",
+      "bytes": 11950
+    },
+    "src/statelessness/debugger_traceview.py": {
+      "sha256": "78d598cd02161e4e15d1b9bbbdd0b8e34f669cd3ebf12de691fd5b685031e0d3",
+      "bytes": 2978
+    },
+    "src/statelessness/debugger_watches.py": {
+      "sha256": "3d84a5d31773cd51c35507ed65f1d5c8b2ddfac7487c8f77899d0d41b12b445d",
+      "bytes": 23236
+    },
+    "src/statelessness/debugger_workbench.py": {
+      "sha256": "3eb1ee95fd88bf18d073d253573c746c317f8d922ab7e12f52501c6e751ca1a5",
+      "bytes": 7789
+    },
+    "src/statelessness/evidence.py": {
+      "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3",
+      "bytes": 27725
+    },
+    "src/statelessness/evidence_recorder.py": {
+      "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b",
+      "bytes": 6736
+    },
+    "src/statelessness/monitor.py": {
+      "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493",
+      "bytes": 16547
+    },
+    "src/statelessness/native.py": {
+      "sha256": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+      "bytes": 30366
+    },
+    "src/statelessness/native_conformance.py": {
+      "sha256": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+      "bytes": 1611
+    },
+    "src/statelessness/oracle.py": {
+      "sha256": "50d26c0430ae2bf67c43d9874817a69cc673d655dd835c9218f1fb31eaa3245f",
+      "bytes": 13175
+    },
+    "src/statelessness/py.typed": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "src/statelessness/replay_evidence.py": {
+      "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055",
+      "bytes": 14082
+    },
+    "src/statelessness/search.py": {
+      "sha256": "5195e85fef070a460d877151dee0c481089f01d7a9e006617ae2299850c75223",
+      "bytes": 22387
+    },
+    "src/statelessness/trace_binary.py": {
+      "sha256": "68f7797071346d294ab8077c031c182973787d42371c2b951af46124c1e419d4",
+      "bytes": 18237
+    },
+    "src/statelessness/trace_json.py": {
+      "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+      "bytes": 8023
+    },
+    "src/statelessness/value_codec.py": {
+      "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735",
+      "bytes": 18057
+    },
+    "tests/test_abi_v2.py": {
+      "sha256": "d7906916b8be87dfa9ff46f1d675c9645dc6c953beabc7df268fec79e19b1e6b",
+      "bytes": 12850
+    },
+    "tests/test_append_checks.py": {
+      "sha256": "a27353fe7fdbc963bf07a75fd401eebc3e955ac30c3bb896b9df44d0d1e1dba9",
+      "bytes": 25227
+    },
+    "tests/test_bfs_controls.py": {
+      "sha256": "f744c4265a5fc0d9e724daba4f48bb2aa871c9ad61ae6dc01b9858adbb7fb5dc",
+      "bytes": 22540
+    },
+    "tests/test_checked.py": {
+      "sha256": "2ea577bd6fbac09ab36fcb243291b90f59d8aa803f33a1a18d096c7d24870c2f",
+      "bytes": 12408
+    },
+    "tests/test_codec_replay.py": {
+      "sha256": "33d5e8a2c122a58fcbf16265b67101e848a32fd18004716d478bfc1beee63148",
+      "bytes": 27618
+    },
+    "tests/test_debugger.py": {
+      "sha256": "1b083318a65a4765b0b91393dc0db12841f99b5745c9f17d8928bc4aa5f8b3a7",
+      "bytes": 5895
+    },
+    "tests/test_debugger_diagnostic.py": {
+      "sha256": "d9847aec1f68ecce99682743a77482cc289e32ff45557776bf3cb5bac0b0951b",
+      "bytes": 5313
+    },
+    "tests/test_debugger_effects.py": {
+      "sha256": "725e5bb311be45e55e3d15cb8d191d5a4d33bbb70893ddbda6c5fdc334622b13",
+      "bytes": 10175
+    },
+    "tests/test_debugger_inspect.py": {
+      "sha256": "f5d02ce78f4b31c7b6f308f86e04cc9e4a14b0c1392b544068cf57864df30086",
+      "bytes": 4829
+    },
+    "tests/test_debugger_live.py": {
+      "sha256": "66d46e4317c3e2e603e1f5b24ee3d682469ad17f5fdd53bea5e43f0c9a122207",
+      "bytes": 3798
+    },
+    "tests/test_debugger_metrics.py": {
+      "sha256": "a8e0b16d24795e60ced21edb7a437536fe0e29152196d7c87c351c3918f90dd8",
+      "bytes": 11215
+    },
+    "tests/test_debugger_protocol.py": {
+      "sha256": "b0d80dfdf9c58fffd1853c52a840c514a11c5558e702ba5af5597ad77da87892",
+      "bytes": 11023
+    },
+    "tests/test_debugger_session.py": {
+      "sha256": "471236cea90fee4f44df575225fac6caded1bd735f9773e3093f12c52d44b08b",
+      "bytes": 5981
+    },
+    "tests/test_debugger_traceview.py": {
+      "sha256": "a33a0262add79780f115002609ff24188f8fbdba33a5f029322edeac1074c187",
+      "bytes": 647
+    },
+    "tests/test_debugger_watches.py": {
+      "sha256": "831a97112e014bb43d044eff34954846c900f3f6bf76235a7322c0dd133d8eba",
+      "bytes": 3795
+    },
+    "tests/test_debugger_workbench.py": {
+      "sha256": "4f4d41a54ad0e341c9c1d23295f3fb2ba4c316bd364fc3264c21f6b9647dbf95",
+      "bytes": 3501
+    },
+    "tests/test_evidence.py": {
+      "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355",
+      "bytes": 18795
+    },
+    "tests/test_evidence_recorder.py": {
+      "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286",
+      "bytes": 23816
+    },
+    "tests/test_monitor.py": {
+      "sha256": "767aae9a32a09eb258bcc307758e21614e4fd2fc15277f55a0e0567ac68cfac9",
+      "bytes": 19923
+    },
+    "tests/test_native.py": {
+      "sha256": "46f0194b4433b66b1d50422beee0fcb8930b4b171fabe9718c727dac6a022af4",
+      "bytes": 10663
+    },
+    "tests/test_paired.py": {
+      "sha256": "93e14e4dbff7567966d527dce05b27f1374269786c9de39d123df5c887d71258",
+      "bytes": 12449
+    },
+    "tests/test_replay_evidence_vectors.py": {
+      "sha256": "431738c40061a23a1b39b53b21e4ffa8041c7a85156efdbe549930b894a49f4f",
+      "bytes": 7969
+    },
+    "tests/test_search.py": {
+      "sha256": "aff3ccf4405af11e29852045f47e0273a37eaa0624da4393fe5562ca9aaf29e3",
+      "bytes": 24134
+    },
+    "tests/test_trace_binary.py": {
+      "sha256": "b1c2dc370c0a54cbd7c725151691a2522a3c47ec2e870fe807f8ca3ebd8ab688",
+      "bytes": 16380
+    },
+    "tests/test_value_codec.py": {
+      "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b",
+      "bytes": 38835
+    }
+  },
+  "driver_sha256": "1af562f96f2e7cb32139f8fd62218f2fd91a45794936c21da1231c1cbca88324",
+  "source_debugger_sha256": "9828e46f4add5fa3a113038a72464ee78fb974699beb4373bdc9afb6add844c0",
+  "source_session_sha256": "488654c3dacf8af14f928138d59e1ce8d46ce7ce8ce89a96071448f54eb8639e",
+  "wheel_sha256": "7257fb7d4d49c28467159ab76d17bb63e761962583777b23dc21415a47c36e5f",
+  "wheel_bytes": 139067
+}

@@ -1,0 +1,36 @@
+{
+  "job": "8599279a7d4a4d1dad89fbd896f55935",
+  "status": "succeeded",
+  "terminal": true,
+  "raw_log": {
+    "bytes": 1033,
+    "sha256": "7a8b4241a718cd687ec278d038e19becb7df57dc8178dae8a88a54521c76833a"
+  },
+  "effective_command": [
+    "env",
+    "CARGO_TARGET_DIR=target/n12-recovery",
+    "CARGO_BUILD_JOBS=1",
+    "CARGO_PROFILE_DEV_DEBUG=0",
+    "cargo",
+    "build",
+    "-p",
+    "statelessness-debug",
+    "--example",
+    "debug_stdio",
+    "--offline"
+  ],
+  "requested_command": [
+    "env",
+    "CARGO_TARGET_DIR=target/n12-recovery",
+    "CARGO_BUILD_JOBS=1",
+    "CARGO_PROFILE_DEV_DEBUG=0",
+    "cargo",
+    "build",
+    "-p",
+    "statelessness-debug",
+    "--example",
+    "debug_stdio",
+    "--offline"
+  ],
+  "policy_message": null
+}

@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "console.log(import.meta.resolve('@jagalite/statelessness/debug/protocol'))"
+  ],
+  "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+  "env_overrides": {
+    "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+    "CARGO_INCREMENTAL": "0",
+    "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+    "GOENV": "off",
+    "GOFLAGS": "",
+    "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+    "GOWORK": "off",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+    "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+    "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+    "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+    "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+    "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+    "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+    "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+    "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+    "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+    "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+    "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+  },
+  "env_removed": [
+    "NODE_OPTIONS",
+    "NODE_PATH",
+    "PYTHONHOME",
+    "PYTHONPATH",
+    "RUSTC",
+    "RUSTC_WORKSPACE_WRAPPER",
+    "RUSTC_WRAPPER",
+    "RUSTDOCFLAGS",
+    "RUSTFLAGS"
+  ],
+  "exit_code": 0,
+  "label": "typescript-installed-path",
+  "logs": {
+    "stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.log": {
+      "bytes": 119,
+      "sha256": "4f9e707812e86f836f7cea7c37bd3b53a1874e8e93c08ee43321649643af8857"
+    }
+  },
+  "passed": true
+}

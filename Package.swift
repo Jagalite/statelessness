@@ -8,10 +8,13 @@ let package = Package(
     products: [
         .library(name: "Statelessness", targets: ["Statelessness"]),
         .library(name: "StatelessConformance", targets: ["StatelessConformance"]),
+        .library(name: "StatelessDebug", targets: ["StatelessDebug"]),
         .executable(name: "stateless-corpus", targets: ["StatelessCorpus"])
     ],
     targets: [
         .target(name: "Statelessness", path: "swift/Sources/Statelessness"),
+        .target(name: "StatelessDebug", dependencies: ["Statelessness"], path: "swift/Sources/StatelessDebug"),
+        .testTarget(name: "StatelessDebugTests", dependencies: ["StatelessDebug", "Statelessness"], path: "swift/Tests/StatelessDebugTests"),
         .target(name: "StatelessConformance", dependencies: ["Statelessness"], path: "swift/Sources/StatelessConformance"),
         .executableTarget(name: "StatelessCorpus", dependencies: ["StatelessConformance"], path: "swift/Sources/StatelessCorpus"),
         .testTarget(name: "StatelessnessTests", dependencies: ["Statelessness", "StatelessConformance"], path: "swift/Tests/StatelessnessTests")
