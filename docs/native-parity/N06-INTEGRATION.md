@@ -101,6 +101,8 @@ Reviewed source commits so far:
   and guard fixtures, immutable source manifest and queued focused execution.
 - `ee69e247e0b7a26a9c77a84f1228718f2922b14b`: TypeScript browser/Node examples,
   API notes, reviewed current driver and preserved r1 job/manifest receipts.
+- `eb7a0b8f65735247d733dc5f34dc231cef2d3550`: Python public example, reviewed
+  standalone driver and regression fixtures, API notes and preserved r1 receipts.
 
 | Native runtime | Real worker/transfer mechanism | API notes |
 | --- | --- | --- |
@@ -134,7 +136,10 @@ Swift's observer evidence and its driver/guard fixes have completed targeted
 source review; the sealed focused job remains queued. Go and TypeScript's current
 driver fixes have also completed source review, but their existing r1 jobs cover
 earlier driver bytes. Python's standalone driver, fixture membership and
-validation operands are still in final correction/review. These changes do
+validation operands have completed targeted source review. Its caller-selected
+driver hash and new failure/cleanup fixtures still require authenticated
+preparation and execution; two receipt-correction branches lack dedicated fault
+tests. These changes do
 not mutate frozen queued snapshots. The installed harness has a stable manifest
 and a fresh independent second review covering controlled tool environments,
 toolchain identity, seeded multi-case callback comparisons and guidance-validation
