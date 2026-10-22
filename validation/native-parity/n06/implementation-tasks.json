@@ -5,6 +5,23 @@
   "purpose": "implementation/reference/review ownership; these are T3 tasks, not Kyoto execution receipts",
   "tasks": [
     {
+      "owner": "review-harness-r3",
+      "taskId": "node:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-harness-independent-review-r3-20261022",
+      "childThreadId": "thread:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-harness-independent-review-r3-20261022",
+      "providerInstanceId": "codex",
+      "model": "gpt-6-astra",
+      "options": [
+        {
+          "id": "reasoningEffort",
+          "value": "ultra"
+        },
+        {
+          "id": "serviceTier",
+          "value": "default"
+        }
+      ]
+    },
+    {
       "owner": "harness-h6-h9-fixes-r3",
       "threadId": "thread:delegated-task:command%3Amcp%3A7bfe674e-555a-4365-b5c8-152496869fed%3Adelegate-task%3An06-installed-harness-r1-20261022",
       "messageId": "message:mcp:7bfe674e-555a-4365-b5c8-152496869fed:thread-send:n06-harness-h6-h9-implementation-fixes-r3-20261022",

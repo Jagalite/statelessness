@@ -144,8 +144,12 @@ not mutate frozen queued snapshots. The installed harness has a stable manifest
 and a completed independent second review. Four P2 harness findings remain:
 actual Python driver/control identity, substituted FIFO receipt finalization,
 independent after-capture/terminal receipt recovery, and Rust seeded report-envelope
-and requested-membership assertions. The harness owner is correcting H6–H9;
-root will request a fresh independent review before freezing it. The completed
+and requested-membership assertions. The harness owner has authored H6–H9 fixes
+and an additional import-scope correction. Root verified the R3 manifest
+`54bff8543f5b9efc1911d4dcca44b3d12c6ce5abbea1bd20b697dbd7516009a7`
+against 72 selected entries, seven dependency pins and the complete admitted
+N05 helper directory; a fresh independent R3 is active before freezing it.
+The 75 authored harness/recorder/focused test methods remain unexecuted. The completed
 review documents remain historical observations; fix dispositions identify later
 source. Every execution gate remains pending.
 
