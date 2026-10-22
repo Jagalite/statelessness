@@ -149,7 +149,7 @@ class Binding(unittest.TestCase):
         def provider(model): limits.append(model.limit); return DecodeLimits(work=model.limit)
         output=unit_record('O',value_type=tuple)
         bound=model_codec(state=U8,input=U8,output=output,decode_limits=provider).bind(m)
-        prefix=bytearray(b'p'); existing_sink=EncodeBuffer(prefix,4)
+        prefix=bytearray(); existing_sink=EncodeBuffer(prefix,4); existing_sink.extend(b'p')
         hooks=[lambda:bound.encode_state(None),lambda:bound.encode_input(None),lambda:bound.encode_output(None),lambda:bound.encode_state_into(None,existing_sink),lambda:bound.encode_input_into(None,existing_sink),lambda:bound.encode_output_into(None,existing_sink),lambda:bound.decode_state(None),lambda:bound.decode_input(None)]
         for hook in hooks:
             with self.assertRaisesRegex(ModelError,'version does not match'): hook()
@@ -295,7 +295,7 @@ class DraftRows(unittest.TestCase):
         with self.assertRaisesRegex(ModelError,'byte limit'):decode_canonical(s,b'1234',DecodeLimits(bytes=3))
         self.assertEqual(calls,[])
         with self.assertRaises(ModelError):encode_canonical(schemas['Record'],{'byte':7,'ready':True,'count':4660},maximum=3)
-        dest=bytearray(b'p'); sink=EncodeBuffer(dest,1000)
+        dest=bytearray(); sink=EncodeBuffer(dest,1000); sink.extend(b'p')
         with self.assertRaisesRegex(ModelError,'length overflow'):encode_raw(schemas['Text8'],{'text':'a'*256},sink)
         self.assertEqual(dest,b'p'); sink.finish()
 

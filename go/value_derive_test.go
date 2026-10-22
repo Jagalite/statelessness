@@ -174,8 +174,11 @@ func TestBoundModelCodecGatesAllHooks(t *testing.T) {
 	}
 	var gateSink *EncodeBuffer
 	hooks := []func() error{func() error { _, e := c.EncodeState(1); return e }, func() error { _, e := c.EncodeInput(1); return e }, func() error { _, e := c.EncodeOutput(1); return e }, func() error { return c.EncodeStateInto(1, gateSink) }, func() error { return c.EncodeInputInto(1, gateSink) }, func() error { return c.EncodeOutputInto(1, gateSink) }, func() error { _, e := c.DecodeState(nil); return e }, func() error { _, e := c.DecodeInput(nil); return e }}
-	prefix := []byte{'p'}
+	var prefix []byte
 	if e := WithEncodeBuffer(&prefix, 4, func(s *EncodeBuffer) error {
+		if e := s.Append([]byte{'p'}); e != nil {
+			return e
+		}
 		gateSink = s
 		for _, h := range hooks {
 			if e := h(); e == nil || e.Error() != "ModelCodec derive version does not match Model metadata" {
@@ -418,8 +421,11 @@ func TestDerivedLiteralLengthRoutesAndAdmission(t *testing.T) {
 						t.Fatal(bad, e, calls)
 					}
 				}
-				var dest = []byte{'p'}
+				var dest []byte
 				e = WithEncodeBuffer(&dest, 1000, func(b *EncodeBuffer) error {
+					if e := b.Append([]byte{'p'}); e != nil {
+						return e
+					}
 					e := c.EncodeRaw(string(bytes.Repeat([]byte{'a'}, 256)), b)
 					if e == nil || e.Error() != "length overflow" {
 						t.Fatal(e)

@@ -6,7 +6,7 @@
       "case": "named-ordered",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -30,7 +30,7 @@
       "case": "empty-named-record",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status. Swift represents both zero-field forms using the typed TraceRecords.unit factory; no Rust token-shape identity claim."
     },
@@ -38,7 +38,7 @@
       "case": "nested-record",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -46,7 +46,7 @@
       "case": "ordinary-string-abc",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -102,7 +102,7 @@
       "case": "custom-big-endian",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:294 (testRawBigEndianAdapterAndStickySinkScripts)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:305 (testRawBigEndianAdapterAndStickySinkScripts)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -118,7 +118,7 @@
       "case": "enum8-unit",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -126,7 +126,7 @@
       "case": "enum8-tuple",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -134,7 +134,7 @@
       "case": "enum8-named-maximum-tag",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -142,7 +142,7 @@
       "case": "enum16-sparse-tag",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -150,7 +150,7 @@
       "case": "enum32-maximum-tag",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -166,7 +166,7 @@
       "case": "enum16-maximum-tag",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -174,7 +174,7 @@
       "case": "positive-encode-only-record",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -182,7 +182,7 @@
       "case": "positive-decode-only-record",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -190,7 +190,7 @@
       "case": "positive-encode-only-enum-unit",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -198,7 +198,7 @@
       "case": "positive-decode-only-enum-unit",
       "family": "positive_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -206,7 +206,7 @@
       "case": "pair-work-one-under",
       "family": "budget_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:311 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:322 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
       "qualification": "authored-not-qualified",
       "notes": "Authored literal boundary assertion; final Kyoto receipt determines execution status."
     },
@@ -222,7 +222,7 @@
       "case": "ordinary-text-extra-guard-work",
       "family": "budget_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -230,7 +230,7 @@
       "case": "ordinary-text-extra-guard-depth",
       "family": "budget_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -262,7 +262,7 @@
       "case": "adapter-no-field-value-guard",
       "family": "budget_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:294 (testRawBigEndianAdapterAndStickySinkScripts)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:305 (testRawBigEndianAdapterAndStickySinkScripts)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -302,7 +302,7 @@
       "case": "unknown-tag-before-payload",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:311 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:322 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
       "qualification": "authored-not-qualified",
       "notes": "Authored literal boundary assertion; final Kyoto receipt determines execution status."
     },
@@ -310,7 +310,7 @@
       "case": "ordinary-bool-invalid",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -318,7 +318,7 @@
       "case": "length-field-invalid-utf8",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -326,7 +326,7 @@
       "case": "length-field-truncated",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -342,7 +342,7 @@
       "case": "raw-adapter-returned-error",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:294 (testRawBigEndianAdapterAndStickySinkScripts)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:305 (testRawBigEndianAdapterAndStickySinkScripts)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -350,7 +350,7 @@
       "case": "raw-adapter-failed-write-sticky",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:294 (testRawBigEndianAdapterAndStickySinkScripts)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:305 (testRawBigEndianAdapterAndStickySinkScripts)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -358,7 +358,7 @@
       "case": "record-encode-cap-one-under",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -366,7 +366,7 @@
       "case": "length8-overflow-before-prefix",
       "family": "runtime_error_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -390,7 +390,7 @@
       "case": "tag8-overflow",
       "family": "declaration_negative_cases",
       "disposition": "builder",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -486,7 +486,7 @@
       "case": "model-version-zero",
       "family": "declaration_negative_cases",
       "disposition": "builder",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -534,7 +534,7 @@
       "case": "enum-unselected-field-missing-decoder",
       "family": "declaration_negative_cases",
       "disposition": "builder",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -542,7 +542,7 @@
       "case": "field-length-only-missing-encode",
       "family": "declaration_negative_cases",
       "disposition": "builder",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:311 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:322 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
       "qualification": "authored-not-qualified",
       "notes": "Authored literal boundary assertion; final Kyoto receipt determines execution status."
     },
@@ -550,7 +550,7 @@
       "case": "adapter-direction-missing",
       "family": "declaration_negative_cases",
       "disposition": "builder",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:311 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:322 (testLengthAndAdapterRequiredDirectionBuilderBoundaries)",
       "qualification": "authored-not-qualified",
       "notes": "Authored literal boundary assertion; final Kyoto receipt determines execution status."
     },
@@ -622,7 +622,7 @@
       "case": "model-decode-exact-limits",
       "family": "model_binding_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:189 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:200 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -630,7 +630,7 @@
       "case": "model-limits-fresh-each-decode",
       "family": "model_binding_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:189 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:200 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -638,7 +638,7 @@
       "case": "model-encode-no-decode-limits",
       "family": "model_binding_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:189 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:200 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status. Six encoder hooks tested with Pair; custom encode-only Output separately tested in engine/evidence composition."
     },
@@ -646,7 +646,7 @@
       "case": "model-decode-trailing",
       "family": "model_binding_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:189 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:200 (testBinderExactCustomFreshLimitsMalformedBothDirections)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -654,7 +654,7 @@
       "case": "record-no-variant",
       "family": "diagnostic_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:239 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:250 (testDraftNamedNestedOrdinaryAndDirectionalRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -662,7 +662,7 @@
       "case": "enum-selected-unit-label",
       "family": "diagnostic_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -670,7 +670,7 @@
       "case": "enum-selected-named-label",
       "family": "diagnostic_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:271 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:282 (testDraftEnumLiteralWidthAndNamedPayloadRows)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },
@@ -678,7 +678,7 @@
       "case": "enum-label-renamed-same-tag",
       "family": "diagnostic_cases",
       "disposition": "runtime",
-      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:211 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
+      "assertion_reference": "swift/Tests/StatelessnessTests/DeriveCodecTests.swift:222 (testDerivedInvalidFieldsAndRawEncodingPrefixes)",
       "qualification": "authored-not-qualified",
       "notes": "Authored assertion; final Kyoto receipt determines execution status."
     },

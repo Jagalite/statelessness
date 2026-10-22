@@ -88,7 +88,7 @@ func gates() throws {
     try EncodeBuffer.withBuffer(&bytes, maximum: 20) { sink in try codec.encodeStateInto!(State(count: 1), sink); try codec.encodeInputInto!(.add(1), sink); try codec.encodeOutputInto!(Output(count: 1), sink) }
     try require(app.c.limits == before, "encoders consulted limits")
 }
-func produce() throws -> [String:String] {
+@MainActor func produce() throws -> [String:String] {
     let app = try Application()
     var state = State(count: 0)
     let initial = try checkInitial(app.model, state: state)
@@ -113,7 +113,7 @@ func produce() throws -> [String:String] {
 }
 func hex(_ bytes: [UInt8]) -> String { bytes.map { String(format: "%02x", $0) }.joined() }
 func unhex(_ value: String) throws -> [UInt8] { let a = Array(value.utf8); try require(a.count % 2 == 0, "odd hex"); return try stride(from: 0, to: a.count, by: 2).map { i in guard let value = UInt8(String(decoding: a[i..<i+2], as: UTF8.self), radix: 16) else { throw ModelError("invalid hex") }; return value } }
-func transcode(_ source: [String:String]) throws -> [String:String] {
+@MainActor func transcode(_ source: [String:String]) throws -> [String:String] {
     var result: [String:String] = [:]
     for version in ["v1", "v2"] {
         let bytes = try unhex(source[version]!), artifact = try decodeArtifact(bytes, limits: evidenceLimits()), app = try Application()

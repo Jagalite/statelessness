@@ -173,12 +173,23 @@ extension DeriveCodecTests {
         let turn1 = try checkTurn(model, before: 0, input: 1, transition: Transition(state: 1, outputs: [1]), sequence: 1)
         let turn2 = try checkTurn(model, before: 1, input: 2, transition: Transition(state: 3, outputs: [3]), sequence: 2)
         XCTAssertEqual(stateChecks, 3); XCTAssertEqual(edgeChecks, 2); XCTAssertEqual(reductions, 0)
-        let config = RunConfig(strategy: "manual")
+        let config = RunConfig(strategy: "manual", seed: 7, parameters: [AuditParameter("region", "test")])
         let evidence = try EvidenceRecorder(checkedInitial: initial, config: config)
         try evidence.observe(turn1); try evidence.observe(turn2, causal: CausalContext(causes: [OutputOrigin(sequence: 1, output: 0)]))
         XCTAssertEqual(stateChecks, 3); XCTAssertEqual(edgeChecks, 2); XCTAssertEqual(reductions, 0); XCTAssertEqual(outputCalls, 2)
         let snapshot = evidence.snapshot()
-        XCTAssertEqual(snapshot.trace.config, config); XCTAssertEqual(snapshot.steps.map { $0.stateCheckCount }, [1,1]); XCTAssertEqual(snapshot.steps[1].causal.causes, [OutputOrigin(sequence: 1, output: 0)])
+        // Evidence reserves 4 MiB plus 32 bytes from the default 64 MiB recorder budget.
+        let recordedConfig = RunConfig(strategy: "manual", seed: 7, parameters: [
+            AuditParameter("region", "test"),
+            AuditParameter("stateless.engine.version", "0.1.0"),
+            AuditParameter("stateless.engine.build", "native-swift-v1"),
+            AuditParameter("stateless.monitor.max_steps", "1024"),
+            AuditParameter("stateless.monitor.max_retained_bytes", "62914528"),
+            AuditParameter("stateless.monitor.checking", "full"),
+            AuditParameter("stateless.monitor.observed_steps", "2"),
+            AuditParameter("stateless.monitor.evicted_steps", "0"),
+            AuditParameter("stateless.monitor.checkpoint_after_sequence", "0")])
+        XCTAssertEqual(snapshot.trace.config, recordedConfig); XCTAssertEqual(snapshot.steps.map { $0.stateCheckCount }, [1,1]); XCTAssertEqual(snapshot.steps[1].causal.causes, [OutputOrigin(sequence: 1, output: 0)])
         XCTAssertEqual(snapshot.trace.steps.map { $0.outputs }, [[[1]],[[3]]])
         let bytes = try encodeEvidence(snapshot); XCTAssertEqual(try decodeArtifact(bytes), .v2(snapshot))
         XCTAssertEqual(try snapshot.replay(model).outcome, "exact")
