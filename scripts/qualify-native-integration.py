@@ -94,6 +94,14 @@ def manifest(value):
             'entries': len(value)}
 
 
+def read_sealed_manifest(path):
+    """The queued filename pins the bytes; receipt-tree edits cannot rebase it."""
+    raw = path.read_bytes()
+    if path.name != digest(raw) + '.json':
+        raise RuntimeError('sealed manifest differs from its queued SHA-256 filename: ' + str(path))
+    return json.loads(raw)
+
+
 def require_identities(rows):
     invalid = [name for name, row in rows.items()
                if row.get('type') not in ('regular', 'symlink') or 'sha256' not in row]
@@ -245,14 +253,14 @@ def main():
         report['source_before'] = manifest(initial)
         require_identities(initial)
         report['expected_source'] = str(args.expected_source)
-        expected = json.loads(args.expected_source.read_text())
+        expected = read_sealed_manifest(args.expected_source)
         if initial != expected:
             raise RuntimeError('candidate differs from sealed pre-submit source')
         current_tools = tool_files(env)
         report['tools_before'] = manifest(current_tools)
         if args.expected_tools:
             report['expected_tools'] = str(args.expected_tools)
-            if current_tools != json.loads(args.expected_tools.read_text()):
+            if current_tools != read_sealed_manifest(args.expected_tools):
                 raise RuntimeError('toolchain/configuration differs from sealed pre-submit identities')
         report['typescript_dependencies_before'] = manifest(tree_snapshot(ROOT / 'typescript/node_modules/typescript'))
         report['artifacts_before'] = manifest(artifacts())

@@ -1,5 +1,7 @@
 """Mutation controls for package compiler and XCTest proof; run through Kyoto."""
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
 import tempfile
 import os
@@ -11,9 +13,27 @@ SPEC = importlib.util.spec_from_file_location(
     'native_preparation', Path(__file__).parent / 'native-parity/n12-wire/prepare.py')
 PREPARE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PREPARE)
+INTEGRATION_SPEC = importlib.util.spec_from_file_location(
+    'native_integration_seal', Path(__file__).parent / 'qualify-native-integration.py')
+INTEGRATION = importlib.util.module_from_spec(INTEGRATION_SPEC)
+INTEGRATION_SPEC.loader.exec_module(INTEGRATION)
 
 
 class PreparationIdentities(unittest.TestCase):
+    def test_rewritten_source_or_tool_manifest_cannot_rebase_queued_pin(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for label in ('source', 'tools'):
+                with self.subTest(label=label):
+                    value = {label: {'sha256': 'original-input'}}
+                    raw = (json.dumps(value, sort_keys=True) + '\n').encode()
+                    path = root / (hashlib.sha256(raw).hexdigest() + '.json')
+                    path.write_bytes(raw)
+                    self.assertEqual(INTEGRATION.read_sealed_manifest(path), value)
+                    path.write_text(json.dumps({label: {'sha256': 'replacement-input'}}))
+                    with self.assertRaisesRegex(RuntimeError, 'queued SHA-256 filename'):
+                        INTEGRATION.read_sealed_manifest(path)
+
     def test_generated_tsc_launcher_cannot_replace_manifested_compiler(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
