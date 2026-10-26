@@ -238,14 +238,18 @@ public final class EffectObserver {
     /// Hook failures never suppress or replace the real operation's result. No
     /// lock/span is retained across await. Merely constructing this async call
     /// executes no work; the body begins when its caller actually runs it.
-    public func instrument<T>(_ attempt: AttemptHandle,operation: () async throws -> T,classify: (Result<T,Error>) -> RuntimeOutcome,isolation: isolated (any Actor)? = #isolation) async throws -> T {
+    /// The operation transfers its result across its async isolation boundary;
+    /// T need not be Sendable, but a non-Sendable result must be disconnected,
+    /// not a retained actor-isolated object.
+    public func instrument<T>(_ attempt: AttemptHandle,operation: () async throws -> sending T,classify: (Result<T,Error>) -> RuntimeOutcome,isolation: isolated (any Actor)? = #isolation) async throws -> T {
         try? attemptStarted(attempt)
         let result: Result<T,Error>; do { result = .success(try await operation()) } catch { result = .failure(error) }
         try? attemptFinished(attempt,outcome: classify(result)); return try result.get()
     }
     /// A throwing classifier is an explicit Swift callback capability. Its fault
     /// becomes unclassified telemetry and cannot replace the host result.
-    public func instrumentClassifying<T>(_ attempt: AttemptHandle,operation: () async throws -> T,classify: (Result<T,Error>) throws -> RuntimeOutcome,isolation: isolated (any Actor)? = #isolation) async throws -> T {
+    /// Operation results use the same sending transfer contract as instrument.
+    public func instrumentClassifying<T>(_ attempt: AttemptHandle,operation: () async throws -> sending T,classify: (Result<T,Error>) throws -> RuntimeOutcome,isolation: isolated (any Actor)? = #isolation) async throws -> T {
         try? attemptStarted(attempt)
         let result: Result<T,Error>; do { result = .success(try await operation()) } catch { result = .failure(error) }
         let outcome: RuntimeOutcome; do { outcome = try classify(result) } catch { read { increment(&storedHealth.callbackFaults); metrics.markIncomplete() }; outcome = .unclassified }
@@ -284,15 +288,16 @@ extension EffectObserver {
 public final class ObservedEffectOperation<T> {
     private let observer: EffectObserver
     private let attempt: AttemptHandle
-    private let operation: () async throws -> T
+    private let operation: () async throws -> sending T
     private let classify: (Result<T,Error>) throws -> RuntimeOutcome
     private let claimLock = NSLock()
     private var claimed = false
-    fileprivate init(observer: EffectObserver,attempt: AttemptHandle,operation: @escaping () async throws -> T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) { self.observer = observer; self.attempt = attempt; self.operation = operation; self.classify = classify }
+    fileprivate init(observer: EffectObserver,attempt: AttemptHandle,operation: @escaping () async throws -> sending T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) { self.observer = observer; self.attempt = attempt; self.operation = operation; self.classify = classify }
     private func claim() throws { claimLock.lock(); defer { claimLock.unlock() }; guard !claimed else { throw LifecycleError.duplicateObservation }; claimed = true }
     public func run(isolation: isolated (any Actor)? = #isolation) async throws -> T { try claim(); return try await observer.instrumentClassifying(attempt,operation: operation,classify: classify,isolation: isolation) }
     deinit { claimLock.lock(); let unused = !claimed; claimLock.unlock(); if unused { try? observer.attemptAbandoned(attempt) } }
 }
 extension EffectObserver {
-    public func instrumentOperation<T>(_ attempt: AttemptHandle,operation: @escaping () async throws -> T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) -> ObservedEffectOperation<T> { ObservedEffectOperation(observer: self,attempt: attempt,operation: operation,classify: classify) }
+    /// Lazy instrumentation with the same sending result contract as instrument.
+    public func instrumentOperation<T>(_ attempt: AttemptHandle,operation: @escaping () async throws -> sending T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) -> ObservedEffectOperation<T> { ObservedEffectOperation(observer: self,attempt: attempt,operation: operation,classify: classify) }
 }

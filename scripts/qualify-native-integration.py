@@ -204,7 +204,9 @@ def main():
         atomic_write(out / 'receipt.json', (json.dumps(report, indent=2) + '\n').encode())
     save()
     # No caller fixture, ABI library or build wrapper can replace the sealed inputs.
-    env = {key: value for key, value in os.environ.items() if not key.startswith('STATELESS_')}
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith('STATELESS_')
+           and (not key.startswith('CARGO_') or key == 'CARGO_HOME')}
     for key in ('RUSTC_WRAPPER', 'RUSTC_WORKSPACE_WRAPPER', 'RUSTC', 'RUSTDOC',
                 'RUSTFLAGS', 'CARGO_ENCODED_RUSTFLAGS', 'RUSTDOCFLAGS', 'CARGO_ENCODED_RUSTDOCFLAGS', 'PYTHONHOME', 'NODE_OPTIONS'):
         env.pop(key, None)
@@ -225,6 +227,7 @@ def main():
         'RUSTUP_TOOLCHAIN','DEVELOPER_DIR','SDKROOT','CARGO_HOME','INTEGRATION_GO_EXEC_DIR',
         'INTEGRATION_RUSTDOC_EXEC_DIR','CARGO_ENCODED_RUSTDOCFLAGS')}
     report['cleared_fixture_overrides'] = sorted(k for k in os.environ if k.startswith('STATELESS_'))
+    report['cleared_cargo_overrides'] = sorted(k for k in os.environ if k.startswith('CARGO_') and k != 'CARGO_HOME')
     initial = None
     okay = True
     def run(name, command, cwd=ROOT, changes=None):

@@ -208,19 +208,37 @@ _ADAPTER_COMMANDS = {
 _HANDLE_COMMANDS = frozenset(('inspect','checks','outputs','export_trace'))
 _FRESH_READS = frozenset(('watch_status','watch_current','metric_catalog','metric_snapshot','metric_window','effect_details','effect_timeline','telemetry_health','probe_status','probe_events'))
 
+def _path_integer(text, bits, signed=False):
+    # Match Rust integer FromStr, including leading plus/zeroes, but never
+    # pass an unbounded decimal to Python's int conversion. Native-size path
+    # tags follow the qualified Rust64 protocol profile.
+    if not re.fullmatch(r'[+-]?[0-9]+' if signed else r'\+?[0-9]+', text):
+        raise ProtocolError('malformed')
+    negative = text.startswith('-')
+    digits = text.lstrip('+-').lstrip('0') or '0'
+    if len(digits) > 39: raise ProtocolError('malformed')
+    number = int(digits) * (-1 if negative else 1)
+    if not (-(1 << (bits-1)) if signed else 0) <= number < (1 << (bits-1 if signed else bits)):
+        raise ProtocolError('malformed')
+    return number
+
+
 def _path(value):
     kind,sep,text=value.partition(':')
     if not sep: raise ProtocolError('malformed')
     if kind in ('field','variant','key.string'): return (kind,text)
     if kind=='key.bool' and text in ('true','false'): return (kind,text=='true')
     if kind=='key.char' and len(text)==1: return (kind,text)
-    if kind=='index': return (kind,_number('u64:'+text))
-    match=re.fullmatch(r'key.([ui])(8|16|32|64|128)',kind)
-    if match and re.fullmatch(r'-?[0-9]+',text):
-        if len(text)>40: raise ProtocolError('malformed')
-        number=int(text); bits=int(match[2]); signed=match[1]=='i'
-        if (-(1<<(bits-1)) if signed else 0)<=number<(1<<(bits-1 if signed else bits)): return (kind,number)
+    if kind=='index': return (kind,_path_integer(text,64))
+    match=re.fullmatch(r'key\.([ui])(8|16|32|64|128|size)',kind)
+    if match:
+        return (kind,_path_integer(text,64 if match[2]=='size' else int(match[2]),match[1]=='i'))
     raise ProtocolError('malformed')
+
+
+def _canonical_path(value):
+    kind,parsed=_path(value)
+    return kind+':'+str(parsed) if type(parsed) is int else value
 
 def _parse_adapter(command,arguments,limits,*,check_limits=True):
     spec=_ADAPTER_COMMANDS[command][0]; rest=spec[-1:] in ('*','+'); base=spec[:-1] if rest else spec
@@ -262,7 +280,11 @@ def _decode_arguments(command,arguments,limits):
         return ('bytes:'+encoded.lower(),)
     if command not in _ADAPTER_COMMANDS: raise ProtocolError('unsupported')
     _parse_adapter(command,arguments,limits,check_limits=False)
-    return tuple('u64:'+str(_number(value)) if value.startswith('u64:') else value for value in arguments)
+    spec=_ADAPTER_COMMANDS[command][0]
+    path_start=len(spec)-1 if spec.endswith('*') else len(arguments)
+    return tuple(_canonical_path(value) if index>=path_start else
+                 'u64:'+str(_number(value)) if value.startswith('u64:') else value
+                 for index,value in enumerate(arguments))
 
 class _TraceWindow:
     def __init__(self,offset,limit): self.offset,self.limit,self.position,self.chunk=offset,limit,0,bytearray()

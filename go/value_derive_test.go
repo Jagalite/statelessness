@@ -161,6 +161,51 @@ func TestDerivedTaggedEnum(t *testing.T) {
 		t.Fatal("overflow accepted")
 	}
 }
+func TestDerivedRawEnumPayloadWorkAdmission(t *testing.T) {
+	constructed := 0
+	entry, err := TaggedCase(1, "Add", Uint8Codec(), func(v uint8) (uint8, error) { return v, nil }, func(v uint8) (uint8, error) {
+		constructed++
+		return v, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	codec, err := TaggedEnum("Input", func(uint8) (uint32, error) { return 1, nil }, DefaultEnumOptions(), entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A raw enum needs its tag guard only; a guarded enum also needs its root.
+	for _, guarded := range []bool{false, true} {
+		exact := uint64(1)
+		if guarded {
+			exact++
+		}
+		for _, work := range []uint64{exact, exact - 1, exact} {
+			d, err := NewDecoder([]byte{1, 1}, DecodeLimits{Bytes: 2, Work: work, Depth: 2})
+			if err != nil {
+				t.Fatal(err)
+			}
+			before := constructed
+			var value uint8
+			if guarded {
+				value, err = ReadValue(d, codec)
+			} else {
+				value, err = codec.DecodeRaw(d)
+			}
+			if work == exact {
+				if err != nil || value != 1 || constructed != before+1 || d.Limits().Work != 0 || d.Depth() != 0 {
+					t.Fatalf("guarded=%v work=%d: value=%d error=%v constructed=%d limits=%+v depth=%d", guarded, work, value, err, constructed, d.Limits(), d.Depth())
+				}
+				if err := d.Finish(); err != nil {
+					t.Fatal(err)
+				}
+			} else if err == nil || err.Error() != "decode work limit" || constructed != before {
+				t.Fatalf("guarded=%v one-under: error=%v constructed=%d", guarded, err, constructed)
+			}
+		}
+	}
+}
+
 func TestBoundModelCodecGatesAllHooks(t *testing.T) {
 	calls, limits, metadata := 0, 0, 0
 	version := uint32(2)

@@ -272,6 +272,46 @@ class DirectWireTests(unittest.TestCase):
                 self.assertIsNone(responses[1].error)
                 self.assertEqual(model.calls, [('initial',), ('state', 0)])
 
+    def test_rust64_path_integer_syntax_and_typed_duplicate_identity(self):
+        # protocol.rs decode_segment uses Rust FromStr and stores canonical
+        # integer/index values. These pairs were also exercised through the
+        # actual public Rust pipe host, not inferred from Python's parser.
+        pairs = (
+            ('index:01', 'index:1'), ('index:+1', 'index:1'),
+            ('index:'+str((1 << 64)-1), 'index:'+str((1 << 64)-1)),
+            ('key.u8:+1', 'key.u8:1'), ('key.i8:-0', 'key.i8:0'),
+            ('key.usize:01', 'key.usize:1'), ('key.isize:-1', 'key.isize:-1'),
+            ('key.u8:'+'0'*5000+'1', 'key.u8:1'),
+            ('key.u128:'+str((1 << 128)-1), 'key.u128:'+str((1 << 128)-1)),
+            ('key.i128:'+str(-(1 << 127)), 'key.i128:'+str(-(1 << 127))),
+        )
+        for spelling, canonical in pairs:
+            with self.subTest(path=spelling[:80]):
+                _, p = self.make()
+                request = self.request(p, 1, 'inspect',
+                    ('u64:99', 'u64:1', 'u64:0', 'u64:1', spelling))
+                retry = replace(request, arguments=request.arguments[:-1]+(canonical,))
+                self.assertEqual(decode_request(encode_request(request)), retry)
+                responses = self.exchange(p, [encode_request(request), encode_request(retry)])
+                self.assertEqual(responses[0].error, 'stale_handle')
+                self.assertEqual(responses[1], responses[0])
+
+    def test_rust64_malformed_path_does_not_retire_request_id(self):
+        paths = ('index:-0', 'index:'+str(1 << 64), 'key.u8:-0',
+                 'key.u8:256', 'key.i8:-129', 'key.i8:+128',
+                 'key.u128:'+str(1 << 128), 'key.i128:'+str(1 << 127),
+                 'key.usize:'+str(1 << 64), 'key.isize:'+str(-(1 << 63)-1),
+                 'key.u8:++1', 'key.i8:+-1', 'key.u8:', 'key.u8:'+'9'*5000)
+        for path in paths:
+            with self.subTest(path=path[:80]):
+                _, p = self.make()
+                request = self.request(p, 1, 'inspect',
+                    ('u64:99', 'u64:1', 'u64:0', 'u64:1', path))
+                responses = self.exchange(p, [encode_request(request),
+                                              encode_request(self.request(p, 1))])
+                self.assertEqual((responses[0].request_id, responses[0].error), (0, 'malformed'))
+                self.assertIsNone(responses[1].error)
+
     def test_full_width_ids_typed_duplicates_and_eviction(self):
         model, p = self.make(cache=1)
         large = (1 << 64) - 2

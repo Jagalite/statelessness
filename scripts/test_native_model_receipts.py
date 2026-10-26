@@ -189,8 +189,13 @@ class RunnerIdentityEvidence(unittest.TestCase):
         self.files["python-app.py"].write_bytes(b"application")
         report = self.baseline()
         self.files["go"].write_bytes(b"changed")
-        self.assertTrue(DRIVER.record_runner_snapshot(report, "after"))
+        # Readable files are not enough: content drift fails identity validation.
+        self.assertFalse(DRIVER.record_runner_snapshot(report, "after"))
         self.assertFalse(report["runner_snapshot_unchanged"])
+        self.assertNotEqual(report["runner_files_before"]["go"],
+                            report["runner_files_after"]["go"])
+        self.assertEqual(report["runner_snapshot_failures"],
+                         [{"phase": "after", "files": report["runner_files_after"]}])
 
 
 if __name__ == "__main__":

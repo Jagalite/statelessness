@@ -749,6 +749,20 @@ class DriverInputEvidence(Files):
                 self.assertIn('@jagalite/statelessness/dist/conformance.js',
                               report['input_trees']['installed-typescript']['differences']['changed'])
 
+    def test_staged_go_builds_disable_ancestor_vcs_without_disabling_source_guards(self):
+        def mutate(work, output, site):
+            (work / 'go-package/core.go').write_text('mutated build input')
+        for driver, checkpoint, labels in (
+                (MODEL, 'go-build', {'go-build'}),
+                (RESEARCH, 'baseline-go-build', {'go-build', 'baseline-go-corpus-build'})):
+            with self.subTest(driver=driver.__name__):
+                report = self.failed_attempt(driver, checkpoint, mutate)
+                builds = [row for row in report['commands'] if row['name'] in labels]
+                self.assertEqual({row['name'] for row in builds}, labels)
+                for row in builds:
+                    self.assertEqual(row['argv'].count('-buildvcs=false'), 1)
+                self.assertIn('core.go', report['input_trees']['go-package']['differences']['changed'])
+
     def test_both_drivers_bind_staged_package_before_its_build(self):
         def mutate(work, output, site):
             (work / 'go-package/core.go').write_text('mutated build input')

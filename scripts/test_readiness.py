@@ -2,6 +2,8 @@
 from pathlib import Path
 import json
 import runpy
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -46,12 +48,40 @@ class Bundles(unittest.TestCase):
         modules = {"src/statelessness/" + path.name for path in package.glob("*.py")}
         self.assertLessEqual(modules, set(builder["PYTHON_FILES"]))
 
+    def test_real_python_distribution_is_complete_and_importable(self):
+        stage = self.root / "real-stage"
+        builder["stage_sources"](builder["ROOT"], stage, "native", "9.8.7", True)
+        package = stage / "python"
+        actual = {path.relative_to(package).as_posix()
+                  for path in package.rglob("*") if path.is_file()}
+        self.assertEqual(actual, set(builder["PYTHON_FILES"]))
+        for name in actual:
+            self.assertEqual((package / name).read_bytes(),
+                             (builder["ROOT"] / "python" / name).read_bytes())
+        # An isolated interpreter must resolve every module from the bundle,
+        # never an installed package or this checkout's source directory.
+        probe = """
+import importlib, pathlib, sys
+root = pathlib.Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root))
+for path in sorted((root / "statelessness").glob("*.py")):
+    name = "statelessness" if path.stem == "__init__" else "statelessness." + path.stem
+    module = importlib.import_module(name)
+    if pathlib.Path(module.__file__).resolve() != path.resolve():
+        raise RuntimeError("module escaped staged bundle: " + name)
+"""
+        result = subprocess.run([sys.executable, "-I", "-S", "-B", "-c", probe,
+                                 str(package / "src")], cwd=self.root,
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_v2_is_an_explicit_additive_distribution(self):
         self.stage()
         self.write("source/bindings/c/stateless_v2.h")
         self.write("source/docs/ABI-V2.md")
         for name in builder["PYTHON_FILES"]:
             self.write("source/python/" + name)
+        self.write("source/python/src/statelessness/local_notes.py")
         for name in builder["BROWSER_V2_FILES"]:
             self.write("source/bindings/browser/" + name)
         for name in builder["SWIFT_V2_FILES"]:
@@ -71,6 +101,7 @@ class Bundles(unittest.TestCase):
         self.assertTrue((stage / "native/include/stateless.h").exists())
         self.assertTrue((stage / "native/include/stateless_v2.h").exists())
         self.assertTrue((stage / "python/src/statelessness/native.py").exists())
+        self.assertFalse((stage / "python/src/statelessness/local_notes.py").exists())
         self.assertIn('path: "../portable-swift"', (stage / "swift-v2/Package.swift").read_text())
         self.assertIn('#include "stateless_v2.h"', (stage / "swift-v2/c/shim.h").read_text())
         self.assertTrue((stage / "portable-swift/swift/Sources/StatelessConformance/Conformance.swift").exists())

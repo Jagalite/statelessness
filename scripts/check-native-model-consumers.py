@@ -2,7 +2,7 @@
 """Finite installed five-engine N13 binder/Recorder/causal-evidence application.
 
 Execute only through Kyoto, after source freeze. Each process is independent.
-This finite macOS arm64 scenario does not close the 90-row corpus or broad144.
+This finite current-host scenario does not close the 90-row corpus or broad144.
 """
 from __future__ import annotations
 import argparse, copy, hashlib, json, os, platform, re, shutil, subprocess, sys, tempfile
@@ -85,7 +85,7 @@ def main():
  if out.exists() and any(out.iterdir()):raise RuntimeError('output must be new or empty; preserve prior receipts')
  out.mkdir(parents=True,exist_ok=True);logs=out/'logs';logs.mkdir();packages=out/'packages';packages.mkdir();values=out/'values';values.mkdir()
  work=Path(tempfile.mkdtemp(prefix='stateless-native-model-')).resolve();env=dict(os.environ,PYTHONPATH='',PYTHONNOUSERSITE='1',PYTHONDONTWRITEBYTECODE='1',GOPROXY='off',GOTOOLCHAIN='local',GOWORK='off',CGO_ENABLED='0')
- report=dict(status='running',platform=platform.platform(),machine=platform.machine(),workspace=str(work),scope='one actual State/Input binder application, custom encode-only Output, dual checked Recorder/EvidenceRecorder; 5 installed producers, 25 ordered fresh-process read/replay/rewrite pairs; finite macOS arm64 only, no broad144/profile promotion',commands=[],pairs=[],producers={})
+ report=dict(status='running',platform=platform.platform(),machine=platform.machine(),workspace=str(work),scope='one actual State/Input binder application, custom encode-only Output, dual checked Recorder/EvidenceRecorder; 5 installed producers, 25 ordered fresh-process read/replay/rewrite pairs; finite current-host only (see platform and machine), no broad144/profile promotion',commands=[],pairs=[],producers={})
  report.update(copy.deepcopy(_oracle_inputs))
  def save():
   artifacts={}
@@ -136,7 +136,8 @@ def main():
   runners={'python':[str(py),'-I','-B',str(work/'python-consumer.py')]}
   stage(ROOT/'go',work/'go-package');stage(ROOT/'examples/native-model/go',work/'go-consumer');(work/'go-consumer/go.mod').write_text('module model-consumer\n\ngo 1.23.0\n\nrequire github.com/Jagalite/statelessness/go v0.0.0\nreplace github.com/Jagalite/statelessness/go => ../go-package\n')
   freeze('go-package',work/'go-package');freeze('go-consumer',work/'go-consumer')
-  run('go-build',['go','build','-trimpath','-o',work/'go-consumer-bin','.'],work/'go-consumer',produced={'go-executable':work/'go-consumer-bin'});runners['go']=[str(work/'go-consumer-bin')]
+  # Disable only unrelated ancestor VCS stamping; exact source/artifact guards remain.
+  run('go-build',['go','build','-buildvcs=false','-trimpath','-o',work/'go-consumer-bin','.'],work/'go-consumer',produced={'go-executable':work/'go-consumer-bin'});runners['go']=[str(work/'go-consumer-bin')]
   stage(ROOT/'typescript',work/'typescript-package')
   freeze('typescript-package',work/'typescript-package',excluded=('dist',))
   run('typescript-package-build',compiler+['-p','tsconfig.json'],work/'typescript-package')

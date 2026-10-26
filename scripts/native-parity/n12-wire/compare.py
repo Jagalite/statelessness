@@ -106,6 +106,35 @@ def resolution_snapshot(path):
     raise RuntimeError(f'executable resolution cycle: {path}')
 
 
+def directory_alias_identity(item, root):
+    """Allow internal real-directory aliases (e.g. venv lib64 -> lib), not traversal.
+
+    The ordinary non-following walk already manifests the destination contents.
+    Reject every indirect link, escape and ancestor alias instead of following
+    an untrusted directory graph. Preserve link spelling and destination mode.
+    """
+    identity = file_identity(item)
+    target = item.parent / identity['target']
+    try:
+        parts = target.relative_to(root).parts
+    except ValueError:
+        raise RuntimeError(f'directory symlink escapes installed artifact: {item}')
+    destination = root
+    for part in parts:
+        destination = destination.parent if part == '..' else destination / part
+        if not destination.is_relative_to(root):
+            raise RuntimeError(f'directory symlink escapes installed artifact: {item}')
+        metadata = destination.lstat()
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise RuntimeError(f'indirect directory symlink in installed artifact: {item}')
+    if destination == item.parent or destination in item.parents:
+        raise RuntimeError(f'cyclic directory symlink in installed artifact: {item}')
+    if file_identity(item) != identity:
+        raise RuntimeError(f'directory symlink changed while reading: {item}')
+    return {**identity, 'resolved_directory': str(destination),
+            'directory_mode': stat.S_IMODE(destination.lstat().st_mode)}
+
+
 def artifact_snapshot(host):
     paths = {Path(p).absolute() for p in host['artifacts']}
     executable = Path(host['argv'][0])
@@ -121,8 +150,12 @@ def artifact_snapshot(host):
                 directory = Path(directory)
                 for name in sorted(dirs + files):
                     item = directory / name
-                    if item.is_symlink() and item.is_dir():
-                        raise RuntimeError(f'directory symlink in installed artifact: {item}')
+                    if item.is_symlink():
+                        if not item.exists():
+                            raise RuntimeError(f'broken or cyclic symlink in installed artifact: {item}')
+                        if item.is_dir():
+                            rows[str(item)] = directory_alias_identity(item, path)
+                            continue
                     if item.is_symlink() or item.is_file():
                         rows[str(item)] = file_identity(item)
                         if item.is_symlink():

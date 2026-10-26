@@ -22,6 +22,131 @@ INTEGRATION_SPEC.loader.exec_module(INTEGRATION)
 
 
 class PreparationIdentities(unittest.TestCase):
+    def test_internal_venv_directory_alias_binds_link_and_destination(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            package, output, executable = root / 'venv', root / 'receipts', root / 'host'
+            (package / 'lib').mkdir(parents=True)
+            output.mkdir()
+            executable.write_bytes(b'host')
+            imported = package / 'lib/module.py'
+            imported.write_bytes(b'original import')
+            alias = package / 'lib64'
+            alias.symlink_to('lib', target_is_directory=True)
+            guard = PREPARE.PreparedHostArtifacts(output, {})
+            guard.bind('python', {'argv': [str(executable)], 'artifacts': [str(package)]})
+            baseline = guard.before['python']
+            self.assertEqual(baseline[str(alias)]['target'], 'lib')
+            self.assertEqual(baseline[str(alias)]['resolved_directory'], str(package / 'lib'))
+            self.assertEqual(baseline[str(imported)]['sha256'], hashlib.sha256(b'original import').hexdigest())
+            self.assertNotIn(str(alias / 'module.py'), baseline)
+            self.assertTrue(guard.check('unchanged'))
+            imported.write_bytes(b'changed import')
+            self.assertFalse(guard.check('changed-destination'))
+            imported.write_bytes(b'original import')
+            alias.unlink()
+            alias.symlink_to('./lib', target_is_directory=True)
+            self.assertFalse(guard.check('changed-link-spelling'))
+            self.assertFalse(guard.records['python']['last_matches'])
+            alias.unlink()
+            alias.symlink_to('lib', target_is_directory=True)
+            self.assertFalse(guard.check('restored-sticky-failure'))
+            self.assertTrue(guard.records['python']['last_matches'])
+
+    def test_installed_directory_aliases_fail_closed(self):
+        for kind in ('absolute-escape', 'relative-escape', 'indirect',
+                     'indirect-parent', 'escape-and-return', 'ancestor', 'broken', 'self-cycle', 'pair-cycle'):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                package, outside, executable = root / 'venv', root / 'outside', root / 'host'
+                (package / 'lib').mkdir(parents=True)
+                outside.mkdir()
+                (outside / 'untrusted.py').write_bytes(b'never read')
+                executable.write_bytes(b'host')
+                alias = package / 'lib64'
+                target = {'absolute-escape': str(outside), 'relative-escape': '../outside',
+                          'indirect': 'indirect', 'indirect-parent': 'indirect/child',
+                          'escape-and-return': '../venv/lib', 'ancestor': '.', 'broken': 'missing',
+                          'self-cycle': 'lib64', 'pair-cycle': 'other'}[kind]
+                if kind in ('indirect', 'indirect-parent'):
+                    (package / 'lib/child').mkdir()
+                    (package / 'indirect').symlink_to('lib', target_is_directory=True)
+                if kind == 'pair-cycle':
+                    (package / 'other').symlink_to('lib64', target_is_directory=True)
+                alias.symlink_to(target, target_is_directory=True)
+                with mock.patch.object(PREPARE.wire, 'file_identity', wraps=PREPARE.wire.file_identity) as identity:
+                    with self.assertRaisesRegex(RuntimeError, 'symlink'):
+                        PREPARE.wire.artifact_snapshot({'argv': [str(executable)], 'artifacts': [str(package)]})
+                    self.assertNotIn(mock.call(outside / 'untrusted.py'), identity.call_args_list)
+
+    def test_directory_alias_retarget_and_mode_changes_invalidate_binding(self):
+        for mutation in ('retarget', 'mode', 'broken', 'escape', 'cycle'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                package, output, executable = root / 'venv', root / 'receipts', root / 'host'
+                (package / 'lib').mkdir(parents=True)
+                (package / 'other').mkdir()
+                output.mkdir()
+                executable.write_bytes(b'host')
+                alias = package / 'lib64'
+                alias.symlink_to('lib', target_is_directory=True)
+                guard = PREPARE.PreparedHostArtifacts(output, {})
+                guard.bind('python', {'argv': [str(executable)], 'artifacts': [str(package)]})
+                if mutation == 'mode':
+                    (package / 'lib').chmod(0o700)
+                else:
+                    alias.unlink()
+                    alias.symlink_to({'retarget': 'other', 'broken': 'missing',
+                                      'escape': '..', 'cycle': 'lib64'}[mutation], target_is_directory=True)
+                self.assertFalse(guard.check('mutated-' + mutation))
+                self.assertFalse(guard.records['python']['last_matches'])
+                self.assertEqual(guard.records['python']['failures'][0]['first_stage'], 'mutated-' + mutation)
+
+    def test_staged_go_build_disables_ancestor_vcs_and_preserves_source_guards(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            source, output, scratch = root / 'source', root / 'receipts', root / 'artifacts'
+            output.mkdir()
+            for name, contents in {
+                    'conformance/fixture.tsv': 'authored corpus',
+                    'docs/native-parity/derive-model-draft/fixture.json': '{}',
+                    'scripts/native-parity/n12-wire/go/go.mod': 'module fixture\n',
+                    'go/go.mod': 'module package\n',
+                    'go/core.go': '// original source',
+            }.items():
+                path = source / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(contents)
+            launched = []
+
+            def launch(argv, **kwargs):
+                launched.append(argv)
+                if argv[:2] == ['go', 'build']:
+                    Path(argv[argv.index('-o') + 1]).write_bytes(b'fixture executable')
+                elif argv[:2] == ['go', 'test']:
+                    (scratch / 'packages/go/core.go').write_text('// changed source')
+                    kwargs['stdout'].write(b'github.com/Jagalite/statelessness/go/debug')
+                else:
+                    self.assertEqual(argv[:2], ['go', 'version'])
+                return mock.Mock(wait=mock.Mock(return_value=0))
+
+            with mock.patch.object(PREPARE, 'ROOT', source), \
+                    mock.patch.object(PREPARE.wire, 'source_snapshot', side_effect=lambda: PREPARE.wire.tree_snapshot(source)), \
+                    mock.patch.object(PREPARE.subprocess, 'check_output', return_value=b'fixture-source\n'), \
+                    mock.patch.object(PREPARE.subprocess, 'Popen', side_effect=launch), \
+                    mock.patch.dict(os.environ, {'CARGO_HOME': str(root / 'unused-cargo')}):
+                self.assertEqual(PREPARE.prepare(SimpleNamespace(artifacts=scratch, output=output)), 1)
+            builds = [argv for argv in launched if argv[:2] == ['go', 'build']]
+            self.assertEqual(len(builds), 1)
+            self.assertEqual(builds[0].count('-buildvcs=false'), 1)
+            report = json.loads((output / 'preparation.json').read_text())
+            self.assertFalse(report['build_input_copies_stable'])
+            self.assertFalse(report['host_artifacts_stable'])
+            self.assertTrue(report['source_stable'])
+            copies = json.loads((output / 'build-input-copies.json').read_text())
+            package, = [row for row in copies if row['path'] == str(scratch / 'packages/go')]
+            self.assertEqual(package['unexpected_changes'], ['core.go'])
+
     def test_first_host_replacement_during_later_preparation_is_retained(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()

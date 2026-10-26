@@ -108,6 +108,33 @@ final class EffectsTests: XCTestCase {
         XCTAssertEqual(calls,0); XCTAssertEqual(observer.health.abandoned,1); XCTAssertFalse(observer.metricSnapshot(at: LocalInstant(domain:1,nanos:0)).complete); XCTAssertThrowsError(try observer.attemptStarted(attempt)); withExtendedLifetime((effect,attempt)) {}
     }
     @MainActor
+    func testInstrumentTransfersNonSendableResultsWithoutChangingIdentity() async throws {
+        final class HostValue { var count = 1 }
+        var options = EffectOptions(); options.timings = false
+        let observer = try EffectObserver(options: options,clock: DiagnosticClock { throw MeasurementError.clockUnavailable },schema: HistogramSchema())
+        let effect = try observer.requested(); try observer.admission(effect,accepted: true)
+        var classified: HostValue?
+        let direct = try await observer.instrument(try observer.attemptCreated(effect),operation: { HostValue() },classify: {
+            classified = try? $0.get(); classified?.count += 1; return .success
+        })
+        XCTAssertTrue(direct === classified); XCTAssertEqual(direct.count,2)
+        let throwingClassifier = try await observer.instrumentClassifying(try observer.attemptCreated(effect),operation: { HostValue() },classify: {
+            classified = try $0.get(); classified?.count += 2; throw MeasurementError.clockUnavailable
+        })
+        XCTAssertTrue(throwingClassifier === classified); XCTAssertEqual(throwingClassifier.count,3)
+        var calls = 0
+        let lazy = observer.instrumentOperation(try observer.attemptCreated(effect),operation: { calls += 1; return HostValue() },classify: {
+            classified = try $0.get(); return .success
+        })
+        XCTAssertEqual(calls,0)
+        let lazyValue = try await lazy.run()
+        XCTAssertTrue(lazyValue === classified); XCTAssertEqual(calls,1)
+        lazyValue.count = 4; XCTAssertEqual(classified?.count,4)
+        XCTAssertEqual(observer.health.callbackFaults,1)
+        do { _ = try await lazy.run(); XCTFail("ran wrapper twice") } catch LifecycleError.duplicateObservation {} catch { XCTFail("wrong duplicate error") }
+        XCTAssertEqual(calls,1); withExtendedLifetime(effect) {}
+    }
+    @MainActor
     func testLazyInstrumentPreservesRealResultDespiteForeignHooksAndClassifierFailure() async throws {
         var options = EffectOptions(); options.timings = false
         let clock = DiagnosticClock { throw MeasurementError.clockUnavailable },schema = try HistogramSchema()

@@ -346,7 +346,9 @@ def prepare(args):
                     manifest = consumer / 'go.mod'
                     rewrite_manifest(manifest, manifest.read_text().replace('../../../../go', str(package)))
                     binary = builds / 'n12-wire-go'
-                    run('go-consumer-build', ['go', 'build', '-mod=readonly', '-o', binary, '.'], consumer)
+                    # Disable only unrelated ancestor VCS stamping for copied consumers;
+                    # exact source and artifact provenance guards remain enforced.
+                    run('go-consumer-build', ['go', 'build', '-buildvcs=false', '-mod=readonly', '-o', binary, '.'], consumer)
                     host_artifacts.bind(language, {'argv': [str(binary)], 'cwd': str(consumer), 'artifacts': [str(binary), str(consumer), str(package)]})
                     go_exec = shlex.join([sys.executable, str(frozen / 'scripts/qualify-native-integration.py'), '--go-exec'])
                     regression('go-full-tests', ['go', 'test', '-count=1', '-exec', go_exec, './...'], package,

@@ -4,7 +4,7 @@ use stateless::{
     execution::{self, CheckPolicy},
     monitor::{Recorder, RecorderOptions},
     trace::{ReadLimits, RunConfig, Trace},
-    value_codec::{DecodeLimits, Decoder, TraceDecode as _, TraceEncode as _},
+    value_codec::{DecodeLimits, Decoder, TraceEncode as _},
     *,
 };
 use statelessness_macros::{TraceDecode, TraceEncode};
@@ -259,10 +259,22 @@ fn encode(t: &Trace, v: &TraceV2) -> Result<(Vec<u8>, Vec<u8>), Box<dyn std::err
 }
 fn measured_counts(m: &Bound) -> String {
     let [initial, reducer, state, transition] = m.counts();
-    let [encode_state, encode_input, encode_output, decode_state, decode_input, limits] = codecs();
-    format!("{{\"initial\":{initial},\"reducer\":{reducer},\"state\":{state},\"transition\":{transition},\"encode_state\":{encode_state},\"encode_input\":{encode_input},\"encode_output\":{encode_output},\"decode_state\":{decode_state},\"decode_input\":{decode_input},\"limits\":{limits}}}")
+    let [
+        encode_state,
+        encode_input,
+        encode_output,
+        decode_state,
+        decode_input,
+        limits,
+    ] = codecs();
+    format!(
+        "{{\"initial\":{initial},\"reducer\":{reducer},\"state\":{state},\"transition\":{transition},\"encode_state\":{encode_state},\"encode_input\":{encode_input},\"encode_output\":{encode_output},\"decode_state\":{decode_state},\"decode_input\":{decode_input},\"limits\":{limits}}}"
+    )
 }
-fn produce() -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
+// Encoded v1/v2 artifacts and their measured callback counts.
+type InterchangeArtifacts = (Vec<u8>, Vec<u8>, String);
+
+fn produce() -> Result<InterchangeArtifacts, Box<dyn std::error::Error>> {
     reset();
     let m = Bound::new();
     let mut state = State { count: 0 };
@@ -309,7 +321,7 @@ fn validate_trace(t: &Trace) {
     }
     assert_eq!(t.termination, stateless::trace::Termination::PropertyFailed);
 }
-fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn std::error::Error>> {
+fn transcode(a: &[u8], b: &[u8]) -> Result<InterchangeArtifacts, Box<dyn std::error::Error>> {
     reset();
     let t = Trace::read_from(a, &limits())?;
     let artifact = Artifact::read(b, &el())?;
@@ -340,12 +352,20 @@ fn transcode(a: &[u8], b: &[u8]) -> Result<(Vec<u8>, Vec<u8>, String), Box<dyn s
         assert!(r.failure_reproduced && r.build_matches);
         assert_eq!(m.counts(), [0, 3, 4, 3]);
         assert_eq!(codecs(), [4, 3, 3, 1, 3, 4]);
-        replay_counts.push(format!("\"{}\":{}", if v2 { "v2" } else { "v1" }, measured_counts(&m)));
+        replay_counts.push(format!(
+            "\"{}\":{}",
+            if v2 { "v2" } else { "v1" },
+            measured_counts(&m)
+        ));
     }
     let rewritten = encode(&t, &v)?;
     assert_eq!(rewritten.0, a);
     assert_eq!(rewritten.1, b);
-    Ok((rewritten.0, rewritten.1, format!("{{{}}}", replay_counts.join(","))))
+    Ok((
+        rewritten.0,
+        rewritten.1,
+        format!("{{{}}}", replay_counts.join(",")),
+    ))
 }
 // Negative captures are local controls; none of their bytes enter success artifacts.
 fn assert_capture_counts(m: &Bound, model: [usize; 4], codec: [usize; 6], failures: usize) {
@@ -593,7 +613,7 @@ fn hex(v: &[u8]) -> String {
     v.iter().map(|x| format!("{x:02x}")).collect()
 }
 fn unhex(s: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-    if s.len() % 2 != 0
+    if !s.len().is_multiple_of(2)
         || !s
             .bytes()
             .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
@@ -631,7 +651,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         [mode, input, out] if mode == "transcode" => {
             let text = std::fs::read_to_string(input)?;
-            let (a, b, counts) = transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
+            let (a, b, counts) =
+                transcode(&unhex(field(&text, "v1")?)?, &unhex(field(&text, "v2")?)?)?;
             (a, b, out, "null".to_owned(), counts)
         }
         _ => return Err("produce DEST | transcode SOURCE DEST".into()),

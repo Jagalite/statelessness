@@ -191,7 +191,8 @@ def main():
         (go_consumer / 'go.mod').write_text('module research-consumer\n\ngo 1.23.0\n\nrequire github.com/Jagalite/statelessness/go v0.0.0\nreplace github.com/Jagalite/statelessness/go => ../go-package\n')
         freeze('go-consumer', go_consumer)
         go_bin = work / ('go-consumer.exe' if os.name == 'nt' else 'go-consumer-bin')
-        run('go-build', [go, 'build', '-trimpath', '-o', go_bin, '.'], go_consumer,
+        # Disable only unrelated ancestor VCS stamping; exact source/artifact guards remain.
+        run('go-build', [go, 'build', '-buildvcs=false', '-trimpath', '-o', go_bin, '.'], go_consumer,
             produced={'go-executable': go_bin})
         runners['go'] = [str(go_bin)]
 
@@ -281,7 +282,8 @@ def main():
                    STATELESS_BINARY_CORPUS=str(corpus_source / 'native-binary-v1.json'),
                    STATELESS_BFS_CORPUS=str(corpus_source / 'bfs-controls-v1.json'))
         go_corpus = work / ('go-corpus.exe' if os.name == 'nt' else 'go-corpus')
-        run('baseline-go-corpus-build', [go, 'build', '-trimpath', '-o', go_corpus, './cmd/stateless-corpus'], go_source,
+        # This copied baseline has the same independent source/artifact provenance guards.
+        run('baseline-go-corpus-build', [go, 'build', '-buildvcs=false', '-trimpath', '-o', go_corpus, './cmd/stateless-corpus'], go_source,
             produced={'baseline-go-executable': go_corpus})
         baseline_runners = [[str(py), '-I', '-B', '-m', 'statelessness.conformance', '--runner'],
                             [str(go_corpus)], [node, str(ts_consumer / 'node_modules/@jagalite/statelessness/bin/corpus.mjs')]]

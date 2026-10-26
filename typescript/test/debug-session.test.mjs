@@ -23,3 +23,56 @@ test('post predicate sees prior session state and completed detached turn before
 
 test('snapshot clone callbacks cannot reenter session mutation',()=>{const m=model();let session;const clone=m.cloneState;m.cloneState=s=>{if(session)assert.throws(()=>session.cancel(session.revision),/owned/);return clone(s);};session=new DebugSession('snapshot-owner',m,policy,limits);assert.equal(session.state,0);session.step(0n,1);assert.equal(session.observation().transition.state,1);});
 test('model input domain remains independent of unrestricted environmental injection',()=>{const m=model();let available=true;m.inputs=()=>available?[1]:[];m.equalInputs=(a,b)=>a===b;const s=new DebugSession('domain',m,{kind:'unrestricted',label:'out-of-domain-injection'},limits);assert.equal(s.capabilities.enumerateInputs,true);const token=s.candidates(0n,0,1).candidates[0];available=false;assert.throws(()=>s.stepCandidate(0n,token),/current domain/);assert.equal(s.sequence,0n);assert.equal(s.step(0n,99).delivered,true);assert.equal(s.state,99);});
+
+test('policy callbacks preserve prototype and own method receivers and capture declarations once',()=>{
+ class Declared {
+  kind='declared';label='private';#allowed=1;reads=0;
+  get permits(){this.reads++;return this.admit;}
+  admit(_state,input){return input===this.#allowed;}
+ }
+ const p=new Declared(),s=new DebugSession('prototype-policy',model(),p,limits);
+ assert.equal(p.reads,1);p.kind='unrestricted';p.label='changed';p.admit=()=>false;
+ assert.equal(s.inputPolicy,'private');assert.throws(()=>s.step(0n,99),/not permitted/);
+ assert.equal(s.step(0n,1).delivered,true);assert.equal(p.reads,1);
+ const own={kind:'declared',label:'own',allowed:1,permits(_state,input){assert.equal(this,own);return input===this.allowed;}};
+ const t=new DebugSession('own-policy',model(),own,limits);own.permits=()=>false;
+ assert.equal(t.step(0n,1).delivered,true);
+});
+
+test('enumerated policy and explicit domain retain receivers for admission candidates and breakpoint equality',()=>{
+ class Enumerated {
+  kind='enumerated';label='private-domain';#value=1;
+  candidates(){return [this.#value];}
+  equal(a,b){return a===this.#value&&a===b;}
+ }
+ const p=new Enumerated(),s=new DebugSession('enumerated-receiver',model(),p,limits);
+ p.candidates=()=>[];p.equal=()=>false;
+ const token=s.candidates(0n,0,1).candidates[0];
+ s.addPreBreakpoint(()=>true);assert.equal(s.stepCandidate(0n,token).delivered,false);
+ assert.equal(s.stepCandidate(0n,token).delivered,true);
+ class Domain {#value=1;inputs(){return [this.#value];}equal(a,b){return a===this.#value&&a===b;}}
+ const domain=new Domain(),t=new DebugSession('explicit-domain',model(),{kind:'unrestricted',label:'all'},limits,{inputDomain:domain});
+ domain.inputs=()=>[];domain.equal=()=>false;
+ assert.equal(t.stepCandidate(0n,t.candidates(0n,0,1).candidates[0]).delivered,true);
+ const options={value:1,equalInputs(a,b){assert.equal(this,options);return a===this.value&&a===b;}};
+ const u=new DebugSession('option-equality',model(),{kind:'unrestricted',label:'all'},limits,options);
+ options.equalInputs=()=>false;u.addPreBreakpoint(()=>true);
+ assert.equal(u.step(0n,1).delivered,false);assert.equal(u.step(0n,1).delivered,true);
+});
+
+test('pending breakpoint equality gets detached inputs and requires a synchronous boolean',()=>{
+ for(const kind of ['declared','enumerated']){
+  const m={...model(),cloneInput:i=>({...i}),step:(s,i)=>accepted(s+i.value,[])};
+  let session;
+  const equal=(a,b)=>{assert.throws(()=>session.cancel(0n),/owned/);a.value=99;b.value=99;return true;};
+  const p=kind==='declared'?{kind,label:'ones',permits:(_s,i)=>i.value===1}:{kind,label:'ones',candidates:()=>[{value:1}],equal};
+  session=new DebugSession(`detached-${kind}`,m,p,limits,{equalInputs:equal});session.addPreBreakpoint(()=>true);
+  assert.equal(session.step(0n,{value:1}).delivered,false);
+  assert.equal(session.step(0n,{value:1}).delivered,true);assert.equal(session.state,1);
+  assert.equal(session.observation().input.value,1);
+ }
+ for(const invalid of [1,{},Promise.resolve(true)]){
+  const s=new DebugSession('invalid-equality',model(),{kind:'unrestricted',label:'all'},limits,{equalInputs:()=>invalid});s.addPreBreakpoint(()=>true);
+  s.step(0n,1);assert.throws(()=>s.step(0n,1),/equality must return boolean/);assert.equal(s.state,0);assert.equal(s.sequence,0n);
+ }
+});

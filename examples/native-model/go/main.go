@@ -407,14 +407,14 @@ func controls() {
 	c.work = 1
 	_, e = codec.DecodeState([]byte{0, 0, 0, 0})
 	require(e != nil, "one-under work accepted")
-	// Enum payload is raw, so its exact work admission is one root guard.
-	c.work = 1
+	// Enum payload is raw, but root and tag each consume a guarded work unit.
+	c.work = 2
 	_, e = codec.DecodeInput([]byte{1, 1})
 	must(e)
-	c.work = 0
-	_, e = codec.DecodeInput([]byte{1, 1})
-	require(e != nil, "input one-under work accepted")
 	c.work = 1
+	_, e = codec.DecodeInput([]byte{1, 1})
+	require(e != nil && e.Error() == "decode work limit", "input one-under work accepted")
+	c.work = 2
 	_, e = codec.DecodeInput([]byte{1, 1})
 	must(e)
 	c.custom = false

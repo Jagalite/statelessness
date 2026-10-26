@@ -55,9 +55,17 @@ final class ValueCodecDecoderTests: XCTestCase {
         }
     }
     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+        // Error is Sendable; the only mutable state is protected by this lock.
+        final class FormattingCounter: @unchecked Sendable {
+            private let lock = NSLock()
+            private var count = 0
+            var value: Int { lock.lock(); defer { lock.unlock() }; return count }
+            func increment() { lock.lock(); defer { lock.unlock() }; count += 1 }
+        }
         final class CallbackError: Error, CustomStringConvertible {
-            var formatted = 0
-            var description: String { formatted += 1; return "callback failure" }
+            private let counter = FormattingCounter()
+            var formatted: Int { counter.value }
+            var description: String { counter.increment(); return "callback failure" }
         }
         let first = CallbackError(), decoder = try ValueDecoder([])
         do { _ = try decoder.value { _ -> Int in throw first }; XCTFail("expected callback error") }

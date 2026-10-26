@@ -282,7 +282,9 @@ def consume(envelope):
             raw = value.to_bytes(limits=ELIMITS)
         else:
             observations = []
-            report = replay_with_observations_bounded(b, artifact.trace, observations.append, limits=LIMITS)
+            def observe(observation, report):
+                observations.append(observation)
+            report = replay_with_observations_bounded(b, artifact.trace, observe, limits=LIMITS)
             assert len(observations) == 4
             assert artifact.check_phase(1,0) is None
             raw = audit_to_bytes(artifact.trace, limits=LIMITS)
