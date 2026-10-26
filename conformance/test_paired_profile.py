@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def corpus():
-    with (ROOT / "conformance/paired-v1.tsv").open() as stream:
+    with (ROOT / "conformance/paired-v1.tsv").open(encoding="utf-8") as stream:
         cases = list(csv.DictReader(stream, delimiter="\t"))
     for case in cases:
         for key in ("max_states", "max_transitions", "max_depth", "states", "transitions", "skipped_checks"):
@@ -41,7 +41,7 @@ class PairedProfileTests(unittest.TestCase):
             from jsonschema import Draft202012Validator
         except ImportError:
             self.skipTest("jsonschema is an optional development dependency")
-        schema = json.loads((ROOT / "spec/paired-v1.schema.json").read_text())
+        schema = json.loads((ROOT / "spec/paired-v1.schema.json").read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
         Draft202012Validator(schema).validate(corpus())
 

@@ -19,7 +19,7 @@ func (e ProtocolError) Error() string { return string(e) }
 
 type ProtocolLimits struct {
 	MaxFrame, MaxField, MaxFields, MaxInput, MaxCache, MaxCacheBytes, MaxHandles int
-	MaxPage, MaxTelemetrySnapshot                                            int
+	MaxPage, MaxTelemetrySnapshot                                                int
 }
 
 func DefaultProtocolLimits() ProtocolLimits {

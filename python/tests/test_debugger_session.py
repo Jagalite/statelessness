@@ -111,11 +111,48 @@ class SessionTests(unittest.TestCase):
         session.add_breakpoint(lambda *args: 'truthy')
         with self.assertRaisesRegex(ModelError, 'bool'): session.step(0, 1)
         self.assertEqual(session.phase, 'ended')
-        session = self.session()
-        def broken(actual): raise ModelError('predicate failed')
-        session.add_breakpoint(broken, post=True)
-        with self.assertRaisesRegex(ModelError, 'predicate failed'): session.step(0, 1)
-        self.assertEqual(session.phase, 'ended')
-        self.assertEqual(session.sequence, 1)
+        self.assertEqual(session.sequence, 0)
         self.assertEqual(session.state, 0)
         self.assertIsNone(session.observation)
+
+    def test_post_predicate_fault_commits_recorded_second_turn(self):
+        from statelessness.monitor import RecorderOptions
+        for fault in ('raise', 'nonbool'):
+            with self.subTest(fault=fault):
+                session = self.session(recorder_options=RecorderOptions())
+                session.step(0, 1)
+                seen = []
+                def broken(actual):
+                    seen.append((session.state, session.observation.sequence,
+                                 actual.before, actual.transition.state))
+                    if fault == 'raise': raise ModelError('predicate failed')
+                    return 'truthy'
+                session.add_breakpoint(broken, post=True)
+                with self.assertRaisesRegex(ModelError, 'predicate failed|bool'):
+                    session.step(1, 2)
+                self.assertEqual(seen, [(1, 1, 1, 3)])
+                self.assertEqual((session.sequence, session.revision, session.state), (2, 2, 3))
+                self.assertEqual(session.phase, 'ended')
+                self.assertEqual(session.stop.kind, 'observer_error')
+                self.assertEqual(len(session.diagnostic_errors), 1)
+                actual = session.observation
+                self.assertEqual((actual.sequence, actual.before, actual.input, actual.transition.state), (2, 1, 2, 3))
+                trace = session.export_trace()
+                self.assertEqual(trace.initial_state, b'0')
+                self.assertEqual(tuple(t.post_state for t in trace.steps), (b'1', b'3'))
+                self.assertEqual(trace.steps[-1].input, b'2')
+                with self.assertRaisesRegex(DebugError, 'ended'): session.step(2, 1)
+                self.assertEqual(session.export_trace(), trace)
+
+    def test_successful_post_predicate_sees_precommit_state(self):
+        session = self.session()
+        seen = []
+        def predicate(actual):
+            seen.append((session.state, session.observation, actual.transition.state))
+            return True
+        session.add_breakpoint(predicate, post=True)
+        result = session.step(0, 2)
+        self.assertEqual(seen, [(0, None, 2)])
+        self.assertTrue(result.delivered)
+        self.assertEqual(result.stop.kind, 'post_breakpoint')
+        self.assertEqual((session.state, session.observation.transition.state, session.phase), (2, 2, 'paused'))

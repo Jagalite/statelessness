@@ -18,7 +18,7 @@ func wireSession(t *testing.T, authority d.ProtocolAuthority, limits d.ProtocolL
 	calls := []string{}
 	model := s.Model[int, byte, int]{
 		InitialState: func() (int, error) { calls = append(calls, "initial"); return 0, nil },
-		CloneState: s.ValueCopy[int], CloneInput: s.ValueCopy[byte], CloneOutput: s.ValueCopy[int],
+		CloneState:   s.ValueCopy[int], CloneInput: s.ValueCopy[byte], CloneOutput: s.ValueCopy[int],
 		Step: func(before int, input byte) (s.Transition[int, int], error) {
 			calls = append(calls, fmt.Sprintf("step %d %d", before, input))
 			switch input {
@@ -89,7 +89,7 @@ func TestWireCompleteStatusAndObservationFields(t *testing.T) {
 	r := d.ProtocolRequest{Session: "wire\té😀", ID: 1, Command: "status"}
 	wireFields(t, p.Handle(r), map[string]string{
 		"mode": "enum:simulation", "phase": "enum:Ready", "sequence": "u64:0",
-		"environment": "string:out-of-domain-injection",
+		"environment":               "string:out-of-domain-injection",
 		"capability.input_delivery": "bool:true", "capability.inspection": "bool:false",
 		"capability.watch_configuration": "bool:false", "capability.exact_values": "bool:true",
 		"capability.live_control": "bool:false", "capability.live_restore": "bool:false", "capability.effects": "bool:false",
@@ -164,7 +164,11 @@ func TestWireRejectionFailureAndCallbackOrder(t *testing.T) {
 }
 
 func TestWireMalformedCommandsDoNotAdmitRequestIDs(t *testing.T) {
-	for _, test := range []struct{ command string; args []string; category string }{
+	for _, test := range []struct {
+		command  string
+		args     []string
+		category string
+	}{
 		{"status", []string{"u64:1"}, "malformed"},
 		{"step", []string{"bytes:0"}, "malformed"},
 		{"step", []string{"bytes:zz"}, "malformed"},
@@ -178,20 +182,32 @@ func TestWireMalformedCommandsDoNotAdmitRequestIDs(t *testing.T) {
 			var input, output bytes.Buffer
 			for _, r := range []d.ProtocolRequest{request, {Session: request.Session, Epoch: request.Epoch, ID: 1, Command: "status"}} {
 				payload, err := d.EncodeRequest(r, limits)
-				if err != nil { t.Fatal(err) }
-				if err := d.WriteFrame(&input, payload, limits.MaxFrame); err != nil { t.Fatal(err) }
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := d.WriteFrame(&input, payload, limits.MaxFrame); err != nil {
+					t.Fatal(err)
+				}
 			}
-			if err := p.Serve(&input, &output); err != nil { t.Fatal(err) }
+			if err := p.Serve(&input, &output); err != nil {
+				t.Fatal(err)
+			}
 			for index := 0; index < 2; index++ {
 				payload, err := d.ReadFrame(&output, limits.MaxFrame)
-				if err != nil { t.Fatal(err) }
+				if err != nil {
+					t.Fatal(err)
+				}
 				response, err := d.DecodeResponse(payload, limits)
-				if err != nil { t.Fatal(err) }
+				if err != nil {
+					t.Fatal(err)
+				}
 				if index == 0 && (response.ID != 0 || response.Error != test.category || len(response.Fields) != 0) || index == 1 && (response.ID != 1 || response.Error != "") {
 					t.Fatal(response)
 				}
 			}
-			if !reflect.DeepEqual(*calls, []string{"initial", "state 0"}) { t.Fatal(*calls) }
+			if !reflect.DeepEqual(*calls, []string{"initial", "state 0"}) {
+				t.Fatal(*calls)
+			}
 		})
 	}
 }
@@ -203,24 +219,36 @@ func TestWireTypedDedupAndSnapshotEviction(t *testing.T) {
 	r := d.ProtocolRequest{Session: "wire\té😀", ID: 9007199254740993, Command: "status"}
 	first := p.Handle(r)
 	r.Epoch = p.Epoch()
-	if second := p.Handle(r); !reflect.DeepEqual(first, second) { t.Fatal("discovery retry", first, second) }
+	if second := p.Handle(r); !reflect.DeepEqual(first, second) {
+		t.Fatal("discovery retry", first, second)
+	}
 	r.ID, r.Command = 9007199254740994, "snapshot"
 	wireFields(t, p.Handle(r), map[string]string{"handle": "u64:1", "snapshot.revision": "u64:0", "snapshot.sequence": "u64:0"})
 	r.ID++
 	wireFields(t, p.Handle(r), map[string]string{"handle": "u64:2", "snapshot.revision": "u64:0", "snapshot.sequence": "u64:0"})
 	r.ID, r.Command, r.Args = r.ID+1, "checks", []string{"u64:1"}
-	if response := p.Handle(r); response.Error != "stale_handle" { t.Fatal(response) }
+	if response := p.Handle(r); response.Error != "stale_handle" {
+		t.Fatal(response)
+	}
 	r.ID, r.Args = r.ID+1, []string{"u64:0002"}
 	first = p.Handle(r)
 	r.Args = []string{"u64:2"}
-	if second := p.Handle(r); first.Error != "" || !reflect.DeepEqual(first, second) { t.Fatal(first, second) }
+	if second := p.Handle(r); first.Error != "" || !reflect.DeepEqual(first, second) {
+		t.Fatal(first, second)
+	}
 	r.ID, r.Command, r.Args = 0, "status", nil
-	if response := p.Handle(r); response.Error != "malformed" { t.Fatal(response) }
+	if response := p.Handle(r); response.Error != "malformed" {
+		t.Fatal(response)
+	}
 }
 
 func TestWireHeaderOnlyPayloadEOFIsTransportFailure(t *testing.T) {
 	p, calls := wireSession(t, d.ProtocolAuthority{DeliverInputs: true}, d.DefaultProtocolLimits())
 	var output bytes.Buffer
-	if err := p.Serve(bytes.NewReader([]byte{0, 0, 0, 1}), &output); err != io.ErrUnexpectedEOF { t.Fatal(err) }
-	if output.Len() != 0 || !reflect.DeepEqual(*calls, []string{"initial", "state 0"}) { t.Fatal(output.String(), *calls) }
+	if err := p.Serve(bytes.NewReader([]byte{0, 0, 0, 1}), &output); err != io.ErrUnexpectedEOF {
+		t.Fatal(err)
+	}
+	if output.Len() != 0 || !reflect.DeepEqual(*calls, []string{"initial", "state 0"}) {
+		t.Fatal(output.String(), *calls)
+	}
 }

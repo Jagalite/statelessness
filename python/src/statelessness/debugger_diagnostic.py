@@ -337,11 +337,31 @@ class ScopedDiagnostics:
 
 
 def event_json(event):
-    """Lossless integer JSON for bounded diagnostic display payloads."""
-    from dataclasses import asdict
+    """Lossless display JSON; integer fields are decimal strings, never floats.
+
+    Keep the Python event envelope, with explicit byte/float payloads matching
+    the Rust diagnostic value representation. This is not a replay codec.
+    """
+    from dataclasses import fields, is_dataclass
     import json
     if type(event) is not DiagnosticEvent: raise ValueError('expected DiagnosticEvent')
-    return json.dumps(asdict(event),ensure_ascii=True,separators=(',',':'),allow_nan=False)
+    def display(value):
+        if type(value) is int: return str(value)
+        if is_dataclass(value):
+            result={field.name:display(getattr(value,field.name)) for field in fields(value)
+                    if not (type(value) is InspectNode and field.name=='value')}
+            if type(value) is InspectNode:
+                if value.kind=='bytes':
+                    result['value']={'hex':value.value.hex(),'total_bytes':display(value.total_bytes)}
+                elif value.kind=='scalar' and value.value[0] in ('f32','f64'):
+                    kind,decimal,bits=value.value
+                    result['kind']='float'
+                    result['value']={'type':kind,'decimal':decimal,'bits':str(bits)}
+                else: result['value']=display(value.value)
+            return result
+        if type(value) in (tuple,list): return [display(item) for item in value]
+        return value
+    return json.dumps(display(event),ensure_ascii=True,separators=(',',':'),allow_nan=False)
 
 
 class JsonlSink:

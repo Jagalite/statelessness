@@ -95,7 +95,7 @@ def encode(row):
 
 class SharedValueCodecTests(unittest.TestCase):
     @classmethod
-    def setUpClass(cls): cls.corpus = json.loads(CORPUS.read_text())
+    def setUpClass(cls): cls.corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
 
     def test_shared_values_and_automatic_ownership_prefixes_and_finish(self):
         for row in self.corpus['value_cases']:
@@ -315,7 +315,7 @@ class NativeValueCodecTests(unittest.TestCase):
 
 class RawEncoderBoundaryTests(unittest.TestCase):
     def test_shared_raw_encoder_scripts(self):
-        corpus = json.loads(CORPUS.read_text())
+        corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
         for row in corpus['encoder_cases']:
             with self.subTest(case=row['case']):
                 storage = bytearray(); sink = EncodeBuffer(storage,int(row['max_bytes']))

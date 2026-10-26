@@ -275,7 +275,7 @@ class SharedEvidenceRecorderTests(unittest.TestCase):
         from statelessness.evidence import (Provenance, CausalContext, OutputOrigin,
                                            EvidenceLimits)
         path = os.environ.get('STATELESS_EVIDENCE_CORPUS', str(Path(__file__).resolve().parents[2] / 'conformance' / 'causal-evidence-v2.json'))
-        corpus = json.loads(Path(path).read_text())
+        corpus = json.loads(Path(path).read_text(encoding="utf-8"))
         def normalize_checks(values): return [dict(id=c.id, status=c.status, details=c.details) for c in values]
         def causal(raw):
             return CausalContext(raw['machine'], None if raw['generation'] is None else int(raw['generation']), raw['correlation'],

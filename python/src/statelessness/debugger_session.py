@@ -196,14 +196,23 @@ class DebugSession:
                 self._checks_complete, self._stop = False, StopReason('checker_error', str(error))
                 if self._recorder is not None: self._recorder.stop_with_error(error)
             actual = TurnObservation(self._sequence, before, _copy(input), _copy(transition), checks, boundary)
-            if self._stop is None:
-                for id, predicate in tuple(self._post.items()):
-                    value = _call('post breakpoint', predicate, _copy(actual))
-                    if type(value) is not bool: raise ModelError('breakpoint must return bool')
-                    if value:
-                        self._stop = StopReason('post_breakpoint', id); break
-            # Commit the turn before observation; observer faults cannot rewind it.
-            self._state, self._last = _copy(transition.state), _copy(actual)
+            # Prepare publication before invoking fallible diagnostic callbacks.
+            # Successful post predicates still see the precommit session state.
+            committed_state, committed_last = _copy(transition.state), _copy(actual)
+            try:
+                if self._stop is None:
+                    for id, predicate in tuple(self._post.items()):
+                        value = _call('post breakpoint', predicate, _copy(actual))
+                        if type(value) is not bool: raise ModelError('breakpoint must return bool')
+                        if value:
+                            self._stop = StopReason('post_breakpoint', id); break
+            except Exception as error:
+                self._issues.append(str(error))
+                self._stop = StopReason('observer_error', str(error))
+                raise
+            finally:
+                # A diagnostic fault cannot rewind a completed, recorded turn.
+                self._state, self._last = committed_state, committed_last
             terminal = self._stop is not None and self._stop.kind != 'post_breakpoint'
             if observer is not None:
                 try:

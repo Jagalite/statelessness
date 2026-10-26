@@ -298,7 +298,7 @@ class SharedBfsControlsTests(unittest.TestCase):
     def test_independent_callback_report_vectors(self):
         import json
         from pathlib import Path
-        corpus = json.loads((Path(__file__).resolve().parents[2] / "conformance/bfs-controls-v1.json").read_text())
+        corpus = json.loads((Path(__file__).resolve().parents[2] / "conformance/bfs-controls-v1.json").read_text(encoding="utf-8"))
         for case in corpus["cases"]:
             with self.subTest(case=case["case"]):
                 events = []

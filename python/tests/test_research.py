@@ -466,7 +466,7 @@ class SharedResearchTests(unittest.TestCase):
         import json,os
         from pathlib import Path
         path = Path(os.environ.get('STATELESS_RESEARCH_CORPUS',str(Path(__file__).resolve().parents[2] / 'conformance' / 'research-equivalence-v1.json')))
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
 
     def test_shared_table_fixtures_exact_reports_callbacks_and_qualification(self):
         from dataclasses import fields,is_dataclass

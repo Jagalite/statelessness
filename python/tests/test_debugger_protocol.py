@@ -249,3 +249,34 @@ class ProtocolTests(unittest.TestCase):
             response=wire(self.request(p,index+3,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10','key.'+token)))
             self.assertIsNone(response.error)
             self.assertEqual(dict(response.fields)['inspect.root.value'],'string:'+value)
+
+    def test_float_and_enum_projection_preserves_typed_wire_values(self):
+        import struct
+        from statelessness.debugger_inspect import FloatView, EnumView
+        values=[(FloatView('f32','-0',1<<31),'f32','-0',1<<31),
+                (FloatView('f32','NaN',0x7fc00001),'f32','NaN',0x7fc00001),
+                (FloatView('f64','NaN',0x7ff8000000000001),'f64','NaN',0x7ff8000000000001),
+                (-0.0,'f64','-0',1<<63),
+                (struct.unpack('>d',bytes.fromhex('7ff8000000000001'))[0],'f64','nan',0x7ff8000000000001)]
+        for value,kind,decimal,bits in values:
+            for nested in (False,True):
+                with self.subTest(kind=kind,decimal=decimal,nested=nested):
+                    s=DebugSession('counter',Counter(),InputPolicy('all',lambda *args:True))
+                    p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:[value] if nested else value))
+                    handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+                    response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
+                    self.assertIsNone(response.error)
+                    fields=dict(decode_response(encode_response(response)).fields)
+                    prefix='inspect.root.child.0' if nested else 'inspect.root'
+                    self.assertEqual(fields[prefix+'.kind'],'enum:float')
+                    self.assertEqual(fields[prefix+'.value'],kind+':'+decimal)
+                    self.assertEqual(fields[prefix+'.bits'],'u64:'+str(bits))
+        s=DebugSession('counter',Counter(),InputPolicy('all',lambda *args:True))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:EnumView('Choice','some','Some')))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
+        self.assertIsNone(response.error)
+        fields=dict(decode_response(encode_response(response)).fields)
+        self.assertEqual(fields['inspect.root.value'],'string:Choice')
+        self.assertEqual(fields['inspect.root.variant_id'],'string:some')
+        self.assertEqual(fields['inspect.root.variant_label'],'string:Some')

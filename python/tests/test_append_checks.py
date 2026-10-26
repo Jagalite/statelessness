@@ -227,7 +227,7 @@ class SharedAppendCorpusTests(unittest.TestCase):
         from dataclasses import asdict
         from statelessness import OracleState, Trace, TraceStep, Disposition
         from statelessness.core import _dispatch_checks
-        cases = json.loads((Path(__file__).resolve().parents[2] / "conformance/append-checks-v1.json").read_text())["cases"]
+        cases = json.loads((Path(__file__).resolve().parents[2] / "conformance/append-checks-v1.json").read_text(encoding="utf-8"))["cases"]
         for case in cases:
             with self.subTest(case=case["case"]):
                 events, observations = [], []

@@ -124,7 +124,7 @@ class SharedRecorderTests(unittest.TestCase):
         from statelessness import CheckPolicy, Disposition
         from statelessness.checked import check_initial, check_turn
         path = os.environ.get('STATELESS_CHECKED_CORPUS', str(Path(__file__).resolve().parents[2] / 'conformance' / 'checked-results-v1.json'))
-        corpus = json.loads(Path(path).read_text())
+        corpus = json.loads(Path(path).read_text(encoding="utf-8"))
         def checks(values): return tuple(Check(**c) for c in values)
         def normalize_checks(values): return [dict(id=c.id, status=c.status, details=c.details) for c in values]
         class Fixture(Model):

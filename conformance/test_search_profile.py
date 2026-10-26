@@ -14,7 +14,7 @@ ARRAYS = {"original", "witness", "trace"}
 
 
 def corpus():
-    with (ROOT / "conformance/search-v1.tsv").open() as stream:
+    with (ROOT / "conformance/search-v1.tsv").open(encoding="utf-8") as stream:
         rows = list(csv.DictReader(stream, delimiter="\t"))
     for row in rows:
         for key in NUMBERS:
@@ -50,12 +50,12 @@ class SearchProfileTests(unittest.TestCase):
             else:
                 self.assertIsNotNone(row["validated_original"])
                 self.assertGreater(row["attempts"], 0)
-        spec = (ROOT / "spec/search-v1.md").read_text()
+        spec = (ROOT / "spec/search-v1.md").read_text(encoding="utf-8")
         self.assertIn("experimental candidate", spec)
         self.assertIn("not a global minimality guarantee", spec)
 
     def test_hand_authored_history_shape(self):
-        histories = json.loads((ROOT / "conformance/search-v1-history.json").read_text())
+        histories = json.loads((ROOT / "conformance/search-v1-history.json").read_text(encoding="utf-8"))
         expected = {row["case"] for row in self.rows if row["operation"] == "shrink" and row["error"] == "-"}
         self.assertEqual(set(histories), expected)
         for name, history in histories.items():

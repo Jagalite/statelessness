@@ -35,10 +35,14 @@ undoing model work. Reentrant mutations are rejected. Simulation dispatches no
 host effects and has no live restore authority. Exact recording is explicit via
 `recorder_options=RecorderOptions(...)`; it consumes sealed check-once results.
 `write_trace(writer)` streams exact capture under exclusive ownership.
-Breakpoint predicate faults leave the session terminal; a post-predicate fault
-occurs after sequence/revision advance and before simulation state commit, just
-as the Rust callback-unwind boundary. Such callback faults do not promise rollback
-of application side effects or panic recovery.
+Breakpoint predicate faults leave the session terminal. Post predicates inspect
+completed detached turns while successful callbacks still see precommit session
+state. If a post predicate raises or returns a non-bool, the completed state and
+observation are committed before the error propagates, matching the advanced
+sequence/revision and any exact recording; the stop is `observer_error`.
+This candidate intentionally tightens the Rust panic/unwind boundary: diagnostic
+faults cannot leave a recorded turn paired with stale simulation state. There is
+no rollback of application side effects or promise of panic recovery.
 
 The subsequent optional modules are separately imported. `debugger_workbench`
 adds sealed concrete candidate handles bound to session/epoch/revision/domain,
@@ -83,3 +87,8 @@ when none match. Sinks have independent permissions, record/byte quotas, loss
 counters and drop policies. Scoped completion marks exceptional turns incomplete.
 Exporter I/O is a separate explicit `drain_to` call; exporter faults consume the
 failed record and increment health without rerunning capture or model work.
+Diagnostic event JSON retains Python envelope field names. Integral identifiers,
+counts, path indexes, source coordinates and float bits are decimal strings
+(booleans remain booleans). Byte node values use `{hex, total_bytes}`; float node
+values use `{type, decimal, bits}`. These display representations preserve raw
+float bits, including NaNs and signed zero, and are not canonical value codecs.

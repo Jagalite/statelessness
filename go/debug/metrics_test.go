@@ -153,7 +153,11 @@ func TestDisjointMergeAtomicOverflowAndGaugeScope(t *testing.T) {
 
 // The shared corpus was written manually before any real Rust reference run.
 func TestSharedManualHistogramCorpus(t *testing.T) {
-	raw, e := os.ReadFile("../../conformance/debugger-diagnostics-v1.json")
+	path := os.Getenv("STATELESS_DIAGNOSTIC_CORPUS")
+	if path == "" {
+		path = "../../conformance/debugger-diagnostics-v1.json"
+	}
+	raw, e := os.ReadFile(path)
 	if e != nil {
 		t.Fatal(e)
 	}

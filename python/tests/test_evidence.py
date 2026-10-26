@@ -61,7 +61,7 @@ class SharedEvidenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         path = os.environ.get('STATELESS_CAUSAL_CORPUS') or Path(__file__).resolve().parents[2] / 'conformance/causal-evidence-v2.json'
-        cls.corpus = json.loads(Path(path).read_text())
+        cls.corpus = json.loads(Path(path).read_text(encoding="utf-8"))
     def test_shared_wire_and_own_writer(self):
         for row in self.corpus['wire_cases']:
             with self.subTest(case=row['case']):

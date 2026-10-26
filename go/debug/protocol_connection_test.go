@@ -14,8 +14,8 @@ import (
 )
 
 type connectionFixture struct {
-	session *d.Session[int, int, int]
-	protocol *d.ProtocolSession[int, int, int]
+	session        *d.Session[int, int, int]
+	protocol       *d.ProtocolSession[int, int, int]
 	steps, decodes int
 }
 
@@ -80,7 +80,7 @@ func assertConnectionDisconnected(t *testing.T, f *connectionFixture, cached d.P
 	wrongEpoch := fresh
 	wrongEpoch.Epoch = 0
 	for _, test := range []struct {
-		request d.ProtocolRequest
+		request  d.ProtocolRequest
 		category string
 	}{
 		{cached, "disconnected"},
@@ -201,9 +201,9 @@ func (r connectionReadError) Read([]byte) (int, error) { return 0, r.err }
 func TestProtocolConnectionReadFailuresDisconnect(t *testing.T) {
 	readFailure := errors.New("transport read failure")
 	for _, test := range []struct {
-		name string
+		name   string
 		reader io.Reader
-		want error
+		want   error
 	}{
 		{"partial_header", bytes.NewReader([]byte{0}), io.ErrUnexpectedEOF},
 		{"missing_payload", bytes.NewReader([]byte{0, 0, 0, 2}), io.ErrUnexpectedEOF},

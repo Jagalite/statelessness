@@ -30,7 +30,7 @@ def fixture_trace(value):
 class BinaryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.corpus = json.loads(CORPUS.read_text())
+        cls.corpus = json.loads(CORPUS.read_text(encoding="utf-8"))
         cls.valid = [f for f in cls.corpus["fixtures"] if f["valid"]]
 
     def test_shared_goldens_and_error_categories(self):

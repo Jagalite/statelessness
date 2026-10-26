@@ -211,7 +211,7 @@ class DraftRows(unittest.TestCase):
     def fixtures():
         import json
         from pathlib import Path
-        draft=json.loads((Path(__file__).resolve().parents[2]/'docs/native-parity/derive-model-draft/cases.json').read_text())
+        draft=json.loads((Path(__file__).resolve().parents[2]/'docs/native-parity/derive-model-draft/cases.json').read_text(encoding="utf-8"))
         schemas={'u8':U8,'u16':U16,'bool':BOOL,'string':STRING}
         class LengthOnly(Schema):
             def encode_length(self,v,w,s): STRING.encode_length(v,w,s)

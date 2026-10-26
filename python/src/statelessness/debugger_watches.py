@@ -205,7 +205,7 @@ class WatchRegistry:
         e=self._entries.get(id)
         if e is None: raise ModelError('unknown watch')
         if e['generation']==U64_MAX: raise ModelError('watch generation exhausted')
-        self._advance(); e.update(config=_copy(config),generation=e['generation']+1,state='active' if config.enabled else 'disabled',baseline=None,current=None,reset='reenabled',selected=0,delivered=0,validated_schema=None,resolved_type=None)
+        self._advance(); e.update(config=_copy(config),generation=e['generation']+1,state='active' if config.enabled else 'disabled',baseline=None,current=None,reset='reenabled',selected=0,delivered=0,sampled=False,validated_schema=None,resolved_type=None)
         self._lifecycle(id,'watch-enabled' if config.enabled else 'watch-disabled')
         return self._ack(id)
     def add_validated(self,config,value):
@@ -235,6 +235,7 @@ class WatchRegistry:
         if e is None: raise ModelError('unknown watch')
         if e['generation']==U64_MAX: raise ModelError('watch generation exhausted')
         self._advance(); e['generation']+=1; e['state']=state; e['baseline']=None; e['current']=None; e['reset']='reenabled'
+        e['selected']=0; e['delivered']=0; e['sampled']=False
         e['config']=replace(e['config'],enabled=state!='disabled')
         self._lifecycle(id,'watch-'+('enabled' if state=='active' else state))
         return self._ack(id)

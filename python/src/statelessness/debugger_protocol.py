@@ -600,11 +600,19 @@ def inspection_adapters(session, *, project=None, limits=None):
         pending=[('inspect.root',result.node)]
         while pending:
             prefix,node=pending.pop()
-            fields.extend(((prefix+'.kind','enum:'+node.kind),(prefix+'.completeness','enum:'+node.completeness),(prefix+'.children',f'u64:{len(node.children)}'),(prefix+'.child_count','none' if node.child_count is None else f'u64:{node.child_count}')))
+            wire_kind='float' if node.kind=='scalar' and node.value[0] in ('f32','f64') else node.kind
+            fields.extend(((prefix+'.kind','enum:'+wire_kind),(prefix+'.completeness','enum:'+node.completeness),(prefix+'.children',f'u64:{len(node.children)}'),(prefix+'.child_count','none' if node.child_count is None else f'u64:{node.child_count}')))
             if node.page is not None:
                 fields.extend(((prefix+'.page.offset',f'u64:{node.page.offset}'),(prefix+'.page.total',f'u64:{node.page.total}'),(prefix+'.page.next_offset','none' if node.page.next_offset is None else f'u64:{node.page.next_offset}')))
             value=node.value
-            if value is None: fields.append((prefix+'.value','none'))
+            if node.kind=='scalar' and type(value) is tuple and len(value)==3 and value[0] in ('f32','f64'):
+                kind,decimal,bits=value
+                fields.extend(((prefix+'.value',kind+':'+decimal),(prefix+'.bits',f'u64:{bits}')))
+            elif node.kind=='enum':
+                name,variant_id,variant_label=value
+                fields.extend(((prefix+'.value','string:'+name),(prefix+'.variant_id','string:'+variant_id),
+                               (prefix+'.variant_label','string:'+variant_label)))
+            elif value is None: fields.append((prefix+'.value','none'))
             elif type(value) is str: fields.append((prefix+'.value','string:'+value))
             elif type(value) is bytes: fields.append((prefix+'.value','bytes:'+value.hex()))
             elif type(value) is tuple and len(value)==2 and type(value[0]) is str:

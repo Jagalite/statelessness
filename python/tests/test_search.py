@@ -164,7 +164,7 @@ class SharedSearchCorpusTests(unittest.TestCase):
                 return ()
 
         path = Path(__file__).resolve().parents[2] / "conformance/search-v1.tsv"
-        with path.open() as stream:
+        with path.open(encoding="utf-8") as stream:
             rows = list(csv.DictReader(stream, delimiter="\t"))
         for row in rows:
             with self.subTest(case=row["case"]):
@@ -200,7 +200,7 @@ class SharedSearchCorpusTests(unittest.TestCase):
                     result = shrink(model, original, ShrinkConfig(int(row["max_attempts"])),
                         limits=ShrinkLimits(controls, None if row["max_replayed_transitions"] == "-" else int(row["max_replayed_transitions"])))
                     from dataclasses import asdict
-                    histories = json.loads(path.with_name("search-v1-history.json").read_text())
+                    histories = json.loads(path.with_name("search-v1-history.json").read_text(encoding="utf-8"))
                     actual_history = []
                     for item in result.history:
                         record = asdict(item)

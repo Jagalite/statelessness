@@ -87,7 +87,7 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(dict(a['metric_catalog']((0,1)))['catalog.0.name'],'string:effect_requests_total')
     def test_manual_fixture_and_snapshot_rejection(self):
         from pathlib import Path
-        golden=json.loads((Path(__file__).resolve().parents[2]/'conformance/debugger-diagnostics-v1.json').read_text())['histogram']
+        golden=json.loads((Path(__file__).resolve().parents[2]/'conformance/debugger-diagnostics-v1.json').read_text(encoding="utf-8"))['histogram']
         s=MetricsStore(1,schema=HistogramSchema(1,tuple(map(int,golden['bounds_ns']))))
         for n in golden['samples_ns']:s.observe(MetricFamily.QUEUE_WAIT,Labels(),int(n))
         h=s.current().get(MetricFamily.QUEUE_WAIT)

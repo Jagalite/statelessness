@@ -207,7 +207,7 @@ class EncodeSharedCorpusTests(unittest.TestCase):
         import json, os
         from pathlib import Path
         path = os.environ.get("STATELESS_ENCODE_CORPUS", str(Path(__file__).resolve().parents[2] / "conformance/encode-buffers-v1.json"))
-        cases = json.loads(Path(path).read_text())["cases"]
+        cases = json.loads(Path(path).read_text(encoding="utf-8"))["cases"]
         for case in cases:
             with self.subTest(case=case["case"]):
                 events, results = [], []

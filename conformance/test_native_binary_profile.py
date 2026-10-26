@@ -174,11 +174,11 @@ def bitwise_crc(data):
 
 class NativeBinaryProfileTests(unittest.TestCase):
     def test_fixed_corpus_reproducible_without_engine(self):
-        self.assertEqual(json.loads(PATH.read_text()), build_corpus())
+        self.assertEqual(json.loads(PATH.read_text(encoding="utf-8")), build_corpus())
 
     def test_valid_frame_sizes_and_independent_bitwise_crc(self):
         self.assertEqual(bitwise_crc(b"123456789"), 0xcbf43926)
-        data = json.loads(PATH.read_text())
+        data = json.loads(PATH.read_text(encoding="utf-8"))
         for row in data["fixtures"]:
             if not row["valid"]: continue
             encoded = bytes.fromhex(row["bytes_hex"])
@@ -194,7 +194,7 @@ class NativeBinaryProfileTests(unittest.TestCase):
             self.assertEqual(pos, len(encoded))
 
     def test_required_variants_and_limits(self):
-        data = json.loads(PATH.read_text()); rows = data["fixtures"]
+        data = json.loads(PATH.read_text(encoding="utf-8")); rows = data["fixtures"]
         self.assertEqual(len(rows), len({r["case"] for r in rows}))
         valid = [r for r in rows if r["valid"]]
         self.assertEqual({r["trace"]["termination"]["kind"] for r in valid}, {"completed", "property_failed", "step_limit", "interrupted", "model_error"})
@@ -207,7 +207,7 @@ class NativeBinaryProfileTests(unittest.TestCase):
         self.assertEqual(len(empty_bytes), 12 + 9 + 43 + 9 + 9)
 
     def test_structural_variants_are_lossless(self):
-        rows = {r["case"]: r for r in json.loads(PATH.read_text())["fixtures"]}
+        rows = {r["case"]: r for r in json.loads(PATH.read_text(encoding="utf-8"))["fixtures"]}
         self.assertEqual(rows["empty-model-error-reason"]["trace"]["termination"], {"kind":"model_error", "reason":""})
         completed = rows["structural-completed-with-failure"]["trace"]
         self.assertEqual(completed["termination"]["kind"], "completed")
@@ -221,7 +221,7 @@ class NativeBinaryProfileTests(unittest.TestCase):
         self.assertEqual(duplicates["steps"][0]["checks"], [check("duplicate", "failed", "first"), check("duplicate", "failed", "second")])
 
     def test_exact_collection_boundaries(self):
-        rows = {r["case"]: r for r in json.loads(PATH.read_text())["fixtures"]}
+        rows = {r["case"]: r for r in json.loads(PATH.read_text(encoding="utf-8"))["fixtures"]}
         for name, key, expected in [("item", "max_items", 9), ("parameter", "max_parameters", 2),
                                     ("check", "max_checks_per_step", 2), ("output", "max_outputs_per_step", 2)]:
             row = rows[f"exact-{name}-limit"]

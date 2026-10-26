@@ -141,7 +141,7 @@ class CheckedTests(unittest.TestCase):
 class SharedCheckedTests(unittest.TestCase):
     def test_shared_tokens(self):
         path = os.environ.get("STATELESS_CHECKED_CORPUS") or Path(__file__).resolve().parents[2] / "conformance/checked-results-v1.json"
-        corpus = json.loads(Path(path).read_text())
+        corpus = json.loads(Path(path).read_text(encoding="utf-8"))
         for case in corpus["cases"]:
             with self.subTest(case=case["case"]):
                 settings, events = case["model"], []
