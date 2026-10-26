@@ -90,3 +90,51 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(hub.queued(1)[0],0)
         with hub.begin_turn(1,1,1,context=(('machine','m'),('property_failed',False))) as turn: turn.probe('value',lambda: 1)
         self.assertEqual(hub.queued(1)[0],1)
+
+    def test_transient_labels_preserve_changed_baseline_and_threshold_cooldown(self):
+        for key,values in (('input_variant',('a','b')),('output_variant',('a','b')),
+                ('property',('a','b')),('effect_kind',('a','b')),
+                ('source_site',('a','b')),('property_failed',(False,True))):
+            for trigger in ('changed','above-u128'):
+                with self.subTest(label=key,trigger=trigger):
+                    hub=self.hub()
+                    hub.configure(0,(Subscription(1,'value',trigger=trigger,threshold=10,hysteresis=2,cooldown_turns=100),))
+                    hub.acknowledge(1,1,0)
+                    for n,value in enumerate(values):
+                        with hub.begin_turn(1,1,n,context=((key,value),)) as turn: turn.probe('value',lambda: 11)
+                    self.assertEqual(hub.queued(1)[0],1)
+                    self.assertEqual(hub.pop(1).baseline_reason,'initial')
+        hub=self.hub()
+        hub.configure(0,(Subscription(1,'value',trigger='above-u128',threshold=10,hysteresis=2,cooldown_turns=4),))
+        hub.acknowledge(1,1,0)
+        for n,value in enumerate((11,8,11,8,11)):
+            with hub.begin_turn(1,1,n,context=(('input_variant',str(n)),)) as turn: turn.probe('value',lambda: value)
+        self.assertEqual([hub.pop(1).transition for _ in range(hub.queued(1)[0])],[0,4])
+
+    def test_identity_changes_and_observation_gaps_still_reset_baselines(self):
+        for key in ('model','machine','entity','correlation','run','origin','gap'):
+            with self.subTest(identity=key):
+                hub=self.hub(); hub.configure(0,(Subscription(1,'value',trigger='changed'),)); hub.acknowledge(1,1,0)
+                for n in range(2):
+                    context=((key,str(n)),) if key in ('model','machine','entity','correlation') else ()
+                    with hub.begin_turn(1,1+n if key=='run' else 1,n*2 if key=='gap' else n,
+                            'live' if key=='origin' and n else 'simulation',context=context) as turn:
+                        turn.probe('value',lambda: 11)
+                hub.pop(1); event=hub.pop(1)
+                self.assertTrue(event.baseline and event.change_unknown)
+                self.assertEqual(event.baseline_reason,'observation-gap' if key=='gap' else 'source-changed')
+
+    def test_selector_gaps_reset_without_evaluating_filtered_probes(self):
+        for key in ('input_variant','machine'):
+            for trigger in ('changed','above-u128'):
+                with self.subTest(label=key,trigger=trigger):
+                    hub=self.hub()
+                    hub.configure(0,(Subscription(1,'value',trigger=trigger,threshold=10,cooldown_turns=100,
+                        selector=((key,'chosen'),)),)); hub.acknowledge(1,1,0)
+                    for n,label in enumerate(('chosen','other','chosen')):
+                        with hub.begin_turn(1,1,n,context=((key,label),)) as turn:
+                            turn.probe('value',lambda: self.fail('filtered callback') if label=='other' else 11)
+                    self.assertEqual(hub.queued(1)[0],2)
+                    hub.pop(1); event=hub.pop(1)
+                    self.assertTrue(event.baseline and event.change_unknown)
+                    self.assertEqual(event.baseline_reason,'selector-gap')

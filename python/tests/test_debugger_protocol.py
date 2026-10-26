@@ -217,3 +217,35 @@ class ProtocolTests(unittest.TestCase):
         self.assertIsNone(response.error)
         self.assertIn(('inspect.root.child.1.kind','enum:redacted'),response.fields)
         self.assertNotIn('repr',str(response.fields))
+
+    def test_concrete_map_keys_through_wire_and_child_metadata(self):
+        from statelessness.debugger_inspect import DisplaySchema
+        entries=[('seven','string'),(True,'boolean'),(False,'false boolean'),(('char','λ'),'character'),
+            (('u128',str((1<<128)-1)),'maximum u128'),(('i128',str(-(1<<127))),'minimum i128')]
+        for signed in ('u','i'):
+            for width in ('8','16','32','64','128','size'):
+                kind=signed+width
+                entries.append(((kind,'7' if signed=='u' else '-7'),kind))
+        class Map:
+            def schema(self): return DisplaySchema('Map')
+            def inspect(self,path,cx): return cx.map(path,entries)
+        s=DebugSession('counter',Counter(),InputPolicy('positive',lambda m,s,i:i>0))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:Map()))
+        def wire(request):
+            reader=io.BytesIO(); write_frame(reader,encode_request(request)); reader.seek(0)
+            response=p.handle(decode_request(read_frame(reader)))
+            writer=io.BytesIO(); write_frame(writer,encode_response(response)); writer.seek(0)
+            return decode_response(read_frame(writer))
+        handle=dict(wire(self.request(p,command='snapshot')).fields)['handle']
+        response=wire(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:30')))
+        self.assertIsNone(response.error)
+        fields=dict(response.fields)
+        for index,(key,value) in enumerate(entries):
+            if type(key) is str: token='string:'+key
+            elif type(key) is bool: token='bool:'+str(key).lower()
+            else: token=key[0]+':'+key[1]
+            child=fields[f'inspect.root.child.{index}.segment.value']
+            self.assertEqual(child,'string:'+key[1] if type(key) is tuple and key[0]=='char' else token)
+            response=wire(self.request(p,index+3,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10','key.'+token)))
+            self.assertIsNone(response.error)
+            self.assertEqual(dict(response.fields)['inspect.root.value'],'string:'+value)

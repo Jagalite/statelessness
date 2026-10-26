@@ -26,7 +26,7 @@ fn array<'a>(v: &'a Value, key: &str) -> Result<&'a [Value]> {
         .ok_or_else(|| format!("missing array {key}"))
 }
 fn decode_hex(s: &str) -> Result<Vec<u8>> {
-    if s.len() % 2 != 0 {
+    if !s.len().is_multiple_of(2) {
         return Err("odd hex length".into());
     }
     s.as_bytes()

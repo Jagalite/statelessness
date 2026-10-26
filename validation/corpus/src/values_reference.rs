@@ -181,7 +181,7 @@ fn hex(b: &[u8]) -> String {
     b.iter().map(|b| format!("{b:02x}")).collect()
 }
 fn unhex(s: &str) -> R<Vec<u8>> {
-    if s.len() % 2 != 0
+    if !s.len().is_multiple_of(2)
         || !s
             .bytes()
             .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
@@ -316,15 +316,16 @@ fn value_case<T: FixtureValue>(v: &Value, c: &mut Counts) -> R<()> {
     // Encoding appends to caller's existing sink. No callback clears prior bytes.
     let typed = T::parse(&v["value"])?;
     let mut prefixed = vec![];
-    let mut sink = EncodeBuffer::new(&mut prefixed, bytes.len() + 2);
-    sink.extend_from_slice(b"xy")?;
-    if entry == "direct_length" {
-        FixtureValue::encode_length(&typed, w, &mut sink)?;
-    } else {
-        typed.trace_encode(&mut sink)?;
+    {
+        let mut sink = EncodeBuffer::new(&mut prefixed, bytes.len() + 2);
+        sink.extend_from_slice(b"xy")?;
+        if entry == "direct_length" {
+            FixtureValue::encode_length(&typed, w, &mut sink)?;
+        } else {
+            typed.trace_encode(&mut sink)?;
+        }
+        sink.finish()?;
     }
-    sink.finish()?;
-    drop(sink);
     let mut wanted = b"xy".to_vec();
     wanted.extend(&bytes);
     if prefixed != wanted {
@@ -684,32 +685,33 @@ fn encode_action<T: FixtureValue>(action: &Value, out: &mut EncodeBuffer<'_>) ->
 }
 fn encoder_case(v: &Value) -> R<()> {
     let mut bytes = vec![];
-    let mut out = EncodeBuffer::new(&mut bytes, number(&v["max_bytes"])?);
     let mut results = vec![];
-    for a in v["actions"]
-        .as_array()
-        .ok_or_else(|| err("encoder actions"))?
     {
-        let result = match text(a, "kind")? {
-            "direct_length" | "direct_encode" => {
-                dispatch!(&a["schema"], encode_action, a, &mut out)
-            }
-            "direct_encode_custom" => EncodeFailure {
-                prefix: unhex(text(a, "prefix_hex")?)?,
-                message: a["returns_error"].as_str().map(ToOwned::to_owned),
-                ignore_prefix_error: a["ignore_prefix_error"] == true,
-            }
-            .trace_encode(&mut out)
-            .map(|_| Value::Null),
-            "append" => out
-                .extend_from_slice(&unhex(text(a, "bytes_hex")?)?)
+        let mut out = EncodeBuffer::new(&mut bytes, number(&v["max_bytes"])?);
+        for a in v["actions"]
+            .as_array()
+            .ok_or_else(|| err("encoder actions"))?
+        {
+            let result = match text(a, "kind")? {
+                "direct_length" | "direct_encode" => {
+                    dispatch!(&a["schema"], encode_action, a, &mut out)
+                }
+                "direct_encode_custom" => EncodeFailure {
+                    prefix: unhex(text(a, "prefix_hex")?)?,
+                    message: a["returns_error"].as_str().map(ToOwned::to_owned),
+                    ignore_prefix_error: a["ignore_prefix_error"] == true,
+                }
+                .trace_encode(&mut out)
                 .map(|_| Value::Null),
-            "finish" => out.finish().map(|_| Value::Null),
-            _ => return Err(err("encoder operation")),
-        };
-        results.push(normalized_result(result));
+                "append" => out
+                    .extend_from_slice(&unhex(text(a, "bytes_hex")?)?)
+                    .map(|_| Value::Null),
+                "finish" => out.finish().map(|_| Value::Null),
+                _ => return Err(err("encoder operation")),
+            };
+            results.push(normalized_result(result));
+        }
     }
-    drop(out);
     let actual = json!({"results":results,"bytes_hex":hex(&bytes)});
     let mut expected = v["expected"].clone();
     for result in expected["results"]
@@ -815,11 +817,12 @@ fn bundle_controls(stats: &BundleStats) -> R<Value> {
         return Err(err(format!("guarded length error {failure}")));
     }
     let mut appended = vec![];
-    let mut out = EncodeBuffer::new(&mut appended, 3);
-    out.extend_from_slice(&[0xaa])?;
-    4660u16.trace_encode(&mut out)?;
-    out.finish()?;
-    drop(out);
+    {
+        let mut out = EncodeBuffer::new(&mut appended, 3);
+        out.extend_from_slice(&[0xaa])?;
+        4660u16.trace_encode(&mut out)?;
+        out.finish()?;
+    }
     if appended != [0xaa, 0x34, 0x12] {
         return Err(err("typed append replaced prefix"));
     }
@@ -851,21 +854,20 @@ fn bundle(input: Option<&Path>, output: &Path) -> R<Value> {
     } else {
         None
     };
-    if let Some(v) = &incoming {
-        if v["schema"] != "statelessness.canonical-value-consumer/1"
-            || v["cases"].as_array().map(Vec::len) != Some(rows.len())
-        {
-            return Err(err("closed typed bundle schema/count"));
-        }
+    if let Some(v) = &incoming
+        && (v["schema"] != "statelessness.canonical-value-consumer/1"
+            || v["cases"].as_array().map(Vec::len) != Some(rows.len()))
+    {
+        return Err(err("closed typed bundle schema/count"));
     }
     let mut stats = BundleStats::default();
     let mut encoded = vec![];
     for (index, row) in rows.iter().enumerate() {
         let received = incoming.as_ref().map(|v| &v["cases"][index]);
-        if let Some(v) = received {
-            if v["id"] != row["case"] {
-                return Err(err("closed typed bundle ID/order"));
-            }
+        if let Some(v) = received
+            && (v["id"] != row["case"])
+        {
+            return Err(err("closed typed bundle ID/order"));
         }
         encoded.push(dispatch!(
             &row["schema"],
@@ -1274,10 +1276,11 @@ impl LengthDecode for LengthOnly {
 fn length_only_control() -> R<()> {
     let value = LengthOnly(vec![1, 2]);
     let mut bytes = vec![];
-    let mut sink = EncodeBuffer::new(&mut bytes, 3);
-    value.encode_length(1, &mut sink)?;
-    sink.finish()?;
-    drop(sink);
+    {
+        let mut sink = EncodeBuffer::new(&mut bytes, 3);
+        value.encode_length(1, &mut sink)?;
+        sink.finish()?;
+    }
     if bytes != [2, 1, 2] {
         return Err(err("length-only direct encode"));
     }

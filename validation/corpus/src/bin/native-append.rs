@@ -555,7 +555,7 @@ fn wrapper(d: &Rc<Data>, row: &Value) -> Result<Value> {
                 projection: TestProjection(Rc::clone(d)),
             },
         );
-        let r = if op == "paired_state" {
+        if op == "paired_state" {
             paired.check_state_into(&state, &mut CheckSink::new(&mut checks))
         } else {
             paired.check_transition_into(
@@ -564,8 +564,7 @@ fn wrapper(d: &Rc<Data>, row: &Value) -> Result<Value> {
                 &after.as_ref(),
                 &mut CheckSink::new(&mut checks),
             )
-        };
-        r
+        }
     };
     let outcome = if let Err(e) = r {
         require(
@@ -635,7 +634,7 @@ fn unhex(v: &Value) -> Result<Vec<u8>> {
     let s = v.as_str().ok_or("hex must be string")?;
     require(
         s.len() <= 8388608
-            && s.len() % 2 == 0
+            && s.len().is_multiple_of(2)
             && s.bytes()
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
         "invalid hex",

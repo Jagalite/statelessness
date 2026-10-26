@@ -581,7 +581,7 @@ def serve(session,reader,writer):
 def inspection_adapters(session, *, project=None, limits=None):
     """Explicitly opt one simulation into its approved structural projection.
 
-    Integer map keys retain their type tag as ``(kind, value)``; a host map adapter
+    Integer map keys retain their type tag as ``(kind, decimal_string)``; a host map adapter
     must use the same identities. This does not infer typed maps from Python dicts.
     No raw state codec, repr(), or error messages are exposed.
     """
@@ -590,7 +590,9 @@ def inspection_adapters(session, *, project=None, limits=None):
     if type(bounds) is not InspectLimits or (project is not None and not callable(project)): raise ValueError('inspection configuration')
     def callback(args):
         _,schema,offset,limit,path=args
-        segments=tuple(PathSegment(kind,value) if kind in ('field','variant','index') else PathSegment('map-key',(kind[4:],value)) for kind,value in path)
+        segments=tuple(PathSegment(kind,value) if kind in ('field','variant','index')
+            else PathSegment('map-key',value if kind in ('key.string','key.bool')
+                else (kind[4:],str(value) if type(value) is int else value)) for kind,value in path)
         value=session.state
         if project is not None: value=project(value)
         result=inspect(value,InspectQuery(SnapshotId(session.epoch,session.revision,session.sequence),segments,schema,PageRequest(offset,limit),bounds))
@@ -618,10 +620,11 @@ def inspection_adapters(session, *, project=None, limits=None):
                 fields.extend(((key+'.label','string:'+child.label),(key+'.segment.kind','enum:'+child.segment.kind)))
                 # Segment values are bounded structural metadata, never expressions.
                 if type(child.segment.value) is str: fields.append((key+'.segment.value','string:'+child.segment.value))
+                elif type(child.segment.value) is bool: fields.append((key+'.segment.value','bool:'+str(child.segment.value).lower()))
                 elif type(child.segment.value) is int: fields.append((key+'.segment.value',f'u64:{child.segment.value}'))
                 elif type(child.segment.value) is tuple and len(child.segment.value)==2 and type(child.segment.value[0]) is str:
                     kind,payload=child.segment.value
-                    if re.fullmatch(r'[ui](8|16|32|64|128)',kind) and type(payload) is int: fields.append((key+'.segment.value',kind+':'+str(payload)))
+                    if re.fullmatch(r'[ui](8|16|32|64|128|size)',kind) and type(payload) is str: fields.append((key+'.segment.value',kind+':'+str(payload)))
                     elif kind=='bool' and type(payload) is bool: fields.append((key+'.segment.value','bool:'+str(payload).lower()))
                     elif kind in ('string','char') and type(payload) is str: fields.append((key+'.segment.value','string:'+payload))
                     else: fields.append((key+'.segment.value','enum:unavailable'))

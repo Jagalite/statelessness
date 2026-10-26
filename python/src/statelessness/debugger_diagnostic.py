@@ -182,14 +182,22 @@ class DiagnosticHub:
             if key=='property_failed':
                 if type(value) is not bool: raise ModelError('invalid property failure flag')
             elif type(value) is not str or _payload_bytes(value)>256: raise ModelError('context label limit')
-        source=(run_id,origin,tuple(sorted(labels.items())))
-        changed=p['source'] is not None and source!=p['source']
+        # Only modeled-instance identity belongs in a comparison baseline.
+        # Event labels still select subscriptions, but may vary each turn.
+        source=(run_id,origin,tuple(labels.get(key) for key in ('model','machine','entity','correlation')))
+        matches=[all((producer if key=='producer' else origin if key=='origin' else labels.get(key))==value
+            for key,value in e['config'].selector) for e in p['config']]
+        selected=any(matches)
+        changed=selected and p['source'] is not None and source!=p['source']
         gap=p['last'] is not None and transition!=p['last']+1
         if changed or gap:
             for e in p['config']: e.update(baseline=None,reason='source-changed' if changed else 'observation-gap',high=False,last_alert=None)
             if gap:
                 for sink in {e['config'].sink for e in p['config']}: self._sinks[sink]['health']['observation_gaps']+=1
-        p['last'],p['source']=transition,source
+        for e,matched in zip(p['config'],matches):
+            if not matched: e.update(baseline=None,reason='selector-gap',high=False,last_alert=None)
+        p['last']=transition
+        if selected: p['source']=source
         scope=ScopedDiagnostics(self,producer,run_id,transition,origin,labels)
         self._owner=scope
         return scope

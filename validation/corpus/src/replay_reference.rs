@@ -27,7 +27,7 @@ fn array<'a>(v: &'a Value, key: &str) -> Result<&'a [Value]> {
         .ok_or_else(|| format!("missing array {key}"))
 }
 fn decode_hex(s: &str) -> Result<Vec<u8>> {
-    if s.len() % 2 != 0 {
+    if !s.len().is_multiple_of(2) {
         return Err("odd hex length".into());
     }
     s.as_bytes()
@@ -480,13 +480,13 @@ fn replay_case(v: &Value) -> Result<Value> {
             json!({"report":report_value(&r),"observations":observations,"error":false,"actual":null,"observer_error":false})
         }
         Err(e) => {
-            if let Some(needle) = v["error_contains"].as_str() {
-                if !e.error.to_string().contains(needle) {
-                    return Err(format!(
-                        "primary error {:?} lacks {needle}",
-                        e.error.to_string()
-                    ));
-                }
+            if let Some(needle) = v["error_contains"].as_str()
+                && (!e.error.to_string().contains(needle))
+            {
+                return Err(format!(
+                    "primary error {:?} lacks {needle}",
+                    e.error.to_string()
+                ));
             }
             json!({"report":report_value(&e.report),"observations":observations,"error":true,"actual":e.actual.as_deref().map(actual_value),"observer_error":e.observer_error.is_some()})
         }

@@ -522,7 +522,7 @@ fn unhex(v: &Value) -> Result<Vec<u8>> {
     let s = v.as_str().ok_or("hex must be string")?;
     require(
         s.len() <= 8388608
-            && s.len() % 2 == 0
+            && s.len().is_multiple_of(2)
             && s.bytes()
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
         "invalid hex",

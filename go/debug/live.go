@@ -390,10 +390,10 @@ func AttachLiveBridge[S, I, O any](epoch, after uint64, initial *s.CheckedInitia
 		return nil, e
 	}
 	b := &LiveBridge[S, I, O]{epoch: epoch, attached: after, host: after, complete: true, limits: limits, recorder: r, metadata: r.Snapshot().Metadata, maxChecks: record.Limits.MaxChecksPerStep}
-	b.publish("checkpoint", 0, true, initial.Checks())
+	b.publish(LiveEvent{Kind: "checkpoint", FullChecking: true}, initial.Checks())
 	return b, nil
 }
-func (b *LiveBridge[S, I, O]) publish(kind string, outputs int, full bool, summaries ...[]s.Check) {
+func (b *LiveBridge[S, I, O]) publish(event LiveEvent, summaries ...[]s.Check) {
 	if b.stream == math.MaxUint64 {
 		satInc(&b.drops)
 		return
@@ -403,7 +403,7 @@ func (b *LiveBridge[S, I, O]) publish(kind string, outputs int, full bool, summa
 		satInc(&b.drops)
 		return
 	}
-	event := LiveEvent{Epoch: b.epoch, StreamSequence: b.stream, HostSequence: b.host, Kind: kind, Outputs: outputs, FullChecking: full}
+	event.Epoch, event.StreamSequence, event.HostSequence = b.epoch, b.stream, b.host
 	if len(summaries) > 0 {
 		checks := summaries[0]
 		n := min(uint64(len(checks)), b.maxChecks)
@@ -452,7 +452,7 @@ func (b *LiveBridge[S, I, O]) Observe(epoch, sequence uint64, t *s.CheckedTurn[S
 	if gap {
 		b.complete = false
 		b.recorder.StopWithError(errors.New("host sequence gap"))
-		b.publish("gap", 0, false)
+		b.publish(LiveEvent{Kind: "gap"})
 	}
 	b.host = sequence
 	var recording error
@@ -463,12 +463,9 @@ func (b *LiveBridge[S, I, O]) Observe(epoch, sequence uint64, t *s.CheckedTurn[S
 		}
 	}
 	if b.recorder.IsFrozen() || !b.complete {
-		b.publish("recording-frozen", 0, false)
+		b.publish(LiveEvent{Kind: "recording-frozen"})
 	}
-	b.publish("turn", len(transition.Outputs), t.FullChecking(), t.Checks())
-	if len(b.events) > 0 && b.events[len(b.events)-1].Kind == "turn" {
-		b.events[len(b.events)-1].Disposition = transition.Disposition.Kind
-	}
+	b.publish(LiveEvent{Kind: "turn", Outputs: len(transition.Outputs), FullChecking: t.FullChecking(), Disposition: transition.Disposition.Kind}, t.Checks())
 	count := len(transition.Outputs)
 	retained := min(count, b.limits.MaxEffectOrigins)
 	skipped := count - retained
@@ -500,7 +497,7 @@ func (b *LiveBridge[S, I, O]) EffectDispatched(origin EffectOrigin) error {
 				return ErrLivePhase
 			}
 			p.dispatched = true
-			b.publish("effect-dispatched", 1, true)
+			b.publish(LiveEvent{Kind: "effect-dispatched", Outputs: 1, FullChecking: true})
 			return nil
 		}
 	}

@@ -184,7 +184,7 @@ fn field<'a>(v: &'a Value, k: &str) -> Result<&'a str, String> {
     v[k].as_str().ok_or_else(|| format!("missing {k}"))
 }
 fn unhex(s: &str) -> Result<Vec<u8>, String> {
-    if s.len() % 2 != 0
+    if !s.len().is_multiple_of(2)
         || !s
             .bytes()
             .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
@@ -260,72 +260,75 @@ fn execute(v: &Value) -> Result<Value, String> {
         .map_err(|e| e.to_string())?;
     let mut bytes = unhex(v["initial_hex"].as_str().unwrap_or("ffff"))?;
     let events = Rc::new(RefCell::new(vec![]));
-    let mut out = EncodeBuffer::new(&mut bytes, maximum);
     let mut results = vec![];
-    let op = field(v, "operation")?;
-    let legacy = || Legacy(events.clone());
-    let into = || Into(legacy());
-    let mut callback_ok = true;
-    match op {
-        "buffer" => {
-            for a in v["actions"].as_array().ok_or("actions")? {
-                results.push(action(a, &mut out)?);
+    let finish_ok = {
+        let mut out = EncodeBuffer::new(&mut bytes, maximum);
+        let op = field(v, "operation")?;
+        let legacy = || Legacy(events.clone());
+        let into = || Into(legacy());
+        let mut callback_ok = true;
+        match op {
+            "buffer" => {
+                for a in v["actions"].as_array().ok_or("actions")? {
+                    results.push(action(a, &mut out)?);
+                }
             }
-        }
-        "dispatch" | "automatic" => {
-            let encoder = field(v, "encoder")?;
-            callback_ok = match (op, field(v, "mode")?) {
-                ("dispatch", "legacy") => dispatch(&legacy(), encoder, &mut out),
-                ("dispatch", "into") => dispatch(&into(), encoder, &mut out),
-                ("automatic", "legacy") => dispatch(&Auto::new(legacy()), encoder, &mut out),
-                ("automatic", "into") => dispatch(&Auto::new(into()), encoder, &mut out),
-                _ => return Err("mode".into()),
+            "dispatch" | "automatic" => {
+                let encoder = field(v, "encoder")?;
+                callback_ok = match (op, field(v, "mode")?) {
+                    ("dispatch", "legacy") => dispatch(&legacy(), encoder, &mut out),
+                    ("dispatch", "into") => dispatch(&into(), encoder, &mut out),
+                    ("automatic", "legacy") => dispatch(&Auto::new(legacy()), encoder, &mut out),
+                    ("automatic", "into") => dispatch(&Auto::new(into()), encoder, &mut out),
+                    _ => return Err("mode".into()),
+                }
+                .is_ok();
             }
-            .is_ok();
-        }
-        "oracle" => {
-            callback_ok = match (field(v, "mode")?, field(v, "history_mode")?) {
-                ("legacy", "legacy") => wrapper(legacy(), HistoryLegacy(events.clone()), &mut out),
-                ("legacy", "into") => wrapper(legacy(), HistoryInto(events.clone()), &mut out),
-                ("into", "legacy") => wrapper(into(), HistoryLegacy(events.clone()), &mut out),
-                ("into", "into") => wrapper(into(), HistoryInto(events.clone()), &mut out),
-                _ => return Err("mode".into()),
+            "oracle" => {
+                callback_ok = match (field(v, "mode")?, field(v, "history_mode")?) {
+                    ("legacy", "legacy") => {
+                        wrapper(legacy(), HistoryLegacy(events.clone()), &mut out)
+                    }
+                    ("legacy", "into") => wrapper(legacy(), HistoryInto(events.clone()), &mut out),
+                    ("into", "legacy") => wrapper(into(), HistoryLegacy(events.clone()), &mut out),
+                    ("into", "into") => wrapper(into(), HistoryInto(events.clone()), &mut out),
+                    _ => return Err("mode".into()),
+                }
+                .is_ok();
             }
-            .is_ok();
-        }
-        "nested" => {
-            let m = WithOracle::new(
-                WithOracle::new(into(), HistoryInto(events.clone())),
-                HistoryInto(events.clone()),
-            );
-            callback_ok = m
-                .encode_state_into(
-                    &OracleState {
-                        model: OracleState {
-                            model: 12,
-                            oracle: 34,
+            "nested" => {
+                let m = WithOracle::new(
+                    WithOracle::new(into(), HistoryInto(events.clone())),
+                    HistoryInto(events.clone()),
+                );
+                callback_ok = m
+                    .encode_state_into(
+                        &OracleState {
+                            model: OracleState {
+                                model: 12,
+                                oracle: 34,
+                            },
+                            oracle: 56,
                         },
-                        oracle: 56,
+                        &mut out,
+                    )
+                    .is_ok();
+            }
+            "paired" => {
+                callback_ok = wrapper(
+                    into(),
+                    Paired {
+                        reference: into(),
+                        projection: Identity,
                     },
                     &mut out,
                 )
                 .is_ok();
+            }
+            _ => return Err(format!("operation {op}")),
         }
-        "paired" => {
-            callback_ok = wrapper(
-                into(),
-                Paired {
-                    reference: into(),
-                    projection: Identity,
-                },
-                &mut out,
-            )
-            .is_ok();
-        }
-        _ => return Err(format!("operation {op}")),
-    }
-    let finish_ok = callback_ok && out.finish().is_ok();
-    drop(out);
+        callback_ok && out.finish().is_ok()
+    };
     let encoded = if finish_ok { Some(hex(&bytes)) } else { None };
     let e = events.borrow().clone();
     Ok(json!({"finish_ok":finish_ok,"encoded_hex":encoded,"results":results,"events":e}))

@@ -36,7 +36,7 @@ fn unhex(v: &Value) -> Result<Vec<u8>> {
     let s = v.as_str().ok_or("hex must be string")?;
     require(
         s.len() <= 8388608
-            && s.len() % 2 == 0
+            && s.len().is_multiple_of(2)
             && s.bytes()
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
         "invalid hex",
@@ -300,19 +300,21 @@ fn session(model: &Application, t: &Trace, bounded: bool) -> Result<Value> {
 fn controls(trace: &Trace) -> Result<Value> {
     let mut storage = b"stale".to_vec();
     let cleared = {
-        let s = EncodeBuffer::new(&mut storage, 32);
-        s.finish().map_err(|e| e.to_string())?;
-        drop(s);
+        {
+            let s = EncodeBuffer::new(&mut storage, 32);
+            s.finish().map_err(|e| e.to_string())?;
+        }
         storage.is_empty()
     };
     require(cleared, "entry not cleared")?;
     let mut b = vec![];
-    let mut sink = EncodeBuffer::new(&mut b, 32);
-    sink.framed(|child| child.framed(|grandchild| grandchild.extend_from_slice(b"ab")))
-        .map_err(|e| e.to_string())?;
-    sink.extend_from_slice(b"z").map_err(|e| e.to_string())?;
-    sink.finish().map_err(|e| e.to_string())?;
-    drop(sink);
+    {
+        let mut sink = EncodeBuffer::new(&mut b, 32);
+        sink.framed(|child| child.framed(|grandchild| grandchild.extend_from_slice(b"ab")))
+            .map_err(|e| e.to_string())?;
+        sink.extend_from_slice(b"z").map_err(|e| e.to_string())?;
+        sink.finish().map_err(|e| e.to_string())?;
+    }
     let mut wanted = 10u64.to_le_bytes().to_vec();
     wanted.extend(2u64.to_le_bytes());
     wanted.extend(b"abz");

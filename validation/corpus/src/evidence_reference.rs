@@ -33,7 +33,7 @@ fn array<'a>(v: &'a Value, key: &str) -> Result<&'a [Value]> {
         .ok_or_else(|| format!("missing array {key}"))
 }
 fn decode_hex(s: &str) -> Result<Vec<u8>> {
-    if s.len() % 2 != 0 {
+    if !s.len().is_multiple_of(2) {
         return Err("odd hex length".into());
     }
     s.as_bytes()
@@ -415,10 +415,10 @@ fn wire_case(v: &Value) -> Result<(usize, usize)> {
             }
         }
         let error = read.err().ok_or("invalid artifact accepted")?;
-        if let Some(needle) = v["error_contains"].as_str() {
-            if !error.to_string().contains(needle) {
-                return Err(format!("error {error} lacks {needle}"));
-            }
+        if let Some(needle) = v["error_contains"].as_str()
+            && (!error.to_string().contains(needle))
+        {
+            return Err(format!("error {error} lacks {needle}"));
         }
         return Ok((0, 0));
     }
@@ -741,10 +741,10 @@ fn replay_case(v: &Value) -> Result<()> {
                 return Err("expected replay error".into());
             }
             for key in ["report", "steps"] {
-                if let Some(want) = expected.get(key) {
-                    if actual[key] != *want {
-                        return Err(format!("{key}: expected {want}, actual {}", actual[key]));
-                    }
+                if let Some(want) = expected.get(key)
+                    && (actual[key] != *want)
+                {
+                    return Err(format!("{key}: expected {want}, actual {}", actual[key]));
                 }
             }
         }

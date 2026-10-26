@@ -91,6 +91,9 @@ def stages(profile, work, portable=False, allow_dirty=False):
     result += [
         Stage("format", cargo + ["fmt", "--all", "--check"], "build"),
         Stage("clippy", cargo + ["clippy", *flags, "--workspace", "--all-targets", "--all-features", "-j", "1", "--", "-D", "warnings"], "build"),
+        # This standalone workspace is excluded from root workspace Clippy.
+        # Match native/portable CI; its locked JSON dependencies may need fetching.
+        Stage("corpus-clippy", cargo + ["clippy", "--locked", "--manifest-path", "validation/corpus/Cargo.toml", "--", "-D", "warnings"], "build"),
         Stage("rustdoc", cargo + ["doc", *flags, "--workspace", "--all-features", "--no-deps", "-j", "1"], "build", env={"RUSTDOCFLAGS": "-D warnings"}),
         Stage("starter-build", cargo + ["build", *flags, "--example", "application", "-j", "1"], "build"),
         Stage("starter-check", [app, "check"], dependencies=("starter-build",), expected_text="Graph exhausted"),
