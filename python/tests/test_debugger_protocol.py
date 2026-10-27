@@ -182,6 +182,150 @@ class ProtocolTests(unittest.TestCase):
         response=p.handle(self.request(p,6,command='checks',arguments=(handle,)))
         self.assertEqual(dict(response.fields)['checks.first_failure'],'none')
 
+    def test_select_revalidates_mutable_domain_with_unrestricted_policy(self):
+        from statelessness.debugger_workbench import EnumeratedSession
+        from statelessness.debugger_session import SessionLimits
+        allowed=[1]; calls=[]; fault=[False]
+        class Enumerated(Counter):
+            def inputs(self,state):
+                calls.append(state)
+                if fault[0]: raise RuntimeError('domain failed')
+                return iter(allowed)
+        s=EnumeratedSession('counter',Enumerated(),InputPolicy('all',lambda *args:True),limits=SessionLimits(max_candidates=3))
+        p=ProtocolSession(s,encode_input=lambda i:str(i).encode(),decode_input=int,authority=ProtocolAuthority(deliver_inputs=True))
+        token=dict(p.handle(self.request(p,command='inputs',arguments=('u64:0','u64:1'))).fields)['candidates.0.token']
+        allowed[:]=[2]
+        request=self.request(p,2,command='select',arguments=(token,))
+        self.assertEqual(p.handle(request).error,'invalid_input')
+        before=len(calls);self.assertEqual(p.handle(request).error,'invalid_input');self.assertEqual(len(calls),before)
+        self.assertEqual((s.state,s.revision,s.sequence),(0,0,0))
+        fault[0]=True
+        self.assertEqual(p.handle(replace(request,request_id=3)).error,'callback')
+        fault[0]=False;allowed[:]=[2,3,4,1]
+        self.assertEqual(p.handle(replace(request,request_id=4)).error,'callback')
+        self.assertEqual((s.state,s.revision),(0,0))
+        allowed[:]=[1]
+        self.assertIsNone(p.handle(replace(request,request_id=5)).error)
+        self.assertEqual((s.state,s.revision),(1,1))
+        before=len(calls)
+        self.assertEqual(p.handle(replace(request,request_id=6)).error,'stale_revision')
+        self.assertEqual(len(calls),before)
+
+    def test_candidate_eviction_authority_decode_and_epoch_boundaries(self):
+        from statelessness.debugger_workbench import EnumeratedSession
+        calls=[];bad_decode=[False]
+        class Enumerated(Counter):
+            def inputs(self,state): calls.append(state);return (1,2)
+        def decode(value):
+            if bad_decode[0]: raise ValueError('invalid canonical input')
+            return int(value)
+        s=EnumeratedSession('counter',Enumerated(),InputPolicy('all',lambda *args:True))
+        p=ProtocolSession(s,encode_input=lambda i:str(i).encode(),decode_input=decode,limits=ProtocolLimits(max_candidates=1),authority=ProtocolAuthority(deliver_inputs=True))
+        def candidates(id,offset=0):
+            return p.handle(self.request(p,id,command='inputs',arguments=(f'u64:{offset}','u64:1')))
+        old=dict(candidates(1).fields)['candidates.0.token']
+        page=candidates(2,1);token=dict(page.fields)['candidates.0.token']
+        self.assertEqual(dict(page.fields)['next_offset'],'none')
+        before=len(calls)
+        self.assertEqual(p.handle(self.request(p,3,command='select',arguments=(old,))).error,'stale_handle')
+        p.authority=ProtocolAuthority()
+        self.assertEqual(p.handle(self.request(p,4,command='select',arguments=(token,))).error,'unauthorized')
+        p.authority=ProtocolAuthority(deliver_inputs=True);bad_decode[0]=True
+        self.assertEqual(p.handle(self.request(p,5,command='select',arguments=(token,))).error,'invalid_input')
+        self.assertEqual(len(calls),before)
+        self.assertEqual((s.state,s.revision),(0,0))
+        bad_decode[0]=False;p.disconnect();p.reconnect()
+        self.assertEqual(p.handle(self.request(p,1,command='select',arguments=(token,))).error,'stale_handle')
+        new=dict(candidates(2).fields)['candidates.0.token'];self.assertNotIn(new,(old,token))
+        self.assertIsNone(p.handle(self.request(p,3,command='select',arguments=(new,))).error)
+
+    def test_reconnect_resets_metric_captures_and_pending_transactions(self):
+        from statelessness.debugger_metrics import MetricsStore,protocol_adapters
+        store=MetricsStore(1);adapters=protocol_adapters(store)
+        p=self.adapter(adapters=adapters)
+        capture=self.request(p,command='metric_snapshot',arguments=('none','u64:0','u64:1'))
+        response=p.handle(capture);old=dict(response.fields)['metrics.handle']
+        self.assertEqual(p.handle(capture),response)
+        staged=adapters['metric_snapshot']((None,0,1))
+        state=(p.session.state,p.session.revision,p.authority,store.current(),store.available_windows())
+        p.disconnect();p.reconnect()
+        self.assertEqual((p.session.state,p.session.revision,p.authority,store.current(),store.available_windows()),state)
+        with self.assertRaisesRegex(ProtocolError,'stale_handle'): staged.commit()
+        self.assertEqual(p.handle(capture).error,'wrong_epoch')
+        request=self.request(p,command='metric_snapshot',arguments=(old,'u64:0','u64:1'))
+        self.assertEqual(p.handle(request).error,'stale_handle')
+        new=p.handle(self.request(p,2,command='metric_snapshot',arguments=('none','u64:0','u64:1')))
+        new_handle=dict(new.fields)['metrics.handle'];self.assertNotEqual(old,new_handle)
+        self.assertIsNone(p.handle(self.request(p,3,command='metric_snapshot',arguments=(new_handle,'u64:0','u64:1'))).error)
+        self.assertEqual(p.handle(self.request(p,4,command='metric_snapshot',arguments=(old,'u64:0','u64:1'))).error,'stale_handle')
+
+    def test_reconnect_reset_hooks_once_refusal_failure_and_reentrancy(self):
+        calls=[];fail=[False];holder={}
+        def reset():
+            calls.append('shared')
+            p=holder['p']
+            with self.assertRaisesRegex(ProtocolError,'busy'): p.reconnect()
+            with self.assertRaisesRegex(ProtocolError,'busy'): p.disconnect()
+            self.assertEqual(p.handle(self.request(p)).error,'busy')
+            if fail[0]: raise RuntimeError('reset failed')
+        def first(args): return ()
+        def second(args): return ()
+        first.reset_connection=reset;second.reset_connection=reset
+        def other(args): return ()
+        other.reset_connection=lambda:calls.append('other')
+        p=self.adapter(adapters={'metric_catalog':first,'metric_snapshot':second,'metric_window':other});holder['p']=p
+        self.assertEqual(calls,[])
+        p.handle(self.request(p,command='snapshot'))
+        original=(p.epoch,p._high,dict(p._handles),dict(p._cache),p._next_handle)
+        with self.assertRaisesRegex(ProtocolError,'invalid_input'): p.reconnect()
+        self.assertEqual(calls,[])
+        p.disconnect();fail[0]=True
+        with self.assertRaisesRegex(ProtocolError,'callback'): p.reconnect()
+        self.assertFalse(p.connected);self.assertFalse(p._busy)
+        self.assertEqual((p.epoch,p._high,dict(p._handles),dict(p._cache),p._next_handle),original)
+        self.assertEqual(calls,['shared'])
+        fail[0]=False;p.reconnect()
+        self.assertEqual(calls,['shared','shared','other'])
+        self.assertTrue(p.connected);self.assertNotEqual(p.epoch,original[0])
+        self.assertEqual((p._high,p._handles,p._next_handle),(0,{},original[4]))
+        self.assertEqual(dict(next(iter(p._events.values()))[0])['kind'],'enum:reconnected')
+
+    def test_reconnect_deduplicates_bound_hooks_without_user_equality(self):
+        calls=[]
+        class Hook:
+            def __eq__(self,other): raise AssertionError('user equality invoked')
+            def __call__(self): calls.append('callable')
+        class Owner:
+            def reset(self): calls.append('method')
+        class Adapter:
+            def __call__(self,args): return ()
+        owner=Owner();hook=Hook();adapters={}
+        for command,reset in zip(('metric_catalog','metric_snapshot','metric_window','telemetry_health'),(owner.reset,owner.reset,hook,hook)):
+            adapter=Adapter();adapter.reset_connection=reset;adapters[command]=adapter
+        p=self.adapter(adapters=adapters);p.disconnect();p.reconnect()
+        self.assertEqual(calls,['method','callable'])
+
+    def test_reconnect_preflights_configuration_and_invalid_reset_hooks(self):
+        fail=[False];calls=[]
+        def configuration():
+            if fail[0]: raise RuntimeError('configuration failed')
+            return 3
+        def adapter(args): return ()
+        adapter.reset_connection=lambda:calls.append('reset')
+        p=self.adapter(adapters={'metric_catalog':adapter},configuration_revision=configuration)
+        p.disconnect();old=p.epoch;fail[0]=True
+        with self.assertRaisesRegex(ProtocolError,'callback'):p.reconnect()
+        self.assertEqual((p.connected,p.epoch,calls),(False,old,[]))
+        fail[0]=False;adapter.reset_connection=1
+        with self.assertRaisesRegex(ProtocolError,'callback'):p.reconnect()
+        self.assertEqual((p.connected,p.epoch,calls),(False,old,[]))
+        adapter.reset_connection=lambda:True
+        with self.assertRaisesRegex(ProtocolError,'callback'):p.reconnect()
+        self.assertEqual((p.connected,p.epoch),(False,old))
+        adapter.reset_connection=lambda:calls.append('reset')
+        p.reconnect();self.assertEqual(calls,['reset'])
+        self.assertEqual(dict(next(iter(p._events.values()))[0])['configuration'],'u64:3')
+
     def test_concrete_metrics_binding(self):
         from statelessness.debugger_metrics import MetricsStore,protocol_adapters
         store=MetricsStore(1)

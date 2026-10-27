@@ -288,13 +288,15 @@ extension EffectObserver {
 public final class ObservedEffectOperation<T> {
     private let observer: EffectObserver
     private let attempt: AttemptHandle
-    private let operation: () async throws -> sending T
+    // A unit argument avoids Swift 6.0.3's zero-parameter sending-function
+    // field-metadata assertion without weakening the checked result transfer.
+    private let operation: (()) async throws -> sending T
     private let classify: (Result<T,Error>) throws -> RuntimeOutcome
     private let claimLock = NSLock()
     private var claimed = false
-    fileprivate init(observer: EffectObserver,attempt: AttemptHandle,operation: @escaping () async throws -> sending T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) { self.observer = observer; self.attempt = attempt; self.operation = operation; self.classify = classify }
+    fileprivate init(observer: EffectObserver,attempt: AttemptHandle,operation: @escaping () async throws -> sending T,classify: @escaping (Result<T,Error>) throws -> RuntimeOutcome) { self.observer = observer; self.attempt = attempt; self.operation = { _ in try await operation() }; self.classify = classify }
     private func claim() throws { claimLock.lock(); defer { claimLock.unlock() }; guard !claimed else { throw LifecycleError.duplicateObservation }; claimed = true }
-    public func run(isolation: isolated (any Actor)? = #isolation) async throws -> T { try claim(); return try await observer.instrumentClassifying(attempt,operation: operation,classify: classify,isolation: isolation) }
+    public func run(isolation: isolated (any Actor)? = #isolation) async throws -> T { try claim(); return try await observer.instrumentClassifying(attempt,operation: { try await self.operation(()) },classify: classify,isolation: isolation) }
     deinit { claimLock.lock(); let unused = !claimed; claimLock.unlock(); if unused { try? observer.attemptAbandoned(attempt) } }
 }
 extension EffectObserver {

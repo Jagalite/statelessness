@@ -123,8 +123,12 @@ final class EffectsTests: XCTestCase {
         })
         XCTAssertTrue(throwingClassifier === classified); XCTAssertEqual(throwingClassifier.count,3)
         var calls = 0
-        let lazy = observer.instrumentOperation(try observer.attemptCreated(effect),operation: { calls += 1; return HostValue() },classify: {
-            classified = try $0.get(); return .success
+        let lazy = observer.instrumentOperation(try observer.attemptCreated(effect),operation: {
+            MainActor.assertIsolated(); calls += 1
+            await Task.yield()
+            MainActor.assertIsolated(); return HostValue()
+        },classify: {
+            MainActor.assertIsolated(); classified = try $0.get(); return .success
         })
         XCTAssertEqual(calls,0)
         let lazyValue = try await lazy.run()
@@ -146,7 +150,12 @@ final class EffectsTests: XCTestCase {
         let value = try await lazy.run(); XCTAssertEqual(value,37); XCTAssertEqual(calls,1); XCTAssertEqual(foreign.health.callbackFaults,1)
         do { _ = try await lazy.run(); XCTFail("ran wrapper twice") } catch { XCTAssertEqual(calls,1) }
         enum HostFailure: Error { case original }
+        let failing: ObservedEffectOperation<Int> = foreign.instrumentOperation(a,operation: {
+            MainActor.assertIsolated(); calls += 1; await Task.yield(); throw HostFailure.original
+        },classify: { _ in MainActor.assertIsolated(); throw MeasurementError.clockUnavailable })
+        do { _ = try await failing.run(); XCTFail("lost lazy host error") } catch HostFailure.original {} catch { XCTFail("replaced lazy host error: \(error)") }
+        XCTAssertEqual(calls,2)
         do { let _: Int = try await foreign.instrument(a,operation: { calls += 1; throw HostFailure.original },classify: { _ in .failure }); XCTFail("lost host error") } catch HostFailure.original {} catch { XCTFail("replaced host error: \(error)") }
-        XCTAssertEqual(calls,2); withExtendedLifetime((e,a)) {}
+        XCTAssertEqual(calls,3); withExtendedLifetime((e,a)) {}
     }
 }

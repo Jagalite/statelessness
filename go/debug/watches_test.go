@@ -144,3 +144,189 @@ func TestValidatedPathAndSourceResetSnapshots(t *testing.T) {
 		t.Fatal(events)
 	}
 }
+
+func TestPropertyFailureBypassesSampling(t *testing.T) {
+	for _, trigger := range []string{"property_failure", "every", "changed", "equals", "above_u128"} {
+		t.Run(trigger, func(t *testing.T) {
+			r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+			if err != nil {
+				t.Fatal(err)
+			}
+			config := d.ChangedWatch(nil)
+			config.Trigger = trigger
+			config.EvaluationInterval = 5
+			config.DeliveryInterval = 5
+			if trigger == "equals" {
+				config.Equals = &d.Scalar{Kind: "u128", Decimal: "999"}
+			}
+			if trigger == "above_u128" {
+				config.Threshold = d.UInt128{Lo: 999}
+			}
+			if _, err = r.Add(config); err != nil {
+				t.Fatal(err)
+			}
+			r.Drain()
+			calls := 0
+			value := func() d.InspectAdapter { calls++; return numericProjection("1") }
+			for sequence := uint64(0); sequence < 3; sequence++ {
+				context := d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: sequence}, PropertyStatusKnown: true, PropertyFailed: true, FailingProperties: []string{"p"}}
+				if err = r.Observe(context, value); err != nil {
+					t.Fatal(err)
+				}
+				events, _ := r.Drain()
+				if len(events) != 1 || !events[0].PropertyFailed || events[0].Node == nil {
+					t.Fatalf("sequence %d: %#v", sequence, events)
+				}
+			}
+			if calls != 3 {
+				t.Fatal(calls)
+			}
+		})
+	}
+}
+
+func TestFailureCaptureKeepsPolicyGates(t *testing.T) {
+	for _, policy := range []string{"disabled", "selector", "ttl", "unknown", "healthy"} {
+		t.Run(policy, func(t *testing.T) {
+			r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+			if err != nil {
+				t.Fatal(err)
+			}
+			config := d.ChangedWatch(nil)
+			config.Trigger = "property_failure"
+			config.EvaluationInterval = 5
+			config.DeliveryInterval = 5
+			switch policy {
+			case "disabled":
+				config.Enabled = false
+			case "selector":
+				config.Selector.Machine = "other"
+			case "ttl":
+				ttl := uint64(1)
+				config.TTLObservations = &ttl
+			}
+			if _, err = r.Add(config); err != nil {
+				t.Fatal(err)
+			}
+			r.Drain()
+			calls := 0
+			value := func() d.InspectAdapter { calls++; return numericProjection("1") }
+			context := d.WatchContext{Snapshot: d.SnapshotID{Session: 1}, PropertyStatusKnown: true, PropertyFailed: true}
+			if policy == "unknown" {
+				context.PropertyStatusKnown = false
+			}
+			if policy == "healthy" {
+				context.PropertyFailed = false
+			}
+			if err = r.Observe(context, value); err != nil {
+				t.Fatal(err)
+			}
+			r.Drain()
+			before := calls
+			context.Snapshot.Sequence = 1
+			if err = r.Observe(context, value); err != nil {
+				t.Fatal(err)
+			}
+			if calls != before {
+				t.Fatalf("policy %s invoked callback", policy)
+			}
+			events, _ := r.Drain()
+			if policy == "ttl" {
+				if len(events) != 1 || events[0].Kind != "watch_expired" {
+					t.Fatal(events)
+				}
+			} else if len(events) != 0 {
+				t.Fatal(events)
+			}
+		})
+	}
+}
+
+func TestFailureCaptureReusesValueAndHonorsRetentionBudget(t *testing.T) {
+	limits := d.DefaultWatchLimits()
+	limits.MaxRingRecords = 1
+	r, err := d.NewWatchRegistry(limits, d.AllowAllWatches())
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := d.ChangedWatch(nil)
+	config.EvaluationInterval = 9
+	config.DeliveryInterval = 9
+	for i := 0; i < 3; i++ {
+		if _, err = r.Add(config); err != nil {
+			t.Fatal(err)
+		}
+	}
+	r.Drain()
+	calls := 0
+	value := func() d.InspectAdapter { calls++; return numericProjection("1") }
+	context := d.WatchContext{Snapshot: d.SnapshotID{Session: 1}, PropertyStatusKnown: true, PropertyFailed: true}
+	if err = r.Observe(context, value); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 {
+		t.Fatal(calls)
+	}
+	events, _ := r.Drain()
+	if len(events) != 2 || events[0].Kind != "events_dropped" || events[0].Dropped != 2 || !events[1].PropertyFailed {
+		t.Fatal(events)
+	}
+}
+
+type watchGapProjection struct {
+	fault string
+	value string
+}
+
+func (watchGapProjection) DisplaySchema() d.DisplaySchema { return d.DisplaySchema{Version: 1} }
+func (v watchGapProjection) Inspect(path []d.Segment, c *d.InspectContext) (d.InspectNode, error) {
+	switch v.fault {
+	case "error":
+		return d.InspectNode{}, errors.New("projection unavailable")
+	case "redacted":
+		return d.InspectNode{Kind: "redacted", Incomplete: "redacted"}, nil
+	case "unavailable":
+		return c.Unavailable(path)
+	}
+	return c.Scalar(path, d.Scalar{Kind: "u128", Decimal: v.value})
+}
+func TestWatchProjectionGapInvalidatesBaseline(t *testing.T) {
+	for _, fault := range []string{"error", "redacted", "unavailable"} {
+		for _, trigger := range []string{"changed", "above_u128"} {
+			t.Run(fault+"/"+trigger, func(t *testing.T) {
+				r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+				if err != nil {
+					t.Fatal(err)
+				}
+				config := d.ChangedWatch(nil)
+				config.Trigger = trigger
+				config.EvaluationInterval = 2
+				config.Threshold = d.UInt128{Lo: 1}
+				if _, err = r.Add(config); err != nil {
+					t.Fatal(err)
+				}
+				r.Drain()
+				for i, projection := range []watchGapProjection{{value: "2"}, {fault: fault}, {value: "3"}} {
+					context := d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: uint64(i)}, PropertyStatusKnown: true, PropertyFailed: i == 1}
+					if err = r.Observe(context, func() d.InspectAdapter { return projection }); err != nil {
+						t.Fatal(err)
+					}
+				}
+				events, _ := r.Drain()
+				if len(events) != 3 {
+					t.Fatalf("history lost: %#v", events)
+				}
+				event := events[2]
+				if event.Kind != "baseline_observation_gap" || event.Diff != d.DiffUnknown || event.PreviousSnapshot != nil {
+					t.Fatalf("false comparison across %s: %#v", fault, event)
+				}
+				if events[0].Kind != "baseline_initial" || events[0].Node == nil {
+					t.Fatal("initial history changed", events[0])
+				}
+				if fault == "error" && r.Health().InspectionFailures != 1 {
+					t.Fatal(r.Health())
+				}
+			})
+		}
+	}
+}

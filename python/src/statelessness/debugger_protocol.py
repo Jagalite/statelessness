@@ -6,6 +6,7 @@ Unsupported host adapters are explicit; no dynamic model loading or code evaluat
 from dataclasses import dataclass
 from collections import OrderedDict
 from itertools import count
+from types import MethodType
 import re
 
 _U64 = (1 << 64) - 1
@@ -316,17 +317,38 @@ class ProtocolSession:
         if getattr(self,'_busy',False): raise ProtocolError('busy')
         if getattr(self,'connected',False): raise ProtocolError('invalid_input')
         reconnecting=hasattr(self,'epoch')
-        self.epoch=_u64(next(_epochs)); self.connected=True; self._cache=OrderedDict(); self._cache_bytes=0; self._high=0; self._handles={}; self._next_handle=getattr(self,'_next_handle',1); self._candidates={}; self._candidate_bytes=0; self._next_candidate=getattr(self,'_next_candidate',1)
+        epoch=_u64(next(_epochs))
+        if reconnecting:
+            # Several commands may share one connection-owned capture. Reset
+            # each hook once, before admitting any request in the new epoch.
+            # A failing cooperative callback cannot be rolled back; remain
+            # disconnected and do not publish the new protocol epoch.
+            self._busy=True
+            try:
+                configuration=self.configuration
+                resets=[]; seen=set()
+                for adapter in self._adapters.values():
+                    reset=getattr(adapter,'reset_connection',None)
+                    if reset is not None:
+                        if not callable(reset): raise ProtocolError('callback')
+                        key=(id(reset.__self__),id(reset.__func__)) if isinstance(reset,MethodType) else (id(reset),)
+                        if key not in seen: seen.add(key); resets.append(reset)
+                for reset in resets:
+                    if reset() is not None: raise ProtocolError('callback')
+            except ProtocolError: raise
+            except Exception: raise ProtocolError('callback') from None
+            finally: self._busy=False
+        self.epoch=epoch; self.connected=True; self._cache=OrderedDict(); self._cache_bytes=0; self._high=0; self._handles={}; self._next_handle=getattr(self,'_next_handle',1); self._candidates={}; self._candidate_bytes=0; self._next_candidate=getattr(self,'_next_candidate',1)
         self._events=OrderedDict(); self._event_bytes=0; self._event_sequence=0
         self._event_drops=getattr(self,'_event_drops',0)
-        if reconnecting: self._publish('reconnected')
+        if reconnecting: self._publish('reconnected',configuration=configuration)
         return self.epoch
     def disconnect(self):
         if self._busy: raise ProtocolError('busy')
         self.connected=False
     def _response(self,id,error=None,fields=()):
         return Response(self.session.id,self.epoch,id,self.session.revision,self.configuration,error,tuple(fields))
-    def _publish(self,kind):
+    def _publish(self,kind,*,configuration=None):
         if self._event_sequence==_U64:
             self._event_drops=min(_U64,self._event_drops+1)
             return
@@ -339,7 +361,7 @@ class ProtocolSession:
             return
         fields=(('version','u64:1'),('session','string:'+self.session.id),
                 ('epoch',f'u64:{self.epoch}'),('sequence',f'u64:{self._event_sequence}'),
-                ('revision',f'u64:{self.session.revision}'),('configuration',f'u64:{self.configuration}'),
+                ('revision',f'u64:{self.session.revision}'),('configuration',f'u64:{self.configuration if configuration is None else configuration}'),
                 ('kind','enum:'+kind))
         self._events[self._event_sequence]=(fields,size)
         self._event_bytes+=size
@@ -468,9 +490,11 @@ class ProtocolSession:
             if not self.authority.deliver_inputs: raise ProtocolError('unauthorized')
             candidate=self._candidates.get(token)
             if candidate is None or candidate[0]!=self.session.revision: raise ProtocolError('stale_handle')
-            # Decode the retained canonical value and re-run session environmental policy.
+            # Revalidate this exact canonical candidate, independently of an
+            # unrestricted environmental policy, before delivering it.
             try: value=self._encode_owned(self.decode_input,candidate[1])
             except Exception: raise ProtocolError('invalid_input') from None
+            if not self.session.candidate_permitted(value): raise ProtocolError('invalid_input')
             if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
             try: result=self.session.step(r.expected_revision,value)
             except Exception as error:

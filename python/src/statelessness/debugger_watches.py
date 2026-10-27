@@ -6,7 +6,7 @@ remote/multi-producer changes explicitly; a local ack is not remote activation.
 from dataclasses import dataclass, replace
 from .core import ModelError, U64_MAX, _natural, _copy
 from .debugger_inspect import (SnapshotId, InspectLimits, PageRequest, InspectQuery,
-    inspect, compare_nodes, _payload_bytes, PathSegment, _node_shape, InspectNode, DisplaySchema)
+    inspect, compare_nodes, _payload_bytes, PathSegment, _node_shape, InspectNode, DisplaySchema, InspectError)
 
 
 def _node_bytes(node):
@@ -302,18 +302,26 @@ class WatchRegistry:
                 if context.snapshot.session==self._last.session and context.snapshot.sequence<=self._last.sequence: return ObservationSummary(stale=True)
                 if context.snapshot.session!=self._last.session or context.snapshot.sequence!=self._last.sequence+1: self._gap()
             self._last=context.snapshot
-            selected=evaluated=emitted=0; projections={}
+            selected=evaluated=emitted=0; projections={}; metadata_error=None
             for id,e in self._entries.items():
                 config=e['config']
                 if e['state']!='active': continue
                 if config.ttl_observations is not None and e['selected']>=config.ttl_observations:
                     e['state']='expired'; e['config']=replace(config,enabled=False); e['baseline']=None; e['current']=None; self._lifecycle(id,'watch-expired'); continue
                 if not config.selector.matches(context): continue
-                actual_schema=value.schema() if hasattr(value,'schema') else DisplaySchema(type(value).__name__)
-                known=e.get('validated_schema')
-                if type(actual_schema) is not DisplaySchema or actual_schema.version!=config.selector.schema_version or (known is not None and (known.name,known.version)!=(actual_schema.name,actual_schema.version)):
-                    e['state']='paused'; e['config']=replace(config,enabled=False); e['baseline']=None; e['current']=None; e['reset']='observation-gap'; self._lifecycle(id,'schema-changed'); continue
-                e['validated_schema']=actual_schema
+                # A metadata callback is just as fallible as a projection callback.
+                # Cache a bounded failure for this observation, without retaining or
+                # formatting the host exception or retrying it for another watch.
+                if metadata_error is None:
+                    try:
+                        actual_schema=value.schema() if hasattr(value,'schema') else DisplaySchema(type(value).__name__)
+                    except Exception:
+                        metadata_error=ModelError('inspector metadata callback failed')
+                if metadata_error is None:
+                    known=e.get('validated_schema')
+                    if type(actual_schema) is not DisplaySchema or actual_schema.version!=config.selector.schema_version or (known is not None and (known.name,known.version)!=(actual_schema.name,actual_schema.version)):
+                        e['state']='paused'; e['config']=replace(config,enabled=False); e['baseline']=None; e['current']=None; e['reset']='observation-gap'; self._lifecycle(id,'schema-changed'); continue
+                    e['validated_schema']=actual_schema
                 selected+=1; e['selected']+=1
                 if not context.property_failure and (e['selected']-1)%config.evaluation_interval:
                     e['sampled']=True
@@ -328,6 +336,7 @@ class WatchRegistry:
                 if old is not None and config.baseline_ttl_sequences is not None and context.snapshot.sequence-old.snapshot.sequence>config.baseline_ttl_sequences:
                     old=None; reason='expired'
                 try:
+                    if metadata_error is not None: raise metadata_error
                     query=(config.selector.path,config.selector.schema_version,config.page,config.limits)
                     if query not in projections:
                         try: projections[query]=self._project(e,value,context)
@@ -359,9 +368,16 @@ class WatchRegistry:
                     if fire and (context.property_failure or (e['delivered']-1)%config.delivery_interval==0): emitted+=int(self._push(event))
                 except Exception as error:
                     e['baseline']=None; e['reset']='initial'
-                    kind='schema-changed' if 'schema' in str(error) else 'inspector-error'
+                    # Do not invoke arbitrary host exception formatting here: even
+                    # __str__ can throw. Only our exact schema diagnostics classify
+                    # a schema change; callback messages are not control signals.
+                    schema_error=(type(error) in (ModelError,InspectError) and len(error.args)==1
+                        and type(error.args[0]) is str and error.args[0] in
+                        ('watch schema changed','schema mismatch','invalid display schema'))
+                    kind='schema-changed' if schema_error else 'inspector-error'
                     e['reset']='source-changed' if kind=='schema-changed' else 'initial'
-                    event=WatchEvent(id,e['generation'],self._revision,context.snapshot,context.origin,kind,path=config.selector.path,completeness='unavailable')
+                    event=WatchEvent(id,e['generation'],self._revision,context.snapshot,context.origin,kind,path=config.selector.path,completeness='unavailable',property_failure=context.property_failure,
+                        failing_properties=tuple(p[:256] for p in context.failing_properties[:32]),model=context.model,machine=context.machine,phase=context.phase,trigger=config.trigger)
                     e['current']=event; emitted+=int(self._push(event))
                 if config.ttl_observations is not None and e['selected']>=config.ttl_observations:
                     e['state']='expired'; e['config']=replace(config,enabled=False); e['baseline']=None; e['current']=None; self._lifecycle(id,'watch-expired')

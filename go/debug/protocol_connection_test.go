@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"runtime"
 	"syscall"
 	"testing"
 
@@ -233,6 +234,45 @@ func TestProtocolConnectionReadFailuresDisconnect(t *testing.T) {
 	}
 }
 
+func isConnectionBrokenPipe(err error, goos string) bool {
+	if goos == "windows" {
+		// Go's os/pipe_test.go expects ERROR_NO_DATA (232) for a closed
+		// reader; os/exec/exec_windows.go also recognizes ERROR_BROKEN_PIPE
+		// (109) for pipe writes. Neither is the Windows syscall.EPIPE value.
+		return errors.Is(err, syscall.Errno(109)) || errors.Is(err, syscall.Errno(232))
+	}
+	return errors.Is(err, syscall.EPIPE)
+}
+
+func TestConnectionBrokenPipeErrors(t *testing.T) {
+	for _, goos := range []string{"linux", "windows"} {
+		t.Run(goos, func(t *testing.T) {
+			for _, test := range []struct {
+				name string
+				err  error
+				want bool
+			}{
+				{"epipe", syscall.EPIPE, goos != "windows"},
+				{"error_broken_pipe", syscall.Errno(109), goos == "windows"},
+				{"error_no_data", syscall.Errno(232), goos == "windows"},
+				{"permission", syscall.EACCES, false},
+				{"closed_file", os.ErrClosed, false},
+				{"unexpected_eof", io.ErrUnexpectedEOF, false},
+				{"same_message", errors.New("The pipe is being closed."), false},
+				{"nil", nil, false},
+			} {
+				t.Run(test.name, func(t *testing.T) {
+					for _, err := range []error{test.err, &os.PathError{Op: "write", Path: "|1", Err: test.err}} {
+						if got := isConnectionBrokenPipe(err, goos); got != test.want {
+							t.Fatalf("isConnectionBrokenPipe(%v, %q) = %t, want %t", err, goos, got, test.want)
+						}
+					}
+				})
+			}
+		})
+	}
+}
+
 func TestProtocolConnectionBrokenOSPipePreservesCommittedTurn(t *testing.T) {
 	f := newConnectionFixture(t, d.ProtocolAuthority{DeliverInputs: true})
 	step := f.request(1, "step", "bytes:31")
@@ -246,7 +286,7 @@ func TestProtocolConnectionBrokenOSPipePreservesCommittedTurn(t *testing.T) {
 	}
 	// This descriptor is a real closed-reader OS pipe, not a synthetic writer.
 	err = f.protocol.Serve(bytes.NewReader(connectionFrame(t, step)), writer)
-	if !errors.Is(err, syscall.EPIPE) {
+	if !isConnectionBrokenPipe(err, runtime.GOOS) {
 		t.Fatal("expected broken pipe", err)
 	}
 	assertConnectionState(t, f, 1, 1)

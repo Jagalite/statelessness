@@ -327,6 +327,8 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		return fmt.Errorf("watch context metadata budget")
 	}
 	r.lastSequence = context.Snapshot.Sequence
+	// Known property failures force capture, but never bypass watch policy gates.
+	propertyFailure := context.PropertyStatusKnown && context.PropertyFailed
 	var adapter InspectAdapter
 	ids := make([]uint64, 0, len(r.entries))
 	for id := range r.entries {
@@ -355,7 +357,7 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			r.push(event)
 			continue
 		}
-		if (w.selected-1)%w.config.EvaluationInterval != 0 {
+		if !propertyFailure && (w.selected-1)%w.config.EvaluationInterval != 0 {
 			continue
 		}
 		if value == nil {
@@ -367,14 +369,22 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		q := InspectQuery{Snapshot: context.Snapshot, Path: w.config.Selector.Path, SchemaVersion: w.config.Selector.SchemaVersion, Offset: w.config.Offset, Limit: w.config.Limit, Limits: w.config.Limits}
 		result, e := Inspect(adapter, q)
 		w.evaluated++
-		if e != nil {
-			r.inspectionFailures++
-			event.Kind = "inspection_error"
-			r.push(event)
-			continue
-		}
-		if result.Node.Kind == "redacted" {
-			event.Kind = "redacted_path"
+		if e != nil || result.Node.Kind == "redacted" {
+			// An unavailable observation breaks continuity, not retained history.
+			r.baselineBytes -= w.baselineBytes
+			w.baselineBytes = 0
+			w.baseline = nil
+			w.source = watchSource{}
+			w.pendingBaseline = "observation_gap"
+			event.Diff = DiffUnknown
+			if e != nil {
+				r.inspectionFailures++
+				event.Kind = "inspection_error"
+				event.Completeness = "unavailable"
+			} else {
+				event.Kind = "redacted_path"
+				event.Completeness = "redacted"
+			}
 			r.push(event)
 			continue
 		}
@@ -439,6 +449,7 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 				}
 			}
 		}
+		deliver = deliver || propertyFailure
 		if reason != "" {
 			event.Kind = "baseline_" + reason
 		} else {
@@ -459,7 +470,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		if result.Schema.Source != nil {
 			size += 32 + uint64(len(result.Schema.Source.File))
 		}
-		if size <= r.limits.MaxBaselineBytes-r.baselineBytes {
+		if !result.Node.IsComplete() {
+			w.pendingBaseline = "observation_gap"
+		} else if size <= r.limits.MaxBaselineBytes-r.baselineBytes {
 			copy := result
 			w.baseline = &copy
 			w.baselineBytes = size
@@ -474,7 +487,7 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		}
 		if deliver {
 			w.delivered++
-			if (w.delivered-1)%w.config.DeliveryInterval == 0 {
+			if propertyFailure || (w.delivered-1)%w.config.DeliveryInterval == 0 {
 				node := result.Node
 				event.Node = &node
 				event.Diff = kind

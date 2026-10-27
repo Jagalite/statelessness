@@ -103,3 +103,122 @@ class WatchesTests(unittest.TestCase):
                 second=registry.observe(5,self.context(5))
                 self.assertEqual((second.evaluated,second.emitted),(1,0))
                 self.assertEqual(registry.current(ack.watch_id).kind,'change-since-last-sample')
+
+    def test_schema_callback_failure_is_captured_and_recoverable(self):
+        class Mutable:
+            calls=0
+            fail=True
+            def schema(self):
+                self.calls+=1
+                if self.fail: raise RuntimeError('schema callback secret' * 10000)
+                return DisplaySchema('Mutable')
+            def inspect(self,path,cx): return cx.scalar(path,('python-int','1'))
+        value=Mutable(); registry=self.registry()
+        ack=registry.add(WatchConfig(trigger='every',evaluation_interval=3,delivery_interval=3))
+        summary=registry.observe(value,self.context(0,property_failure=True,failing_properties=('p',)))
+        self.assertEqual((summary.selected,summary.evaluated,summary.emitted),(1,1,1))
+        self.assertEqual(value.calls,1)
+        event=registry.current(ack.watch_id)
+        self.assertEqual((event.kind,event.completeness,event.difference),('inspector-error','unavailable','unknown'))
+        self.assertIsNone(event.value)
+        self.assertEqual(registry.failure_snapshot['at'].sequence,0)
+        self.assertEqual(registry.failure_snapshot['events'][-1],event)
+        value.fail=False
+        registry.observe(value,self.context(1,property_failure=True))
+        self.assertIsNone(registry.current(ack.watch_id).previous_snapshot)
+        self.assertEqual(registry.current(ack.watch_id).difference,'unknown')
+        self.assertEqual(registry.current(ack.watch_id).kind,'property-failure')
+        value.fail=True
+        registry.observe(value,self.context(2,property_failure=True))
+        self.assertEqual(registry.current(ack.watch_id).kind,'inspector-error')
+        self.assertFalse(registry.list()[0]['has_baseline'])
+        value.fail=False
+        registry.observe(value,self.context(3,property_failure=True))
+        self.assertIsNone(registry.current(ack.watch_id).previous_snapshot)
+
+    def test_metadata_fault_is_shared_bounded_and_expires(self):
+        class HostError(Exception):
+            def __str__(self): raise AssertionError('must not format host error')
+        class Broken:
+            calls=0
+            def schema(self):
+                self.calls+=1
+                raise HostError()
+        registry=self.registry(); value=Broken()
+        for _ in range(2): registry.add(WatchConfig(ttl_observations=1))
+        summary=registry.observe(value,self.context(0,property_failure=True,failing_properties=('p',)))
+        self.assertEqual((summary.selected,summary.evaluated,summary.emitted),(2,2,2))
+        self.assertEqual(value.calls,1)
+        errors=[e for e in registry.failure_snapshot['events'] if e.kind=='inspector-error']
+        self.assertEqual(len(errors),2)
+        self.assertTrue(all(e.property_failure and e.failing_properties==('p',) for e in errors))
+        self.assertTrue(all(e['state']=='expired' for e in registry.list()))
+        self.assertEqual(registry.observe(value,self.context(1,property_failure=True)).evaluated,0)
+        self.assertEqual(value.calls,1)
+
+    def test_mutable_projection_failure_clears_baseline_without_false_change(self):
+        class Mutable:
+            calls=0
+            fail=False
+            def schema(self): return DisplaySchema('Mutable')
+            def inspect(self,path,cx):
+                self.calls+=1
+                if self.fail: raise RuntimeError('path unavailable')
+                return cx.scalar(path,('python-int','1'))
+        registry=self.registry(); value=Mutable()
+        ids=[registry.add(WatchConfig()).watch_id for _ in range(2)]
+        registry.observe(value,self.context(0))
+        self.assertEqual(value.calls,1)
+        value.fail=True
+        registry.observe(value,self.context(1,property_failure=True))
+        self.assertEqual(value.calls,2)
+        for id in ids:
+            self.assertEqual(registry.current(id).kind,'inspector-error')
+            self.assertEqual(registry.current(id).difference,'unknown')
+            self.assertFalse(next(e for e in registry.list() if e['id']==id)['has_baseline'])
+        value.fail=False
+        registry.observe(value,self.context(2))
+        self.assertEqual(value.calls,3)
+        for id in ids:
+            self.assertEqual(registry.current(id).kind,'baseline:initial')
+            self.assertIsNone(registry.current(id).previous_snapshot)
+
+    def test_unprintable_projection_error_does_not_escape_failure_capture(self):
+        class HostError(Exception):
+            def __str__(self): raise HostError()
+        class Broken:
+            calls=0
+            def schema(self): return DisplaySchema('Broken')
+            def inspect(self,path,cx):
+                self.calls+=1
+                raise HostError()
+        registry=self.registry(); value=Broken()
+        ids=[registry.add(WatchConfig()).watch_id for _ in range(2)]
+        summary=registry.observe(value,self.context(0,property_failure=True))
+        self.assertEqual((summary.selected,summary.evaluated,summary.emitted),(2,2,2))
+        self.assertEqual(value.calls,1)
+        for id in ids:
+            self.assertEqual(registry.current(id).kind,'inspector-error')
+            self.assertEqual(registry.current(id).difference,'unknown')
+        self.assertEqual(registry.failure_snapshot['at'].sequence,0)
+
+    def test_projection_error_text_is_not_a_schema_control_signal(self):
+        class Broken:
+            def schema(self): return DisplaySchema('Broken')
+            def inspect(self,path,cx): raise RuntimeError('schema mismatch')
+        registry=self.registry(); ack=registry.add(WatchConfig())
+        registry.observe(Broken(),self.context(0,property_failure=True))
+        self.assertEqual(registry.current(ack.watch_id).kind,'inspector-error')
+        self.assertEqual(registry.failure_snapshot['at'].sequence,0)
+
+    def test_structured_projection_schema_mismatch_remains_schema_change(self):
+        class Mutable:
+            calls=0
+            def schema(self):
+                self.calls+=1
+                return DisplaySchema('Mutable',version=1 if self.calls==1 else 2)
+            def inspect(self,path,cx): return cx.scalar(path,('unit',None))
+        registry=self.registry(); ack=registry.add(WatchConfig())
+        registry.observe(Mutable(),self.context(0,property_failure=True))
+        self.assertEqual(registry.current(ack.watch_id).kind,'schema-changed')
+        self.assertEqual(registry.failure_snapshot['at'].sequence,0)
