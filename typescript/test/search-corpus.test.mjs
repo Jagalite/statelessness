@@ -2,10 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {accepted,check,automatic,fuzz,shrink} from '../dist/index.js';
-const lines=readFileSync(new URL('../../conformance/search-v1.tsv',import.meta.url),'utf8').trim().split('\n');
-const columns=lines.shift().split('\t');
+const fixtureText=readFileSync(new URL('../../conformance/search-v1.tsv',import.meta.url),'utf8');
+function parseRows(text){
+ const [header,...lines]=text.trim().split(/\r?\n/);const columns=header.split('\t');
+ return lines.map(line=>Object.fromEntries(line.split('\t').map((v,i)=>[columns[i],v])));
+}
+test('search TSV preserves header and final fields under LF and CRLF',()=>{
+ const lf=fixtureText.replace(/\r\n/g,'\n');
+ assert.deepEqual(parseRows(lf.replace(/\n/g,'\r\n')),parseRows(lf));
+});
 const histories=JSON.parse(readFileSync(new URL('../../conformance/search-v1-history.json',import.meta.url),'utf8'));
-for(const line of lines){const row=Object.fromEntries(line.split('\t').map((v,i)=>[columns[i],v]));test(`search-v1 ${row.case}`,()=>{
+for(const row of parseRows(fixtureText)){test(`search-v1 ${row.case}`,()=>{
  const trace=[];let current;const fixture=row.fixture;
  const m={initialState:()=>{current=[];trace.push(current);return 0;},cloneState:s=>s,cloneInput:i=>i,cloneOutput:o=>o,equalStates:(a,b)=>a===b,equalInputs:(a,b)=>a===b,
  inputs:s=>fixture==='empty'?[]:fixture==='causal'?(s===0?[1]:s===1?[2]:[]):['binary','phase','cycle'].includes(fixture)?[1,2]:[1],

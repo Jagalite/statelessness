@@ -94,7 +94,13 @@ test('equal actual state retains independently differing reference history', () 
   const bounded = enumerateStates(model, { maxStates: 10, maxTransitions: 3, maxDepth: 10 });
   assert.deepEqual([bounded.termination, bounded.states, bounded.transitions], ['transition_limit', 2, 3]);
 });
-const rows = readFileSync(new URL('../../conformance/paired-v1.tsv', import.meta.url), 'utf8').trim().split('\n').map(l => l.split('\t'));
+const pairedFixture = readFileSync(new URL('../../conformance/paired-v1.tsv', import.meta.url), 'utf8');
+const parseRows = text => text.trim().split(/\r?\n/).map(line => line.split('\t'));
+test('paired TSV preserves final fields under LF and CRLF', () => {
+  const lf = pairedFixture.replace(/\r\n/g, '\n');
+  assert.deepEqual(parseRows(lf.replace(/\n/g, '\r\n')), parseRows(lf));
+});
+const rows = parseRows(pairedFixture);
 for (const row of rows.slice(1)) test(`paired-v1 independent golden: ${row[0]}`, () => {
   const [name, mutation, states, edges, depth, termination, expectedStates, expectedEdges, failed, witness, phases, skipped] = row;
   const result = enumerateStates(paired(mutation), { maxStates: Number(states), maxTransitions: Number(edges), maxDepth: Number(depth) });
