@@ -1,0 +1,1620 @@
+{
+  "build_input_copies_stable": true,
+  "changed_copied_source_paths": [],
+  "changed_source_paths": [],
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "--version",
+        "--verbose"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "rust-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 203,
+          "sha256": "acf442e66237841eaeec8717ded9722aa352402ed6168e418b7c0f17cc7b8b38"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "cargo",
+        "build",
+        "--offline",
+        "--manifest-path",
+        "/private/tmp/n12-wire-oct22-r2/consumers/rust/Cargo.toml"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/rust",
+      "env_overrides": {
+        "CARGO_BUILD_JOBS": "2",
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "CARGO_TARGET_DIR": "/private/tmp/n12-wire-oct22-r2/builds/rust",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "rust-consumer-build",
+      "logs": {
+        "stderr.log": {
+          "bytes": 400,
+          "sha256": "d5d596bb933d5eaf75c6097ce43132b2c45b5b02877feb91fdc7b14c127ba8ab"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "go",
+        "version"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "go-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 33,
+          "sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "go",
+        "build",
+        "-mod=readonly",
+        "-o",
+        "/private/tmp/n12-wire-oct22-r2/builds/n12-wire-go",
+        "."
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/go",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "go-consumer-build",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/go",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "go-full-tests",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 399,
+          "sha256": "2a189106ec5b5025d82f7bc1680db8104693e9e6b96d7802e2eec420a7bcf3a0"
+        }
+      },
+      "passed": true,
+      "required_output": [
+        "github.com/Jagalite/statelessness/go/debug"
+      ],
+      "required_output_matched": true
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/go",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "go-vet",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "--version"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 14,
+          "sha256": "466d56409acd0196aa49258a5892f36ee5da8580e74ee5e3a7f7d81d9d9f5b78"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-m",
+        "venv",
+        "/private/tmp/n12-wire-oct22-r2/python-builder"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-builder-venv",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/python-builder/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "setuptools==80.9.0",
+        "wheel==0.45.1"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-build-dependencies",
+      "logs": {
+        "stderr.log": {
+          "bytes": 173,
+          "sha256": "230fc2eea68858d36ff26d843274b110cdb0b53c849fa98e103876ca6d6fae3d"
+        },
+        "stdout.log": {
+          "bytes": 397,
+          "sha256": "bb24e58559632d885272145dc098111d62653beaa52b62a9e33614e92f60b8a0"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/python-builder/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-builder-freeze",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 45,
+          "sha256": "ca858afac9b387430f11457bcbace555dfe0cae602582212526ad81ed20ef8ec"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/python-builder/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--no-build-isolation",
+        "--wheel-dir",
+        "/private/tmp/n12-wire-oct22-r2/wheels",
+        "/private/tmp/n12-wire-oct22-r2/packages/python"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-wheel",
+      "logs": {
+        "stderr.log": {
+          "bytes": 173,
+          "sha256": "230fc2eea68858d36ff26d843274b110cdb0b53c849fa98e103876ca6d6fae3d"
+        },
+        "stdout.log": {
+          "bytes": 715,
+          "sha256": "8fc0ad430fbc5736cfa2d78fb15ba4e0f2b8d93de26d068a6dd5f4bbd37def97"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-m",
+        "venv",
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/venv"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-consumer-venv",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--no-index",
+        "/private/tmp/n12-wire-oct22-r2/wheels/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-consumer-install",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 145,
+          "sha256": "71392733fc4d8f46627c1629665ee24e9b1d941ba9410e4422e150bb941458b6"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import pathlib,statelessness; print(pathlib.Path(statelessness.__file__).resolve())"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-installed-path",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 108,
+          "sha256": "5869d61b8a8e06b57da0cdc3c032487919c22b7e0cfd51c6d310ea722c4c0239"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/private/tmp/n12-wire-oct22-r2/packages/python/tests",
+        "-v"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/python",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "python-full-installed-tests",
+      "logs": {
+        "stderr.log": {
+          "bytes": 52204,
+          "sha256": "5590a8568637800055d44913fa6fcbb9df29bee317a324ffb20b43387a2bc1f6"
+        },
+        "stdout.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "passed": true,
+      "required_output": [
+        "test_debugger_wire",
+        "\nOK"
+      ],
+      "required_output_matched": true
+    },
+    {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "node-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 8,
+          "sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "npm-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 7,
+          "sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-dependencies",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 26,
+          "sha256": "1d393b9aabcf9bce462c97e18234f488eca5d20db205cf7ad88903ed77f6d2e7"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-build",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 63,
+          "sha256": "07e8cb27058407c158e94f798ca9423045e34ec734745acb5f6b1e3a609dbf2b"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "npm",
+        "pack",
+        "--json",
+        "--ignore-scripts",
+        "--pack-destination",
+        "/private/tmp/n12-wire-oct22-r2/tarballs"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-pack",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 16947,
+          "sha256": "57aea9f4b92eed32ab5b257b8ffccb017341f6536ddde6d8b242a1177066e17a"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "npm",
+        "install",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-consumer-install",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 26,
+          "sha256": "77ba9f9a114b65e219328f225d9e051c1efe8d8019b89a8f6fe0b0691b7ccabd"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "node",
+        "--input-type=module",
+        "-e",
+        "console.log(import.meta.resolve('@jagalite/statelessness/debug/protocol'))"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-installed-path",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 119,
+          "sha256": "4f9e707812e86f836f7cea7c37bd3b53a1874e8e93c08ee43321649643af8857"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "--test-reporter=tap",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/append-checks.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/append-corpus.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/bfs-controls.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/bfs-corpus.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/binary.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/checked-results.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-bindings.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-diagnostic.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-effects.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-fork.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-inspect.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-live.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-metrics.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-protocol.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-session.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-watches.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug-wire-parity.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/debug.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/encode-buffers.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/evidence-recorder.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/evidence.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/native.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/paired.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/replay-corpus.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/replay-rich.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/runtime-recorder.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/search-corpus.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/search.test.mjs",
+        "/private/tmp/n12-wire-oct22-r2/packages/typescript/test/value-codec.test.mjs"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/typescript",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "typescript-full-tests",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 155818,
+          "sha256": "72313c48e6c8f62c1919ec1d222be3f172393711ee91e1cb15894bd60d716d63"
+        }
+      },
+      "passed": true,
+      "required_output": [
+        "# fail 0"
+      ],
+      "required_output_matched": true
+    },
+    {
+      "argv": [
+        "swift",
+        "--version"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "swift-version",
+      "logs": {
+        "stderr.log": {
+          "bytes": 30,
+          "sha256": "542ca724f46d8a3dffb85c3cd4b6e0d2fdf6c1bd4c484e6978dd9ed2f22cd639"
+        },
+        "stdout.log": {
+          "bytes": 98,
+          "sha256": "b674f79b747370a1c05ae7cec551fffe557816c6c807f35f39f933ecbcca80d7"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "swift",
+        "build",
+        "--package-path",
+        "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+        "--scratch-path",
+        "/private/tmp/n12-wire-oct22-r2/builds/swift-consumer",
+        "--configuration",
+        "debug",
+        "--jobs",
+        "2",
+        "--product",
+        "n12-wire-swift"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "N12_SWIFT_PACKAGE_PATH": "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "swift-consumer-build",
+      "logs": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 2426,
+          "sha256": "cab3f7f111b45bf514145d1f6d4eb08ad85430605720cc77a1ae7cb94eeb98ac"
+        }
+      },
+      "passed": true
+    },
+    {
+      "argv": [
+        "swift",
+        "test",
+        "--package-path",
+        "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift",
+        "--scratch-path",
+        "/private/tmp/n12-wire-oct22-r2/builds/swift-tests",
+        "--configuration",
+        "debug",
+        "--jobs",
+        "2"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift",
+      "env_overrides": {
+        "CARGO_HOME": "/private/tmp/n12-wire-oct22-r2/cargo-home",
+        "CARGO_INCREMENTAL": "0",
+        "GOCACHE": "/private/tmp/n12-wire-oct22-r2/go-cache",
+        "GOENV": "off",
+        "GOFLAGS": "",
+        "GOMODCACHE": "/private/tmp/n12-wire-oct22-r2/go-mod-cache",
+        "GOWORK": "off",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/append-checks-v1.json",
+        "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/bfs-controls-v1.json",
+        "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/native-binary-v1.json",
+        "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/checked-results-v1.json",
+        "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/encode-buffers-v1.json",
+        "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/causal-evidence-v2.json",
+        "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/paired-v1.tsv",
+        "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/replay-evidence-v1.json",
+        "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1.tsv",
+        "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r2/source/conformance/search-v1-history.json",
+        "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r2/source/conformance/canonical-value-codec-v1.json"
+      },
+      "env_removed": [
+        "NODE_OPTIONS",
+        "NODE_PATH",
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "RUSTC",
+        "RUSTC_WORKSPACE_WRAPPER",
+        "RUSTC_WRAPPER",
+        "RUSTDOCFLAGS",
+        "RUSTFLAGS"
+      ],
+      "exit_code": 0,
+      "label": "swift-full-tests",
+      "logs": {
+        "stderr.log": {
+          "bytes": 10597,
+          "sha256": "e3998e2be00456fe5c2d41563bedaddbaf1b9fae77094193a2e7c57625e6045b"
+        },
+        "stdout.log": {
+          "bytes": 56989,
+          "sha256": "01f11dd505dbb7b65e8e5d922ac7124207a6e27318e22a1a9d30894348c70b7d"
+        }
+      },
+      "passed": true,
+      "required_output": [
+        "Executed ",
+        "0 failures"
+      ],
+      "required_output_matched": true
+    }
+  ],
+  "copied_source_stable": true,
+  "failures": {},
+  "hosts_ready": [
+    "go",
+    "python",
+    "rust",
+    "swift",
+    "typescript"
+  ],
+  "launch_specification": {
+    "go": {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/builds/n12-wire-go"
+      ],
+      "artifacts": [
+        "/private/tmp/n12-wire-oct22-r2/builds/n12-wire-go",
+        "/private/tmp/n12-wire-oct22-r2/consumers/go",
+        "/private/tmp/n12-wire-oct22-r2/packages/go"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/go",
+      "env": {
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/bin:/usr/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      }
+    },
+    "python": {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/venv/bin/python",
+        "-I",
+        "-B",
+        "/private/tmp/n12-wire-oct22-r2/consumers/python/host.py"
+      ],
+      "artifacts": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/python",
+        "/private/tmp/n12-wire-oct22-r2/wheels/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/python",
+      "env": {
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/bin:/usr/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      }
+    },
+    "rust": {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/builds/rust/debug/n12-wire-rust"
+      ],
+      "artifacts": [
+        "/private/tmp/n12-wire-oct22-r2/builds/rust/debug/n12-wire-rust",
+        "/private/tmp/n12-wire-oct22-r2/consumers/rust",
+        "/private/tmp/n12-wire-oct22-r2/source/src",
+        "/private/tmp/n12-wire-oct22-r2/source/crates/statelessness-debug/src"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/rust",
+      "env": {
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/bin:/usr/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      }
+    },
+    "swift": {
+      "argv": [
+        "/private/tmp/n12-wire-oct22-r2/builds/swift-consumer/arm64-apple-macosx/debug/n12-wire-swift"
+      ],
+      "artifacts": [
+        "/private/tmp/n12-wire-oct22-r2/builds/swift-consumer/arm64-apple-macosx/debug/n12-wire-swift",
+        "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+        "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/Package.swift",
+        "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Sources"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+      "env": {
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/bin:/usr/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      }
+    },
+    "typescript": {
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/tmp/n12-wire-oct22-r2/consumers/typescript/host.mjs"
+      ],
+      "artifacts": [
+        "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+        "/private/tmp/n12-wire-oct22-r2/tarballs/jagalite-statelessness-0.1.0.tgz"
+      ],
+      "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+      "env": {
+        "LANG": "C",
+        "LC_ALL": "C",
+        "PATH": "/bin:/usr/bin",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TZ": "UTC"
+      }
+    }
+  },
+  "passed": true,
+  "scratch": "/private/tmp/n12-wire-oct22-r2",
+  "source_commit": "dd9ce859ed1fabb6b4d60eaf24d2fc73b6ca0ddb",
+  "source_stable": true
+}

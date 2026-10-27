@@ -1,0 +1,66 @@
+[
+  {
+    "label": "focused",
+    "job": "87819be26145424ab6e7fb8e39bf19bf",
+    "raw_bytes": 2495,
+    "raw_sha256": "ee4d68227d32a36dc0a71a568105c2033d6fb16826bce774ceefd82fa4ac9bb2",
+    "gzip_bytes": 594,
+    "gzip_sha256": "4f1283192217d467f50d096c7469b4ddc9c61a22d62e1b26709d1c398b30cea6"
+  },
+  {
+    "label": "failed",
+    "job": "0f2ee4484cb5427fb914c6143d44d202",
+    "raw_bytes": 44534,
+    "raw_sha256": "b41dd933c905d380ec964214f865de59937e76fc0ed36e529258ca2392a477fc",
+    "gzip_bytes": 7558,
+    "gzip_sha256": "d7b9c9c6974e0c5824168f4025858f228a36f99a8b86ff65d5decfd9d493faf4"
+  },
+  {
+    "label": "intermediate",
+    "job": "b76d3aad8c9e4b619736199f7f167a23",
+    "raw_bytes": 36170,
+    "raw_sha256": "8019aa49343416cc4587f5f38fcb4b169a95ec2a0b1dea160bf28fe46a79d602",
+    "gzip_bytes": 6651,
+    "gzip_sha256": "db1a74dbe380e8f49489a8910f18ba46c4622ab54125c00a249bce69a89a6e0e"
+  },
+  {
+    "label": "intermediate-21d",
+    "job": "21d8c50fb6d7437e9c724d27945a55ab",
+    "raw_bytes": 36717,
+    "raw_sha256": "71f5b591ed277302838407b3358fe9115a7fc2fef4d99bca86105070283b3e98",
+    "gzip_bytes": 6749,
+    "gzip_sha256": "a326c56dafe03d4824e3784f763b3fd5a88d69812c0d111caf0af7c93ab3986e"
+  },
+  {
+    "label": "prior-241",
+    "job": "c25cb2f8b92a401e8419c9c62dc0c523",
+    "raw_bytes": 36932,
+    "raw_sha256": "57badd719f2f3477f3b2c411203c8b6db38b9fa3b7bdeb50c0f1c221ac3bc2e3",
+    "gzip_bytes": 6794,
+    "gzip_sha256": "c3161d87681bac845e9cb26f7f9f3501b259f67dd215241bff176113a9b3f69c"
+  },
+  {
+    "label": "intermediate-direction-188",
+    "job": "188700ef795c468097be298e4d744ae2",
+    "raw_bytes": 37924,
+    "raw_sha256": "4407d9ee4ac9b054c783745a99ee833c7ad0fc88f1e5c9753fceb0893abbfc79",
+    "gzip_bytes": 6963,
+    "gzip_sha256": "c3325dcfcd72a2978c17fdcdce3176f08345428926ed34f2cf532ab8781fb7ac"
+  },
+  {
+    "label": "prior-247",
+    "job": "5042d1522493430a89d09ecb311427f6",
+    "raw_bytes": 38090,
+    "raw_sha256": "e4839e1854407c69de3aef969e91cb3795a322dbbd57796c71d07d4409bde25b",
+    "gzip_bytes": 6988,
+    "gzip_sha256": "7e15364cc0eb0460d94d8476595f7045b5bc60193b689938ed3e529d26408286"
+  },
+  {
+    "label": "final",
+    "job": "2f7e702f48c440769c2ba54bd67f12fc",
+    "raw_bytes": 38278,
+    "raw_sha256": "bd041dad1247b68f2f9b1956c54d92321da0924640bd393a8ce56b559b2d55d2",
+    "gzip_bytes": 7014,
+    "gzip_sha256": "dc15a317a715ceeb63a746752786259bef406e725251abbe4fe85e05c2565294"
+  }
+]

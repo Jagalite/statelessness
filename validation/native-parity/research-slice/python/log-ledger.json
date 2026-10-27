@@ -1,0 +1,8 @@
+{
+  "job": "73186c42f181435398b8a692c7d02e1e",
+  "raw_bytes": 43167,
+  "raw_sha256": "d9e2e76aba1b1ea38229e484f72f7cdcb3ef09dcad8e0767e7c80a76ee152e96",
+  "gzip_bytes": 7822,
+  "gzip_sha256": "338c6401daea883c9ff4e1f329066bc39e939992496c90bd72df8a0f7af95380",
+  "lossless_roundtrip_verified": true
+}

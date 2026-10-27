@@ -94,6 +94,36 @@ class ReportingTests(unittest.TestCase):
                     self.assertEqual(result["kyoto_status"], status)
                     self.assertFalse(result["runtime_executed"])
 
+    def test_corpus_clippy_is_required_without_portable_conformance(self):
+        for profile in ("pr", "full"):
+            for portable in (False, True):
+                with self.subTest(profile=profile, portable=portable):
+                    plan = qualify.stages(profile, Path("/tmp/qualification"), portable=portable)
+                    names = [stage.name for stage in plan]
+                    self.assertEqual(names.count("corpus-clippy"), 1)
+                    self.assertEqual(names.index("corpus-clippy"), names.index("clippy") + 1)
+                    stage = plan[names.index("corpus-clippy")]
+                    self.assertEqual(stage.kind, "build")
+                    self.assertEqual(stage.command, ["cargo", "clippy", "--locked", "--manifest-path", "validation/corpus/Cargo.toml", "--", "-D", "warnings"])
+                    self.assertIsNone(stage.compile_command)
+                    self.assertEqual(stage.expected_exit, 0)
+                    self.assertIn("--offline", plan[names.index("clippy")].command)
+
+    def test_corpus_clippy_failure_prevents_pr_qualification(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = Path(directory) / "report.json"
+            plan = [stage for stage in qualify.stages("pr", Path(directory))
+                    if stage.name in {"clippy", "corpus-clippy"}]
+            results = [{"name": "clippy", "status": "passed"},
+                       {"name": "corpus-clippy", "status": "failed", "exit_code": 101}]
+            with patch("qualify.stages", return_value=plan), patch("qualify.tool_version", return_value={}), patch("qualify.source_hashes", return_value={}), patch("qualify.git_context", return_value={"available": False}), patch("qualify.run_stage", side_effect=results) as run:
+                self.assertEqual(qualify.main(["--profile", "pr", "--evidence", str(evidence)]), 1)
+            self.assertEqual([call.args[0].name for call in run.call_args_list], ["clippy", "corpus-clippy"])
+            report = json.loads(evidence.read_text())
+            self.assertEqual(report["status"], "failed")
+            self.assertFalse(report["qualification_complete"])
+            self.assertEqual(report["results"], results)
+
     def test_reference_mutations_replay_schema_and_review_are_required(self):
         plan = {stage.name: stage for stage in qualify.stages("pr", Path("/tmp/reference-qualification"))}
         self.assertTrue({"reference-requirements", "requirements-change-review", "versioned-schemas", "native-python-candidate", "conformance-tooling", "reference-assurance", "reference-fault-controls", "reference-fresh-replay", "reference-live-replay"} <= plan.keys())

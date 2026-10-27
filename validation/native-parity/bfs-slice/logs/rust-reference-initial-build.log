@@ -1,0 +1,11 @@
+   Compiling stateless-corpus v0.1.0 (/Volumes/seed2/Projects/stateless-native-parity/validation/corpus)
+    Building [========================>  ] 17/18: native-bfs(bin)             error[E0046]: not all trait items implemented, missing: `check_state`
+  --> src/bin/native-bfs.rs:99:1
+   |
+99 | impl Model for Fixture {
+   | ^^^^^^^^^^^^^^^^^^^^^^ missing `check_state` in implementation
+   |
+   = help: implement the missing item: `fn check_state(&self, _: &<Self as stateless::Model>::State) -> std::result::Result<Vec<stateless::Check>, stateless::ModelError> { todo!() }`
+
+For more information about this error, try `rustc --explain E0046`.
+error: could not compile `stateless-corpus` (bin "native-bfs") due to 1 previous error

@@ -1,0 +1,128 @@
+✔ shared replay-evidence-v1 exact-one (3.183208ms)
+✔ shared replay-evidence-v1 exact-bounded (1.244875ms)
+✔ shared replay-evidence-v1 exact-two (0.632208ms)
+✔ shared replay-evidence-v1 build-incompatible (0.088541ms)
+✔ shared replay-evidence-v1 build-mismatch-allowed (0.459458ms)
+✔ shared replay-evidence-v1 identity-before-invalid-artifact (0.07075ms)
+✔ shared replay-evidence-v1 initial-check-divergence (0.527958ms)
+✔ shared replay-evidence-v1 turn-disposition-divergence (0.258541ms)
+✔ shared replay-evidence-v1 turn-outputs-divergence (0.471042ms)
+✔ shared replay-evidence-v1 turn-state-divergence (0.368166ms)
+✔ shared replay-evidence-v1 turn-checks-divergence (0.368542ms)
+✔ shared replay-evidence-v1 turn-all-divergence (0.193208ms)
+✔ shared replay-evidence-v1 failure-details-differ (0.141ms)
+✔ shared replay-evidence-v1 failure-phase-move (0.10075ms)
+✔ shared replay-evidence-v1 error-decode_state-30 (0.218584ms)
+✔ shared replay-evidence-v1 error-encode_state-0 (0.148167ms)
+✔ shared replay-evidence-v1 error-check_state-0 (0.140458ms)
+✔ shared replay-evidence-v1 error-decode_input-31 (0.116667ms)
+✔ shared replay-evidence-v1 error-encode_input-1 (0.122875ms)
+✔ shared replay-evidence-v1 error-step-0-1 (0.168375ms)
+✔ shared replay-evidence-v1 error-check_state-1 (0.139833ms)
+✔ shared replay-evidence-v1 error-check_transition-0-1-1 (0.140958ms)
+✔ shared replay-evidence-v1 error-encode_output-1 (0.162334ms)
+✔ shared replay-evidence-v1 error-encode_state-1 (0.166417ms)
+✔ shared replay-evidence-v1 observer-initial-error (0.107875ms)
+✔ shared replay-evidence-v1 observer-turn-1-error (0.178125ms)
+✔ shared replay-evidence-v1 secondary-error-observer (0.1665ms)
+✔ shared replay-evidence-v1 noncanonical-initial (0.100334ms)
+✔ shared replay-evidence-v1 noncanonical-input (0.114958ms)
+✔ shared replay-evidence-v1 initial-failure-continuation (0.16575ms)
+✔ shared replay-evidence-v1 nonfinal-failure-continuation (0.101584ms)
+✔ shared replay-evidence-v1 property-footer-without-failure (0.093ms)
+✔ shared replay-evidence-v1 completed-footer-with-failure (0.093875ms)
+✔ shared replay-evidence-v1 model-error-prefix-not-reproduced (0.103041ms)
+✔ shared replay-evidence-v1 artifact-max_total_bytes (0.208458ms)
+✔ shared replay-evidence-v1 artifact-max_frame_bytes (0.121208ms)
+✔ shared replay-evidence-v1 artifact-max_blob_bytes (0.109833ms)
+✔ shared replay-evidence-v1 artifact-max_string_bytes (0.106375ms)
+✔ shared replay-evidence-v1 artifact-max_steps (0.374125ms)
+✔ shared replay-evidence-v1 artifact-max_checks_per_step (0.139791ms)
+✔ shared replay-evidence-v1 artifact-max_outputs_per_step (0.099583ms)
+✔ shared replay-evidence-v1 artifact-max_parameters (0.086916ms)
+✔ shared replay-evidence-v1 artifact-max_items (0.099ms)
+✔ shared replay-evidence-v1 artifact-exact-all-quotas (0.235042ms)
+✔ shared replay-evidence-v1 actual-output-shared-total (0.383833ms)
+✔ shared replay-evidence-v1 actual-state-shared-total (0.271292ms)
+✔ shared replay-evidence-v1 actual-output-count-preflight (0.182666ms)
+✔ shared replay-evidence-v1 actual-disposition-utf8-preflight (0.157333ms)
+✔ shared replay-evidence-v1 actual-shared-two-output-total (0.199708ms)
+✔ shared replay-evidence-v1 failure-flag-preflight (0.209166ms)
+✔ shared replay-evidence-v1 failure-flag-encoding (0.159583ms)
+✖ shared replay-evidence-v1 actual-current-metadata-run-quota (0.976834ms)
+  AssertionError [ERR_ASSERTION]: replay: limit_exceeded: frame bytes
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-native-parity/typescript/test/replay-corpus.test.mjs:36:84)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✖ shared replay-evidence-v1 initial-complete-checks-quota-before-failure-flag (0.217ms)
+  AssertionError [ERR_ASSERTION]: replay: limit_exceeded: frame bytes
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-native-parity/typescript/test/replay-corpus.test.mjs:36:84)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+✔ shared replay-evidence-v1 actual-aggregate-items-second-turn (0.267417ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 52
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 410.32675
+
+✖ failing tests:
+
+test at test/replay-corpus.test.mjs:31:29
+✖ shared replay-evidence-v1 actual-current-metadata-run-quota (0.976834ms)
+  AssertionError [ERR_ASSERTION]: replay: limit_exceeded: frame bytes
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-native-parity/typescript/test/replay-corpus.test.mjs:36:84)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }
+
+test at test/replay-corpus.test.mjs:31:29
+✖ shared replay-evidence-v1 initial-complete-checks-quota-before-failure-flag (0.217ms)
+  AssertionError [ERR_ASSERTION]: replay: limit_exceeded: frame bytes
+      at TestContext.<anonymous> (file:///Volumes/seed2/Projects/stateless-native-parity/typescript/test/replay-corpus.test.mjs:36:84)
+      at Test.runInAsyncScope (node:async_hooks:211:14)
+      at Test.run (node:internal/test_runner/test:931:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:629:18)
+      at Test.postRun (node:internal/test_runner/test:1042:19)
+      at Test.run (node:internal/test_runner/test:970:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:629:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '=='
+  }

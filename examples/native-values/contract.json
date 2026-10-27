@@ -1,0 +1,2363 @@
+{
+  "schema": "statelessness.canonical-value-consumer/1",
+  "source_corpus_sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+  "value_cases": [
+    {
+      "case": "u8-zero",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "u8-max",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "255",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "255",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "u16-zero",
+      "schema": {
+        "kind": "u16"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "u16-max",
+      "schema": {
+        "kind": "u16"
+      },
+      "entry": "guarded_value",
+      "value": "65535",
+      "bytes_hex": "ffff",
+      "expected": {
+        "value": "65535",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "u32-zero",
+      "schema": {
+        "kind": "u32"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "u32-max",
+      "schema": {
+        "kind": "u32"
+      },
+      "entry": "guarded_value",
+      "value": "4294967295",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "value": "4294967295",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "u64-zero",
+      "schema": {
+        "kind": "u64"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "u64-max",
+      "schema": {
+        "kind": "u64"
+      },
+      "entry": "guarded_value",
+      "value": "18446744073709551615",
+      "bytes_hex": "ffffffffffffffff",
+      "expected": {
+        "value": "18446744073709551615",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "u128-zero",
+      "schema": {
+        "kind": "u128"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000000000000000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "u128-max",
+      "schema": {
+        "kind": "u128"
+      },
+      "entry": "guarded_value",
+      "value": "340282366920938463463374607431768211455",
+      "bytes_hex": "ffffffffffffffffffffffffffffffff",
+      "expected": {
+        "value": "340282366920938463463374607431768211455",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i8-zero",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-min",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "-128",
+      "bytes_hex": "80",
+      "expected": {
+        "value": "-128",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-max",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "127",
+      "bytes_hex": "7f",
+      "expected": {
+        "value": "127",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-negative-one",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i16-zero",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-min",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "-32768",
+      "bytes_hex": "0080",
+      "expected": {
+        "value": "-32768",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-max",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "32767",
+      "bytes_hex": "ff7f",
+      "expected": {
+        "value": "32767",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-negative-one",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i32-zero",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-min",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "-2147483648",
+      "bytes_hex": "00000080",
+      "expected": {
+        "value": "-2147483648",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-max",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "2147483647",
+      "bytes_hex": "ffffff7f",
+      "expected": {
+        "value": "2147483647",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-negative-one",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i64-zero",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-min",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "-9223372036854775808",
+      "bytes_hex": "0000000000000080",
+      "expected": {
+        "value": "-9223372036854775808",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-max",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "9223372036854775807",
+      "bytes_hex": "ffffffffffffff7f",
+      "expected": {
+        "value": "9223372036854775807",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-negative-one",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffffffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i128-zero",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000000000000000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-min",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "-170141183460469231731687303715884105728",
+      "bytes_hex": "00000000000000000000000000000080",
+      "expected": {
+        "value": "-170141183460469231731687303715884105728",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-max",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "170141183460469231731687303715884105727",
+      "bytes_hex": "ffffffffffffffffffffffffffffff7f",
+      "expected": {
+        "value": "170141183460469231731687303715884105727",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-negative-one",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffffffffffffffffffffffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "bool-false",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": false,
+      "bytes_hex": "00",
+      "expected": {
+        "value": false,
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "bool-true",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": true,
+      "bytes_hex": "01",
+      "expected": {
+        "value": true,
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "unit",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "value": null,
+      "bytes_hex": "",
+      "expected": {
+        "value": null,
+        "error": null
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "string-empty",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "string-ascii",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "hello",
+      "bytes_hex": "0500000068656c6c6f",
+      "expected": {
+        "value": "hello",
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "string-unicode",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "雪😀",
+      "bytes_hex": "07000000e99baaf09f9880",
+      "expected": {
+        "value": "雪😀",
+        "error": null
+      },
+      "encode_max_bytes": "11"
+    },
+    {
+      "case": "string-nul",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "a\u0000b",
+      "bytes_hex": "03000000610062",
+      "expected": {
+        "value": "a\u0000b",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "string-leading-bom",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "﻿x",
+      "bytes_hex": "04000000efbbbf78",
+      "expected": {
+        "value": "﻿x",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "string-nfc",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "é",
+      "bytes_hex": "02000000c3a9",
+      "expected": {
+        "value": "é",
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "string-nfd",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "é",
+      "bytes_hex": "0300000065cc81",
+      "expected": {
+        "value": "é",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "none-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": false
+      },
+      "bytes_hex": "00",
+      "expected": {
+        "value": {
+          "some": false
+        },
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": null
+      },
+      "bytes_hex": "01",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": null
+        },
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-empty-string",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "string"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": ""
+      },
+      "bytes_hex": "0100000000",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": ""
+        },
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "some-none",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": false
+        }
+      },
+      "bytes_hex": "0100",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": false
+          }
+        },
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "some-some-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      },
+      "bytes_hex": "0101",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": true,
+            "value": null
+          }
+        },
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "vector-empty",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [],
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": [],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "vector-u16-order-duplicates",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660",
+        "0",
+        "4660"
+      ],
+      "bytes_hex": "03000000341200003412",
+      "expected": {
+        "value": [
+          "4660",
+          "0",
+          "4660"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "10"
+    },
+    {
+      "case": "vector-unit-three",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        null,
+        null
+      ],
+      "bytes_hex": "03000000",
+      "expected": {
+        "value": [
+          null,
+          null,
+          null
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "array-empty",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u8"
+        },
+        "length": 0
+      },
+      "entry": "guarded_value",
+      "value": [],
+      "bytes_hex": "",
+      "expected": {
+        "value": [],
+        "error": null
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "array-u16-three",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u16"
+        },
+        "length": 3
+      },
+      "entry": "guarded_value",
+      "value": [
+        "1",
+        "2",
+        "3"
+      ],
+      "bytes_hex": "010002000300",
+      "expected": {
+        "value": [
+          "1",
+          "2",
+          "3"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "tuple-one",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u16"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660"
+      ],
+      "bytes_hex": "3412",
+      "expected": {
+        "value": [
+          "4660"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "tuple-two",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u8"
+          },
+          {
+            "kind": "u64"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "1",
+        "72623859790382856"
+      ],
+      "bytes_hex": "010807060504030201",
+      "expected": {
+        "value": [
+          "1",
+          "72623859790382856"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "tuple-three",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "unit"
+          },
+          {
+            "kind": "i8"
+          },
+          {
+            "kind": "bool"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        "-2",
+        false
+      ],
+      "bytes_hex": "fe00",
+      "expected": {
+        "value": [
+          null,
+          "-2",
+          false
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "tuple-four-small-witness",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u16"
+          },
+          {
+            "kind": "i32"
+          },
+          {
+            "kind": "bool"
+          },
+          {
+            "kind": "option",
+            "element": {
+              "kind": "u8"
+            }
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660",
+        "-2",
+        true,
+        {
+          "some": true,
+          "value": "9"
+        }
+      ],
+      "bytes_hex": "3412feffffff010109",
+      "expected": {
+        "value": [
+          "4660",
+          "-2",
+          true,
+          {
+            "some": true,
+            "value": "9"
+          }
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "oracle-state-no-orc1-frame",
+      "schema": {
+        "kind": "oracle_state",
+        "model": {
+          "kind": "u16"
+        },
+        "oracle": {
+          "kind": "string"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "model": "4660",
+        "oracle": "H"
+      },
+      "bytes_hex": "34120100000048",
+      "expected": {
+        "value": {
+          "model": "4660",
+          "oracle": "H"
+        },
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "nested-vectors",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "13"
+    },
+    {
+      "case": "vector-arrays",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "array",
+          "element": {
+            "kind": "u16"
+          },
+          "length": 3
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ],
+      "bytes_hex": "02000000010002000300040005000600",
+      "expected": {
+        "value": [
+          [
+            "1",
+            "2",
+            "3"
+          ],
+          [
+            "4",
+            "5",
+            "6"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "vector-options-u64",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "u64"
+          }
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "18446744073709551615"
+        }
+      ],
+      "bytes_hex": "020000000001ffffffffffffffff",
+      "expected": {
+        "value": [
+          {
+            "some": false
+          },
+          {
+            "some": true,
+            "value": "18446744073709551615"
+          }
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "14"
+    },
+    {
+      "case": "string-length-width-1",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "03e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "vector-length-width-1",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "020100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "direct-string-width-1",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0141",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "direct-vector-width-1",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "string-length-width-2",
+      "schema": {
+        "kind": "string",
+        "length_width": 2
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "0300e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "vector-length-width-2",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 2
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "02000100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "direct-string-width-2",
+      "schema": {
+        "kind": "string",
+        "length_width": 2
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "010041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "direct-vector-width-2",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 2
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "02000102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "string-length-width-4",
+      "schema": {
+        "kind": "string",
+        "length_width": 4
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "03000000e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "vector-length-width-4",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "020000000100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "direct-string-width-4",
+      "schema": {
+        "kind": "string",
+        "length_width": 4
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "direct-vector-width-4",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 4
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020000000102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "integer-all-budgets-exact",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "255",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "255",
+        "error": null
+      },
+      "limits": {
+        "bytes": "1",
+        "allocation": "0",
+        "elements": "0",
+        "depth": "1",
+        "work": "1"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "unit-zero-byte-allocation-elements",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "value": null,
+      "bytes_hex": "",
+      "expected": {
+        "value": null,
+        "error": null
+      },
+      "limits": {
+        "bytes": "0",
+        "allocation": "0",
+        "elements": "0",
+        "depth": "1",
+        "work": "1"
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "bool-work-depth-exact",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": true,
+      "bytes_hex": "01",
+      "expected": {
+        "value": true,
+        "error": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "2"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-unit-work-depth-exact",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": null
+      },
+      "bytes_hex": "01",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": null
+        },
+        "error": null
+      },
+      "limits": {
+        "work": "3",
+        "depth": "2"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-some-unit-work-depth-exact",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      },
+      "bytes_hex": "0101",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": true,
+            "value": null
+          }
+        },
+        "error": null
+      },
+      "limits": {
+        "work": "5",
+        "depth": "3"
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "string-budget-exact",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "A",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "limits": {
+        "bytes": "5",
+        "allocation": "1",
+        "elements": "1",
+        "work": "3",
+        "depth": "2"
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "vector-unit-budget-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        null,
+        null
+      ],
+      "bytes_hex": "03000000",
+      "expected": {
+        "value": [
+          null,
+          null,
+          null
+        ],
+        "error": null
+      },
+      "limits": {
+        "bytes": "4",
+        "allocation": "0",
+        "elements": "3",
+        "work": "5",
+        "depth": "2"
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "nested-vector-budget-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "49",
+        "elements": "3",
+        "work": "7",
+        "depth": "3"
+      },
+      "encode_max_bytes": "13"
+    },
+    {
+      "case": "vector-array-double-storage-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "array",
+          "element": {
+            "kind": "u16"
+          },
+          "length": 3
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ],
+      "bytes_hex": "02000000010002000300040005000600",
+      "expected": {
+        "value": [
+          [
+            "1",
+            "2",
+            "3"
+          ],
+          [
+            "4",
+            "5",
+            "6"
+          ]
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "24",
+        "elements": "8",
+        "work": "10",
+        "depth": "3"
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "vector-option-storage-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "u64"
+          }
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "1"
+        }
+      ],
+      "bytes_hex": "0200000000010100000000000000",
+      "expected": {
+        "value": [
+          {
+            "some": false
+          },
+          {
+            "some": true,
+            "value": "1"
+          }
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "32",
+        "elements": "2",
+        "work": "7",
+        "depth": "3"
+      },
+      "encode_max_bytes": "14"
+    },
+    {
+      "case": "direct-vector-omits-outer-work",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "limits": {
+        "work": "3",
+        "depth": "1"
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "direct-string-omits-outer-work",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0141",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "1"
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "outer-length-override-keeps-inner-default",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "10"
+    }
+  ],
+  "layouts": {
+    "named": [
+      {
+        "alignment": 1,
+        "name": "u8",
+        "rust_type": "u8",
+        "size": 1
+      },
+      {
+        "alignment": 2,
+        "name": "u16",
+        "rust_type": "u16",
+        "size": 2
+      },
+      {
+        "alignment": 4,
+        "name": "u32",
+        "rust_type": "u32",
+        "size": 4
+      },
+      {
+        "alignment": 8,
+        "name": "u64",
+        "rust_type": "u64",
+        "size": 8
+      },
+      {
+        "alignment": 16,
+        "name": "u128",
+        "rust_type": "u128",
+        "size": 16
+      },
+      {
+        "alignment": 1,
+        "name": "i8",
+        "rust_type": "i8",
+        "size": 1
+      },
+      {
+        "alignment": 2,
+        "name": "i16",
+        "rust_type": "i16",
+        "size": 2
+      },
+      {
+        "alignment": 4,
+        "name": "i32",
+        "rust_type": "i32",
+        "size": 4
+      },
+      {
+        "alignment": 8,
+        "name": "i64",
+        "rust_type": "i64",
+        "size": 8
+      },
+      {
+        "alignment": 16,
+        "name": "i128",
+        "rust_type": "i128",
+        "size": 16
+      },
+      {
+        "alignment": 1,
+        "name": "bool",
+        "rust_type": "bool",
+        "size": 1
+      },
+      {
+        "alignment": 1,
+        "name": "unit",
+        "rust_type": "()",
+        "size": 0
+      },
+      {
+        "alignment": 8,
+        "name": "String",
+        "rust_type": "alloc::string::String",
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "name": "Vec<T> header",
+        "rust_type": "alloc::vec::Vec<u8>",
+        "size": 24
+      },
+      {
+        "alignment": 1,
+        "name": "Option<()>",
+        "rust_type": "core::option::Option<()>",
+        "size": 1
+      },
+      {
+        "alignment": 1,
+        "name": "Option<bool>",
+        "rust_type": "core::option::Option<bool>",
+        "size": 1
+      },
+      {
+        "alignment": 1,
+        "name": "Option<u8>",
+        "rust_type": "core::option::Option<u8>",
+        "size": 2
+      },
+      {
+        "alignment": 8,
+        "name": "Option<u64>",
+        "rust_type": "core::option::Option<u64>",
+        "size": 16
+      },
+      {
+        "alignment": 8,
+        "name": "Option<String>",
+        "rust_type": "core::option::Option<alloc::string::String>",
+        "size": 24
+      },
+      {
+        "alignment": 2,
+        "name": "[u16;3]",
+        "rust_type": "[u16; 3]",
+        "size": 6
+      },
+      {
+        "alignment": 8,
+        "name": "(u8,u64)",
+        "rust_type": "(u8, u64)",
+        "size": 16
+      }
+    ],
+    "registry": [
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<[u16; 3]>",
+        "schema": {
+          "element": {
+            "element": {
+              "kind": "u16"
+            },
+            "kind": "array",
+            "length": 3
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<core::option::Option<u64>>",
+        "schema": {
+          "element": {
+            "element": {
+              "kind": "u64"
+            },
+            "kind": "option"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<alloc::vec::Vec<u8>>, 1>",
+        "schema": {
+          "element": {
+            "element": {
+              "kind": "u8"
+            },
+            "kind": "vector",
+            "length_width": 4
+          },
+          "kind": "vector",
+          "length_width": 1
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<alloc::vec::Vec<u8>>",
+        "schema": {
+          "element": {
+            "element": {
+              "kind": "u8"
+            },
+            "kind": "vector",
+            "length_width": 4
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 1,
+        "rust_type": "core::option::Option<core::option::Option<()>>",
+        "schema": {
+          "element": {
+            "element": {
+              "kind": "unit"
+            },
+            "kind": "option"
+          },
+          "kind": "option"
+        },
+        "size": 1
+      },
+      {
+        "alignment": 8,
+        "rust_type": "core::option::Option<alloc::string::String>",
+        "schema": {
+          "element": {
+            "kind": "string"
+          },
+          "kind": "option"
+        },
+        "size": 24
+      },
+      {
+        "alignment": 2,
+        "rust_type": "[u16; 1]",
+        "schema": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "array",
+          "length": 1
+        },
+        "size": 2
+      },
+      {
+        "alignment": 2,
+        "rust_type": "[u16; 3]",
+        "schema": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "array",
+          "length": 3
+        },
+        "size": 6
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u16>, 1>",
+        "schema": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "vector",
+          "length_width": 1
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u16>, 2>",
+        "schema": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "vector",
+          "length_width": 2
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<u16>",
+        "schema": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 1,
+        "rust_type": "[u8; 0]",
+        "schema": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "array",
+          "length": 0
+        },
+        "size": 0
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u8>, 1>",
+        "schema": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "vector",
+          "length_width": 1
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u8>, 2>",
+        "schema": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "vector",
+          "length_width": 2
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<u8>",
+        "schema": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 1,
+        "rust_type": "core::option::Option<()>",
+        "schema": {
+          "element": {
+            "kind": "unit"
+          },
+          "kind": "option"
+        },
+        "size": 1
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::vec::Vec<()>",
+        "schema": {
+          "element": {
+            "kind": "unit"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 4,
+        "rust_type": "(u16, i32, bool, core::option::Option<u8>)",
+        "schema": {
+          "fields": [
+            {
+              "kind": "u16"
+            },
+            {
+              "kind": "i32"
+            },
+            {
+              "kind": "bool"
+            },
+            {
+              "element": {
+                "kind": "u8"
+              },
+              "kind": "option"
+            }
+          ],
+          "kind": "tuple"
+        },
+        "size": 12
+      },
+      {
+        "alignment": 2,
+        "rust_type": "(u16,)",
+        "schema": {
+          "fields": [
+            {
+              "kind": "u16"
+            }
+          ],
+          "kind": "tuple"
+        },
+        "size": 2
+      },
+      {
+        "alignment": 8,
+        "rust_type": "(u8, u64)",
+        "schema": {
+          "fields": [
+            {
+              "kind": "u8"
+            },
+            {
+              "kind": "u64"
+            }
+          ],
+          "kind": "tuple"
+        },
+        "size": 16
+      },
+      {
+        "alignment": 1,
+        "rust_type": "((), i8, bool)",
+        "schema": {
+          "fields": [
+            {
+              "kind": "unit"
+            },
+            {
+              "kind": "i8"
+            },
+            {
+              "kind": "bool"
+            }
+          ],
+          "kind": "tuple"
+        },
+        "size": 2
+      },
+      {
+        "alignment": 1,
+        "rust_type": "bool",
+        "schema": {
+          "kind": "bool"
+        },
+        "size": 1
+      },
+      {
+        "alignment": 16,
+        "rust_type": "i128",
+        "schema": {
+          "kind": "i128"
+        },
+        "size": 16
+      },
+      {
+        "alignment": 2,
+        "rust_type": "i16",
+        "schema": {
+          "kind": "i16"
+        },
+        "size": 2
+      },
+      {
+        "alignment": 4,
+        "rust_type": "i32",
+        "schema": {
+          "kind": "i32"
+        },
+        "size": 4
+      },
+      {
+        "alignment": 8,
+        "rust_type": "i64",
+        "schema": {
+          "kind": "i64"
+        },
+        "size": 8
+      },
+      {
+        "alignment": 1,
+        "rust_type": "i8",
+        "schema": {
+          "kind": "i8"
+        },
+        "size": 1
+      },
+      {
+        "alignment": 8,
+        "rust_type": "stateless::oracle::OracleState<u16, alloc::string::String>",
+        "schema": {
+          "kind": "oracle_state",
+          "model": {
+            "kind": "u16"
+          },
+          "oracle": {
+            "kind": "string"
+          }
+        },
+        "size": 32
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 0>",
+        "schema": {
+          "kind": "string",
+          "length_width": 0
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 1>",
+        "schema": {
+          "kind": "string",
+          "length_width": 1
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 2>",
+        "schema": {
+          "kind": "string",
+          "length_width": 2
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 3>",
+        "schema": {
+          "kind": "string",
+          "length_width": 3
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::string::String",
+        "schema": {
+          "kind": "string",
+          "length_width": 4
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 8>",
+        "schema": {
+          "kind": "string",
+          "length_width": 8
+        },
+        "size": 24
+      },
+      {
+        "alignment": 8,
+        "rust_type": "alloc::string::String",
+        "schema": {
+          "kind": "string"
+        },
+        "size": 24
+      },
+      {
+        "alignment": 16,
+        "rust_type": "u128",
+        "schema": {
+          "kind": "u128"
+        },
+        "size": 16
+      },
+      {
+        "alignment": 2,
+        "rust_type": "u16",
+        "schema": {
+          "kind": "u16"
+        },
+        "size": 2
+      },
+      {
+        "alignment": 4,
+        "rust_type": "u32",
+        "schema": {
+          "kind": "u32"
+        },
+        "size": 4
+      },
+      {
+        "alignment": 8,
+        "rust_type": "u64",
+        "schema": {
+          "kind": "u64"
+        },
+        "size": 8
+      },
+      {
+        "alignment": 1,
+        "rust_type": "u8",
+        "schema": {
+          "kind": "u8"
+        },
+        "size": 1
+      },
+      {
+        "alignment": 1,
+        "rust_type": "()",
+        "schema": {
+          "kind": "unit"
+        },
+        "size": 0
+      }
+    ],
+    "usize_bits": 64
+  },
+  "expected_controls": {
+    "prefix_rejections": 477,
+    "trailing_rejections": 83,
+    "subview_decodes": 83,
+    "owned_results": 83,
+    "exact_encode_caps": 83,
+    "short_encode_caps": 80,
+    "append_preserved": true,
+    "unit_budget_rejected": true,
+    "sticky_swallowed_error": true,
+    "direct_length_work_exact": true
+  },
+  "model": {
+    "name": "native-values-threshold",
+    "model_version": 1,
+    "properties_version": 1,
+    "codec_version": 1,
+    "build": "application-v1"
+  },
+  "model_decode_limits": {
+    "bytes": "128",
+    "allocation": "128",
+    "elements": "16",
+    "depth": "8",
+    "work": "64"
+  },
+  "provenance": {
+    "run": "installed-values-run",
+    "epoch": "1",
+    "manifest": "canonical-value-codec-v1",
+    "source": "consumer-source",
+    "environment": [
+      [
+        "schema",
+        "vec-option-u64"
+      ]
+    ]
+  },
+  "normal_report": {
+    "outcome": "exact",
+    "divergence_step": null,
+    "divergence_field": null,
+    "steps_verified": 3,
+    "failure_reproduced": true,
+    "build_matches": true
+  },
+  "layout_measurement_job": "f0351a737e3f43758f30430d8a92d4c4",
+  "layout_scope": "Measured finite Rust64 registry; target/compiler receipt retained by reference owner, not a general layout algorithm.",
+  "limits": {
+    "max_total_bytes": 16384,
+    "max_frame_bytes": 4096,
+    "max_blob_bytes": 64,
+    "max_string_bytes": 256,
+    "max_steps": 16,
+    "max_checks_per_step": 16,
+    "max_outputs_per_step": 16,
+    "max_parameters": 32,
+    "max_items": 256
+  },
+  "evidence_limits": {
+    "max_metadata_bytes": 1024,
+    "max_labels": 8,
+    "max_label_bytes": 128,
+    "max_causes_per_step": 4,
+    "max_total_causes": 8
+  }
+}

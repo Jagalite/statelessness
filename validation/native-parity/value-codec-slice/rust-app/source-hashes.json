@@ -1,0 +1,9 @@
+{
+  "source_identity_origin": "Reference owner verified frozen input hashes before successful build af47e70b99724f8891c7bdac57498e0e and smoke execution; later LengthOnly source delta is excluded.",
+  "files": {
+    "spec/canonical-value-codec-v1.md": "c94ea1d77a51d66c1da3e7ff73d146fd35011d2c5519ef8060bd9f2d89393867",
+    "conformance/canonical-value-codec-v1.json": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+    "validation/corpus/src/bin/native-values.rs": "53034f37d1f2c33259eaa725653dabc58550f3c8ba061866c28a82628de7fbe9",
+    "validation/corpus/src/values_reference.rs": "a71cbc3d013a47e1e34e6ce819496a4a93c3e971b6c55ffea032e6c0bd835afe"
+  }
+}

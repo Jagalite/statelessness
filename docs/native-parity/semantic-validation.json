@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "kind": "compiler_inventory_parser_and_identity_validation_only",
+  "parser_sha256": "9ef4eddedb5a2c9d32d1dedba9750897116a255bae3f185c7f39ddadd9e9704d",
+  "ledger_sha256": "a400ebd6aaac0a2bad40c72b0586b5df614fa2dec8687427767e250e15469a12",
+  "jobs": [
+    {
+      "id": "be95c939e5274d90bf4f253efa5e1ab9",
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity",
+      "command": [
+        "python3",
+        "scripts/native_semantic_inventory.py",
+        "--check"
+      ],
+      "requested_command": [
+        "python3",
+        "scripts/native_semantic_inventory.py",
+        "--check"
+      ],
+      "status": "succeeded",
+      "exit_code": 0,
+      "started": 1792528735.087008,
+      "finished": 1792528736.5463371,
+      "log": "/Users/jagatranvo/.local/state/kyoto/be95c939e5274d90bf4f253efa5e1ab9.log",
+      "log_sha256": "25054dd953b5d99fe84d00db8b1bbc2d8a9bc762c899fbf907ec2927422371e3"
+    },
+    {
+      "id": "7a70bbeb0c944d3d95e410d179218bcc",
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity",
+      "command": [
+        "python3",
+        "scripts/native_semantic_inventory.py",
+        "--self-test"
+      ],
+      "requested_command": [
+        "python3",
+        "scripts/native_semantic_inventory.py",
+        "--self-test"
+      ],
+      "status": "succeeded",
+      "exit_code": 0,
+      "started": 1792528735.255081,
+      "finished": 1792528735.4062002,
+      "log": "/Users/jagatranvo/.local/state/kyoto/7a70bbeb0c944d3d95e410d179218bcc.log",
+      "log_sha256": "1e1b7b2ca8aea7a47e7c49062337b6f69a472b8d9e61b947c82ad5c1332e93df"
+    }
+  ],
+  "note": "Four parser regression tests and complete generated graph/source/raw identity check executed through Kyoto. No model runtime or native-port qualification is implied."
+}

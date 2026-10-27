@@ -1,0 +1,122 @@
+{
+  "workspace": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf",
+  "commands": [
+    {
+      "name": "builder-venv",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "venv",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/builder"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "builder-tools",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/builder/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "setuptools>=77",
+        "wheel"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 801,
+      "sha256": "044c3535d623ad706b9c7ceeb60aff073a2b881d0217921cd4988579b26624cd"
+    },
+    {
+      "name": "builder-freeze",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/builder/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 61,
+      "sha256": "3bc1cee9a2497b7326c8cf8b8dbd55cc7314c5b52d7b4c8acd8e8104d5d63c1e"
+    },
+    {
+      "name": "wheel",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/builder/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--no-build-isolation",
+        "--wheel-dir",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-3f30e40b/validation/native-parity/debugger-diagnostics/python/installed-r1",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/package"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 1021,
+      "sha256": "bcaa42b2081d1400fb3d724e7538a4ac9a80618cc3eb2e1f7fec30c2b510dda4"
+    },
+    {
+      "name": "consumer-venv",
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "venv",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "install",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-deps",
+        "--no-index",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-3f30e40b/validation/native-parity/debugger-diagnostics/python/installed-r1/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 256,
+      "sha256": "eaf53e6fd94a80ab4910f9154cb8eee6ef4dbd0e2b604a971ee5e6060833a059"
+    },
+    {
+      "name": "fresh-import",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/bin/python",
+        "-I",
+        "-c",
+        "import statelessness, sys; assert 'statelessness.debugger' not in sys.modules; assert 'statelessness.debugger_session' not in sys.modules; import statelessness.debugger as d; import statelessness.debugger_session as s; print(d.__file__); print(s.__file__)"
+      ],
+      "exit_code": 0,
+      "raw_bytes": 326,
+      "sha256": "ba661ec2ff8803b4eb7f7263f3d07d20e9e8cb60da216c21d4ca39f32b8ff3d8"
+    },
+    {
+      "name": "installed-tests",
+      "argv": [
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/consumer/bin/python",
+        "-I",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-0u8gvdvf/tests",
+        "-p",
+        "test_debugger*.py",
+        "-v"
+      ],
+      "exit_code": 1,
+      "raw_bytes": 4227,
+      "sha256": "c8ef60a5889716f5efc19bb093e4a649e598afd308a84013535d670637ebce94"
+    }
+  ],
+  "qualification": "candidate optional Python offline/session only",
+  "source_debugger_sha256": "cf4a0010cf8b966e5fc19436015662154a5a631f035c19d79f8db63f8dba8c5c",
+  "source_session_sha256": "c09930f3e78a5eb07dd12aa6b2cd1a96492d4c4357aac3fe109825bf941962ae",
+  "wheel_sha256": "9ec350b444b92176e52b6049ef53b1e267f207f88a47ac8b84c55a52d08f451a"
+}

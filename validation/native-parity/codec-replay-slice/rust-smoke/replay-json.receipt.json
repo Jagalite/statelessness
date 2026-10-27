@@ -1,0 +1,12 @@
+{
+  "build_matches": true,
+  "codec_into_calls": 10,
+  "divergence_field": null,
+  "divergence_step": null,
+  "failure_reproduced": true,
+  "legacy_encoder_calls": 0,
+  "mode": "replay-json",
+  "outcome": "exact",
+  "producer": "rust",
+  "steps_verified": 3
+}

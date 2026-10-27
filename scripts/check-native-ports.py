@@ -20,6 +20,25 @@ import tarfile
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def fixture_environment():
+    """Bind shared fixture bytes explicitly for relocated native test packages."""
+    return dict(os.environ,
+        STATELESS_PAIRED_CORPUS=str(ROOT / 'conformance/paired-v1.tsv'),
+        STATELESS_SEARCH_CORPUS=str(ROOT / 'conformance/search-v1.tsv'),
+        STATELESS_SEARCH_HISTORY=str(ROOT / 'conformance/search-v1-history.json'),
+        STATELESS_BINARY_CORPUS=str(ROOT / 'conformance/native-binary-v1.json'),
+        STATELESS_BFS_CORPUS=str(ROOT / 'conformance/bfs-controls-v1.json'),
+        STATELESS_APPEND_CORPUS=str(ROOT / 'conformance/append-checks-v1.json'),
+        STATELESS_ENCODE_CORPUS=str(ROOT / 'conformance/encode-buffers-v1.json'),
+        STATELESS_REPLAY_CORPUS=str(ROOT / 'conformance/replay-evidence-v1.json'),
+        STATELESS_CHECKED_CORPUS=str(ROOT / 'conformance/checked-results-v1.json'),
+        STATELESS_EVIDENCE_CORPUS=str(ROOT / 'conformance/causal-evidence-v2.json'),
+        STATELESS_CAUSAL_CORPUS=str(ROOT / 'conformance/causal-evidence-v2.json'),
+        STATELESS_DIAGNOSTIC_CORPUS=str(ROOT / 'conformance/debugger-diagnostics-v1.json'),
+        STATELESS_VALUE_CORPUS=str(ROOT / 'conformance/canonical-value-codec-v1.json'),
+        STATELESS_RESEARCH_CORPUS=str(ROOT / 'conformance/research-equivalence-v1.json'))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rust', type=Path)
@@ -66,7 +85,8 @@ def main():
         return dest
 
     go, node, npm = tool('go'), tool('node'), tool('npm')
-    environment = dict(os.environ, CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off')
+    paired_environment = fixture_environment()
+    environment = dict(paired_environment, CGO_ENABLED='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off')
     toolchains = {'python': sys.version, 'platform': platform.platform()}
     toolchains['go'] = run('go-version', [go, 'version']).strip()
     toolchains['node'] = run('node-version', [node, '--version']).strip()
@@ -124,7 +144,7 @@ def main():
         copy(ROOT / 'swift', source / 'swift')
         # All package tests use XCTest. Avoid launching the unused Swift Testing
         # runner, whose Swift 6.0.3 Darwin loader cannot locate Xcode's XCTestCore.
-        run('swift-native-tests', [swift, 'test', '--disable-swift-testing', '--package-path', source, '-j', '2'])
+        run('swift-native-tests', [swift, 'test', '--disable-swift-testing', '--package-path', source, '-j', '2'], env=paired_environment)
         run('swift-release-build', [swift, 'build', '--package-path', source, '-c', 'release', '-j', '2'])
         binary_dir = run('swift-bin-path', [swift, 'build', '--package-path', source, '-c', 'release', '--show-bin-path']).strip()
         swift_runner = out / ('swift-corpus' + suffix)

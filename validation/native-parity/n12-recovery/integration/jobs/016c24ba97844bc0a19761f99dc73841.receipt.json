@@ -1,0 +1,26 @@
+{
+  "job": "016c24ba97844bc0a19761f99dc73841",
+  "status": "succeeded",
+  "terminal": true,
+  "raw_log": {
+    "bytes": 1727,
+    "sha256": "c64bde93eae67267c5bf6546c26990624e48adabb81294af09e5726c432f12e1"
+  },
+  "effective_command": [
+    "python3",
+    "scripts/native-parity/qualify-n12-integration.py",
+    "--spec",
+    "validation/native-parity/n12-recovery/integration/os-pipe-spec.json",
+    "--output",
+    "validation/native-parity/n12-recovery/integration/os-pipe-r1"
+  ],
+  "requested_command": [
+    "python3",
+    "scripts/native-parity/qualify-n12-integration.py",
+    "--spec",
+    "validation/native-parity/n12-recovery/integration/os-pipe-spec.json",
+    "--output",
+    "validation/native-parity/n12-recovery/integration/os-pipe-r1"
+  ],
+  "policy_message": null
+}

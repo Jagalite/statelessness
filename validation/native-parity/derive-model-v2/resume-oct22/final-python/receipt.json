@@ -1,0 +1,37 @@
+{
+  "command": [
+    "env",
+    "PYTHONPATH=python/src",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "python/tests",
+    "-v"
+  ],
+  "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+  "started_ns": 1792675831595534000,
+  "source_commit": "79f7fe5f8428172924a34280a59f5a725ebe586e",
+  "command_exit_code": 0,
+  "finished_ns": 1792675832674682000,
+  "source_before_after_equal": true,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "files": {
+    "source-before.json": {
+      "sha256": "90ea796f52c00a4310551397e1176fa8f4c6eb91320bb6dde2caa67b2bfb17bd",
+      "size_bytes": 1051130
+    },
+    "source-after.json": {
+      "sha256": "90ea796f52c00a4310551397e1176fa8f4c6eb91320bb6dde2caa67b2bfb17bd",
+      "size_bytes": 1051130
+    },
+    "raw.log": {
+      "sha256": "ec4c1e888b5bd75606cfff904680de67c5572c25d2b78f9675e39b259d1157ad",
+      "size_bytes": 40593
+    }
+  },
+  "status": "passed"
+}

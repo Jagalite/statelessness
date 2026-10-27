@@ -1,0 +1,491 @@
+{
+  "case_count": 83,
+  "controls": {
+    "append_preserved": true,
+    "direct_length_work_exact": true,
+    "exact_encode_caps": 83,
+    "owned_results": 83,
+    "prefix_rejections": 477,
+    "short_encode_caps": 80,
+    "sticky_error": "truncated value",
+    "sticky_swallowed_error": true,
+    "subview_decodes": 83,
+    "trailing_rejections": 83,
+    "unit_budget_error": "decode element limit",
+    "unit_budget_rejected": true
+  },
+  "decoded_values": [
+    {
+      "id": "u8-zero",
+      "value": "0"
+    },
+    {
+      "id": "u8-max",
+      "value": "255"
+    },
+    {
+      "id": "u16-zero",
+      "value": "0"
+    },
+    {
+      "id": "u16-max",
+      "value": "65535"
+    },
+    {
+      "id": "u32-zero",
+      "value": "0"
+    },
+    {
+      "id": "u32-max",
+      "value": "4294967295"
+    },
+    {
+      "id": "u64-zero",
+      "value": "0"
+    },
+    {
+      "id": "u64-max",
+      "value": "18446744073709551615"
+    },
+    {
+      "id": "u128-zero",
+      "value": "0"
+    },
+    {
+      "id": "u128-max",
+      "value": "340282366920938463463374607431768211455"
+    },
+    {
+      "id": "i8-zero",
+      "value": "0"
+    },
+    {
+      "id": "i8-min",
+      "value": "-128"
+    },
+    {
+      "id": "i8-max",
+      "value": "127"
+    },
+    {
+      "id": "i8-negative-one",
+      "value": "-1"
+    },
+    {
+      "id": "i16-zero",
+      "value": "0"
+    },
+    {
+      "id": "i16-min",
+      "value": "-32768"
+    },
+    {
+      "id": "i16-max",
+      "value": "32767"
+    },
+    {
+      "id": "i16-negative-one",
+      "value": "-1"
+    },
+    {
+      "id": "i32-zero",
+      "value": "0"
+    },
+    {
+      "id": "i32-min",
+      "value": "-2147483648"
+    },
+    {
+      "id": "i32-max",
+      "value": "2147483647"
+    },
+    {
+      "id": "i32-negative-one",
+      "value": "-1"
+    },
+    {
+      "id": "i64-zero",
+      "value": "0"
+    },
+    {
+      "id": "i64-min",
+      "value": "-9223372036854775808"
+    },
+    {
+      "id": "i64-max",
+      "value": "9223372036854775807"
+    },
+    {
+      "id": "i64-negative-one",
+      "value": "-1"
+    },
+    {
+      "id": "i128-zero",
+      "value": "0"
+    },
+    {
+      "id": "i128-min",
+      "value": "-170141183460469231731687303715884105728"
+    },
+    {
+      "id": "i128-max",
+      "value": "170141183460469231731687303715884105727"
+    },
+    {
+      "id": "i128-negative-one",
+      "value": "-1"
+    },
+    {
+      "id": "bool-false",
+      "value": false
+    },
+    {
+      "id": "bool-true",
+      "value": true
+    },
+    {
+      "id": "unit",
+      "value": null
+    },
+    {
+      "id": "string-empty",
+      "value": ""
+    },
+    {
+      "id": "string-ascii",
+      "value": "hello"
+    },
+    {
+      "id": "string-unicode",
+      "value": "雪😀"
+    },
+    {
+      "id": "string-nul",
+      "value": "a\u0000b"
+    },
+    {
+      "id": "string-leading-bom",
+      "value": "﻿x"
+    },
+    {
+      "id": "string-nfc",
+      "value": "é"
+    },
+    {
+      "id": "string-nfd",
+      "value": "é"
+    },
+    {
+      "id": "none-unit",
+      "value": {
+        "some": false
+      }
+    },
+    {
+      "id": "some-unit",
+      "value": {
+        "some": true,
+        "value": null
+      }
+    },
+    {
+      "id": "some-empty-string",
+      "value": {
+        "some": true,
+        "value": ""
+      }
+    },
+    {
+      "id": "some-none",
+      "value": {
+        "some": true,
+        "value": {
+          "some": false
+        }
+      }
+    },
+    {
+      "id": "some-some-unit",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      }
+    },
+    {
+      "id": "vector-empty",
+      "value": []
+    },
+    {
+      "id": "vector-u16-order-duplicates",
+      "value": [
+        "4660",
+        "0",
+        "4660"
+      ]
+    },
+    {
+      "id": "vector-unit-three",
+      "value": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "array-empty",
+      "value": []
+    },
+    {
+      "id": "array-u16-three",
+      "value": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "id": "tuple-one",
+      "value": [
+        "4660"
+      ]
+    },
+    {
+      "id": "tuple-two",
+      "value": [
+        "1",
+        "72623859790382856"
+      ]
+    },
+    {
+      "id": "tuple-three",
+      "value": [
+        null,
+        "-2",
+        false
+      ]
+    },
+    {
+      "id": "tuple-four-small-witness",
+      "value": [
+        "4660",
+        "-2",
+        true,
+        {
+          "some": true,
+          "value": "9"
+        }
+      ]
+    },
+    {
+      "id": "oracle-state-no-orc1-frame",
+      "value": {
+        "model": "4660",
+        "oracle": "H"
+      }
+    },
+    {
+      "id": "nested-vectors",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ]
+    },
+    {
+      "id": "vector-arrays",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ]
+    },
+    {
+      "id": "vector-options-u64",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "18446744073709551615"
+        }
+      ]
+    },
+    {
+      "id": "string-length-width-1",
+      "value": "雪"
+    },
+    {
+      "id": "vector-length-width-1",
+      "value": [
+        "1",
+        "65535"
+      ]
+    },
+    {
+      "id": "direct-string-width-1",
+      "value": "A"
+    },
+    {
+      "id": "direct-vector-width-1",
+      "value": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "id": "string-length-width-2",
+      "value": "雪"
+    },
+    {
+      "id": "vector-length-width-2",
+      "value": [
+        "1",
+        "65535"
+      ]
+    },
+    {
+      "id": "direct-string-width-2",
+      "value": "A"
+    },
+    {
+      "id": "direct-vector-width-2",
+      "value": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "id": "string-length-width-4",
+      "value": "雪"
+    },
+    {
+      "id": "vector-length-width-4",
+      "value": [
+        "1",
+        "65535"
+      ]
+    },
+    {
+      "id": "direct-string-width-4",
+      "value": "A"
+    },
+    {
+      "id": "direct-vector-width-4",
+      "value": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "id": "integer-all-budgets-exact",
+      "value": "255"
+    },
+    {
+      "id": "unit-zero-byte-allocation-elements",
+      "value": null
+    },
+    {
+      "id": "bool-work-depth-exact",
+      "value": true
+    },
+    {
+      "id": "some-unit-work-depth-exact",
+      "value": {
+        "some": true,
+        "value": null
+      }
+    },
+    {
+      "id": "some-some-unit-work-depth-exact",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      }
+    },
+    {
+      "id": "string-budget-exact",
+      "value": "A"
+    },
+    {
+      "id": "vector-unit-budget-exact",
+      "value": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "nested-vector-budget-exact",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ]
+    },
+    {
+      "id": "vector-array-double-storage-exact",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ]
+    },
+    {
+      "id": "vector-option-storage-exact",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "id": "direct-vector-omits-outer-work",
+      "value": [
+        "1",
+        "2"
+      ]
+    },
+    {
+      "id": "direct-string-omits-outer-work",
+      "value": "A"
+    },
+    {
+      "id": "outer-length-override-keeps-inner-default",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ]
+    }
+  ],
+  "mode": "transcode",
+  "producer": "rust"
+}

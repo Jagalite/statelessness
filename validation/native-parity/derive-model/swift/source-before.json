@@ -1,0 +1,214 @@
+{
+  "swift/Examples/Counter/Package.swift": {
+    "sha256": "284f892b7185f9e99185f0758be8a945df4b322a2f9fc613f2ee37d2f7320f9c",
+    "size": 331
+  },
+  "swift/Examples/Counter/Sources/Counter/main.swift": {
+    "sha256": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1",
+    "size": 1665
+  },
+  "swift/Sources/StatelessConformance/Conformance.swift": {
+    "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "size": 14229
+  },
+  "swift/Sources/StatelessCorpus/main.swift": {
+    "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+    "size": 156
+  },
+  "swift/Sources/Statelessness/AuditRecording.swift": {
+    "sha256": "0c59aa7540cadfa788e13eb5cc04c049667a1b631213bc51711f4a01231a1431",
+    "size": 5622
+  },
+  "swift/Sources/Statelessness/AuditTrace.swift": {
+    "sha256": "de880b933f6a0079e452c9502e5a5226b459598a6275ccb0d6df8976c752c920",
+    "size": 22959
+  },
+  "swift/Sources/Statelessness/CheckSink.swift": {
+    "sha256": "1e758da07c07a1b8dfb6600b2207fd09d0295cd5b15368ad891840d422b17f74",
+    "size": 5256
+  },
+  "swift/Sources/Statelessness/CheckedResults.swift": {
+    "sha256": "d2f92206250ddbc1368364c8c6cce4100074ce599e26bb722125e1d8c7dc2ccb",
+    "size": 5860
+  },
+  "swift/Sources/Statelessness/DeriveCodec.swift": {
+    "sha256": "8acc14a3b5597c813f3f197775af04cb2c8a58ede2574e0cf3411cd54a7eb841",
+    "size": 10344
+  },
+  "swift/Sources/Statelessness/EncodeBuffer.swift": {
+    "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686",
+    "size": 5222
+  },
+  "swift/Sources/Statelessness/Evidence.swift": {
+    "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04",
+    "size": 12778
+  },
+  "swift/Sources/Statelessness/EvidenceCodec.swift": {
+    "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83",
+    "size": 10781
+  },
+  "swift/Sources/Statelessness/EvidenceExports.swift": {
+    "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff",
+    "size": 5230
+  },
+  "swift/Sources/Statelessness/EvidenceRecorder.swift": {
+    "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f",
+    "size": 5375
+  },
+  "swift/Sources/Statelessness/Execution.swift": {
+    "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64",
+    "size": 7120
+  },
+  "swift/Sources/Statelessness/ExecutionBudget.swift": {
+    "sha256": "cf75a82573b229491ce58103d4c61574fe508e2fe4ffbc13e675444f56f64fd9",
+    "size": 3597
+  },
+  "swift/Sources/Statelessness/Explore.swift": {
+    "sha256": "fffc09255cb098b89b43eb3967f0deea6535ba42c8c20035bf28a3d744ed4b84",
+    "size": 8239
+  },
+  "swift/Sources/Statelessness/Fuzz.swift": {
+    "sha256": "acfd01988b28eca0789f3293c32add76dc381ef7029e4631f155befa35d00a37",
+    "size": 10548
+  },
+  "swift/Sources/Statelessness/Generate.swift": {
+    "sha256": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb",
+    "size": 4811
+  },
+  "swift/Sources/Statelessness/JSON.swift": {
+    "sha256": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "size": 10280
+  },
+  "swift/Sources/Statelessness/Model.swift": {
+    "sha256": "3c00084776a8d530b3edca6d90dcac839d422880b8ba996cda7ebc7d9db6270c",
+    "size": 12419
+  },
+  "swift/Sources/Statelessness/Oracle.swift": {
+    "sha256": "5f291c7117f1f5e479ee72ceeb77f656bf5c69c2f0f7d953060e33dd7298eb28",
+    "size": 16508
+  },
+  "swift/Sources/Statelessness/Recorder.swift": {
+    "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9",
+    "size": 18911
+  },
+  "swift/Sources/Statelessness/Replay.swift": {
+    "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692",
+    "size": 13333
+  },
+  "swift/Sources/Statelessness/Rng.swift": {
+    "sha256": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "size": 816
+  },
+  "swift/Sources/Statelessness/Shrink.swift": {
+    "sha256": "3a5fdfc8f45d4d3a74471ad86ac832855574853abcee78987e4ae0d11ae515c8",
+    "size": 11187
+  },
+  "swift/Sources/Statelessness/TraceJSON.swift": {
+    "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+    "size": 6270
+  },
+  "swift/Sources/Statelessness/ValueCodec.swift": {
+    "sha256": "fc868b8487c5e3fae46902687413d3371dc9f2de0a0058158509c203a7e6dee8",
+    "size": 10667
+  },
+  "swift/Sources/Statelessness/ValueCodec128.swift": {
+    "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e",
+    "size": 2748
+  },
+  "swift/Sources/Statelessness/ValueCodecBuiltins.swift": {
+    "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b",
+    "size": 10860
+  },
+  "swift/Sources/Statelessness/ValueCodecDecoder.swift": {
+    "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4",
+    "size": 4309
+  },
+  "swift/Sources/Statelessness/ValueCodecLayouts.swift": {
+    "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219",
+    "size": 4024
+  },
+  "swift/Tests/StatelessnessTests/AppendChecksTests.swift": {
+    "sha256": "3cc9b278d49352d715a41b450e1b506fae91752a7a245e806051a51a7c6649f6",
+    "size": 18961
+  },
+  "swift/Tests/StatelessnessTests/AuditTraceTests.swift": {
+    "sha256": "00ce0bd6aed64cf7a9982a453611ee88dd1512b40378704f35848ac6b4e2103a",
+    "size": 11111
+  },
+  "swift/Tests/StatelessnessTests/BFSControlsTests.swift": {
+    "sha256": "49216057493f3844d60294a33c62d0935d3fdae1733bebe41a3d4fc0f1f41395",
+    "size": 12934
+  },
+  "swift/Tests/StatelessnessTests/CheckedResultsTests.swift": {
+    "sha256": "7b75ba57141bd9a807ea82d3429a03a47031d8c7ca419b38b739acb7b6c990fd",
+    "size": 10735
+  },
+  "swift/Tests/StatelessnessTests/DeriveCodecTests.swift": {
+    "sha256": "55efb57d93e18fe50cbc6b6e847f41254e0b41fb964d4e49c057e00f6349af3f",
+    "size": 9851
+  },
+  "swift/Tests/StatelessnessTests/EncodeReplayTests.swift": {
+    "sha256": "36b8e48f9042bbc0ba869cda92450ec62ba873db0bdd39acae7df3f74492e4d3",
+    "size": 26376
+  },
+  "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift": {
+    "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11",
+    "size": 5031
+  },
+  "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift": {
+    "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5",
+    "size": 14325
+  },
+  "swift/Tests/StatelessnessTests/EvidenceTests.swift": {
+    "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739",
+    "size": 14885
+  },
+  "swift/Tests/StatelessnessTests/NativeTests.swift": {
+    "sha256": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33",
+    "size": 14437
+  },
+  "swift/Tests/StatelessnessTests/OracleTests.swift": {
+    "sha256": "07a7e80583c5fd598fc846223ec5305117e9fb972ea26137c8b264ba886a08aa",
+    "size": 15474
+  },
+  "swift/Tests/StatelessnessTests/RecorderTests.swift": {
+    "sha256": "1d90149531f85c103e2b35021d05b03ff7e9277c6446d1f0bf2b0bd4b8aac338",
+    "size": 29811
+  },
+  "swift/Tests/StatelessnessTests/RecordingErrorTests.swift": {
+    "sha256": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9",
+    "size": 1502
+  },
+  "swift/Tests/StatelessnessTests/ReplayCorpusTests.swift": {
+    "sha256": "398e0f1d9e6eaceca893d25008b122560998b061912a21a765c4ffd889584928",
+    "size": 14134
+  },
+  "swift/Tests/StatelessnessTests/SearchTests.swift": {
+    "sha256": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f",
+    "size": 18884
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift": {
+    "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323",
+    "size": 6474
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift": {
+    "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211",
+    "size": 10550
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift": {
+    "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47",
+    "size": 5023
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift": {
+    "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996",
+    "size": 5821
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecTests.swift": {
+    "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b",
+    "size": 16064
+  },
+  "Package.swift": {
+    "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+    "size": 1003
+  }
+}

@@ -1,0 +1,6 @@
+ok  	github.com/Jagalite/statelessness/go	1.225s
+?   	github.com/Jagalite/statelessness/go/cmd/stateless-corpus	[no test files]
+?   	github.com/Jagalite/statelessness/go/conformance	[no test files]
+ok  	github.com/Jagalite/statelessness/go/debug	0.357s
+?   	github.com/Jagalite/statelessness/go/examples/counter	[no test files]
+ok  	github.com/Jagalite/statelessness/go/internal/portablejson	0.180s

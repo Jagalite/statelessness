@@ -1,0 +1,191 @@
+{
+  "captured": 1792541463.3329039,
+  "status": "authored only; no research execution; awaiting root global freeze",
+  "files": {
+    "python/src/statelessness/__init__.py": {
+      "sha256": "cef793916954de35d232926f1c72f1125088645f4cc783771a0fdaf65b61c03f",
+      "size": 4767,
+      "mtime": 1792541350.0
+    },
+    "python/src/statelessness/_native_packet.py": {
+      "sha256": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+      "size": 4706,
+      "mtime": 1792526179.0
+    },
+    "python/src/statelessness/audit_record.py": {
+      "sha256": "e8f20bbbc76c58bbbe451193089c4793fba46d5708efaa75e1e24b88b8e4db54",
+      "size": 7105,
+      "mtime": 1792533235.0
+    },
+    "python/src/statelessness/checked.py": {
+      "sha256": "5a450a24632d2f304d3714cccd1723654d568550d92d47f7ff38d7f8568e0b70",
+      "size": 4813,
+      "mtime": 1792534047.0
+    },
+    "python/src/statelessness/codec.py": {
+      "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a",
+      "size": 5746,
+      "mtime": 1792537783.0
+    },
+    "python/src/statelessness/conformance.py": {
+      "sha256": "f0939e303f50cbef885ef5ee4770ee1bbe85aa0061dc7766fbbc21601a0403e0",
+      "size": 12985,
+      "mtime": 1792530107.0
+    },
+    "python/src/statelessness/core.py": {
+      "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397",
+      "size": 28886,
+      "mtime": 1792533320.0
+    },
+    "python/src/statelessness/evidence.py": {
+      "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3",
+      "size": 27725,
+      "mtime": 1792536466.0
+    },
+    "python/src/statelessness/evidence_recorder.py": {
+      "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b",
+      "size": 6736,
+      "mtime": 1792535971.0
+    },
+    "python/src/statelessness/monitor.py": {
+      "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493",
+      "size": 16547,
+      "mtime": 1792535205.0
+    },
+    "python/src/statelessness/native.py": {
+      "sha256": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+      "size": 30366,
+      "mtime": 1792526179.0
+    },
+    "python/src/statelessness/native_conformance.py": {
+      "sha256": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+      "size": 1611,
+      "mtime": 1792526180.0
+    },
+    "python/src/statelessness/oracle.py": {
+      "sha256": "50d26c0430ae2bf67c43d9874817a69cc673d655dd835c9218f1fb31eaa3245f",
+      "size": 13175,
+      "mtime": 1792532457.0
+    },
+    "python/src/statelessness/replay_evidence.py": {
+      "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055",
+      "size": 14082,
+      "mtime": 1792535940.0
+    },
+    "python/src/statelessness/research.py": {
+      "sha256": "cf1700faf152f28c0d27967b880bc6fe87b4ed6a152f0d4a1c8b89bf09a345bf",
+      "size": 18849,
+      "mtime": 1792541194.0
+    },
+    "python/src/statelessness/search.py": {
+      "sha256": "5195e85fef070a460d877151dee0c481089f01d7a9e006617ae2299850c75223",
+      "size": 22387,
+      "mtime": 1792531505.0
+    },
+    "python/src/statelessness/trace_binary.py": {
+      "sha256": "68f7797071346d294ab8077c031c182973787d42371c2b951af46124c1e419d4",
+      "size": 18237,
+      "mtime": 1792531914.0
+    },
+    "python/src/statelessness/trace_json.py": {
+      "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+      "size": 8023,
+      "mtime": 1792526180.0
+    },
+    "python/src/statelessness/value_codec.py": {
+      "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735",
+      "size": 18057,
+      "mtime": 1792538720.0
+    },
+    "python/tests/test_abi_v2.py": {
+      "sha256": "d7906916b8be87dfa9ff46f1d675c9645dc6c953beabc7df268fec79e19b1e6b",
+      "size": 12850,
+      "mtime": 1792526180.0
+    },
+    "python/tests/test_append_checks.py": {
+      "sha256": "a27353fe7fdbc963bf07a75fd401eebc3e955ac30c3bb896b9df44d0d1e1dba9",
+      "size": 25227,
+      "mtime": 1792531575.0
+    },
+    "python/tests/test_bfs_controls.py": {
+      "sha256": "f744c4265a5fc0d9e724daba4f48bb2aa871c9ad61ae6dc01b9858adbb7fb5dc",
+      "size": 22540,
+      "mtime": 1792530557.0
+    },
+    "python/tests/test_checked.py": {
+      "sha256": "2ea577bd6fbac09ab36fcb243291b90f59d8aa803f33a1a18d096c7d24870c2f",
+      "size": 12408,
+      "mtime": 1792534084.0
+    },
+    "python/tests/test_codec_replay.py": {
+      "sha256": "33d5e8a2c122a58fcbf16265b67101e848a32fd18004716d478bfc1beee63148",
+      "size": 27618,
+      "mtime": 1792533320.0
+    },
+    "python/tests/test_evidence.py": {
+      "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355",
+      "size": 18795,
+      "mtime": 1792536466.0
+    },
+    "python/tests/test_evidence_recorder.py": {
+      "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286",
+      "size": 23816,
+      "mtime": 1792535966.0
+    },
+    "python/tests/test_monitor.py": {
+      "sha256": "767aae9a32a09eb258bcc307758e21614e4fd2fc15277f55a0e0567ac68cfac9",
+      "size": 19923,
+      "mtime": 1792534458.0
+    },
+    "python/tests/test_native.py": {
+      "sha256": "46f0194b4433b66b1d50422beee0fcb8930b4b171fabe9718c727dac6a022af4",
+      "size": 10663,
+      "mtime": 1792526180.0
+    },
+    "python/tests/test_paired.py": {
+      "sha256": "93e14e4dbff7567966d527dce05b27f1374269786c9de39d123df5c887d71258",
+      "size": 12449,
+      "mtime": 1792526181.0
+    },
+    "python/tests/test_replay_evidence_vectors.py": {
+      "sha256": "431738c40061a23a1b39b53b21e4ffa8041c7a85156efdbe549930b894a49f4f",
+      "size": 7969,
+      "mtime": 1792533229.0
+    },
+    "python/tests/test_research.py": {
+      "sha256": "8496474f7aa3a9d6d9fc81ebc4592bbeb9408001ba4eb82adecdd3355fc87d93",
+      "size": 37356,
+      "mtime": 1792541393.0
+    },
+    "python/tests/test_search.py": {
+      "sha256": "aff3ccf4405af11e29852045f47e0273a37eaa0624da4393fe5562ca9aaf29e3",
+      "size": 24134,
+      "mtime": 1792527512.0
+    },
+    "python/tests/test_trace_binary.py": {
+      "sha256": "b1c2dc370c0a54cbd7c725151691a2522a3c47ec2e870fe807f8ca3ebd8ab688",
+      "size": 16380,
+      "mtime": 1792531914.0
+    },
+    "python/tests/test_value_codec.py": {
+      "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b",
+      "size": 38835,
+      "mtime": 1792538720.0
+    },
+    "python/README.md": {
+      "sha256": "c2bedd2edd7bd3e56ae24fdf2780deb3f3d9f963ce829c000575fe9536cbbff1",
+      "size": 31044,
+      "mtime": 1792541230.0
+    },
+    "conformance/research-equivalence-v1.json": {
+      "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa",
+      "size": 356459,
+      "mtime": 1792541257.0
+    },
+    "spec/research-equivalence-v1.md": {
+      "sha256": "bbaffbcb09f24e5e85bfa3ca59ed7ff5b3d242f8c086b91af43f7373ca022649",
+      "size": 10495,
+      "mtime": 1792541086.0
+    }
+  }
+}

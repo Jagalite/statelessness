@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-22T13:55:25.394969+00:00",
+  "status": "pending, not a completion receipt",
+  "source_frozen": true,
+  "commits": [
+    "79f7fe5f8428172924a34280a59f5a725ebe586e",
+    "373ba71945426cc13dde07cbf2e47d20be235473",
+    "0b10386196e467663259a6fe86f79d38fb374b7d"
+  ],
+  "pending_jobs": {
+    "sealed-driver": "b4822433e1d7413a83d77efab4ecd25c",
+    "sealed-installed-wrapper": "7daea984bfc5457083db9f4451a6ca35"
+  },
+  "pending_review": null,
+  "draft": "drafts/build-identity-fix/manifest.json",
+  "next": "Await exact current jobs without restart or policy changes. Inspect 10 regression methods and actual installed5producers/25pairs; fix concrete failures only after jobs terminal. Archive lossless logs, source/runner identities, actual measured counts. Final native inputs are unchanged except driver/test/oracle3files; suite-input-inheritance.json pins scopes. Finalize HANDOFF.md and final-summary.json, commit all receipts, verify clean worktree and source identity, return exact three source commits plus receipt commit/counts/gaps/livehandles. No push/PR/parent integration/promotion.",
+  "last_checked_at": "2026-10-22T14:30:40.581903+00:00",
+  "final_driver_review": "driver-final-review.json; no actionable findings, exact draft manifest matched",
+  "queue_admission": "Last health sample OS memory pressure warning, effective_max_running=0; shared policy untouched",
+  "completed_prior_pending_jobs": {
+    "final-rust-runtime": "cec560b0a5594309be2eac8156cb3ba4; passed644, source/executables unchanged",
+    "rust-identity-diagnostic": "c90f6c4a63c5418eb049a014992ebd73; component order exactly matches compiler stamp"
+  }
+}

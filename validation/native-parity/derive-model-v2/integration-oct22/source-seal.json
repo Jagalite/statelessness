@@ -1,0 +1,11 @@
+{
+  "source_commit": "800a591aa69aa213a17632520a3d5fc864fa2fae",
+  "source_manifest": {
+    "path": "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+    "sha256": "558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481",
+    "size_bytes": 949381,
+    "entries": 4706
+  },
+  "source_policy": "Freeze every input represented by this manifest; only derive-model-v2 receipts excluded",
+  "scope": "pre-submit source membership/type/mode/size/hash bookkeeping, no build/test executed"
+}

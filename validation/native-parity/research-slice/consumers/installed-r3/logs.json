@@ -1,0 +1,226 @@
+[
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/baseline-go-corpus-build.log",
+    "file": "logs/baseline-go-corpus-build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/baseline-swift-bin-path.log",
+    "file": "logs/baseline-swift-bin-path.log.gz",
+    "raw_bytes": 138,
+    "raw_sha256": "196137600268644f7accd55fb7b3dbbb23096cd0c5cb3f9b70f9fb76cb75aa2b",
+    "gzip_bytes": 135,
+    "gzip_sha256": "7386e3abd1565f092d466e55a4698fa25534805531c36ede4c186a6ddd0ce239"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/baseline-swift-corpus-build.log",
+    "file": "logs/baseline-swift-corpus-build.log.gz",
+    "raw_bytes": 1896,
+    "raw_sha256": "7709d0d8eb941a4a34e3e8412e293c91de87792b51a98f447a5487ad42f0b68c",
+    "gzip_bytes": 552,
+    "gzip_sha256": "350a3efa5034b391bfbcb775e6f9d44b24c24b3d9fdc0ffd93c3ffeb1ec553e4"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/go-build.log",
+    "file": "logs/go-build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/go-research.log",
+    "file": "logs/go-research.log.gz",
+    "raw_bytes": 82,
+    "raw_sha256": "5caf0404331597158298257fca79f3d05a5bc264b98e06e38caccc999ea1ca74",
+    "gzip_bytes": 92,
+    "gzip_sha256": "48b6cfc40613e91ebd5b77d1ec54c35cae573f0adf3541868f919eccecd9062b"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/go-version.log",
+    "file": "logs/go-version.log.gz",
+    "raw_bytes": 33,
+    "raw_sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9",
+    "gzip_bytes": 53,
+    "gzip_sha256": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/installed-four-profile-baseline.log",
+    "file": "logs/installed-four-profile-baseline.log.gz",
+    "raw_bytes": 3941,
+    "raw_sha256": "10834ab77640faae9f0fd856f890885b1d78c266c5a492fb981467e2af0aa068",
+    "gzip_bytes": 821,
+    "gzip_sha256": "fdde49271e19c59501c5b7ec7b70c8f13c1ef9f455d482d2c288e1deaa30468a"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/node-version.log",
+    "file": "logs/node-version.log.gz",
+    "raw_bytes": 8,
+    "raw_sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6",
+    "gzip_bytes": 28,
+    "gzip_sha256": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/npm-version.log",
+    "file": "logs/npm-version.log.gz",
+    "raw_bytes": 7,
+    "raw_sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5",
+    "gzip_bytes": 27,
+    "gzip_sha256": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-builder-freeze.log",
+    "file": "logs/python-builder-freeze.log.gz",
+    "raw_bytes": 61,
+    "raw_sha256": "0ab3d1305cf3b2031a43ecc3818882ac0bc23c094e0ee519b4c45258fa00ad9e",
+    "gzip_bytes": 78,
+    "gzip_sha256": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-builder-tools.log",
+    "file": "logs/python-builder-tools.log.gz",
+    "raw_bytes": 802,
+    "raw_sha256": "7242a82b8570a46a014a6f728842a3e3514cb00075a39dc330341095fe648c50",
+    "gzip_bytes": 388,
+    "gzip_sha256": "caf419e32c0f7ebe15496a25d8e8a344b140dcda77325e7c66a572516ea7be39"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-builder-venv.log",
+    "file": "logs/python-builder-venv.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-install.log",
+    "file": "logs/python-install.log.gz",
+    "raw_bytes": 263,
+    "raw_sha256": "f39f24d34fc5ebf3a7d47c07cebd7b87f3053a0f671e4c62c6b2f38776c2b3b7",
+    "gzip_bytes": 182,
+    "gzip_sha256": "9585436cb8b1abf8a3b87a585e8773a3185f3ac52753db4d7e293db933b36805"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-research.log",
+    "file": "logs/python-research.log.gz",
+    "raw_bytes": 259,
+    "raw_sha256": "a378589529297c08ce0bea4b13006829e50d19601cc7cc785ca8a56d0cf8fa70",
+    "gzip_bytes": 211,
+    "gzip_sha256": "849528f190ec175e40d2d3d402baa20910d54d9cb2fa1974cbc8ed85b70c2e18"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-venv.log",
+    "file": "logs/python-venv.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/python-wheel.log",
+    "file": "logs/python-wheel.log.gz",
+    "raw_bytes": 894,
+    "raw_sha256": "c9feb688f9345bebc27728c6e1de5d43fcacfebc6316d0eb304219dc18893997",
+    "gzip_bytes": 516,
+    "gzip_sha256": "40f5d41d22ef332fd8353568d3bf7c52c1645c056177642dd16b0709f41d7a8e"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/rust-research.log",
+    "file": "logs/rust-research.log.gz",
+    "raw_bytes": 84,
+    "raw_sha256": "ece6cbc13900139c05a7311ca3a182311df7d112d8b63200d88412557a82c2ae",
+    "gzip_bytes": 92,
+    "gzip_sha256": "0ec1fc1e7b8b07fdc7d42be42b9476b9690d061750572d3796c6f127f1a079bf"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/swift-bin-path.log",
+    "file": "logs/swift-bin-path.log.gz",
+    "raw_bytes": 139,
+    "raw_sha256": "eea6b67bba4c54800cc06d0e31aeb38b2a95b08a449288b096b1329085b20956",
+    "gzip_bytes": 136,
+    "gzip_sha256": "eaaafa6febffffe78564ec7b7fc165c2e4712d9b45047b43f4901a90d6459a46"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/swift-build.log",
+    "file": "logs/swift-build.log.gz",
+    "raw_bytes": 1764,
+    "raw_sha256": "40b45e0a41404d6bd8aaafcc67c3da0ec9116c6175de60e405a78a5daa7e83bc",
+    "gzip_bytes": 511,
+    "gzip_sha256": "8e6d6a9999b5d3924588c0a3910925c70330b06250325449bcbccbddadcd5df9"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/swift-research.log",
+    "file": "logs/swift-research.log.gz",
+    "raw_bytes": 85,
+    "raw_sha256": "64a40a65e122f0db5c492d3d3420e0f998cc1b4db5be0a18a3f2832032ed4c37",
+    "gzip_bytes": 95,
+    "gzip_sha256": "1876584901a1c156c7827c4fa7ed2dc38d9feccb1deabd37c67cda3857074d45"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/swift-version.log",
+    "file": "logs/swift-version.log.gz",
+    "raw_bytes": 128,
+    "raw_sha256": "5fa4b669e41b23b9ad0760253d062493487f93cf5d8ad8c44f0d4fd635137499",
+    "gzip_bytes": 124,
+    "gzip_sha256": "2fe24bb8a7ad54aed3bafc06538884f313d9c0379f8f57fadc3bd68d871bd371"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-declarations.log",
+    "file": "logs/typescript-declarations.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-install.log",
+    "file": "logs/typescript-install.log.gz",
+    "raw_bytes": 26,
+    "raw_sha256": "e82b77c7a9a3bd2098b23a6fc10068b119bbbe0ee13455b455377714dedfb5c6",
+    "gzip_bytes": 46,
+    "gzip_sha256": "3f9d41830d40538b54faebbcc4e4bc16dac85b7f3daba283ebacc7a5c91f7f98"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-pack.log",
+    "file": "logs/typescript-pack.log.gz",
+    "raw_bytes": 4559,
+    "raw_sha256": "2464d42fb504d8a2a74f7853488465415ce5862f4324a2137da6e6c64b02781f",
+    "gzip_bytes": 1043,
+    "gzip_sha256": "7b6b8711a3533a49f2b96ee7bcb55a5428749afa79535a1064774053f09a9209"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-package-build.log",
+    "file": "logs/typescript-package-build.log.gz",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_bytes": 20,
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-research.log",
+    "file": "logs/typescript-research.log.gz",
+    "raw_bytes": 90,
+    "raw_sha256": "90e8259ded02ccf87418db5dcac4651436a26a7a8cb5b8c92cc47a0cdfce4be2",
+    "gzip_bytes": 98,
+    "gzip_sha256": "d53980db7e31631c744e02b1f53d47197211ee333bc5ccd686239da9c0333a71"
+  },
+  {
+    "source": "/Volumes/seed2/Projects/stateless-native-parity/validation/native-parity/research-slice/consumers/installed-r3/output/logs/typescript-version.log",
+    "file": "logs/typescript-version.log.gz",
+    "raw_bytes": 14,
+    "raw_sha256": "9265ac58ff367868abd52fc852ecff28622facad715e3c3a0fcf92c4ca2d86e2",
+    "gzip_bytes": 34,
+    "gzip_sha256": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc"
+  },
+  {
+    "source": "/Users/jagatranvo/.local/state/kyoto/85473e6a66014122bd427ec1ba2e6376.log",
+    "file": "logs/85473e6a66014122bd427ec1ba2e6376.log.gz",
+    "raw_bytes": 7431,
+    "raw_sha256": "fe2a0c32e43ef83b3d94d5aeb1b824e1a843ec6f13e2bbb993bf47a6904c4a22",
+    "gzip_bytes": 1057,
+    "gzip_sha256": "f00b28558d0102711a0ca1aa6be864ef781f87df0528a40d70286d515b3baadd"
+  }
+]

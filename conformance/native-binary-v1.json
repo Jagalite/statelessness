@@ -1,0 +1,1213 @@
+{
+  "profile": "native-binary-v1",
+  "version": 1,
+  "status": "candidate",
+  "defaults": {
+    "max_total_bytes": 67108864,
+    "max_frame_bytes": 8388608,
+    "max_blob_bytes": 4194304,
+    "max_string_bytes": 65536,
+    "max_steps": 100000,
+    "max_checks_per_step": 4096,
+    "max_outputs_per_step": 4096,
+    "max_parameters": 1024,
+    "max_items": 250000
+  },
+  "fixtures": [
+    {
+      "case": "empty",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "single-step",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "counter",
+          "model_version": 1,
+          "properties_version": 2,
+          "codec_version": 3,
+          "build": "b"
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "00",
+        "initial_checks": [
+          {
+            "id": "ok",
+            "status": "passed",
+            "reason": null
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "00ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "ok",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "later",
+                "status": "skipped",
+                "reason": "not run"
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "property-failed",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130237000000000000000000000001000000010002000000000000000200000000ff01000000020100000003000000626164010600000062726f6b656e3cda174603090000000100000000000000012172334a",
+      "trace": {
+        "metadata": {
+          "name": "counter",
+          "model_version": 1,
+          "properties_version": 2,
+          "codec_version": 3,
+          "build": "b"
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "00",
+        "initial_checks": [
+          {
+            "id": "ok",
+            "status": "passed",
+            "reason": null
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "00ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "bad",
+                "status": "failed",
+                "reason": "broken"
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "initial-property-failed",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a0100000001340000000000000000000000000000000000000000000000060000006d616e75616c000000000000000000010000000000000001000000003693024f03090000000000000000000000016266485d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "",
+            "status": "failed",
+            "reason": ""
+          }
+        ],
+        "steps": [],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "unicode-config-full-u64",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e00000007000000e99baaf09f9880ffffffffffffffffffffffff0300000065cc8106000000e68ea2e7b4a201ffffffffffffffff03000000010000006b02000000ceb1010000006b02000000ceb200000000000000000300000000ff8000000000cac511e50309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "雪😀",
+          "model_version": 4294967295,
+          "properties_version": 4294967295,
+          "codec_version": 4294967295,
+          "build": "é"
+        },
+        "config": {
+          "strategy": "探索",
+          "seed": "18446744073709551615",
+          "parameters": [
+            [
+              "k",
+              "α"
+            ],
+            [
+              "k",
+              "β"
+            ],
+            [
+              "",
+              ""
+            ]
+          ]
+        },
+        "initial_state": "00ff80",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "zero-seed",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a0100000001330000000000000000000000000000000000000000000000060000006d616e75616c01000000000000000000000000000000000000000061a5c2800309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": "0",
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "rejected-ignored",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8021f00000000000000000000000100000001010000000000000000010000000000000000655d68a90237000000010000000000000001000000ff0206000000e5bfbde795a50100000001000000ff01000000000100000004000000736b69700200000000850b61470309000000020000000000000000727eb904",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "rejected",
+              "reason": ""
+            },
+            "outputs": [],
+            "post_state": "00",
+            "checks": []
+          },
+          {
+            "input": "ff",
+            "disposition": {
+              "kind": "ignored",
+              "reason": "忽略"
+            },
+            "outputs": [
+              "ff"
+            ],
+            "post_state": "00",
+            "checks": [
+              {
+                "id": "skip",
+                "status": "skipped",
+                "reason": ""
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "step_limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000002d83741c4",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "step_limit",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "interrupted",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b803090000000000000000000000034e0746b3",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "interrupted",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "model_error",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8031d00000000000000000000000410000000d0bed188d0b8d0b1d0bad0b0f09f98806ad725a3",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "model_error",
+          "reason": "ошибка😀"
+        }
+      }
+    },
+    {
+      "case": "bad-magic",
+      "valid": false,
+      "bytes_hex": "58544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "file magic"
+      }
+    },
+    {
+      "case": "unsupported-version",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a02000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "unsupported_version",
+        "detail": "2"
+      }
+    },
+    {
+      "case": "unsupported-flags",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000100012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "unsupported header flags"
+      }
+    },
+    {
+      "case": "bad-checksum",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2b",
+      "expected_error": {
+        "kind": "checksum_mismatch",
+        "detail": null
+      }
+    },
+    {
+      "case": "short-header",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a010000",
+      "expected_error": {
+        "kind": "truncated",
+        "detail": null
+      }
+    },
+    {
+      "case": "missing-footer",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8",
+      "expected_error": {
+        "kind": "truncated",
+        "detail": null
+      }
+    },
+    {
+      "case": "short-checksum",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f",
+      "expected_error": {
+        "kind": "truncated",
+        "detail": null
+      }
+    },
+    {
+      "case": "trailing-byte",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a00",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "trailing data after footer"
+      }
+    },
+    {
+      "case": "first-record-step",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000022b0000000000000000000000000000000000000000000000060000006d616e75616c000000000000000000000000005235e6fe0309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "first record must be run metadata"
+      }
+    },
+    {
+      "case": "unknown-record",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8630000000080fab018",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "unknown or misplaced record"
+      }
+    },
+    {
+      "case": "duplicate-run",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "unknown or misplaced record"
+      }
+    },
+    {
+      "case": "run-trailing-fields",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012c0000000000000000000000000000000000000000000000060000006d616e75616c000000000000000000000000000000c815ad0309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "trailing record fields"
+      }
+    },
+    {
+      "case": "footer-trailing-fields",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8030a0000000000000000000000000005b39914",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "trailing record fields"
+      }
+    },
+    {
+      "case": "footer-count",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "footer transition count"
+      }
+    },
+    {
+      "case": "termination-tag",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b803090000000000000000000000057ba2255a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "termination tag"
+      }
+    },
+    {
+      "case": "seed-tag",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c020000000000000000000000007db568d80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "seed tag"
+      }
+    },
+    {
+      "case": "invalid-utf8",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012c00000001000000ff00000000000000000000000000000000060000006d616e75616c00000000000000000000000000e47456760309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "invalid UTF-8"
+      }
+    },
+    {
+      "case": "field-outside-frame",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000006400000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000adcdbf350309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "field exceeds frame"
+      }
+    },
+    {
+      "case": "oversized-string-length",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000100010000000000000000000000000000000000060000006d616e75616c000000000000000000000000006c6630170309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "string bytes"
+      }
+    },
+    {
+      "case": "parameter-count-outside-frame",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00020000000000000000000000a99e0f540309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "collection count exceeds frame"
+      }
+    },
+    {
+      "case": "check-count-outside-frame",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000001000000536788000309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "collection count exceeds frame"
+      }
+    },
+    {
+      "case": "oversized-frame-declaration",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a010000000101008000",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "frame bytes"
+      }
+    },
+    {
+      "case": "transition-index",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80241000000010000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756e14055a2c0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "transition index"
+      }
+    },
+    {
+      "case": "disposition-tag",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80241000000000000000000000001000000010302000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ee553e5160309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "disposition tag"
+      }
+    },
+    {
+      "case": "check-status-tag",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8021e000000000000000000000000000000000000000000000000010000000000000003f94b1fc20309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "invalid_data",
+        "detail": "check status tag"
+      }
+    },
+    {
+      "case": "total-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "total bytes"
+      },
+      "limits": {
+        "max_total_bytes": 81
+      }
+    },
+    {
+      "case": "frame-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "frame bytes"
+      },
+      "limits": {
+        "max_frame_bytes": 42
+      }
+    },
+    {
+      "case": "blob-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "blob bytes"
+      },
+      "limits": {
+        "max_blob_bytes": 0
+      }
+    },
+    {
+      "case": "string-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "string bytes"
+      },
+      "limits": {
+        "max_string_bytes": 5
+      }
+    },
+    {
+      "case": "step-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "steps"
+      },
+      "limits": {
+        "max_steps": 0
+      }
+    },
+    {
+      "case": "check-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "checks per step"
+      },
+      "limits": {
+        "max_checks_per_step": 0
+      }
+    },
+    {
+      "case": "output-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "outputs per step"
+      },
+      "limits": {
+        "max_outputs_per_step": 1
+      }
+    },
+    {
+      "case": "parameter-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000015e00000007000000e99baaf09f9880ffffffffffffffffffffffff0300000065cc8106000000e68ea2e7b4a201ffffffffffffffff03000000010000006b02000000ceb1010000006b02000000ceb200000000000000000300000000ff8000000000cac511e50309000000000000000000000000f4564f2a",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "parameters"
+      },
+      "limits": {
+        "max_parameters": 2
+      }
+    },
+    {
+      "case": "item-limit",
+      "valid": false,
+      "bytes_hex": "53544c4553531a0a01000000013b00000007000000636f756e7465720100000002000000030000000100000062060000006d616e75616c0000000000010000000001000000020000006f6b0099dee0130241000000000000000000000001000000010002000000000000000200000000ff010000000202000000020000006f6b00050000006c6174657202070000006e6f742072756ef257b0ac0309000000010000000000000000b742343d",
+      "expected_error": {
+        "kind": "limit_exceeded",
+        "detail": "aggregate items"
+      },
+      "limits": {
+        "max_items": 0
+      }
+    },
+    {
+      "case": "exact-total-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_total_bytes": 82
+      }
+    },
+    {
+      "case": "exact-frame-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b80309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_frame_bytes": 43
+      }
+    },
+    {
+      "case": "empty-model-error-reason",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b8030d00000000000000000000000400000000fd17a36a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "model_error",
+          "reason": ""
+        }
+      }
+    },
+    {
+      "case": "structural-completed-with-failure",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a0100000001370000000000000000000000000000000000000000000000060000006d616e75616c000000000000000000010000000300000062616401000000009ca02f7a0309000000000000000000000000f4564f2a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "bad",
+            "status": "failed",
+            "reason": ""
+          }
+        ],
+        "steps": [],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "structural-property-failed-without-failure",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000012b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000000000000360034b803090000000000000000000000016266485d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [],
+        "steps": [],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "ordered-duplicate-check-ids",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000014b0000000000000000000000000000000000000000000000060000006d616e75616c00000000000000000002000000090000006475706c696361746500090000006475706c69636174650200000000e3de0e03024a000000000000000000000001000000010000000000010000000202000000090000006475706c696361746501050000006669727374090000006475706c696361746501060000007365636f6e642aa48c9903090000000100000000000000012172334a",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": []
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "duplicate",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "duplicate",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "duplicate",
+                "status": "failed",
+                "reason": "first"
+              },
+              {
+                "id": "duplicate",
+                "status": "failed",
+                "reason": "second"
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "property_failed",
+          "reason": null
+        }
+      }
+    },
+    {
+      "case": "exact-item-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_items": 9
+      }
+    },
+    {
+      "case": "exact-parameter-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_parameters": 2
+      }
+    },
+    {
+      "case": "exact-check-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_checks_per_step": 2
+      }
+    },
+    {
+      "case": "exact-output-limit",
+      "valid": true,
+      "bytes_hex": "53544c4553531a0a01000000015e0000000000000000000000000000000000000000000000060000006d616e75616c00020000000400000073616d650500000066697273740400000073616d65060000007365636f6e6400000000020000000100000061000100000062020000000026aaf40802300000000000000000000000010000000100020000000000000001000000ff0100000002020000000100000061000100000062002097d8a10309000000010000000000000000b742343d",
+      "trace": {
+        "metadata": {
+          "name": "",
+          "model_version": 0,
+          "properties_version": 0,
+          "codec_version": 0,
+          "build": ""
+        },
+        "config": {
+          "strategy": "manual",
+          "seed": null,
+          "parameters": [
+            [
+              "same",
+              "first"
+            ],
+            [
+              "same",
+              "second"
+            ]
+          ]
+        },
+        "initial_state": "",
+        "initial_checks": [
+          {
+            "id": "a",
+            "status": "passed",
+            "reason": null
+          },
+          {
+            "id": "b",
+            "status": "skipped",
+            "reason": ""
+          }
+        ],
+        "steps": [
+          {
+            "input": "01",
+            "disposition": {
+              "kind": "accepted",
+              "reason": null
+            },
+            "outputs": [
+              "",
+              "ff"
+            ],
+            "post_state": "02",
+            "checks": [
+              {
+                "id": "a",
+                "status": "passed",
+                "reason": null
+              },
+              {
+                "id": "b",
+                "status": "passed",
+                "reason": null
+              }
+            ]
+          }
+        ],
+        "termination": {
+          "kind": "completed",
+          "reason": null
+        }
+      },
+      "limits": {
+        "max_outputs_per_step": 2
+      }
+    }
+  ]
+}

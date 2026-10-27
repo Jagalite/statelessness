@@ -1,0 +1,66 @@
+{
+  "thread": {
+    "threadId": "thread:delegated-task:command%3Amcp%3A5d4de703-b093-4a0e-8695-ba82ce55b6e7%3Adelegate-task%3Astateless-n13-review-correction-r5-20261022",
+    "projectId": "bd782261-bff2-4ae0-b259-082580fc94bc",
+    "title": "Review N13 resumed correction patch",
+    "createdBy": "agent",
+    "creationSource": "mcp",
+    "status": "waiting",
+    "latestRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A5d4de703-b093-4a0e-8695-ba82ce55b6e7%253Adelegate-task%253Astateless-n13-review-correction-r5-20261022:ordinal:1",
+    "activeRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A5d4de703-b093-4a0e-8695-ba82ce55b6e7%253Adelegate-task%253Astateless-n13-review-correction-r5-20261022:ordinal:1",
+    "providerInstanceId": "codex",
+    "model": "gpt-6-astra",
+    "runtimeMode": "full-access",
+    "interactionMode": "default",
+    "linkedPullRequest": null,
+    "pullRequests": [],
+    "titleRegeneration": null,
+    "branch": "t3/dfe68040",
+    "worktreePath": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+    "parentThreadId": "thread:delegated-task:command%3Amcp%3A2469003e-da30-4c9a-8872-ca7e074c3724%3Adelegate-task%3Astateless-n13-resume-qualification-r5-20261022",
+    "relationshipToParent": "subagent",
+    "runCount": 1,
+    "itemCount": 34,
+    "pendingRequestCount": 0,
+    "archived": false,
+    "settled": false,
+    "settledAt": null,
+    "snoozed": false,
+    "snoozedUntil": null,
+    "createdAt": "2026-10-22T12:49:26.422Z",
+    "updatedAt": "2026-10-22T12:56:33.899Z"
+  },
+  "recentRuns": [
+    {
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A5d4de703-b093-4a0e-8695-ba82ce55b6e7%253Adelegate-task%253Astateless-n13-review-correction-r5-20261022:ordinal:1",
+      "ordinal": 1,
+      "status": "waiting",
+      "providerInstanceId": "codex",
+      "model": "gpt-6-astra",
+      "requestedAt": "2026-10-22T12:49:26.423Z",
+      "startedAt": "2026-10-22T12:50:34.051Z",
+      "completedAt": null
+    }
+  ],
+  "items": [
+    {
+      "position": 33,
+      "visibility": "local",
+      "sourceThreadId": "thread:delegated-task:command%3Amcp%3A5d4de703-b093-4a0e-8695-ba82ce55b6e7%3Adelegate-task%3Astateless-n13-review-correction-r5-20261022",
+      "itemId": "turn-item:provider:codex:native-item:msg_0ca24b224a6e525d016ada07f25a18819f856eb2d93188f9e0",
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A5d4de703-b093-4a0e-8695-ba82ce55b6e7%253Adelegate-task%253Astateless-n13-review-correction-r5-20261022:ordinal:1",
+      "messageId": "message:provider:codex:native-item:msg_0ca24b224a6e525d016ada07f25a18819f856eb2d93188f9e0",
+      "createdBy": "agent",
+      "creationSource": "provider",
+      "type": "assistant_message",
+      "status": "completed",
+      "title": null,
+      "text": "**No actionable findings. Static clearance for the six-file correction patch.** HEAD matches base `57cc38b0abb1c8dcb586d80f44455ab23a8f7a19`.\n\n- Swift’s `@MainActor` annotations place both provenance-reading functions under the appropriate isolation without relaxing compiler checks.\n- Python and Go now seed prefixes through public sinks after construction, matching production clearing behavior. Exact version rejection, callback counts, prefix preservation, and overflow assertions remain intact.\n- Swift’s full configuration equality matches production stamping, including ordered parameters and `67108864 − 4194304 − 32 = 62914528`. Literal output bytes and causal/replay assertions remain intact.\n- All 99 updated ledger references resolve to their named declarations. Coverage and qualification fields are unchanged. The patch changes no library implementation or golden fixtures.\n\nReviewed [candidate.patch](/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/validation/native-parity/derive-model-v2/resume-oct22/candidate.patch), SHA-256:\n`812b5823dd4e540e4e1bdc49eb55b00ff6323f7109266a763749442008561756`\n\nAll patch hunks match local files. No builds/tests, edits, `git diff`, or additional agents were used. Compilation and runtime qualification remain pending; this review does not close the separate broader audit.\n\n",
+      "textTruncated": false,
+      "nextTextOffset": null,
+      "updatedAt": "2026-10-22T12:56:32.251Z"
+    }
+  ],
+  "nextPosition": 33,
+  "hasMore": false
+}

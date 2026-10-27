@@ -1,0 +1,12 @@
+{
+  "from": "final-source-before.json",
+  "to": "sealed-source-before.json",
+  "added": [],
+  "removed": [],
+  "changed": [
+    "examples/native-model/expected.py",
+    "scripts/check-native-model-consumers.py",
+    "scripts/test_native_model_receipts.py"
+  ],
+  "scope": "Native library/tests, manifests, compiler inputs and five installed application sources are byte-identical; only installed qualification driver, its tests and independent build-identity ordering changed. Native suite/workspace receipts remain for unchanged tested inputs. Installed and driver qualification rerun."
+}

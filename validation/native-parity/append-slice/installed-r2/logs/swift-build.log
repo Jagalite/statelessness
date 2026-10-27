@@ -1,0 +1,23 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write AppendConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/14] Compiling Statelessness AuditTrace.swift
+[6/14] Compiling Statelessness CheckSink.swift
+[7/14] Compiling Statelessness Execution.swift
+[8/14] Compiling Statelessness Explore.swift
+[9/14] Compiling Statelessness Fuzz.swift
+[10/14] Compiling Statelessness Generate.swift
+[11/14] Emitting module Statelessness
+[12/20] Compiling Statelessness JSON.swift
+[13/20] Compiling Statelessness Model.swift
+[14/20] Compiling Statelessness Oracle.swift
+[15/20] Compiling Statelessness Rng.swift
+[16/20] Compiling Statelessness Shrink.swift
+[17/20] Compiling Statelessness TraceJSON.swift
+[18/22] Emitting module AppendConsumer
+[19/22] Compiling AppendConsumer main.swift
+[19/22] Write Objects.LinkFileList
+[20/22] Linking AppendConsumer
+[21/22] Applying AppendConsumer
+Build complete! (6.28s)

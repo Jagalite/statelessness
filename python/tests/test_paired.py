@@ -131,7 +131,7 @@ def paired(mutation="none"):
 
 class PairedTests(unittest.TestCase):
     def test_independent_golden_search_cases(self):
-        with (ROOT / "conformance/paired-v1.tsv").open() as file:
+        with (ROOT / "conformance/paired-v1.tsv").open(encoding="utf-8") as file:
             for case in csv.DictReader(file, delimiter="\t"):
                 with self.subTest(case=case["case"]):
                     report = enumerate_states(paired(case["mutation"]), SearchConfig(*(int(case[k]) for k in ("max_states", "max_transitions", "max_depth"))))

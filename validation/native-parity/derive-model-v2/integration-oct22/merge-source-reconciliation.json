@@ -1,0 +1,1089 @@
+{
+  "merge_base": "cd8d53e0cc8106aa00ebc523001956028c66faa6",
+  "merge": "0fb93be273b2c257536c084d519d2882e0e288d9",
+  "scope": [
+    "go",
+    "python/src",
+    "typescript/src",
+    "swift/Sources",
+    "src",
+    "crates",
+    "tests",
+    "validation/corpus",
+    "conformance",
+    "examples",
+    "scripts",
+    "Cargo.toml",
+    "Cargo.lock",
+    "Package.swift",
+    "build.rs"
+  ],
+  "membership_counts": {
+    "base": 428,
+    "parent": 444,
+    "n13": 453,
+    "merged": 469
+  },
+  "differing_paths": [
+    {
+      "path": "conformance/research-equivalence-v1.json",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "cf785b832d4e36a7a7a21f511d7cf453da5c43ae"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "cf785b832d4e36a7a7a21f511d7cf453da5c43ae"
+        }
+      }
+    },
+    {
+      "path": "crates/macro-qualification/src/bin/n13-interchange.rs",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "108fac740b4e626ce736daa04caa6e1d4f6f2efc"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "108fac740b4e626ce736daa04caa6e1d4f6f2efc"
+        }
+      }
+    },
+    {
+      "path": "crates/macro-qualification/src/bin/n13-model-interchange.rs",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ffdc978b6362fc176f2fd4a3fefb91401359de27"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ffdc978b6362fc176f2fd4a3fefb91401359de27"
+        }
+      }
+    },
+    {
+      "path": "crates/macro-qualification/tests/n13_derive_reference.rs",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ce9100bfb1946b8fbd2793d985f209fdcfd635ab"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ce9100bfb1946b8fbd2793d985f209fdcfd635ab"
+        }
+      }
+    },
+    {
+      "path": "examples/native-derive/go/main.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ae46ea4d39631d7c434aa54e153e745b27a9e0bf"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ae46ea4d39631d7c434aa54e153e745b27a9e0bf"
+        }
+      }
+    },
+    {
+      "path": "examples/native-derive/python/consumer.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "5cfba6869abc38002f8c228f714569484cf6d47e"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "5cfba6869abc38002f8c228f714569484cf6d47e"
+        }
+      }
+    },
+    {
+      "path": "examples/native-derive/swift/Package.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ba07aa79f42e8d1b463fe9ad677c59da773b1e83"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ba07aa79f42e8d1b463fe9ad677c59da773b1e83"
+        }
+      }
+    },
+    {
+      "path": "examples/native-derive/swift/Sources/DeriveConsumer/main.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "a56336a2ea6b5b6d157b2bff616e40dad889c556"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "a56336a2ea6b5b6d157b2bff616e40dad889c556"
+        }
+      }
+    },
+    {
+      "path": "examples/native-derive/typescript/consumer.ts",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c39cef7cf2c454bc3d912d3f5811f6a26b4615fe"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c39cef7cf2c454bc3d912d3f5811f6a26b4615fe"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/README.md",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c92aaf3f522253879c80a0e81943e38830014b75"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c92aaf3f522253879c80a0e81943e38830014b75"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/expected.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d0aa70485c306cd6b4533e9c261f04565afe9619"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d0aa70485c306cd6b4533e9c261f04565afe9619"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/go/main.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ed3f450991062e9a41587ed60ccba0146cc86a41"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ed3f450991062e9a41587ed60ccba0146cc86a41"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/python/consumer.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "83500196e98a5b481baed4a9297ff8ac128eab9d"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "83500196e98a5b481baed4a9297ff8ac128eab9d"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/swift/Package.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "a609f32e31f621308829d49218df87ae554d83a2"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "a609f32e31f621308829d49218df87ae554d83a2"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/swift/Sources/ModelConsumer/main.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "650d7dd5159323fb01988de54b3380c0c7a051c6"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "650d7dd5159323fb01988de54b3380c0c7a051c6"
+        }
+      }
+    },
+    {
+      "path": "examples/native-model/typescript/consumer.ts",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "b7aae074377215dc52a9bbb1e916003b41b4d1b4"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "b7aae074377215dc52a9bbb1e916003b41b4d1b4"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/README.md",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "5cc75faba01304df175c5f03fecb9c07dc911cca"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "5cc75faba01304df175c5f03fecb9c07dc911cca"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/go/main.go",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "fa74997c5e376a204d0f2071234e9e4a6a7aa97e"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "fa74997c5e376a204d0f2071234e9e4a6a7aa97e"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/python/consumer.py",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "4511dd57d71058167eb089ef36d7decdbb7c44c3"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "4511dd57d71058167eb089ef36d7decdbb7c44c3"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/swift/Package.swift",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "adbbdf479bbabd0c8a8a600dd8084b2b16943895"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "adbbdf479bbabd0c8a8a600dd8084b2b16943895"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/swift/Sources/ResearchConsumer/main.swift",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "17af9a2be03b55106030dc684d7ac0ff7098de9c"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "17af9a2be03b55106030dc684d7ac0ff7098de9c"
+        }
+      }
+    },
+    {
+      "path": "examples/native-research/typescript/consumer.ts",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f1991ae5d253ff8824f08929e1361243fd95881c"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f1991ae5d253ff8824f08929e1361243fd95881c"
+        }
+      }
+    },
+    {
+      "path": "go/README.md",
+      "parent_changed": true,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "b276ded40bd764674e6fcd1662f7e7cefc65ec53"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d3b20b5a247c5d2a9f86511ac65e20b1158b63cd"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "334135912932a8a822548b986fdd0843c4259aba"
+        }
+      }
+    },
+    {
+      "path": "go/model_codec_bind.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c3dfcb041f157848f5371c705f6c2dfe715a80a3"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "c3dfcb041f157848f5371c705f6c2dfe715a80a3"
+        }
+      }
+    },
+    {
+      "path": "go/oracle.go",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "9997e34abea38b3f25505e67c4cadf071bb930e2"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "dc848c7bedb1cec5a8fc3680477851b9581ec9db"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "9997e34abea38b3f25505e67c4cadf071bb930e2"
+        }
+      }
+    },
+    {
+      "path": "go/research.go",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "12de45467f386f34f2c100941f0d9901db108c8a"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "12de45467f386f34f2c100941f0d9901db108c8a"
+        }
+      }
+    },
+    {
+      "path": "go/research_corpus_test.go",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "43e1f635dd724211bbec2060f3ae9f5d4fb38735"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "43e1f635dd724211bbec2060f3ae9f5d4fb38735"
+        }
+      }
+    },
+    {
+      "path": "go/research_test.go",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "790dee0ae7acec1d1644bc25da93755ed10b7166"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "790dee0ae7acec1d1644bc25da93755ed10b7166"
+        }
+      }
+    },
+    {
+      "path": "go/value_codec.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "742b5f443365edb29caa95d835d959bbba08ec16"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d51f3c81930b1aa277b8738ed2cf17cfb752b5bf"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d51f3c81930b1aa277b8738ed2cf17cfb752b5bf"
+        }
+      }
+    },
+    {
+      "path": "go/value_derive.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "032753c7204dbe9f01a9e50a20c10938c4172768"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "032753c7204dbe9f01a9e50a20c10938c4172768"
+        }
+      }
+    },
+    {
+      "path": "go/value_derive_test.go",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "db5cde52bce7d96b33dafd5ee0ca805138da7d21"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "db5cde52bce7d96b33dafd5ee0ca805138da7d21"
+        }
+      }
+    },
+    {
+      "path": "python/src/statelessness/__init__.py",
+      "parent_changed": true,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "0de1f512c5653638e302923aed11ac29d7da9e3b"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "675474f9c117d92c5a1804265ea8ba173c1e5867"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "aceca457ce978d1b2566e97f19c8a7036a90a23b"
+        }
+      }
+    },
+    {
+      "path": "python/src/statelessness/codec_declarations.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "177c18a3ecfcd9309d3b0d01a78ef98bed865c09"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "177c18a3ecfcd9309d3b0d01a78ef98bed865c09"
+        }
+      }
+    },
+    {
+      "path": "python/src/statelessness/research.py",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "33a342548d247c2d31b8d7bc39da67fc9c917b39"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "33a342548d247c2d31b8d7bc39da67fc9c917b39"
+        }
+      }
+    },
+    {
+      "path": "scripts/check-n13-dispositions.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "0ea6974c4e77d05500dcc8cdb280a9a3302f6deb"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "0ea6974c4e77d05500dcc8cdb280a9a3302f6deb"
+        }
+      }
+    },
+    {
+      "path": "scripts/check-native-derive-consumers.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "1c82b90735bdda406d9037757b9cf8241780c342"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "1c82b90735bdda406d9037757b9cf8241780c342"
+        }
+      }
+    },
+    {
+      "path": "scripts/check-native-model-consumers.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "e67197befea0f7690a13cfe0bfaba7dddbfda18f"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "e67197befea0f7690a13cfe0bfaba7dddbfda18f"
+        }
+      }
+    },
+    {
+      "path": "scripts/check-native-ports.py",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "257969f22540138377598e418e5986372e005617"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "3abcc5753f672019a15389bfa0aa81d18136bd16"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "257969f22540138377598e418e5986372e005617"
+        }
+      }
+    },
+    {
+      "path": "scripts/check-native-research-consumers.py",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "1e374749ce4d409db8899533e6885419e87a1730"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "1e374749ce4d409db8899533e6885419e87a1730"
+        }
+      }
+    },
+    {
+      "path": "scripts/n13-qualify.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "fffa61ba9f0c3673b66299083194a9d84694a8eb"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "fffa61ba9f0c3673b66299083194a9d84694a8eb"
+        }
+      }
+    },
+    {
+      "path": "scripts/test_native_model_receipts.py",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "39e3bc7e4b4eaaea2a625e47a2d576e8c5c69265"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "39e3bc7e4b4eaaea2a625e47a2d576e8c5c69265"
+        }
+      }
+    },
+    {
+      "path": "swift/Sources/Statelessness/DeriveCodec.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": null,
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "27c6ea694bad7052774fb530789868c9ca39f992"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "27c6ea694bad7052774fb530789868c9ca39f992"
+        }
+      }
+    },
+    {
+      "path": "swift/Sources/Statelessness/Oracle.swift",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "38e5676285c0e39c5cac84e49371f8d2069feb2b"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "be17b5d46698966a2a2a05308a562d688146f3f3"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "38e5676285c0e39c5cac84e49371f8d2069feb2b"
+        }
+      }
+    },
+    {
+      "path": "swift/Sources/Statelessness/Research.swift",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "bbdaa296c29bd6cbbb0b7ea062ebb27d7e061bc2"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "bbdaa296c29bd6cbbb0b7ea062ebb27d7e061bc2"
+        }
+      }
+    },
+    {
+      "path": "swift/Sources/Statelessness/ValueCodec.swift",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "bdfe0b6f0f334a64db0dbf71ea91af1b796f213b"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "e550253aec61000a54a36010c853e4ba50d57a02"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "e550253aec61000a54a36010c853e4ba50d57a02"
+        }
+      }
+    },
+    {
+      "path": "typescript/src/index.ts",
+      "parent_changed": true,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "a6a6f48a08dfd0c2bfe3aea43bd0476c1b489085"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "ef5a695825cd3d0c56bc584b9df013b495efd36a"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "6da1bdd2af5a4fb8634e0f9f867e6dc9dcc37d59"
+        }
+      }
+    },
+    {
+      "path": "typescript/src/oracle.ts",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f314d061561e3aa18075b77df2225aa633ebe865"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "d32f0bd7947bf24e96f90e464a534cb41afa39fc"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f314d061561e3aa18075b77df2225aa633ebe865"
+        }
+      }
+    },
+    {
+      "path": "typescript/src/research.ts",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f94d21e8ca63649fcf904dd1212cf08cfc963760"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "f94d21e8ca63649fcf904dd1212cf08cfc963760"
+        }
+      }
+    },
+    {
+      "path": "typescript/src/value_codec.ts",
+      "parent_changed": false,
+      "n13_changed": true,
+      "merged_equals_parent": false,
+      "merged_equals_n13": true,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "4f520bf8056622fabeb7128495e817aa1be1a1e4"
+        },
+        "n13": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "72e2322a33997d9c2038ac92b8e221db36efe784"
+        },
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "72e2322a33997d9c2038ac92b8e221db36efe784"
+        }
+      }
+    },
+    {
+      "path": "validation/corpus/src/bin/native-research.rs",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "9c33a1cf78788061ee6613f395aa1f5875d41b85"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "9c33a1cf78788061ee6613f395aa1f5875d41b85"
+        }
+      }
+    },
+    {
+      "path": "validation/corpus/src/research_reference.rs",
+      "parent_changed": true,
+      "n13_changed": false,
+      "merged_equals_parent": true,
+      "merged_equals_n13": false,
+      "identity": {
+        "parent": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "b428cc2d1b8502057b00ad7f486d95553eaf4444"
+        },
+        "n13": null,
+        "merged": {
+          "mode": "100644",
+          "type": "blob",
+          "git_blob": "b428cc2d1b8502057b00ad7f486d95553eaf4444"
+        }
+      }
+    }
+  ]
+}

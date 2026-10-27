@@ -1,0 +1,12 @@
+[
+  {
+    "job": "bb68025039bd4e6f99d0f52c4cbf07a8",
+    "status": "queued",
+    "note": "Mutable-source diagnostic only; submitted before root freeze. No qualification claim. Python command does not set PYTHONPATH explicitly."
+  },
+  {
+    "job": "4fc3e41063e346678c943140823ea9bc",
+    "status": "queued",
+    "note": "Mutable-source diagnostic only; submitted before root freeze. No qualification claim."
+  }
+]

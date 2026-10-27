@@ -1,0 +1,110 @@
+[
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-builder-tools.log",
+    "raw_bytes": 800,
+    "raw_sha256": "7d849addbed5e6a13667fde7f6d4b34b9758372034d5b3267156c3e8c0b47d39",
+    "gzip_sha256": "8d6331844e2b565f7c91aa384989a67ed066aedafde67261c55210bbe32ff13d"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-venv.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/node-version.log",
+    "raw_bytes": 8,
+    "raw_sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6",
+    "gzip_sha256": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/swift-build.log",
+    "raw_bytes": 4896,
+    "raw_sha256": "1b00baeb629d976e30b215edda9b9401cb0b60a25655419cc4a995d982f8364c",
+    "gzip_sha256": "4ae36bd36c7ce234db492d420c0ad68e7bd8768933ce601ad83d0c31799f0df0"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-builder-freeze.log",
+    "raw_bytes": 61,
+    "raw_sha256": "0ab3d1305cf3b2031a43ecc3818882ac0bc23c094e0ee519b4c45258fa00ad9e",
+    "gzip_sha256": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/swift-version.log",
+    "raw_bytes": 128,
+    "raw_sha256": "5fa4b669e41b23b9ad0760253d062493487f93cf5d8ad8c44f0d4fd635137499",
+    "gzip_sha256": "2fe24bb8a7ad54aed3bafc06538884f313d9c0379f8f57fadc3bd68d871bd371"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/typescript-package-build.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/npm-version.log",
+    "raw_bytes": 7,
+    "raw_sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5",
+    "gzip_sha256": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/typescript-version.log",
+    "raw_bytes": 14,
+    "raw_sha256": "9265ac58ff367868abd52fc852ecff28622facad715e3c3a0fcf92c4ca2d86e2",
+    "gzip_sha256": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/typescript-declarations.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/typescript-pack.log",
+    "raw_bytes": 4375,
+    "raw_sha256": "5a4c4409dae08eb67e3c77b03131eaa380cd6d4699aab6a6452447e025032f28",
+    "gzip_sha256": "579827e86b0c23d21723c2dd9226f7a9c3b1a9b8346fc8cb00af374f4226fb28"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-wheel.log",
+    "raw_bytes": 892,
+    "raw_sha256": "b9efb9d533e04e82828d4db84dd3baf7a9cd8362949411441ae9b4e3d9297bcf",
+    "gzip_sha256": "f14dea24510cc3c7c6cf44115e95b937a945bd07b2def75aac6fd4791d12e167"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/go-build.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-builder-venv.log",
+    "raw_bytes": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/typescript-install.log",
+    "raw_bytes": 26,
+    "raw_sha256": "12ad6efd17e04be2d0e530e766babc5bf07d3e742f4a5f236b2090ac4ee99ef3",
+    "gzip_sha256": "9f858a8c25238b46b07a3b954343bd9a6cc6067f17b3380010a9ba76ddcf4d47"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/python-install.log",
+    "raw_bytes": 196,
+    "raw_sha256": "0b329553e09ae369cc11f2e355529dfe3a272688cde7d6b6613423f00dce2ea5",
+    "gzip_sha256": "b11c0b680ee886fb3c85e87bb8485855371848313a23845b296e413adb202724"
+  },
+  {
+    "source": "/private/tmp/stateless-value-consumers-20261020-r1/logs/go-version.log",
+    "raw_bytes": 33,
+    "raw_sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9",
+    "gzip_sha256": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949"
+  },
+  {
+    "source": "/Users/jagatranvo/.local/state/kyoto/f950cc5fc6d741028582cdc376952461.log",
+    "raw_bytes": 8542,
+    "raw_sha256": "8f75752a3e0904f9d8a3777a8605628974e8ec9b8db5fa7ceb4a79b853792272",
+    "gzip_sha256": "9bbcdbcc581a33806c2a41fa0a3c9266e81390d862dcb0f1c36172fe38620e9a"
+  }
+]

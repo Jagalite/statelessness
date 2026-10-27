@@ -1,0 +1,27 @@
+[
+  {
+    "job_id": "aada950870864502b4f52b4fd2934480",
+    "status": "succeeded",
+    "receipt": {
+      "path": "jobs/aada950870864502b4f52b4fd2934480.succeeded.1792540618100644000.json",
+      "size_bytes": 2092,
+      "sha256": "53d3e2332d9ed5195c3d7230037d96b5ad2a728e52f6badfe774a978686e37c0"
+    },
+    "attempts": {
+      "path": "jobs/aada950870864502b4f52b4fd2934480.attempts.1792540618263599000.json",
+      "size_bytes": 281,
+      "sha256": "9fde76fc200bc48e90390cc5aa54e6eb6c8ca7f953f2bf6161075407d85b3949"
+    },
+    "log": {
+      "original_path": "/Users/jagatranvo/.local/state/kyoto/aada950870864502b4f52b4fd2934480.log",
+      "original_size_bytes": 1495,
+      "original_sha256": "74ff894fdaf03fc98125f6406b151d82a37cb37ee285cff08faa7c33883f765a",
+      "stored": {
+        "path": "jobs/aada950870864502b4f52b4fd2934480.log.gz",
+        "size_bytes": 455,
+        "sha256": "4b00db19f6622c486ae3489b38e27af3b71f14ee39735b6723af5fc820929e1a"
+      },
+      "compression": "gzip, mtime=0, lossless verified"
+    }
+  }
+]

@@ -1,0 +1,28 @@
+/** Explicit verified simulation branches; checkpoint bytes do not restore OS resources. */
+import {type CodecModel,type Metadata,ModelError,natural,validateMetadata} from './core.js';
+import {artifactTrace,type Artifact} from './evidence.js';
+import {writeAuditTrace,type AuditTrace} from './binary.js';
+import {type ReplayOptions} from './replay.js';
+import {EvidenceViewer,type InputPolicy} from './debug.js';
+import {BRANCH_FACTORY} from './debug_internal.js';
+import {DebugSession,type SessionLimits} from './debug_session.js';
+import {type RecorderOptions} from './runtime_recorder.js';
+import {type ShrinkLimits} from './search.js';
+export interface ArtifactIdentity{readonly fnv1a64:bigint;readonly bytes:bigint}
+export interface BranchProvenance{readonly version:1;readonly parent:ArtifactIdentity;readonly checkpoint:ArtifactIdentity;readonly forkSequence:number;readonly parentMetadata:Metadata;readonly modelMetadata:Metadata;readonly parentPrefixVerified:true;readonly environment:string;readonly origin:'out-of-domain-injection'|'verified-simulation-branch'}
+/** Accidental mismatch binding only, without authentication or collision resistance. */
+export function bytesIdentity(bytes:Uint8Array):ArtifactIdentity{let hash=0xcbf29ce484222325n;for(const b of bytes)hash=((hash^BigInt(b))*0x100000001b3n)&((1n<<64n)-1n);return {fnv1a64:hash,bytes:BigInt(bytes.length)};}
+export function artifactIdentity(artifact:Artifact):ArtifactIdentity{return bytesIdentity(writeAuditTrace(artifactTrace(artifact)));}
+function matches(a:ArtifactIdentity,b:ArtifactIdentity):boolean{return a.fnv1a64===b.fnv1a64&&a.bytes===b.bytes;}
+export function validateBranchParent(provenance:BranchProvenance,artifact:Artifact):void{const trace=artifactTrace(artifact),metadata=validateMetadata(trace.metadata);if(provenance.version!==1||!matches(provenance.parent,artifactIdentity(artifact))||(['name','build','model_version','codec_version','properties_version'] as const).some(k=>metadata[k]!==provenance.parentMetadata[k]))throw new ModelError('branch sidecar does not match parent artifact');natural(provenance.forkSequence,'fork sequence');const checkpoint=provenance.forkSequence===0?trace.initialState:trace.steps[provenance.forkSequence-1]?.postState;if(!checkpoint||!matches(provenance.checkpoint,bytesIdentity(checkpoint)))throw new ModelError('fork checkpoint binding differs');}
+export function forkVerified<S,I,O>(viewer:EvidenceViewer,id:string,model:CodecModel<S,I,O>,sequence:number,policy:InputPolicy<S,I>,limits:SessionLimits,recorder:RecorderOptions,verification:ShrinkLimits&{readonly maxTransitions:bigint},options:ReplayOptions={}){
+ natural(sequence,'fork sequence');const original=viewer.artifact(),trace=artifactTrace(original),boundary=viewer.boundary(sequence);if(!boundary)throw new ModelError('fork outside parent history');if(trace.initialChecks.some(c=>c.status==='failed')||boundary.checks.some(c=>c.status==='failed'))throw new ModelError('normal branches must start before property failure');
+ const prefix:AuditTrace={...trace,steps:trace.steps.slice(0,sequence),termination:'completed',error:''};const prefixArtifact:Artifact=original.kind==='v1'?{kind:'v1',trace:prefix}:{kind:'v2',evidence:{...original.evidence,trace:prefix,steps:original.evidence.steps.slice(0,sequence)}};
+ const verified=new EvidenceViewer(prefixArtifact,viewer.evidenceLimits()).verify(model,verification,options);if(verified.outcome!=='exact')throw new ModelError(`fork prefix is not verified: ${verified.outcome}`);
+ const parentPolicy=trace.config.parameters.find(([key])=>key==='stateless.debug.environment')?.[1];if(parentPolicy!==undefined&&parentPolicy!==policy.label&&policy.kind!=='unrestricted')throw new ModelError('branch environment differs; retain policy or explicitly select unrestricted injection');
+ // Decoding only after prefix verification is essential for changed-build restores.
+ const state=model.decodeState(boundary.after.slice());
+ const provenance:BranchProvenance=Object.freeze({version:1,parent:Object.freeze(artifactIdentity(original)),checkpoint:Object.freeze(bytesIdentity(boundary.after)),forkSequence:sequence,parentMetadata:Object.freeze({...trace.metadata}),modelMetadata:Object.freeze(validateMetadata(model.metadata())),parentPrefixVerified:true,environment:policy.label,origin:policy.kind==='unrestricted'?'out-of-domain-injection':'verified-simulation-branch'});
+ const parameters:[string,string][]=[['stateless.debug.parent.digest',`fnv1a64:${provenance.parent.fnv1a64.toString(16).padStart(16,'0')}`],['stateless.debug.parent.bytes',provenance.parent.bytes.toString()],['stateless.debug.fork.sequence',String(sequence)],['stateless.debug.fork.checkpoint',`fnv1a64:${provenance.checkpoint.fnv1a64.toString(16).padStart(16,'0')}`],['stateless.debug.parent.build',provenance.parentMetadata.build],['stateless.debug.parent_prefix_verified','true'],['stateless.debug.branch.origin',provenance.origin]];
+ const session=DebugSession[BRANCH_FACTORY](id,model,policy,limits,{strategy:'debugger-branch',seed:trace.config.seed,parameters},recorder,{value:state});return {session,provenance};
+}

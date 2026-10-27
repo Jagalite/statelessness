@@ -1,0 +1,51 @@
+[
+  {
+    "job": "9046d2a5a2c74d88a121684298183dd8",
+    "status": "cancelled",
+    "raw_log_bytes": 0,
+    "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifact": "9046d2a5a2c74d88a121684298183dd8.log.gz"
+  },
+  {
+    "job": "4afa6b12170d490d959babd662202a76",
+    "status": "failed",
+    "raw_log_bytes": 8531,
+    "raw_log_sha256": "ded5084110db08e04a397d60c1e60911086596418e9b4a9751df50d88e94c85a",
+    "artifact": "4afa6b12170d490d959babd662202a76.log.gz"
+  },
+  {
+    "job": "7a37ed4229504f38a1a5356fd1b02a69",
+    "status": "failed",
+    "raw_log_bytes": 8948,
+    "raw_log_sha256": "2c68b46fb7bb74d832ff9ad600f4a1ac648d30663e7fba9f969d44312a134608",
+    "artifact": "7a37ed4229504f38a1a5356fd1b02a69.log.gz"
+  },
+  {
+    "job": "6cff0a42d86b410683ea45d0951895de",
+    "status": "failed",
+    "raw_log_bytes": 36544,
+    "raw_log_sha256": "1019bf27ead478b13f44468dbcd794991dd20b11d907c50ade44ccf6b7a6e197",
+    "artifact": "6cff0a42d86b410683ea45d0951895de.log.gz"
+  },
+  {
+    "job": "e32bc0c651b14f4f9c5016addf9329b8",
+    "status": "succeeded",
+    "raw_log_bytes": 33864,
+    "raw_log_sha256": "8332368e778c268ae20cc8de4be6100338d7e6d27ce88b72bfbe9f9840bf7de4",
+    "artifact": "e32bc0c651b14f4f9c5016addf9329b8.log.gz"
+  },
+  {
+    "job": "8b668b3055cb415a8ba22eafa75d8aed",
+    "status": "failed",
+    "raw_log_bytes": 5335,
+    "raw_log_sha256": "d87c1b007f8dd1267f981e6970f907223bf5adbda85b56874dfc4e5951b08ffc",
+    "artifact": "8b668b3055cb415a8ba22eafa75d8aed.log.gz"
+  },
+  {
+    "job": "48cd9305ccfe4ea68b9a1e6b82b9a40e",
+    "status": "succeeded",
+    "raw_log_bytes": 35923,
+    "raw_log_sha256": "afcd4f3773af32973e12899e96efdcd465d530461d74870edcbbf1fe0840ee24",
+    "artifact": "48cd9305ccfe4ea68b9a1e6b82b9a40e.log.gz"
+  }
+]

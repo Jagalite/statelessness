@@ -1,0 +1,7 @@
+{
+  "job": "f0351a737e3f43758f30430d8a92d4c4",
+  "compiler": "Rust 1.99.0",
+  "target": "aarch64-apple-darwin",
+  "usize_bits": 64,
+  "sha256": "12486b7b66f8b9b73156b7cd0ee8b7cdabbedbd56ff6ec816aa1ec24a1621538"
+}

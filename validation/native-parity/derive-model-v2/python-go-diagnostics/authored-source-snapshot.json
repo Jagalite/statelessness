@@ -1,0 +1,21 @@
+{
+  "note": "Post-authoring snapshot while diagnostic jobs still queued; not a pre/post qualification interval. Root final wrapper supplies frozen-source receipts.",
+  "files": {
+    "python/tests/test_codec_declarations.py": {
+      "sha256": "93fa1d58c7c1bd227e8a9604edaaf28f524306c3cf1cb501422d737717ec1809",
+      "bytes": 26399
+    },
+    "go/value_derive_test.go": {
+      "sha256": "7cdf881ec4bf5da48bb2ca0884628b38501474abc65310ce761ccf42b1a81647",
+      "bytes": 35081
+    },
+    "docs/native-parity/derive-model-draft/python-dispositions.json": {
+      "sha256": "80f2d15f024c1af23c6faf4589d48bf56afac8fbb310507e91922fe11946f43d",
+      "bytes": 35498
+    },
+    "docs/native-parity/derive-model-draft/go-dispositions.json": {
+      "sha256": "f61d5c5f69d008bc1be35796bcd643acf6434e537b4ba1178d22d93742ec86da",
+      "bytes": 34489
+    }
+  }
+}

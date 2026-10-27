@@ -1,0 +1,64 @@
+{
+  "artifact_directory": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1",
+  "main_counts": {
+    "initial_state": 0,
+    "reducer": 3,
+    "state": 4,
+    "transition": 3
+  },
+  "controls": {
+    "check_once": true,
+    "coordinated_cause_eviction": true,
+    "coordinated_metadata_eviction": true,
+    "coordinated_trace_eviction": true,
+    "diagnostic_caps": true,
+    "diagnostic_exact": true,
+    "exclusive_private_files": true,
+    "no_overwrite": true,
+    "passive_v1_no_execution": true,
+    "phase_divergence": true,
+    "source_index_before_eviction": true,
+    "verified_upgrade": true
+  },
+  "commands": 5,
+  "exact_byte_roundtrip": true,
+  "explicit_upgrade": true,
+  "retained_config": {
+    "parameters": [
+      [
+        "stateless.engine.version",
+        "0.2.0"
+      ],
+      [
+        "stateless.engine.build",
+        "source-fnv1a64:0e6fa725c30d4235"
+      ],
+      [
+        "stateless.monitor.max_steps",
+        "3"
+      ],
+      [
+        "stateless.monitor.max_retained_bytes",
+        "15328"
+      ],
+      [
+        "stateless.monitor.checking",
+        "full"
+      ],
+      [
+        "stateless.monitor.observed_steps",
+        "3"
+      ],
+      [
+        "stateless.monitor.evicted_steps",
+        "0"
+      ],
+      [
+        "stateless.monitor.checkpoint_after_sequence",
+        "0"
+      ]
+    ],
+    "seed": null,
+    "strategy": "manual"
+  }
+}

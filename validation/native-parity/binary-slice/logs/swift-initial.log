@@ -1,0 +1,60 @@
+Building for debugging...
+[0/13] /Volumes/seed2/Projects/stateless-native-parity/.build/arm64-apple-macosx/debug/StatelessnessPackageTests.derived/runner.swift
+[1/13] Write sources
+[6/13] Write stateless-corpus-entitlement.plist
+[7/13] Write swift-version--58304C5D6DBC2206.txt
+[9/24] Emitting module Statelessness
+[10/24] Compiling Statelessness Explore.swift
+[11/24] Compiling Statelessness Fuzz.swift
+[12/24] Compiling Statelessness Rng.swift
+[13/24] Compiling Statelessness Oracle.swift
+[14/24] Compiling Statelessness Shrink.swift
+[15/24] Compiling Statelessness Generate.swift
+[16/24] Compiling Statelessness JSON.swift
+[17/24] Compiling Statelessness Model.swift
+[18/24] Compiling Statelessness AuditTrace.swift
+[19/24] Compiling Statelessness Execution.swift
+[20/25] Compiling Statelessness TraceJSON.swift
+[21/27] Compiling StatelessConformance Conformance.swift
+[22/27] Emitting module StatelessConformance
+[23/35] Compiling StatelessCorpus main.swift
+[24/35] Emitting module StatelessCorpus
+[24/35] Write Objects.LinkFileList
+[25/35] Linking stateless-corpus
+[26/35] Applying stateless-corpus
+[28/35] Emitting module StatelessnessTests
+[29/35] Compiling StatelessnessTests RecordingErrorTests.swift
+[30/35] Compiling StatelessnessTests OracleTests.swift
+[31/35] Compiling StatelessnessTests SearchTests.swift
+[32/35] Compiling StatelessnessTests AuditTraceTests.swift
+[33/35] Compiling StatelessnessTests NativeTests.swift
+[34/37] Emitting module StatelessnessPackageTests
+[35/37] Compiling StatelessnessPackageTests runner.swift
+[35/37] Write Objects.LinkFileList
+[36/37] Linking StatelessnessPackageTests
+Build complete! (29.71s)
+Test Suite 'Selected tests' started at 2026-10-20 16:51:18.900.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-20 16:51:18.904.
+Test Suite 'AuditTraceTests' started at 2026-10-20 16:51:18.904.
+Test Case '-[StatelessnessTests.AuditTraceTests testAllNineWriterQuotasAndLateFailurePublishNothing]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testAllNineWriterQuotasAndLateFailurePublishNothing]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testCRCAndExplicitPortableLossRules]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testCRCAndExplicitPortableLossRules]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testEveryValidFixturePrefixIsTruncated]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testEveryValidFixturePrefixIsTruncated]' passed (0.219 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testFrameLimitBeforePayloadReadAndIOFailurePropagation]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testFrameLimitBeforePayloadReadAndIOFailurePropagation]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testIncrementalReaderAllFixturesAndChunkSizes]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testIncrementalReaderAllFixturesAndChunkSizes]' passed (0.052 seconds).
+Test Case '-[StatelessnessTests.AuditTraceTests testSharedGoldenAndNegativeCorpus]' started.
+Test Case '-[StatelessnessTests.AuditTraceTests testSharedGoldenAndNegativeCorpus]' passed (0.017 seconds).
+Test Suite 'AuditTraceTests' passed at 2026-10-20 16:51:19.198.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.293 (0.294) seconds
+Test Suite 'StatelessnessPackageTests.xctest' passed at 2026-10-20 16:51:19.198.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.293 (0.294) seconds
+Test Suite 'Selected tests' passed at 2026-10-20 16:51:19.199.
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.293 (0.299) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,44 @@
+[0/1] Planning build
+Building for debugging...
+[0/7] Write sources
+[2/7] Write swift-version--58304C5D6DBC2206.txt
+[4/9] Compiling Statelessness CheckSink.swift
+[5/16] Emitting module Statelessness
+[6/16] Compiling Statelessness Model.swift
+[7/16] Compiling Statelessness Generate.swift
+[8/16] Compiling Statelessness Shrink.swift
+[9/16] Compiling Statelessness Fuzz.swift
+[10/16] Compiling Statelessness Execution.swift
+[11/16] Compiling Statelessness Explore.swift
+[12/16] Compiling Statelessness Oracle.swift
+[12/17] Write Objects.LinkFileList
+[13/20] Linking stateless-corpus
+[14/20] Applying stateless-corpus
+[16/20] Emitting module StatelessnessTests
+[17/20] Compiling StatelessnessTests OracleTests.swift
+[18/20] Compiling StatelessnessTests AppendChecksTests.swift
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/AppendChecksTests.swift:14:231: error: argument 'inputs' must precede argument 'codec'
+ 12 | }
+ 13 | private func appendBase() -> Model<Int, Int, Int> {
+ 14 |     Model(initialState: { 0 }, step: { Transition(state: $0 + $1) }, checkState: { _ in appendState }, cloneState: { $0 }, cloneInput: { $0 }, cloneOutput: { $0 }, checkTransition: { _, _, _ in appendEdge }, codec: appendCodec(), inputs: { InputIterator(values: $0 == 0 ? [1] : []) }, equalStates: ==, hashState: { UInt64($0) })
+    |                                                                                                                                                                                                                                       `- error: argument 'inputs' must precede argument 'codec'
+ 15 | }
+ 16 | final class AppendChecksTests: XCTestCase {
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/AppendChecksTests.swift:84:33: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+ 82 |                     outcome = r.termination; witness = r.minimized.inputs; attempts = r.attempts
+ 83 |                 case "record":
+ 84 |                     let t = try record(m, inputs: InputIterator(values: [1])); outcome = t.termination.rawValue
+    |                                 |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                                 `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+ 85 |                     outputChecks = appendJSON(t.initialChecks + t.steps.flatMap { $0.checks })
+ 86 |                 case "replay":
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+error: fatalError

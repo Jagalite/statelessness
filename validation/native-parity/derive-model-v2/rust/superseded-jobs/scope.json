@@ -1,0 +1,8 @@
+{
+  "scope": "Rust compiler/runtime source closure only; native disjoint edits excluded. Snapshot taken after all final Rust edits while all three jobs remained queued. Initial compile submission superseded by final edits; retain terminal log without qualification claim. All three jobs are superseded as submissions predating requested literal model/budget strengthening; no terminal evidence claimed.",
+  "jobs": [
+    "33993dc185b94dfcbbd33640db8bf185",
+    "05f622774fc24afa9055783b33aa1659",
+    "4f6d277cfc764c7589cf5004af1a8c77"
+  ]
+}

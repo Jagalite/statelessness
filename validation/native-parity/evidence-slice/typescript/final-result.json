@@ -1,0 +1,35 @@
+{
+  "profile": "causal-evidence-v2",
+  "promotion": "candidate_only",
+  "job_id": "cbcf8b99b97e449d97775259236f5c89",
+  "requested_command": [
+    "npm",
+    "test"
+  ],
+  "effective_command": [
+    "npm",
+    "test"
+  ],
+  "cwd": "/Volumes/seed2/Projects/stateless-native-parity/typescript",
+  "status": "succeeded",
+  "exit_code": 0,
+  "counts": {
+    "tests": 627,
+    "pass": 627,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "shared_cases": {
+    "wire_cases": 52,
+    "replay_cases": 16,
+    "recorder_cases": 20,
+    "export_cases": 13
+  },
+  "scope_sha256": "9bd512a2f579a9b052ddf5c1f1af9ce724e37ccf825ff2bea357fd9adbd9552b",
+  "source_file_count": 40,
+  "source_candidate_commit": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "source_and_shared_inputs_unchanged": true,
+  "scope": "Node TypeScript compile and full npm suite; core canonical wire, replay/upgrade, real recorder, diagnostic and Node private-file tests; not browser or installed-matrix qualification"
+}

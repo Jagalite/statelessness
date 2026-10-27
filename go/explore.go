@@ -1,5 +1,7 @@
 package statelessness
 
+import "math"
+
 // SearchConfig bounds deterministic work, not process memory or callback time.
 type SearchConfig struct {
 	MaxStates      int
@@ -18,12 +20,13 @@ type Failure[I any] struct {
 	Violations []Violation `json:"violations"`
 }
 type SearchReport[I any] struct {
-	Termination     string      `json:"termination"`
-	States          int         `json:"states"`
-	Transitions     uint64      `json:"transitions"`
-	MaxDepthReached int         `json:"max_depth_reached"`
-	SkippedChecks   uint64      `json:"skipped_checks"`
-	Failure         *Failure[I] `json:"failure"`
+	Termination                 string      `json:"termination"`
+	States                      int         `json:"states"`
+	Transitions                 uint64      `json:"transitions"`
+	MaxDepthReached             int         `json:"max_depth_reached"`
+	SkippedChecks               uint64      `json:"skipped_checks"`
+	EstimatedRetainedStateBytes *uint64     `json:"estimated_retained_state_bytes"`
+	Failure                     *Failure[I] `json:"failure"`
 }
 type node[S, I any] struct {
 	state  S
@@ -35,7 +38,7 @@ type node[S, I any] struct {
 func findings(phase string, checks []Check, skipped *uint64) []Violation {
 	result := []Violation{}
 	for _, c := range checks {
-		if c.Status == "skipped" {
+		if c.Status == "skipped" && *skipped < math.MaxUint64 {
 			*skipped++
 		}
 		if c.Status == "failed" {
@@ -53,74 +56,180 @@ func next[I any](it Iterator[I]) (value I, ok bool, err error) {
 	return r.value, r.ok, err
 }
 
-// Enumerate performs FIFO exploration, preserving first predecessors. Every
-// executed edge is checked before deduplication or state-admission limits.
+// SearchLimits optionally bounds admitted state estimates and cooperatively
+// controls execution. Temporary successors, frontier/maps and input history are
+// outside the estimate budget; this is never a process-memory guarantee.
+type SearchLimits struct {
+	Control                RunLimits
+	MaxEstimatedStateBytes *uint64
+}
+
+func estimateState[S, I, O any](m Model[S, I, O], state S) (*uint64, error) {
+	if m.EstimatedStateBytes == nil {
+		return nil, nil
+	}
+	return call("estimated_state_bytes", func() (*uint64, error) {
+		value, e := m.EstimatedStateBytes(m.CloneState(state))
+		if e != nil || value == nil {
+			return nil, e
+		}
+		owned := *value
+		return &owned, nil
+	})
+}
+func searchPath[S, I, O any](m Model[S, I, O], nodes []node[S, I], index int, input I) ([]I, error) {
+	return call("search history", func() ([]I, error) {
+		path := []I{m.CloneInput(input)}
+		for current := index; nodes[current].parent >= 0; current = nodes[current].parent {
+			path = append(path, m.CloneInput(nodes[current].input))
+		}
+		for l, r := 0, len(path)-1; l < r; l, r = l+1, r-1 {
+			path[l], path[r] = path[r], path[l]
+		}
+		return path, nil
+	})
+}
+
+// Enumerate performs FIFO exploration with detached shortest predecessor paths.
+// Every executed edge is fully checked before deduplication or admission limits.
 func Enumerate[S, I, O any](m Model[S, I, O], config SearchConfig) (*SearchReport[I], error) {
-	if config.MaxStates <= 0 || config.MaxDepth < 0 {
+	return EnumerateWithLimits(m, config, SearchLimits{})
+}
+func EnumerateWithLimits[S, I, O any](m Model[S, I, O], config SearchConfig, limits SearchLimits) (*SearchReport[I], error) {
+	return enumerateObserved(m, config, limits, nil)
+}
+func EnumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limits SearchLimits, observer SearchObserver[S, I, O]) (*SearchReport[I], error) {
+	return enumerateObserved(m, config, limits, &observer)
+}
+func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limits SearchLimits, observer *SearchObserver[S, I, O]) (*SearchReport[I], error) {
+	// The optional budget is configuration, not a live control channel. Copy its
+	// pointed value before any callback; cancellation remains intentionally live.
+	if limits.MaxEstimatedStateBytes != nil {
+		maximum := *limits.MaxEstimatedStateBytes
+		limits.MaxEstimatedStateBytes = &maximum
+	}
+
+	if config.MaxStates <= 0 {
+		return nil, &ConfigError{"enumeration max_states must be greater than zero"}
+	}
+	if config.MaxDepth < 0 {
 		return nil, &ConfigError{"invalid enumeration configuration"}
 	}
-	if err := m.validate(); err != nil {
-		return nil, err
+	if e := m.validate(); e != nil {
+		return nil, e
 	}
 	if m.InitialState == nil || m.Step == nil || m.Inputs == nil || m.EqualStates == nil {
 		return nil, &ModelError{"enumeration requires initial, step, inputs, and equality callbacks"}
 	}
-	initial, err := call("initial_state", m.InitialState)
-	if err != nil {
-		return nil, err
+	control, e := newRunControl(limits.Control)
+	if e != nil {
+		return nil, e
 	}
-	initial, err = copied(m.CloneState, initial)
-	if err != nil {
-		return nil, err
+	report := &SearchReport[I]{Termination: "graph_exhausted"}
+	stop := func() bool {
+		if reason := control.stop(); reason != "" {
+			report.Termination = reason
+			return true
+		}
+		return false
 	}
-	checks, err := stateChecks(m, initial)
-	if err != nil {
-		return nil, err
+	if stop() {
+		return report, nil
 	}
-	report := &SearchReport[I]{Termination: "graph_exhausted", States: 1}
+	var checkStorage []Check
+	initial, e := call("initial_state", m.InitialState)
+	if e != nil {
+		return nil, e
+	}
+	initial, e = copied(m.CloneState, initial)
+	if e != nil {
+		return nil, e
+	}
+	report.States = 1
+	checks, e := searchInitialObservedInto(m, initial, observer, &checkStorage)
+	if e != nil {
+		return nil, e
+	}
 	bad := findings("initial_state", checks, &report.SkippedChecks)
 	if len(bad) > 0 {
 		report.Termination = "failure_found"
 		report.Failure = &Failure[I]{[]I{}, bad}
 		return report, nil
 	}
-	nodes := []node[S, I]{{state: initial, parent: -1}}
-	hash := func(s S) (uint64, error) {
+	if stop() {
+		return report, nil
+	}
+	initialBytes, e := estimateState(m, initial)
+	if e != nil {
+		return nil, e
+	}
+	report.EstimatedRetainedStateBytes = initialBytes
+	if stop() {
+		return report, nil
+	}
+	if limits.MaxEstimatedStateBytes != nil {
+		if initialBytes == nil {
+			return nil, &ModelError{"state byte budget requires estimated_state_bytes"}
+		}
+		if *initialBytes > *limits.MaxEstimatedStateBytes {
+			zero := uint64(0)
+			report.States = 0
+			report.EstimatedRetainedStateBytes = &zero
+			report.Termination = "estimated_state_byte_limit"
+			return report, nil
+		}
+	}
+	hash := func(state S) (uint64, error) {
 		return call("state hash", func() (uint64, error) {
 			if m.HashState == nil {
 				return 0, nil
 			}
-			return m.HashState(m.CloneState(s)), nil
+			return m.HashState(m.CloneState(state)), nil
 		})
 	}
-	h, err := hash(initial)
-	if err != nil {
-		return nil, err
+	h, e := hash(initial)
+	if e != nil {
+		return nil, e
 	}
+	if stop() {
+		return report, nil
+	}
+	nodes := []node[S, I]{{state: initial, parent: -1}}
 	visited := map[uint64][]int{h: {0}}
 	cutoff := false
 	for cursor := 0; cursor < len(nodes); cursor++ {
-		current := nodes[cursor]
-		state, err := copied(m.CloneState, current.state)
-		if err != nil {
-			return nil, err
+		if stop() {
+			return report, nil
 		}
-		iterator, err := call("enumerate inputs", func() (Iterator[I], error) { return m.Inputs(state) })
-		if err != nil {
-			return nil, err
+		current := nodes[cursor]
+		iterator, e := call("enumerate inputs", func() (Iterator[I], error) { return m.Inputs(m.CloneState(current.state)) })
+		if e != nil {
+			return nil, e
+		}
+		if stop() {
+			return report, nil
 		}
 		if current.depth == config.MaxDepth {
-			_, ok, err := next(iterator)
-			if err != nil {
-				return nil, err
+			_, ok, e := next(iterator)
+			if e != nil {
+				return nil, e
+			}
+			if stop() {
+				return report, nil
 			}
 			cutoff = cutoff || ok
 			continue
 		}
 		for {
-			input, ok, err := next(iterator)
-			if err != nil {
-				return nil, err
+			if stop() {
+				return report, nil
+			}
+			input, ok, e := next(iterator)
+			if e != nil {
+				return nil, e
+			}
+			if stop() {
+				return report, nil
 			}
 			if !ok {
 				break
@@ -129,54 +238,64 @@ func Enumerate[S, I, O any](m Model[S, I, O], config SearchConfig) (*SearchRepor
 				report.Termination = "transition_limit"
 				return report, nil
 			}
-			transition, err := perform(m, current.state, input)
-			if err != nil {
-				return nil, err
+			transition, e := perform(m, current.state, input)
+			if e != nil {
+				return nil, e
 			}
 			report.Transitions++
-			if current.depth+1 > report.MaxDepthReached {
-				report.MaxDepthReached = current.depth + 1
+			report.MaxDepthReached = max(report.MaxDepthReached, current.depth+1)
+			var history []I
+			needsHistory := false
+			if observer != nil && observer.NeedsHistory != nil {
+				needsHistory, e = call("observer needs history", func() (bool, error) { return observer.NeedsHistory(), nil })
+				if e != nil {
+					return nil, e
+				}
 			}
-			sc, err := stateChecks(m, transition.State)
-			if err != nil {
-				return nil, err
+			if needsHistory {
+				history, e = searchPath(m, nodes, cursor, input)
+				if e != nil {
+					return nil, e
+				}
 			}
-			ec, err := edgeChecks(m, current.state, input, transition)
-			if err != nil {
-				return nil, err
+			bad, e := searchEdgeObservedInto(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, history, &report.SkippedChecks, observer, &checkStorage)
+			if e != nil {
+				return nil, e
 			}
-			bad := append(findings("state", sc, &report.SkippedChecks), findings("transition", ec, &report.SkippedChecks)...)
 			if len(bad) > 0 {
-				item, err := copied(m.CloneInput, input)
-				if err != nil {
-					return nil, err
-				}
-				path := []I{item}
-				for k := cursor; nodes[k].parent >= 0; k = nodes[k].parent {
-					item, err = copied(m.CloneInput, nodes[k].input)
-					if err != nil {
-						return nil, err
-					}
-					path = append(path, item)
-				}
-				for l, r := 0, len(path)-1; l < r; l, r = l+1, r-1 {
-					path[l], path[r] = path[r], path[l]
+				path, e := searchPath(m, nodes, cursor, input)
+				if e != nil {
+					return nil, e
 				}
 				report.Failure = &Failure[I]{path, bad}
 				report.Termination = "failure_found"
 				return report, nil
 			}
-			h, err := hash(transition.State)
-			if err != nil {
-				return nil, err
+			if stop() {
+				return report, nil
+			}
+			h, e := hash(transition.State)
+			if e != nil {
+				return nil, e
+			}
+			if stop() {
+				return report, nil
 			}
 			duplicate := false
-			for _, index := range visited[h] {
-				equal, err := call("state equality", func() (bool, error) {
+			// Rust inserts each newly admitted state at the collision chain head.
+			for position := len(visited[h]) - 1; position >= 0; position-- {
+				if stop() {
+					return report, nil
+				}
+				index := visited[h][position]
+				equal, e := call("state equality", func() (bool, error) {
 					return m.EqualStates(m.CloneState(nodes[index].state), m.CloneState(transition.State)), nil
 				})
-				if err != nil {
-					return nil, err
+				if e != nil {
+					return nil, e
+				}
+				if stop() {
+					return report, nil
 				}
 				if equal {
 					duplicate = true
@@ -190,13 +309,35 @@ func Enumerate[S, I, O any](m Model[S, I, O], config SearchConfig) (*SearchRepor
 				report.Termination = "state_limit"
 				return report, nil
 			}
-			item, err := copied(m.CloneInput, input)
-			if err != nil {
-				return nil, err
+			estimate, e := estimateState(m, transition.State)
+			if e != nil {
+				return nil, e
+			}
+			if stop() {
+				return report, nil
+			}
+			var total *uint64
+			if report.EstimatedRetainedStateBytes != nil && estimate != nil && *estimate <= math.MaxUint64-*report.EstimatedRetainedStateBytes {
+				sum := *report.EstimatedRetainedStateBytes + *estimate
+				total = &sum
+			}
+			if limits.MaxEstimatedStateBytes != nil {
+				if estimate == nil {
+					return nil, &ModelError{"state byte budget requires estimated_state_bytes"}
+				}
+				if total == nil || *total > *limits.MaxEstimatedStateBytes {
+					report.Termination = "estimated_state_byte_limit"
+					return report, nil
+				}
+			}
+			saved, e := copied(m.CloneInput, input)
+			if e != nil {
+				return nil, e
 			}
 			visited[h] = append(visited[h], len(nodes))
-			nodes = append(nodes, node[S, I]{transition.State, cursor, item, current.depth + 1})
+			nodes = append(nodes, node[S, I]{transition.State, cursor, saved, current.depth + 1})
 			report.States = len(nodes)
+			report.EstimatedRetainedStateBytes = total
 		}
 	}
 	if cutoff {

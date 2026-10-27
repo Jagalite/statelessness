@@ -1,0 +1,8 @@
+{
+  "stdio_endpoints": [
+    {
+      "argv": ["target/n12-recovery/debug/examples/debug_stdio", "--fixed", "--read-only"],
+      "timeout_seconds": 30
+    }
+  ]
+}

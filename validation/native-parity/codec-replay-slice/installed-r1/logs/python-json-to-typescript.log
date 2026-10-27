@@ -1,0 +1,1 @@
+{"outcome":"exact","divergence_step":null,"divergence_field":null,"steps_verified":3,"failure_reproduced":true,"build_matches":true,"producer":"typescript","mode":"replay-json","legacy_encoder_calls":0,"codec_into_calls":10}

@@ -1,0 +1,57 @@
+[
+  {
+    "job_id": "6f18cb4dc7c043f78f0072be5e63ac69",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/6f18cb4dc7c043f78f0072be5e63ac69.log",
+    "original_size": 2866,
+    "original_sha256": "84b45008e8755757396980e23d55f8d8bb0f377e0ec0675831f5594fd2e29c4d",
+    "stored_path": "logs/6f18cb4dc7c043f78f0072be5e63ac69.log.gz",
+    "stored_size": 944,
+    "stored_sha256": "b77b0577201b23aa43f4f5be91d31980d8bb3b8844d91859d9f18d9448914dc1",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "deaf3b26721447ef97996825916745d3",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/deaf3b26721447ef97996825916745d3.log",
+    "original_size": 115,
+    "original_sha256": "26a3300cef8381d330cebe6e5d1106ac6870a32a22d5932e06f18414c2f5b60f",
+    "stored_path": "logs/deaf3b26721447ef97996825916745d3.log.gz",
+    "stored_size": 111,
+    "stored_sha256": "6866c3a92e989249e2fedc3ef62bdaae0dc4df3089d220e40a3f335401437387",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "7eb0f9c8fbd04005893be6f4144bdd19",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/7eb0f9c8fbd04005893be6f4144bdd19.log",
+    "original_size": 256,
+    "original_sha256": "346f5696582b65c921ebfb44fd9564e849fa509e6f9d2ead988c9a209770f384",
+    "stored_path": "logs/7eb0f9c8fbd04005893be6f4144bdd19.log.gz",
+    "stored_size": 204,
+    "stored_sha256": "c8e548fdad82fbec52be65cff32472b825e766b2fc3f23972c006df191fe0a4d",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "cdb6e6b8e66048b18020506caff084b6",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/cdb6e6b8e66048b18020506caff084b6.log",
+    "original_size": 258,
+    "original_sha256": "f3ffe2f8ab4d7ce0f144d8c99942131c9d50ce495656335d2d6ced29d07ac18a",
+    "stored_path": "logs/cdb6e6b8e66048b18020506caff084b6.log.gz",
+    "stored_size": 200,
+    "stored_sha256": "c8efbe76978012ca68a3bb214658bcac9eddf27513da108cc5f53bdcf39e527f",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "d0c807d5bdfd4788b4588f7371e96489",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/d0c807d5bdfd4788b4588f7371e96489.log",
+    "original_size": 1082,
+    "original_sha256": "f06cfb29b4684fa61aba233da7e91eabc222dba7ad6305a415a02a3ac64f902b",
+    "stored_path": "logs/d0c807d5bdfd4788b4588f7371e96489.log.gz",
+    "stored_size": 516,
+    "stored_sha256": "0ef73d3491c3ea2351e8674de47128622223ae8a2c7b19ae2d6c0bc1c5405d3a",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  }
+]

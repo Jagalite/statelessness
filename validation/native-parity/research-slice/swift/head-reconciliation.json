@@ -1,0 +1,10 @@
+{
+  "before_head": "0b9056d38c4112ab2390fde51ddd06ef18aae915",
+  "after_head": "ed58376ce183f4534461e6f908b82251211b33fe",
+  "source_files_identical": true,
+  "intervening_commits": [
+    "ed58376 docs: record model codec continuation handoff",
+    "6e8dd33 docs: track research candidate and pending Kyoto qualification",
+    "cdc0a5a feat: add native finite research equivalence candidates"
+  ]
+}

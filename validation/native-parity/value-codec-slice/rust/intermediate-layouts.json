@@ -1,0 +1,597 @@
+{
+  "named": [
+    {
+      "alignment": 1,
+      "name": "u8",
+      "rust_type": "u8",
+      "size": 1
+    },
+    {
+      "alignment": 2,
+      "name": "u16",
+      "rust_type": "u16",
+      "size": 2
+    },
+    {
+      "alignment": 4,
+      "name": "u32",
+      "rust_type": "u32",
+      "size": 4
+    },
+    {
+      "alignment": 8,
+      "name": "u64",
+      "rust_type": "u64",
+      "size": 8
+    },
+    {
+      "alignment": 16,
+      "name": "u128",
+      "rust_type": "u128",
+      "size": 16
+    },
+    {
+      "alignment": 1,
+      "name": "i8",
+      "rust_type": "i8",
+      "size": 1
+    },
+    {
+      "alignment": 2,
+      "name": "i16",
+      "rust_type": "i16",
+      "size": 2
+    },
+    {
+      "alignment": 4,
+      "name": "i32",
+      "rust_type": "i32",
+      "size": 4
+    },
+    {
+      "alignment": 8,
+      "name": "i64",
+      "rust_type": "i64",
+      "size": 8
+    },
+    {
+      "alignment": 16,
+      "name": "i128",
+      "rust_type": "i128",
+      "size": 16
+    },
+    {
+      "alignment": 1,
+      "name": "bool",
+      "rust_type": "bool",
+      "size": 1
+    },
+    {
+      "alignment": 1,
+      "name": "unit",
+      "rust_type": "()",
+      "size": 0
+    },
+    {
+      "alignment": 8,
+      "name": "String",
+      "rust_type": "alloc::string::String",
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "name": "Vec<T> header",
+      "rust_type": "alloc::vec::Vec<u8>",
+      "size": 24
+    },
+    {
+      "alignment": 1,
+      "name": "Option<()>",
+      "rust_type": "core::option::Option<()>",
+      "size": 1
+    },
+    {
+      "alignment": 1,
+      "name": "Option<bool>",
+      "rust_type": "core::option::Option<bool>",
+      "size": 1
+    },
+    {
+      "alignment": 1,
+      "name": "Option<u8>",
+      "rust_type": "core::option::Option<u8>",
+      "size": 2
+    },
+    {
+      "alignment": 8,
+      "name": "Option<u64>",
+      "rust_type": "core::option::Option<u64>",
+      "size": 16
+    },
+    {
+      "alignment": 8,
+      "name": "Option<String>",
+      "rust_type": "core::option::Option<alloc::string::String>",
+      "size": 24
+    },
+    {
+      "alignment": 2,
+      "name": "[u16;3]",
+      "rust_type": "[u16; 3]",
+      "size": 6
+    },
+    {
+      "alignment": 8,
+      "name": "(u8,u64)",
+      "rust_type": "(u8, u64)",
+      "size": 16
+    }
+  ],
+  "registry": [
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<[u16; 3]>",
+      "schema": {
+        "element": {
+          "element": {
+            "kind": "u16"
+          },
+          "kind": "array",
+          "length": 3
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<core::option::Option<u64>>",
+      "schema": {
+        "element": {
+          "element": {
+            "kind": "u64"
+          },
+          "kind": "option"
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<alloc::vec::Vec<u8>>, 1>",
+      "schema": {
+        "element": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "kind": "vector",
+        "length_width": 1
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<alloc::vec::Vec<u8>>",
+      "schema": {
+        "element": {
+          "element": {
+            "kind": "u8"
+          },
+          "kind": "vector",
+          "length_width": 4
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 1,
+      "rust_type": "core::option::Option<core::option::Option<()>>",
+      "schema": {
+        "element": {
+          "element": {
+            "kind": "unit"
+          },
+          "kind": "option"
+        },
+        "kind": "option"
+      },
+      "size": 1
+    },
+    {
+      "alignment": 8,
+      "rust_type": "core::option::Option<alloc::string::String>",
+      "schema": {
+        "element": {
+          "kind": "string"
+        },
+        "kind": "option"
+      },
+      "size": 24
+    },
+    {
+      "alignment": 2,
+      "rust_type": "[u16; 1]",
+      "schema": {
+        "element": {
+          "kind": "u16"
+        },
+        "kind": "array",
+        "length": 1
+      },
+      "size": 2
+    },
+    {
+      "alignment": 2,
+      "rust_type": "[u16; 3]",
+      "schema": {
+        "element": {
+          "kind": "u16"
+        },
+        "kind": "array",
+        "length": 3
+      },
+      "size": 6
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u16>, 1>",
+      "schema": {
+        "element": {
+          "kind": "u16"
+        },
+        "kind": "vector",
+        "length_width": 1
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u16>, 2>",
+      "schema": {
+        "element": {
+          "kind": "u16"
+        },
+        "kind": "vector",
+        "length_width": 2
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<u16>",
+      "schema": {
+        "element": {
+          "kind": "u16"
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 1,
+      "rust_type": "[u8; 0]",
+      "schema": {
+        "element": {
+          "kind": "u8"
+        },
+        "kind": "array",
+        "length": 0
+      },
+      "size": 0
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u8>, 1>",
+      "schema": {
+        "element": {
+          "kind": "u8"
+        },
+        "kind": "vector",
+        "length_width": 1
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::vec::Vec<u8>, 2>",
+      "schema": {
+        "element": {
+          "kind": "u8"
+        },
+        "kind": "vector",
+        "length_width": 2
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<u8>",
+      "schema": {
+        "element": {
+          "kind": "u8"
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 1,
+      "rust_type": "core::option::Option<()>",
+      "schema": {
+        "element": {
+          "kind": "unit"
+        },
+        "kind": "option"
+      },
+      "size": 1
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::vec::Vec<()>",
+      "schema": {
+        "element": {
+          "kind": "unit"
+        },
+        "kind": "vector",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 4,
+      "rust_type": "(u16, i32, bool, core::option::Option<u8>)",
+      "schema": {
+        "fields": [
+          {
+            "kind": "u16"
+          },
+          {
+            "kind": "i32"
+          },
+          {
+            "kind": "bool"
+          },
+          {
+            "element": {
+              "kind": "u8"
+            },
+            "kind": "option"
+          }
+        ],
+        "kind": "tuple"
+      },
+      "size": 12
+    },
+    {
+      "alignment": 2,
+      "rust_type": "(u16,)",
+      "schema": {
+        "fields": [
+          {
+            "kind": "u16"
+          }
+        ],
+        "kind": "tuple"
+      },
+      "size": 2
+    },
+    {
+      "alignment": 8,
+      "rust_type": "(u8, u64)",
+      "schema": {
+        "fields": [
+          {
+            "kind": "u8"
+          },
+          {
+            "kind": "u64"
+          }
+        ],
+        "kind": "tuple"
+      },
+      "size": 16
+    },
+    {
+      "alignment": 1,
+      "rust_type": "((), i8, bool)",
+      "schema": {
+        "fields": [
+          {
+            "kind": "unit"
+          },
+          {
+            "kind": "i8"
+          },
+          {
+            "kind": "bool"
+          }
+        ],
+        "kind": "tuple"
+      },
+      "size": 2
+    },
+    {
+      "alignment": 1,
+      "rust_type": "bool",
+      "schema": {
+        "kind": "bool"
+      },
+      "size": 1
+    },
+    {
+      "alignment": 16,
+      "rust_type": "i128",
+      "schema": {
+        "kind": "i128"
+      },
+      "size": 16
+    },
+    {
+      "alignment": 2,
+      "rust_type": "i16",
+      "schema": {
+        "kind": "i16"
+      },
+      "size": 2
+    },
+    {
+      "alignment": 4,
+      "rust_type": "i32",
+      "schema": {
+        "kind": "i32"
+      },
+      "size": 4
+    },
+    {
+      "alignment": 8,
+      "rust_type": "i64",
+      "schema": {
+        "kind": "i64"
+      },
+      "size": 8
+    },
+    {
+      "alignment": 1,
+      "rust_type": "i8",
+      "schema": {
+        "kind": "i8"
+      },
+      "size": 1
+    },
+    {
+      "alignment": 8,
+      "rust_type": "stateless::oracle::OracleState<u16, alloc::string::String>",
+      "schema": {
+        "kind": "oracle_state",
+        "model": {
+          "kind": "u16"
+        },
+        "oracle": {
+          "kind": "string"
+        }
+      },
+      "size": 32
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 0>",
+      "schema": {
+        "kind": "string",
+        "length_width": 0
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 1>",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 2>",
+      "schema": {
+        "kind": "string",
+        "length_width": 2
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 3>",
+      "schema": {
+        "kind": "string",
+        "length_width": 3
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::string::String",
+      "schema": {
+        "kind": "string",
+        "length_width": 4
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "native_values::values_reference::LengthValue<alloc::string::String, 8>",
+      "schema": {
+        "kind": "string",
+        "length_width": 8
+      },
+      "size": 24
+    },
+    {
+      "alignment": 8,
+      "rust_type": "alloc::string::String",
+      "schema": {
+        "kind": "string"
+      },
+      "size": 24
+    },
+    {
+      "alignment": 16,
+      "rust_type": "u128",
+      "schema": {
+        "kind": "u128"
+      },
+      "size": 16
+    },
+    {
+      "alignment": 2,
+      "rust_type": "u16",
+      "schema": {
+        "kind": "u16"
+      },
+      "size": 2
+    },
+    {
+      "alignment": 4,
+      "rust_type": "u32",
+      "schema": {
+        "kind": "u32"
+      },
+      "size": 4
+    },
+    {
+      "alignment": 8,
+      "rust_type": "u64",
+      "schema": {
+        "kind": "u64"
+      },
+      "size": 8
+    },
+    {
+      "alignment": 1,
+      "rust_type": "u8",
+      "schema": {
+        "kind": "u8"
+      },
+      "size": 1
+    },
+    {
+      "alignment": 1,
+      "rust_type": "()",
+      "schema": {
+        "kind": "unit"
+      },
+      "size": 0
+    }
+  ],
+  "usize_bits": 64
+}

@@ -1,0 +1,12 @@
+--- FAIL: TestSearchGolden (0.00s)
+    --- FAIL: TestSearchGolden/fuzz-auto-overflow (0.00s)
+        search_test.go:144: report &{Termination:cases_completed Seed:0 Cases:1 Transitions:2 SkippedChecks:0 Failure:<nil>} expected map[attempts:- case:fuzz-auto-overflow cases:1 control:none error:auto_candidate_limit failed_id:- failed_phase:- fixture:binary max_attempts:- max_candidates:1 max_replayed_transitions:- max_steps:2 max_transitions:10 mutation_percent:0 operation:fuzz original:- seed:0 started_cases:- target_id:- target_phase:- termination:- trace:- transitions:- validated_original:- witness:-]
+    --- FAIL: TestSearchGolden/fuzz-auto-zero-cap (0.00s)
+        search_test.go:144: report &{Termination:cases_completed Seed:0 Cases:1 Transitions:2 SkippedChecks:0 Failure:<nil>} expected map[attempts:- case:fuzz-auto-zero-cap cases:1 control:none error:invalid_candidate_budget failed_id:- failed_phase:- fixture:binary max_attempts:- max_candidates:0 max_replayed_transitions:- max_steps:2 max_transitions:10 mutation_percent:0 operation:fuzz original:- seed:0 started_cases:- target_id:- target_phase:- termination:- trace:- transitions:- validated_original:- witness:-]
+FAIL
+FAIL	github.com/Jagalite/statelessness/go	0.386s
+?   	github.com/Jagalite/statelessness/go/cmd/stateless-corpus	[no test files]
+?   	github.com/Jagalite/statelessness/go/conformance	[no test files]
+?   	github.com/Jagalite/statelessness/go/examples/counter	[no test files]
+ok  	github.com/Jagalite/statelessness/go/internal/portablejson	(cached)
+FAIL

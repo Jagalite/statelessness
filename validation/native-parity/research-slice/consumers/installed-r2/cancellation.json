@@ -1,0 +1,13 @@
+{
+  "job_status": "cancelled",
+  "reason": "User requested cancellation on 2026-10-20. Resumed 2026-10-22.",
+  "temporary_output_available": false,
+  "original_output": "/private/tmp/stateless-research-consumers-20261020-r2",
+  "log": {
+    "file": "d2ea10c5d4d847d2b4105ed9df5642bf.log.gz",
+    "raw_bytes": 5318,
+    "raw_sha256": "ea5b0d807a2b6b0dc44493e488847e23c4ff11a38088ffd42921c0d202ba5a19",
+    "gzip_bytes": 862,
+    "gzip_sha256": "46e190e362f14fd87541df1bb84c9ca2d67bbb87b5dfd8a37304105728c22a1e"
+  }
+}

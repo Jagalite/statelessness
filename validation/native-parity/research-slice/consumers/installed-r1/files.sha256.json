@@ -1,0 +1,98 @@
+{
+  "kyoto-queued.json": {
+    "bytes": 2369,
+    "sha256": "d0c1b1a1081bb9dc28402a0dba818a3c514f0e0eb663bc647aeaa93d8b9b0179"
+  },
+  "kyoto-terminal.json": {
+    "bytes": 2385,
+    "sha256": "6c6cdf6a5433fa8638612b941e4ea369064fd2d74c090595e2aae3aec7675f4f"
+  },
+  "logs.json": {
+    "bytes": 5139,
+    "sha256": "b33ef1aaf35fa2e2f5c2dd72acd9ed4b78fef3afee7ac28c89e1d2a696aefc17"
+  },
+  "logs/8b5dc9cf01444cf8ab9fcf6f08412b57.log.gz": {
+    "bytes": 1045,
+    "sha256": "af906a97313958b90032772da8d8386d5aa772e74762642fa198125fb112ae9a"
+  },
+  "logs/go-build.log.gz": {
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  "logs/go-version.log.gz": {
+    "bytes": 53,
+    "sha256": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949"
+  },
+  "logs/node-version.log.gz": {
+    "bytes": 28,
+    "sha256": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01"
+  },
+  "logs/npm-version.log.gz": {
+    "bytes": 27,
+    "sha256": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13"
+  },
+  "logs/python-builder-freeze.log.gz": {
+    "bytes": 78,
+    "sha256": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da"
+  },
+  "logs/python-builder-tools.log.gz": {
+    "bytes": 388,
+    "sha256": "b6707da10dde8eb74389e435afc3f17f440e94524e1b319cf3e18d7e5f957333"
+  },
+  "logs/python-builder-venv.log.gz": {
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  "logs/python-install.log.gz": {
+    "bytes": 155,
+    "sha256": "41fcde4cda2e035436a672d4b255fa1b3a2715f445eb7e689de859dc8b6c6cab"
+  },
+  "logs/python-venv.log.gz": {
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  "logs/python-wheel.log.gz": {
+    "bytes": 514,
+    "sha256": "7007e3040d2f080782933d2cca7a952f0e0b8e626ec85e5a8b2695e2cc9455c1"
+  },
+  "logs/typescript-declarations.log.gz": {
+    "bytes": 271,
+    "sha256": "00b204b707c34be00c54581d814ea005c24d40f95a61e1bd2aa0131cc5c372ec"
+  },
+  "logs/typescript-install.log.gz": {
+    "bytes": 46,
+    "sha256": "c34e7686ae5b085a7cfb60db3c68f41329ffae6bbdaa864f969835b20cb198d6"
+  },
+  "logs/typescript-pack.log.gz": {
+    "bytes": 1043,
+    "sha256": "7b6b8711a3533a49f2b96ee7bcb55a5428749afa79535a1064774053f09a9209"
+  },
+  "logs/typescript-package-build.log.gz": {
+    "bytes": 20,
+    "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+  },
+  "logs/typescript-version.log.gz": {
+    "bytes": 34,
+    "sha256": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc"
+  },
+  "packages/jagalite-statelessness-0.1.0.tgz": {
+    "bytes": 202882,
+    "sha256": "f5f59e81f6ae4a304359396364e97b2ef4d98610696942bf728e0856edec2aa9"
+  },
+  "packages/statelessness-0.1.0-py3-none-any.whl": {
+    "bytes": 87813,
+    "sha256": "070e4c1bab79437eaed138e189cbba803d1ee57c20539100c8190229ae778504"
+  },
+  "pre-submit-source-and-binaries.json": {
+    "bytes": 25937,
+    "sha256": "20bfc9598f490f2f23653e089d19cd45d5d9b4823136eb17afcfb55ca9ba9512"
+  },
+  "qualification.json": {
+    "bytes": 110972,
+    "sha256": "b1644a0944430f33c7d4ce261f3d66680c8a935a7fe1385bd9b787404687d108"
+  },
+  "source-reconciliation.json": {
+    "bytes": 47,
+    "sha256": "34645dd967db6a7a4f22f31a014654a585c8401ad8e9735007b110f1653a4a24"
+  }
+}

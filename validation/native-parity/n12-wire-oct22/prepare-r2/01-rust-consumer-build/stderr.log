@@ -1,0 +1,5 @@
+     Locking 2 packages to highest Rust 1.90 compatible versions
+   Compiling statelessness v0.2.0 (/private/tmp/n12-wire-oct22-r2/source)
+   Compiling statelessness-debug v0.2.0 (/private/tmp/n12-wire-oct22-r2/source/crates/statelessness-debug)
+   Compiling n12-wire-rust v0.0.0 (/private/tmp/n12-wire-oct22-r2/consumers/rust)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.71s

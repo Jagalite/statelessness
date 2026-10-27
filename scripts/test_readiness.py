@@ -1,7 +1,11 @@
 """Regression checks for generated binding distributions (stdlib only)."""
 from pathlib import Path
 import json
+import os
+import shutil
 import runpy
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -46,12 +50,78 @@ class Bundles(unittest.TestCase):
         modules = {"src/statelessness/" + path.name for path in package.glob("*.py")}
         self.assertLessEqual(modules, set(builder["PYTHON_FILES"]))
 
+    def test_real_python_distribution_is_complete_and_importable(self):
+        stage = self.root / "real-stage"
+        builder["stage_sources"](builder["ROOT"], stage, "native", "9.8.7", True)
+        package = stage / "python"
+        actual = {path.relative_to(package).as_posix()
+                  for path in package.rglob("*") if path.is_file()}
+        self.assertEqual(actual, set(builder["PYTHON_FILES"]))
+        for name in actual:
+            self.assertEqual((package / name).read_bytes(),
+                             (builder["ROOT"] / "python" / name).read_bytes())
+        # An isolated interpreter must resolve every module from the bundle,
+        # never an installed package or this checkout's source directory.
+        probe = """
+import importlib, pathlib, sys
+root = pathlib.Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(root))
+for path in sorted((root / "statelessness").glob("*.py")):
+    name = "statelessness" if path.stem == "__init__" else "statelessness." + path.stem
+    module = importlib.import_module(name)
+    if pathlib.Path(module.__file__).resolve() != path.resolve():
+        raise RuntimeError("module escaped staged bundle: " + name)
+"""
+        result = subprocess.run([sys.executable, "-I", "-S", "-B", "-c", probe,
+                                 str(package / "src")], cwd=self.root,
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_portable_swift_distribution_lists_every_target_source(self):
+        root = builder["ROOT"]
+        sources = {path.relative_to(root).as_posix()
+                   for target in ("Statelessness", "StatelessConformance")
+                   for path in (root / "swift/Sources" / target).rglob("*.swift")}
+        self.assertEqual(sources, set(builder["PORTABLE_SWIFT_FILES"]))
+
+    def test_real_portable_swift_distribution_is_complete(self):
+        stage = self.root / "real-stage"
+        builder["stage_sources"](builder["ROOT"], stage, "native", "9.8.7", True)
+        package = stage / "portable-swift"
+        actual = {path.relative_to(package).as_posix()
+                  for path in package.rglob("*") if path.is_file()}
+        self.assertEqual(actual, {*builder["PORTABLE_SWIFT_FILES"], "Package.swift", "LICENSE"})
+        for name in builder["PORTABLE_SWIFT_FILES"]:
+            self.assertEqual((package / name).read_bytes(),
+                             (builder["ROOT"] / name).read_bytes())
+        self.assertEqual((package / "Package.swift").read_text(),
+                         builder["PORTABLE_SWIFT_MANIFEST"])
+
+    @unittest.skipUnless(shutil.which("swift"), "Swift toolchain not installed")
+    def test_relocated_swift_v2_target_builds_from_staged_sources(self):
+        stage = self.root / "relocated-distribution"
+        builder["stage_sources"](builder["ROOT"], stage, "native", "9.8.7", True)
+        environment = dict(os.environ)
+        environment["CLANG_MODULE_CACHE_PATH"] = str(self.root / "clang-cache")
+        # Compiling the wrapper target follows the relocated dependency and
+        # proves source closure, without requiring a Rust native library link.
+        result = subprocess.run([
+            shutil.which("swift"), "build", "--package-path", str(stage / "swift-v2"),
+            "--scratch-path", str(self.root / "swift-build"),
+            "--cache-path", str(self.root / "swift-cache"),
+            "--config-path", str(self.root / "swift-config"),
+            "--security-path", str(self.root / "swift-security"),
+            "--target", "StatelessNativeV2", "--jobs", "2",
+        ], cwd=self.root, env=environment, capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_v2_is_an_explicit_additive_distribution(self):
         self.stage()
         self.write("source/bindings/c/stateless_v2.h")
         self.write("source/docs/ABI-V2.md")
         for name in builder["PYTHON_FILES"]:
             self.write("source/python/" + name)
+        self.write("source/python/src/statelessness/local_notes.py")
         for name in builder["BROWSER_V2_FILES"]:
             self.write("source/bindings/browser/" + name)
         for name in builder["SWIFT_V2_FILES"]:
@@ -59,6 +129,9 @@ class Bundles(unittest.TestCase):
         self.write("source/bindings/swift-v2/Package.swift", '.package(name: "Statelessness", path: "../..")')
         for name in builder["PORTABLE_SWIFT_FILES"]:
             self.write("source/" + name)
+        self.write("source/swift/Sources/Statelessness/local_notes.swift")
+        self.write("source/swift/Sources/StatelessConformance/local_notes.swift")
+        self.write("source/swift/Sources/StatelessDebug/Private.swift")
         for name in builder["GO_V2_FILES"]:
             self.write("source/bindings/go/v2/" + name)
         self.write("source/bindings/go/go.mod", "module github.com/Jagalite/statelessness/bindings/go\n\ngo 1.24\n")
@@ -71,9 +144,13 @@ class Bundles(unittest.TestCase):
         self.assertTrue((stage / "native/include/stateless.h").exists())
         self.assertTrue((stage / "native/include/stateless_v2.h").exists())
         self.assertTrue((stage / "python/src/statelessness/native.py").exists())
+        self.assertFalse((stage / "python/src/statelessness/local_notes.py").exists())
         self.assertIn('path: "../portable-swift"', (stage / "swift-v2/Package.swift").read_text())
         self.assertIn('#include "stateless_v2.h"', (stage / "swift-v2/c/shim.h").read_text())
         self.assertTrue((stage / "portable-swift/swift/Sources/StatelessConformance/Conformance.swift").exists())
+        self.assertFalse((stage / "portable-swift/swift/Sources/Statelessness/local_notes.swift").exists())
+        self.assertFalse((stage / "portable-swift/swift/Sources/StatelessConformance/local_notes.swift").exists())
+        self.assertFalse((stage / "portable-swift/swift/Sources/StatelessDebug").exists())
         self.assertIn('#include "../include/stateless_v2.h"', (stage / "go-v2/v2/bridge.h").read_text())
         self.assertTrue((stage / "go-v2/include/stateless_v2.h").exists())
         self.assertFalse((self.root / "stage/native/include/stateless_v2.h").exists())

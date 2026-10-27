@@ -1,0 +1,65 @@
+
+added 1 package in 6s
+
+> @jagalite/statelessness@0.1.0 test
+> npm run build && node --test test/*.test.mjs
+
+
+> @jagalite/statelessness@0.1.0 build
+> tsc -p tsconfig.json
+
+✔ application classes, collision chains, and failure witnesses (1.678125ms)
+✔ record, portable JSON roundtrip, replay (2.508208ms)
+✔ observation does not invoke reducer (0.144792ms)
+✔ periodic and disabled checks remain visible (0.073958ms)
+✔ checker error discards partial batch (0.328834ms)
+✔ lazy iterator errors are model errors (0.112792ms)
+✔ depth boundary probes at most one candidate (0.1885ms)
+✔ initial callback error does not produce a trace (0.068209ms)
+✔ later callback error retains only coherent prefix (0.376ms)
+✔ invalid codec results are model errors (0.313333ms)
+✔ canonical initial bytes are enforced (0.173542ms)
+✔ canonical input bytes are enforced (0.133583ms)
+✔ replay never reconstructs the initial state (0.205458ms)
+✔ only explicit build mismatches may be bypassed (0.087708ms)
+✔ duplicate failure IDs and order are retained (0.072167ms)
+✔ mutable branches and caller-owned data stay independent (0.155ms)
+✔ checker mutations cannot change application state or observations (0.048792ms)
+✔ codec buffers are owned copies including Node Buffer subclasses (0.19025ms)
+✔ invalid numeric work limits are rejected (0.18125ms)
+✔ zero random domain consumes no state (0.077625ms)
+✔ u64 bounds and vector (0.073083ms)
+✔ native retention limits are enforced (0.126708ms)
+✔ JSON byte and aggregate limits (0.369625ms)
+✔ malformed JSON and scalars are not silently normalized (0.692833ms)
+✔ false termination and continuation after failures are rejected (0.54925ms)
+✔ reason strings and check details are exact Unicode scalars (0.122291ms)
+✔ zero and exact step limits distinguish completed from bounded prefix (0.076125ms)
+✔ invalid checks do not become passing observations (0.063209ms)
+✔ all trace entry points reject invalid custom limits before touching input (2.135084ms)
+✔ zero and exact custom trace limits remain valid (0.188ms)
+✔ equal actual state retains independently differing reference history (2.253334ms)
+✔ paired-v1 independent golden: queue-exhausted (1.608ms)
+✔ paired-v1 independent golden: queue-exact-edge-budget (0.446333ms)
+✔ paired-v1 independent golden: queue-depth-zero (0.148583ms)
+✔ paired-v1 independent golden: queue-depth-one (0.109167ms)
+✔ paired-v1 independent golden: queue-state-cap (0.086875ms)
+✔ paired-v1 independent golden: queue-edge-cap (0.134083ms)
+✔ paired-v1 independent golden: wrong-next-state (1.117333ms)
+✔ paired-v1 independent golden: effect-reordering (0.495334ms)
+✔ paired-v1 independent golden: effect-omission (0.366541ms)
+✔ paired-v1 independent golden: reason-mismatch (0.209333ms)
+✔ paired-v1 independent golden: initial-mismatch (0.087667ms)
+✔ paired ordering, codec restart, fail-fast and exact replay (1.477ms)
+✔ paired observation retains executed transition and never reruns actual (0.273667ms)
+✔ paired malformed checkpoint, strict identity, limits and callback error (0.419166ms)
+✔ paired rejects malformed reference transitions before history or comparisons (0.480667ms)
+✔ exact paired replay rejects noncanonical components accepted by a permissive decoder (0.187708ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 447.958625

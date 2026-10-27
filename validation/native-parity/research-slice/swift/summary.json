@@ -1,0 +1,37 @@
+{
+  "job": "cecb24161e1a4d72b070ca0383a135eb",
+  "status": "succeeded",
+  "requested_command": [
+    "env",
+    "STATELESS_RESEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/research-equivalence-v1.json",
+    "swift",
+    "test",
+    "-j",
+    "2"
+  ],
+  "effective_command": [
+    "env",
+    "STATELESS_RESEARCH_CORPUS=/Volumes/seed2/Projects/stateless-native-parity/conformance/research-equivalence-v1.json",
+    "swift",
+    "test",
+    "-j",
+    "2"
+  ],
+  "exit_code": 0,
+  "execution_wall_seconds": 18.13942813873291,
+  "xctest_tests": 147,
+  "xctest_failures": 0,
+  "research_xctest_methods": 13,
+  "shared_research_rows": 67,
+  "native_host_controls": 5,
+  "typed_exclusions_or_language_inapplicable": 5,
+  "swift_testing_footer_tests": 0,
+  "source_files": 77,
+  "source_manifests_match": true,
+  "source_heads_match": false,
+  "corpus_sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa",
+  "spec_sha256": "bbaffbcb09f24e5e85bfa3ca59ed7ff5b3d242f8c086b91af43f7373ca022649",
+  "raw_log_sha256": "e509c02ad35b2775189fcb05a610c16da2e1278fe920a6cb0fa3178ca7803fb4",
+  "raw_log_bytes": 97266,
+  "execution_identity_boundary": "Actual swift test command/log plus equal complete pre-submit and post-execution source manifests under global source freeze; no claim of an in-process source fingerprint."
+}

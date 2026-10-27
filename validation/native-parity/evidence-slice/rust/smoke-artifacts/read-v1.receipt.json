@@ -1,0 +1,46 @@
+{
+  "execution_calls": 0,
+  "initial_phase": "initial_state",
+  "mode": "read-v1",
+  "producer": "rust",
+  "retained_config": {
+    "parameters": [
+      [
+        "stateless.engine.version",
+        "0.2.0"
+      ],
+      [
+        "stateless.engine.build",
+        "source-fnv1a64:0e6fa725c30d4235"
+      ],
+      [
+        "stateless.monitor.max_steps",
+        "3"
+      ],
+      [
+        "stateless.monitor.max_retained_bytes",
+        "15328"
+      ],
+      [
+        "stateless.monitor.checking",
+        "full"
+      ],
+      [
+        "stateless.monitor.observed_steps",
+        "3"
+      ],
+      [
+        "stateless.monitor.evicted_steps",
+        "0"
+      ],
+      [
+        "stateless.monitor.checkpoint_after_sequence",
+        "0"
+      ]
+    ],
+    "seed": null,
+    "strategy": "manual"
+  },
+  "turn_phase": null,
+  "version": 1
+}

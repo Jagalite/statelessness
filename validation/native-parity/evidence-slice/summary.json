@@ -1,0 +1,71 @@
+{
+  "status": "passed",
+  "scope": "finite macOS/arm64 causal evidence candidate; full parity and promotion remain open",
+  "base_commit": "7f37c2f2dadb4d251f75762ac60d0976a5198ab2",
+  "shared_cases": {
+    "wire": 52,
+    "replay_upgrade": 16,
+    "recorder": 20,
+    "diagnostic_export": 13
+  },
+  "rust": {
+    "status": "passed",
+    "build_job": "7eb0f9c8fbd04005893be6f4144bdd19",
+    "execution_job": "cdb6e6b8e66048b18020506caff084b6",
+    "smoke_job": "d0c807d5bdfd4788b4588f7371e96489",
+    "truncations": 3150,
+    "chunked_reads": 44
+  },
+  "swift": {
+    "status": "passed",
+    "job": "efc000626be9488fa4684d90681ceb66",
+    "methods": 115
+  },
+  "go": {
+    "status": "passed",
+    "test_job": "5e59e98de1b44b2baa2445b385d86fc2",
+    "vet_job": "bd5a76feef90466eb538b22633efe290"
+  },
+  "python": {
+    "status": "passed",
+    "job": "d6b6feb177f0440f85f08b05335aaadc",
+    "tests": 216,
+    "skipped_abi": 12
+  },
+  "typescript": {
+    "status": "passed",
+    "job": "cbcf8b99b97e449d97775259236f5c89",
+    "tests": 627
+  },
+  "installed": {
+    "status": "passed",
+    "job": "663603987cbf44179af313cb9400b6d2",
+    "output": "/private/tmp/stateless-evidence-consumers-20261020-r3",
+    "prior_attempts": [
+      {
+        "job": "a41b9c55866f4319ba3642cd73085b5d",
+        "status": "failed",
+        "reason": "Swift example helper name collision"
+      },
+      {
+        "job": "e324ea2b11cf49939e7254d59880f9f3",
+        "status": "failed",
+        "reason": "driver required an optional Rust producer diagnostic sidecar"
+      }
+    ],
+    "commands": 137,
+    "producers": 5,
+    "audit_pairs": 25,
+    "upgrade_pairs": 25,
+    "diagnostic_pairs": 25,
+    "passive_v1_pairs": 25,
+    "sentinel_negatives": 10,
+    "baseline_cases_per_engine": 717,
+    "baseline_fresh_replays": 550,
+    "runtime_source_mismatches": []
+  },
+  "reviewed_ledger_files": 171,
+  "broad_qualification_cells_pending": 144,
+  "source_candidate_commit": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "qualified_input_count": 200
+}

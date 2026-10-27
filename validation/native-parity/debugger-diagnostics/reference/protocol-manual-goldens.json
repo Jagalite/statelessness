@@ -1,0 +1,33 @@
+{
+  "authorship": "Manual exact protocol expectations authored before Rust reference execution",
+  "fullwidth_status_payload": "DDBG\tu32:1\trequest\tstring:wire\tu64:18446744073709551615\tu64:9007199254740993\tu64:18446744073709551615\tu64:18446744073709551615\tstatus",
+  "snapshot_response_payload": "DDBG\tu32:1\tresponse\tstring:wire\tu64:41\tu64:1\tu64:0\tu64:0\tok\tnone\tu64:3\thandle\tu64:1\tsnapshot.revision\tu64:0\tsnapshot.sequence\tu64:0",
+  "step": {
+    "delivered": "bool:true",
+    "resulting_sequence": "1",
+    "resulting_revision": "1"
+  },
+  "cancel": {
+    "sequence_unchanged": true,
+    "revision_unchanged": true,
+    "phase": "ended"
+  },
+  "cached_identical_step": "same response; exactly one delivery",
+  "conflicting_request_id": "duplicate_conflict",
+  "retired_request_after_cache_eviction": "retired_request; no callback rerun",
+  "default_delivery_authority": "unauthorized; zero delivered turns",
+  "partial_frame": "UnexpectedEof; no command delivered",
+  "frame_length": "four byte nonzero big endian",
+  "epoch_normalization": "ProtocolSession allocates process-local epoch independently of session_key; snapshot golden normalizes only actual response epoch to41 for deterministic wire encoding; raw response asserted equal endpoint.epoch.",
+  "status_fields_manual_subset": {
+    "mode": "enum:simulation",
+    "phase": "enum:Ready",
+    "sequence": "u64:0",
+    "environment": "string:enumerated-domain",
+    "capability.input_delivery": "bool:false",
+    "capability.live_control": "bool:false",
+    "capability.live_restore": "bool:false",
+    "capability.effects": "bool:false"
+  },
+  "reference_emission": "Rust test prints exact normalized status/snapshot/step/cancel response payloads after assertions; raw log retains actual public encoding for native wire comparison."
+}

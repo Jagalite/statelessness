@@ -1,0 +1,60 @@
+{
+  "case_count": 67,
+  "mode": "qualify",
+  "native_exclusions": [
+    {
+      "case": "negative-config-budget",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "config-over-u64",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "unsafe-number-config",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "proposal-version-over-u32",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "projection-nonreflexive-key",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "projection-callback-throws",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "equality-callback-throws",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "iterator-next-throws",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "metadata-supplier-throws",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    },
+    {
+      "case": "asynchronous-custom-callback",
+      "classification": "static_exclusion",
+      "reason": "Rust fixture uses typed unsigned arguments, exact Eq String keys and synchronous infallible metadata/projection/iterator-next signatures; these host-negative cases are not shared Rust Result invocations."
+    }
+  ],
+  "native_only_not_executed": 10,
+  "producer": "rust",
+  "production_pruning_enabled": false,
+  "profile": "research-equivalence-v1"
+}

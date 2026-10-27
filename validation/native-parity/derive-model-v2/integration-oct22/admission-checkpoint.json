@@ -1,0 +1,32 @@
+{
+  "sampled_ns": 1792682544016687000,
+  "jobs": [
+    {
+      "id": "b4822433e1d7413a83d77efab4ecd25c",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    },
+    {
+      "id": "7daea984bfc5457083db9f4451a6ca35",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    },
+    {
+      "id": "34122687ff5b49fa9c716e69b1c852d0",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "scheduler_paused": false,
+      "started": null,
+      "exit_code": null
+    }
+  ]
+}

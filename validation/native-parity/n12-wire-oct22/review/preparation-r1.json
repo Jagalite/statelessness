@@ -1,0 +1,30 @@
+{
+  "taskId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-preparation-review-r1",
+  "childThreadId": "thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-preparation-review-r1",
+  "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-preparation-review-r1:ordinal:1",
+  "childNodeId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-preparation-review-r1",
+  "status": "completed",
+  "workState": "result_available",
+  "hasPendingChildRuns": false,
+  "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-preparation-review-r1:ordinal:1",
+  "latestTerminalStatus": "completed",
+  "latestTerminalSummary": null,
+  "latestTerminalResultContextTransferId": null,
+  "providerInstanceId": "codex",
+  "model": "gpt-6-astra",
+  "options": [
+    {
+      "id": "reasoningEffort",
+      "value": "ultra"
+    },
+    {
+      "id": "serviceTier",
+      "value": "default"
+    }
+  ],
+  "summary": "Six preparation defects found:\n\n1. **P1 — Built package copies are not bound to the frozen source.** [prepare.py:234](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/prepare.py:234) checks only `scratch/source`. Go, Python, TypeScript, Swift and regression corpora use additional copies under `packages`; their initial identities are never compared with the frozen manifest. Changes there can produce passing receipts while both source-stability flags remain true. **Fix:** verify each copy against its source manifest and compare source inputs’ membership/type/hash before and after builds/tests, accounting explicitly for generated outputs.\n\n2. **P1 — Inherited corpus overrides bypass source binding.** [prepare.py:63](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/prepare.py:63) inherits the environment but records only selected overrides. Existing tests honor `STATELESS_VALUE_CORPUS` and other corpus variables, so they can read external, unmanifested fixtures instead of the copied corpus. **Fix:** explicitly bind these variables to the frozen copies, or record and hash their effective external inputs. Preserve compiler policy.\n\n3. **P2 — TypeScript’s success assertion requires an unselected reporter.** [prepare.py:198](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/prepare.py:198) requires `# fail 0`, but invokes plain `node --test`. Node 23+ defaults to `spec` even with redirected stdout, falsely failing a successful suite. **Fix:** add `--test-reporter=tap`. [Node documentation](https://nodejs.org/api/test.html#test-reporters)\n\n4. **P1 — Interrupted commands can outlive their finalized receipts.** [prepare.py:82](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/prepare.py:82) starts a separate process session, but kills/reaps it only on timeout. `KeyboardInterrupt` reaches log hashing while the child can continue writing logs/artifacts; ordinary SIGTERM has no cleanup handler. The timeout branch also discards the reaped exit code. **Fix:** terminate and reap the owned process group on every interrupted exit before hashing logs; retain termination reason and return code.\n\n5. **P2 — Copy failures skip required after-snapshots.** [prepare.py:48](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/prepare.py:48) can abort on a copy mismatch, missing/nonregular source, or I/O error before entering the `try/finally` at line 130. Only `preparation-aborted.json` survives; source-after and partial-copy identities are absent. **Fix:** initialize the report and enclosing finalizer before copying, retaining best-effort after-snapshots on every failure.\n\n6. **P2 — Artifact traversal omits directory-symlink contents.** [compare.py:119](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/compare.py:119) does not descend directory symlinks; `resolution_snapshot()` hashes only resolved files. An installed module directory symlink therefore records its target string without the imported files, allowing target contents to change undetected. **Fix:** reject directory symlinks in package trees or recursively manifest their resolved contents with cycle detection.\n\nThe five hosts use public imports; the Go isolation flags and Python isolated-wheel launch are present. No edits, builds, tests, harness execution, or commits performed. Kyoto execution and broad N12 acceptance remain open.\n\nReviewed HEAD: `89f61d6666e2666fad65164dc5ab3e8f3e4e1fd5`, including uncommitted files. SHA-256:\n\n```text\nprepare.py  2ed2d67f9f703ca239075de02628d2afac4942cd606a275172239609f6ff7d39\ncompare.py  9d65ed67271b5dfae293f2f627b8ad4879229e150b6b37d98dabe2989bacb527\n```\n\n",
+  "resultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-preparation-review-r1:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:8bce6f52-02d7-4d9c-9ae3-5955bc88d039",
+  "hasPendingQuestion": false,
+  "pendingApproval": null,
+  "waitTimedOut": false
+}

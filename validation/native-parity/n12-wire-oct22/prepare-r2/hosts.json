@@ -1,0 +1,96 @@
+{
+  "go": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r2/builds/n12-wire-go"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r2/builds/n12-wire-go",
+      "/private/tmp/n12-wire-oct22-r2/consumers/go",
+      "/private/tmp/n12-wire-oct22-r2/packages/go"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/go",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "python": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r2/consumers/python/venv/bin/python",
+      "-I",
+      "-B",
+      "/private/tmp/n12-wire-oct22-r2/consumers/python/host.py"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r2/consumers/python",
+      "/private/tmp/n12-wire-oct22-r2/wheels/statelessness-0.1.0-py3-none-any.whl"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/python",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "rust": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r2/builds/rust/debug/n12-wire-rust"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r2/builds/rust/debug/n12-wire-rust",
+      "/private/tmp/n12-wire-oct22-r2/consumers/rust",
+      "/private/tmp/n12-wire-oct22-r2/source/src",
+      "/private/tmp/n12-wire-oct22-r2/source/crates/statelessness-debug/src"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/rust",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "swift": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r2/builds/swift-consumer/arm64-apple-macosx/debug/n12-wire-swift"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r2/builds/swift-consumer/arm64-apple-macosx/debug/n12-wire-swift",
+      "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+      "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/Package.swift",
+      "/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Sources"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/swift",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "typescript": {
+    "argv": [
+      "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+      "/private/tmp/n12-wire-oct22-r2/consumers/typescript/host.mjs"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+      "/private/tmp/n12-wire-oct22-r2/tarballs/jagalite-statelessness-0.1.0.tgz"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r2/consumers/typescript",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  }
+}

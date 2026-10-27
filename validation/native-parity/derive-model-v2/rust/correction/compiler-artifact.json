@@ -1,0 +1,32 @@
+{
+  "reason": "compiler-artifact",
+  "package_id": "path+file:///Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/crates/macro-qualification#0.0.0",
+  "manifest_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/crates/macro-qualification/Cargo.toml",
+  "target": {
+    "kind": [
+      "test"
+    ],
+    "crate_types": [
+      "bin"
+    ],
+    "name": "n13_derive_reference",
+    "src_path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/crates/macro-qualification/tests/n13_derive_reference.rs",
+    "edition": "2024",
+    "doc": false,
+    "doctest": false,
+    "test": true
+  },
+  "profile": {
+    "opt_level": "0",
+    "debuginfo": 2,
+    "debug_assertions": true,
+    "overflow_checks": true,
+    "test": true
+  },
+  "features": [],
+  "filenames": [
+    "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/target/debug/deps/n13_derive_reference-00d76c8a46e5b487"
+  ],
+  "executable": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/target/debug/deps/n13_derive_reference-00d76c8a46e5b487",
+  "fresh": false
+}

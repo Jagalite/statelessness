@@ -1,0 +1,30 @@
+{
+  "taskId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-typescript-r1",
+  "childThreadId": "thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-typescript-r1",
+  "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-typescript-r1:ordinal:1",
+  "childNodeId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-typescript-r1",
+  "status": "completed",
+  "workState": "result_available",
+  "hasPendingChildRuns": false,
+  "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-typescript-r1:ordinal:4",
+  "latestTerminalStatus": "completed",
+  "latestTerminalSummary": "Frozen-ready.\n\n- [debug_protocol.ts:92](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/typescript/src/debug_protocol.ts:92): connected reconnect now returns `invalid_input` after the busy check, before mutation.\n- [debug-protocol.test.mjs:11](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/typescript/test/debug-protocol.test.mjs:11): legitimate reconnect disconnects first; new regression verifies epoch, cached responses, admission history, and model state remain intact after rejection.\n\nNo execution, commits, or additional reviews.",
+  "latestTerminalResultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-typescript-r1:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:494c9ad0-b7ea-4bcb-8445-1db8efe419d9",
+  "providerInstanceId": "codex",
+  "model": "gpt-6-astra",
+  "options": [
+    {
+      "id": "reasoningEffort",
+      "value": "ultra"
+    },
+    {
+      "id": "serviceTier",
+      "value": "default"
+    }
+  ],
+  "summary": "The review adds no new defects. Implemented `serve` awaits each response write, validates EOF, disconnects in `finally`, and continues after malformed-payload responses. Runtime and process-exit qualification remain with root.",
+  "resultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-typescript-r1:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:a1773496-ee3d-4fe5-a4b4-c3f9788b3ce4",
+  "hasPendingQuestion": false,
+  "pendingApproval": null,
+  "waitTimedOut": false
+}

@@ -1,0 +1,23 @@
+[python-builder-venv] /opt/homebrew/opt/python@3.14/bin/python3.14 -m venv /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/builder
+[python-builder-tools] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/builder/bin/python -m pip install setuptools>=77 wheel
+[python-wheel] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/builder/bin/python -m pip wheel --no-deps --no-build-isolation --wheel-dir /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/validation/native-parity/derive-model-v2/resume-oct22/final-installed/packages /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/python-package
+[python-venv] /opt/homebrew/opt/python@3.14/bin/python3.14 -m venv /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/venv
+[python-install] /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/venv/bin/python -m pip install --no-index --no-deps /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/validation/native-parity/derive-model-v2/resume-oct22/final-installed/packages/statelessness-0.1.0-py3-none-any.whl
+[go-build] go build -trimpath -o /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/go-consumer-bin .
+[typescript-package-build] node /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/typescript/node_modules/typescript/bin/tsc -p tsconfig.json
+[typescript-pack] npm pack --ignore-scripts --pack-destination /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/validation/native-parity/derive-model-v2/resume-oct22/final-installed/packages
+[typescript-install] npm install --offline --ignore-scripts --no-audit --no-fund --package-lock=false --omit=dev /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/validation/native-parity/derive-model-v2/resume-oct22/final-installed/packages/jagalite-statelessness-0.1.0.tgz
+[typescript-declarations] node /Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/typescript/node_modules/typescript/bin/tsc -p tsconfig.json
+[swift-build] swift build --package-path /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/swift-consumer -j 2
+[swift-bin-path] swift build --package-path /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/swift-consumer --show-bin-path
+[rustc-version] rustc --version
+[rustc-host] rustc -vV
+[rust-install] cargo install -vv --path /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/rust-source/crates/macro-qualification --bin n13-model-interchange --root /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-model-qzhmpki9/rust-install --locked --offline
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/scripts/check-native-model-consumers.py", line 132, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040/scripts/check-native-model-consumers.py", line 90, in main
+    if rust_build!=independently_expected_build:raise RuntimeError('compiler build identity differs from independent source/compiler-input hash')
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: compiler build identity differs from independent source/compiler-input hash

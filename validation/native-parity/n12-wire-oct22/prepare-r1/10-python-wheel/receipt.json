@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "/private/tmp/n12-wire-oct22-r1/python-builder/bin/python",
+    "-m",
+    "pip",
+    "wheel",
+    "--no-deps",
+    "--no-build-isolation",
+    "--wheel-dir",
+    "/private/tmp/n12-wire-oct22-r1/wheels",
+    "/private/tmp/n12-wire-oct22-r1/packages/python"
+  ],
+  "cwd": "/private/tmp/n12-wire-oct22-r1",
+  "env_overrides": {
+    "CARGO_HOME": "/private/tmp/n12-wire-oct22-r1/cargo-home",
+    "CARGO_INCREMENTAL": "0",
+    "GOCACHE": "/private/tmp/n12-wire-oct22-r1/go-cache",
+    "GOENV": "off",
+    "GOFLAGS": "",
+    "GOMODCACHE": "/private/tmp/n12-wire-oct22-r1/go-mod-cache",
+    "GOWORK": "off",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "STATELESS_APPEND_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/append-checks-v1.json",
+    "STATELESS_BFS_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/bfs-controls-v1.json",
+    "STATELESS_BINARY_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/native-binary-v1.json",
+    "STATELESS_CAUSAL_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/causal-evidence-v2.json",
+    "STATELESS_CHECKED_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/checked-results-v1.json",
+    "STATELESS_ENCODE_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/encode-buffers-v1.json",
+    "STATELESS_EVIDENCE_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/causal-evidence-v2.json",
+    "STATELESS_PAIRED_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/paired-v1.tsv",
+    "STATELESS_REPLAY_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/replay-evidence-v1.json",
+    "STATELESS_SEARCH_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/search-v1.tsv",
+    "STATELESS_SEARCH_HISTORY": "/private/tmp/n12-wire-oct22-r1/source/conformance/search-v1-history.json",
+    "STATELESS_VALUE_CORPUS": "/private/tmp/n12-wire-oct22-r1/source/conformance/canonical-value-codec-v1.json"
+  },
+  "env_removed": [
+    "NODE_OPTIONS",
+    "NODE_PATH",
+    "PYTHONHOME",
+    "PYTHONPATH",
+    "RUSTC",
+    "RUSTC_WORKSPACE_WRAPPER",
+    "RUSTC_WRAPPER",
+    "RUSTDOCFLAGS",
+    "RUSTFLAGS"
+  ],
+  "exit_code": 0,
+  "label": "python-wheel",
+  "logs": {
+    "stderr.log": {
+      "bytes": 173,
+      "sha256": "3d81c13497997b168330c0b0d2a51058eb3f941dcf216297f7ce87b5526892d3"
+    },
+    "stdout.log": {
+      "bytes": 715,
+      "sha256": "865eec1bdeb253f1d9bcba8c51d02f9dbd2bcd784b346b3c307028235f880695"
+    }
+  },
+  "passed": true
+}

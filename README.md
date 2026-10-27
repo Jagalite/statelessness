@@ -11,8 +11,8 @@ State + Input -> Next State + Outputs -> Check rules -> Record evidence
 
 Stateless is experimental; APIs may change. The Rust library and optional debugger
 have the broadest interfaces. Independent Python, Go, TypeScript and Swift engines
-implement the four portable v1 profiles; Python and TypeScript also contain an
-unqualified candidate paired profile. C, Go, Swift and browser bindings expose
+implement the four portable v1 profiles and contain an unqualified candidate paired
+profile. C, Go, Swift and browser bindings expose
 the Rust ABI 1 byte-model subset. See the
 [capability/version matrix](docs/CAPABILITIES.md) for source, release and
 qualification boundaries.

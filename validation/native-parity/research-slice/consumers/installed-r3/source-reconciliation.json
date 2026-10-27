@@ -1,0 +1,10 @@
+{
+  "checked_utc": "2026-10-22T14:55:19.774946+00:00",
+  "pre_submit_inputs": 243,
+  "all_pre_submit_inputs_equal": true,
+  "execution_frozen_inputs": 241,
+  "membership_and_hashes_equal": true,
+  "source_at_execution": "32325900335ccf770a33a5b00dff4ab536dfd82f",
+  "current_head": "a4cc11eea8db62115b452eee3c6610c04fa06b96",
+  "scope": "Runtime source, consumer, corpus and pinned Rust binaries; no broad platform or full N14 claim."
+}

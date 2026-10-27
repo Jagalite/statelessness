@@ -1,0 +1,42 @@
+{
+  "model": {
+    "name": "native-checked-threshold",
+    "model_version": 1,
+    "properties_version": 1,
+    "codec_version": 1,
+    "build": "application-v1"
+  },
+  "limits": {
+    "max_total_bytes": 8192,
+    "max_frame_bytes": 2048,
+    "max_blob_bytes": 64,
+    "max_string_bytes": 256,
+    "max_steps": 16,
+    "max_checks_per_step": 16,
+    "max_outputs_per_step": 16,
+    "max_parameters": 32,
+    "max_items": 256
+  },
+  "witness": [
+    1,
+    1,
+    1
+  ],
+  "normal_report": {
+    "outcome": "exact",
+    "divergence_step": null,
+    "divergence_field": null,
+    "steps_verified": 3,
+    "failure_reproduced": true,
+    "build_matches": true
+  },
+  "recorder": {
+    "max_steps": 3,
+    "max_retained_bytes": 8192
+  },
+  "protocol": {
+    "record": "record PREFIX writes PREFIX.bin and PREFIX.json",
+    "replay": "replay AUDIT_BIN returns rich,bounded,retained_config",
+    "replay_json": "replay-json PORTABLE_JSON returns ordinary report"
+  }
+}

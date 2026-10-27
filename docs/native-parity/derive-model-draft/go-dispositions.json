@@ -1,0 +1,726 @@
+{
+  "format": "statelessness.n13-row-dispositions/1",
+  "scope": "go; finite native declaration slice; mixed runtime, builder, compiler and static native exclusions; not 90 runtime passes",
+  "rows": [
+    {
+      "case": "named-ordered",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tuple-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:29#TestDerivedOrderedRecords",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unit-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:303#TestDerivedUnitConstructorFailureAndConfigurationCopies",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "empty-named-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:303#TestDerivedUnitConstructorFailureAndConfigurationCopies",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Go explicit OrderedRecord zero-field product is the native empty/unit equivalent; it has no distinct named-vs-unit source parser."
+    },
+    {
+      "case": "nested-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:785#TestDerivedAdditionalRecordAndMaxTagRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length16-utf8",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length32-bom",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-empty-string",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-vector-u16",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-empty-vector",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "custom-big-endian",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-only-field",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:66#TestDerivedDirectionsAndRawAdapters",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-tuple",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-named-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum16-sparse-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum32-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:785#TestDerivedAdditionalRecordAndMaxTagRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "explicit-record-storage-weight",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum16-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:303#TestDerivedUnitConstructorFailureAndConfigurationCopies",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-encode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:785#TestDerivedAdditionalRecordAndMaxTagRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-decode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:785#TestDerivedAdditionalRecordAndMaxTagRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-encode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-decode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "pair-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:29#TestDerivedOrderedRecords",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "pair-depth-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:29#TestDerivedOrderedRecords",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-text-extra-guard-work",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-text-extra-guard-depth",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-allocation-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-elements-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "adapter-no-field-value-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-pair-no-record-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-unit-zero-value-budget",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-collection-weight-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "reader-byte-admission-before-fields",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unknown-tag-before-payload",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:127#TestDerivedTaggedEnum",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-bool-invalid",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-field-invalid-utf8",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-field-truncated",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-trailing",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:29#TestDerivedOrderedRecords",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-adapter-returned-error",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-adapter-failed-write-sticky",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:256#TestDerivedRawWriteFailureAndCompleteCapabilities",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Native callback writes past cap then returns marker; raw callback error priority and sticky failed writer are asserted. Not an identical BigEndian callback."
+    },
+    {
+      "case": "record-encode-cap-one-under",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:620#TestDerivedRecordBoolOrdinaryTextAndDirectionalEnums",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-overflow-before-prefix",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:367#TestDerivedLiteralLengthRoutesAndAdmission",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "missing-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:144",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "TaggedCase requires explicit uint32 tag argument; no absent/default tag API. Native static API exclusion, not a Rust macro rejection."
+    },
+    {
+      "case": "duplicate-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:127#TestDerivedTaggedEnum",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tag8-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:127#TestDerivedTaggedEnum",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Builder checks u8 overflow using 257 rather than draft256; same boundary category, no identical-declaration claim."
+    },
+    {
+      "case": "tag-negative",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:144",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "TaggedCase tag is uint32; negative constant is unrepresentable by this public signature. Static native type boundary; not executed compiler proof."
+    },
+    {
+      "case": "tag32-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:144",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "TaggedCase tag is uint32; 4294967296 is unrepresentable by public signature. Static native type boundary; not executed compiler proof."
+    },
+    {
+      "case": "tag-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-tag-width",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:5",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "RecordOptions has Require/Layout only; no TagWidth field or record tag annotation."
+    },
+    {
+      "case": "rust-discriminant",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:144",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Go explicit cases have no Rust discriminant syntax; tags are mandatory uint32 values."
+    },
+    {
+      "case": "skip-field",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:13",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "RecordField has only private encode/decode routes; OrdinaryField exposes no skip/default option."
+    },
+    {
+      "case": "default-field",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:13",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "No omitted-field/default synthesis option in explicit ordered declaration API."
+    },
+    {
+      "case": "length-and-adapter",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:13",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "LengthField and AdapterField are disjoint public constructors of one route; no combined route argument."
+    },
+    {
+      "case": "duplicate-length",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:32",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "LengthField accepts exactly one positional width; duplicate source options do not exist."
+    },
+    {
+      "case": "length-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unknown-type-option",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:5",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "RecordOptions is a named Go struct with only known fields; no arbitrary option parser."
+    },
+    {
+      "case": "model-version-zero",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:256#TestDerivedRawWriteFailureAndCompleteCapabilities",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-version-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/model_codec_bind.go",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "ModelCodecOptions.Version is uint32; overflow excluded by native type. Not an executed compiler test."
+    },
+    {
+      "case": "model-unknown-option",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/model_codec_bind.go",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "ModelCodecOptions named struct exposes no arbitrary unknown option parser."
+    },
+    {
+      "case": "model-duplicate-option",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/model_codec_bind.go",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Named struct literal/field assignment rules differ from Rust repeated attribute options; no duplicate parser path."
+    },
+    {
+      "case": "model-enum-target",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/model_codec_bind.go",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "BindModelCodec binds metadata function and typed descriptors, not a derive target. Rust struct-only syntax exclusion has no native counterpart."
+    },
+    {
+      "case": "field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-unselected-field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:256#TestDerivedRawWriteFailureAndCompleteCapabilities",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "field-length-only-missing-encode",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "adapter-direction-missing",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "go/value_derive_test.go:843#TestDerivedMissingDirectionsAndRawLiteralPrefixes",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_output",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_state_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_input_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_output_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-decode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-decode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:164#TestBoundModelCodecGatesAllHooks",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-decode-exact-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Pair literal and exact counts exercised; encode-only Output uses native uint8 custom descriptor, not draft BigEndian wire. No identical-output-fixture claim."
+    },
+    {
+      "case": "model-limits-fresh-each-decode",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Pair literal and exact counts exercised; encode-only Output uses native uint8 custom descriptor, not draft BigEndian wire. No identical-output-fixture claim."
+    },
+    {
+      "case": "model-encode-no-decode-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Pair literal and exact counts exercised; encode-only Output uses native uint8 custom descriptor, not draft BigEndian wire. No identical-output-fixture claim."
+    },
+    {
+      "case": "model-decode-trailing",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:706#TestBoundModelCodecAdmittedTrailingBothDirections",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-no-variant",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-selected-unit-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-selected-named-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:723#TestDerivedAdditionalLiteralEnumAndAdapterRows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-label-renamed-same-tag",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:556#TestDerivedDiagnosticsAndBinderFreshMalformed",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "rust-derived-schema-token-spelling",
+      "family": "diagnostic_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "go/value_derive.go:91",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Schema label is caller supplied; no native Rust token spelling obligation."
+    },
+    {
+      "case": "raw-unknown-enum-error-swallowed",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "guarded-unknown-enum-error-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-failed-tag-read-first-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "guarded-callback-first-structural-error-beats-later",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "go/value_derive_test.go:474#TestDerivedRawBudgetsCollectionAndReaderScripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    }
+  ]
+}

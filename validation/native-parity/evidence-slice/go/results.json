@@ -1,0 +1,75 @@
+{
+  "profile": "causal-evidence-v2",
+  "status": "experimental finite host qualification; not profile promotion",
+  "source_candidate_head": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "scoped_source_sha256": "2cfc671f191a504ff9f65ed85628a9f00d236e92dc78d0b2c2d681bdeceface0",
+  "shared_cases": {
+    "wire_cases": 52,
+    "replay_cases": 16,
+    "recorder_cases": 20,
+    "export_cases": 13
+  },
+  "shared_case_total": 101,
+  "final_jobs": [
+    {
+      "job_id": "5e59e98de1b44b2baa2445b385d86fc2",
+      "role": "final_full_test",
+      "requested_command": [
+        "env",
+        "CGO_ENABLED=0",
+        "go",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      "effective_command": [
+        "env",
+        "CGO_ENABLED=0",
+        "go",
+        "test",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/go",
+      "status": "succeeded",
+      "exit_code": 0,
+      "started": 1792536760.600608,
+      "finished": 1792536765.5462558,
+      "scoped_source_sha256": "2cfc671f191a504ff9f65ed85628a9f00d236e92dc78d0b2c2d681bdeceface0",
+      "source_candidate_head": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+      "receipt": "jobs/5e59e98de1b44b2baa2445b385d86fc2.json"
+    },
+    {
+      "job_id": "bd5a76feef90466eb538b22633efe290",
+      "role": "final_vet",
+      "requested_command": [
+        "env",
+        "CGO_ENABLED=0",
+        "go",
+        "vet",
+        "./..."
+      ],
+      "effective_command": [
+        "env",
+        "CGO_ENABLED=0",
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/Volumes/seed2/Projects/stateless-native-parity/go",
+      "status": "succeeded",
+      "exit_code": 0,
+      "started": 1792536781.3550441,
+      "finished": 1792536786.350135,
+      "scoped_source_sha256": "2cfc671f191a504ff9f65ed85628a9f00d236e92dc78d0b2c2d681bdeceface0",
+      "source_candidate_head": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+      "receipt": "jobs/bd5a76feef90466eb538b22633efe290.json"
+    }
+  ],
+  "historical_failed_jobs": [
+    "2de9640522d24309ab70680538ff1dad",
+    "f60cd611c81248359b222f14a19882c8"
+  ],
+  "historical_source_note": "Exact intermediate compilation inputs were not snapshotted; no exact intermediate source identity claimed.",
+  "installed_consumers": "Separate qualification; not covered by these module receipts."
+}

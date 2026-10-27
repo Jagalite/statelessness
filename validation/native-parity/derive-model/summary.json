@@ -1,0 +1,192 @@
+{
+  "status": "qualification_pending",
+  "worktree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-b71b6b32",
+  "branch": "t3/native-model-codecs",
+  "implementation_commit": "9d05ca0",
+  "reference_test_fix_commit": "a5c388a",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "jobs": {
+    "go_tests": {
+      "id": "2b22ed7ec9684c29833651cabaec374c",
+      "status": "succeeded",
+      "command": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"go\",\"test\",\"./...\"],cwd=\"go\",check=True)"
+      ],
+      "requested_command": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"go\",\"test\",\"./...\"],cwd=\"go\",check=True)"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "go_vet": {
+      "id": "fff3326629e441cd9e8bd47d41445961",
+      "status": "succeeded",
+      "command": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"go\",\"vet\",\"./...\"],cwd=\"go\",check=True)"
+      ],
+      "requested_command": [
+        "python3",
+        "-c",
+        "import subprocess; subprocess.run([\"go\",\"vet\",\"./...\"],cwd=\"go\",check=True)"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "python_tests": {
+      "id": "b0d6f3e691ac4413a4cb8e46c3c4cd15",
+      "status": "succeeded",
+      "command": [
+        "env",
+        "PYTHONPATH=python/src",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "python/tests"
+      ],
+      "requested_command": [
+        "env",
+        "PYTHONPATH=python/src",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "python/tests"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "swift_tests": {
+      "id": "b823b7c5ceff4e01b37b5799c869566e",
+      "status": "succeeded",
+      "command": [
+        "swift",
+        "test"
+      ],
+      "requested_command": [
+        "swift",
+        "test"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "typescript_tests": {
+      "id": "e7f3c0b1ecef41bd8d8a34cd58f7dd52",
+      "status": "queued",
+      "command": [
+        "npm",
+        "--prefix",
+        "typescript",
+        "test"
+      ],
+      "requested_command": [
+        "npm",
+        "--prefix",
+        "typescript",
+        "test"
+      ],
+      "policy_message": null,
+      "exit_code": null
+    },
+    "rust_reference_compile": {
+      "id": "5d323f2e18e54516858dbbf1be73a5b5",
+      "status": "queued",
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "macro-qualification",
+        "--test",
+        "n13_derive_reference",
+        "--no-run"
+      ],
+      "requested_command": [
+        "cargo",
+        "test",
+        "-p",
+        "macro-qualification",
+        "--test",
+        "n13_derive_reference"
+      ],
+      "policy_message": "Test/benchmark execution is disabled by shared policy; this job compiles only (--no-run). Tests/benchmarks will not run.",
+      "exit_code": null
+    },
+    "rust_compile_fail": {
+      "id": "05200f51585245d2b01874b7a0f2877c",
+      "status": "succeeded",
+      "command": [
+        "python3",
+        "validation/native-parity/derive-model/rust/compile_fail.py"
+      ],
+      "requested_command": [
+        "python3",
+        "validation/native-parity/derive-model/rust/compile_fail.py"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "rust_finite_interchange": {
+      "id": "54651098c2c047f786f8b8e8c4b84192",
+      "status": "succeeded",
+      "command": [
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-b71b6b32/target/debug/n13-interchange"
+      ],
+      "requested_command": [
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-b71b6b32/target/debug/n13-interchange"
+      ],
+      "policy_message": null,
+      "exit_code": 0
+    },
+    "installed_interchange": {
+      "id": "a7c82f5f392546ac915cb473c60ee24f",
+      "status": "queued",
+      "command": [
+        "python3",
+        "scripts/check-native-derive-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model/installed/attempt-2"
+      ],
+      "requested_command": [
+        "python3",
+        "scripts/check-native-derive-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model/installed/attempt-2"
+      ],
+      "policy_message": null,
+      "exit_code": null
+    }
+  },
+  "failure_history": {
+    "typescript_missing_tsc": "6ecc74453a264666859b523df47bd811",
+    "installed_missing_tsc": "040eb52b60c1481f998fc9a6a1236fd8",
+    "rust_reference_fixture_setup": "6e40aaba966842d18ce56f5e96817848"
+  },
+  "prerequisite_job": "ba527fc2be3d4894ae1d5cca3986b055",
+  "superseded_compilation": "aada950870864502b4f52b4fd2934480",
+  "limitations": [
+    "macOS arm64 only",
+    "broad 144 matrix pending root review",
+    "no profile promotion",
+    "90 independently authored mixed-class rows are not 90 executed runtime cases",
+    "installed finite interchange excludes model binder interchange",
+    "Rust Cargo compile-only is not a test pass",
+    "Python 12 ABI skips"
+  ],
+  "required_remaining": [
+    "inspect TypeScript result",
+    "execute corrected Rust reference test binary after compilation",
+    "inspect installed result",
+    "run bidirectional installed/Rust finite interchange",
+    "archive terminal receipts and logs",
+    "final proof commit"
+  ]
+}

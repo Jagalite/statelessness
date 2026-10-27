@@ -1,0 +1,118 @@
+{
+  "queue": "/Volumes/seed1/Projects/kyoto/kyoto.py, shared default; unchanged policy",
+  "native": {
+    "command": [
+      "python3",
+      "scripts/qualify-native-integration.py",
+      "--scope",
+      "native",
+      "--expected-source",
+      "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+      "--output",
+      "validation/native-parity/derive-model-v2/integration-oct22/native-r1"
+    ],
+    "covers": [
+      "Python discover with explicit 12 optional ABI skip distinction",
+      "Go uncached test -json, cgo disabled",
+      "Go vet",
+      "pinned TypeScript dependency install, compilation and node tests",
+      "Swift actual tests",
+      "five 90-row source ledgers (accounting only)"
+    ],
+    "job": "5f4c49e2e3eb43e499bcff0c04abe9ed",
+    "state": "queued"
+  },
+  "rust": {
+    "decision": "Do not inherit 644 prior runtime passes: root inputs equivalent, complete prior compiler/executable identity unavailable. Fresh compile queued; actual runtime deferred until successful compilation.",
+    "compile": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "-j",
+      "2",
+      "--message-format=json-render-diagnostics"
+    ],
+    "runtime": [
+      "python3",
+      "scripts/qualify-native-integration.py",
+      "--scope",
+      "rust-runtime"
+    ],
+    "compile_job": "34122687ff5b49fa9c716e69b1c852d0",
+    "compile_effective_no_run": true,
+    "runtime_state": "not submitted; depends on successful exact-source compile",
+    "runtime_command": [
+      "python3",
+      "/Volumes/seed1/Projects/kyoto/kyoto.py",
+      "submit",
+      "--resource",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-ec9c0a88",
+      "--",
+      "python3",
+      "scripts/qualify-native-integration.py",
+      "--scope",
+      "rust-runtime",
+      "--expected-source",
+      "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+      "--output",
+      "validation/native-parity/derive-model-v2/integration-oct22/rust-runtime-r1"
+    ]
+  },
+  "installed": {
+    "state": "not submitted while two exact old N13 jobs remain live",
+    "requires": [
+      "both old jobs terminal and archived; diagnose any failures",
+      "ten driver regressions actually executed",
+      "candidate source sealed and all relevant native/toolchain identities reconciled"
+    ],
+    "model": [
+      "python3",
+      "scripts/check-native-model-consumers.py",
+      "--output",
+      "validation/native-parity/derive-model-v2/integration-oct22/installed-model-r1"
+    ],
+    "research_compile": [
+      "cargo",
+      "build",
+      "--manifest-path",
+      "validation/corpus/Cargo.toml",
+      "--locked",
+      "--offline",
+      "--bin",
+      "native-research",
+      "--bin",
+      "stateless-corpus",
+      "-j",
+      "2"
+    ],
+    "research": [
+      "python3",
+      "scripts/check-native-research-consumers.py",
+      "--output",
+      "validation/native-parity/derive-model-v2/integration-oct22/installed-research-r1",
+      "--rust",
+      "target/integration/debug/native-research",
+      "--rust-portable",
+      "target/integration/debug/stateless-corpus"
+    ],
+    "mandatory_qualifying_scope": {
+      "model_producers": 5,
+      "ordered_pairs": 25,
+      "research_engines": 5,
+      "research_shared_cases_per_engine": 67,
+      "baseline_cases_per_engine": 717,
+      "baseline_fresh_replays": 550
+    }
+  },
+  "separately_open": [
+    "full N13 modeling/domain/inspection helpers",
+    "N05",
+    "N06",
+    "N12 direct-wire qualification",
+    "broad144",
+    "profile promotion",
+    "broader platforms/performance"
+  ]
+}

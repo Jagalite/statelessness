@@ -94,7 +94,13 @@ test('equal actual state retains independently differing reference history', () 
   const bounded = enumerateStates(model, { maxStates: 10, maxTransitions: 3, maxDepth: 10 });
   assert.deepEqual([bounded.termination, bounded.states, bounded.transitions], ['transition_limit', 2, 3]);
 });
-const rows = readFileSync(new URL('../../conformance/paired-v1.tsv', import.meta.url), 'utf8').trim().split('\n').map(l => l.split('\t'));
+const pairedFixture = readFileSync(new URL('../../conformance/paired-v1.tsv', import.meta.url), 'utf8');
+const parseRows = text => text.trim().split(/\r?\n/).map(line => line.split('\t'));
+test('paired TSV preserves final fields under LF and CRLF', () => {
+  const lf = pairedFixture.replace(/\r\n/g, '\n');
+  assert.deepEqual(parseRows(lf.replace(/\n/g, '\r\n')), parseRows(lf));
+});
+const rows = parseRows(pairedFixture);
 for (const row of rows.slice(1)) test(`paired-v1 independent golden: ${row[0]}`, () => {
   const [name, mutation, states, edges, depth, termination, expectedStates, expectedEdges, failed, witness, phases, skipped] = row;
   const result = enumerateStates(paired(mutation), { maxStates: Number(states), maxTransitions: Number(edges), maxDepth: Number(depth) });
@@ -146,7 +152,7 @@ test('paired rejects malformed reference transitions before history or compariso
     const model = paired(), before = model.initialState(), valid = model.step(before, 0);
     model.oracle.reference.step = () => ({ state: 1, outputs: [10, 21], disposition: invalid });
     assert.throws(() => model.step(before, 0), error => error instanceof ObservationError && /reference transition/.test(error.message));
-    assert.throws(() => model.oracle.checkTransition(before, 0, valid), error => error instanceof ModelError && /reference transition/.test(error.message));
+    assert.throws(() => Array.from(model.oracle.checkTransition(before, 0, valid)), error => error instanceof ModelError && /reference transition/.test(error.message));
     assert.throws(() => enumerateStates(model), ModelError);
   }
 });
@@ -157,4 +163,35 @@ test('exact paired replay rejects noncanonical components accepted by a permissi
   bytes[bytes.length - 1] = 255;
   assert.deepEqual(model.decodeState(bytes), model.initialState());
   assert.throws(() => replay(model, { ...trace, initialState: bytes }), /not canonical/);
+});
+
+test('WithOracle forwards independent generation, causal shrink and codecs through paired search',async()=>{
+ const {automatic,fuzz,shrink,Rng}=await import('../dist/index.js');
+ class GeneratedQueue extends Queue {
+  #domain=[0,1,2];equalInputs(a,b){return a===b;}
+  generate(_s,r){return this.#domain[Number(r.index(3n))];}
+  isEnabled(_s,i){return this.#domain.includes(i);}
+  simplerInputs(i){return i===1?[0]:[];}
+ }
+ const model=new WithOracle(new GeneratedQueue('state'),new Paired(new Reference(),new Projection()));
+ const r=fuzz(model,{seed:0n,cases:20,maxSteps:10,maxTransitions:100n,mutationPercent:50});assert.equal(r.termination,'failure_found');
+ const minimized=shrink(model,r.failure);assert.equal(minimized.validated_original,true);assert.equal(minimized.termination,'search_complete');assert.ok(minimized.minimized.inputs.length<=r.failure.inputs.length);
+ const trace=record(model,minimized.minimized.inputs);assert.equal(replay(model,trace).outcome,'exact');assert.equal(replay(model,trace).failure_reproduced,true);
+ const autoModel=new WithOracle(automatic(new GeneratedQueue('state')),new Paired(new Reference(),new Projection()));assert.equal(fuzz(autoModel,{seed:0n,cases:10,maxSteps:5,maxTransitions:50n,mutationPercent:0}).termination,'failure_found');
+ const unsupported=paired();assert.throws(()=>unsupported.generate(unsupported.initialState(),new Rng()),/unsupported oracle adapter operation: generate/);
+});
+test('paired/oracle search preserves emitted checks when later checker/projection fails',async()=>{
+ const {fuzz}=await import('../dist/index.js');const config={seed:0n,cases:1,maxSteps:1,maxTransitions:1n,mutationPercent:0};
+ const errors=[],observer={checkError:(phase,checks,complete)=>errors.push([phase,checks.map(c=>c.id),complete])};
+ class GeneratedQueue extends Queue {equalInputs(a,b){return a===b;}generate(){return 0;}}
+ class ThrowingProjection extends Projection {actualState(){throw Error('projection failed');}}
+ const m=new WithOracle(new GeneratedQueue(),new Paired(new Reference(),new ThrowingProjection()));
+ assert.throws(()=>fuzz(m,config,{},observer),/projection failed/);assert.deepEqual(errors,[['initial_state',['queue.bound','reference.bound'],false]]);
+ errors.length=0;
+ class PartialQueue extends GeneratedQueue { *checkState(){yield check('partial actual');throw Error('actual checker failed');}}
+ assert.throws(()=>fuzz(new WithOracle(new PartialQueue(),new Paired(new Reference(),new Projection())),config,{},observer),/actual checker failed/);assert.deepEqual(errors,[['initial_state',['partial actual'],false]]);
+ errors.length=0;
+ class EdgeProjection extends Projection {actualEffect(){throw Error('effect projection failed');}}
+ const edge=new WithOracle(new GeneratedQueue(),new Paired(new Reference(),new EdgeProjection()));assert.throws(()=>fuzz(edge,config,{},observer),/effect projection failed/);
+ assert.deepEqual(errors,[['state',['queue.bound','reference.bound','pair.state'],true],['transition',['queue.transition','reference.transition'],false]]);
 });

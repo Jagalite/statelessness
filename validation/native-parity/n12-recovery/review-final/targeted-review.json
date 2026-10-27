@@ -1,0 +1,63 @@
+{
+  "conclusion": "No remaining concrete findings in the finite targeted re-review scope. This does not establish full N12 parity or runtime qualification.",
+  "files": {
+    "crates/statelessness-debug/tests/n12_reference.rs": {
+      "bytes": 20856,
+      "sha256": "9d2a1fad407a680bb4e2e4465eaf7c8acacd71e85287d7b4d6192fe907a707a3"
+    },
+    "go/debug/protocol.go": {
+      "bytes": 20973,
+      "sha256": "6b2dbe6fb0cb021be2a40521ae5ca9a1ba068c70254cd0d64d7a55fa3c352720"
+    },
+    "go/debug/session.go": {
+      "bytes": 18098,
+      "sha256": "6e351b579241911d86fba20c31967c2cf711d1c2b53e81b00175ce793aeac178"
+    },
+    "python/src/statelessness/debugger_protocol.py": {
+      "bytes": 32434,
+      "sha256": "77037d02e78b3811160de2320c85908822ce19aef083ed1d3ae2ef7218f4017a"
+    },
+    "scripts/native-parity/qualify-n12-integration.py": {
+      "bytes": 13147,
+      "sha256": "f0cb163ea15dac22cade4b3ed6b74f2d72d4309b1465f3036dec27c0af98146b"
+    },
+    "swift/Sources/StatelessDebug/Inspection.swift": {
+      "bytes": 26140,
+      "sha256": "4fc0a23b095893dff708e3e61bd72216250e59cfaefb880c6c6a24614018e4de"
+    },
+    "swift/Sources/StatelessDebug/Protocol.swift": {
+      "bytes": 33689,
+      "sha256": "e7d48f6bc7614580b44c06137065383d46f4dbd8d432a0230c9f255abcf6bd34"
+    },
+    "typescript/src/debug_protocol.ts": {
+      "bytes": 20078,
+      "sha256": "614d7719542c9902775a8db8a74b000bb01bd71ce8b8583d5803064c12407976"
+    },
+    "typescript/src/debug_session.ts": {
+      "bytes": 16698,
+      "sha256": "a6d5ac3fd26d375b7ee7c0ac3a20903536ff0250d335e4e5c20575b34f3517e0"
+    }
+  },
+  "qualification_claims": {
+    "broad_144_complete": false,
+    "full_n12_complete": false,
+    "profile_promotion": false,
+    "runtime_pass": false
+  },
+  "remaining_findings": [],
+  "resolved": [
+    "Go command-specific revision/configuration guards and public clone ownership guards",
+    "Go mutation response full-u64 preflight and decoder/Prepare session ownership",
+    "Python and TypeScript authority-gated bounded exact output encoders",
+    "Python encoding callback session ownership",
+    "TypeScript detached output clone before encoding callback",
+    "Python and TypeScript host prepared mutation full-u64 revision/configuration preflight",
+    "Swift prepared host response validation before commit using maximal session revision and resulting configuration",
+    "Swift enum variant/object inspection structure",
+    "Integration snapshot includes validation executable source extensions, exact spec, independent goldens; executable binary identity before/after",
+    "Python both direct and retained-candidate decoders execute under DebugSession ownership guard",
+    "TypeScript input decoder executes through DebugSession.decodeInputWith ownership guard"
+  ],
+  "reviewed_at": "2026-10-21T00:31:22.410460+00:00",
+  "scope": "Targeted independent static source re-review only; no builds, tests, references, installed executions, job observations, or broad N12 qualification"
+}

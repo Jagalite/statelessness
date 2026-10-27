@@ -1,0 +1,50 @@
+[
+  {
+    "job": "70e51d3484c44e0793151ca39e5f66e3",
+    "receipt": "intermediate-113-tests.json",
+    "log": "intermediate-113-tests.log.gz",
+    "status": "failed",
+    "requested_command": [
+      "swift",
+      "test"
+    ],
+    "effective_command": [
+      "swift",
+      "test"
+    ],
+    "original_sha256": "e45f8f93ce457586da4b677b7d44705b5b7b9c48922bddcf0d7277125940694a",
+    "original_bytes": 33584,
+    "gzip_sha256": "756adec49ef61711ce79b7c39037e5c2ff53856930c0077b92cf5c152c027fa8",
+    "gzip_bytes": 4783,
+    "source_identity": "Not captured at intermediate submission; do not substitute final source hashes.",
+    "reason": "Compiled and executed113 tests;8 quota error-message normalization assertions failed. Raw log preserved losslessly."
+  },
+  {
+    "job": "efc000626be9488fa4684d90681ceb66",
+    "receipt": "final-115-tests.json",
+    "log": "final-115-tests.log.gz",
+    "status": "succeeded",
+    "exit_code": 0,
+    "requested_command": [
+      "swift",
+      "test"
+    ],
+    "effective_command": [
+      "swift",
+      "test"
+    ],
+    "executed_tests": 115,
+    "shared_cases": {
+      "wire": 52,
+      "replay_upgrade": 16,
+      "recorder": 20,
+      "diagnostic": 13
+    },
+    "original_sha256": "4f1fc6edea269ebf17d086d8ec377a8dd1368cb09a559fadcafc7bb6cbb616aa",
+    "original_bytes": 30508,
+    "gzip_sha256": "f119e865bb358bd8540b9f1c4cc1747a1e8b30c3a76cd0de6e59a56f20fd2537",
+    "gzip_bytes": 4358,
+    "source_identity": "source-before-final.json and source-final.json matched all recorded hashes; source held through final run.",
+    "result": "115 executed tests, zero failures; not compile-only."
+  }
+]

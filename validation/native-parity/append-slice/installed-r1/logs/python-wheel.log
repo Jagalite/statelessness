@@ -1,0 +1,12 @@
+Processing ./python-package
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: statelessness
+  Building wheel for statelessness (pyproject.toml): started
+  Building wheel for statelessness (pyproject.toml): finished with status 'done'
+  Created wheel for statelessness: filename=statelessness-0.1.0-py3-none-any.whl size=47750 sha256=c1e297d7dbd20e3ee45278e97ed9ab7f102f71186892036eae4f841e3dbfa43a
+  Stored in directory: /Users/jagatranvo/Library/Caches/pip/wheels/f2/63/19/28bce397e3512ceb2a5cfccf5b9af2ed8022fc659cf2d05aa2
+Successfully built statelessness
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.2
+[notice] To update, run: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-xuc0z4zp/builder-venv/bin/python -m pip install --upgrade pip

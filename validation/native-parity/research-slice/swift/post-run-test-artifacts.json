@@ -1,0 +1,9 @@
+[
+  {
+    "path": ".build/arm64-apple-macosx/debug/StatelessnessPackageTests.xctest/Contents/MacOS/StatelessnessPackageTests",
+    "bytes": 5338200,
+    "sha256": "02f32c0bc9b61107ad43b23a4cdbd680b25cc3ddc7a517262afa55e88021af96",
+    "mtime_ns": 1792542336000000000,
+    "identity_scope": "post-run artifact identity; not an in-process source fingerprint"
+  }
+]

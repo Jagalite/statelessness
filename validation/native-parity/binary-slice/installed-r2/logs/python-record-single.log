@@ -1,0 +1,1 @@
+{"native_record": true, "semantic_replay": false, "steps": 1, "config": {"strategy": "manual", "seed": null, "parameters": []}, "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-binary-47nymjdg/venv/lib/python3.13/site-packages/statelessness/__init__.py"}

@@ -1,0 +1,52 @@
+[0/1] Planning build
+Building for debugging...
+[0/5] Write sources
+[1/5] Write swift-version--58304C5D6DBC2206.txt
+[3/9] Compiling Statelessness Replay.swift
+[4/9] Emitting module Statelessness
+[5/9] Compiling Statelessness Execution.swift
+[6/9] Compiling Statelessness AuditRecording.swift
+[7/12] Compiling StatelessConformance Conformance.swift
+[8/12] Emitting module StatelessConformance
+[8/13] Write Objects.LinkFileList
+[9/21] Linking stateless-corpus
+[10/21] Applying stateless-corpus
+[12/21] Compiling StatelessnessTests OracleTests.swift
+[13/21] Compiling StatelessnessTests NativeTests.swift
+[14/21] Compiling StatelessnessTests RecordingErrorTests.swift
+[15/21] Compiling StatelessnessTests AppendChecksTests.swift
+[16/22] Compiling StatelessnessTests BFSControlsTests.swift
+[17/22] Emitting module StatelessnessTests
+[18/22] Compiling StatelessnessTests EncodeReplayTests.swift
+[19/22] Compiling StatelessnessTests AuditTraceTests.swift
+[20/22] Compiling StatelessnessTests SearchTests.swift
+[20/22] Write Objects.LinkFileList
+[21/22] Linking StatelessnessPackageTests
+Build complete! (8.26s)
+Test Suite 'Selected tests' started at 2026-10-20 17:50:07.708.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-20 17:50:07.712.
+Test Suite 'EncodeReplayTests' started at 2026-10-20 17:50:07.712.
+Test Case '-[StatelessnessTests.EncodeReplayTests testAuditRecordPreferredCodecsStampAndCoherentFailurePrefix]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testAuditRecordPreferredCodecsStampAndCoherentFailurePrefix]' passed (0.005 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedActualSharedFrameTotalFooterAndItemBudgets]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedActualSharedFrameTotalFooterAndItemBudgets]' passed (0.002 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedArtifactAllNineQuotasBeforeDecodeAndIdentityFirst]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testBoundedArtifactAllNineQuotasBeforeDecodeAndIdentityFirst]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testEncodeLeasesAndCallbackFailureCannotPublish]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testEncodeLeasesAndCallbackFailureCannotPublish]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testReplayErrorEvidenceStagesAndNoRepeatedExecution]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testReplayErrorEvidenceStagesAndNoRepeatedExecution]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichReplayAllFlagsFailureIdentityAndObserverPriority]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testRichReplayAllFlagsFailureIdentityAndObserverPriority]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.EncodeReplayTests testSharedEncodeCorpus]' started.
+Test Case '-[StatelessnessTests.EncodeReplayTests testSharedEncodeCorpus]' passed (0.017 seconds).
+Test Suite 'EncodeReplayTests' passed at 2026-10-20 17:50:07.738.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.026 (0.027) seconds
+Test Suite 'StatelessnessPackageTests.xctest' passed at 2026-10-20 17:50:07.738.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.026 (0.027) seconds
+Test Suite 'Selected tests' passed at 2026-10-20 17:50:07.738.
+	 Executed 7 tests, with 0 failures (0 unexpected) in 0.026 (0.030) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,207 @@
+{
+  "kind": "independently-source-authored-expectations-not-host-responses",
+  "baseline_commit": "89f61d6666e2666fad65164dc5ab3e8f3e4e1fd5",
+  "session": "wire\té😀",
+  "envelope": {
+    "version": "u32:1",
+    "configuration": "u64:0",
+    "success_result": "ok",
+    "success_error": "none",
+    "error_result": "error",
+    "error_fields": {},
+    "decode_failure_request_id": "u64:0"
+  },
+  "envelope_revisions": {
+    "initial": "u64:0",
+    "after_first_accepted_ignored_or_rejected": "u64:1",
+    "after_first_reducer_error": "u64:0",
+    "after_initial_cancel": "u64:0",
+    "after_three_increments": "u64:3"
+  },
+  "fields": {
+    "status.initial.default": {
+      "mode": "enum:simulation",
+      "phase": "enum:Ready",
+      "sequence": "u64:0",
+      "environment": "string:out-of-domain-injection",
+      "capability.input_delivery": "bool:true",
+      "capability.inspection": "bool:false",
+      "capability.watch_configuration": "bool:false",
+      "capability.exact_values": "bool:false",
+      "capability.live_control": "bool:false",
+      "capability.live_restore": "bool:false",
+      "capability.effects": "bool:false",
+      "capability.probe_queries": "bool:false",
+      "capability.probe_configuration": "bool:false",
+      "capability.trace_export": "bool:false",
+      "capability.effect_telemetry": "bool:false",
+      "capability.metric_queries": "bool:false",
+      "limits.telemetry_snapshot_bytes": "u64:8388608",
+      "limits.frame_bytes": "u64:65536",
+      "limits.dedup_entries": "u64:64",
+      "limits.dedup_bytes": "u64:4194304",
+      "limits.page_size": "u64:100",
+      "events.dropped": "u64:0",
+      "stop": "enum:none"
+    },
+    "snapshot.first.initial": {
+      "handle": "u64:1",
+      "snapshot.revision": "u64:0",
+      "snapshot.sequence": "u64:0"
+    },
+    "checks.initial": {
+      "checks.complete": "bool:true",
+      "checks.total": "u64:1",
+      "checks.first_failure": "none",
+      "checks.returned": "u64:1",
+      "checks.truncated": "bool:false",
+      "checks.0.id": "string:bounded",
+      "checks.0.status": "enum:passed"
+    },
+    "outputs.initial.any_authority": {
+      "outputs.total": "u64:0"
+    },
+    "step.first_accepted": {
+      "delivered": "bool:true",
+      "sequence": "u64:1"
+    },
+    "step.first_ignored": {
+      "delivered": "bool:true",
+      "sequence": "u64:1"
+    },
+    "step.first_rejected": {
+      "delivered": "bool:true",
+      "sequence": "u64:1"
+    },
+    "step.first_reducer_error": {
+      "delivered": "bool:false",
+      "sequence": "u64:0"
+    },
+    "step.third_increment_property_failure": {
+      "delivered": "bool:true",
+      "sequence": "u64:3"
+    },
+    "checks.passing_turn": {
+      "checks.complete": "bool:true",
+      "checks.total": "u64:2",
+      "checks.first_failure": "none",
+      "checks.returned": "u64:2",
+      "checks.truncated": "bool:false",
+      "checks.0.id": "string:bounded",
+      "checks.0.status": "enum:passed",
+      "checks.1.id": "string:transition",
+      "checks.1.status": "enum:passed"
+    },
+    "checks.third_increment_property_failure": {
+      "checks.complete": "bool:true",
+      "checks.total": "u64:2",
+      "checks.first_failure.id": "string:bounded",
+      "checks.first_failure.index": "u64:0",
+      "checks.first_failure.phase": "enum:post_state",
+      "checks.first_failure.sequence": "u64:3",
+      "checks.returned": "u64:2",
+      "checks.truncated": "bool:false",
+      "checks.0.id": "string:bounded",
+      "checks.0.status": "enum:failed",
+      "checks.1.id": "string:transition",
+      "checks.1.status": "enum:passed"
+    },
+    "outputs.first_accepted.default": {
+      "outputs.total": "u64:1",
+      "disposition": "enum:accepted",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:unavailable"
+    },
+    "outputs.first_accepted.exact": {
+      "outputs.total": "u64:1",
+      "disposition": "enum:accepted",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:exact_sensitive",
+      "outputs.0.encoded": "bytes:0100000000000000",
+      "outputs.truncated": "bool:false"
+    },
+    "outputs.ignored.default": {
+      "outputs.total": "u64:0",
+      "disposition": "enum:ignored",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:unavailable"
+    },
+    "outputs.ignored.exact": {
+      "outputs.total": "u64:0",
+      "disposition": "enum:ignored",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:exact_sensitive",
+      "outputs.truncated": "bool:false"
+    },
+    "outputs.rejected.default": {
+      "outputs.total": "u64:0",
+      "disposition": "enum:rejected",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:unavailable"
+    },
+    "outputs.rejected.exact": {
+      "outputs.total": "u64:0",
+      "disposition": "enum:rejected",
+      "outputs.provenance": "enum:simulated",
+      "outputs.payloads": "enum:exact_sensitive",
+      "outputs.truncated": "bool:false"
+    },
+    "cancel": {}
+  },
+  "status_field_replacements": {
+    "--read-only": {"capability.input_delivery": "bool:false"},
+    "--exact": {"capability.exact_values": "bool:true"},
+    "--cache-one": {"limits.dedup_entries": "u64:1"},
+    "after_first_accepted_ignored_or_rejected": {
+      "phase": "enum:Paused", "sequence": "u64:1", "stop": "enum:none"
+    },
+    "after_first_reducer_error": {
+      "phase": "enum:Ended", "sequence": "u64:0", "stop": "enum:model_error"
+    },
+    "after_initial_cancel": {
+      "phase": "enum:Ended", "sequence": "u64:0", "stop": "enum:cancelled"
+    },
+    "after_three_increments": {
+      "phase": "enum:Ended", "sequence": "u64:3", "stop": "enum:property_failure"
+    }
+  },
+  "callback_suffixes": {
+    "startup": ["CALL initial", "CALL state 0"],
+    "first_accepted": ["CALL decode 01", "CALL step 0 1", "CALL state 1", "CALL transition 0 1 1"],
+    "first_ignored": ["CALL decode 00", "CALL step 0 0", "CALL state 0", "CALL transition 0 0 0"],
+    "first_rejected": ["CALL decode 02", "CALL step 0 2", "CALL state 0", "CALL transition 0 2 0"],
+    "first_reducer_error": ["CALL decode 03", "CALL step 0 3"],
+    "third_increment": ["CALL decode 01", "CALL step 2 1", "CALL state 3", "CALL transition 2 1 3"],
+    "ended_valid_step_current_revision": ["CALL decode 01"],
+    "ended_invalid_step_current_revision": ["CALL decode ff"],
+    "empty_input_current_revision": ["CALL decode "],
+    "cancel": [],
+    "status_snapshot_checks_outputs": [],
+    "denied_or_stale_step": [],
+    "cached_duplicate_or_conflict_or_retired": [],
+    "invalid_wire_hex_or_partial_frame": []
+  },
+  "ended_step_errors": {
+    "current_revision_bytes_01": "ended",
+    "current_revision_bytes_ff": "invalid_input",
+    "current_revision_empty_bytes": "invalid_input",
+    "stale_revision_bytes_ff": "stale_revision",
+    "read_only_current_revision_bytes_ff": "unauthorized"
+  },
+  "final_lines": {
+    "initial_clean_eof_or_transport_failure": "FINAL 0 0 0",
+    "after_first_accepted": "FINAL 1 1 1",
+    "after_first_ignored_or_rejected": "FINAL 0 1 1",
+    "after_first_reducer_error": "FINAL 0 0 0",
+    "after_initial_cancel": "FINAL 0 0 0",
+    "after_accepted_then_ignored_then_rejected": "FINAL 1 3 3",
+    "after_three_increments": "FINAL 3 3 3",
+    "broken_stdout_after_discovery_then_increment": "FINAL 1 1 1"
+  },
+  "source_sha256": {
+    "src/model.rs": "e69a80ad96826a27871807f848e22fd213a7bee9f95d76be92069e68504f5beb",
+    "src/execution.rs": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0",
+    "crates/statelessness-debug/src/session.rs": "cda89b387534b898d264d47212bd46acf295e45329acfd3af06b561c45ce6a29",
+    "crates/statelessness-debug/src/protocol.rs": "3c6e3d38d49b3b3f82f5b1cee3b48ed7da8a20d5373538a05506d054f9c687d5"
+  }
+}

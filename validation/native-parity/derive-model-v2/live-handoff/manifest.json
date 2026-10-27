@@ -1,0 +1,352 @@
+{
+  "candidate": "67c1e3f",
+  "checked_at_ns": 1792541832114549000,
+  "scope": "finite macOS arm64; no new execution passes while queued",
+  "jobs": [
+    {
+      "name": "accounting",
+      "job_id": "d24f01f0b1964c439f38da7b4ea736ec",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/accounting",
+        "--",
+        "python3",
+        "scripts/check-n13-dispositions.py"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/accounting",
+        "--",
+        "python3",
+        "scripts/check-n13-dispositions.py"
+      ],
+      "metadata_sha256": "4627d291e9fa317361fbdaa77451780916a08cdd163e9a72cd5b0dbb265d0b6a",
+      "metadata_size_bytes": 1819,
+      "metadata_path": "live-handoff/accounting.show.json"
+    },
+    {
+      "name": "python-full",
+      "job_id": "c0bc2d9397d74467b2b0ffcf7ce1ffe8",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/python-full",
+        "--",
+        "env",
+        "PYTHONPATH=python/src",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "python/tests"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/python-full",
+        "--",
+        "env",
+        "PYTHONPATH=python/src",
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "python/tests"
+      ],
+      "metadata_sha256": "53e3bd67e389f11988b6663ce3b32cf134eb8cc1ce57faacd0a396fcbf31200a",
+      "metadata_size_bytes": 1916,
+      "metadata_path": "live-handoff/python-full.show.json"
+    },
+    {
+      "name": "go-full",
+      "job_id": "fcdd01384a8244458fea8e42785b2982",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/go-full",
+        "--",
+        "go",
+        "-C",
+        "go",
+        "test",
+        "./..."
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/go-full",
+        "--",
+        "go",
+        "-C",
+        "go",
+        "test",
+        "./..."
+      ],
+      "metadata_sha256": "95cc4b2801b73bdaf446b0adc4d8814bae4a9b7dd99bd9ad12b912e4fc6f6396",
+      "metadata_size_bytes": 1788,
+      "metadata_path": "live-handoff/go-full.show.json"
+    },
+    {
+      "name": "go-vet",
+      "job_id": "dca1de6b824647d4b95e24ebc3f78fb8",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/go-vet",
+        "--",
+        "go",
+        "-C",
+        "go",
+        "vet",
+        "./..."
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/go-vet",
+        "--",
+        "go",
+        "-C",
+        "go",
+        "vet",
+        "./..."
+      ],
+      "metadata_sha256": "dc74ca4e5a6ee71790f90805c914137b3f608e285e3100ac0960863bbc08de22",
+      "metadata_size_bytes": 1783,
+      "metadata_path": "live-handoff/go-vet.show.json"
+    },
+    {
+      "name": "typescript-full",
+      "job_id": "f6d464fceaed4725bda3763f81c63608",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/typescript-full",
+        "--",
+        "npm",
+        "--prefix",
+        "typescript",
+        "test"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/typescript-full",
+        "--",
+        "npm",
+        "--prefix",
+        "typescript",
+        "test"
+      ],
+      "metadata_sha256": "0d5530dc05a78462d0acf21596e26a341738b571c3b9d4ecb7dac538721f10a2",
+      "metadata_size_bytes": 1817,
+      "metadata_path": "live-handoff/typescript-full.show.json"
+    },
+    {
+      "name": "swift-full",
+      "job_id": "92e58de12ea143238ac63e6384f50eac",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/swift-full",
+        "--",
+        "swift",
+        "test",
+        "-j",
+        "2"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/swift-full",
+        "--",
+        "swift",
+        "test",
+        "-j",
+        "2"
+      ],
+      "metadata_sha256": "c1391152f8f8f3c59e718d00da150f23680719cbfff5d270fb326f41edff912e",
+      "metadata_size_bytes": 1777,
+      "metadata_path": "live-handoff/swift-full.show.json"
+    },
+    {
+      "name": "rust-workspace-compile",
+      "job_id": "de4f50c144314e898c690f56f08ad4b4",
+      "status": "queued",
+      "requested_command": [
+        "cargo",
+        "test",
+        "--workspace"
+      ],
+      "effective_command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--no-run"
+      ],
+      "metadata_sha256": "09a33cf9da2f4010281313dc4448bc60658792066c7ed56440e4635f717e87cd",
+      "metadata_size_bytes": 1704,
+      "metadata_path": "live-handoff/rust-workspace-compile.show.json"
+    },
+    {
+      "name": "rust-workspace-runtime",
+      "job_id": "88dc1b05082642498013e2519d81f0d1",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust-workspace-runtime",
+        "--",
+        "cargo",
+        "test",
+        "--workspace"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust-workspace-runtime",
+        "--",
+        "cargo",
+        "test",
+        "--workspace"
+      ],
+      "metadata_sha256": "035b84647d5c796768ced5f42b8ba1b95d6a4907b8bc04925e9734303909c695",
+      "metadata_size_bytes": 1812,
+      "metadata_path": "live-handoff/rust-workspace-runtime.show.json"
+    },
+    {
+      "name": "installed-five-engine",
+      "job_id": "bc6dd9c046a3422e95649db12a4117ea",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/installed-wrapper",
+        "--",
+        "python3",
+        "scripts/check-native-model-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/installed"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/installed-wrapper",
+        "--",
+        "python3",
+        "scripts/check-native-model-consumers.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/installed"
+      ],
+      "metadata_sha256": "4f2d2f54f3985bde669ca087fa0d09bb6524ce821a81691db2c0e1b7188413e1",
+      "metadata_size_bytes": 1978,
+      "metadata_path": "live-handoff/installed-five-engine.show.json"
+    },
+    {
+      "name": "rust-focused-runtime",
+      "job_id": "49f42348946c4330853422464c9db7c6",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust/final-runtime",
+        "--",
+        "cargo",
+        "test",
+        "-p",
+        "macro-qualification",
+        "--test",
+        "n13_derive_reference"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust/final-runtime",
+        "--",
+        "cargo",
+        "test",
+        "-p",
+        "macro-qualification",
+        "--test",
+        "n13_derive_reference"
+      ],
+      "metadata_sha256": "c2a090ee2d8f5c1649b949bc5f4d985a985805be3c8f256774f078eb681fd3df",
+      "metadata_size_bytes": 1898,
+      "metadata_path": "live-handoff/rust-focused-runtime.show.json"
+    },
+    {
+      "name": "rust-compilefail25",
+      "job_id": "cfe860eae13e4c88942e4f7b8079f5a2",
+      "status": "queued",
+      "requested_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust/final-compilefail",
+        "--",
+        "python3",
+        "validation/native-parity/derive-model/rust/compile_fail.py"
+      ],
+      "effective_command": [
+        "python3",
+        "scripts/n13-qualify.py",
+        "--output",
+        "validation/native-parity/derive-model-v2/rust/final-compilefail",
+        "--",
+        "python3",
+        "validation/native-parity/derive-model/rust/compile_fail.py"
+      ],
+      "metadata_sha256": "d329a92c568cbd79f6063f9d3d3ddb718369ce8136da1d36b4fd90ddf29acb17",
+      "metadata_size_bytes": 1894,
+      "metadata_path": "live-handoff/rust-compilefail25.show.json"
+    },
+    {
+      "name": "typescript-dependencies",
+      "job_id": "cefc21f8750b4d70ac9f826820a0254c",
+      "status": "queued",
+      "requested_command": [
+        "npm",
+        "ci",
+        "--prefix",
+        "typescript"
+      ],
+      "effective_command": [
+        "npm",
+        "ci",
+        "--prefix",
+        "typescript"
+      ],
+      "metadata_sha256": "7f352766de83e5d8a4b41d6ef3efba91742bf4f4898dab9d110690532008ef4b",
+      "metadata_size_bytes": 1582,
+      "metadata_path": "live-handoff/typescript-dependencies.show.json"
+    }
+  ]
+}
