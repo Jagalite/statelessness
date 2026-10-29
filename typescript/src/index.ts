@@ -37,3 +37,5 @@ export { DEFAULT_CAMPAIGN, CampaignCancellation, jobSeed, validateCampaignConfig
 export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, CampaignFeedback, JobOutcome, JobReport, CampaignSink, CampaignReport, CampaignTermination } from './campaign.js';
 
 export {DomainDescriptor,Domain,checkLazy,declaredProperties,adaptModel,type PropertyMetadata} from './modeling.js';
+
+export * from './stateful.js';

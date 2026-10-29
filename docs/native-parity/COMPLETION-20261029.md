@@ -103,9 +103,12 @@ does not itself merge the PR, publish a package, or authorize a release.
   exports, oracle error ownership, Swift recording/replay budget changes, and
   qualification dependencies. Integration with the M0/N12 checkpoint had no
   textual conflicts. This does not establish combined runtime correctness.
-  Its native, Rust compilation, and extended execution jobs remain queued;
-  dependent Rust execution and installed replay/browser/resource gates remain
-  unexecuted. See [the N07 handoff](../../validation/native-parity/observation-slice/CURRENT-20261029.md).
+  Its original jobs are now terminal: native validation failed before language
+  suites; Rust compilation succeeded but failed compiler-identity admission;
+  extended execution passed only on the earlier frozen source. Parent repair
+  `4eeac8c` corrects helper mocks and tool selection without weakening admission.
+  Its regression job remains queued; fresh isolated qualification follows.
+  See [the repair checkpoint](../../validation/native-parity/observation-slice/runner-repair-20261029/README.md).
 - The original N07 and M0/N12 worktrees remain frozen for their existing jobs.
   Those jobs qualify only their sealed source if they pass. Final integration
   needs its own current-source qualification after the other lanes arrive.
@@ -121,6 +124,15 @@ does not itself merge the PR, publish a package, or authorize a release.
   Pinned RequestModel interchange, combined CLI routing, installed runtime and
   platform/resource evidence remain open. Original lane worktrees and copied
   snapshots are preserved for their jobs.
+- Stateful checkpoint `951b2c414cf5ae5172598a2a6ac20b17367346b5` adds independent
+  composition, networks, and legacy/indexed lifecycle candidates. The combined
+  TypeScript entrypoint retains earlier observation, campaign and modeling
+  exports plus the stateful exports. Parent review examined the contract,
+  export overlap and qualification driver. Indexed diagnostic compatibility,
+  the Rust interchange leg, complete receipt admission and platform/resource
+  qualification remain open. Existing job `216609077a3f4d5ab439d83b95a15ffa`
+  consumes the preserved `/tmp/stateless-n0809-r6` snapshot; it must not be
+  duplicated. See [the stateful handoff](N08-N09-HANDOFF.md).
 
 No final checklist item or broad language-parity cell closes from these source
 integrations. PR #12 remains unmerged and unchanged remotely.

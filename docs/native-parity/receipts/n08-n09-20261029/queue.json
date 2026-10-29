@@ -1,0 +1,11 @@
+{
+  "running": 0,
+  "queued": 42,
+  "lane": [
+    {
+      "id": "216609077a3f4d5ab439d83b95a15ffa",
+      "status": "queued",
+      "admission_reason": "OS memory pressure: warning"
+    }
+  ]
+}
