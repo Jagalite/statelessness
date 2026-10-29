@@ -109,6 +109,18 @@ does not itself merge the PR, publish a package, or authorize a release.
 - The original N07 and M0/N12 worktrees remain frozen for their existing jobs.
   Those jobs qualify only their sealed source if they pass. Final integration
   needs its own current-source qualification after the other lanes arrive.
+- Guided/campaign checkpoint `821ca5a982345e79e9c02dd0ab2dc8cd09fdcee8`
+  is retained with both observation and campaign exports/documentation. Full-width
+  Go/Swift/TypeScript counts and the missing installed N06 harness remain source
+  work. Earlier TypeScript execution and authored corpus hashes do not qualify
+  the combined tree. Existing r2 native and r3 Swift follow-ups had started at
+  integration; their outcomes were not yet available.
+- Modeling checkpoint `ffcc1c57e3e2ce3a22b108937aaea07f9b1ea177` is retained
+  with additive domain/model helpers and all earlier root exports. Its existing
+  Kyoto job `3daccd1f7b9641dba02d96840cadd780` remains source-specific and queued.
+  Pinned RequestModel interchange, combined CLI routing, installed runtime and
+  platform/resource evidence remain open. Original lane worktrees and copied
+  snapshots are preserved for their jobs.
 
 No final checklist item or broad language-parity cell closes from these source
 integrations. PR #12 remains unmerged and unchanged remotely.

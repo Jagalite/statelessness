@@ -111,3 +111,6 @@ from .campaign import (CampaignConfig, CampaignReport, JobOutcome, JobReport,
 __all__ += ["CampaignConfig", "CampaignReport", "JobOutcome", "JobReport",
     "CampaignCancellation", "InputTransfer", "PickleInputTransfer", "ProcessWorkers",
     "job_seed", "run_campaign", "run_guided_campaign"]
+
+from .modeling import DomainDescriptor, Domain, PropertyMetadata, declared_properties, check_lazy, ModelAdapter
+__all__ += ["DomainDescriptor", "Domain", "PropertyMetadata", "declared_properties", "check_lazy", "ModelAdapter"]

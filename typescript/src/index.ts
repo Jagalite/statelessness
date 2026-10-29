@@ -35,3 +35,5 @@ export type { FeedbackMetadata, FeatureIdentity, Feedback, GuidanceConfig, Corpu
 
 export { DEFAULT_CAMPAIGN, CampaignCancellation, jobSeed, validateCampaignConfig, runCampaign, runGuidedCampaign } from './campaign.js';
 export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, CampaignFeedback, JobOutcome, JobReport, CampaignSink, CampaignReport, CampaignTermination } from './campaign.js';
+
+export {DomainDescriptor,Domain,checkLazy,declaredProperties,adaptModel,type PropertyMetadata} from './modeling.js';
