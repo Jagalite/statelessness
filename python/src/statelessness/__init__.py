@@ -86,3 +86,6 @@ from .codec_declarations import (DECLARATION_API_V1, adapter, field,
 __all__ += ["DECLARATION_API_V1", "adapter", "field", "positional_field",
     "adapted_field", "ordered_record", "tuple_record", "unit_record", "case",
     "tagged_enum", "ModelCodecBinding", "model_codec"]
+
+from .modeling import DomainDescriptor, Domain, PropertyMetadata, declared_properties, check_lazy, ModelAdapter
+__all__ += ["DomainDescriptor", "Domain", "PropertyMetadata", "declared_properties", "check_lazy", "ModelAdapter"]
