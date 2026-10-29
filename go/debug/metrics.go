@@ -119,7 +119,7 @@ func metricKind(f MetricFamily) MetricKind {
 type LabelCatalog struct{ Operations, Components, WorkerPools []string }
 
 func DefaultLabelCatalog() LabelCatalog {
-	return LabelCatalog{[]string{"default"}, []string{"default"}, []string{"default"}}
+	return LabelCatalog{[]string{"unspecified"}, []string{"host"}, []string{"default"}}
 }
 func (c LabelCatalog) valid() bool {
 	for _, xs := range [][]string{c.Operations, c.Components, c.WorkerPools} {

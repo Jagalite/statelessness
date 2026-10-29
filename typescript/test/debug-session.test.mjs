@@ -76,3 +76,12 @@ test('pending breakpoint equality gets detached inputs and requires a synchronou
   s.step(0n,1);assert.throws(()=>s.step(0n,1),/equality must return boolean/);assert.equal(s.state,0);assert.equal(s.sequence,0n);
  }
 });
+
+test('candidate page permits one lookahead at exact work limit',()=>{
+ let reads=0, enumerations=0;
+ const m=model();m.inputs=function*(){enumerations++;for(const n of [1,2]){reads++;yield n;}};
+ const s=new DebugSession('lookahead',m,{kind:'unrestricted',label:'out-of-domain-injection'},{...limits,maxCandidates:1});
+ const page=s.candidates(0n,0,1);
+ assert.equal(page.complete,false);assert.equal(page.nextOffset,1);assert.equal(page.candidates[0].input,1);assert.equal(reads,2);
+ assert.throws(()=>s.candidates(0n,1,1),/budget/);assert.equal(enumerations,1);
+});

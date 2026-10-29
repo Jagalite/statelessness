@@ -1,6 +1,6 @@
 """Optional bounded candidate handles and independently verified simulation forks."""
 from dataclasses import dataclass, replace
-from weakref import WeakKeyDictionary
+from weakref import WeakKeyDictionary, ref
 from .core import ModelError, _copy, _natural, _call
 from .debugger import EvidenceViewer, VerificationLimits, InputPolicy
 from .debugger_session import DebugSession, DebugError, SessionLimits
@@ -19,7 +19,10 @@ class CandidateToken:
     def __deepcopy__(self, memo): return self
     def __reduce_ex__(self, protocol): raise TypeError('candidate token cannot be serialized as authority')
     @property
-    def input(self): return _copy(_tokens[self][4])
+    def input(self):
+        record = _tokens[self]
+        owner = record[5]()
+        return owner._read_copy(record[4]) if owner is not None else _copy(record[4])
     @property
     def revision(self): return _tokens[self][2]
 
@@ -49,7 +52,7 @@ class EnumeratedSession(DebugSession):
                 input = _call('candidate input', next, iterator, sentinel)
                 if input is sentinel: return CandidatePage(tuple(tokens), None, True)
                 token = object.__new__(CandidateToken)
-                _tokens[token] = self.id, self.epoch, self.revision, self.policy.label, _copy(input)
+                _tokens[token] = self.id, self.epoch, self.revision, self.policy.label, _copy(input), ref(self)
                 tokens.append(token)
             more = _call('candidate lookahead', next, iterator, sentinel) is not sentinel
             return CandidatePage(tuple(tokens), offset + limit if more else None, not more)
@@ -63,11 +66,11 @@ class EnumeratedSession(DebugSession):
     def select(self, token):
         self._guard()
         if type(token) is not CandidateToken or token not in _tokens: raise DebugError('expected authentic candidate token')
-        id, epoch, revision, domain, input = _tokens[token]
+        id, epoch, revision, domain, input, _owner = _tokens[token]
         if (id, epoch, domain) != (self.id, self.epoch, self.policy.label): raise DebugError('candidate belongs to another session/domain')
         self.check_revision(revision)
         if not self.candidate_permitted(input): raise DebugError('input not permitted')
-        return self.step(revision, _copy(input))
+        return self.step(revision, self._read_copy(input))
 
 
 @dataclass(frozen=True)

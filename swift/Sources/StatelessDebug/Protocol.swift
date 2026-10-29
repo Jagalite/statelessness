@@ -449,10 +449,10 @@ public final class ProtocolAdapter<S,I,O> {
                 guard encoded.count <= limits.maxInputBytes, encoded.count <= limits.maxCandidateBytes else { throw ProtocolError.limit }
                 guard encoded.count <= limits.maxCandidateBytes-pendingBytes else { throw ProtocolError.limit }; pendingBytes += encoded.count
                 nextCandidate += 1; pending.append((nextCandidate,token,encoded.count))
-                fields["inputs.\(index).token"] = "u64:\(nextCandidate)"
-                fields["inputs.\(index).payload"] = authority.readExactValues ? "bytes:" + encoded.map {String(format:"%02x",$0)}.joined() : "none"
+                fields["candidates.\(index).token"] = "u64:\(nextCandidate)"
+                if authority.readExactValues { fields["candidates.\(index).encoded"] = "bytes:" + encoded.map {String(format:"%02x",$0)}.joined() }
             }
-            fields["inputs.returned"] = "u64:\(pending.count)"
+            fields["candidates.returned"] = "u64:\(pending.count)"
             _ = try ProtocolWire.encodeResponse(ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:session.revision,configuration:configuration,error:nil,fields:fields),limits:limits)
             for item in pending {
                 while !candidates.isEmpty && (candidates.count >= limits.maxCandidates || item.2 > limits.maxCandidateBytes-candidateBytes) { candidateBytes -= candidates.removeFirst().2 }

@@ -1,0 +1,20 @@
+import hashlib,json,os,pathlib,shutil,subprocess,sys
+root=pathlib.Path(sys.argv[1]).resolve();out=pathlib.Path(sys.argv[2]).resolve();out.mkdir(parents=True,exist_ok=False)
+source=root/'source/python';copy=out/'python';shutil.copytree(source,copy)
+def ident(path):
+ data=path.read_bytes();return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+p=copy/'src/statelessness/debugger_session.py'
+report={'runner':ident(pathlib.Path(__file__)),'original':ident(p),'runs':[],'passed':False}
+env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',PYTHONPATH=str(copy/'src')+os.pathsep+str(copy/'tests'))
+argv=[sys.executable,'-B','-m','unittest','test_debugger_session.ReadOwnershipTests','-v']
+for kind in ('control','mutant'):
+ if kind=='mutant':
+  text=p.read_text();old='def state(self): return self._read_copy(self._state)';assert text.count(old)==1
+  p.write_text(text.replace(old,'def state(self): return _copy(self._state)'))
+ result=subprocess.run(argv,cwd=out,env=env,capture_output=True,timeout=60)
+ for name,data in [('stdout',result.stdout),('stderr',result.stderr)]: (out/(kind+'.'+name)).write_bytes(data)
+ report['runs'].append({'kind':kind,'argv':argv,'source':ident(p),'exit_code':result.returncode,'stdout':ident(out/(kind+'.stdout')),'stderr':ident(out/(kind+'.stderr'))})
+ if kind=='control':assert result.returncode==0,result.stderr.decode()
+ else:report['passed']=result.returncode==1 and b'DebugError not raised' in result.stderr and b'Ran 1 test' in result.stderr
+(out/'receipt.json').write_text(json.dumps(report,indent=2)+'\n')
+print(json.dumps(report));assert report['passed']

@@ -243,3 +243,10 @@ func TestHistoryRetentionRejectionStillReturnsCumulativeSnapshot(t *testing.T) {
 		t.Fatal(s, e)
 	}
 }
+
+func TestDefaultMetricLabelsMatchPinnedCatalog(t *testing.T) {
+	catalog := d.DefaultLabelCatalog()
+	if !reflect.DeepEqual(catalog.Operations, []string{"unspecified"}) || !reflect.DeepEqual(catalog.Components, []string{"host"}) || !reflect.DeepEqual(catalog.WorkerPools, []string{"default"}) {
+		t.Fatal(catalog)
+	}
+}

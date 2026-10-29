@@ -156,3 +156,31 @@ class SessionTests(unittest.TestCase):
         self.assertTrue(result.delivered)
         self.assertEqual(result.stop.kind, 'post_breakpoint')
         self.assertEqual((session.state, session.observation.transition.state, session.phase), (2, 2, 'paused'))
+
+class ReadOwnershipTests(unittest.TestCase):
+    def test_copy_callbacks_cannot_cancel_read_owner(self):
+        owner = None
+        attempts = []
+        class Value:
+            def __deepcopy__(value, memo):
+                if owner is not None:
+                    with self.assertRaises(DebugError): owner.cancel(owner.revision)
+                    attempts.append(1)
+                return Value()
+            def __eq__(value, other): return isinstance(other, Value)
+        class Model:
+            def initial_state(self): return Value()
+            def check_state(self, state): return []
+            def check_transition(self, before, input, transition): return []
+            def step(self, state, input): return Transition(state, [input])
+            def inputs(self, state): return [Value()]
+        from statelessness.debugger_workbench import EnumeratedSession
+        owner = EnumeratedSession('copy-owner', Model(), InputPolicy('out-of-domain-injection', unrestricted=True))
+        owner.state
+        token = owner.inputs(0, limit=1).candidates[0]
+        token.input
+        owner.select(token)
+        owner.observation
+        self.assertGreater(len(attempts), 3)
+        self.assertEqual(owner.revision, 1)
+        self.assertIsNone(owner.stop)

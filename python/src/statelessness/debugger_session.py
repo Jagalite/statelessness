@@ -88,7 +88,7 @@ class DebugSession:
         finally: self._busy = False
 
     @property
-    def state(self): return _copy(self._state)
+    def state(self): return self._read_copy(self._state)
     @property
     def id(self): return self._id
     @property
@@ -108,9 +108,9 @@ class DebugSession:
     @property
     def check_policy(self): return self._check_policy
     @property
-    def initial_checks(self): return _copy(self._initial_checks)
+    def initial_checks(self): return self._read_copy(self._initial_checks)
     @property
-    def observation(self): return _copy(self._last)
+    def observation(self): return self._read_copy(self._last)
     @property
     def diagnostic_errors(self): return tuple(self._issues)
     @property
@@ -119,6 +119,13 @@ class DebugSession:
     def capabilities(self):
         return {'mode': 'simulation', 'typed_input': True, 'exact_recording': self._recorder is not None,
                 'enumerate_inputs': False, 'effects_dispatched': False, 'live_restore': False}
+
+    def _read_copy(self, value):
+        # Reads may nest inside callbacks, but clone hooks cannot mutate the
+        # session while the snapshot is being constructed.
+        was_busy, self._busy = self._busy, True
+        try: return _copy(value)
+        finally: self._busy = was_busy
 
     def export_trace(self):
         self._guard()

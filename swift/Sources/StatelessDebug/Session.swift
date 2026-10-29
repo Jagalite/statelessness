@@ -213,7 +213,20 @@ public final class DebugSession<S,I,O> {
     }
     public func step(_ token: CandidateToken<I>) throws -> StepResult {
         guard token.owner == epoch, exactText(token.domain,policy.label) else { throw DebugError.invalidCommand("candidate belongs to another session/domain") }
-        return try step(expectedRevision: token.revision,input: token.value)
+        // A token binds a past selection, not permission to bypass the current
+        // bounded domain. Hold ownership across all enumeration/copy callbacks.
+        let input: I
+        try enter()
+        do {
+            try checkRevision(token.revision)
+            let permitted = try InputPolicy<S,I,O>.enumerated(equalInputs: equalInputs)
+            guard try permitted.permits(model, current, token.value, limits.maxCandidates) else {
+                throw DebugError.inputNotPermitted
+            }
+            input = try model.cloneInput(token.value)
+            busy = false
+        } catch { busy = false; throw error }
+        return try step(expectedRevision: token.revision,input: input)
     }
 }
 

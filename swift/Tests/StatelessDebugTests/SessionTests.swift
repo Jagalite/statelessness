@@ -54,3 +54,24 @@ final class SessionTests: XCTestCase {
         XCTAssertTrue(rejected); XCTAssertEqual(results.count,1); XCTAssertEqual(session.sequence,1)
     }
 }
+
+extension SessionTests {
+    func testCandidateRevalidatesChangedDomainUnderUnrestrictedPolicy() throws {
+        var domain = [1], delivered = 0, reads = 0
+        var m = model()
+        m.inputs = { _ in InputIterator { reads += 1; return domain.isEmpty ? nil : domain.removeFirst() } }
+        m.step = { state, input in delivered += 1; return Transition(state: state+input,outputs: []) }
+        var limits = SessionLimits(); limits.maxCandidates = 1
+        let session = try DebugSession(id: "revalidate", model: m, policy: .outOfDomainInjection, limits: limits, equalInputs: ==)
+        let token = try session.inputs(expectedRevision: 0, offset: 0, limit: 1).candidates[0]
+        domain = [2,1]; reads = 0
+        XCTAssertThrowsError(try session.step(token)) // One lookahead cannot admit 1.
+        XCTAssertEqual(reads,2); XCTAssertEqual(delivered,0); XCTAssertEqual(session.revision,0)
+        domain = [2]; reads = 0
+        XCTAssertThrowsError(try session.step(token))
+        XCTAssertEqual(reads,2); XCTAssertEqual(delivered,0)
+        domain = [1]; reads = 0
+        XCTAssertTrue(try session.step(token).delivered)
+        XCTAssertEqual(reads,1); XCTAssertEqual(delivered,1)
+    }
+}

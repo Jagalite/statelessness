@@ -148,12 +148,12 @@ final class ProtocolTests: XCTestCase {
         var authority = ProtocolAuthority(); authority.deliverInputs = true
         let a = try ProtocolAdapter(session:session,authority:authority,encodeInput:{Data([UInt8($0)])})
         let page = a.handle(request(a,1,"inputs",["u64:0","u64:2"]))
-        XCTAssertNil(page.error); XCTAssertEqual(page.fields["inputs.0.token"],"u64:1"); XCTAssertEqual(page.fields["inputs.0.payload"],"none")
+        XCTAssertNil(page.error); XCTAssertEqual(page.fields["candidates.0.token"],"u64:1"); XCTAssertNil(page.fields["candidates.0.encoded"]); XCTAssertEqual(page.fields["candidates.returned"],"u64:2")
         XCTAssertNil(a.handle(request(a,2,"select",["u64:1"])).error)
         XCTAssertEqual(a.handle(request(a,3,"select",["u64:2"],revision:1)).error,.staleHandle)
         let fresh = a.handle(request(a,4,"inputs",["u64:0","u64:1"],revision:1)); XCTAssertNil(fresh.error)
         try a.disconnect(); _ = try a.reconnect()
-        XCTAssertEqual(a.handle(request(a,1,"select",[fresh.fields["inputs.0.token"]!],revision:1)).error,.staleHandle)
+        XCTAssertEqual(a.handle(request(a,1,"select",[fresh.fields["candidates.0.token"]!],revision:1)).error,.staleHandle)
     }
 
     func testHostMutationWaitsForCompleteReplyPreflight() throws {
