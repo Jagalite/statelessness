@@ -1,0 +1,50 @@
+{
+  "captured_utc": "2026-10-29T14:00:28.339413+00:00",
+  "source_commit": "4eeac8ccd77a1efd4479af2e6cf0539c4c3bbe0a",
+  "evidence_class": "static-only; no compiler or test execution",
+  "rust_suite_source_counts": {
+    "observation": {
+      "test_attributes": 13,
+      "sha256": "842e4713c39efae912792ab99f72cc5b669c3d077b11dece9e37bd76c4a1af2d"
+    },
+    "monitor": {
+      "test_attributes": 10,
+      "sha256": "c4d9ad75cc0916eb6bd582cf98e22f3194c54df2be3aa52a6505a81b8dd35c0f"
+    },
+    "monitor_limits": {
+      "test_attributes": 11,
+      "sha256": "4a79b2f8fe236c27442a016bf748f254164a96da7d10706c01725ba852b10165"
+    },
+    "monitor_review": {
+      "test_attributes": 3,
+      "sha256": "f21ec4778015ad0ace2e54735dee6a6ed37072db918a00ef975854e1bf3042cc"
+    },
+    "checked_replay": {
+      "test_attributes": 14,
+      "sha256": "704e559b3d31c660464fb9412f69b0803f1fb41313343e21b9b88ec5adc3ea96"
+    },
+    "pr_review_core": {
+      "test_attributes": 6,
+      "sha256": "4ae56ac8563de4dd118638cff125e2a013534fb8baa33994bf7d7d970f148cce"
+    }
+  },
+  "typescript_compiler_mechanism": "npm ci in external staging from sealed package-lock.json; compiler 5.8.3",
+  "authority_planned_controls": {
+    "positive_compilations": 2,
+    "expected_diagnostic_rejections": 6
+  },
+  "rust_test_planned_total": 57,
+  "installed_planned": {
+    "cases_per_engine": 36,
+    "suffix_producers": 10,
+    "binary_replays": 50,
+    "json_replays": 50,
+    "browser": "actual Chromium",
+    "resource_scope": "five engine process launch plus fixture decode; single sample each"
+  },
+  "documentation_discrepancies": [
+    "examples/native-observation/README.md omits extended scope, describes four authority rejections rather than six, and says no browser runtime although installed invokes Chromium.",
+    "docs/native-parity/OBSERVATION-INTEGRATION.md says six DebugObservation rows remain open; CURRENT-20261029.md records the integrated public sum/member mapping."
+  ],
+  "runtime_status": "NOT RUN; parent regression prerequisite queued"
+}
