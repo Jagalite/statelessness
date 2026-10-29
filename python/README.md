@@ -4,8 +4,13 @@ Experimental, dependency-free **Python implementation**, not a Rust/FFI binding.
 Python >=3.10. Applications retain their own state types, callbacks, and codecs.
 This package implements the `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and
 `trace-json-v1` profiles in `../spec/README.md`. It does not imply full Rust feature
-parity: guided search, runtime ring recording,
-campaigns, composition helpers, and the binary `.sttrace` format are not provided.
+parity; candidate APIs beyond these profiles are documented below.
+
+Candidate [guided exploration](GUIDED.md) adds `guided_fuzz`, custom `Feedback`,
+`StateFeedback` and `exact_state`, with bounded feature/corpus counts and optional
+observers and cooperative controls. It shares the ordinary fuzz execution/check
+kernel. See [the runnable example](examples/guided.py). Portable profiles and
+ordinary fuzz defaults are unchanged. Campaigns and assurance are separate work.
 
 `WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
 by the [`paired-v1` candidate](../spec/paired-v1.md). They keep independent reference

@@ -307,8 +307,8 @@ def _transition_checks(model: Model[S, I, O], before: S, input: I,
     return tuple(values)
 
 
-def _step(model: Model[S, I, O], before: S, input: I) -> Transition[S, O]:
-    transition = _call("transition", model.step, _copy(before), _copy(input))
+def _step(model: Model[S, I, O], before: S, input: I, *, stage: str = "transition") -> Transition[S, O]:
+    transition = _call(stage, model.step, _copy(before), _copy(input))
     if not isinstance(transition, Transition):
         raise ModelError("transition: model must return Transition")
     return _copy(transition)

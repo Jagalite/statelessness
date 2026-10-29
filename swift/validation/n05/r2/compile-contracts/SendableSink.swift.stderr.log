@@ -1,0 +1,15 @@
+/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/compile-contracts/SendableSink.swift:5:5: error: type 'FeatureBuffer<Int>' does not conform to the 'Sendable' protocol
+3 | func requiresSendable<T: Sendable>(_ value: T) {}
+4 | func featureSinkIsNotSendable(_ sink: FeatureBuffer<Int>) {
+5 |     requiresSendable(sink)
+  |     `- error: type 'FeatureBuffer<Int>' does not conform to the 'Sendable' protocol
+6 | }
+7 | 
+
+/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/package/swift/Sources/Statelessness/Guided.swift:25:20: note: generic class 'FeatureBuffer' does not conform to the 'Sendable' protocol
+ 23 | /// Keys are copied at push time. The clone must isolate mutable reference storage.
+ 24 | /// This type is intentionally not Sendable; never retain or use it concurrently.
+ 25 | public final class FeatureBuffer<K> {
+    |                    `- note: generic class 'FeatureBuffer' does not conform to the 'Sendable' protocol
+ 26 |     private var owner: FeatureStorage<K>?
+ 27 |     private let maximum: Int

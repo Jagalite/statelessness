@@ -33,7 +33,7 @@ func searchInitialObserved[S, I, O any](m Model[S, I, O], state S, observer *Sea
 }
 func searchInitialObservedInto[S, I, O any](m Model[S, I, O], state S, observer *SearchObserver[S, I, O], checks *[]Check) ([]Check, error) {
 	resetChecks(checks)
-	e := stateChecksInto(m, state, checks)
+	e := stateChecksStageBatch("initial check_state", m, state, &checkBatch{checks: checks})
 	if e != nil {
 		if observerError := observerCheckError(observer, "initial_state", *checks, false); observerError != nil {
 			return nil, fmt.Errorf("%w; %v", e, observerError)
@@ -56,7 +56,7 @@ func searchEdgeObserved[S, I, O any](g GenerateModel[S, I, O], state S, input I,
 }
 func searchEdgeObservedInto[S, I, O any](g GenerateModel[S, I, O], state S, input I, t Transition[S, O], history []I, skipped *uint64, observer *SearchObserver[S, I, O], checks *[]Check) ([]Violation, error) {
 	resetChecks(checks)
-	e := stateChecksInto(g.Model, t.State, checks)
+	e := stateChecksStageBatch("check_state", g.Model, t.State, &checkBatch{checks: checks})
 	if e != nil {
 		if observerError := observerCheckError(observer, "state", *checks, false); observerError != nil {
 			return nil, fmt.Errorf("%w; %v", e, observerError)

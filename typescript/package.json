@@ -6,6 +6,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./node-campaign": {
+      "types": "./dist/node_campaign.d.ts",
+      "import": "./dist/node_campaign.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"

@@ -25,3 +25,8 @@ export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProp
 
 export {codecField,orderedRecord,tupleRecord,unitRecord,enumCases,taggedEnum,bindModelCodec} from './value_codec.js';
 export type {ValueEncoder,ValueDecoder,LengthEncoder,LengthDecoder,CodecField,RecordDeclaration,EnumCase} from './value_codec.js';
+export { GUIDANCE_ALGORITHM, DEFAULT_GUIDANCE, FeatureBuffer, StateFeedback, exactStateFeedback, validateGuidanceConfig, fuzzGuided, fuzzGuidedObserved } from './guided.js';
+export type { FeedbackMetadata, FeatureIdentity, Feedback, GuidanceConfig, CorpusEntry, GuidanceReport, GuidedFuzzReport } from './guided.js';
+
+export { DEFAULT_CAMPAIGN, CampaignCancellation, jobSeed, validateCampaignConfig, runCampaign, runGuidedCampaign } from './campaign.js';
+export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, CampaignFeedback, JobOutcome, JobReport, CampaignSink, CampaignReport, CampaignTermination } from './campaign.js';

@@ -1,0 +1,51 @@
+[
+  {
+    "phase": "toolchain",
+    "command": [
+      "swift",
+      "--version"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.781981457999791
+  },
+  {
+    "phase": "tests",
+    "command": [
+      "swift",
+      "test",
+      "--package-path",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/package",
+      "-j",
+      "2"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 116.36120175000542
+  },
+  {
+    "phase": "compile-contracts",
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/check-compile-contracts.py",
+      "--package",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/package",
+      "--output",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/r2/compile-contracts"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.8808496249985183
+  },
+  {
+    "phase": "example",
+    "command": [
+      "swift",
+      "run",
+      "--package-path",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-cb476da7/swift/validation/n05/snapshots/r2/package/swift/Examples/Guided",
+      "-j",
+      "2",
+      "GuidedExample"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 35.38430716700532
+  }
+]

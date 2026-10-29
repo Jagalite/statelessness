@@ -58,7 +58,7 @@ export function searchChecks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I
         throw error;
     };
     try {
-        call('state check', () => withCheckSink(storage, sink => appendStateChecks(m, s, sink)));
+        withCheckSink(storage, sink => appendStateChecks(m, s, sink, t ? 'check_state' : 'initial check_state'));
     }
     catch (error) {
         notify(error, [[phase, 0, storage.length, false]]);

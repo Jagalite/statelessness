@@ -1,0 +1,15 @@
+{
+  "name": "native-campaign-typescript-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Public ordinary and guided campaign examples for @jagalite/statelessness",
+  "engines": { "node": ">=20.6" },
+  "dependencies": { "@jagalite/statelessness": "file:../../../typescript" },
+  "scripts": {
+    "start": "node node.mjs ordinary",
+    "ordinary": "node node.mjs ordinary",
+    "guided": "node node.mjs guided",
+    "browser": "node serve.mjs"
+  }
+}

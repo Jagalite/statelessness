@@ -1,0 +1,103 @@
+{
+  "argv": [
+    "python3",
+    "/Volumes/seed1/Projects/kyoto/kyoto.py",
+    "status"
+  ],
+  "corrects_invalid_cli_read": "20261022T161039Z.json",
+  "exit_code": 0,
+  "health": {
+    "admission_reason": "OS memory pressure: warning",
+    "available_mb": 1286.046875,
+    "effective_max_running": 0,
+    "pressure": "warning",
+    "sampled_at": 1792685463.806828
+  },
+  "jobs": [
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "be50a84c471f4fb6908ce960e2a54fd7",
+      "policy_message": null,
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "6ac33655baf9486895c626676a9740ff",
+      "policy_message": null,
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "5ea2d04832ab4cc0acb08d05e8e1384c",
+      "policy_message": "Test/benchmark execution is disabled by shared policy; this job compiles only (--no-run). Tests/benchmarks will not run.",
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "c47fa958741f4502beac1404b613ad1d",
+      "policy_message": "Test/benchmark execution is disabled by shared policy; this job compiles only (--no-run). Tests/benchmarks will not run.",
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "1be30f3a8bea47758dd063d93a8970cb",
+      "policy_message": null,
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "84048d5f31b4404ba8a6c07e1af98f6a",
+      "policy_message": null,
+      "started": null,
+      "status": "queued"
+    },
+    {
+      "admission_reason": "OS memory pressure: warning",
+      "effective_max_running": 0,
+      "exit_code": null,
+      "finished": null,
+      "id": "9dc6574d3c8840f6b5cb7dd3d0e7ef3b",
+      "policy_message": null,
+      "started": null,
+      "status": "queued"
+    }
+  ],
+  "missing_from_status": [],
+  "observed_utc": "2026-10-22T16:11:04.863351+00:00",
+  "raw": {
+    "stderr.log": {
+      "bytes": 0,
+      "path": "validation/native-parity/n06/queue-observations/raw/20261022T161104Z/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout.json": {
+      "bytes": 122867,
+      "path": "validation/native-parity/n06/queue-observations/raw/20261022T161104Z/stdout.json",
+      "sha256": "751b43492f85adbc126ffa2ae7b65c1e4fabb4bed9e751058c9944984181d1b9"
+    }
+  },
+  "schema": "n06-queue-observation/1"
+}
