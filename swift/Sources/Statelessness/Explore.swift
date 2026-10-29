@@ -24,6 +24,7 @@ public struct Failure<Input> {
     public let inputs: [Input]; public let violations: [Violation]
     public init(inputs: [Input], violations: [Violation]) { self.inputs = inputs; self.violations = violations }
 }
+extension Failure: Sendable where Input: Sendable {}
 public struct SearchReport<Input> {
     public var termination: String
     public var states: Int

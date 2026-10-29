@@ -59,7 +59,7 @@ final class SearchCheckStorage { var checks: [Check] = [] }
 func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, storage: SearchCheckStorage? = nil) throws -> [Violation] {
     let storage = storage ?? SearchCheckStorage()
     storage.checks.removeAll(keepingCapacity: true)
-    do { try stateChecksInto(m, state, checks: &storage.checks) }
+    do { try stateChecksInto(m, state, checks: &storage.checks, stage: "initial check_state") }
     catch { try observerCheckError(observer, phase: "initial_state", checks: storage.checks, complete: false, checkerError: error); throw error }
     if let observer { try call("search observer initial") { try observer.initial(copied(m.cloneState, state), storage.checks) } }
     return try searchFindings("initial_state", storage.checks, skipped: &skipped)
@@ -67,7 +67,7 @@ func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout 
 func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = [], storage: SearchCheckStorage? = nil) throws -> [Violation] {
     let storage = storage ?? SearchCheckStorage()
     storage.checks.removeAll(keepingCapacity: true)
-    do { try stateChecksInto(m, transition.state, checks: &storage.checks) }
+    do { try stateChecksInto(m, transition.state, checks: &storage.checks, stage: "check_state") }
     catch { try observerCheckError(observer, phase: "state", checks: storage.checks, complete: false, checkerError: error); throw error }
     let stateCount = storage.checks.count
     do { try edgeChecksInto(m, state, input, transition, checks: &storage.checks) }
@@ -108,12 +108,33 @@ public struct FuzzReport<I> {
     public var transitions: UInt64
     public var skippedChecks: UInt64
     public var failure: Failure<I>?
+    public var guidance: GuidanceReport<I>? = nil
+}
+extension FuzzReport: Sendable where I: Sendable {}
+func validateFuzzConfig(_ config: FuzzConfig) throws {
+    guard config.cases >= 0, config.maxSteps >= 0, (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
 }
 /// Seeded, state-aware sequence fuzzing. The sole mutation corpus is the previous
 /// passing case. Completion establishes only absence of findings in these cases.
 public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfig(), limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport<I> {
-    guard config.cases >= 0, config.maxSteps >= 0, (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
-    let control = try RunControl(limits), m = g.model
+    try validateFuzzConfig(config)
+    let control = try RunControl(limits)
+    return try fuzzKernel(g, config: config, control: control, observer: observer, candidate: { previous, rng in
+        guard !previous.isEmpty, rng.index(100)! < UInt64(config.mutationPercent) else { return ([], nil) }
+        var mutated = try previous.map { try copied(g.model.cloneInput, $0) }
+        let start = Int(rng.index(UInt64(mutated.count))!)
+        let length = 1 + Int(rng.index(UInt64(mutated.count - start))!)
+        mutated.removeSubrange(start..<(start + length))
+        return (mutated, Int(rng.index(UInt64(mutated.count) + 1)!))
+    })
+}
+/// One reducer/check/observer/control path. Ordinary fuzz keeps its established
+/// polling behavior; feedback hooks add their own post-callback boundary.
+func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig, control: RunControl,
+    observer: SearchObserver<S, I, O>?, candidate: ([I], inout Rng) throws -> ([I], Int?),
+    initialFeedback: ((S, Int) throws -> Void)? = nil,
+    transitionFeedback: ((S, I, Transition<S, O>, [I], Int, UInt64) throws -> Void)? = nil) throws -> FuzzReport<I> {
+    let m = g.model
     let checkStorage = SearchCheckStorage()
     var rng = Rng(seed: config.seed), previous: [I] = []
     var report = FuzzReport<I>(termination: "cases_completed", seed: config.seed, cases: 0, transitions: 0, skippedChecks: 0, failure: nil)
@@ -125,14 +146,11 @@ public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfi
         let bad = try searchInitialChecks(m, state: state, skipped: &report.skippedChecks, observer: observer, storage: checkStorage)
         if !bad.isEmpty { report.termination = "failure_found"; report.failure = Failure(inputs: [], violations: bad); return report }
         if let stop = control.stop() { report.termination = stop; return report }
-        var mutated: [I] = [], replacement: Int?
-        if !previous.isEmpty, rng.index(100)! < UInt64(config.mutationPercent) {
-            mutated = try previous.map { try copied(m.cloneInput, $0) }
-            let start = Int(rng.index(UInt64(mutated.count))!)
-            let length = 1 + Int(rng.index(UInt64(mutated.count - start))!)
-            mutated.removeSubrange(start..<(start + length))
-            replacement = Int(rng.index(UInt64(mutated.count) + 1)!)
+        if let initialFeedback {
+            try call("initial feedback") { try initialFeedback(state, report.cases) }
+            if let stop = control.stop() { report.termination = stop; return report }
         }
+        let (mutated, replacement) = try candidate(previous, &rng)
         var history: [I] = []
         for step in 0..<config.maxSteps {
             if report.transitions == config.maxTransitions { report.termination = "transition_limit"; return report }
@@ -153,12 +171,16 @@ public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfi
             if !enabled { enabled = try call("is_enabled") { try g.isEnabled(copied(m.cloneState, state), copied(m.cloneInput, input)) } }
             if let stop = control.stop() { report.termination = stop; return report }
             guard enabled else { throw ModelError("generate returned a causally disabled input") }
-            let t = try perform(m, state, input)
+            let t = try perform(m, state, input, stage: "step")
             report.transitions += 1
             history.append(try copied(m.cloneInput, input))
             let violations = try searchEdge(m, state: state, input: input, transition: t, skipped: &report.skippedChecks, observer: observer, history: history, storage: checkStorage)
             if !violations.isEmpty { report.termination = "failure_found"; report.failure = Failure(inputs: history, violations: violations); return report }
             if let stop = control.stop() { report.termination = stop; return report }
+            if let transitionFeedback {
+                try call("transition feedback") { try transitionFeedback(state, input, t, history, report.cases, report.transitions) }
+                if let stop = control.stop() { report.termination = stop; return report }
+            }
             state = t.state
         }
         previous = history

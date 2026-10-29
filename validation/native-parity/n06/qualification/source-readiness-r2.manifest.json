@@ -1,0 +1,468 @@
+{
+  "created_utc": "2026-10-22T16:20:39.593076+00:00",
+  "dependency_pins": {
+    "conformance/fixtures/native-campaign-author.py": {
+      "bytes": 3686,
+      "mode": "0644",
+      "sha256": "4e6a4993b5fb06b141465fd29333bf08ea39ad85237fddb9f404c3165cfc9c6b",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-golden.py": {
+      "bytes": 9478,
+      "mode": "0644",
+      "sha256": "dc1d4e75b9d99dc790a530bfddb742c1acefdf9226401db7b7a5659372c75e76",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-inventory.py": {
+      "bytes": 3167,
+      "mode": "0644",
+      "sha256": "79b9faf376439dd2945a1df021b51e16c7b504882c32ccc927e712ee00cf7409",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-public.rs": {
+      "bytes": 23275,
+      "mode": "0644",
+      "sha256": "532bb5736cac7a9eb65b5b1f442bb61ba53f5ae7dbb2b8544950411b6231c2a8",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-v1.schema.json": {
+      "bytes": 12927,
+      "mode": "0644",
+      "sha256": "59138f9b05ecbad86fd4bd559ce3d6e44d70a23bf6b6e9f7e354525b3a462d9f",
+      "type": "file"
+    },
+    "docs/native-parity/N06-RUST-CONTRACT.md": {
+      "bytes": 19341,
+      "mode": "0644",
+      "sha256": "6c232b3961e4c4ed52d49f55ed1182f22be9080e7c1bbc37b7445bdd370c2082",
+      "type": "file"
+    },
+    "scripts/native-guided-support/evidence.py": {
+      "bytes": 8961,
+      "mode": "0644",
+      "sha256": "e5d934535179ea9262ce164cf865b1ff4b6214bd1f66938d088c41a358e3eea0",
+      "type": "file"
+    }
+  },
+  "entries": {
+    "docs/native-parity/N06-QUALIFICATION.md": {
+      "bytes": 17012,
+      "mode": "0644",
+      "sha256": "fc9fa1c37fe9a5f78b0036503c0bfd3dd4cf62af48b84176ccbabd8b85b5200c",
+      "type": "file"
+    },
+    "scripts/check-native-campaign-consumers.py": {
+      "bytes": 707,
+      "mode": "0644",
+      "sha256": "ea90950309be5b272d0c4bc58881125e24eb80b6746ed6d837eaeac73e7278c8",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/go": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/go/README.md": {
+      "bytes": 13268,
+      "mode": "0644",
+      "sha256": "6015676ddd3b6eb0622227e4a8c5132a7a533b904294946a7482f4fd76e8a092",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/cases.go": {
+      "bytes": 11027,
+      "mode": "0644",
+      "sha256": "678201184fdc8a1fdbd830f48dc72743888a952266c65d48a8c902c48a2c384c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/go.mod": {
+      "bytes": 240,
+      "mode": "0644",
+      "sha256": "24b052be80b3034ac66cfdda8dbe9574fc123ecc5f568bc93280e591dea7e2b9",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host.go": {
+      "bytes": 19198,
+      "mode": "0644",
+      "sha256": "6c4db659c3fac58c1af4cb32a52c26f0437da5278856c24e812a4d06269dd71c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host_equivalence.go": {
+      "bytes": 13638,
+      "mode": "0644",
+      "sha256": "a5c21a44cd00483627fd62e2b67aff6e22bfdd1b9a80df49bf5eae4247d5164f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host_validation.go": {
+      "bytes": 3376,
+      "mode": "0644",
+      "sha256": "9bb302915b4503b3f860aa09298f54518b03a7659b87ae459deeeed566d76402",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/main.go": {
+      "bytes": 864,
+      "mode": "0644",
+      "sha256": "006a75acab87547f120029bb26dc748ae812c453112f0019055b9a2324ffa99e",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/wire.go": {
+      "bytes": 5930,
+      "mode": "0644",
+      "sha256": "2b24f29eb736813403e0d431dd3fbbcf8ba7cdc965b0eb721de1fd3edbe047c4",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/python": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/python/README.md": {
+      "bytes": 16257,
+      "mode": "0644",
+      "sha256": "e24f9bf16f3e588de94c71e1aa99510cdcd7bf8a5cc31eaa4e8c4cdad9653c08",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/python/consumer.py": {
+      "bytes": 64117,
+      "mode": "0644",
+      "sha256": "07aad8b05047024b685b113e33e31ecf6fd88468eb8a26e046a1e7eab4114dcf",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/rust/Cargo.toml": {
+      "bytes": 203,
+      "mode": "0644",
+      "sha256": "6f67f973b5b4f82a2e8a7b11ce292d6035097d8e17fdff21f7c5255869ae48aa",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/README.md": {
+      "bytes": 2081,
+      "mode": "0644",
+      "sha256": "5a69741f941f2fe9e5769b53da038b0b3e078e61d1aa02cc0d0d067227059869",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/src": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/rust/src/host.rs": {
+      "bytes": 12179,
+      "mode": "0644",
+      "sha256": "fee67eadfd7de4770e5f65629c7fc31accb6b9354ace4e2a150d5d2edc695bb7",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/src/main.rs": {
+      "bytes": 1143,
+      "mode": "0644",
+      "sha256": "f66d7df6022530f5d95523c8ab1e3ee8713abc5a72292147ec63b6a7a1f3703e",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Package.swift": {
+      "bytes": 848,
+      "mode": "0644",
+      "sha256": "b904826dde3f67a42866f4369ea20b1eb39728a6f2dfe569803d1c16c087801c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/README.md": {
+      "bytes": 16501,
+      "mode": "0644",
+      "sha256": "56a5e3e7be5a5ef955333098bcc141035035a7fade4337614f1b07e82475785c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/AdmissionHostChecks.swift": {
+      "bytes": 4975,
+      "mode": "0644",
+      "sha256": "3aef0a0a959692fbead67fa4200b7615d13a79be427221a71cf86aa02f90c2fd",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/CampaignConsumer.swift": {
+      "bytes": 629,
+      "mode": "0644",
+      "sha256": "98303ddcf90a9026af5eeb24e43886d57a465269594a749cd499c024a7228b68",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Deterministic.swift": {
+      "bytes": 11384,
+      "mode": "0644",
+      "sha256": "226717631736d56dca3612c379aea34cc49a5da6fb876f881ac0de0a52c9320c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/HostChecks.swift": {
+      "bytes": 21363,
+      "mode": "0644",
+      "sha256": "bf14de9238a7b56b30493828744b4a0dcf1e9f7cc33c3d770a1ba503cffecc8f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Projection.swift": {
+      "bytes": 5324,
+      "mode": "0644",
+      "sha256": "436d11619cd71c130d7b0c51db9df22a2aa4dc7570f6ffa389ea6e87d0e64d7f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/SeededHostChecks.swift": {
+      "bytes": 15767,
+      "mode": "0644",
+      "sha256": "25bd679abfc871ebea085fa8c8f603aa81c422496dc0c1cc6824719ced002e39",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Support.swift": {
+      "bytes": 1952,
+      "mode": "0644",
+      "sha256": "57c2ca611a7f7464a9a5e3973e04df905a0cefcbb179c317831da473a48a3c71",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/typescript/README.md": {
+      "bytes": 12883,
+      "mode": "0644",
+      "sha256": "b1a77992d000d76df6e8b59f00967a9ed9e7de1d64d09bbe2e103383b1a31f4b",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/assertions.ts": {
+      "bytes": 1790,
+      "mode": "0644",
+      "sha256": "64fc1b815d0497e2ae9c0e92f94b10968511d7e217ceb231a778f03887a92d99",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/consumer.ts": {
+      "bytes": 1569,
+      "mode": "0644",
+      "sha256": "1db1cd67392e9f9670155cf8fb30edf7208da741d04f825a58eaadf37ed4825b",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/deterministic.ts": {
+      "bytes": 10024,
+      "mode": "0644",
+      "sha256": "1972fd12455c8dacefb8044bc28ff2e540a7786ff5331924ddf9feb73e9d5acd",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/host-checks.ts": {
+      "bytes": 15988,
+      "mode": "0644",
+      "sha256": "332a5f1db5e398567666a6fc6bcda5996f426b131689eca346fc523316027ad5",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/host-fixture.ts": {
+      "bytes": 8313,
+      "mode": "0644",
+      "sha256": "e2738b80cf87863ea68c33b28c2a0fd0690136bd1559e7299ba017b2fad7bf58",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/node-runtime.d.ts": {
+      "bytes": 568,
+      "mode": "0644",
+      "sha256": "6e1b604755e9654cfbf976662cc98bf9b3cce00f3211cf63ac8fcc9df6ecfe2c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/package.json": {
+      "bytes": 89,
+      "mode": "0644",
+      "sha256": "c187c827534e8181b2893540200827ba83476ca5e11c272466bd2f85b44ed656",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/precedence-checks.ts": {
+      "bytes": 4269,
+      "mode": "0644",
+      "sha256": "fda56531575c54ddff91c8e9623920d692b57d93e4eb053882b73bb0f0cd602c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/precedence-fixture.ts": {
+      "bytes": 1175,
+      "mode": "0644",
+      "sha256": "8f2e4641e145e50dea64659c1d88c5c107cb049438e07e1f7aa21aeb48f633fa",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/projection.ts": {
+      "bytes": 5101,
+      "mode": "0644",
+      "sha256": "d9a6340a39f349177675bd09badd94520ec84f16b53fdc24566d91be9b05bab4",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/seeded-checks.ts": {
+      "bytes": 9275,
+      "mode": "0644",
+      "sha256": "aaaef2682ec2d38939e4eddf13f691ff4289916366c67d0ca29485014223b0ac",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/seeded-fixture.ts": {
+      "bytes": 10177,
+      "mode": "0644",
+      "sha256": "7dfbf8074939b54ff54328411f6297d32b2dab6f01ccfab96242238bd4d3db26",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/tsconfig.json": {
+      "bytes": 332,
+      "mode": "0644",
+      "sha256": "527399fb11aecc1c257fc2b7959f59856d6488ffae2e07b0c26ccadbd724f120",
+      "type": "file"
+    },
+    "scripts/native-campaign-support": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-support/domains.py": {
+      "bytes": 2825,
+      "mode": "0644",
+      "sha256": "1dec7eafc33c35f72a6c39d33d04eab0ef64a97af288f34dcd554375244bce75",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/environment.py": {
+      "bytes": 456,
+      "mode": "0644",
+      "sha256": "ef9482ccbcb87e9c747d886797fc51e8505553b005dd87003d2be9e8856e345e",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/execution.py": {
+      "bytes": 16876,
+      "mode": "0644",
+      "sha256": "ff62297ad591c99cf71bbaacf35a7b8173b5362262649d8c5949bf0743d00845",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/focused_run.py": {
+      "bytes": 3695,
+      "mode": "0644",
+      "sha256": "94cae2c0fe602c0d970a2533a82bca2e95149ffba1ad5c9f7b7d0040f24fc439",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/host-requirements.json": {
+      "bytes": 2732,
+      "mode": "0644",
+      "sha256": "bac3397a87c71a14d5e01f3c76da2d6aa199958ccf0099877e6b8068289ef87b",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/installed.py": {
+      "bytes": 20745,
+      "mode": "0644",
+      "sha256": "eea1891f3fa4497dc3222d7bced2be68f3ed2e84e5510750260ed6807adcc28d",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/public-cases.json": {
+      "bytes": 798,
+      "mode": "0644",
+      "sha256": "a338916034300132645a47ad239d80e68ce4e08b2be8b9599c9b22016c90b5d4",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/qualification.py": {
+      "bytes": 52418,
+      "mode": "0644",
+      "sha256": "9756001b2353c92dd36e8d533d117224a64b42b2509e32fd07c56b6ae50621e8",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/recorder.py": {
+      "bytes": 22082,
+      "mode": "0644",
+      "sha256": "ddfad0b3fbf5efd268fce41e36d59fff09364cee132bda5aa5c4ddacaeccfb5f",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/recorder_guard.py": {
+      "bytes": 7168,
+      "mode": "0644",
+      "sha256": "e911423f48ce81ca8ab252ffac6ff64122f0bcf947ff924cdbad69dee45719f4",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/test_harness.py": {
+      "bytes": 20574,
+      "mode": "0644",
+      "sha256": "f79d75039db86179710f0c2fa07997f0e928c620a8b348d3cbcc771ebc3db230",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/test_recorder.py": {
+      "bytes": 20979,
+      "mode": "0644",
+      "sha256": "490463cb6aa6069175da2f03a41462eb27ed3a53b9cf6824109f7ccaf6fdd087",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/toolchains.py": {
+      "bytes": 23066,
+      "mode": "0644",
+      "sha256": "701b65c688764082e41e77b47840e1b6a4ed5489e6ee9bc1939a701d6be74d4d",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/transport.py": {
+      "bytes": 1648,
+      "mode": "0644",
+      "sha256": "67a08b332cd9f0f46fa35b7ce6639ecc14aecf709008ac06f6a471beb1582a09",
+      "type": "file"
+    }
+  },
+  "execution": {
+    "builds_run": false,
+    "effective_command": null,
+    "focused_command": null,
+    "focused_snapshot": null,
+    "new_jobs_submitted": [],
+    "pending": "fresh independent R2 review, then one source-bound focused Kyoto freeze/submission; no aggregate authorization",
+    "qualification_claimed": false,
+    "tests_run": false
+  },
+  "head_is_payload_identity": false,
+  "head_observed": "188a1e4a69938cb4c433a7df8d53f16ab6044b50",
+  "membership_type_mode_hash_rechecked": true,
+  "metadata_commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "188a1e4a69938cb4c433a7df8d53f16ab6044b50\n"
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "t3/native-campaign-runtime\n"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "HEAD",
+        "--",
+        "scripts/native-guided-support/evidence.py"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    }
+  ],
+  "root": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "schema": "n06-harness-source-readiness/1",
+  "source_exclusions": [],
+  "source_selections": [
+    "scripts/check-native-campaign-consumers.py",
+    "scripts/native-campaign-support",
+    "scripts/native-campaign-consumers",
+    "docs/native-parity/N06-QUALIFICATION.md"
+  ],
+  "status": "source-ready-awaiting-independent-r2"
+}

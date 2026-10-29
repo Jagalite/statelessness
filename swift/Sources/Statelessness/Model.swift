@@ -167,8 +167,8 @@ func cloneTransition<S, I, O>(_ m: Model<S, I, O>, _ t: Transition<S, O>) throws
 func edgeChecks<S, I, O>(_ m: Model<S, I, O>, _ before: S, _ input: I, _ t: Transition<S, O>) throws -> [Check] {
     var checks: [Check] = []; try edgeChecksInto(m, before, input, t, checks: &checks); return checks
 }
-func perform<S, I, O>(_ m: Model<S, I, O>, _ state: S, _ input: I) throws -> Transition<S, O> {
-    let t = try call("transition") { try m.step(copied(m.cloneState, state), copied(m.cloneInput, input)) }
+func perform<S, I, O>(_ m: Model<S, I, O>, _ state: S, _ input: I, stage: String = "transition") throws -> Transition<S, O> {
+    let t = try call(stage) { try m.step(copied(m.cloneState, state), copied(m.cloneInput, input)) }
     return try cloneTransition(m, t)
 }
 public struct CheckPolicy: Sendable {

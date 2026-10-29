@@ -1,0 +1,190 @@
+{
+  "archive_sha256": "c560e67520e662c342d012724d94167f592ab19f4f322bc0d8793898b5fea40a",
+  "branch": "t3/native-campaign-runtime",
+  "checkout": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "created": "2026-10-22T15:46:36.485658+00:00",
+  "files": {
+    "python/LICENSE": {
+      "mode": "0o644",
+      "sha256": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+      "size": 1068,
+      "type": "file"
+    },
+    "python/README.md": {
+      "mode": "0o644",
+      "sha256": "d55c30827384c28a8812e2e8acab47e7d2ab9d0aadcf1f68ccff2346660ede85",
+      "size": 31385,
+      "type": "file"
+    },
+    "python/pyproject.toml": {
+      "mode": "0o644",
+      "sha256": "dc4f492512f3f0411a7eef9f39c8905686bd923f7d19dcab51a0fc9a56ed872b",
+      "size": 754,
+      "type": "file"
+    },
+    "python/src/statelessness/__init__.py": {
+      "mode": "0o644",
+      "sha256": "fbb84a87d5d1736b4c699254e4dc28cabb9ca43b7c73cd40f23201edb3f77b00",
+      "size": 5553,
+      "type": "file"
+    },
+    "python/src/statelessness/_campaign_lifecycle.py": {
+      "mode": "0o644",
+      "sha256": "122243c6c10dd48758a1d021b18354d1943408f38b26f7f916d7e2119ab07743",
+      "size": 6861,
+      "type": "file"
+    },
+    "python/src/statelessness/_native_packet.py": {
+      "mode": "0o644",
+      "sha256": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+      "size": 4706,
+      "type": "file"
+    },
+    "python/src/statelessness/audit_record.py": {
+      "mode": "0o644",
+      "sha256": "e8f20bbbc76c58bbbe451193089c4793fba46d5708efaa75e1e24b88b8e4db54",
+      "size": 7105,
+      "type": "file"
+    },
+    "python/src/statelessness/campaign.py": {
+      "mode": "0o644",
+      "sha256": "2901518ab33f887864fb2f0b689fc2e588f889dc20755006f5a9c1942bc2c01c",
+      "size": 21795,
+      "type": "file"
+    },
+    "python/src/statelessness/checked.py": {
+      "mode": "0o644",
+      "sha256": "5a450a24632d2f304d3714cccd1723654d568550d92d47f7ff38d7f8568e0b70",
+      "size": 4813,
+      "type": "file"
+    },
+    "python/src/statelessness/codec.py": {
+      "mode": "0o644",
+      "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a",
+      "size": 5746,
+      "type": "file"
+    },
+    "python/src/statelessness/conformance.py": {
+      "mode": "0o644",
+      "sha256": "f0939e303f50cbef885ef5ee4770ee1bbe85aa0061dc7766fbbc21601a0403e0",
+      "size": 12985,
+      "type": "file"
+    },
+    "python/src/statelessness/core.py": {
+      "mode": "0o644",
+      "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397",
+      "size": 28886,
+      "type": "file"
+    },
+    "python/src/statelessness/evidence.py": {
+      "mode": "0o644",
+      "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3",
+      "size": 27725,
+      "type": "file"
+    },
+    "python/src/statelessness/evidence_recorder.py": {
+      "mode": "0o644",
+      "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b",
+      "size": 6736,
+      "type": "file"
+    },
+    "python/src/statelessness/guided.py": {
+      "mode": "0o644",
+      "sha256": "e26afd7623f4cd1566be8b5dd28ac063a24bdf1ae0c164e4265af33294359caf",
+      "size": 14395,
+      "type": "file"
+    },
+    "python/src/statelessness/monitor.py": {
+      "mode": "0o644",
+      "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493",
+      "size": 16547,
+      "type": "file"
+    },
+    "python/src/statelessness/native.py": {
+      "mode": "0o644",
+      "sha256": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+      "size": 30366,
+      "type": "file"
+    },
+    "python/src/statelessness/native_conformance.py": {
+      "mode": "0o644",
+      "sha256": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+      "size": 1611,
+      "type": "file"
+    },
+    "python/src/statelessness/oracle.py": {
+      "mode": "0o644",
+      "sha256": "50d26c0430ae2bf67c43d9874817a69cc673d655dd835c9218f1fb31eaa3245f",
+      "size": 13175,
+      "type": "file"
+    },
+    "python/src/statelessness/py.typed": {
+      "mode": "0o644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "type": "file"
+    },
+    "python/src/statelessness/replay_evidence.py": {
+      "mode": "0o644",
+      "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055",
+      "size": 14082,
+      "type": "file"
+    },
+    "python/src/statelessness/research.py": {
+      "mode": "0o644",
+      "sha256": "cf1700faf152f28c0d27967b880bc6fe87b4ed6a152f0d4a1c8b89bf09a345bf",
+      "size": 18849,
+      "type": "file"
+    },
+    "python/src/statelessness/search.py": {
+      "mode": "0o644",
+      "sha256": "4cef4f85ff012660764b473f4e8f30ca2df1384f51932af175d090cf58c92fb6",
+      "size": 23552,
+      "type": "file"
+    },
+    "python/src/statelessness/trace_binary.py": {
+      "mode": "0o644",
+      "sha256": "68f7797071346d294ab8077c031c182973787d42371c2b951af46124c1e419d4",
+      "size": 18237,
+      "type": "file"
+    },
+    "python/src/statelessness/trace_json.py": {
+      "mode": "0o644",
+      "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+      "size": 8023,
+      "type": "file"
+    },
+    "python/src/statelessness/value_codec.py": {
+      "mode": "0o644",
+      "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735",
+      "size": 18057,
+      "type": "file"
+    },
+    "python/tests/campaign_lifecycle_fixture.py": {
+      "mode": "0o644",
+      "sha256": "03e9e4b3e6612766836e85e2ee1728c5ddd4ad92daf264b9249937472c116b94",
+      "size": 31963,
+      "type": "file"
+    },
+    "python/tests/test_campaign.py": {
+      "mode": "0o644",
+      "sha256": "4c05d49a54ebb2b15e0bdb12c74986eacfd996bbc863e50decad685cae4c2c5c",
+      "size": 38167,
+      "type": "file"
+    },
+    "python/tests/test_campaign_lifecycle.py": {
+      "mode": "0o644",
+      "sha256": "8d0805ce35d700fe6f7fe9e4b8eb419d9f9c5a1e4a0e76037ecc39074942b5d2",
+      "size": 31472,
+      "type": "file"
+    }
+  },
+  "package": {
+    "name": "statelessness",
+    "version": "0.1.0"
+  },
+  "runner_sha256": "4545398d812c034dbe9ba0222af2e4272d5448f2763c733bf47498770feeb8c0",
+  "schema": "n06-python-focused-source/1",
+  "scope": "53 authored N06 campaign and lifecycle tests only; no baseline, installed consumer, independent Rust equality, or N05 qualification claim",
+  "source_commit": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f"
+}

@@ -28,6 +28,12 @@ __all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "F
             "FuzzReport", "RunLimits", "SearchLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
             "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
 
+from .guided import (CorpusEntry, Feedback, FeedbackMetadata, FeatureBuffer,
+                     GuidanceConfig, GuidanceReport, StateFeedback, exact_state,
+                     guided_fuzz)
+__all__ += ["CorpusEntry", "Feedback", "FeedbackMetadata", "FeatureBuffer",
+            "GuidanceConfig", "GuidanceReport", "StateFeedback", "exact_state", "guided_fuzz"]
+
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)
 
 from .trace_binary import (AuditTrace, BinaryLimits, BinaryTraceError, RunConfig,
@@ -98,3 +104,10 @@ EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("observation-v1",)
 
 from .observation import DebugObservation, DebugInitial, DebugTurn
 __all__ += ["DebugObservation", "DebugInitial", "DebugTurn"]
+
+from .campaign import (CampaignConfig, CampaignReport, JobOutcome, JobReport,
+    CampaignCancellation, InputTransfer, PickleInputTransfer, ProcessWorkers,
+    job_seed, run_campaign, run_guided_campaign)
+__all__ += ["CampaignConfig", "CampaignReport", "JobOutcome", "JobReport",
+    "CampaignCancellation", "InputTransfer", "PickleInputTransfer", "ProcessWorkers",
+    "job_seed", "run_campaign", "run_guided_campaign"]

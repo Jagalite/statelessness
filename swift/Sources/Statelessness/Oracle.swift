@@ -6,6 +6,10 @@ public struct OracleState<S, H> {
     public let oracle: H
     public init(model: S, oracle: H) { self.model = model; self.oracle = oracle }
 }
+// Native value identity includes both application state and oracle history.
+// Model/Oracle equivalence callbacks remain independent and are not replaced.
+extension OracleState: Equatable where S: Equatable, H: Equatable {}
+extension OracleState: Hashable where S: Hashable, H: Hashable {}
 
 /// Clone callbacks must deeply snapshot mutable references, as for Model.
 public struct Oracle<S, H, I, O> {

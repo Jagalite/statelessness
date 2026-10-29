@@ -8,6 +8,12 @@ profiles, including runtime observation, bounded recording, and binary interchan
 retain their separately documented experimental status. Full Rust feature parity
 is not implied.
 
+Candidate [guided exploration](GUIDED.md) adds `guided_fuzz`, custom `Feedback`,
+`StateFeedback` and `exact_state`, with bounded feature/corpus counts and optional
+observers and cooperative controls. It shares the ordinary fuzz execution/check
+kernel. See [the runnable example](examples/guided.py). Portable profiles and
+ordinary fuzz defaults are unchanged. Campaigns and assurance are separate work.
+
 `WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
 by the [`paired-v1` candidate](../spec/paired-v1.md). They keep independent reference
 history in state and compare projected state, ordered effects, and full disposition

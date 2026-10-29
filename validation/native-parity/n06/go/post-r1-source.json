@@ -1,0 +1,113 @@
+{
+  "branch": "t3/native-campaign-runtime",
+  "changed_files_this_round": {
+    "docs/native-parity/N06-GO.md": {
+      "mode": "0o644",
+      "sha256": "e992cfae2c6c332ad4e0a53bc5e48e494aa07d8b0ae87c1febb93a890b2820df",
+      "size": 23675,
+      "type": "file"
+    },
+    "go/campaign.go": {
+      "mode": "0o644",
+      "sha256": "6638852583903bbeb70592158c20cf831cfc5934b38b1092cd1148ab50ee1a7c",
+      "size": 16489,
+      "type": "file"
+    },
+    "go/campaign_test.go": {
+      "mode": "0o644",
+      "sha256": "6d57c2794db57fdf3492bad154f33888808458d0e6ebdd8d16054efc7c0655dc",
+      "size": 26451,
+      "type": "file"
+    },
+    "validation/native-parity/n06/go/README.md": {
+      "mode": "0o644",
+      "sha256": "bb7da66e2f14e9ccf798771d26e3da159b9f36e3c2dbc9a57b806ad0a9e8a0d5",
+      "size": 9626,
+      "type": "file"
+    },
+    "validation/native-parity/n06/go/qualify.py": {
+      "mode": "0o644",
+      "sha256": "026573750c6be950b916ced556c2670b803a542f6189e5d534ee070595cc72ac",
+      "size": 62069,
+      "type": "file"
+    }
+  },
+  "checkout": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "execution": {
+    "commits": false,
+    "new_jobs": [],
+    "post_r1_builds_tests_guards_consumers": false,
+    "preparation": false,
+    "staging": false
+  },
+  "head": "188a1e4a69938cb4c433a7df8d53f16ab6044b50",
+  "observed_at_utc": "2026-10-22T16:29:08.617018+00:00",
+  "preserved_r1": {
+    "coverage": "Only immutable r1 bytes; excludes current transport, executing-driver/tool identity and retained-leader cleanup changes.",
+    "directory": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/go/runs/focused-r1-20261022",
+    "frozen_manifest_sha256": "0b053642eb9a341fcc9c8d99d309e5fbbddd3cd2794f0ac058ec27a0c2474238",
+    "full_membership_type_mode_content_matches": true,
+    "historical_effective_command": [
+      "python3",
+      "-I",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/go/runs/focused-r1-20261022/source/validation/native-parity/n06/go/qualify.py",
+      "execute",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/go/runs/focused-r1-20261022",
+      "--expect-frozen-sha256",
+      "0b053642eb9a341fcc9c8d99d309e5fbbddd3cd2794f0ac058ec27a0c2474238"
+    ],
+    "historical_requested_command": [
+      "python3",
+      "-I",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/go/runs/focused-r1-20261022/source/validation/native-parity/n06/go/qualify.py",
+      "execute",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/go/runs/focused-r1-20261022",
+      "--expect-frozen-sha256",
+      "0b053642eb9a341fcc9c8d99d309e5fbbddd3cd2794f0ac058ec27a0c2474238"
+    ],
+    "job_id": "9dc6574d3c8840f6b5cb7dd3d0e7ef3b",
+    "last_prior_receipt_status": "queued",
+    "origin_manifest_sha256": "9551d9de22a3f711b467c4beaad56f014a5ab008786ac509b2d85dd2d5d4bd22",
+    "queue_requeried_this_round": false,
+    "sealed_driver_sha256": "62303a2c4baba2a5674dcec9d31e2f51f77ad64994792cc3a1735911e3f7a65f",
+    "snapshot_members": 140
+  },
+  "remaining_gates": [
+    "Root-coordinated fresh immutable source preparation and Kyoto execution after authorization; preserve r1.",
+    "Current Go tests/race/guards/replays/vet/installed consumer and real-process cleanup qualification.",
+    "Root-owned public Rust comparison and independent aggregate seal.",
+    "N05 final qualification, including separately documented Swift feedback metadata provenance gap.",
+    "Full Rust64 count-wire support and precomposed Auto panic-provenance limits remain documented."
+  ],
+  "reviews": [
+    {
+      "boundary": "Actual channel nonadmissibility witness, not proof goroutines are parked; runtime/race execution pending.",
+      "disposition": "No actionable source findings.",
+      "files": [
+        "go/campaign.go",
+        "go/campaign_test.go"
+      ],
+      "findings": [
+        "R2-1"
+      ],
+      "task_id": "node:delegated-task:command%3Amcp%3A1a506e17-cacd-49f3-a7ca-6f5e510302ec%3Adelegate-task%3An06-go-r2-transport-review-20261022"
+    },
+    {
+      "boundary": "Sampled on-disk identities, incomplete transitive toolchain seal, sole child reaper; guards and real-process cleanup unexecuted.",
+      "disposition": "No actionable source findings; bounded source-ready.",
+      "files": [
+        "validation/native-parity/n06/go/qualify.py",
+        "validation/native-parity/n06/go/README.md"
+      ],
+      "findings": [
+        "R2-3",
+        "R2-5",
+        "Q2"
+      ],
+      "task_id": "node:delegated-task:command%3Amcp%3A1a506e17-cacd-49f3-a7ca-6f5e510302ec%3Adelegate-task%3An06-go-r2-qualifier-review-20261022"
+    }
+  ],
+  "schema": "n06-go-post-r1-source-observation-v1",
+  "scope": "Metadata-only source observation, not a frozen payload, preparation, runtime receipt or aggregate seal.",
+  "status": "source-ready-with-bounded-independent-review; post-r1-execution-unperformed"
+}

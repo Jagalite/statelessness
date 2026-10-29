@@ -1,0 +1,1303 @@
+{
+  "base_commit": "ef5c46b5646eec78599c0ed69756df889a8126ce",
+  "branch": "t3/native-campaign-runtime",
+  "checkout": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "head_is_not_payload_identity": true,
+  "identity_file_mode": 420,
+  "required_ancestor": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f",
+  "revision": "r1",
+  "schema": "n06-swift-focused-source-v2",
+  "selection": {
+    "conformance": "root-level *.json and *.tsv only",
+    "full_trees": [
+      "swift/Sources",
+      "swift/Tests",
+      "examples/native-campaign/swift/Sources"
+    ],
+    "package_manifests": [
+      "Package.swift",
+      "examples/native-campaign/swift/Package.swift"
+    ],
+    "runners": [
+      "qualify.py",
+      "snapshot.py",
+      "guards.py"
+    ]
+  },
+  "snapshot_entries": [
+    {
+      "mode": 493,
+      "path": ".",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "consumer",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Package.swift",
+      "sha256": "76600cc6ed4b54f325d15676b22e04863ee097fee4e1c7777b4e20f8c3f48860",
+      "size": 570,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "consumer/Sources",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "consumer/Sources/CampaignConsumer",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/CampaignConsumer.swift",
+      "sha256": "4fbf489106ec7408ebdb1fe43112121f51476dfc3513e459e999c914a1052cbd",
+      "size": 1258,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/Cases.swift",
+      "sha256": "bee62cb220ef78302998196b8e37d2b8129b97c2e28b1b8c9123499c236d25bf",
+      "size": 7005,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/Fixture.swift",
+      "sha256": "500af31e9291a6079ad12e05b32f7216d667bab656b922f5f47ffd22e29de8c8",
+      "size": 7067,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/HostChecks.swift",
+      "sha256": "fcf427521079ef60d1e845a6f8b5e9bc5a814f9e1cfa87bcd28a68f48b408a7c",
+      "size": 26614,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/NativePolicy.swift",
+      "sha256": "c8cc268a50ba31e44bfbc5bb0cb39752c97398d58d0c2835d47ddb6340921404",
+      "size": 7644,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/Projection.swift",
+      "sha256": "14ef7d4e8dc7a1aaf2ff09048427da387bda20849f99383e74e1b2e84462536c",
+      "size": 6306,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "consumer/Sources/CampaignConsumer/Support.swift",
+      "sha256": "638f92544240234d2f4480afc8fc262ec475d6220ccfde73e691420ce81a0aee",
+      "size": 2482,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "guards.py",
+      "sha256": "4e23cd7b8a02737d31207c663289393297c6a56637de782007b1fca0ffb7e843",
+      "size": 53001,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/Package.swift",
+      "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+      "size": 1003,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package/conformance",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/append-checks-v1.json",
+      "sha256": "7545fe2ddead4bb9eea8d9582868dfb1ade60b3f27f74031496d8c6ab1c37290",
+      "size": 49793,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/bfs-controls-v1.json",
+      "sha256": "437b5733879cd080cce73c76ed92159146775fe80b4516435afc092184a44b73",
+      "size": 50107,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/canonical-value-codec-v1.json",
+      "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+      "size": 83638,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/causal-evidence-v2.json",
+      "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7",
+      "size": 293722,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/checked-results-v1.json",
+      "sha256": "5b9bb927ad33582488613f3053ae99f1af4c6316eb5ed27c9326e2054837efda",
+      "size": 175746,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/corpus.json",
+      "sha256": "6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11",
+      "size": 53160,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/encode-buffers-v1.json",
+      "sha256": "3bdd366d01d088c1f3c45e235da4c906a502af704c114400748a1dfe6ff0be12",
+      "size": 19593,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/native-binary-v1.json",
+      "sha256": "ac579df2ad00c0491bfdf6daa04d2b389b96ee83640bb94f65d94b34a74d28fe",
+      "size": 38204,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/paired-v1.tsv",
+      "sha256": "6fe066b352b42ca47a609b69ad019cb9462506c77f12a156b50c76bc4e5f2511",
+      "size": 877,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/replay-evidence-v1.json",
+      "sha256": "3dadb9201ff38719b7147160e6bd6ac55416b53c92baa6285cf9f0837299fb73",
+      "size": 236759,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/research-equivalence-v1.json",
+      "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa",
+      "size": 356459,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/search-v1-history.json",
+      "sha256": "2635b14cc9a0d73d2e88050b978257162660b48c01bb4d60179b2b6fddef7c26",
+      "size": 3947,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/conformance/search-v1.tsv",
+      "sha256": "4774950bfb5546e50f1fa8e1739ea4ad7b79f3d74479a781a88fd0b31617b951",
+      "size": 3060,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Sources",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Sources/StatelessConformance",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/StatelessConformance/Conformance.swift",
+      "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+      "size": 14229,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Sources/StatelessCorpus",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/StatelessCorpus/main.swift",
+      "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+      "size": 156,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Sources/Statelessness",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/AuditRecording.swift",
+      "sha256": "0c59aa7540cadfa788e13eb5cc04c049667a1b631213bc51711f4a01231a1431",
+      "size": 5622,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/AuditTrace.swift",
+      "sha256": "de880b933f6a0079e452c9502e5a5226b459598a6275ccb0d6df8976c752c920",
+      "size": 22959,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Campaign.swift",
+      "sha256": "3fd338b59ddc1c7f4b66db003b9996caf458b3635f90247c3e2be960e1ff52ea",
+      "size": 8421,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/CampaignLifecycle.swift",
+      "sha256": "598fab867564f79c350a7ea4bf170a3be0adbb8ae13e5483f914ec6a3a4c827f",
+      "size": 8082,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/CampaignRuntime.swift",
+      "sha256": "0b944d6229c18e3b100b01c4b2eacac1ec03ee6cb12830f8cf9c0204d3a004c2",
+      "size": 17313,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/CheckSink.swift",
+      "sha256": "1e758da07c07a1b8dfb6600b2207fd09d0295cd5b15368ad891840d422b17f74",
+      "size": 5256,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/CheckedResults.swift",
+      "sha256": "d2f92206250ddbc1368364c8c6cce4100074ce599e26bb722125e1d8c7dc2ccb",
+      "size": 5860,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/EncodeBuffer.swift",
+      "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686",
+      "size": 5222,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Evidence.swift",
+      "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04",
+      "size": 12778,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/EvidenceCodec.swift",
+      "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83",
+      "size": 10781,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/EvidenceExports.swift",
+      "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff",
+      "size": 5230,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/EvidenceRecorder.swift",
+      "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f",
+      "size": 5375,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Execution.swift",
+      "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64",
+      "size": 7120,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ExecutionBudget.swift",
+      "sha256": "cf75a82573b229491ce58103d4c61574fe508e2fe4ffbc13e675444f56f64fd9",
+      "size": 3597,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Explore.swift",
+      "sha256": "c18ac7a95d800004d15200fec69878ffe8be6124e919eb54e44456f3131f8c9e",
+      "size": 8292,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Fuzz.swift",
+      "sha256": "496e6d7114eaf5fad7cf8978d2bd4fb480ca8f938d256687bcf49ef615852102",
+      "size": 11904,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Generate.swift",
+      "sha256": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb",
+      "size": 4811,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Guided.swift",
+      "sha256": "87f69f8144004490a913230c0b34c676a5d1e3e7b491aba184e9614671237c46",
+      "size": 12976,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/JSON.swift",
+      "sha256": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+      "size": 10280,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Model.swift",
+      "sha256": "3c00084776a8d530b3edca6d90dcac839d422880b8ba996cda7ebc7d9db6270c",
+      "size": 12419,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Oracle.swift",
+      "sha256": "30599118f6d8aeabd2d5899ee7c82128c5b1e6573f7de823ab69ccf6bc8038a0",
+      "size": 16826,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Recorder.swift",
+      "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9",
+      "size": 18911,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Replay.swift",
+      "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692",
+      "size": 13333,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Research.swift",
+      "sha256": "30dda4aea30d12d2bc15b88a300c0909abae7c6599aa539a214515eaa7c5067d",
+      "size": 19737,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Rng.swift",
+      "sha256": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+      "size": 816,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/Shrink.swift",
+      "sha256": "3a5fdfc8f45d4d3a74471ad86ac832855574853abcee78987e4ae0d11ae515c8",
+      "size": 11187,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/TraceJSON.swift",
+      "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+      "size": 6270,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ValueCodec.swift",
+      "sha256": "ee822a34fa231667e4899fb5f0c529698f46fd20ab0c62bd28a0b29c8ca4fb09",
+      "size": 10675,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ValueCodec128.swift",
+      "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e",
+      "size": 2748,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+      "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b",
+      "size": 10860,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ValueCodecDecoder.swift",
+      "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4",
+      "size": 4309,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Sources/Statelessness/ValueCodecLayouts.swift",
+      "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219",
+      "size": 4024,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Tests",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "package/swift/Tests/StatelessnessTests",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/AppendChecksTests.swift",
+      "sha256": "3cc9b278d49352d715a41b450e1b506fae91752a7a245e806051a51a7c6649f6",
+      "size": 18961,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/AuditTraceTests.swift",
+      "sha256": "00ce0bd6aed64cf7a9982a453611ee88dd1512b40378704f35848ac6b4e2103a",
+      "size": 11111,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/BFSControlsTests.swift",
+      "sha256": "49216057493f3844d60294a33c62d0935d3fdae1733bebe41a3d4fc0f1f41395",
+      "size": 12934,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/CampaignLifecycleCodec.swift",
+      "sha256": "a450dbc9a47a4e7cbffecd3fa1908e76826f63632cf03df100c123e7bfc56b43",
+      "size": 17911,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift",
+      "sha256": "818301d9013af257c54a5d018c6a52242cbeed7a2b297721b2da8146bb784d28",
+      "size": 56531,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/CampaignRuntimeTests.swift",
+      "sha256": "4d6ed9867f7f5a5cff40a676bd91a5ba6cd1d31a5915bf4650b75133dc8214dd",
+      "size": 67478,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/CheckedResultsTests.swift",
+      "sha256": "7b75ba57141bd9a807ea82d3429a03a47031d8c7ca419b38b739acb7b6c990fd",
+      "size": 10735,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/EncodeReplayTests.swift",
+      "sha256": "36b8e48f9042bbc0ba869cda92450ec62ba873db0bdd39acae7df3f74492e4d3",
+      "size": 26376,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+      "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11",
+      "size": 5031,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+      "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5",
+      "size": 14325,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/EvidenceTests.swift",
+      "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739",
+      "size": 14885,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/GuidedTests.swift",
+      "sha256": "94145d91a2131f76a7669e5c93bfe9521ee57f2492aac8682983b5cc71c09ada",
+      "size": 20802,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/NativeTests.swift",
+      "sha256": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33",
+      "size": 14437,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/OracleTests.swift",
+      "sha256": "07a7e80583c5fd598fc846223ec5305117e9fb972ea26137c8b264ba886a08aa",
+      "size": 15474,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/RecorderTests.swift",
+      "sha256": "1d90149531f85c103e2b35021d05b03ff7e9277c6446d1f0bf2b0bd4b8aac338",
+      "size": 29811,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/RecordingErrorTests.swift",
+      "sha256": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9",
+      "size": 1502,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ReplayCorpusTests.swift",
+      "sha256": "398e0f1d9e6eaceca893d25008b122560998b061912a21a765c4ffd889584928",
+      "size": 14134,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ResearchTests.swift",
+      "sha256": "9bc3d857910dc6ba0a5f628ed2629dea87c87130284f19414a832d41d00788db",
+      "size": 29668,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/SearchTests.swift",
+      "sha256": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f",
+      "size": 18884,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+      "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323",
+      "size": 6474,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+      "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211",
+      "size": 10550,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+      "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47",
+      "size": 5023,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+      "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996",
+      "size": 5821,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "package/swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+      "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b",
+      "size": 16064,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "qualify.py",
+      "sha256": "4da99fcd710f0509d40c3489799702ba480095314c6c2d35b32f73810306be38",
+      "size": 21551,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "snapshot.py",
+      "sha256": "50b5c0b01d96288f60cf8d7aeb3bba053f7479922dc15be72ee53f96d8eae915",
+      "size": 7350,
+      "type": "file"
+    }
+  ],
+  "source_entries": [
+    {
+      "mode": 420,
+      "path": "Package.swift",
+      "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+      "size": 1003,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "conformance",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/append-checks-v1.json",
+      "sha256": "7545fe2ddead4bb9eea8d9582868dfb1ade60b3f27f74031496d8c6ab1c37290",
+      "size": 49793,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/bfs-controls-v1.json",
+      "sha256": "437b5733879cd080cce73c76ed92159146775fe80b4516435afc092184a44b73",
+      "size": 50107,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/canonical-value-codec-v1.json",
+      "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+      "size": 83638,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/causal-evidence-v2.json",
+      "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7",
+      "size": 293722,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/checked-results-v1.json",
+      "sha256": "5b9bb927ad33582488613f3053ae99f1af4c6316eb5ed27c9326e2054837efda",
+      "size": 175746,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/corpus.json",
+      "sha256": "6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11",
+      "size": 53160,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/encode-buffers-v1.json",
+      "sha256": "3bdd366d01d088c1f3c45e235da4c906a502af704c114400748a1dfe6ff0be12",
+      "size": 19593,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/native-binary-v1.json",
+      "sha256": "ac579df2ad00c0491bfdf6daa04d2b389b96ee83640bb94f65d94b34a74d28fe",
+      "size": 38204,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/paired-v1.tsv",
+      "sha256": "6fe066b352b42ca47a609b69ad019cb9462506c77f12a156b50c76bc4e5f2511",
+      "size": 877,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/replay-evidence-v1.json",
+      "sha256": "3dadb9201ff38719b7147160e6bd6ac55416b53c92baa6285cf9f0837299fb73",
+      "size": 236759,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/research-equivalence-v1.json",
+      "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa",
+      "size": 356459,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/search-v1-history.json",
+      "sha256": "2635b14cc9a0d73d2e88050b978257162660b48c01bb4d60179b2b6fddef7c26",
+      "size": 3947,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "conformance/search-v1.tsv",
+      "sha256": "4774950bfb5546e50f1fa8e1739ea4ad7b79f3d74479a781a88fd0b31617b951",
+      "size": 3060,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Package.swift",
+      "sha256": "76600cc6ed4b54f325d15676b22e04863ee097fee4e1c7777b4e20f8c3f48860",
+      "size": 570,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "examples/native-campaign/swift/Sources",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/CampaignConsumer.swift",
+      "sha256": "4fbf489106ec7408ebdb1fe43112121f51476dfc3513e459e999c914a1052cbd",
+      "size": 1258,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/Cases.swift",
+      "sha256": "bee62cb220ef78302998196b8e37d2b8129b97c2e28b1b8c9123499c236d25bf",
+      "size": 7005,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/Fixture.swift",
+      "sha256": "500af31e9291a6079ad12e05b32f7216d667bab656b922f5f47ffd22e29de8c8",
+      "size": 7067,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/HostChecks.swift",
+      "sha256": "fcf427521079ef60d1e845a6f8b5e9bc5a814f9e1cfa87bcd28a68f48b408a7c",
+      "size": 26614,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/NativePolicy.swift",
+      "sha256": "c8cc268a50ba31e44bfbc5bb0cb39752c97398d58d0c2835d47ddb6340921404",
+      "size": 7644,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/Projection.swift",
+      "sha256": "14ef7d4e8dc7a1aaf2ff09048427da387bda20849f99383e74e1b2e84462536c",
+      "size": 6306,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "examples/native-campaign/swift/Sources/CampaignConsumer/Support.swift",
+      "sha256": "638f92544240234d2f4480afc8fc262ec475d6220ccfde73e691420ce81a0aee",
+      "size": 2482,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Sources",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Sources/StatelessConformance",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/StatelessConformance/Conformance.swift",
+      "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+      "size": 14229,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Sources/StatelessCorpus",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/StatelessCorpus/main.swift",
+      "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+      "size": 156,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Sources/Statelessness",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/AuditRecording.swift",
+      "sha256": "0c59aa7540cadfa788e13eb5cc04c049667a1b631213bc51711f4a01231a1431",
+      "size": 5622,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/AuditTrace.swift",
+      "sha256": "de880b933f6a0079e452c9502e5a5226b459598a6275ccb0d6df8976c752c920",
+      "size": 22959,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Campaign.swift",
+      "sha256": "3fd338b59ddc1c7f4b66db003b9996caf458b3635f90247c3e2be960e1ff52ea",
+      "size": 8421,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/CampaignLifecycle.swift",
+      "sha256": "598fab867564f79c350a7ea4bf170a3be0adbb8ae13e5483f914ec6a3a4c827f",
+      "size": 8082,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/CampaignRuntime.swift",
+      "sha256": "0b944d6229c18e3b100b01c4b2eacac1ec03ee6cb12830f8cf9c0204d3a004c2",
+      "size": 17313,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/CheckSink.swift",
+      "sha256": "1e758da07c07a1b8dfb6600b2207fd09d0295cd5b15368ad891840d422b17f74",
+      "size": 5256,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/CheckedResults.swift",
+      "sha256": "d2f92206250ddbc1368364c8c6cce4100074ce599e26bb722125e1d8c7dc2ccb",
+      "size": 5860,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/EncodeBuffer.swift",
+      "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686",
+      "size": 5222,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Evidence.swift",
+      "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04",
+      "size": 12778,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/EvidenceCodec.swift",
+      "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83",
+      "size": 10781,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/EvidenceExports.swift",
+      "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff",
+      "size": 5230,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/EvidenceRecorder.swift",
+      "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f",
+      "size": 5375,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Execution.swift",
+      "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64",
+      "size": 7120,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ExecutionBudget.swift",
+      "sha256": "cf75a82573b229491ce58103d4c61574fe508e2fe4ffbc13e675444f56f64fd9",
+      "size": 3597,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Explore.swift",
+      "sha256": "c18ac7a95d800004d15200fec69878ffe8be6124e919eb54e44456f3131f8c9e",
+      "size": 8292,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Fuzz.swift",
+      "sha256": "496e6d7114eaf5fad7cf8978d2bd4fb480ca8f938d256687bcf49ef615852102",
+      "size": 11904,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Generate.swift",
+      "sha256": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb",
+      "size": 4811,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Guided.swift",
+      "sha256": "87f69f8144004490a913230c0b34c676a5d1e3e7b491aba184e9614671237c46",
+      "size": 12976,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/JSON.swift",
+      "sha256": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+      "size": 10280,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Model.swift",
+      "sha256": "3c00084776a8d530b3edca6d90dcac839d422880b8ba996cda7ebc7d9db6270c",
+      "size": 12419,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Oracle.swift",
+      "sha256": "30599118f6d8aeabd2d5899ee7c82128c5b1e6573f7de823ab69ccf6bc8038a0",
+      "size": 16826,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Recorder.swift",
+      "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9",
+      "size": 18911,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Replay.swift",
+      "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692",
+      "size": 13333,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Research.swift",
+      "sha256": "30dda4aea30d12d2bc15b88a300c0909abae7c6599aa539a214515eaa7c5067d",
+      "size": 19737,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Rng.swift",
+      "sha256": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+      "size": 816,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/Shrink.swift",
+      "sha256": "3a5fdfc8f45d4d3a74471ad86ac832855574853abcee78987e4ae0d11ae515c8",
+      "size": 11187,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/TraceJSON.swift",
+      "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+      "size": 6270,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ValueCodec.swift",
+      "sha256": "ee822a34fa231667e4899fb5f0c529698f46fd20ab0c62bd28a0b29c8ca4fb09",
+      "size": 10675,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ValueCodec128.swift",
+      "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e",
+      "size": 2748,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+      "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b",
+      "size": 10860,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+      "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4",
+      "size": 4309,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+      "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219",
+      "size": 4024,
+      "type": "file"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Tests",
+      "type": "directory"
+    },
+    {
+      "mode": 493,
+      "path": "swift/Tests/StatelessnessTests",
+      "type": "directory"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/AppendChecksTests.swift",
+      "sha256": "3cc9b278d49352d715a41b450e1b506fae91752a7a245e806051a51a7c6649f6",
+      "size": 18961,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/AuditTraceTests.swift",
+      "sha256": "00ce0bd6aed64cf7a9982a453611ee88dd1512b40378704f35848ac6b4e2103a",
+      "size": 11111,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/BFSControlsTests.swift",
+      "sha256": "49216057493f3844d60294a33c62d0935d3fdae1733bebe41a3d4fc0f1f41395",
+      "size": 12934,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/CampaignLifecycleCodec.swift",
+      "sha256": "a450dbc9a47a4e7cbffecd3fa1908e76826f63632cf03df100c123e7bfc56b43",
+      "size": 17911,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift",
+      "sha256": "818301d9013af257c54a5d018c6a52242cbeed7a2b297721b2da8146bb784d28",
+      "size": 56531,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/CampaignRuntimeTests.swift",
+      "sha256": "4d6ed9867f7f5a5cff40a676bd91a5ba6cd1d31a5915bf4650b75133dc8214dd",
+      "size": 67478,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/CheckedResultsTests.swift",
+      "sha256": "7b75ba57141bd9a807ea82d3429a03a47031d8c7ca419b38b739acb7b6c990fd",
+      "size": 10735,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/EncodeReplayTests.swift",
+      "sha256": "36b8e48f9042bbc0ba869cda92450ec62ba873db0bdd39acae7df3f74492e4d3",
+      "size": 26376,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+      "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11",
+      "size": 5031,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+      "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5",
+      "size": 14325,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+      "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739",
+      "size": 14885,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/GuidedTests.swift",
+      "sha256": "94145d91a2131f76a7669e5c93bfe9521ee57f2492aac8682983b5cc71c09ada",
+      "size": 20802,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/NativeTests.swift",
+      "sha256": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33",
+      "size": 14437,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/OracleTests.swift",
+      "sha256": "07a7e80583c5fd598fc846223ec5305117e9fb972ea26137c8b264ba886a08aa",
+      "size": 15474,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/RecorderTests.swift",
+      "sha256": "1d90149531f85c103e2b35021d05b03ff7e9277c6446d1f0bf2b0bd4b8aac338",
+      "size": 29811,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/RecordingErrorTests.swift",
+      "sha256": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9",
+      "size": 1502,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ReplayCorpusTests.swift",
+      "sha256": "398e0f1d9e6eaceca893d25008b122560998b061912a21a765c4ffd889584928",
+      "size": 14134,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ResearchTests.swift",
+      "sha256": "9bc3d857910dc6ba0a5f628ed2629dea87c87130284f19414a832d41d00788db",
+      "size": 29668,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/SearchTests.swift",
+      "sha256": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f",
+      "size": 18884,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+      "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323",
+      "size": 6474,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+      "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211",
+      "size": 10550,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+      "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47",
+      "size": 5023,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+      "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996",
+      "size": 5821,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+      "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b",
+      "size": 16064,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "validation/native-parity/n06/swift/guards.py",
+      "sha256": "4e23cd7b8a02737d31207c663289393297c6a56637de782007b1fca0ffb7e843",
+      "size": 53001,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "validation/native-parity/n06/swift/qualify.py",
+      "sha256": "4da99fcd710f0509d40c3489799702ba480095314c6c2d35b32f73810306be38",
+      "size": 21551,
+      "type": "file"
+    },
+    {
+      "mode": 420,
+      "path": "validation/native-parity/n06/swift/snapshot.py",
+      "sha256": "50b5c0b01d96288f60cf8d7aeb3bba053f7479922dc15be72ee53f96d8eae915",
+      "size": 7350,
+      "type": "file"
+    }
+  ]
+}

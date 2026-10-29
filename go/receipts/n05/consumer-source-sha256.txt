@@ -1,0 +1,7 @@
+c04bbde343cc7152574602487113e7c07ae410e5ab080becd0b7046123fd252d  scripts/native-guided-consumers/go/feedback.go
+7608e13552d2f5074f08922dcc1daab0a6c600d48596287bc095c9154670d68f  scripts/native-guided-consumers/go/fixture.go
+7939e0bdb317e1bfde9a8c9fe40339ceb9042d5eab7d4bb62d4abcd8aecc3539  scripts/native-guided-consumers/go/go.mod
+a0fd40d67cfebae37961a29e34380f23204a9acebc238b790d912ff5bd3a17fb  scripts/native-guided-consumers/go/main.go
+fddcf189bf54a1c10c78d161c2e5365c559f92a808212a0b0f91e02ebd01bf6c  scripts/native-guided-consumers/go/normalize.go
+1311a2320ab8baab65140ea7fc69336da2de4dc0f0938ce83111f9d134081e80  scripts/native-guided-consumers/go/schema.go
+319a85287445e5c06c455171227e82bf11cc9acb2710b1faac72a9b50f56e619  scripts/native-guided-consumers/go/witness.go

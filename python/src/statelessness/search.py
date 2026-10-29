@@ -8,10 +8,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 import time
-from typing import Callable, Generic, Iterable, Protocol
+from typing import TYPE_CHECKING, Callable, Generic, Iterable, Protocol
 
 from .core import (S, I, O, Check, Transition, Model, EnumerateModel, ModelError, Rng, Failure,
                    Violation, _call, _copy, _natural, _step, _saturating_add_u64, _dispatch_checks)
+
+if TYPE_CHECKING:
+    from .guided import GuidanceReport
 
 
 class _Exhausted:
@@ -216,7 +219,7 @@ def _violations(model, state, input=None, transition=None, *, observer=None, his
     try:
         _dispatch_checks(model, "check_state_into", "check_state",
                          (_copy(state if initial else transition.state),), values,
-                         "initial check" if initial else "state check")
+                         "initial check_state" if initial else "check_state")
     except ModelError as error:
         if observer is not None:
             _notify_check_error(observer, phase, tuple(values), False, error)
@@ -255,7 +258,12 @@ class FuzzConfig:
     def __post_init__(self):
         for name in ("seed", "cases", "max_steps", "max_transitions"):
             _natural(getattr(self, name), name)
-        _natural(self.mutation_percent, "mutation_percent", maximum=100)
+        _natural(self.mutation_percent, "mutation_percent", maximum=255)
+
+    def validate(self):
+        """Validate at admission, after enclosing campaign bounds."""
+        if self.mutation_percent > 100:
+            raise ModelError("mutation_percent must be in 0..=100")
 
 
 @dataclass(frozen=True)
@@ -266,13 +274,37 @@ class FuzzReport(Generic[I]):
     transitions: int
     skipped_checks: int
     failure: Failure[I] | None = None
+    guidance: GuidanceReport[I] | None = None
+
+
+class _PreviousSequence:
+    def candidate(self, previous, rng, mutation_percent):
+        if not previous or rng.index(100) >= mutation_percent:
+            return (), None
+        mutated = list(_copy(previous))
+        start = rng.index(len(mutated))
+        length = 1 + rng.index(len(mutated) - start)
+        del mutated[start:start + length]
+        return mutated, rng.index(len(mutated) + 1)
 
 
 def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
          *, limits: RunLimits = RunLimits(),
          observer: SearchObserver[S, I, O] | None = None) -> FuzzReport[I]:
     """Seeded state-aware search; completion proves no graph exhaustion."""
-    control, rng = _Control(limits), Rng(config.seed)
+    return _fuzz_with_driver(model, config, _Control(limits), observer)
+
+
+def _fuzz_with_driver(model, config, control, observer, driver=None):
+    """One execution/check kernel; ordinary search keeps its existing polls.
+
+    Guided drivers add initial/transition observations and their post-feedback
+    control boundary. Previous-sequence fuzz has no feedback callbacks and retains
+    the same polling count and order it had before this extraction.
+    """
+    config.validate()
+    rng = Rng(config.seed)
+    candidate_driver = _PreviousSequence() if driver is None else driver
     previous = ()
     cases = transitions = skipped = 0
     check_storage = []
@@ -296,13 +328,12 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
         stop = control.stop()
         if stop:
             return report(stop)
-        mutated, replace_at = (), None
-        if previous and rng.index(100) < config.mutation_percent:
-            mutated = list(_copy(previous))
-            start = rng.index(len(mutated))
-            length = 1 + rng.index(len(mutated) - start)
-            del mutated[start:start + length]
-            replace_at = rng.index(len(mutated) + 1)
+        if driver is not None:
+            driver.initial(state, cases)
+            stop = control.stop()
+            if stop:
+                return report(stop)
+        mutated, replace_at = candidate_driver.candidate(previous, rng, config.mutation_percent)
         inputs = []
         for step in range(config.max_steps):
             if transitions == config.max_transitions:
@@ -327,7 +358,7 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
                 return report(stop)
             if not enabled:
                 raise ModelError("generate returned a causally disabled input")
-            transition = _step(model, state, input)
+            transition = _step(model, state, input, stage="step")
             transitions += 1
             inputs.append(_copy(input))
             violations, count = _violations(model, state, input, transition, observer=observer, history=inputs, storage=check_storage)
@@ -337,6 +368,11 @@ def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
             stop = control.stop()
             if stop:
                 return report(stop)
+            if driver is not None:
+                driver.transition(state, input, transition, inputs, cases, transitions)
+                stop = control.stop()
+                if stop:
+                    return report(stop)
             state = transition.state
         previous = tuple(inputs)
     return report("cases_completed")
@@ -451,7 +487,7 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
                 return stop, None
             if not enabled:
                 return "invalid_causality", None
-            transition = _step(model, state, input)
+            transition = _step(model, state, input, stage="step")
             transitions += 1
             violations, _ = _violations(model, state, input, transition, storage=check_storage)
             if violations:
