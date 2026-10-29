@@ -184,7 +184,16 @@ def observe_fixture(fixture):
                 cases=[observe_case(row) for row in fixture["cases"]])
 
 
+def debug_surface():
+    from statelessness import DebugObservation, TurnObservation, Check, Transition
+    initial = DebugObservation.Initial(7, [Check('state')])
+    turn = DebugObservation.Turn(TurnObservation(2**64-1, 7, 1, Transition(8, (9,)), initial.checks, 1))
+    assert initial.state == 7 and len(initial.checks) == 1
+    assert turn.observation.state_check_count == 1 and turn.observation.sequence == 2**64-1
+
+
 def main():
+    debug_surface()
     mode, path = sys.argv[1:]
     if mode not in ("observe", "self-test"): raise ValueError("expected observe or self-test")
     fixture = json.loads(Path(path).read_text(encoding="utf-8"))

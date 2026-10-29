@@ -19,9 +19,11 @@ def qualify(q, attempt, swift_binary_directory):
     attempt.watch('authority-swift-modules', module)
     cases = []
     go_types = {'checked': '*s.CheckedTurn[int,int,string]',
+                'debug': 's.DebugObservation[int,int,string]',
                 'event': 's.Event[int,int,string]',
                 'diagnostic': 's.TurnObservation[int,int,string]'}
     swift_types = {'checked': 'CheckedTurn<Int,Int,String>',
+                   'debug': 'DebugObservation<Int,Int,String>',
                    'event': 'Event<Int,Int,String>',
                    'diagnostic': 'TurnObservation<Int,Int,String>'}
     for case, kind in go_types.items():
@@ -67,7 +69,7 @@ def qualify(q, attempt, swift_binary_directory):
                 report['positive_compilations'] += 1
             else:
                 diagnostic = (raw + b'\n' + errors).decode('utf-8', errors='strict')
-                actual_type = 'TurnObservation' if case == 'diagnostic' else 'Event'
+                actual_type = {'diagnostic': 'TurnObservation', 'debug': 'DebugObservation', 'event': 'Event'}[case]
                 markers = ('cannot use', 'does not match', 'cannot convert value of type')
                 if (command['exit_code'] == 0 or actual_type not in diagnostic
                         or 'CheckedTurn' not in diagnostic

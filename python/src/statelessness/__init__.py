@@ -95,3 +95,6 @@ __all__ += ["Event", "Started", "Checkpoint", "TransitionEvent", "Message",
     "EncodedPayloads", "TextObserver", "TextObserverError", "LogLevel",
     "SnapshotPolicy", "ObservationOptions"]
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("observation-v1",)
+
+from .observation import DebugObservation, DebugInitial, DebugTurn
+__all__ += ["DebugObservation", "DebugInitial", "DebugTurn"]

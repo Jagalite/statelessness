@@ -273,6 +273,27 @@ final class ObservationTests: XCTestCase {
         calls.fault = ""; try log.observe(m, event: turn())
         XCTAssertThrowsError(try stale.write("late")); XCTAssertEqual(try text(log).filter { $0 == "\n" }.count, 1)
     }
+    func testOverflowThenThrowPreservesRecordFailureAndRecovers() throws {
+        for kind in ["input", "output", "state"] {
+            let calls = ObservationCalls(), m = model(calls, codec: false)
+            let writer = DiagnosticWriter()
+            let log = try TextObserver(writer: writer, streamID: "s", options: ObservationOptions(level: .trace, snapshots: .everyTransition, maxRecordBytes: 1024), payloads: DiagnosticFormatter(calls: calls))
+            calls.formatterCallback = { current, out in
+                if current == kind {
+                    try? out.write([UInt8](repeating: 120, count: 2048))
+                    throw ModelError("later formatter failure")
+                }
+            }
+            assertStage(.record) { try log.observe(m, event: turn()) }
+            XCTAssertEqual(writer.bytes, []); XCTAssertEqual(writer.calls, 0)
+            XCTAssertFalse(log.isPoisoned)
+            calls.formatterCallback = nil
+            try log.observe(m, event: turn())
+            XCTAssertEqual(writer.calls, 1); XCTAssertFalse(writer.bytes.isEmpty)
+            XCTAssertEqual(calls.forbidden, 0)
+        }
+    }
+
     func testZeroBoundStillFiltersBeforeFormattingOrWriting() throws {
         let calls = ObservationCalls(), m = model(calls), writer = DiagnosticWriter()
         let log = try TextObserver(writer: writer, streamID: "s", options: ObservationOptions(maxRecordBytes: 0), payloads: EncodedPayloads<UInt8,UInt8,UInt8>(maxBlobBytes: 0))

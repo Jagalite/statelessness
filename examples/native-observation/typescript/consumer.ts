@@ -2,7 +2,7 @@
 import {
     LogLevel, SnapshotPolicy, TextObserver, EncodedPayloads, NoPayloads, TextObservationError, ObservationError,
     bindModelCodec, customValueSchema, metadata, check, disposition,
-    type CodecModel, type EncodeBuffer, type Event, type ObservationOptions,
+    type DebugObservation, type CodecModel, type EncodeBuffer, type Event, type ObservationOptions,
     type ObservationWriter, type PayloadFormat, type PayloadWriter,
 } from '@jagalite/statelessness';
 // @ts-ignore Node runtime built-in; this consumer needs no Node development dependency.
@@ -160,6 +160,16 @@ function execute(row: any) {
     if (unexpectedCallbacks !== 0) throw Error('observation executed initial/reducer/check/decode/legacy/unbound codec callback');
     return {id: row.id, record_hex: delivered.map(b => b.toString(16).padStart(2, '0')).join(''), callbacks, error_stage: errorStage, sink_poisoned: poisoned};
 }
+
+// Public declaration and runtime variant control, independent of logging Event.
+const initialDebug: DebugObservation<number, number, number> = {kind: 'initial', state: 7, checks: [check('state')]};
+const turnDebug: DebugObservation<number, number, number> = {kind: 'turn', observation: {
+    sequence: (1n << 64n) - 1n, before: 7, input: 1,
+    transition: {state: 8, outputs: [9], disposition: disposition('accepted')},
+    checks: [check('state'), check('edge')], stateCheckCount: 1,
+}};
+if (initialDebug.state !== 7 || initialDebug.checks.length !== 1 || turnDebug.observation.stateCheckCount !== 1)
+    throw Error('DebugObservation public variants lost data');
 
 const [mode, fixturePath] = process.argv.slice(2);
 if (!['observe', 'self-test'].includes(mode) || !fixturePath) throw Error('usage: consumer observe|self-test fixturePath');

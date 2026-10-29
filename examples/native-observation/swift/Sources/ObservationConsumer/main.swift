@@ -317,6 +317,11 @@ private func observe<F: PayloadFormat>(_ row: FixtureCase, context: Context, pay
     return Expected(recordHex: writer.bytes.map { String(format: "%02x", $0) }.joined(), callbacks: context.callbacks, errorStage: firstError, sinkPoisoned: poisoned)
 }
 private func run(_ arguments: [String]) throws {
+    let initialDebug: DebugObservation<Int,Int,String> = .initial(state: 7, checks: [])
+    let turnDebug: DebugObservation<Int,Int,String> = .turn(TurnObservation(sequence: UInt64.max, before: 7, input: 1, transition: Transition(state: 8), checks: [], stateCheckCount: 0))
+    guard case .initial(let state, _) = initialDebug, state == 7,
+          case .turn(let view) = turnDebug, view.sequence == UInt64.max else { throw ModelError("debug variants lost payload") }
+
     guard arguments.count == 3, ["observe", "self-test"].contains(arguments[1]) else { throw ModelError("usage: ObservationConsumer observe|self-test fixturePath") }
     let fixture = try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: URL(fileURLWithPath: arguments[2])))
     guard fixture.schema == "statelessness.observation.v1", !fixture.cases.isEmpty else { throw ModelError("empty or unsupported observation fixture") }

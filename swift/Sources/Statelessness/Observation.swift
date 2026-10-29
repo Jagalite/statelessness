@@ -162,6 +162,7 @@ public final class ObservationBuffer {
         } catch let error as TextObservationError where error.origin === child.origin {
             throw error
         } catch {
+            try child.finish() // A swallowed local overflow remains the first failure.
             // Public staged values, expired leases and nested observers do not
             // establish the provenance of this formatter's failure.
             throw TextObservationError(stage: stage, detail: String(describing: error))
@@ -383,4 +384,12 @@ public final class TextObserver<Writer: ObservationWriter, Payloads: PayloadForm
             throw TextObservationError(stage: .write, detail: String(describing: error))
         }
     }
+}
+
+/// Diagnostic initial/turn sum. Payloads have ordinary Swift ownership semantics;
+/// reference payloads remain application-owned. No checks or effects are run and
+/// neither variant grants checked-token authority to Recorder.
+public enum DebugObservation<State, Input, Output> {
+    case initial(state: State, checks: [Check])
+    case turn(TurnObservation<State, Input, Output>)
 }

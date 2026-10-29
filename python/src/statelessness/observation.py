@@ -10,6 +10,7 @@ from enum import IntEnum
 import inspect
 from typing import ClassVar, Protocol
 
+from .checked import TurnObservation
 from .codec import _dispatch_encode
 from .core import Check, Metadata, Transition, _natural, _validated_check
 from .trace_binary import RunConfig
@@ -151,6 +152,38 @@ Event.Checkpoint = Checkpoint
 Event.Transition = TransitionEvent
 Event.Message = Message
 Event.Finished = Finished
+
+
+class DebugObservation:
+    """Initial/turn diagnostic sum; never grants checked-token authority.
+
+    Payloads are application-owned references, as for Event. Checks are copied
+    into an immutable tuple. Constructing diagnostics performs no model effects.
+    """
+    Initial: ClassVar[type[DebugInitial]]
+    Turn: ClassVar[type[DebugTurn]]
+
+
+@dataclass(frozen=True)
+class DebugInitial(DebugObservation):
+    state: object
+    checks: tuple[Check, ...] = ()
+
+    def __post_init__(self):
+        object.__setattr__(self, "checks", _checks(self.checks))
+
+
+@dataclass(frozen=True)
+class DebugTurn(DebugObservation):
+    observation: TurnObservation
+
+    def __post_init__(self):
+        if not isinstance(self.observation, TurnObservation):
+            raise ValueError("debug turn requires TurnObservation")
+
+
+DebugObservation.Initial = DebugInitial
+DebugObservation.Turn = DebugTurn
 
 
 class Observer(Protocol):

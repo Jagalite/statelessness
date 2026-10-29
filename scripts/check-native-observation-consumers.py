@@ -855,6 +855,7 @@ def installed(attempt, fixture, rust, compile_receipt):
     attempt.register_generated(ts / 'tsconfig.json', 'observation-typescript-config')
     attempt.run('typescript-strict-declarations', compiler + ['-p', 'tsconfig.json'], ts)
     attempt.watch('typescript-consumer', ts / 'build/consumer.js')
+    helper('observation_browser').qualify(utilities(), attempt, ts, fixture)
     # Compiler API inspects the complete root export graph. Node adapters may ship
     # as separate exports; the browser library graph must contain no Node imports,
     # bare dependencies, require(), or nonliteral dynamic imports.
@@ -907,6 +908,7 @@ visit(path.join(base,'index.js'));console.log(JSON.stringify({browser_module_fil
         attempt.watch('runner:' + name, runner[0])
     attempt.watch('python-consumer', work / 'python-consumer.py')
     attempt.watch('typescript-consumer', ts / 'build/consumer.js')
+    helper('observation_browser').qualify(utilities(), attempt, ts, fixture)
     # Parent-owned additions reuse the real checked Recorder applications and
     # independently authored suffix contract; no Cargo command is hidden here.
     helper('observation_suffix').qualify(utilities(), attempt, binaries, compiler)

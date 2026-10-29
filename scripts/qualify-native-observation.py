@@ -333,9 +333,30 @@ def native(attempt):
         raise RuntimeError('one or more native full suites failed; see suite_failures and raw logs')
 
 
+def extended(attempt):
+    """Additional runtime gates and measured process RSS; never a hard RSS quota."""
+    stage_native_sources(attempt)
+    go = q.require_tool(attempt, 'go')
+    attempt.run('go-race', ['/usr/bin/time', '-l', go, 'test', '-race', '-count=1', './...'],
+                attempt.work / 'go', overlay={'CGO_ENABLED': '1'})
+    cargo = q.require_tool(attempt, 'cargo')
+    target = attempt.work / 'cargo-target'
+    overlay = {'CARGO_TARGET_DIR': str(target), 'CARGO_INCREMENTAL': '0'}
+    attempt.run('rust-doctests', [cargo, 'test', '--locked', '--offline', '-p', 'statelessness', '--doc', '-j', '2'],
+                attempt.root, overlay=overlay)
+    attempt.run('monitor-release', ['/usr/bin/time', '-l', cargo, 'test', '--locked', '--offline',
+                '-p', 'macro-qualification', '--release', '--test', 'monitor_release', '-j', '2'],
+                attempt.root, overlay=overlay)
+    attempt.report['resource_measurement'] = {
+        'method': '/usr/bin/time -l maximum resident set size in raw stderr',
+        'scopes': ['go-race', 'monitor-release'],
+        'limitations': 'build plus test process measurements; not hard RSS bounds or production capacity'}
+    attempt.report['compiled_artifacts'] = q.manifest(attempt.root, q.tree_identity(target))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--scope', choices=('native', 'rust-compile', 'rust-runtime', 'installed'), required=True)
+    parser.add_argument('--scope', choices=('native', 'rust-compile', 'rust-runtime', 'installed', 'extended'), required=True)
     parser.add_argument('--expected-commit', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--compile-receipt', type=Path)
@@ -355,6 +376,8 @@ def main(argv=None):
         fixture = attempt.seal()
         if args.scope == 'native':
             native(attempt)
+        elif args.scope == 'extended':
+            extended(attempt)
         elif args.scope == 'rust-compile':
             compile_rust(attempt, args.cargo_target)
         elif args.scope == 'rust-runtime':

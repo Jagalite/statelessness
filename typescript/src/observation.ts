@@ -394,3 +394,9 @@ export class TextObserver<S, I, O, M extends Model<S, I, O> = Model<S, I, O>, W 
         }
     }
 }
+
+/** Public diagnostics only. Neither variant is a checked recording token.
+ * Payloads are application-owned references; construction runs no effects. */
+export type DebugObservation<S, I, O> =
+    | { readonly kind: 'initial'; readonly state: S; readonly checks: readonly Check[] }
+    | { readonly kind: 'turn'; readonly observation: import('./checked.js').TurnObservation<S, I, O> };

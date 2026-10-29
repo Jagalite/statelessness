@@ -191,11 +191,15 @@ diagnostics only. Native payload getters detach mutable data and may fail
 (Go/Swift); Rust borrows under Model's determinism contract. Native intoChecks
 does not globally consume a token. Preserve the existing integrity conventions.
 
-**DebugObservation OPEN:** The Initial(state, checks)/Turn(TurnObservation) sum
-and all payload-member rows lack a dedicated native equivalent at the pinned
-base. Existing debugger views and new logging Events are not automatically that
-API. Parent must map a real public equivalent or retain this explicit open
-disposition; diagnostic equivalence must not confer checked authority.
+**DebugObservation:** Dedicated public initial/turn sum: Python
+`DebugObservation.Initial(state, checks)` / `.Turn(observation)` (also
+`DebugInitial` / `DebugTurn`); Go `DebugObservation[S,I,O]` with exported
+`DebugInitial.State/Checks` and `DebugTurn.Observation`; TypeScript discriminated
+`DebugObservation<S,I,O>` (`kind: initial` with `state/checks`, `kind: turn` with
+`observation`); Swift `DebugObservation.initial(state:checks:)` /
+`.turn(TurnObservation)`. Payloads follow native ownership; no model callback,
+checking or effect is executed. These values are not checked Recorder tokens.
+The sum, Initial, its state/check members, Turn and its payload map all six rows.
 
 **LogLevel:** New Python `LogLevel.OFF/ERROR/WARN/INFO/DEBUG/TRACE` (title aliases),
 Go `LogOff/LogError/LogWarn/LogInfo/LogDebug/LogTrace`, TS
@@ -355,12 +359,12 @@ discarding the open distinctions.
 | `statelessness:4984` | `stateless::observation::CheckedTurn::state_check_count` | CheckedTurn |
 | `statelessness:4981` | `stateless::observation::CheckedTurn::transition` | CheckedTurn |
 | `statelessness:4988` | `stateless::observation::CheckedTurn::{impl}` | CheckedTurn |
-| `statelessness:5028` | `stateless::observation::DebugObservation` | DebugObservation OPEN |
-| `statelessness:5025` | `stateless::observation::DebugObservation::Initial` | DebugObservation OPEN |
-| `statelessness:5024` | `stateless::observation::DebugObservation::Initial::checks` | DebugObservation OPEN |
-| `statelessness:5023` | `stateless::observation::DebugObservation::Initial::state` | DebugObservation OPEN |
-| `statelessness:5027` | `stateless::observation::DebugObservation::Turn` | DebugObservation OPEN |
-| `statelessness:5026` | `stateless::observation::DebugObservation::Turn::0` | DebugObservation OPEN |
+| `statelessness:5028` | `stateless::observation::DebugObservation` | DebugObservation |
+| `statelessness:5025` | `stateless::observation::DebugObservation::Initial` | DebugObservation |
+| `statelessness:5024` | `stateless::observation::DebugObservation::Initial::checks` | DebugObservation |
+| `statelessness:5023` | `stateless::observation::DebugObservation::Initial::state` | DebugObservation |
+| `statelessness:5027` | `stateless::observation::DebugObservation::Turn` | DebugObservation |
+| `statelessness:5026` | `stateless::observation::DebugObservation::Turn::0` | DebugObservation |
 | `statelessness:5195` | `stateless::observation::EncodedPayloads` | EncodedPayloads |
 | `statelessness:5214` | `stateless::observation::EncodedPayloads::new` | EncodedPayloads |
 | `statelessness:5216` | `stateless::observation::EncodedPayloads::{impl}` | EncodedPayloads |

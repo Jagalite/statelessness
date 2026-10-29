@@ -396,6 +396,12 @@ func observe(f fixtureCase) caseResult {
 }
 
 func main() {
+	var initial s.DebugObservation[int, int, string] = s.DebugInitial[int, int, string]{State: 7, Checks: []s.Check{s.Passed("state")}}
+	var turn s.DebugObservation[int, int, string] = s.DebugTurn[int, int, string]{Observation: s.TurnObservation[int, int, string]{Sequence: ^uint64(0), StateCheckCount: 1}}
+	if initial.(s.DebugInitial[int, int, string]).State != 7 || turn.(s.DebugTurn[int, int, string]).Observation.StateCheckCount != 1 {
+		panic("debug variants lost payload")
+	}
+
 	if len(os.Args) != 3 || (os.Args[1] != "observe" && os.Args[1] != "self-test") {
 		fmt.Fprintln(os.Stderr, "usage: native-observation observe|self-test fixturePath")
 		os.Exit(2)
