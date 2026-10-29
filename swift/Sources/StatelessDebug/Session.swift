@@ -128,6 +128,20 @@ public final class DebugSession<S,I,O> {
         guard !busy else { throw DebugError.reentrant }
         guard let recorder else { throw DebugError.unsupported("exact recording not enabled") }; return recorder.snapshot()
     }
+    public func traceWindow(offset: UInt64, limit: Int) throws -> (bytes: [UInt8], total: UInt64, retained: Int, evicted: UInt64) {
+        guard limit > 0, UInt64(limit) <= UInt64.max-offset else { throw ProtocolError.limit }
+        try enter(); defer { busy = false }
+        guard let recorder else { throw DebugError.unsupported("exact recording not enabled") }
+        var position: UInt64 = 0, bytes: [UInt8] = []
+        try recorder.writeTo { chunk in
+            let end = position.addingReportingOverflow(UInt64(chunk.count))
+            guard !end.overflow else { throw ProtocolError.limit }
+            let lo = max(offset, position), hi = min(offset + UInt64(limit), end.partialValue)
+            if lo < hi { bytes.append(contentsOf: chunk[Int(lo-position)..<Int(hi-position)]) }
+            position = end.partialValue
+        }
+        return (bytes, position, recorder.retainedSteps, recorder.evictedSteps)
+    }
     public func observation() throws -> TurnObservation<S,I,O>? {
         let wasBusy = busy; busy = true; defer { busy = wasBusy }
         guard let last else { return nil }
@@ -263,6 +277,19 @@ extension DebugSession {
             }
         }
         return try step(expectedRevision: expectedRevision, input: input)
+    }
+    public func stepCanonicalCandidate(expectedRevision: UInt64, bytes: Data, decodeInput: ((Data) throws -> I)? = nil) throws -> StepResult {
+        let value: I
+        try enter()
+        do {
+            try checkRevision(expectedRevision)
+            do {
+                if let decodeInput { value = try decodeInput(bytes) }
+                else { guard let codec = model.codec else { throw ProtocolError.unsupported }; value = try codec.decodeInput(Array(bytes)) }
+            } catch { throw ProtocolError.invalidInput }
+            busy = false
+        } catch { busy = false; throw error }
+        return try step(CandidateToken(owner: epoch, revision: expectedRevision, domain: policy.label, value: value))
     }
     func encodedOutput(_ output: O, maximum: Int) throws -> Data {
         try enter(); defer { busy = false }

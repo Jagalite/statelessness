@@ -128,7 +128,7 @@ class DiagnosticHub:
         size=sum(_payload_bytes(s)+32 for s in permissions.sites)+sum(sum(_payload_bytes(s.value)+32 for s in p) for p in permissions.paths)
         if size>self._limits.config_bytes or any(len(p)>32 for p in permissions.paths): raise ModelError('permission capacity')
         self._sinks[id]={'permissions':_copy(permissions),'limits':limits,'queue':[],'bytes':0,
-            'health':{k:0 for k in ('captured','filtered','sampled','truncated','dropped','exporter_failed','exported','abandoned','observation_gaps')}}
+            'health':{k:0 for k in ('captured','filtered','sampled','truncated','dropped','exporter_failed','exported','abandoned','observation_gaps','inspection_failed','baseline_evicted')}}
     def register_producer(self,id,epoch):
         self._guard(); _natural(id,'producer'); _natural(epoch,'epoch',1)
         if id in self._producers or len(self._producers)>=self._limits.producers: raise ModelError('producer capacity')
@@ -292,11 +292,12 @@ class ScopedDiagnostics:
                         projections[s.path]=(result.node,result.schema)
                     except Exception: projections[s.path]=(None,None)
                 node,schema=projections[s.path]
+                if node is None: sink['health']['inspection_failed']+=1
             if e['schema'] is not None and schema!=e['schema']: e.update(baseline=None,reason='schema-changed',high=False,last_alert=None)
             e['schema']=schema
             complete=node is not None and node.is_complete
-            baseline=kind=='probe' and e['baseline'] is None and complete
-            reason=e['reason']; e['reason']=None
+            baseline=e['baseline'] is None
+            reason=(e['reason'] or 'initial') if baseline else None; e['reason']=None
             unknown=kind=='probe' and (not complete or (reason is not None and reason!='initial'))
             changed=compare_nodes(e['baseline'],node)=='changed'
             fire=s.trigger=='every' or (s.trigger=='changed' and (baseline or unknown or changed)) or (s.trigger=='equals' and complete and node.kind=='scalar' and node.value==s.equals)
@@ -326,7 +327,7 @@ class ScopedDiagnostics:
             for producer in hub._producers.values():
                 for e in producer['config']:
                     if e['baseline'] is not None:
-                        total-=_node_bytes(e['baseline']); e.update(baseline=None,reason='evicted',high=False,last_alert=None)
+                        total-=_node_bytes(e['baseline']); hub._sinks[e['config'].sink]['health']['baseline_evicted']+=1; e.update(baseline=None,reason='evicted',high=False,last_alert=None)
                         if total<=hub.limits.baseline_bytes: return
     def finish(self,complete_turn=True):
         self._ensure()

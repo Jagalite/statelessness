@@ -88,7 +88,7 @@ func TestMetricsCatalogIsolationAndBoundedHistory(t *testing.T) {
 	m.Increment(d.Attempts, l, 1)
 	a, _ := m.Snapshot(nil)
 	b, _ := m.Snapshot(nil)
-	if !reflect.DeepEqual(m.AvailableWindows(), []uint64{b.Revision}) || b.Health.SnapshotsEvicted != 1 || b.Health.RejectedSeries != 1 || b.Schema.FiniteBoundsNS[0] != 1 || b.Labels.Operations[0] != "default" {
+	if !reflect.DeepEqual(m.AvailableWindows(), []uint64{b.Revision}) || b.Health.SnapshotsEvicted != 1 || b.Health.RejectedSeries != 1 || b.Schema.FiniteBoundsNS[0] != 1 || b.Labels.Operations[0] != "unspecified" {
 		t.Fatal(b)
 	}
 	if _, e = m.Window(a.Revision, b.Revision); e == nil {

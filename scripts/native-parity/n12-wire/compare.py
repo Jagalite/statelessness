@@ -307,6 +307,22 @@ def scenarios():
                       'fatal': fatal, 'fatal_fragment': fatal_fragment, 'coalesced': coalesced,
                       'broken_output': broken_output, 'final': final or f'FINAL {final_state} {final_revision} {final_revision}'})
 
+    # Independently authored candidate pagination and canonical selection. No
+    # captured engine output is used to construct these expected dictionaries.
+    for exact in (False, True):
+        fields={'complete':'bool:false','next_offset':'u64:2','candidates.0.token':'u64:1','candidates.1.token':'u64:2','candidates.returned':'u64:2'}
+        if exact: fields.update({'candidates.0.encoded':'bytes:00','candidates.1.encoded':'bytes:01'})
+        add('native-candidate-select-'+str(exact),[
+            action(request(2,0,'inputs','u64:0','u64:2'),expected(2,fields=fields)),
+            action(request(3,0,'select','u64:2'),expected(3,1,{'delivered':'bool:true','sequence':'u64:1'})),
+            action(request(4,1,'select','u64:1'),expected(4,1,error='stale_handle')),
+            action(request(5,0,'inputs','u64:0','u64:1'),expected(5,1,error='stale_revision')),
+        ],INITIAL_CALLS+turn_calls(0,1,1),options=('--exact',) if exact else ())
+    add('native-candidate-authority',[
+        action(request(2,0,'select','u64:1'),expected(2,error='unauthorized')),
+        action(request(3,0,'inputs','u64:0','u64:0'),expected(3,error='limit')),
+    ],options=('--read-only',))
+
     for exact in (False, True):
         actions = [action(request(2, 0, 'snapshot'), expected(2, fields=snapshot(1, 0))),
                    action(request(3, U64, 'checks', 'u64:1', configuration=U64), expected(3, fields=checks())),

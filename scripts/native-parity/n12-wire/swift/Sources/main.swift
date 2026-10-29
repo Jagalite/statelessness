@@ -57,6 +57,7 @@ enum WireFixture {
                 try call("transition \(before) \(input) \(transition.state)")
                 return [.passed("transition")]
             },
+            inputs: { _ in InputIterator(values: [0,1,2,3]) },
             codec: codec
         )
     }
@@ -126,7 +127,7 @@ enum WireFixture {
         let session = try DebugSession(
             id: "wire\té😀", model: model(), policy: .outOfDomainInjection, equalInputs: ==
         )
-        let adapter = try ProtocolAdapter(session: session, authority: authority, limits: limits)
+        let adapter = try ProtocolAdapter(session: session, authority: authority, limits: limits, encodeInput: { Data([$0]) })
         let outcome = Result { try adapter.serve(input: .standardInput, output: .standardOutput, maxRequests: Int.max) }
         let state = try session.state
         try FileHandle.standardError.write(contentsOf: Data("FINAL \(state) \(session.revision) \(session.sequence)\n".utf8))

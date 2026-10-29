@@ -10,6 +10,24 @@ final class ProtocolTests: XCTestCase {
         return try ProtocolAdapter(session:session,authority:authority,limits:limits,decodeInput:{ data in decoded(); return Int(data.first ?? 0) })
     }
     func request(_ a: ProtocolAdapter<Int,Int,Int>, _ id: UInt64, _ command: String, _ arguments: [String] = [], revision: UInt64 = 0) -> ProtocolRequest { ProtocolRequest(session:"counter",epoch:a.epoch,requestID:id,expectedRevision:revision,command:command,arguments:arguments) }
+    func testConcreteExactExportAndRangeChecks() throws {
+        let codec = Codec<Int,Int,Int>(metadata: {Metadata(name:"window")},encodeState:{[UInt8($0)]},decodeState:{Int($0[0])},encodeInput:{[UInt8($0)]},decodeInput:{Int($0[0])},encodeOutput:{[UInt8($0)]})
+        let model = Model(initialState:{0},step:{s,i in Transition(state:s+i,outputs:[s+i])},checkState:{_ in []},cloneState:{$0},cloneInput:{$0},cloneOutput:{$0},codec:codec)
+        let session = try DebugSession(id:"counter",model:model,policy:.outOfDomainInjection,equalInputs: ==,recording:RecorderOptions())
+        var authority = ProtocolAuthority(); authority.exportExactTrace = true
+        let p = try ProtocolAdapter(session:session,authority:authority)
+        XCTAssertNil(p.handle(request(p,1,"snapshot")).error)
+        let response = p.handle(request(p,2,"export_trace",["u64:1","u64:0","u64:12"]))
+        XCTAssertNil(response.error)
+        XCTAssertEqual(response.fields["export.bytes"],"bytes:53544c4553531a0a01000000")
+        XCTAssertEqual(response.fields["export.retained_steps"],"u64:0")
+        XCTAssertEqual(response.fields["export.redacted"],"bool:false")
+        XCTAssertThrowsError(try session.traceWindow(offset:0,limit:-1))
+        XCTAssertThrowsError(try session.traceWindow(offset:UInt64.max,limit:1))
+        XCTAssertEqual(p.handle(request(p,3,"export_trace",["u64:1","u64:0","u64:0"])).error,.limit)
+        try p.disconnect(); _ = try p.reconnect()
+        XCTAssertEqual(p.handle(request(p,1,"export_trace",["u64:1","u64:0","u64:1"])).error,.staleHandle)
+    }
     func testManualWireGoldenAndFullWidth() throws {
         let r = ProtocolRequest(session:"a\tπ",epoch:UInt64.max,requestID:UInt64.max,expectedRevision:9007199254740993,command:"status")
         let expected = "DDBG\tu32:1\trequest\tstring:a%09%CF%80\tu64:18446744073709551615\tu64:18446744073709551615\tu64:9007199254740993\tu64:0\tstatus"

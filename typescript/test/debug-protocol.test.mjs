@@ -48,3 +48,37 @@ test('host commit reserves full revision/configuration wire width before mutatio
 test('host inspection and watch schemas are bounded u32 identities',()=>{const f=fixture();for(const [name,args]of [['inspect',['u64:1','u64:4294967296','u64:0','u64:1']],['watch',['u64:4294967296','u64:0']]])assert.throws(()=>encodeRequest(f.r({kind:'host',name,arguments:args})),/malformed/);});
 
 test('external decoder cannot directly mutate borrowed session before intended input delivery',()=>{const f=fixture({deliverInputs:true}),p=new ProtocolSession(f.s,b=>{assert.throws(()=>f.s.step(f.s.revision,99),/owned/);assert.throws(()=>f.s.cancel(f.s.revision),/owned/);return b[0];},{deliverInputs:true});const response=p.handle({...f.r({kind:'step',bytes:Uint8Array.of(2)}),epoch:p.epoch});assert.equal(response.error,null);assert.equal(f.s.sequence,1n);assert.equal(f.s.state,2);});
+
+test('concrete candidate cache uses canonical bytes, revalidates, redacts and retires on reconnect',()=>{
+ let decoded=0,allowed=[1,2];
+ const m={...model,inputs:()=>allowed,encodeInput:i=>Uint8Array.of(i),decodeInput:b=>b[0]};
+ const s=new DebugSession('candidates',m,{kind:'unrestricted'},{maxTurns:10n,maxContinue:10,maxCandidates:10,maxBreakpoints:0});
+ const p=new ProtocolSession(s,b=>{decoded++;return b[0];},{deliverInputs:true});let id=0n;
+ const send=(name,a,revision=s.revision)=>p.handle({version:1,session:s.id,epoch:p.epoch,requestId:++id,revision,configuration:0n,command:{kind:'host',name,arguments:a}});
+ let response=send('inputs',['u64:0','u64:1']);assert.equal(response.error,null);assert.deepEqual(Object.fromEntries(response.fields),{complete:'bool:false',next_offset:'u64:1','candidates.0.token':'u64:1','candidates.returned':'u64:1'});
+ assert.equal(send('inputs',['u64:10','u64:1']).error,'invalid_input');assert.equal(send('inputs',['u64:0','u64:11']).error,'invalid_input');
+ allowed=[2];assert.equal(send('select',['u64:1']).error,'invalid_input');assert.equal(s.sequence,0n);assert.equal(decoded,1);
+ allowed=[1,2];assert.equal(send('select',['u64:1']).error,null);assert.equal(s.sequence,1n);assert.equal(decoded,2);
+ assert.equal(send('select',['u64:1']).error,'stale_handle');
+ response=send('inputs',['u64:0','u64:1']);const token=Object.fromEntries(response.fields)['candidates.0.token'];p.disconnect();p.reconnect();assert.equal(send('select',[token]).error,'stale_handle');
+ assert.throws(()=>s.traceWindow(-1n,1));assert.throws(()=>s.traceWindow(0n,-1));
+});
+
+test('attached watch owns projection callbacks and preserves its installation boundary',async()=>{
+ const {WatchRegistry,WatchAuthorization,DEFAULT_WATCH_LIMITS}=await import('../dist/debug_watches.js');
+ const {projection}=await import('../dist/debug_inspect.js');
+ const s=new DebugSession('watch',model,{kind:'unrestricted',label:'out-of-domain-injection'},{maxTurns:10n,maxContinue:10,maxCandidates:10,maxBreakpoints:0});
+ const p=new ProtocolSession(s,b=>b[0],{deliverInputs:true,configureWatches:true});let calls=0,id=0n;
+ const registry=new WatchRegistry(DEFAULT_WATCH_LIMITS,WatchAuthorization.allowAll());
+ p.enableWatches(registry,state=>{calls++;return projection({name:'counter',version:1},(path,cx)=>{assert.throws(()=>s.step(s.revision,1),/owned/);return cx.scalar(path,{kind:'integer',type:'u64',decimal:String(state)});});});
+ assert.equal(calls,0);
+ const send=(command)=>p.handle({version:1,session:s.id,epoch:p.epoch,requestId:++id,revision:s.revision,configuration:p.configuration,command});
+ const host=(name,arguments_)=>send({kind:'host',name,arguments:arguments_});
+ let r=host('watch',['u64:1','u64:0']);assert.equal(r.error,null);let fields=Object.fromEntries(r.fields);assert.equal(fields['watch.effective_sequence'],'u64:1');assert.equal(fields['watch.resolved_type'],'enum:u64');assert.equal(fields['watch.metadata_complete'],'bool:true');
+ assert.equal(send({kind:'step',bytes:Uint8Array.of(1)}).error,null);
+ fields=Object.fromEntries(host('watch_current',['u64:1']).fields);assert.equal(fields['watch.kind'],'enum:Baseline(Initial)');assert.equal(fields['watch.origin'],'enum:OutOfDomainInjection');assert.equal(fields['watch.node.value'],'u64:1');
+ assert.equal(send({kind:'step',bytes:Uint8Array.of(0)}).error,null);
+ fields=Object.fromEntries(host('watch_current',['u64:1']).fields);assert.equal(fields['watch.snapshot_revision'],'u64:2');assert.equal(fields['watch.kind'],'enum:Unchanged');
+ fields=Object.fromEntries(host('watch_status',[]).fields);assert.equal(fields['watches.0.effective_sequence'],'u64:1');
+ fields=Object.fromEntries(host('unwatch',['u64:1']).fields);assert.equal(fields['watch.generation'],'u64:2');assert.equal(fields['watch.effective_sequence'],'u64:3');
+});
