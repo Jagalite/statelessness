@@ -37,3 +37,6 @@ export { DEFAULT_CAMPAIGN, CampaignCancellation, jobSeed, validateCampaignConfig
 export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, CampaignFeedback, JobOutcome, JobReport, CampaignSink, CampaignReport, CampaignTermination } from './campaign.js';
 
 export {DomainDescriptor,Domain,checkLazy,declaredProperties,adaptModel,type PropertyMetadata} from './modeling.js';
+
+export type { GuidanceConfig64, GuidanceReport64, GuidedFuzzReport64 } from "./guided.js";
+export type { CampaignConfig64, JobReport64, CampaignSink64, CampaignReport64 } from "./campaign.js";

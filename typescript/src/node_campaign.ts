@@ -1,3 +1,4 @@
+import type { Count } from './counts.js';
 /** Node-only campaign host. No closures, model objects or feature keys cross worker boundaries. */
 // @ts-ignore Node built-in; the browser package entry does not import this file.
 import { Worker } from 'node:worker_threads';
@@ -26,19 +27,19 @@ export interface NodeCampaignWorker<I, W = unknown, D = unknown> {
     /** Caller-owned faithful reconstruction of report inputs, including user classes. */
     readonly decodeInput: (wire: W) => I;
 }
-export async function runNodeCampaign<I, W, D>(config: CampaignConfig, limits: CampaignLimits, worker: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I>): Promise<CampaignReport> {
+export async function runNodeCampaign<I, W, D, C extends Count = number>(config: CampaignConfig<C>, limits: CampaignLimits, worker: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I, C>): Promise<CampaignReport<C>> {
     return runNodeUsing(config, limits, worker, sink);
 }
-export async function runNodeGuidedCampaign<I, W, D>(config: CampaignConfig, limits: CampaignLimits, guidance: GuidanceConfig, worker: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I>): Promise<CampaignReport> {
+export async function runNodeGuidedCampaign<I, W, D, C extends Count = number>(config: CampaignConfig<C>, limits: CampaignLimits, guidance: GuidanceConfig<C>, worker: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I, C>): Promise<CampaignReport<C>> {
     return runNodeUsing(config, limits, worker, sink, validateGuidanceConfig(guidance));
 }
-function infrastructureReport(config: CampaignConfig, error: unknown): CampaignReport {
+function infrastructureReport<C extends Count = number>(config: CampaignConfig<C>, error: unknown): CampaignReport<C> {
     const lifecycle = new Lifecycle(config.firstJob, config.jobs, config.stopOnFailure);
     applyCampaignEvent(lifecycle, { kind: 'WorkerFailed', error: new ModelError(`unable to start campaign worker: ${campaignPanicMessage(error)}`), lostWork: false });
     applyCampaignEvent(lifecycle, { kind: 'Finish' });
     return lifecycle.state.report;
 }
-async function runNodeUsing<I, W, D>(value: CampaignConfig, limits: CampaignLimits, descriptor: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I>, guidance?: GuidanceConfig): Promise<CampaignReport> {
+async function runNodeUsing<I, W, D, C extends Count = number>(value: CampaignConfig<C>, limits: CampaignLimits, descriptor: NodeCampaignWorker<I, W, D>, sink: CampaignSink<I, C>, guidance?: GuidanceConfig<C>): Promise<CampaignReport<C>> {
     const config = validateCampaignConfig(value);
     if (config.workers > 1 && typeof limits.cancellation === 'function') throw new ConfigError('Node workers require CampaignCancellation; cancellation closures cannot cross workers');
     const module = new URL(descriptor.module).href;
@@ -53,12 +54,12 @@ async function runNodeUsing<I, W, D>(value: CampaignConfig, limits: CampaignLimi
         return lifecycle.state.report;
     }
     const cancellation = limits.cancellation instanceof CampaignCancellation ? limits.cancellation : new CampaignCancellation();
-    if (config.workers === 1) {
+    if (BigInt(config.workers) === 1n) {
         let loaded: NodeCampaignModule<any, I, any, any, W, D>;
         try { loaded = await import(module); }
         catch (error) { return infrastructureReport(config, error); }
         const context = { cancellation };
-        const hooks: CampaignJobHooks<any, I, any, any> = {
+        const hooks: CampaignJobHooks<any, I, any, any, C> = {
             guidance,
             feedbackFactory: (jobId, model) => loaded.createFeedback!(jobId, model, data as D, context),
             disposeModel: loaded.disposeModel?.bind(loaded), disposeFeedback: loaded.disposeFeedback?.bind(loaded),
@@ -76,8 +77,8 @@ async function runNodeUsing<I, W, D>(value: CampaignConfig, limits: CampaignLimi
         coordinator = new Worker(new URL('./node_campaign_worker.js', import.meta.url), { workerData: { role: 'coordinator', config, guidance, module, data, cancellation: cancellation.sharedBuffer, deadline: control.deadline, testProbe: campaignTransportProbe(descriptor) } });
     } catch (error) { return infrastructureReport(config, error); }
     // Resolve only after the coordinator has drained, joined its job workers, and itself exited.
-    return new Promise<CampaignReport>((resolve, reject) => {
-        let report: CampaignReport | undefined;
+    return new Promise<CampaignReport<C>>((resolve, reject) => {
+        let report: CampaignReport<C> | undefined;
         let failure: unknown;
         let delivering = false;
         coordinator.on('error', (error: unknown) => { failure = error; });
@@ -93,7 +94,7 @@ async function runNodeUsing<I, W, D>(value: CampaignConfig, limits: CampaignLimi
             const deliver = async (): Promise<void> => {
                 let error: ModelError | null;
                 try {
-                    const job = unpackCampaignJob<I, W>(message.job, decodeInput);
+                    const job = unpackCampaignJob<I, W, C>(message.job, decodeInput);
                     error = await invokeCampaignSink(sink, job);
                 } catch (cause) { error = new ModelError(`campaign input delivery failed: ${campaignPanicMessage(cause)}`); }
                 coordinator.postMessage({ kind: 'sinkReturned', jobId: receivedJobId, error: error === null ? null : campaignPanicMessage(error) });

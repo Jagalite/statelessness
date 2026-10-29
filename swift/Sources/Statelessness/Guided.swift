@@ -24,10 +24,10 @@ private final class FeatureStorage<K> {
 /// This type is intentionally not Sendable; never retain or use it concurrently.
 public final class FeatureBuffer<K> {
     private var owner: FeatureStorage<K>?
-    private let maximum: Int
+    private let maximum: UInt64
     private var clone: ((K) throws -> K)?
     private var pushing = false
-    private init(_ owner: FeatureStorage<K>, maximum: Int, clone: @escaping (K) throws -> K) {
+    private init(_ owner: FeatureStorage<K>, maximum: UInt64, clone: @escaping (K) throws -> K) {
         self.owner = owner; self.maximum = maximum; self.clone = clone
     }
     public func push(_ feature: K) throws {
@@ -37,7 +37,7 @@ public final class FeatureBuffer<K> {
             let error = ModelError("feature buffer push is reentrant")
             owner.failure = error; throw error
         }
-        guard owner.values.count < maximum else {
+        guard UInt64(owner.values.count) < maximum else {
             let error = ModelError("feedback exceeds per-observation feature limit")
             owner.failure = error; throw error
         }
@@ -49,9 +49,11 @@ public final class FeatureBuffer<K> {
         do { value = try copied(clone, feature) }
         catch { if owner.failure == nil { owner.failure = error }; throw error }
         if let failure = owner.failure { throw failure }
+        do { try requireNativeGrowth(owner.values.count, elementStride: MemoryLayout<K>.stride, context: "feature storage") }
+        catch { owner.failure = error; throw error }
         owner.values.append(value)
     }
-    fileprivate static func collect(_ scratch: inout [K], maximum: Int, clone: @escaping (K) throws -> K,
+    fileprivate static func collect(_ scratch: inout [K], maximum: UInt64, clone: @escaping (K) throws -> K,
                                     _ callback: (FeatureBuffer<K>) throws -> Void) throws {
         let storage = FeatureStorage<K>()
         swap(&scratch, &storage.values)
@@ -105,13 +107,13 @@ public func exactStateFeedback<S: Hashable, I, O>(_ model: Model<S, I, O>) -> Fe
                   cloneFeature: model.cloneState, project: { $0 }).feedback()
 }
 
-public struct GuidanceConfig: Equatable, Sendable {
-    public let maxCorpusEntries: Int
-    public let maxCorpusInputs: Int
-    public let maxFeatures: Int
-    public let maxFeaturesPerObservation: Int
-    public init(maxCorpusEntries: Int = 256, maxCorpusInputs: Int = 25_600,
-                maxFeatures: Int = 100_000, maxFeaturesPerObservation: Int = 256) {
+public struct GuidanceConfig64: Equatable, Sendable {
+    public let maxCorpusEntries: UInt64
+    public let maxCorpusInputs: UInt64
+    public let maxFeatures: UInt64
+    public let maxFeaturesPerObservation: UInt64
+    public init(maxCorpusEntries: UInt64 = 256, maxCorpusInputs: UInt64 = 25_600,
+                maxFeatures: UInt64 = 100_000, maxFeaturesPerObservation: UInt64 = 256) {
         self.maxCorpusEntries = maxCorpusEntries; self.maxCorpusInputs = maxCorpusInputs
         self.maxFeatures = maxFeatures; self.maxFeaturesPerObservation = maxFeaturesPerObservation
     }
@@ -121,76 +123,81 @@ public struct GuidanceConfig: Equatable, Sendable {
         }
     }
 }
-public struct CorpusEntry<I> {
+public struct CorpusEntry64<I> {
     public let inputs: [I]
     /// Zero when recovering a previously tracked but unwitnessed discovery.
-    public let newFeatures: Int
-    public let discoveredCase: Int
+    public let newFeatures: UInt64
+    public let discoveredCase: UInt64
     public let discoveredTransition: UInt64
 }
-extension CorpusEntry: Equatable where I: Equatable {}
-extension CorpusEntry: Sendable where I: Sendable {}
-public struct GuidanceReport<I> {
+extension CorpusEntry64: Equatable where I: Equatable {}
+extension CorpusEntry64: Sendable where I: Sendable {}
+public struct GuidanceReport64<I> {
     public let algorithm: String
-    public let config: GuidanceConfig
+    public let config: GuidanceConfig64
     public let feedback: FeedbackMetadata
-    public internal(set) var uniqueFeatures: Int = 0
-    public internal(set) var corpusInputs: Int = 0
-    public internal(set) var corpus: [CorpusEntry<I>] = []
-    public internal(set) var mutationCases: Int = 0
+    public internal(set) var uniqueFeatures: UInt64 = 0
+    public internal(set) var corpusInputs: UInt64 = 0
+    public internal(set) var corpus: [CorpusEntry64<I>] = []
+    public internal(set) var mutationCases: UInt64 = 0
     public internal(set) var droppedPrefixes: UInt64 = 0
     public internal(set) var evictedPrefixes: UInt64 = 0
     public internal(set) var featureLimitReached = false
     public internal(set) var corpusLimitReached = false
 }
-extension GuidanceReport: Equatable where I: Equatable {}
-extension GuidanceReport: Sendable where I: Sendable {}
+extension GuidanceReport64: Equatable where I: Equatable {}
+extension GuidanceReport64: Sendable where I: Sendable {}
 
 private final class GuidedDriver<S, I, O, K: Hashable> {
     let model: Model<S, I, O>
     let feedback: Feedback<S, I, O, K>
-    var report: GuidanceReport<I>
+    var report: GuidanceReport64<I>
     // Eviction deliberately retains witnessed=true; overlong discovery uses false.
     var seen: [K: Bool] = [:]
     var scratch: [K] = []
-    init(model: Model<S, I, O>, feedback: Feedback<S, I, O, K>, config: GuidanceConfig,
+    init(model: Model<S, I, O>, feedback: Feedback<S, I, O, K>, config: GuidanceConfig64,
          metadata: FeedbackMetadata) {
         self.model = model; self.feedback = feedback
-        report = GuidanceReport(algorithm: guidedAlgorithm, config: config, feedback: metadata)
+        report = GuidanceReport64(algorithm: guidedAlgorithm, config: config, feedback: metadata)
     }
-    func learn(_ inputs: [I], caseNumber: Int, transition: UInt64) throws {
-        var novel = 0, recovered = false
-        let retainable = inputs.count <= report.config.maxCorpusInputs
+    func learn(_ inputs: [I], caseNumber: UInt64, transition: UInt64) throws {
+        var novel: UInt64 = 0
+        var recovered = false
+        let retainable = UInt64(inputs.count) <= report.config.maxCorpusInputs
         defer { scratch.removeAll(keepingCapacity: true) }
         for key in scratch {
             if let witnessed = seen[key] {
                 if retainable && !witnessed { seen[key] = true; recovered = true }
-            } else if seen.count == report.config.maxFeatures {
+            } else if UInt64(seen.count) == report.config.maxFeatures {
                 report.featureLimitReached = true
-            } else { seen[key] = retainable; novel += 1 }
+            } else {
+                try requireNativeGrowth(seen.count, elementStride: MemoryLayout<(K, Bool)>.stride, context: "feature map")
+                seen[key] = retainable; novel += 1
+            }
         }
-        report.uniqueFeatures = seen.count
+        report.uniqueFeatures = UInt64(seen.count)
         guard (novel > 0 || recovered) && !inputs.isEmpty else { return }
         guard retainable else {
-            report.corpusLimitReached = true; report.droppedPrefixes += 1; return
+            report.corpusLimitReached = true; report.droppedPrefixes = saturatingCountAdd(report.droppedPrefixes, 1); return
         }
-        let allowance = report.config.maxCorpusInputs - inputs.count
-        while report.corpus.count >= report.config.maxCorpusEntries || report.corpusInputs > allowance {
-            report.corpusInputs -= report.corpus.removeFirst().inputs.count
-            report.evictedPrefixes += 1; report.corpusLimitReached = true
+        let allowance = report.config.maxCorpusInputs - UInt64(inputs.count)
+        while UInt64(report.corpus.count) >= report.config.maxCorpusEntries || report.corpusInputs > allowance {
+            report.corpusInputs -= UInt64(report.corpus.removeFirst().inputs.count)
+            report.evictedPrefixes = saturatingCountAdd(report.evictedPrefixes, 1); report.corpusLimitReached = true
         }
         let snapshot = try inputs.map { try copied(model.cloneInput, $0) }
-        report.corpusInputs += snapshot.count
-        report.corpus.append(CorpusEntry(inputs: snapshot, newFeatures: novel,
+        report.corpusInputs += UInt64(snapshot.count)
+        try requireNativeGrowth(report.corpus.count, elementStride: MemoryLayout<CorpusEntry64<I>>.stride, context: "corpus")
+        report.corpus.append(CorpusEntry64(inputs: snapshot, newFeatures: novel,
                                         discoveredCase: caseNumber, discoveredTransition: transition))
     }
-    func initial(_ state: S, caseNumber: Int) throws {
+    func initial(_ state: S, caseNumber: UInt64) throws {
         try FeatureBuffer.collect(&scratch, maximum: report.config.maxFeaturesPerObservation, clone: feedback.cloneFeature) {
             try feedback.initialFeatures(copied(model.cloneState, state), $0)
         }
         try learn([], caseNumber: caseNumber, transition: 0)
     }
-    func transition(_ before: S, input: I, after: Transition<S, O>, inputs: [I], caseNumber: Int, transition: UInt64) throws {
+    func transition(_ before: S, input: I, after: Transition<S, O>, inputs: [I], caseNumber: UInt64, transition: UInt64) throws {
         try FeatureBuffer.collect(&scratch, maximum: report.config.maxFeaturesPerObservation, clone: feedback.cloneFeature) {
             try feedback.transitionFeatures(copied(model.cloneState, before), copied(model.cloneInput, input), cloneTransition(model, after), $0)
         }
@@ -216,10 +223,10 @@ private final class GuidedDriver<S, I, O, K: Hashable> {
 /// Guided, observed and cooperatively controlled search share the ordinary fuzz
 /// kernel. Bounds count retained keys/inputs/emissions, not bytes or process RSS.
 /// Callback errors throw without returning a partial report. Each run starts fresh.
-public func guidedFuzz<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
-    config: FuzzConfig = FuzzConfig(), guidance: GuidanceConfig = GuidanceConfig(),
+public func guidedFuzz64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
+    config: FuzzConfig64 = FuzzConfig64(), guidance: GuidanceConfig64 = GuidanceConfig64(),
     feedback: Feedback<S, I, O, K>, limits: RunLimits = RunLimits(),
-    observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport<I> {
+    observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
     try guidance.validate()
     guard (0...100).contains(config.mutationPercent) else { throw ConfigError("mutation_percent must be in 0..=100") }
     try validateFuzzConfig(config)
@@ -239,9 +246,9 @@ public func guidedFuzz<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
     return result
 }
 
-public func guidedFuzz<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
-    config: FuzzConfig = FuzzConfig(), guidance: GuidanceConfig = GuidanceConfig(),
+public func guidedFuzz64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
+    config: FuzzConfig64 = FuzzConfig64(), guidance: GuidanceConfig64 = GuidanceConfig64(),
     feedback: StateFeedback<S, K>, limits: RunLimits = RunLimits(),
-    observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport<I> {
-    try guidedFuzz(generated, config: config, guidance: guidance, feedback: feedback.feedback(), limits: limits, observer: observer)
+    observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
+    try guidedFuzz64(generated, config: config, guidance: guidance, feedback: feedback.feedback(), limits: limits, observer: observer)
 }

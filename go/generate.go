@@ -11,14 +11,14 @@ type GenerateModel[S, I, O any] struct {
 	SimplerInputs func(I) (Iterator[I], error)
 	InputEqual    func(I, I) (bool, error)
 }
-type AutoOptions struct{ MaxCandidates int }
+type AutoOptions64 struct{ MaxCandidates uint64 }
 
-func DefaultAutoOptions() AutoOptions { return AutoOptions{100000} }
+func DefaultAutoOptions64() AutoOptions64 { return AutoOptions64{100000} }
 
 // Auto samples finite enumeration using reservoir sampling. The cap permits one
 // extra iterator call to distinguish exact exhaustion from overflow. RNG state
 // commits only after a successful complete scan, including successful snapshots.
-func Auto[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options AutoOptions) (GenerateModel[S, I, O], error) {
+func Auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options AutoOptions64) (GenerateModel[S, I, O], error) {
 	var z GenerateModel[S, I, O]
 	if err := m.validate(); err != nil {
 		return z, err
@@ -40,7 +40,7 @@ func Auto[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options
 		if err != nil {
 			return zero, false, err
 		}
-		for count := 0; ; count++ {
+		for count := uint64(0); ; count++ {
 			v, more, e := next(it)
 			if e != nil {
 				return zero, false, e
@@ -71,7 +71,7 @@ func Auto[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options
 		if e != nil {
 			return false, e
 		}
-		for count := 0; ; count++ {
+		for count := uint64(0); ; count++ {
 			v, more, e := next(it)
 			if e != nil {
 				return false, e

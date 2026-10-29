@@ -15,15 +15,15 @@ import (
 
 // Test-only persistence for the actual campaign decision core. The format is
 // src/campaign/lifecycle/codec.rs, not a public campaign checkpoint API:
-// seven int counts as u64 LE, three u64 totals, accounting, termination, stop,
+// seven u64 counts as u64 LE, three u64 totals, accounting, termination, stop,
 // sorted pending entries, optional delivery, lost-worker and finalized flags.
 // Encoding checks representability, not lifecycle properties. Decoding a core
 // invokes the independent lcStateChecks owned by campaign_lifecycle_test.go.
 func lcEncodeCore(state campaignState) ([]byte, error) {
 	w := lcWireEncoder{}
 	r := state.report
-	for _, n := range []int{r.Requested, r.Started, r.Finished, r.NotStarted, r.Delivered, r.Failures, r.Errors} {
-		w.count(n)
+	for _, n := range []uint64{r.Requested, r.Started, r.Finished, r.NotStarted, r.Delivered, r.Failures, r.Errors} {
+		w.number(n)
 	}
 	w.number(r.ReportedTransitions)
 	w.number(r.ReportedCases)
@@ -91,14 +91,14 @@ func lcEncodeCore(state campaignState) ([]byte, error) {
 
 func lcDecodeCore(m campaignLifecycle, b []byte) (campaignState, error) {
 	d := lcWireDecoder{remaining: b}
-	r := CampaignReport{
-		Requested:             d.count(),
-		Started:               d.count(),
-		Finished:              d.count(),
-		NotStarted:            d.count(),
-		Delivered:             d.count(),
-		Failures:              d.count(),
-		Errors:                d.count(),
+	r := CampaignReport64{
+		Requested:             d.number(),
+		Started:               d.number(),
+		Finished:              d.number(),
+		NotStarted:            d.number(),
+		Delivered:             d.number(),
+		Failures:              d.number(),
+		Errors:                d.number(),
 		ReportedTransitions:   d.number(),
 		ReportedCases:         d.number(),
 		ReportedSkippedChecks: d.number(),
@@ -143,7 +143,7 @@ func lcDecodeCore(m campaignLifecycle, b []byte) (campaignState, error) {
 	if d.err != nil {
 		return campaignState{}, d.err
 	}
-	if n > m.jobs || n > len(d.remaining)/9 {
+	if uint64(n) > m.jobs || n > len(d.remaining)/9 {
 		return campaignState{}, lcWireInvalid()
 	}
 	state.pending = make(map[uint64]campaignPending)
@@ -424,31 +424,36 @@ func (d *lcWireDecoder) number() uint64 {
 
 func (d *lcWireDecoder) count() int {
 	n := d.number()
-	// Go report counts are signed int. Reject before narrowing on either
-	// 32-bit or 64-bit hosts; work totals and job IDs retain the full u64 range.
+	// Native materialization lengths must fit int. Logical report counts use
+	// number() and never pass through this allocation-boundary conversion.
 	if n > uint64(^uint(0)>>1) {
-		d.err = &ModelError{"campaign lifecycle count exceeds native int range"}
+		d.err = &ModelError{"campaign lifecycle materialization exceeds native int range"}
 		return 0
 	}
 	return int(n)
 }
 
-func TestLCWireNativeCountIntersection(t *testing.T) {
-	maximum := int(^uint(0) >> 1)
-	m := campaignLifecycle{jobs: maximum}
-	s := lcWireInitial(m)
-	lcWireRoundtripCore(t, m, s)
-	base := lcWireCoreBytes(t, s)
-	for _, jobs := range []uint64{uint64(maximum) + 1, ^uint64(0)} {
-		// A consistent initial Rust64 state: requested and not_started match,
-		// no pending/delivery/work, and no allocation proportional to jobs.
-		// This state is outside Go's representation, not malformed Rust wire.
-		b := append([]byte(nil), base...)
-		binary.LittleEndian.PutUint64(b[0:8], jobs)
-		binary.LittleEndian.PutUint64(b[24:32], jobs)
-		if _, e := lcDecodeCore(m, b); e == nil || e.Error() != "campaign lifecycle count exceeds native int range" {
-			t.Fatalf("unsupported native count %d misclassified: %v", jobs, e)
+func TestLCWireFullWidthCounts(t *testing.T) {
+	for _, jobs := range []uint64{uint64(^uint(0) >> 1), uint64(^uint(0)>>1) + 1, ^uint64(0)} {
+		m := campaignLifecycle{jobs: jobs}
+		state := lcWireInitial(m)
+		lcWireRoundtripCore(t, m, state)
+		lcApply(t, m, &state, campaignEvent{kind: campaignClaim})
+		lcWireRoundtripCore(t, m, state)
+		b := lcWireCoreBytes(t, state)
+		restarted, err := lcDecodeCore(m, b)
+		if err != nil {
+			t.Fatal(err)
 		}
+		lcApply(t, m, &restarted, lcComplete(0, campaignCompleted))
+		lcApply(t, m, &restarted, campaignEvent{kind: campaignReceive, jobID: 0})
+		lcApply(t, m, &restarted, lcSink(0, nil))
+		lcApply(t, m, &restarted, campaignEvent{kind: campaignClaim, stop: campaignStopCancelled})
+		lcApply(t, m, &restarted, campaignEvent{kind: campaignFinish})
+		if restarted.report.Requested != jobs || restarted.report.NotStarted != jobs-1 || restarted.report.Delivered != 1 {
+			t.Fatal(restarted)
+		}
+		lcWireRoundtripCore(t, m, restarted)
 	}
 }
 
@@ -511,7 +516,7 @@ func lcWireModel() campaignLifecycle {
 
 func lcWireInitial(m campaignLifecycle) campaignState {
 	return campaignState{
-		report: CampaignReport{
+		report: CampaignReport64{
 			Requested: m.jobs, NotStarted: m.jobs, AccountingComplete: true,
 			Termination: CampaignTermination{Kind: "jobs_completed"},
 		},
@@ -661,7 +666,7 @@ func TestLCWireKnownCoreBytes(t *testing.T) {
 	// still yield ascending numeric IDs on the wire.
 	denseModel := campaignLifecycle{firstJob: 7, jobs: 9, stopOnFailure: true}
 	dense := campaignState{
-		report: CampaignReport{
+		report: CampaignReport64{
 			Requested: 9, Started: 8, Finished: 6, NotStarted: 1, Delivered: 5, Failures: 2, Errors: 3,
 			ReportedTransitions: 0x0102030405060708, ReportedCases: 17, ReportedSkippedChecks: 19,
 			Termination: CampaignTermination{Kind: "jobs_completed"},
@@ -743,7 +748,7 @@ func TestLCWireEveryCoreVariantAndFraming(t *testing.T) {
 	m := lcWireModel()
 	lcWireRoundtripCore(t, m, lcWireInitial(m))
 	state := campaignState{
-		report: CampaignReport{
+		report: CampaignReport64{
 			Requested: 4, Started: 4, Finished: 3, Delivered: 2, Failures: 1, Errors: 1,
 			ReportedTransitions: ^uint64(0), ReportedCases: 17, ReportedSkippedChecks: 19,
 			Termination: CampaignTermination{Kind: "jobs_completed"},
@@ -1112,7 +1117,7 @@ func TestLCWireRejectsMalformedCoreCountsTagsAndOrder(t *testing.T) {
 		}
 	}
 	// Valid largest Go count needs no proportional allocation for an empty map.
-	large := campaignLifecycle{jobs: int(^uint(0) >> 1)}
+	large := campaignLifecycle{jobs: ^uint64(0)}
 	lcWireRoundtripCore(t, large, lcWireInitial(large))
 	fullTotals := lcWireInitial(m)
 	fullTotals.report.ReportedTransitions = ^uint64(0)

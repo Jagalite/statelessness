@@ -1,3 +1,4 @@
+import { count64, type Count } from './counts.js';
 import { metadataPanic } from './guided_sync.js';
 /** Bounded independent jobs. The lifecycle law is private; report inputs belong to the application. */
 import { ConfigError, ModelError, Rng, natural, validateMetadata, type Metadata } from './core.js';
@@ -13,30 +14,30 @@ const U64_MAX = (1n << 64n) - 1n;
 function u64(value: bigint, name: string): void {
     if (typeof value !== 'bigint' || value < 0n || value > U64_MAX) throw new ConfigError(`${name} must be u64 bigint`);
 }
-export interface CampaignConfig {
+export interface CampaignConfig<C extends Count = number> {
     readonly masterSeed: bigint;
     readonly firstJob: bigint;
-    /** JavaScript safe integers, as are the existing FuzzConfig case/step counts. */
-    readonly jobs: number;
-    readonly workers: number;
-    readonly resultBuffer: number;
-    readonly fuzz: FuzzConfig;
+    /** Use bigint for the full Rust64 domain; numbers are checked conveniences. */
+    readonly jobs: C;
+    readonly workers: C;
+    readonly resultBuffer: C;
+    readonly fuzz: FuzzConfig<C>;
     readonly stopOnFailure: boolean;
 }
 export const DEFAULT_CAMPAIGN: CampaignConfig = Object.freeze({ masterSeed: 0n, firstJob: 0n, jobs: 16, workers: 1, resultBuffer: 1, fuzz: DEFAULT_FUZZ, stopOnFailure: false });
 
 /** Validation and defensive configuration snapshot precede factories, workers and sink calls. */
-export function validateCampaignConfig(value: CampaignConfig): CampaignConfig {
+export function validateCampaignConfig<C extends Count = number>(value: CampaignConfig<C>): CampaignConfig<C> {
     const { masterSeed, firstJob, jobs, workers, resultBuffer, fuzz: source, stopOnFailure } = value;
-    if (jobs === 0) throw new ConfigError('campaign jobs must be positive');
-    if (!Number.isSafeInteger(jobs) || jobs < 1) throw new ConfigError('campaign jobs must be positive safe integer');
-    if (!Number.isSafeInteger(workers) || workers < 1 || workers > 256) throw new ConfigError('campaign workers must be in 1..=256');
-    if (!Number.isSafeInteger(resultBuffer) || resultBuffer < 0 || resultBuffer > 1024) throw new ConfigError('campaign result_buffer must be in 0..=1024');
+    if (jobs === 0 || jobs === 0n) throw new ConfigError('campaign jobs must be positive');
+    count64(jobs, 'jobs');
+    if (!boundedCount(workers, 1n, 256n)) throw new ConfigError('campaign workers must be in 1..=256');
+    if (!boundedCount(resultBuffer, 0n, 1024n)) throw new ConfigError('campaign result_buffer must be in 0..=1024');
     const fuzz = { seed: source.seed, cases: source.cases, maxSteps: source.maxSteps, maxTransitions: source.maxTransitions, mutationPercent: source.mutationPercent };
     if (!Number.isSafeInteger(fuzz.mutationPercent) || fuzz.mutationPercent < 0 || fuzz.mutationPercent > 100) throw new ConfigError('mutation_percent must be in 0..=100');
     u64(masterSeed, 'masterSeed'); u64(firstJob, 'firstJob');
     if (firstJob + BigInt(jobs) - 1n > U64_MAX) throw new ConfigError('campaign job ID range overflows u64');
-    natural(fuzz.cases, 'cases'); natural(fuzz.maxSteps, 'maxSteps');
+    count64(fuzz.cases, 'cases'); count64(fuzz.maxSteps, 'maxSteps');
     u64(fuzz.maxTransitions, 'maxTransitions'); u64(fuzz.seed, 'seed');
     if (BigInt(jobs) * BigInt(fuzz.cases) > U64_MAX) throw new ConfigError('campaign aggregate cases overflow u64');
     const wide = BigInt(fuzz.cases) * BigInt(fuzz.maxSteps);
@@ -101,19 +102,19 @@ export interface CampaignModel<S, I, O> extends GenerateModel<S, I, O> {
 }
 export type CampaignFactory<S, I, O> = (jobId: bigint) => CampaignModel<S, I, O>;
 export type CampaignFeedback<S, I, O, K> = Feedback<S, I, O, K> & { dispose?(): void };
-export type JobOutcome<I> = { kind: 'Completed'; report: FuzzReport<I> | GuidedFuzzReport<I> }
+export type JobOutcome<I, C extends Count = number> = { kind: 'Completed'; report: FuzzReport<I, C> | GuidedFuzzReport<I, C> }
     | { kind: 'FactoryError' | 'ModelError'; error: ModelError }
     | { kind: 'Panicked'; message: string };
-export interface JobReport<I> {
+export interface JobReport<I, C extends Count = number> {
     jobId: bigint;
     seed: bigint;
-    config: FuzzConfig;
+    config: FuzzConfig<C>;
     metadata: Metadata | null;
-    outcome: JobOutcome<I>;
+    outcome: JobOutcome<I, C>;
 }
-export type CampaignSink<I> = (job: JobReport<I>) => void | Promise<void>;
-export interface CampaignJobHooks<S, I, O, K> {
-    guidance?: GuidanceConfig;
+export type CampaignSink<I, C extends Count = number> = (job: JobReport<I, C>) => void | Promise<void>;
+export interface CampaignJobHooks<S, I, O, K, C extends Count = number> {
+    guidance?: GuidanceConfig<C>;
     feedbackFactory?: (jobId: bigint, model: CampaignModel<S, I, O>) => CampaignFeedback<S, I, O, K>;
     disposeModel?: (model: CampaignModel<S, I, O>) => void;
     disposeFeedback?: (feedback: CampaignFeedback<S, I, O, K>) => void;
@@ -138,13 +139,13 @@ function voidCallback(callback: () => unknown): void {
 }
 
 /** Uses the actual public fuzz/guided functions; their native ModelError wrapping is preserved. */
-export function executeCampaignJob<S, I, O, K>(campaign: CampaignConfig, control: CampaignControl, factory: CampaignFactory<S, I, O>, jobId: bigint, hooks: CampaignJobHooks<S, I, O, K> = {}): JobReport<I> {
+export function executeCampaignJob<S, I, O, K, C extends Count = number>(campaign: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, jobId: bigint, hooks: CampaignJobHooks<S, I, O, K, C> = {}): JobReport<I, C> {
     const seed = jobSeed(campaign.masterSeed, jobId);
     const config = snapshotFuzzConfig({ ...campaign.fuzz, seed });
     let metadata: Metadata | null = null;
     let model: CampaignModel<S, I, O> | undefined;
     let feedback: CampaignFeedback<S, I, O, K> | undefined;
-    let outcome: JobOutcome<I>;
+    let outcome: JobOutcome<I, C>;
     try {
         try { model = synchronous(factory(jobId)); }
         catch (error) {
@@ -177,19 +178,19 @@ export function executeCampaignJob<S, I, O, K>(campaign: CampaignConfig, control
     }
     return { jobId, seed, config, metadata, outcome: outcome! };
 }
-export function campaignSummary(job: JobReport<unknown>): Summary {
+export function campaignSummary<C extends Count = number>(job: JobReport<unknown, C>): Summary {
     const outcome = job.outcome;
     if (outcome.kind !== 'Completed') return { outcome: outcome.kind, failure: false, transitions: 0n, cases: 0n, skippedChecks: 0n };
     const report = outcome.report;
     return { outcome: report.termination === 'failure_found' ? 'Failure' : report.termination === 'cancelled' ? 'Cancelled' : report.termination === 'deadline' ? 'Deadline' : 'Completed', failure: report.failure !== null, transitions: report.transitions, cases: BigInt(report.cases), skippedChecks: report.skipped_checks };
 }
 /** Private coordinator guard. Only an exhausted/stopped Claim may reject at runtime. */
-export function applyCampaignEvent(lifecycle: Lifecycle, event: LifecycleInput): LifecycleOutput[] {
+export function applyCampaignEvent<C extends Count = number>(lifecycle: Lifecycle<C>, event: LifecycleInput): LifecycleOutput[] {
     const effects = lifecycle.apply(event);
     if (!lifecycle.lastAccepted && event.kind !== 'Claim') throw new Error(`invalid campaign lifecycle event ${event.kind}: ${lifecycle.lastRejection}`);
     return effects;
 }
-export async function invokeCampaignSink<I>(sink: CampaignSink<I>, job: JobReport<I>): Promise<ModelError | null> {
+export async function invokeCampaignSink<I, C extends Count = number>(sink: CampaignSink<I, C>, job: JobReport<I, C>): Promise<ModelError | null> {
     try {
         const returned = await sink(job);
         if (returned !== undefined) throw new ModelError('campaign sink must return undefined');
@@ -201,7 +202,7 @@ export async function invokeCampaignSink<I>(sink: CampaignSink<I>, job: JobRepor
     }
 }
 /** Internal serial runtime also used by the Node module host when configured workers=1. */
-export async function runCallerCampaign<S, I, O, K>(config: CampaignConfig, control: CampaignControl, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I>, hooks: CampaignJobHooks<S, I, O, K> = {}): Promise<CampaignReport> {
+export async function runCallerCampaign<S, I, O, K, C extends Count = number>(config: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I, C>, hooks: CampaignJobHooks<S, I, O, K, C> = {}): Promise<CampaignReport<C>> {
     const lifecycle = new Lifecycle(config.firstJob, config.jobs, config.stopOnFailure);
     for (;;) {
         const effects = applyCampaignEvent(lifecycle, { kind: 'Claim', stop: control.stop() });
@@ -219,14 +220,20 @@ export async function runCallerCampaign<S, I, O, K>(config: CampaignConfig, cont
     return lifecycle.state.report;
 }
 /** Browser-safe caller-thread entry. Use the Node host's explicit module API for workers>1. */
-export async function runCampaign<S, I, O>(value: CampaignConfig, limits: CampaignLimits, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I>): Promise<CampaignReport> {
+export async function runCampaign<S, I, O, C extends Count = number>(value: CampaignConfig<C>, limits: CampaignLimits, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I, C>): Promise<CampaignReport<C>> {
     const config = validateCampaignConfig(value);
-    if (config.workers !== 1) throw new ConfigError('multiple campaign workers require an explicit host adapter; use node-campaign in Node');
+    if (BigInt(config.workers) !== 1n) throw new ConfigError('multiple campaign workers require an explicit host adapter; use node-campaign in Node');
     return runCallerCampaign(config, new CampaignControl(limits), factory, sink);
 }
-export async function runGuidedCampaign<S, I, O, K>(value: CampaignConfig, limits: CampaignLimits, guidance: GuidanceConfig, factory: CampaignFactory<S, I, O>, feedbackFactory: (jobId: bigint, model: CampaignModel<S, I, O>) => CampaignFeedback<S, I, O, K>, sink: CampaignSink<I>): Promise<CampaignReport> {
+export async function runGuidedCampaign<S, I, O, K, C extends Count = number>(value: CampaignConfig<C>, limits: CampaignLimits, guidance: GuidanceConfig<C>, factory: CampaignFactory<S, I, O>, feedbackFactory: (jobId: bigint, model: CampaignModel<S, I, O>) => CampaignFeedback<S, I, O, K>, sink: CampaignSink<I, C>): Promise<CampaignReport<C>> {
     const admitted = validateGuidanceConfig(guidance);
     const config = validateCampaignConfig(value);
-    if (config.workers !== 1) throw new ConfigError('multiple campaign workers require an explicit host adapter; use node-campaign in Node');
+    if (BigInt(config.workers) !== 1n) throw new ConfigError('multiple campaign workers require an explicit host adapter; use node-campaign in Node');
     return runCallerCampaign(config, new CampaignControl(limits), factory, sink, { guidance: admitted, feedbackFactory });
 }
+
+function boundedCount(value: Count, low: bigint, high: bigint): boolean { try { const n = count64(value, "count"); return n >= low && n <= high; } catch { return false; } }
+export type CampaignConfig64 = CampaignConfig<bigint>;
+export type JobReport64<I> = JobReport<I, bigint>;
+export type CampaignSink64<I> = CampaignSink<I, bigint>;
+export type { CampaignReport64 } from "./campaign_lifecycle.js";

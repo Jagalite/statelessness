@@ -14,7 +14,7 @@ import "math"
 // The codecs and independent self-model are deliberately confined to test files.
 type campaignLifecycle struct {
 	firstJob      uint64
-	jobs          int
+	jobs          uint64
 	stopOnFailure bool
 }
 
@@ -41,7 +41,7 @@ const (
 	campaignPanicked     campaignOutcome = "panicked"
 )
 
-// Only protocol summaries are retained: no JobReport, FuzzReport, input, model,
+// Only protocol summaries are retained: no JobReport64, FuzzReport64, input, model,
 // metadata, or application output can be reached through a pending entry.
 type campaignSummary struct {
 	outcome                           campaignOutcome
@@ -60,12 +60,12 @@ func (s campaignSummary) valid() bool {
 	}
 }
 
-func campaignSummaryFromJob[I any](job JobReport[I]) campaignSummary {
+func campaignSummaryFromJob[I any](job JobReport64[I]) campaignSummary {
 	s := campaignSummary{}
 	switch job.Outcome.Kind {
 	case "completed":
 		f := job.Outcome.Report
-		if f == nil || f.Cases < 0 {
+		if f == nil {
 			return s // Invalid executor payload: never invent a successful summary.
 		}
 		s.outcome = campaignCompleted
@@ -95,7 +95,7 @@ type campaignPending struct {
 }
 
 type campaignState struct {
-	report      CampaignReport
+	report      CampaignReport64
 	stop        campaignStop
 	pending     map[uint64]campaignPending
 	delivering  uint64
@@ -149,7 +149,7 @@ type campaignEffect struct {
 	jobID uint64
 }
 
-func newCampaignLifecycle(config CampaignConfig) campaignLifecycle {
+func newCampaignLifecycle(config CampaignConfig64) campaignLifecycle {
 	return campaignLifecycle{config.FirstJob, config.Jobs, config.StopOnFailure}
 }
 
@@ -158,7 +158,7 @@ func (m campaignLifecycle) initial() (campaignState, error) {
 		return campaignState{}, &ModelError{"invalid campaign lifecycle job range"}
 	}
 	return campaignState{
-		report: CampaignReport{Requested: m.jobs, NotStarted: m.jobs, AccountingComplete: true,
+		report: CampaignReport64{Requested: m.jobs, NotStarted: m.jobs, AccountingComplete: true,
 			Termination: CampaignTermination{Kind: "jobs_completed"}},
 		pending: make(map[uint64]campaignPending),
 	}, nil

@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-// CampaignConfig bounds independent jobs and queued reports. Zero ResultBuffer
+// CampaignConfig64 bounds independent jobs and queued reports. Zero ResultBuffer
 // is a rendezvous channel. Limits count objects, not bytes or process memory.
-type CampaignConfig struct {
+type CampaignConfig64 struct {
 	MasterSeed, FirstJob        uint64
-	Jobs, Workers, ResultBuffer int
-	Fuzz                        FuzzConfig
+	Jobs, Workers, ResultBuffer uint64
+	Fuzz                        FuzzConfig64
 	StopOnFailure               bool
 }
 
-func DefaultCampaignConfig() CampaignConfig {
-	return CampaignConfig{Jobs: 16, Workers: 1, ResultBuffer: 1, Fuzz: DefaultFuzzConfig()}
+func DefaultCampaignConfig64() CampaignConfig64 {
+	return CampaignConfig64{Jobs: 16, Workers: 1, ResultBuffer: 1, Fuzz: DefaultFuzzConfig64()}
 }
 
 // Validate runs before factories, goroutines, metadata and sink callbacks.
-func (c CampaignConfig) Validate() error {
+func (c CampaignConfig64) Validate() error {
 	bad := func(s string) error { return &ConfigError{s} }
 	if c.Jobs <= 0 {
 		return bad("campaign jobs must be positive")
@@ -38,12 +38,6 @@ func (c CampaignConfig) Validate() error {
 	jobs := uint64(c.Jobs)
 	if jobs-1 > math.MaxUint64-c.FirstJob {
 		return bad("campaign job ID range overflows u64")
-	}
-	if c.Fuzz.Cases < 0 {
-		return bad("campaign per-job cases must be nonnegative")
-	}
-	if c.Fuzz.MaxSteps < 0 {
-		return bad("campaign per-job steps must be nonnegative")
 	}
 	cases, steps := uint64(c.Fuzz.Cases), uint64(c.Fuzz.MaxSteps)
 	if hi, _ := bits.Mul64(jobs, cases); hi != 0 {
@@ -78,7 +72,7 @@ type CampaignModel[S, I, O any] struct {
 // iterator callbacks. Use it inside the model factory instead of constructing
 // Auto beforehand: errors already caught inside opaque closures cannot later be
 // distinguished from intentionally returned ModelErrors. N05's Auto is unchanged.
-func CampaignAuto[S, I, O any](model CampaignModel[S, I, O], equal func(I, I) (bool, error), options AutoOptions) (CampaignModel[S, I, O], error) {
+func CampaignAuto64[S, I, O any](model CampaignModel[S, I, O], equal func(I, I) (bool, error), options AutoOptions64) (CampaignModel[S, I, O], error) {
 	p := model.panics
 	if p == nil {
 		p = &campaignPanic{}
@@ -88,7 +82,7 @@ func CampaignAuto[S, I, O any](model CampaignModel[S, I, O], equal func(I, I) (b
 	if equal != nil {
 		equality = func(a, b I) (bool, error) { defer p.guard(); v, e := equal(a, b); return v, p.ownedError(e) }
 	}
-	g, err := Auto(guarded.Model, equality, options)
+	g, err := Auto64(guarded.Model, equality, options)
 	if p.seen {
 		panic(p.message)
 	}
@@ -106,56 +100,56 @@ type CampaignFeedback[S, I, O, K any] struct {
 	Close    func() error
 }
 
-type JobOutcome[I any] struct {
+type JobOutcome64[I any] struct {
 	Kind   string // completed, factory_error, model_error, panicked
-	Report *FuzzReport[I]
+	Report *FuzzReport64[I]
 	Error  error
 	Panic  string
 }
-type JobReport[I any] struct {
+type JobReport64[I any] struct {
 	JobID, Seed uint64
-	Config      FuzzConfig
+	Config      FuzzConfig64
 	Metadata    *Metadata
-	Outcome     JobOutcome[I]
+	Outcome     JobOutcome64[I]
 }
 type CampaignTermination struct {
 	Kind  string // jobs_completed, failure_found, cancelled, deadline, callback_error, worker_error
 	Error error
 }
-type CampaignReport struct {
-	Requested, Started, Finished, NotStarted, Delivered, Failures, Errors int
+type CampaignReport64 struct {
+	Requested, Started, Finished, NotStarted, Delivered, Failures, Errors uint64
 	ReportedTransitions, ReportedCases, ReportedSkippedChecks             uint64
 	AccountingComplete                                                    bool
 	Termination                                                           CampaignTermination
 }
 
-// RunCampaign executes workers=1 on its calling goroutine. Configured workers>1
+// RunCampaign64 executes workers=1 on its calling goroutine. Configured workers>1
 // starts min(workers,jobs) goroutines, including workers>1/jobs=1. The sink always
 // runs serially on the caller in channel receipt order. Factory captures must be
 // safe for concurrent calls; each returned model and its state stay worker-local.
 // Cancellation/deadlines are cooperative. A failing sink is never retried: active
 // reports are drained, workers joined, and its first error retained.
-func RunCampaign[S, I, O any](config CampaignConfig, limits RunLimits,
-	factory func(uint64) (CampaignModel[S, I, O], error), sink func(JobReport[I]) error,
-) (CampaignReport, error) {
-	return runCampaignUsing(config, limits, factory, sink,
-		func(_ uint64, model GenerateModel[S, I, O], config FuzzConfig, limits RunLimits, _ *campaignPanic) (*FuzzReport[I], error) {
-			return FuzzWithLimits(model, config, limits)
+func RunCampaign64[S, I, O any](config CampaignConfig64, limits RunLimits,
+	factory func(uint64) (CampaignModel[S, I, O], error), sink func(JobReport64[I]) error,
+) (CampaignReport64, error) {
+	return runCampaignUsing64(config, limits, factory, sink,
+		func(_ uint64, model GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits, _ *campaignPanic) (*FuzzReport64[I], error) {
+			return FuzzWithLimits64(model, config, limits)
 		}, campaignRuntime{})
 }
 
-// RunGuidedCampaign invokes the public guided engine with fresh feedback and
+// RunGuidedCampaign64 invokes the public guided engine with fresh feedback and
 // corpus for every job. Guidance validation precedes campaign validation.
-func RunGuidedCampaign[S, I, O, K any](config CampaignConfig, limits RunLimits, guidance GuidanceConfig,
+func RunGuidedCampaign64[S, I, O, K any](config CampaignConfig64, limits RunLimits, guidance GuidanceConfig64,
 	factory func(uint64) (CampaignModel[S, I, O], error),
 	feedbackFactory func(uint64, GenerateModel[S, I, O]) (CampaignFeedback[S, I, O, K], error),
-	sink func(JobReport[I]) error,
-) (CampaignReport, error) {
+	sink func(JobReport64[I]) error,
+) (CampaignReport64, error) {
 	if err := guidance.Validate(); err != nil {
-		return CampaignReport{}, err
+		return CampaignReport64{}, err
 	}
-	return runCampaignUsing(config, limits, factory, sink,
-		func(id uint64, model GenerateModel[S, I, O], config FuzzConfig, limits RunLimits, panics *campaignPanic) (report *FuzzReport[I], err error) {
+	return runCampaignUsing64(config, limits, factory, sink,
+		func(id uint64, model GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits, panics *campaignPanic) (report *FuzzReport64[I], err error) {
 			control, err := newRunControl(limits)
 			if err != nil {
 				return nil, err
@@ -174,7 +168,7 @@ func RunGuidedCampaign[S, I, O, K any](config CampaignConfig, limits RunLimits, 
 					}
 				}()
 			}
-			return GuidedFuzzWithLimits(model, config, guidance, campaignGuardFeedback(feedback.Feedback, panics), campaignRemaining(control))
+			return GuidedFuzzWithLimits64(model, config, guidance, campaignGuardFeedback(feedback.Feedback, panics), campaignRemaining(control))
 		}, campaignRuntime{})
 }
 
@@ -231,23 +225,23 @@ type campaignRuntime struct {
 	afterSend     func(uint64)
 }
 
-type campaignRunner[S, I, O any] func(uint64, GenerateModel[S, I, O], FuzzConfig, RunLimits, *campaignPanic) (*FuzzReport[I], error)
+type campaignRunner64[S, I, O any] func(uint64, GenerateModel[S, I, O], FuzzConfig64, RunLimits, *campaignPanic) (*FuzzReport64[I], error)
 
-func runCampaignUsing[S, I, O any](config CampaignConfig, limits RunLimits,
-	factory func(uint64) (CampaignModel[S, I, O], error), sink func(JobReport[I]) error,
-	runner campaignRunner[S, I, O], runtime campaignRuntime,
-) (CampaignReport, error) {
+func runCampaignUsing64[S, I, O any](config CampaignConfig64, limits RunLimits,
+	factory func(uint64) (CampaignModel[S, I, O], error), sink func(JobReport64[I]) error,
+	runner campaignRunner64[S, I, O], runtime campaignRuntime,
+) (CampaignReport64, error) {
 	if err := config.Validate(); err != nil {
-		return CampaignReport{}, err
+		return CampaignReport64{}, err
 	}
 	control, err := newRunControl(limits)
 	if err != nil {
-		return CampaignReport{}, err
+		return CampaignReport64{}, err
 	}
 	model := newCampaignLifecycle(config)
 	state, err := model.initial()
 	if err != nil {
-		return CampaignReport{}, err
+		return CampaignReport64{}, err
 	}
 	c := &campaignCoordinator{model: model, state: state}
 	if stop := control.stop(); stop != "" {
@@ -265,17 +259,17 @@ func runCampaignUsing[S, I, O any](config CampaignConfig, limits RunLimits,
 			}
 		}
 	} else {
-		results := make(chan JobReport[I], config.ResultBuffer)
+		results := make(chan JobReport64[I], int(config.ResultBuffer))
 		var workers sync.WaitGroup
 		joins := []chan error{}
 		start := runtime.start
 		if start == nil {
 			start = func(_ int, f func()) error { go f(); return nil }
 		}
-		for worker := 0; worker < min(config.Workers, config.Jobs); worker++ {
+		for worker := uint64(0); worker < min(config.Workers, config.Jobs); worker++ {
 			joined := make(chan error, 1)
 			workers.Add(1)
-			err := start(worker, func() {
+			err := start(int(worker), func() {
 				returned := false
 				defer func() {
 					var err error
@@ -337,9 +331,9 @@ func runCampaignUsing[S, I, O any](config CampaignConfig, limits RunLimits,
 	return c.state.report, nil
 }
 
-func campaignExecute[S, I, O any](config CampaignConfig, control runControl,
-	factory func(uint64) (CampaignModel[S, I, O], error), id uint64, runner campaignRunner[S, I, O],
-) (job JobReport[I]) {
+func campaignExecute[S, I, O any](config CampaignConfig64, control runControl,
+	factory func(uint64) (CampaignModel[S, I, O], error), id uint64, runner campaignRunner64[S, I, O],
+) (job JobReport64[I]) {
 	job.JobID, job.Seed = id, JobSeed(config.MasterSeed, id)
 	job.Config = config.Fuzz
 	job.Config.Seed = job.Seed
@@ -349,16 +343,16 @@ func campaignExecute[S, I, O any](config CampaignConfig, control runControl,
 			panics.set(p)
 		}
 		if panics.seen {
-			job.Outcome = JobOutcome[I]{Kind: "panicked", Panic: panics.message}
+			job.Outcome = JobOutcome64[I]{Kind: "panicked", Panic: panics.message}
 		}
 	}()
 	if factory == nil {
-		job.Outcome = JobOutcome[I]{Kind: "factory_error", Error: &ModelError{"nil campaign model factory"}}
+		job.Outcome = JobOutcome64[I]{Kind: "factory_error", Error: &ModelError{"nil campaign model factory"}}
 		return
 	}
 	model, err := factory(id)
 	if err != nil {
-		job.Outcome = JobOutcome[I]{Kind: "factory_error", Error: panics.ownedError(err)}
+		job.Outcome = JobOutcome64[I]{Kind: "factory_error", Error: panics.ownedError(err)}
 		return
 	}
 	if model.panics != nil {
@@ -367,24 +361,24 @@ func campaignExecute[S, I, O any](config CampaignConfig, control runControl,
 	if model.Close != nil {
 		defer func() {
 			if err := model.Close(); err != nil {
-				job.Outcome = JobOutcome[I]{Kind: "model_error", Error: panics.ownedError(err)}
+				job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: panics.ownedError(err)}
 			}
 		}()
 	}
 	if model.Metadata == nil {
-		job.Outcome = JobOutcome[I]{Kind: "model_error", Error: &ModelError{"campaign model requires metadata callback"}}
+		job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: &ModelError{"campaign model requires metadata callback"}}
 		return
 	}
 	metadata, err := model.Metadata()
 	if err != nil {
-		job.Outcome = JobOutcome[I]{Kind: "model_error", Error: panics.ownedError(err)}
+		job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: panics.ownedError(err)}
 		return
 	}
 	job.Metadata = &metadata
 	g := campaignGuardModel(model.Model, panics)
 	report, err := runner(id, g, job.Config, campaignRemaining(control), panics)
 	if err != nil {
-		job.Outcome = JobOutcome[I]{Kind: "model_error", Error: panics.ownedError(err)}
+		job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: panics.ownedError(err)}
 		return
 	}
 	// Inputs, unlike state/output/feature keys, leave the worker. Explicit native
@@ -392,7 +386,7 @@ func campaignExecute[S, I, O any](config CampaignConfig, control runControl,
 	if report.Failure != nil {
 		report.Failure.Inputs, err = cloneInputs(g, report.Failure.Inputs)
 		if err != nil {
-			job.Outcome = JobOutcome[I]{Kind: "model_error", Error: panics.ownedError(err)}
+			job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: panics.ownedError(err)}
 			return
 		}
 	}
@@ -400,16 +394,16 @@ func campaignExecute[S, I, O any](config CampaignConfig, control runControl,
 		for i := range report.Guidance.Corpus {
 			report.Guidance.Corpus[i].Inputs, err = cloneInputs(g, report.Guidance.Corpus[i].Inputs)
 			if err != nil {
-				job.Outcome = JobOutcome[I]{Kind: "model_error", Error: panics.ownedError(err)}
+				job.Outcome = JobOutcome64[I]{Kind: "model_error", Error: panics.ownedError(err)}
 				return
 			}
 		}
 	}
-	job.Outcome = JobOutcome[I]{Kind: "completed", Report: report}
+	job.Outcome = JobOutcome64[I]{Kind: "completed", Report: report}
 	return
 }
 
-func campaignDeliverJob[I any](job JobReport[I], c *campaignCoordinator, sink func(JobReport[I]) error) bool {
+func campaignDeliverJob[I any](job JobReport64[I], c *campaignCoordinator, sink func(JobReport64[I]) error) bool {
 	effects := c.apply(campaignEvent{kind: campaignReceive, jobID: job.JobID})
 	if len(effects) != 1 || effects[0].jobID != job.JobID {
 		panic("invalid campaign receipt effect")

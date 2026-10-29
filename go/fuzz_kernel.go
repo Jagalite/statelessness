@@ -4,10 +4,10 @@ package statelessness
 // tests. Public entry points always supply the ordinary runControl clock/flag.
 type fuzzControl interface{ stop() string }
 
-// fuzzKernel is shared by ordinary and guided search. Keep checks, observer
+// fuzzKernel64 is shared by ordinary and guided search. Keep checks, observer
 // delivery, property failure, and control precedence together in this loop.
-func fuzzKernel[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, control fuzzControl, observer *SearchObserver[S, I, O], driver fuzzDriver[S, I, O]) (*FuzzReport[I], error) {
-	report := &FuzzReport[I]{Termination: "cases_completed", Seed: config.Seed}
+func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, control fuzzControl, observer *SearchObserver[S, I, O], driver fuzzDriver[S, I, O]) (*FuzzReport64[I], error) {
+	report := &FuzzReport64[I]{Termination: "cases_completed", Seed: config.Seed}
 	stop := func() bool {
 		if reason := control.stop(); reason != "" {
 			report.Termination = reason
@@ -21,7 +21,7 @@ func fuzzKernel[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, contro
 	rng := NewRng(config.Seed)
 	var checkStorage []Check
 	var previous []I
-	for c := 0; c < config.Cases; c++ {
+	for c := uint64(0); c < config.Cases; c++ {
 		if stop() {
 			return report, nil
 		}
@@ -66,7 +66,7 @@ func fuzzKernel[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, contro
 			return nil, e
 		}
 		inputs := []I{}
-		for step := 0; step < config.MaxSteps; step++ {
+		for step := uint64(0); step < config.MaxSteps; step++ {
 			if report.Transitions == config.MaxTransitions {
 				report.Termination = "transition_limit"
 				return report, nil
@@ -76,7 +76,7 @@ func fuzzKernel[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, contro
 			}
 			var input I
 			reused := false
-			if replacement != step && step < len(mutated) {
+			if (replacement < 0 || uint64(replacement) != step) && step < uint64(len(mutated)) {
 				enabled, e := g.enabled(state, mutated[step])
 				if e != nil {
 					return nil, e
@@ -142,6 +142,9 @@ func fuzzKernel[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, contro
 			report.Transitions++
 			saved, e := copied(g.CloneInput, input)
 			if e != nil {
+				return nil, e
+			}
+			if e := countCanAppend[I](len(inputs)); e != nil {
 				return nil, e
 			}
 			inputs = append(inputs, saved)

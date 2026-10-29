@@ -2,16 +2,16 @@ import Foundation
 
 /// Independent jobs. Per-job seeds replace `fuzz.seed`; zero fuzz budgets retain
 /// the ordinary search meanings. Counts bound retained work, not process memory.
-public struct CampaignConfig: Sendable {
+public struct CampaignConfig64: Sendable {
     public let masterSeed: UInt64
     public let firstJob: UInt64
-    public let jobs: Int
-    public let workers: Int
-    public let resultBuffer: Int
-    public let fuzz: FuzzConfig
+    public let jobs: UInt64
+    public let workers: UInt64
+    public let resultBuffer: UInt64
+    public let fuzz: FuzzConfig64
     public let stopOnFailure: Bool
-    public init(masterSeed: UInt64 = 0, firstJob: UInt64 = 0, jobs: Int = 16,
-                workers: Int = 1, resultBuffer: Int = 1, fuzz: FuzzConfig = FuzzConfig(),
+    public init(masterSeed: UInt64 = 0, firstJob: UInt64 = 0, jobs: UInt64 = 16,
+                workers: UInt64 = 1, resultBuffer: UInt64 = 1, fuzz: FuzzConfig64 = FuzzConfig64(),
                 stopOnFailure: Bool = false) {
         self.masterSeed = masterSeed; self.firstJob = firstJob; self.jobs = jobs
         self.workers = workers; self.resultBuffer = resultBuffer; self.fuzz = fuzz
@@ -24,8 +24,6 @@ public struct CampaignConfig: Sendable {
         guard (0...100).contains(fuzz.mutationPercent) else { throw ModelError("mutation_percent must be in 0..=100") }
         let n = UInt64(jobs)
         guard !firstJob.addingReportingOverflow(n - 1).overflow else { throw ModelError("campaign job ID range overflows u64") }
-        guard fuzz.cases >= 0 else { throw ModelError("campaign per-job cases must be nonnegative") }
-        guard fuzz.maxSteps >= 0 else { throw ModelError("campaign per-job steps must be nonnegative") }
         let cases = UInt64(fuzz.cases), steps = UInt64(fuzz.maxSteps)
         guard !n.multipliedReportingOverflow(by: cases).overflow else { throw ModelError("campaign aggregate cases overflow u64") }
         // A product wider than u64 necessarily exceeds the u64 transition cap.
@@ -76,18 +74,18 @@ public struct CampaignPanic: Error, Sendable, CustomStringConvertible {
     public init(_ description: String) { self.description = description }
 }
 
-public enum JobOutcome<I> {
-    case completed(FuzzReport<I>)
+public enum JobOutcome64<I> {
+    case completed(FuzzReport64<I>)
     case factoryError(ModelError)
     case modelError(ModelError)
     case panicked(String)
 }
-public struct JobReport<I> {
+public struct JobReport64<I> {
     public let jobID: UInt64
     public let seed: UInt64
-    public let config: FuzzConfig
+    public let config: FuzzConfig64
     public let metadata: Metadata?
-    public let outcome: JobOutcome<I>
+    public let outcome: JobOutcome64<I>
 }
 
 public enum CampaignTermination: Equatable, Sendable {
@@ -102,56 +100,56 @@ public enum CampaignTermination: Equatable, Sendable {
         }
     }
 }
-public struct CampaignReport: Equatable, Sendable {
-    public internal(set) var requested: Int
-    public internal(set) var started = 0
-    public internal(set) var finished = 0
-    public internal(set) var notStarted: Int
-    public internal(set) var delivered = 0
-    public internal(set) var failures = 0
-    public internal(set) var errors = 0
+public struct CampaignReport64: Equatable, Sendable {
+    public internal(set) var requested: UInt64
+    public internal(set) var started: UInt64 = 0
+    public internal(set) var finished: UInt64 = 0
+    public internal(set) var notStarted: UInt64
+    public internal(set) var delivered: UInt64 = 0
+    public internal(set) var failures: UInt64 = 0
+    public internal(set) var errors: UInt64 = 0
     public internal(set) var reportedTransitions: UInt64 = 0
     public internal(set) var reportedCases: UInt64 = 0
     public internal(set) var reportedSkippedChecks: UInt64 = 0
     public internal(set) var accountingComplete = true
     public internal(set) var termination = CampaignTermination.jobsCompleted
-    init(requested: Int) { self.requested = requested; self.notStarted = requested }
+    init(requested: UInt64) { self.requested = requested; self.notStarted = requested }
 }
 
 // Only immutable/value-safe application inputs cross the channel. The engine
 // never asserts Sendable for models, generators, feedback, or feature keys.
-extension JobOutcome: Sendable where I: Sendable {}
-extension JobReport: Sendable where I: Sendable {}
+extension JobOutcome64: Sendable where I: Sendable {}
+extension JobReport64: Sendable where I: Sendable {}
 
 /// Serial sinks run on the caller. Workers=1 also constructs/runs each model on
 /// that caller; configured workers>1 always uses spawned workers, even for jobs=1.
 /// Reports arrive in channel receipt order. A sink error stops new sink calls;
 /// queued/active jobs are drained and counted, and workers joined before return.
-public func runCampaign<S, I: Sendable, O>(config: CampaignConfig = CampaignConfig(),
+public func runCampaign64<S, I: Sendable, O>(config: CampaignConfig64 = CampaignConfig64(),
     limits: CampaignLimits = CampaignLimits(),
     factory: @escaping @Sendable (UInt64) throws -> CampaignJob<S, I, O>,
-    sink: (JobReport<I>) throws -> Void) throws -> CampaignReport {
-    try runCampaignUsing(config: config, limits: limits, factory: factory, sink: sink) { _, job, fuzzConfig, remaining in
-        try fuzz(job.generated, config: fuzzConfig, limits: remaining, observer: job.observer)
+    sink: (JobReport64<I>) throws -> Void) throws -> CampaignReport64 {
+    try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { _, job, fuzzConfig, remaining in
+        try fuzz64(job.generated, config: fuzzConfig, limits: remaining, observer: job.observer)
     }
 }
 
 /// Each claimed job constructs fresh feedback and corpus on its own worker.
 /// Feedback factory errors are ModelError with model metadata already present.
-public func runGuidedCampaign<S, I: Sendable, O, K: Hashable>(
-    config: CampaignConfig = CampaignConfig(), limits: CampaignLimits = CampaignLimits(),
-    guidance: GuidanceConfig = GuidanceConfig(),
+public func runGuidedCampaign64<S, I: Sendable, O, K: Hashable>(
+    config: CampaignConfig64 = CampaignConfig64(), limits: CampaignLimits = CampaignLimits(),
+    guidance: GuidanceConfig64 = GuidanceConfig64(),
     factory: @escaping @Sendable (UInt64) throws -> CampaignJob<S, I, O>,
     feedbackFactory: @escaping @Sendable (UInt64, Generate<S, I, O>) throws -> Feedback<S, I, O, K>,
-    sink: (JobReport<I>) throws -> Void) throws -> CampaignReport {
+    sink: (JobReport64<I>) throws -> Void) throws -> CampaignReport64 {
     try guidance.validate()
-    return try runCampaignUsing(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+    return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
         let control = try RunControl(remaining)
         let feedback = try feedbackFactory(id, job.generated)
         let duration = control.started.flatMap { start in
             remaining.maxDuration.map { max(0, $0 - (ProcessInfo.processInfo.systemUptime - start)) }
         }
-        return try guidedFuzz(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+        return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
                               limits: RunLimits(maxDuration: duration, isCancelled: remaining.isCancelled), observer: job.observer)
     }
 }

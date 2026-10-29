@@ -76,12 +76,12 @@ func lcStateChecks(m campaignLifecycle, s campaignState) []Check {
 	}
 	validStop := s.stop == campaignNoStop || s.stop == campaignStopFailure || s.stop == campaignStopCancelled || s.stop == campaignStopDeadline || s.stop == campaignStopSink || s.stop == campaignStopWorker
 	failureSeen := r.Failures > 0
-	pendingOK := r.Started >= r.Finished && r.Finished >= 0 && r.Started-r.Finished == len(s.pending)
+	pendingOK := r.Started >= r.Finished && r.Finished >= 0 && r.Started-r.Finished == uint64(len(s.pending))
 	for id, p := range s.pending {
 		pendingOK = pendingOK && id >= m.firstJob && r.Started >= 0 && id-m.firstJob < uint64(r.Started) && (!p.ready || lcSummaryValid(p.summary))
 		failureSeen = failureSeen || (p.ready && p.summary.failure)
 	}
-	active := 0
+	active := uint64(0)
 	if s.hasDelivery {
 		active = 1
 	}
@@ -127,7 +127,7 @@ func lcTransitionChecks(m campaignLifecycle, b campaignState, i campaignEvent, t
 		admissible = !b.hasDelivery && (len(b.pending) == 0 || b.lostWorker) && (b.stop != campaignNoStop || b.report.Started == m.jobs)
 	}
 	admissible = admissible && !b.finalized
-	claim, received, delivered := 0, 0, 0
+	claim, received, delivered := uint64(0), uint64(0), uint64(0)
 	var expected []campaignEffect
 	if accepted && i.kind == campaignClaim && i.stop == campaignNoStop {
 		claim = 1
@@ -436,7 +436,7 @@ func TestCampaignLifecycleJobErrorsAndSaturation(t *testing.T) {
 }
 
 func TestCampaignLifecycleRangeAndSummaryProjection(t *testing.T) {
-	for _, m := range []campaignLifecycle{{jobs: 0}, {jobs: -1}, {firstJob: math.MaxUint64, jobs: 2}} {
+	for _, m := range []campaignLifecycle{{jobs: 0}, {firstJob: math.MaxUint64, jobs: 2}} {
 		if _, e := m.initial(); e == nil {
 			t.Fatal("accepted invalid range", m)
 		}
@@ -451,11 +451,11 @@ func TestCampaignLifecycleRangeAndSummaryProjection(t *testing.T) {
 		term    string
 		outcome campaignOutcome
 	}{{"cases_completed", campaignCompleted}, {"transition_limit", campaignCompleted}, {"failure_found", campaignFailure}, {"cancelled", campaignCancelled}, {"deadline", campaignDeadline}} {
-		f := &FuzzReport[int]{Termination: tc.term, Transitions: 19, Cases: 7, SkippedChecks: 11}
+		f := &FuzzReport64[int]{Termination: tc.term, Transitions: 19, Cases: 7, SkippedChecks: 11}
 		if tc.outcome == campaignFailure {
 			f.Failure = &Failure[int]{}
 		}
-		got := campaignSummaryFromJob(JobReport[int]{Outcome: JobOutcome[int]{Kind: "completed", Report: f}})
+		got := campaignSummaryFromJob(JobReport64[int]{Outcome: JobOutcome64[int]{Kind: "completed", Report: f}})
 		if got != (campaignSummary{tc.outcome, tc.outcome == campaignFailure, 19, 7, 11}) || !got.valid() {
 			t.Fatalf("%s %+v", tc.term, got)
 		}
@@ -465,12 +465,12 @@ func TestCampaignLifecycleRangeAndSummaryProjection(t *testing.T) {
 		}
 	}
 	for _, o := range []campaignOutcome{campaignFactoryError, campaignModelError, campaignPanicked} {
-		got := campaignSummaryFromJob(JobReport[int]{Outcome: JobOutcome[int]{Kind: string(o), Error: errors.New("job"), Panic: "panic"}})
+		got := campaignSummaryFromJob(JobReport64[int]{Outcome: JobOutcome64[int]{Kind: string(o), Error: errors.New("job"), Panic: "panic"}})
 		if got != (campaignSummary{outcome: o}) || !got.valid() {
 			t.Fatal(got)
 		}
 	}
-	if campaignSummaryFromJob(JobReport[int]{Outcome: JobOutcome[int]{Kind: "completed"}}).valid() {
+	if campaignSummaryFromJob(JobReport64[int]{Outcome: JobOutcome64[int]{Kind: "completed"}}).valid() {
 		t.Fatal("nil completed report fabricated work")
 	}
 }

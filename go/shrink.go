@@ -1,27 +1,27 @@
 package statelessness
 
-type ShrinkConfig struct{ MaxAttempts int }
+type ShrinkConfig64 struct{ MaxAttempts uint64 }
 
-func DefaultShrinkConfig() ShrinkConfig { return ShrinkConfig{10000} }
+func DefaultShrinkConfig64() ShrinkConfig64 { return ShrinkConfig64{10000} }
 
 type ShrinkLimits struct {
 	Control                RunLimits
 	MaxReplayedTransitions *uint64
 }
-type ShrinkOperation struct {
+type ShrinkOperation64 struct {
 	Kind                           string
-	Start, End, Index, Alternative int
+	Start, End, Index, Alternative uint64
 }
-type ShrinkAttempt struct {
-	Attempt, CandidateLength int
-	Operation                ShrinkOperation
+type ShrinkAttempt64 struct {
+	Attempt, CandidateLength uint64
+	Operation                ShrinkOperation64
 	Outcome                  string
 }
-type ShrinkReport[I any] struct {
+type ShrinkReport64[I any] struct {
 	Original, Minimized Failure[I]
-	Attempts            int
+	Attempts            uint64
 	Termination         string
-	History             []ShrinkAttempt
+	History             []ShrinkAttempt64
 	ReplayedTransitions uint64
 	ValidatedOriginal   bool
 }
@@ -100,6 +100,9 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 		if e != nil {
 			return shrinkCandidate[I]{}, e
 		}
+		if w.transitions == ^uint64(0) {
+			return shrinkCandidate[I]{}, &ModelError{"replayed transition count overflow"}
+		}
 		w.transitions++
 		violations, e = searchEdgeObservedInto(g, state, input, transition, nil, &skipped, nil, &w.checks)
 		if e != nil {
@@ -119,10 +122,10 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 	}
 	return shrinkCandidate[I]{kind: "pass"}, nil
 }
-func Shrink[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config ShrinkConfig) (*ShrinkReport[I], error) {
-	return ShrinkWithLimits(g, original, config, ShrinkLimits{})
+func Shrink64[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config ShrinkConfig64) (*ShrinkReport64[I], error) {
+	return ShrinkWithLimits64(g, original, config, ShrinkLimits{})
 }
-func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config ShrinkConfig, limits ShrinkLimits) (*ShrinkReport[I], error) {
+func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[I], config ShrinkConfig64, limits ShrinkLimits) (*ShrinkReport64[I], error) {
 	// Replay work is a fixed entry budget; callbacks cannot alter it through the
 	// caller's optional pointer. Cancellation remains the live control channel.
 	if limits.MaxReplayedTransitions != nil {
@@ -154,7 +157,7 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 	if e != nil {
 		return nil, e
 	}
-	report := &ShrinkReport[I]{Original: saved, Minimized: minimum, Attempts: 1, Termination: "search_complete"}
+	report := &ShrinkReport64[I]{Original: saved, Minimized: minimum, Attempts: 1, Termination: "search_complete"}
 	target := saved.Violations[0]
 	work := shrinkWork[S, I, O]{g: g, control: control, maximum: limits.MaxReplayedTransitions}
 	validation, e := work.replay(saved.Inputs)
@@ -172,7 +175,7 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 		report.Minimized = *validation.failure
 		report.ValidatedOriginal = true
 	}
-	report.History = []ShrinkAttempt{{1, len(saved.Inputs), ShrinkOperation{Kind: "validate_original"}, outcome}}
+	report.History = []ShrinkAttempt64{{1, uint64(len(saved.Inputs)), ShrinkOperation64{Kind: "validate_original"}, outcome}}
 	if !report.ValidatedOriginal {
 		return report, nil
 	}
@@ -216,13 +219,13 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 		}
 		return false, nil
 	}
-	attempt := func(candidate []I, operation ShrinkOperation) (bool, error) {
+	attempt := func(candidate []I, operation ShrinkOperation64) (bool, error) {
 		if report.Attempts == config.MaxAttempts {
 			report.Termination = "attempt_limit"
 			return false, nil
 		}
 		report.Attempts++
-		length := len(candidate)
+		length := uint64(len(candidate))
 		replayed, e := work.replay(candidate)
 		if e != nil {
 			return false, e
@@ -255,13 +258,19 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 					if e != nil {
 						return false, e
 					}
+					if e := countCanAppend[[]I](len(seen)); e != nil {
+						return false, e
+					}
 					seen = append(seen, copy)
 					report.Minimized = *replayed.failure
 					outcome = "retained"
 				}
 			}
 		}
-		report.History = append(report.History, ShrinkAttempt{report.Attempts, length, operation, outcome})
+		if e := countCanAppend[ShrinkAttempt64](len(report.History)); e != nil {
+			return false, e
+		}
+		report.History = append(report.History, ShrinkAttempt64{report.Attempts, length, operation, outcome})
 		return cont, nil
 	}
 	for {
@@ -273,11 +282,11 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 				chunk++
 			}
 			accepted := false
-			for start := 0; start < length; start += chunk {
+			for start := 0; start < length; start += min(chunk, length-start) {
 				if stopped() {
 					return report, nil
 				}
-				end := min(start+chunk, length)
+				end := start + min(chunk, length-start)
 				candidate, e := cloneInputs(g, report.Minimized.Inputs)
 				if e != nil {
 					return nil, e
@@ -293,7 +302,7 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 				if already {
 					continue
 				}
-				cont, e := attempt(candidate, ShrinkOperation{Kind: "remove", Start: start, End: end})
+				cont, e := attempt(candidate, ShrinkOperation64{Kind: "remove", Start: uint64(start), End: uint64(end)})
 				if e != nil {
 					return nil, e
 				}
@@ -333,7 +342,7 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 			if stopped() {
 				return report, nil
 			}
-			for alternative := 0; ; alternative++ {
+			for alternative := uint64(0); ; {
 				if stopped() {
 					return report, nil
 				}
@@ -346,6 +355,11 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 				}
 				if !more {
 					break
+				}
+				alternativeIndex := alternative
+				alternative, e = nextSimplificationIndex(alternative)
+				if e != nil {
+					return nil, e
 				}
 				candidate, e := cloneInputs(g, report.Minimized.Inputs)
 				if e != nil {
@@ -365,7 +379,7 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 				if already {
 					continue
 				}
-				cont, e := attempt(candidate, ShrinkOperation{Kind: "simplify", Index: index, Alternative: alternative})
+				cont, e := attempt(candidate, ShrinkOperation64{Kind: "simplify", Index: uint64(index), Alternative: alternativeIndex})
 				if e != nil {
 					return nil, e
 				}
@@ -385,4 +399,12 @@ func ShrinkWithLimits[S, I, O any](g GenerateModel[S, I, O], original Failure[I]
 			return report, nil
 		}
 	}
+}
+
+// Mirrors Rust checked_add before cloning or testing a yielded alternative.
+func nextSimplificationIndex(current uint64) (uint64, error) {
+	if current == ^uint64(0) {
+		return 0, &ModelError{"simplification index overflow"}
+	}
+	return current + 1, nil
 }

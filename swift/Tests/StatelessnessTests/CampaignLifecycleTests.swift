@@ -39,9 +39,9 @@ private struct CampaignLedger: Equatable {
     // A received report still blocks Finish until its sink call returns. Only
     // an observed lost-work event permits claims without corresponding receipts.
     // Neither an incomplete work total nor any core flag proves worker loss.
-    func readyToFinish(jobs: Int) -> Bool {
+    func readyToFinish(jobs: UInt64) -> Bool {
         attempts == returns && (claims == receipts || lostWork)
-            && (observedStop || claims.count == jobs)
+            && (observedStop || UInt64(claims.count) == jobs)
     }
 }
 
@@ -231,9 +231,9 @@ private struct CampaignFixture {
                 && (!ledger.finalized || ledger.readyToFinish(jobs: core.jobs))),
             campaignCheck("audit.active_sink", ledger.returns.isSubset(of: ledger.attempts)
                 && ledger.attempts.subtracting(ledger.returns) == active),
-            campaignCheck("audit.identity_accounting", report.started == ledger.claims.count
-                && report.finished == ledger.receipts.count && report.delivered == ledger.successes.count
-                && report.failures == failures && report.errors == errors),
+            campaignCheck("audit.identity_accounting", report.started == UInt64(ledger.claims.count)
+                && report.finished == UInt64(ledger.receipts.count) && report.delivered == UInt64(ledger.successes.count)
+                && report.failures == UInt64(failures) && report.errors == UInt64(errors)),
             campaignCheck("audit.work_accounting", report.reportedTransitions == transitions.total
                 && report.reportedCases == cases.total && report.reportedSkippedChecks == skipped.total
                 && report.accountingComplete == complete),
@@ -802,7 +802,7 @@ extension CampaignLifecycleTests {
     func testStateCodecRoundtripsEveryFieldAndTermination() throws {
         let fixture = CampaignFixture(jobs: 4, stopOnFailure: true, firstJob: 7)
         try assertStateRoundtrip(fixture, fixture.core.initialState())
-        var report = CampaignReport(requested: 4)
+        var report = CampaignReport64(requested: 4)
         report.started = 4; report.finished = 3; report.notStarted = 0; report.delivered = 2
         report.failures = 1; report.errors = 1; report.reportedTransitions = .max
         report.reportedCases = 17; report.reportedSkippedChecks = 19; report.accountingComplete = false
@@ -863,8 +863,8 @@ extension CampaignLifecycleTests {
         state = claimed; state.delivering = 7; invalid.append(state)
         state = claimed; state.pending[7] = nil; state.pending[99] = .running; invalid.append(state)
         for state in invalid { XCTAssertThrowsError(try wire.decodeState(wire.encodeState(state))) }
-        var negative = initial; negative.report.started = -1
-        XCTAssertThrowsError(try wire.encodeState(negative))
+        var negative = initial; negative.report.started = .max
+        XCTAssertThrowsError(try wire.decodeState(wire.encodeState(negative)))
         let disabled = CampaignFixture(jobs: 4, firstJob: 7)
         state = claimed; state.stop = .failure; state.pending[7] = .ready(campaignSummary(.failure))
         XCTAssertThrowsError(try disabled.wire.decodeState(wire.encodeState(state)))
@@ -872,7 +872,7 @@ extension CampaignLifecycleTests {
         XCTAssertThrowsError(try otherRange.wire.decodeState(wire.encodeState(claimed)))
     }
 
-    func testConsistentInitialCountBoundarySeparatesRust64FromNativeIntDomain() throws {
+    func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
@@ -889,22 +889,20 @@ extension CampaignLifecycleTests {
         let initial = try fixture.core.initialState()
         XCTAssertEqual(try fixture.wire.encodeState(initial), nativeMaximum)
         XCTAssertEqual(try fixture.wire.decodeState(nativeMaximum), initial)
-        XCTAssertEqual(initial.report.requested, Int.max)
-        XCTAssertEqual(initial.report.notStarted, Int.max)
+        XCTAssertEqual(initial.report.requested, UInt64(Int.max))
+        XCTAssertEqual(initial.report.notStarted, UInt64(Int.max))
         XCTAssertTrue(initial.pending.isEmpty)
 
-        // Rust64 permits first_job=0/jobs=2^63/cases=0. Its corresponding
-        // initial state is internally consistent: BOTH requested and not_started
-        // increase. This witnesses a native representation rejection, not a
-        // malformed lifecycle state or a Rust execution receipt.
-        var rust64Only = nativeMaximum
+        // Both report counts cross the signed boundary, with the lifecycle
+        // configuration preserving the same full-width requested count.
+        var rust64 = nativeMaximum
         let beyondSigned: [UInt8] = [0,0,0,0,0,0,0,128]
-        rust64Only.replaceSubrange(0..<8, with: beyondSigned)
-        rust64Only.replaceSubrange(24..<32, with: beyondSigned)
-        XCTAssertNil(Int(exactly: UInt64(1) << 63))
-        XCTAssertThrowsError(try fixture.wire.decodeState(rust64Only)) {
-            XCTAssertEqual(String(describing: $0), "campaign lifecycle count exceeds native Int")
-        }
+        rust64.replaceSubrange(0..<8, with: beyondSigned)
+        rust64.replaceSubrange(24..<32, with: beyondSigned)
+        let core64 = CampaignLifecycle(config: CampaignConfig64(jobs: UInt64(1) << 63, fuzz: FuzzConfig64(cases: 0)))
+        let wire64 = CampaignLifecycleTestCodec(core: core64)
+        XCTAssertEqual(try wire64.decodeState(rust64), try core64.initialState())
+        XCTAssertEqual(try wire64.encodeState(core64.initialState()), rust64)
         // IDs and work totals are numbers, not counts, and retain full u64.
         let full = CampaignLifecycleInput.complete(.max,
             CampaignSummary(outcome: .completed, transitions: .max, cases: .max, skippedChecks: .max))

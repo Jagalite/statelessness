@@ -39,43 +39,43 @@ func (c runControl) stop() string {
 	return ""
 }
 
-type FuzzConfig struct {
+type FuzzConfig64 struct {
 	Seed            uint64
-	Cases, MaxSteps int
+	Cases, MaxSteps uint64
 	MaxTransitions  uint64
 	MutationPercent int
 }
 
-func DefaultFuzzConfig() FuzzConfig { return FuzzConfig{0, 1000, 100, 100000, 50} }
+func DefaultFuzzConfig64() FuzzConfig64 { return FuzzConfig64{0, 1000, 100, 100000, 50} }
 
-type FuzzReport[I any] struct {
+type FuzzReport64[I any] struct {
 	Termination                string
 	Seed                       uint64
-	Cases                      int
+	Cases                      uint64
 	Transitions, SkippedChecks uint64
 	Failure                    *Failure[I]
 	// Guidance is nil for ordinary fuzz and owned by a successful guided report.
-	Guidance *GuidanceReport[I]
+	Guidance *GuidanceReport64[I]
 }
 
-func Fuzz[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig) (*FuzzReport[I], error) {
-	return FuzzWithLimits(g, config, RunLimits{})
+func Fuzz64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64) (*FuzzReport64[I], error) {
+	return FuzzWithLimits64(g, config, RunLimits{})
 }
-func FuzzWithLimits[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limits RunLimits) (*FuzzReport[I], error) {
-	return fuzzObserved(g, config, limits, nil)
+func FuzzWithLimits64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits) (*FuzzReport64[I], error) {
+	return fuzzObserved64(g, config, limits, nil)
 }
-func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport[I], error) {
+func fuzzObserved64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport64[I], error) {
 	if e := validateFuzzModel(g); e != nil {
 		return nil, e
 	}
-	if e := validateFuzzConfig(config); e != nil {
+	if e := validateFuzzConfig64(config); e != nil {
 		return nil, e
 	}
 	control, e := newRunControl(limits)
 	if e != nil {
 		return nil, e
 	}
-	return fuzzKernel(g, config, control, observer, nil)
+	return fuzzKernel64(g, config, control, observer, nil)
 }
 func searchEdge[S, I, O any](m Model[S, I, O], state S, input I, t Transition[S, O], skipped *uint64) ([]Violation, error) {
 	checks := []Check{}
