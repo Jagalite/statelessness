@@ -143,6 +143,7 @@ class WatchEvent:
     phase: str = 'post-turn'
     completeness: str = 'complete'
     trigger: str = 'changed'
+    inspection_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -154,7 +155,7 @@ class ObservationSummary:
 
 
 def _event_bytes(event):
-    return 256+_node_bytes(event.value)+_schema_bytes(event.schema)+_payload_bytes(event.model)+_payload_bytes(event.machine)+sum(_payload_bytes(s.value)+32 for s in event.path)+sum(len(p.encode('utf8')) for p in event.failing_properties)
+    return 256+len(event.inspection_error or '')+_node_bytes(event.value)+_schema_bytes(event.schema)+_payload_bytes(event.model)+_payload_bytes(event.machine)+sum(_payload_bytes(s.value)+32 for s in event.path)+sum(len(p.encode('utf8')) for p in event.failing_properties)
 
 
 class WatchRegistry:
@@ -164,6 +165,7 @@ class WatchRegistry:
         self._revision,self._next=0,1
         self._entries,self._ring={},[]
         self._bytes,self._dropped,self._gaps,self._pending_dropped=0,0,0,0
+        self._inspection_errors=0
         self._last,self._failure=None,None
         self._busy=False
     @property
@@ -175,7 +177,7 @@ class WatchRegistry:
     @property
     def interested(self): return any(e['state']=='active' for e in self._entries.values())
     @property
-    def health(self): return {'dropped':self._dropped,'observation_gaps':self._gaps,'retained_bytes':self._bytes}
+    def health(self): return {'dropped':self._dropped,'observation_gaps':self._gaps,'retained_bytes':self._bytes,'inspection_errors':self._inspection_errors}
     def _guard(self):
         if self._busy: raise ModelError('watch registry already owned')
     def _advance(self):
@@ -197,7 +199,7 @@ class WatchRegistry:
         if len(self._entries)>=self._limits.max_watches or self._next==U64_MAX: raise ModelError('watch capacity')
         self._advance(); id=self._next; self._next+=1
         self._entries[id]={'config':_copy(config),'generation':1,'state':'active' if config.enabled else 'disabled',
-            'selected':0,'delivered':0,'baseline':None,'reset':'initial'}
+            'selected':0,'delivered':0,'baseline':None,'reset':'initial','effective_sequence':0 if self._last is None else self._last.sequence+1}
         self._lifecycle(id,'watch-enabled' if config.enabled else 'watch-disabled')
         return self._ack(id)
     def update(self,id,config):
@@ -216,7 +218,7 @@ class WatchRegistry:
             result=inspect(value,InspectQuery(path=config.selector.path,schema_version=config.selector.schema_version,page=config.page,limits=config.limits))
             if result.node.kind=='redacted': raise ModelError('redacted watch path')
         finally: self._busy=False
-        ack=self.add(config); self._entries[ack.watch_id].update(validated_schema=result.schema,resolved_type=result.node.kind)
+        ack=self.add(config); self._entries[ack.watch_id].update(validated_schema=result.schema,resolved_type=result.node.kind,resolved_wire_type=result.node.value[0] if result.node.kind=='scalar' else result.node.kind)
         return self._ack(ack.watch_id)
     def update_validated(self,id,config,value):
         self._guard(); _natural(id,'watch id'); self._config(config)
@@ -226,7 +228,7 @@ class WatchRegistry:
             result=inspect(value,InspectQuery(path=config.selector.path,schema_version=config.selector.schema_version,page=config.page,limits=config.limits))
             if result.node.kind=='redacted': raise ModelError('redacted watch path')
         finally: self._busy=False
-        self.update(id,config); self._entries[id].update(validated_schema=result.schema,resolved_type=result.node.kind)
+        self.update(id,config); self._entries[id].update(validated_schema=result.schema,resolved_type=result.node.kind,resolved_wire_type=result.node.value[0] if result.node.kind=='scalar' else result.node.kind)
         return self._ack(id)
     def set_state(self,id,state):
         self._guard(); _natural(id,'watch id')
@@ -245,7 +247,7 @@ class WatchRegistry:
         ack=self.set_state(id,'disabled'); del self._entries[id]
         return ack
     def list(self):
-        return tuple({'id':id,'generation':e['generation'],'state':e['state'],'config':_copy(e['config']),'has_baseline':e['baseline'] is not None} for id,e in self._entries.items())
+        return tuple({'id':id,'generation':e['generation'],'state':e['state'],'config':_copy(e['config']),'has_baseline':e['baseline'] is not None,'effective_sequence':e.get('effective_sequence',0)} for id,e in self._entries.items())
     def snapshot(self): return {'capture_revision':self._revision,'at':self._last,'events':_copy(tuple(e for e,size in self._ring)),'health':self.health}
     def current(self,id):
         _natural(id,'watch id')
@@ -367,6 +369,7 @@ class WatchRegistry:
                     e['delivered']+=int(fire)
                     if fire and (context.property_failure or (e['delivered']-1)%config.delivery_interval==0): emitted+=int(self._push(event))
                 except Exception as error:
+                    self._inspection_errors=min(U64_MAX,self._inspection_errors+1)
                     e['baseline']=None; e['reset']='initial'
                     # Do not invoke arbitrary host exception formatting here: even
                     # __str__ can throw. Only our exact schema diagnostics classify
@@ -378,6 +381,8 @@ class WatchRegistry:
                     e['reset']='source-changed' if kind=='schema-changed' else 'initial'
                     event=WatchEvent(id,e['generation'],self._revision,context.snapshot,context.origin,kind,path=config.selector.path,completeness='unavailable',property_failure=context.property_failure,
                         failing_properties=tuple(p[:256] for p in context.failing_properties[:32]),model=context.model,machine=context.machine,phase=context.phase,trigger=config.trigger)
+                    code={'path not found':'PathNotFound','wrong path segment':'WrongPathSegment','invalid page':'InvalidPage','work limit':'WorkLimit','projection budget exceeded':'BudgetExceeded','path budget exceeded':'BudgetExceeded'}.get(error.args[0] if type(error) is InspectError and len(error.args)==1 and type(error.args[0]) is str else '', 'InvalidMetadata')
+                    event=replace(event,inspection_error=code)
                     e['current']=event; emitted+=int(self._push(event))
                 if config.ttl_observations is not None and e['selected']>=config.ttl_observations:
                     e['state']='expired'; e['config']=replace(config,enabled=False); e['baseline']=None; e['current']=None; self._lifecycle(id,'watch-expired')

@@ -83,6 +83,7 @@ type WatchContext struct {
 }
 type WatchAck struct{ WatchID, Generation, CaptureRevision, EffectiveSequence uint64 }
 type WatchEvent struct {
+	InspectionError                                string
 	Snapshot                                       SnapshotID
 	PreviousSnapshot                               *SnapshotID
 	Origin, Phase, SchemaName, Completeness        string
@@ -101,6 +102,9 @@ type watchSource struct {
 	Model, Machine, Origin string
 }
 type watchEntry struct {
+	current                                                                       *WatchEvent
+	currentBytes                                                                  uint64
+	effectiveSequence                                                             uint64
 	pendingBaseline                                                               string
 	source                                                                        watchSource
 	high                                                                          bool
@@ -113,13 +117,15 @@ type watchEntry struct {
 }
 type WatchHealth struct{ Records, Bytes, DroppedTotal, InspectionFailures, ExporterFailures uint64 }
 type WatchRegistry struct {
-	droppedTotal, inspectionFailures, exporterFailures              uint64
-	limits                                                          WatchLimits
-	auth                                                            WatchAuthorization
-	entries                                                         map[uint64]*watchEntry
-	next, revision, lastSequence, ringBytes, baselineBytes, dropped uint64
-	ring                                                            []WatchEvent
-	busy                                                            bool
+	currentBytes                                                        uint64
+	observed                                                            bool
+	observationGaps, droppedTotal, inspectionFailures, exporterFailures uint64
+	limits                                                              WatchLimits
+	auth                                                                WatchAuthorization
+	entries                                                             map[uint64]*watchEntry
+	next, revision, lastSequence, ringBytes, baselineBytes, dropped     uint64
+	ring                                                                []WatchEvent
+	busy                                                                bool
 }
 
 func NewWatchRegistry(limits WatchLimits, auth WatchAuthorization) (*WatchRegistry, error) {
@@ -153,6 +159,9 @@ func cloneWatchConfig(c WatchConfig) WatchConfig {
 	return c
 }
 func (r *WatchRegistry) validate(c WatchConfig) error {
+	if r.observed && r.lastSequence == math.MaxUint64 {
+		return fmt.Errorf("revision exhausted")
+	}
 	if !r.auth.allows(c.Selector.Path) {
 		return fmt.Errorf("unauthorized watch path")
 	}
@@ -202,9 +211,9 @@ func (r *WatchRegistry) Add(c WatchConfig) (WatchAck, error) {
 	id := r.next
 	r.next++
 	r.revision++
-	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: 1}
+	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: 1, effectiveSequence: r.boundary()}
 	r.push(WatchEvent{WatchID: id, Generation: 1, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: "watch_enabled"})
-	return WatchAck{id, 1, r.revision, r.lastSequence}, nil
+	return WatchAck{id, 1, r.revision, r.boundary()}, nil
 }
 func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if r.busy {
@@ -220,6 +229,9 @@ func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if r.revision == math.MaxUint64 || w.generation == math.MaxUint64 {
 		return WatchAck{}, fmt.Errorf("revision exhausted")
 	}
+	r.currentBytes -= w.currentBytes
+	w.currentBytes = 0
+	w.current = nil
 	r.baselineBytes -= w.baselineBytes
 	r.revision++
 	generation := w.generation + 1
@@ -227,13 +239,13 @@ func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if !w.config.Enabled && c.Enabled {
 		reason = "reenabled"
 	}
-	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: generation, pendingBaseline: reason}
+	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: generation, pendingBaseline: reason, effectiveSequence: r.boundary()}
 	kind := "watch_enabled"
 	if !c.Enabled {
 		kind = "watch_disabled"
 	}
 	r.push(WatchEvent{WatchID: id, Generation: generation, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: kind})
-	return WatchAck{id, generation, r.revision, r.lastSequence}, nil
+	return WatchAck{id, generation, r.revision, r.boundary()}, nil
 }
 func (r *WatchRegistry) Remove(id uint64) error {
 	if r.busy {
@@ -243,10 +255,13 @@ func (r *WatchRegistry) Remove(id uint64) error {
 	if !ok {
 		return fmt.Errorf("unknown watch")
 	}
-	if r.revision == math.MaxUint64 {
+	if r.revision == math.MaxUint64 || w.generation == math.MaxUint64 || r.observed && r.lastSequence == math.MaxUint64 {
 		return fmt.Errorf("revision exhausted")
 	}
 	r.revision++
+	r.currentBytes -= w.currentBytes
+	w.currentBytes = 0
+	w.current = nil
 	r.baselineBytes -= w.baselineBytes
 	delete(r.entries, id)
 	r.push(WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: "watch_removed"})
@@ -276,6 +291,7 @@ func retainedNode(n InspectNode) uint64 {
 	return size
 }
 func (r *WatchRegistry) push(event WatchEvent) {
+
 	if event.Source != nil {
 		source := *event.Source
 		source.File = strings.Clone(source.File)
@@ -327,6 +343,7 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		return fmt.Errorf("watch context metadata budget")
 	}
 	r.lastSequence = context.Snapshot.Sequence
+	r.observed = true
 	// Known property failures force capture, but never bypass watch policy gates.
 	propertyFailure := context.PropertyStatusKnown && context.PropertyFailed
 	var adapter InspectAdapter
@@ -350,6 +367,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		}
 		if w.config.TTLObservations != nil && w.selected > *w.config.TTLObservations {
 			w.expired = true
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
 			r.baselineBytes -= w.baselineBytes
 			w.baselineBytes = 0
 			w.baseline = nil
@@ -371,6 +391,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		w.evaluated++
 		if e != nil || result.Node.Kind == "redacted" {
 			// An unavailable observation breaks continuity, not retained history.
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
 			r.baselineBytes -= w.baselineBytes
 			w.baselineBytes = 0
 			w.baseline = nil
@@ -380,10 +403,18 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			if e != nil {
 				r.inspectionFailures++
 				event.Kind = "inspection_error"
+				event.InspectionError = normalizedInspectionError(e.Error())
 				event.Completeness = "unavailable"
 			} else {
 				event.Kind = "redacted_path"
 				event.Completeness = "redacted"
+			}
+			size := retainedEvent(event)
+			if size <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
+				copy := event
+				w.current = &copy
+				w.currentBytes = size
+				r.currentBytes += size
 			}
 			r.push(event)
 			continue
@@ -459,6 +490,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			}
 		}
 
+		r.currentBytes -= w.currentBytes
+		w.currentBytes = 0
+		w.current = nil
 		r.baselineBytes -= w.baselineBytes
 		w.baseline = nil
 		w.baselineBytes = 0
@@ -472,7 +506,7 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		}
 		if !result.Node.IsComplete() {
 			w.pendingBaseline = "observation_gap"
-		} else if size <= r.limits.MaxBaselineBytes-r.baselineBytes {
+		} else if size <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
 			copy := result
 			w.baseline = &copy
 			w.baselineBytes = size
@@ -484,6 +518,20 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			w.pendingBaseline = "evicted"
 			event.Kind = "baseline_evicted"
 			deliver = true
+		}
+		if propertyFailure {
+			event.Kind = "property_failure"
+		}
+		// Retain current observations independently of ring sampling, under the
+		// same aggregate byte budget as baselines. Never retain a rejected node.
+		current := event
+		current.Node = &result.Node
+		current.Diff = kind
+		currentSize := retainedEvent(current)
+		if currentSize <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
+			w.current = &current
+			w.currentBytes = currentSize
+			r.currentBytes += currentSize
 		}
 		if deliver {
 			w.delivered++
@@ -587,7 +635,7 @@ func unsignedProjection(node InspectNode) (*big.Int, bool) {
 }
 
 func retainedEvent(event WatchEvent) uint64 {
-	size := uint64(unsafe.Sizeof(WatchEvent{})) + uint64(len(event.Kind)+len(event.Origin)+len(event.Phase)+len(event.SchemaName)+len(event.Completeness))
+	size := uint64(unsafe.Sizeof(WatchEvent{})) + uint64(len(event.Kind)+len(event.InspectionError)+len(event.Origin)+len(event.Phase)+len(event.SchemaName)+len(event.Completeness))
 	if event.Node != nil {
 		size += retainedNode(*event.Node)
 	}
@@ -608,6 +656,7 @@ func (r *WatchRegistry) Gap(context WatchContext) error {
 	if r.busy {
 		return fmt.Errorf("watch callback active")
 	}
+	r.observationGaps++
 	ids := make([]uint64, 0, len(r.entries))
 	for id := range r.entries {
 		ids = append(ids, id)
@@ -616,6 +665,9 @@ func (r *WatchRegistry) Gap(context WatchContext) error {
 	for _, id := range ids {
 		w := r.entries[id]
 		if w.config.Enabled && matchesWatch(w.config.Selector, context) {
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
 			r.baselineBytes -= w.baselineBytes
 			w.baseline = nil
 			w.source = watchSource{}
@@ -658,5 +710,35 @@ func (r *WatchRegistry) AddValidated(expectedRevision uint64, config WatchConfig
 	if e != nil {
 		return ResolvedWatchAck{}, e
 	}
-	return ResolvedWatchAck{ack, result.Schema, result.Node.Kind}, nil
+	kind := result.Node.Kind
+	if result.Node.Scalar != nil {
+		kind = result.Node.Scalar.Kind
+	}
+	return ResolvedWatchAck{ack, result.Schema, kind}, nil
+}
+
+func (r *WatchRegistry) boundary() uint64 {
+	if !r.observed {
+		return 0
+	}
+	if r.lastSequence == math.MaxUint64 {
+		return math.MaxUint64
+	}
+	return r.lastSequence + 1
+}
+
+func normalizedInspectionError(message string) string {
+	switch message {
+	case "path not found", "inspection path not found":
+		return "PathNotFound"
+	case "wrong path segment", "wrong inspection path segment":
+		return "WrongPathSegment"
+	case "invalid page":
+		return "InvalidPage"
+	case "work limit":
+		return "WorkLimit"
+	case "budget exceeded", "projection budget exceeded", "path budget exceeded":
+		return "BudgetExceeded"
+	}
+	return "InvalidMetadata"
 }

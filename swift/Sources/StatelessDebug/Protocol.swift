@@ -295,7 +295,7 @@ public final class ProtocolAdapter<S,I,O> {
     private let host: ProtocolHostBindings?
     private let decodeInput: ((Data) throws -> I)?
     private let encodeInput: ((I) throws -> Data)?
-    private var candidates: [(UInt64,CandidateToken<I>,Int)] = []
+    private var candidates: [(UInt64,UInt64,Data,Int)] = []
     private var candidateBytes = 0
     private var nextCandidate: UInt64 = 0
     public init(session: DebugSession<S,I,O>, authority: ProtocolAuthority = ProtocolAuthority(), limits: ProtocolLimits = ProtocolLimits(), decodeInput: ((Data) throws -> I)? = nil, encodeInput: ((I) throws -> Data)? = nil, host: ProtocolHostBindings? = nil) throws {
@@ -430,6 +430,16 @@ public final class ProtocolAdapter<S,I,O> {
                 fields["outputs.truncated"] = "bool:\(outputs.count > limits.maxPageSize)"
             }
             return fields
+        case "export_trace" where host?.commands.contains("export_trace") != true:
+            guard authority.exportExactTrace else { throw ProtocolError.unauthorized }
+            try validateHandle(ProtocolWire.quantity(r.arguments[0])); try session.checkRevision(r.expectedRevision)
+            let offset = try ProtocolWire.quantity(r.arguments[1]), count = try ProtocolWire.quantity(r.arguments[2])
+            guard count > 0, count <= UInt64((limits.maxFieldBytes-6)/2), offset <= UInt64.max-count else { throw ProtocolError.limit }
+            guard session.capabilities.exactRecording else { throw ProtocolError.unsupported }
+            let window = try session.traceWindow(offset: offset, limit: Int(count))
+            guard offset <= window.total else { throw ProtocolError.invalidInput }
+            let next = offset + UInt64(window.bytes.count)
+            return ["export.kind":"enum:exact_trace_sensitive","export.redacted":"bool:false","export.snapshot_revision":"u64:\(session.revision)","export.snapshot_sequence":"u64:\(session.sequence)","export.total_bytes":"u64:\(window.total)","export.offset":"u64:\(offset)","export.returned_bytes":"u64:\(window.bytes.count)","export.next_offset":next == window.total ? "none" : "u64:\(next)","export.complete":"bool:\(next == window.total)","export.retained_steps":"u64:\(window.retained)","export.evicted_steps":"u64:\(window.evicted)","export.capture_outcome":"enum:\(stopCode)","export.bytes":"bytes:" + window.bytes.map {String(format:"%02x",$0)}.joined()]
         case "step":
             guard r.arguments.count == 1 else { throw ProtocolError.malformed }
             guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision)
@@ -442,26 +452,26 @@ public final class ProtocolAdapter<S,I,O> {
             guard let o = Int(exactly:offset), let n = Int(exactly:limit), n > 0, n <= limits.maxPageSize, n <= limits.maxCandidates else { throw ProtocolError.limit }
             let page = try session.inputs(expectedRevision:r.expectedRevision,offset:o,limit:n)
             var fields = ["complete":"bool:\(page.complete)","next_offset":page.nextOffset.map {"u64:\($0)"} ?? "none"]
-            var pending: [(UInt64,CandidateToken<I>,Int)] = []; var pendingBytes = 0
+            var pending: [(UInt64,UInt64,Data,Int)] = []; var pendingBytes = 0
             for (index,token) in page.candidates.enumerated() {
                 guard nextCandidate < .max else { throw ProtocolError.exhausted }
                 let encoded = try session.encodedCandidate(token,encode:encodeInput!)
                 guard encoded.count <= limits.maxInputBytes, encoded.count <= limits.maxCandidateBytes else { throw ProtocolError.limit }
-                guard encoded.count <= limits.maxCandidateBytes-pendingBytes else { throw ProtocolError.limit }; pendingBytes += encoded.count
-                nextCandidate += 1; pending.append((nextCandidate,token,encoded.count))
+                guard encoded.count+64 <= limits.maxCandidateBytes-pendingBytes else { throw ProtocolError.limit }; pendingBytes += encoded.count+64
+                nextCandidate += 1; pending.append((nextCandidate,token.revision,encoded,encoded.count+64))
                 fields["candidates.\(index).token"] = "u64:\(nextCandidate)"
                 if authority.readExactValues { fields["candidates.\(index).encoded"] = "bytes:" + encoded.map {String(format:"%02x",$0)}.joined() }
             }
             fields["candidates.returned"] = "u64:\(pending.count)"
             _ = try ProtocolWire.encodeResponse(ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:session.revision,configuration:configuration,error:nil,fields:fields),limits:limits)
             for item in pending {
-                while !candidates.isEmpty && (candidates.count >= limits.maxCandidates || item.2 > limits.maxCandidateBytes-candidateBytes) { candidateBytes -= candidates.removeFirst().2 }
-                candidates.append(item); candidateBytes += item.2
+                while !candidates.isEmpty && (candidates.count >= limits.maxCandidates || item.3 > limits.maxCandidateBytes-candidateBytes) { candidateBytes -= candidates.removeFirst().3 }
+                candidates.append(item); candidateBytes += item.3
             }; return fields
         case "select" where encodeInput != nil:
             guard r.arguments.count == 1 else { throw ProtocolError.malformed }; guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision)
-            let id = try ProtocolWire.quantity(r.arguments[0]); guard let candidate = candidates.first(where: {$0.0 == id}), candidate.1.revision == session.revision else { throw ProtocolError.staleHandle }
-            let result = try session.step(candidate.1); return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
+            let id = try ProtocolWire.quantity(r.arguments[0]); guard let candidate = candidates.first(where: {$0.0 == id}), candidate.1 == session.revision else { throw ProtocolError.staleHandle }
+            let result = try session.stepCanonicalCandidate(expectedRevision: r.expectedRevision, bytes: candidate.2, decodeInput: decodeInput); return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
         case "cancel":
             guard r.arguments.isEmpty else { throw ProtocolError.malformed }; guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.cancel(expectedRevision: r.expectedRevision); return [:]
         default: return try executeHost(r)

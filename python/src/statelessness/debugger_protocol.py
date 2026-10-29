@@ -30,6 +30,8 @@ class ProtocolLimits:
     max_candidates: int = 256
     max_candidate_bytes: int = 256 * 1024
     max_telemetry_snapshot_bytes: int = 8 * 1024 * 1024
+    max_probe_profiles: int = 64
+    max_probe_profile_bytes: int = 256 * 1024
     max_event_entries: int = 1024
     max_event_bytes: int = 256 * 1024
     def __post_init__(self):
@@ -309,10 +311,27 @@ class ProtocolSession:
         self.session,self.decode_input,self.authority,self.limits=session,decode_input,authority,limits
         self.encode_input=encode_input
         self.encode_output_into=encode_output_into
+        self._watches=None; self._probes=None
         self._busy=False; self.reconnect()
         encode_response(self._response(0),self.limits)
     @property
-    def configuration(self): return _u64(0 if self._configuration_revision is None else self._configuration_revision())
+    def configuration(self): return self._watches.registry.capture_revision if self._watches is not None else _u64(0 if self._configuration_revision is None else self._configuration_revision())
+    def enable_watches(self,registry,*,project=None):
+        if self._busy: raise ProtocolError('busy')
+        if self._watches is not None: raise ProtocolError('invalid_input')
+        from .debugger_protocol_services import WatchAttachment
+        attachment=WatchAttachment(self,registry,project)
+        attachment.observe()
+        self._watches=attachment
+    def attach_probes(self,hub,profiles,exposed_sinks):
+        if self._busy: raise ProtocolError('busy')
+        if self._probes is not None: raise ProtocolError('limit')
+        from .debugger_protocol_services import ProbeAttachment
+        self._probes=ProbeAttachment(self,hub,profiles,exposed_sinks)
+    def _observe_watches(self):
+        if self._watches is not None:
+            try: self._watches.observe()
+            except Exception: self._watches.registry.observation_gap()
     def reconnect(self):
         if getattr(self,'_busy',False): raise ProtocolError('busy')
         if getattr(self,'connected',False): raise ProtocolError('invalid_input')
@@ -407,14 +426,14 @@ class ProtocolSession:
         _decode_arguments(c,a,self.limits)
         if c=='status':
             boolean=lambda value:'bool:'+str(bool(value)).lower()
-            probes='probe_status' in self._adapters
+            probes=self._probes is not None or 'probe_status' in self._adapters
             telemetry='telemetry_health' in self._adapters
             return (
                 ('mode','enum:simulation'),('phase','enum:'+self.session.phase.capitalize()),
                 ('sequence',f'u64:{self.session.sequence}'),('environment','string:'+self.session.policy.label),
                 ('capability.input_delivery',boolean(self.authority.deliver_inputs)),
                 ('capability.inspection',boolean('inspect' in self._adapters)),
-                ('capability.watch_configuration',boolean(self.authority.configure_watches and 'watch' in self._adapters)),
+                ('capability.watch_configuration',boolean(self.authority.configure_watches and (self._watches is not None or 'watch' in self._adapters))),
                 ('capability.exact_values',boolean(self.authority.read_exact_values)),
                 ('capability.live_control','bool:false'),('capability.live_restore','bool:false'),
                 ('capability.effects','bool:false'),('capability.probe_queries',boolean(probes)),
@@ -432,6 +451,10 @@ class ProtocolSession:
                     _ADAPTER_COMMANDS.get(c,('',None))[1])
         if permission and not getattr(self.authority,permission): raise ProtocolError('unauthorized')
         if c in ('watch','unwatch') and r.expected_configuration!=self.configuration: raise ProtocolError('stale_configuration')
+        if self._watches is not None and c in ('watch','unwatch','watch_status','watch_current'):
+            return self._watches.execute(r,_parse_adapter(c,a,self.limits))
+        if self._probes is not None and c in ('probe_status','probe_configure','probe_events'):
+            return self._probes.execute(r,_parse_adapter(c,a,self.limits))
         if c in self._adapters:
             typed=_parse_adapter(c,a,self.limits)
             if c in _HANDLE_COMMANDS and self._handles.get(typed[0])!=self.session.revision: raise ProtocolError('stale_handle')
@@ -500,7 +523,8 @@ class ProtocolSession:
             except Exception as error:
                 if 'not permitted' in str(error): raise ProtocolError('invalid_input') from None
                 raise
-            if result.delivered: self._publish('transition')
+            if result.delivered:
+                self._observe_watches(); self._publish('transition')
             return (('delivered','bool:'+str(result.delivered).lower()),('sequence',f'u64:{result.sequence}'))
         if c=='events':
             (limit,)=_parse_adapter(c,a,self.limits)
@@ -568,7 +592,7 @@ class ProtocolSession:
                 self.session.write_trace(window)
                 if offset>window.position: raise ProtocolError('invalid_input')
                 next_offset=offset+len(window.chunk)
-                return (('export.kind','enum:exact_trace_sensitive'),('export.redacted','bool:false'),('export.snapshot_revision',f'u64:{self.session.revision}'),('export.snapshot_sequence',f'u64:{self.session.sequence}'),('export.total_bytes',f'u64:{window.position}'),('export.offset',f'u64:{offset}'),('export.returned_bytes',f'u64:{len(window.chunk)}'),('export.next_offset','none' if next_offset==window.position else f'u64:{next_offset}'),('export.complete','bool:'+str(next_offset==window.position).lower()),('export.bytes','bytes:'+window.chunk.hex()))
+                return (('export.kind','enum:exact_trace_sensitive'),('export.redacted','bool:false'),('export.snapshot_revision',f'u64:{self.session.revision}'),('export.snapshot_sequence',f'u64:{self.session.sequence}'),('export.total_bytes',f'u64:{window.position}'),('export.offset',f'u64:{offset}'),('export.returned_bytes',f'u64:{len(window.chunk)}'),('export.next_offset','none' if next_offset==window.position else f'u64:{next_offset}'),('export.complete','bool:'+str(next_offset==window.position).lower()),('export.retained_steps',f'u64:{self.session._recorder.retained_steps()}'),('export.evicted_steps',f'u64:{self.session._recorder.evicted_steps()}'),('export.capture_outcome','enum:'+('none' if self.session.stop is None else self.session.stop.kind)),('export.bytes','bytes:'+window.chunk.hex()))
             raise ProtocolError('unsupported')
         if c in ('step','cancel'):
             if not self.authority.deliver_inputs: raise ProtocolError('unauthorized')
@@ -587,7 +611,8 @@ class ProtocolSession:
             except Exception as e:
                 if 'not permitted' in str(e): raise ProtocolError('invalid_input') from None
                 raise
-            if result.delivered: self._publish('transition')
+            if result.delivered:
+                self._observe_watches(); self._publish('transition')
             return (('delivered','bool:'+str(result.delivered).lower()),('sequence',f'u64:{result.sequence}'))
         raise ProtocolError('unsupported')
 

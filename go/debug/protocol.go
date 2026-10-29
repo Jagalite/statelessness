@@ -19,14 +19,15 @@ func (e ProtocolError) Error() string { return string(e) }
 
 type ProtocolLimits struct {
 	MaxFrame, MaxField, MaxFields, MaxInput, MaxCache, MaxCacheBytes, MaxHandles int
+	MaxCandidates, MaxCandidateBytes                                             int
 	MaxPage, MaxTelemetrySnapshot                                                int
 }
 
 func DefaultProtocolLimits() ProtocolLimits {
-	return ProtocolLimits{MaxFrame: 65536, MaxField: 8192, MaxFields: 4096, MaxInput: 8192, MaxCache: 64, MaxCacheBytes: 4 << 20, MaxHandles: 64, MaxPage: 100, MaxTelemetrySnapshot: 8 << 20}
+	return ProtocolLimits{MaxFrame: 65536, MaxField: 8192, MaxFields: 4096, MaxInput: 8192, MaxCache: 64, MaxCacheBytes: 4 << 20, MaxHandles: 64, MaxCandidates: 256, MaxCandidateBytes: 256 << 10, MaxPage: 100, MaxTelemetrySnapshot: 8 << 20}
 }
 func (l ProtocolLimits) valid() bool {
-	return l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0 && l.MaxPage > 0 && l.MaxTelemetrySnapshot > 0
+	return l.MaxCandidates > 0 && l.MaxCandidateBytes > 0 && l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0 && l.MaxPage > 0 && l.MaxTelemetrySnapshot > 0
 }
 func ReadFrame(r io.Reader, max int) ([]byte, error) {
 	var h [4]byte
@@ -291,6 +292,10 @@ type ProtocolSession[S, I, O any] struct {
 	cacheBytes              int
 	handles                 map[uint64]uint64
 	handleOrder             []uint64
+	candidates              []protocolCandidate[I]
+	nextCandidate           uint64
+	candidateBytes          int
+	watches                 *protocolWatches[S]
 }
 
 func NewProtocolSession[S, I, O any](s *Session[S, I, O], decode func([]byte) (I, error), a ProtocolAuthority, l ProtocolLimits) (*ProtocolSession[S, I, O], error) {
@@ -335,6 +340,8 @@ func (p *ProtocolSession[S, I, O]) Reconnect() error {
 	p.cacheBytes = 0
 	p.handles = map[uint64]uint64{}
 	p.handleOrder = nil
+	p.candidates = nil
+	p.candidateBytes = 0
 	p.connected = true
 	return nil
 }
@@ -385,7 +392,11 @@ func (p *ProtocolSession[S, I, O]) Handle(r ProtocolRequest) ProtocolResponse {
 		return fail("retired_request")
 	}
 	p.high = r.ID
+	beforeSequence := p.session.Sequence()
 	out = p.execute(r, out)
+	if p.session.Sequence() != beforeSequence {
+		p.observeWatches()
+	}
 	out.Revision = p.session.Revision()
 	out.Configuration = p.configuration
 	wire, err := EncodeResponse(out, p.limits)
@@ -663,6 +674,12 @@ func (p *ProtocolSession[S, I, O]) adapter(r ProtocolRequest, out ProtocolRespon
 		if baseline != p.session.Revision() {
 			return fail("stale_revision")
 		}
+	}
+	if p.watches != nil && (r.Command == "watch" || r.Command == "unwatch" || r.Command == "watch_status" || r.Command == "watch_current") {
+		return p.watchCommand(r, out)
+	}
+	if p.adapters[r.Command] == nil && (r.Command == "inputs" || r.Command == "select" || r.Command == "export_trace") {
+		return p.concrete(r, out)
 	}
 	host := p.adapters[r.Command]
 	if host == nil {
