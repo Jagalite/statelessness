@@ -35,6 +35,26 @@ NATIVE_STAGE_PATHS = ('python', 'go', 'typescript', 'swift', 'conformance', 'spe
                       'scripts', 'Package.swift')
 
 
+def select_rustup_proxies(attempt):
+    """Select one rustup toolchain before recording any compiler commands.
+
+    PATH can put Homebrew Cargo ahead of rustup. The compile proof requires
+    invoked tools to match rustup's resolution, so choose its actual sibling
+    proxies rather than weakening that identity check after compilation.
+    """
+    rustup = shutil.which('rustup', path=attempt.env.get('PATH'))
+    if rustup is None:
+        raise ValueError('rustup is required for sealed Rust qualification')
+    directory = Path(rustup).absolute().parent
+    identity = q.executable_identity(Path(rustup))
+    for name in ('cargo', 'rustc', 'rustdoc'):
+        proxy = directory / name
+        if (not proxy.is_file() or not os.access(proxy, os.X_OK)
+                or q.executable_identity(proxy)['file'] != identity['file']):
+            raise ValueError('expected matching rustup proxy: ' + str(proxy))
+    attempt.env['PATH'] = str(directory) + os.pathsep + attempt.env.get('PATH', '')
+
+
 def compile_rust(attempt, target):
     if target is None:
         target = attempt.work / 'cargo-target'
@@ -45,6 +65,7 @@ def compile_rust(attempt, target):
     attempt.report['cargo_target'] = str(target)
     attempt.env['CARGO_TARGET_DIR'] = str(target)
     attempt.env['CARGO_INCREMENTAL'] = '0'
+    select_rustup_proxies(attempt)
     cargo = q.require_tool(attempt, 'cargo')
     q.require_tool(attempt, 'rustc')
     # rustup shims alone do not identify the compiler that actually runs.
@@ -346,6 +367,7 @@ def extended(attempt):
     if not receipts or any(q.strict_json(p.read_bytes()).get('status') != 'passed' for p in receipts):
         raise ValueError('missing/failed Go race executable identity receipts')
     attempt.report['go_race_executable_processes'] = len(receipts)
+    select_rustup_proxies(attempt)
     cargo = q.require_tool(attempt, 'cargo')
     rustup = q.require_tool(attempt, 'rustup')
     for name in ('cargo', 'rustc', 'rustdoc'):

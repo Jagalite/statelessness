@@ -587,6 +587,7 @@ class InstalledWatchTests(unittest.TestCase):
             ('typescript-strict-declarations', 'typescript-consumer/node_modules/@jagalite/statelessness/dist/index.d.ts'),
             ('typescript-browser-import-graph', 'typescript-consumer/node_modules/@jagalite/statelessness/dist/index.js'),
             ('typescript-browser-import-graph', 'typescript-consumer/build/consumer.js'),
+            ('browser-first-consumption', 'typescript-consumer/build/consumer.js'),
             ('authority-first-consumption', 'swift-consumer/.build/debug/ObservationConsumer'),
         )
         class BoundaryReached(Exception):
@@ -655,16 +656,65 @@ class InstalledWatchTests(unittest.TestCase):
                         return b'', b'', {}
                     attempt.run = run
                     authority = q.SimpleNamespace(qualify=lambda *args: run('authority-first-consumption', []))
+                    browser = q.SimpleNamespace(qualify=lambda *args: run('browser-first-consumption', []))
+                    helpers = {'observation_authority': authority, 'observation_browser': browser}
                     with (patch.object(q, 'load_compile', return_value=binaries),
                           patch.object(q, 'require_tool', side_effect=lambda _, name: name),
                           patch.object(q, 'typescript_compiler', return_value=['node', str(attempt.work / 'tools/bin/tsc')]),
-                          patch.object(q, 'helper', return_value=authority)):
+                          patch.object(q, 'helper', side_effect=helpers.__getitem__)):
                         if mutate:
                             with self.assertRaisesRegex(ValueError, 'input changed'):
                                 q.installed(attempt, literal_fixture(), rust, root / 'unused-receipt')
                         else:
                             with self.assertRaises(BoundaryReached):
                                 q.installed(attempt, literal_fixture(), rust, root / 'unused-receipt')
+
+
+class RustToolSelectionTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='observation-tool-selection-')
+        self.addCleanup(self.temp.cleanup)
+        root = Path(self.temp.name)
+        self.brew = root / 'homebrew'; self.brew.mkdir()
+        self.proxies = root / 'cargo-bin'; self.proxies.mkdir()
+        for name in ('cargo', 'rustc', 'rustdoc'):
+            path = self.brew / name
+            path.write_bytes(b'INERT DIFFERENT DIRECT COMPILER\n'); path.chmod(0o755)
+        for name in ('rustup', 'cargo', 'rustc', 'rustdoc'):
+            path = self.proxies / name
+            path.write_bytes(b'INERT MATCHING RUSTUP PROXY\n'); path.chmod(0o755)
+        self.original_path = os.pathsep.join(map(str, (self.brew, self.proxies)))
+        self.attempt = q.SimpleNamespace(env={'PATH': self.original_path})
+        path = ROOT / 'scripts/qualify-native-observation.py'
+        spec = importlib.util.spec_from_file_location('observation_tool_selection', path)
+        self.qualifier = importlib.util.module_from_spec(spec)
+        exec(compile(path.read_bytes(), str(path), 'exec'), self.qualifier.__dict__)
+
+    def test_homebrew_path_precedence_cannot_mix_invoked_and_resolved_tools(self):
+        self.assertEqual(shutil.which('cargo', path=self.original_path), str(self.brew / 'cargo'))
+        self.qualifier.select_rustup_proxies(self.attempt)
+        for name in ('cargo', 'rustc', 'rustdoc', 'rustup'):
+            self.assertEqual(shutil.which(name, path=self.attempt.env['PATH']), str(self.proxies / name))
+        self.assertEqual(self.attempt.env['PATH'].split(os.pathsep)[1:], self.original_path.split(os.pathsep))
+
+    def test_missing_or_unrelated_proxy_rejects_before_changing_environment(self):
+        for name in ('cargo', 'rustc', 'rustdoc'):
+            for mutation in ('missing', 'different', 'nonexecutable'):
+                with self.subTest(tool=name, mutation=mutation):
+                    path = self.proxies / name
+                    if mutation == 'missing': path.unlink()
+                    elif mutation == 'different': path.write_bytes(b'OTHER TOOL\n')
+                    else: path.chmod(0o644)
+                    with self.assertRaisesRegex(ValueError, 'matching rustup proxy'):
+                        self.qualifier.select_rustup_proxies(self.attempt)
+                    self.assertEqual(self.attempt.env['PATH'], self.original_path)
+                    path.write_bytes(b'INERT MATCHING RUSTUP PROXY\n'); path.chmod(0o755)
+
+    def test_missing_rustup_does_not_fall_back_to_unbound_direct_compiler(self):
+        self.attempt.env['PATH'] = str(self.brew)
+        with self.assertRaisesRegex(ValueError, 'rustup is required'):
+            self.qualifier.select_rustup_proxies(self.attempt)
+        self.assertEqual(self.attempt.env['PATH'], str(self.brew))
 
 
 class RawCommandTests(unittest.TestCase):
