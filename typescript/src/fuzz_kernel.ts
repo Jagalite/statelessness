@@ -1,3 +1,4 @@
+import { count64, countLike, arrayGrowth, type Count } from './counts.js';
 /** Internal shared fuzz kernel. Drivers choose candidates and learn only after complete passing observations. */
 import { Rng, ModelError, ConfigError, natural, disposition, type Model, type Transition, type Check } from './core.js';
 import { NO_INPUT, type GenerateModel, type FuzzConfig, type FuzzReport } from './search.js';
@@ -5,21 +6,21 @@ import { searchChecks, addSkippedChecks, type SearchObserver } from './search_su
 import { guidedCall } from './guided_sync.js';
 export interface FuzzDriver<S, I, O> {
     candidate(previous: readonly I[], rng: Rng, percent: number): { inputs: I[]; replace: number | null };
-    initial(state: S, caseNumber: number): void;
-    transition(before: S, input: I, after: Transition<S, O>, inputs: readonly I[], caseNumber: number, transition: bigint): void;
+    initial(state: S, caseNumber: bigint): void;
+    transition(before: S, input: I, after: Transition<S, O>, inputs: readonly I[], caseNumber: bigint, transition: bigint): void;
 }
 const MASK = (1n << 64n) - 1n;
 function u64(value: bigint, name: string): void {
     if (typeof value !== 'bigint' || value < 0n || value > MASK) throw new ConfigError(`${name} must be u64 bigint`);
 }
-export function snapshotFuzzConfig(config: FuzzConfig, guided = false): FuzzConfig {
+export function snapshotFuzzConfig<C extends Count>(config: FuzzConfig<C>, guided = false): FuzzConfig<C> {
     // Rust receives copied configs; callback-side mutation cannot change validated budgets.
     const {seed,cases,maxSteps,maxTransitions,mutationPercent}=config;
     config={seed,cases,maxSteps,maxTransitions,mutationPercent};
     u64(config.seed, 'seed');
     u64(config.maxTransitions, 'maxTransitions');
-    natural(config.cases, 'cases');
-    natural(config.maxSteps, 'maxSteps');
+    count64(config.cases, 'cases');
+    count64(config.maxSteps, 'maxSteps');
     if (guided && config.mutationPercent > 100) throw new ConfigError('mutation_percent must be in 0..=100');
     natural(config.mutationPercent, 'mutationPercent', 0, 100);
     return config;
@@ -46,11 +47,11 @@ function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
         return v;
     });
 }
-export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, stop: () => 'cancelled' | 'deadline' | null, observer?: SearchObserver<S, I, O>, driver?: FuzzDriver<S, I, O>): FuzzReport<I> {
+export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, config: FuzzConfig<C>, stop: () => 'cancelled' | 'deadline' | null, observer?: SearchObserver<S, I, O>, driver?: FuzzDriver<S, I, O>): FuzzReport<I, C> {
     const rng = new Rng(config.seed);
     let previous: I[] = [];
     const checkStorage:Check[]=[];
-    const r: FuzzReport<I> = { termination: 'cases_completed', seed: config.seed, cases: 0, transitions: 0n, skipped_checks: 0n, failure: null };
+    const r: FuzzReport<I, C> = { termination: 'cases_completed', seed: config.seed, cases: countLike(0n, config.cases), transitions: 0n, skipped_checks: 0n, failure: null };
     const stopped = () => {
         const reason = stop();
         if (reason)
@@ -59,11 +60,11 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
     };
     if (stopped())
         return r;
-    for (let c = 0; c < config.cases; c++) {
+    for (let c = 0n; c < BigInt(config.cases); c++) {
         if (stopped())
             return r;
         let s = state(m, call('initial_state', () => m.initialState()));
-        r.cases++;
+        r.cases = countLike(BigInt(r.cases) + 1n, config.cases);
         const initial = searchChecks(m, s, undefined, undefined, undefined, observer,[],checkStorage);
         r.skipped_checks = addSkippedChecks(r.skipped_checks,initial.skipped);
         if (initial.violations.length) {
@@ -74,7 +75,7 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
         if (stopped())
             return r;
         if (driver) {
-            guidedCall('initial feedback', () => driver.initial(s, r.cases));
+            guidedCall('initial feedback', () => driver.initial(s, BigInt(r.cases)));
             if (stopped()) return r;
         }
         let mutated: I[] = [], replace: number | null = null;
@@ -90,7 +91,7 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
             replace = Number(rng.index(BigInt(mutated.length + 1)));
         }
         const inputs: I[] = [];
-        for (let n = 0; n < config.maxSteps; n++) {
+        for (let n = 0n; n < BigInt(config.maxSteps); n++) {
             if (r.transitions === config.maxTransitions) {
                 r.termination = 'transition_limit';
                 return r;
@@ -98,8 +99,8 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
             if (stopped())
                 return r;
             let next: I | typeof NO_INPUT = NO_INPUT, reused = false;
-            if (n !== replace && n < mutated.length && enabled(m, s, mutated[n])) {
-                next = input(m, mutated[n]);
+            if ((replace === null || n !== BigInt(replace)) && n < BigInt(mutated.length) && enabled(m, s, mutated[Number(n)])) {
+                next = input(m, mutated[Number(n)]);
                 reused = true;
             }
             if (stopped())
@@ -117,6 +118,7 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
                 throw new ModelError('generate returned a causally disabled input');
             const t = step(m, s, next);
             r.transitions++;
+            arrayGrowth(inputs.length);
             inputs.push(input(m, next));
             const observed = searchChecks(m, t.state, s, next, t, observer, inputs,checkStorage);
             r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
@@ -128,7 +130,7 @@ export function runFuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, 
             if (stopped())
                 return r;
             if (driver) {
-                guidedCall('transition feedback', () => driver.transition(s, next as I, t, inputs, r.cases, r.transitions));
+                guidedCall('transition feedback', () => driver.transition(s, next as I, t, inputs, BigInt(r.cases), r.transitions));
                 if (stopped()) return r;
             }
             s = t.state;

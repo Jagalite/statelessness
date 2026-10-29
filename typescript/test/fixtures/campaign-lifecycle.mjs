@@ -22,7 +22,7 @@ const subset = (left, right) => [...left].every(id => right.has(id));
 const invalid = () => new ModelError('invalid campaign lifecycle encoding');
 export class NativeStateRepresentationError extends ModelError {
   constructor(field) {
-    super(`campaign lifecycle native representability limitation: ${field} must be a nonnegative safe integer (<= Number.MAX_SAFE_INTEGER); use bigint wire state`);
+    super(`campaign lifecycle native representability limitation: ${field} must be a nonnegative safe integer (<= Number.MAX_SAFE_INTEGER); use bigint lifecycle state`);
     this.name = 'NativeStateRepresentationError';
   }
 }
@@ -192,7 +192,7 @@ class Reader {
  * Test-only Rust64 lifecycle/codec.rs v1 layout and full-u64 wire count domain.
  * encodeState/decodeState adapt native safe-number states; encodeWireState and
  * decodeWireState preserve all seven report counts as bigint. This does not
- * extend the runtime's public count domain or provide checkpoint/resume support.
+ * provide a public checkpoint/resume API. Exact states also feed Lifecycle<bigint>.
  */
 export class LifecycleCodec {
   constructor(firstJob = 50n, jobs = 2, stopOnFailure = false) {
@@ -256,6 +256,8 @@ export class LifecycleCodec {
   encodeOutput(output) {
     const w = new Writer(); w.tag(['RunJob', 'Deliver', 'Discard'].indexOf(output.kind)); w.number(output.jobId); return w.bytes();
   }
+  encodeExactState(s) { return this.encodeWireState(s); }
+  decodeExactState(bytes) { return this.decodeWireState(bytes); }
   encodeState(s) { return this.encodeWireState(this.fromNativeState(s)); }
   decodeState(bytes) { return this.toNativeState(this.decodeWireState(bytes)); }
   /** @param {WireState} s */

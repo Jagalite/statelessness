@@ -39,3 +39,6 @@ export type { CampaignConfig, CampaignLimits, CampaignModel, CampaignFactory, Ca
 export {DomainDescriptor,Domain,checkLazy,declaredProperties,adaptModel,type PropertyMetadata} from './modeling.js';
 
 export * from './stateful.js';
+
+export type { GuidanceConfig64, GuidanceReport64, GuidedFuzzReport64 } from './guided.js';
+export type { CampaignConfig64, JobReport64, CampaignSink64, CampaignReport64 } from './campaign.js';

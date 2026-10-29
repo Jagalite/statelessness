@@ -33,7 +33,7 @@ private final class CampaignCoordinator: @unchecked Sendable {
     private let mutex = NSLock()
     private let lifecycle: CampaignLifecycle
     private var state: CampaignLifecycleState
-    init(_ config: CampaignConfig) throws {
+    init(_ config: CampaignConfig64) throws {
         lifecycle = CampaignLifecycle(config: config)
         state = try lifecycle.initialState()
     }
@@ -53,7 +53,7 @@ private final class CampaignCoordinator: @unchecked Sendable {
         if case let .runJob(id)? = outputs.first { return id }
         return nil
     }
-    func complete<I>(_ job: JobReport<I>) {
+    func complete<I>(_ job: JobReport64<I>) {
         let summary: CampaignSummary
         switch job.outcome {
         case let .completed(report):
@@ -72,7 +72,7 @@ private final class CampaignCoordinator: @unchecked Sendable {
         }
         _ = apply(.complete(job.jobID, summary))
     }
-    func finish() -> CampaignReport {
+    func finish() -> CampaignReport64 {
         _ = apply(.finish)
         mutex.lock(); defer { mutex.unlock() }
         return state.report
@@ -161,9 +161,9 @@ final class CampaignChannelProbe: @unchecked Sendable {
 }
 
 private final class CampaignEnvelope<I: Sendable>: Sendable {
-    let report: JobReport<I>
+    let report: JobReport64<I>
     let workerID: Int
-    init(_ report: JobReport<I>, workerID: Int) { self.report = report; self.workerID = workerID }
+    init(_ report: JobReport64<I>, workerID: Int) { self.report = report; self.workerID = workerID }
 }
 
 /// Every mutable field is protected by `condition`. At capacity zero the slot
@@ -184,7 +184,7 @@ private final class CampaignChannel<I: Sendable>: @unchecked Sendable {
     func producerDone() {
         condition.lock(); producers -= 1; condition.broadcast(); condition.unlock()
     }
-    func send(_ report: JobReport<I>, workerID: Int) {
+    func send(_ report: JobReport64<I>, workerID: Int) {
         let envelope = CampaignEnvelope(report, workerID: workerID)
         condition.lock()
         if capacity == 0 {
@@ -208,7 +208,7 @@ private final class CampaignChannel<I: Sendable>: @unchecked Sendable {
         }
         condition.unlock()
     }
-    func receive() -> JobReport<I>? {
+    func receive() -> JobReport64<I>? {
         condition.lock()
         while queue.isEmpty && rendezvous == nil && producers != 0 { condition.wait() }
         let envelope: CampaignEnvelope<I>?
@@ -239,40 +239,50 @@ private func campaignThreadEntry(_ raw: UnsafeMutableRawPointer?) -> UnsafeMutab
     context.body()
     return nil
 }
-private func campaignStartThread(_ body: @escaping @Sendable () -> Void) throws -> pthread_t {
-    nonisolated(unsafe) let raw = Unmanaged.passRetained(CampaignThreadContext(body)).toOpaque()
+// Pass the retained context through an integer address across the C shim.
+// The context contains only an immutable Sendable closure. Successful creation
+// transfers its retain to campaignThreadEntry; failure releases it in the caller.
+// Separating pointer conversion avoids Swift 6.3.3's region-analysis crash in
+// the previous function with the raw pointer shared across both control paths.
+private func campaignSpawnRetained(_ address: UInt) throws -> pthread_t {
     #if canImport(Darwin)
     var thread: pthread_t?
     #else
     var thread = pthread_t()
     #endif
-    let code = pthread_create(&thread, nil, campaignThreadEntry, raw)
-    guard code == 0 else {
-        Unmanaged<CampaignThreadContext>.fromOpaque(raw).release()
-        throw ModelError("pthread_create failed (\(code))")
-    }
+    let code = pthread_create(&thread, nil, campaignThreadEntry, UnsafeMutableRawPointer(bitPattern: address))
+    guard code == 0 else { throw ModelError("pthread_create failed (\(code))") }
     #if canImport(Darwin)
     return thread!
     #else
     return thread
     #endif
 }
+private func campaignStartThread(_ body: @escaping @Sendable () -> Void) throws -> pthread_t {
+    let address = UInt(bitPattern: Unmanaged.passRetained(CampaignThreadContext(body)).toOpaque())
+    do { return try campaignSpawnRetained(address) }
+    catch {
+        Unmanaged<CampaignThreadContext>.fromOpaque(UnsafeMutableRawPointer(bitPattern: address)!).release()
+        throw error
+    }
+}
+
 #endif
 
-private func campaignExecuteJob<S, I, O>(config: CampaignConfig, control: CampaignControl,
+private func campaignExecuteJob<S, I, O>(config: CampaignConfig64, control: CampaignControl,
     factory: (UInt64) throws -> CampaignJob<S, I, O>, id: UInt64,
-    runner: (UInt64, CampaignJob<S, I, O>, FuzzConfig, RunLimits) throws -> FuzzReport<I>) -> JobReport<I> {
+    runner: (UInt64, CampaignJob<S, I, O>, FuzzConfig64, RunLimits) throws -> FuzzReport64<I>) -> JobReport64<I> {
     let seed = jobSeed(masterSeed: config.masterSeed, jobID: id)
-    let fuzz = FuzzConfig(seed: seed, cases: config.fuzz.cases, maxSteps: config.fuzz.maxSteps,
+    let fuzz = FuzzConfig64(seed: seed, cases: config.fuzz.cases, maxSteps: config.fuzz.maxSteps,
                           maxTransitions: config.fuzz.maxTransitions, mutationPercent: config.fuzz.mutationPercent)
     var metadata: Metadata?
-    var outcome: JobOutcome<I>
+    var outcome: JobOutcome64<I>
     let job: CampaignJob<S, I, O>
     do { job = try factory(id) }
     catch let panic as CampaignPanic {
-        return JobReport(jobID: id, seed: seed, config: fuzz, metadata: nil, outcome: .panicked(panic.description))
+        return JobReport64(jobID: id, seed: seed, config: fuzz, metadata: nil, outcome: .panicked(panic.description))
     } catch {
-        return JobReport(jobID: id, seed: seed, config: fuzz, metadata: nil, outcome: .factoryError(ModelError(String(describing: error))))
+        return JobReport64(jobID: id, seed: seed, config: fuzz, metadata: nil, outcome: .factoryError(ModelError(String(describing: error))))
     }
     do {
         metadata = try job.metadata()
@@ -290,12 +300,12 @@ private func campaignExecuteJob<S, I, O>(config: CampaignConfig, control: Campai
     do { try job.tearDown() }
     catch { outcome = .panicked(String(describing: error)) }
     withExtendedLifetime(job) {}
-    return JobReport(jobID: id, seed: seed, config: fuzz, metadata: metadata, outcome: outcome)
+    return JobReport64(jobID: id, seed: seed, config: fuzz, metadata: metadata, outcome: outcome)
 }
 
 @discardableResult
-private func campaignDeliver<I>(_ job: JobReport<I>, coordinator: CampaignCoordinator,
-                                 sink: (JobReport<I>) throws -> Void) -> Bool {
+private func campaignDeliver<I>(_ job: JobReport64<I>, coordinator: CampaignCoordinator,
+                                 sink: (JobReport64<I>) throws -> Void) -> Bool {
     let effects = coordinator.apply(.receive(job.jobID))
     switch effects.first {
     case let .discard(id) where id == job.jobID: return false
@@ -310,10 +320,10 @@ private func campaignDeliver<I>(_ job: JobReport<I>, coordinator: CampaignCoordi
     }
 }
 
-func runCampaignUsing<S, I: Sendable, O>(config: CampaignConfig, limits: CampaignLimits,
+func runCampaignUsing64<S, I: Sendable, O>(config: CampaignConfig64, limits: CampaignLimits,
     factory: @escaping @Sendable (UInt64) throws -> CampaignJob<S, I, O>,
-    sink: (JobReport<I>) throws -> Void, hooks: CampaignWorkerHooks = CampaignWorkerHooks(),
-    runner: @escaping @Sendable (UInt64, CampaignJob<S, I, O>, FuzzConfig, RunLimits) throws -> FuzzReport<I>) throws -> CampaignReport {
+    sink: (JobReport64<I>) throws -> Void, hooks: CampaignWorkerHooks = CampaignWorkerHooks(),
+    runner: @escaping @Sendable (UInt64, CampaignJob<S, I, O>, FuzzConfig64, RunLimits) throws -> FuzzReport64<I>) throws -> CampaignReport64 {
     try config.validate()
     #if !canImport(Darwin) && !canImport(Glibc)
     guard config.workers == 1 else { throw ModelError("multiple campaign workers are unavailable on this Swift host") }
@@ -329,9 +339,9 @@ func runCampaignUsing<S, I: Sendable, O>(config: CampaignConfig, limits: Campaig
         }
     } else {
         #if canImport(Darwin) || canImport(Glibc)
-        let channel = CampaignChannel<I>(capacity: config.resultBuffer, probe: hooks.channelProbe)
+        let channel = CampaignChannel<I>(capacity: Int(config.resultBuffer), probe: hooks.channelProbe)
         var workers: [(pthread_t, CampaignWorkerResult)] = []
-        for index in 0..<min(config.workers, config.jobs) {
+        for index in 0..<Int(min(config.workers, config.jobs)) {
             let result = CampaignWorkerResult()
             channel.addProducer()
             do {

@@ -68,7 +68,7 @@ type FeatureBuffer[K any] struct{ lease *featureLease[K] }
 type featureLease[K any] struct {
 	values          *[]K
 	clone           func(K) K
-	maximum         int
+	maximum         uint64
 	active, writing bool
 	failure         error
 }
@@ -85,7 +85,7 @@ func (b *FeatureBuffer[K]) Push(key K) error {
 		l.failure = &ModelError{"feature buffer reentrant push"}
 		return l.failure
 	}
-	if len(*l.values) >= l.maximum {
+	if uint64(len(*l.values)) >= l.maximum {
 		l.failure = &ModelError{"feedback exceeds per-observation feature limit"}
 		return l.failure
 	}
@@ -99,64 +99,68 @@ func (b *FeatureBuffer[K]) Push(key K) error {
 		l.failure = e
 		return e
 	}
+	if e := countCanAppend[K](len(*l.values)); e != nil {
+		l.failure = e
+		return e
+	}
 	*l.values = append(*l.values, value)
 	return nil
 }
 
-// GuidanceConfig bounds independent retained counts, not bytes or host memory.
-type GuidanceConfig struct {
-	MaxCorpusEntries          int `json:"max_corpus_entries"`
-	MaxCorpusInputs           int `json:"max_corpus_inputs"`
-	MaxFeatures               int `json:"max_features"`
-	MaxFeaturesPerObservation int `json:"max_features_per_observation"`
+// GuidanceConfig64 bounds independent retained counts, not bytes or host memory.
+type GuidanceConfig64 struct {
+	MaxCorpusEntries          uint64 `json:"max_corpus_entries"`
+	MaxCorpusInputs           uint64 `json:"max_corpus_inputs"`
+	MaxFeatures               uint64 `json:"max_features"`
+	MaxFeaturesPerObservation uint64 `json:"max_features_per_observation"`
 }
 
-func DefaultGuidanceConfig() GuidanceConfig { return GuidanceConfig{256, 25600, 100000, 256} }
-func (c GuidanceConfig) Validate() error {
+func DefaultGuidanceConfig64() GuidanceConfig64 { return GuidanceConfig64{256, 25600, 100000, 256} }
+func (c GuidanceConfig64) Validate() error {
 	if c.MaxCorpusEntries <= 0 || c.MaxCorpusInputs <= 0 || c.MaxFeatures <= 0 || c.MaxFeaturesPerObservation <= 0 {
 		return &ConfigError{"guidance limits must be positive"}
 	}
 	return nil
 }
 
-type CorpusEntry[I any] struct {
+type CorpusEntry64[I any] struct {
 	Inputs []I `json:"inputs"`
 	// NewFeatures is zero for recovery of previously dropped discoveries.
-	NewFeatures          int    `json:"new_features"`
-	DiscoveredCase       int    `json:"discovered_case"`
+	NewFeatures          uint64 `json:"new_features"`
+	DiscoveredCase       uint64 `json:"discovered_case"`
 	DiscoveredTransition uint64 `json:"discovered_transition"`
 }
-type GuidanceReport[I any] struct {
-	Algorithm           string           `json:"algorithm"`
-	Config              GuidanceConfig   `json:"config"`
-	Feedback            FeedbackMetadata `json:"feedback"`
-	UniqueFeatures      int              `json:"unique_features"`
-	CorpusInputs        int              `json:"corpus_inputs"`
-	Corpus              []CorpusEntry[I] `json:"corpus"`
-	MutationCases       int              `json:"mutation_cases"`
-	DroppedPrefixes     uint64           `json:"dropped_prefixes"`
-	EvictedPrefixes     uint64           `json:"evicted_prefixes"`
-	FeatureLimitReached bool             `json:"feature_limit_reached"`
-	CorpusLimitReached  bool             `json:"corpus_limit_reached"`
+type GuidanceReport64[I any] struct {
+	Algorithm           string             `json:"algorithm"`
+	Config              GuidanceConfig64   `json:"config"`
+	Feedback            FeedbackMetadata   `json:"feedback"`
+	UniqueFeatures      uint64             `json:"unique_features"`
+	CorpusInputs        uint64             `json:"corpus_inputs"`
+	Corpus              []CorpusEntry64[I] `json:"corpus"`
+	MutationCases       uint64             `json:"mutation_cases"`
+	DroppedPrefixes     uint64             `json:"dropped_prefixes"`
+	EvictedPrefixes     uint64             `json:"evicted_prefixes"`
+	FeatureLimitReached bool               `json:"feature_limit_reached"`
+	CorpusLimitReached  bool               `json:"corpus_limit_reached"`
 }
 
-func GuidedFuzz[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig, guidance GuidanceConfig, feedback Feedback[S, I, O, K]) (*FuzzReport[I], error) {
-	return GuidedFuzzWithLimits(g, config, guidance, feedback, RunLimits{})
+func GuidedFuzz64[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig64, guidance GuidanceConfig64, feedback Feedback[S, I, O, K]) (*FuzzReport64[I], error) {
+	return GuidedFuzzWithLimits64(g, config, guidance, feedback, RunLimits{})
 }
-func GuidedFuzzWithLimits[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig, guidance GuidanceConfig, feedback Feedback[S, I, O, K], limits RunLimits) (*FuzzReport[I], error) {
-	return guidedFuzzObserved(g, config, guidance, feedback, limits, nil)
+func GuidedFuzzWithLimits64[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig64, guidance GuidanceConfig64, feedback Feedback[S, I, O, K], limits RunLimits) (*FuzzReport64[I], error) {
+	return guidedFuzzObserved64(g, config, guidance, feedback, limits, nil)
 }
 
-// GuidedFuzzObserved keeps observation independent of corpus selection. As with
+// GuidedFuzzObserved64 keeps observation independent of corpus selection. As with
 // FuzzObserved, observer errors and panics abort rather than yielding a report.
-func GuidedFuzzObserved[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig, guidance GuidanceConfig, feedback Feedback[S, I, O, K], limits RunLimits, observer SearchObserver[S, I, O]) (*FuzzReport[I], error) {
-	return guidedFuzzObserved(g, config, guidance, feedback, limits, &observer)
+func GuidedFuzzObserved64[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig64, guidance GuidanceConfig64, feedback Feedback[S, I, O, K], limits RunLimits, observer SearchObserver[S, I, O]) (*FuzzReport64[I], error) {
+	return guidedFuzzObserved64(g, config, guidance, feedback, limits, &observer)
 }
-func guidedFuzzObserved[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig, guidance GuidanceConfig, feedback Feedback[S, I, O, K], limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport[I], error) {
+func guidedFuzzObserved64[S, I, O, K any](g GenerateModel[S, I, O], config FuzzConfig64, guidance GuidanceConfig64, feedback Feedback[S, I, O, K], limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport64[I], error) {
 	if e := guidance.Validate(); e != nil {
 		return nil, e
 	}
-	if e := validateFuzzConfig(config); e != nil {
+	if e := validateFuzzConfig64(config); e != nil {
 		return nil, e
 	}
 	if e := validateFuzzModel(g); e != nil {
@@ -174,9 +178,9 @@ func guidedFuzzObserved[S, I, O, K any](g GenerateModel[S, I, O], config FuzzCon
 		return nil, e
 	}
 	driver := &guidedDriver[S, I, O, K]{model: g, feedback: feedback, seen: make(map[uint64][]*seenFeature[K]),
-		report: GuidanceReport[I]{Algorithm: GuidanceAlgorithm, Config: guidance, Feedback: metadata, Corpus: []CorpusEntry[I]{}},
+		report: GuidanceReport64[I]{Algorithm: GuidanceAlgorithm, Config: guidance, Feedback: metadata, Corpus: []CorpusEntry64[I]{}},
 	}
-	report, e := fuzzKernel(g, config, control, observer, driver)
+	report, e := fuzzKernel64(g, config, control, observer, driver)
 	if e != nil {
 		return nil, e
 	}
@@ -191,12 +195,12 @@ type seenFeature[K any] struct {
 type guidedDriver[S, I, O, K any] struct {
 	model    GenerateModel[S, I, O]
 	feedback Feedback[S, I, O, K]
-	report   GuidanceReport[I]
+	report   GuidanceReport64[I]
 	seen     map[uint64][]*seenFeature[K]
 	scratch  []K
 }
 
-func (d *guidedDriver[S, I, O, K]) observe(stage string, inputs []I, caseNumber int, transition uint64, callback func(*FeatureBuffer[K]) error) error {
+func (d *guidedDriver[S, I, O, K]) observe(stage string, inputs []I, caseNumber uint64, transition uint64, callback func(*FeatureBuffer[K]) error) error {
 	clear(d.scratch)
 	d.scratch = d.scratch[:0]
 	l := &featureLease[K]{values: &d.scratch, clone: d.feedback.Key.Clone, maximum: d.report.Config.MaxFeaturesPerObservation, active: true}
@@ -221,7 +225,7 @@ func (d *guidedDriver[S, I, O, K]) observe(stage string, inputs []I, caseNumber 
 	_, e = call(stage, func() (struct{}, error) { return struct{}{}, d.learn(inputs, caseNumber, transition) })
 	return e
 }
-func (d *guidedDriver[S, I, O, K]) initial(state S, caseNumber int) error {
+func (d *guidedDriver[S, I, O, K]) initial(state S, caseNumber uint64) error {
 	return d.observe("initial feedback", nil, caseNumber, 0, func(out *FeatureBuffer[K]) error {
 		if d.feedback.InitialFeatures == nil {
 			return nil
@@ -229,7 +233,7 @@ func (d *guidedDriver[S, I, O, K]) initial(state S, caseNumber int) error {
 		return d.feedback.InitialFeatures(d.model.CloneState(state), out)
 	})
 }
-func (d *guidedDriver[S, I, O, K]) transition(before S, input I, after Transition[S, O], inputs []I, caseNumber int, transition uint64) error {
+func (d *guidedDriver[S, I, O, K]) transition(before S, input I, after Transition[S, O], inputs []I, caseNumber uint64, transition uint64) error {
 	return d.observe("transition feedback", inputs, caseNumber, transition, func(out *FeatureBuffer[K]) error {
 		snapshot, e := cloneTransition(d.model.Model, after)
 		if e != nil {
@@ -238,10 +242,10 @@ func (d *guidedDriver[S, I, O, K]) transition(before S, input I, after Transitio
 		return d.feedback.TransitionFeatures(d.model.CloneState(before), d.model.CloneInput(input), snapshot, out)
 	})
 }
-func (d *guidedDriver[S, I, O, K]) learn(inputs []I, caseNumber int, transition uint64) error {
+func (d *guidedDriver[S, I, O, K]) learn(inputs []I, caseNumber uint64, transition uint64) error {
 	keyOps := d.feedback.Key
-	novel, recovered := 0, false
-	retainable := len(inputs) <= d.report.Config.MaxCorpusInputs
+	novel, recovered := uint64(0), false
+	retainable := uint64(len(inputs)) <= d.report.Config.MaxCorpusInputs
 	for _, key := range d.scratch {
 		hash := uint64(0)
 		if keyOps.Hash != nil {
@@ -262,6 +266,17 @@ func (d *guidedDriver[S, I, O, K]) learn(inputs []I, caseNumber int, transition 
 		} else if d.report.UniqueFeatures == d.report.Config.MaxFeatures {
 			d.report.FeatureLimitReached = true
 		} else {
+			if _, exists := d.seen[hash]; !exists {
+				if e := countCanAppend[struct {
+					hash   uint64
+					bucket []*seenFeature[K]
+				}](len(d.seen)); e != nil {
+					return e
+				}
+			}
+			if e := countCanAppend[*seenFeature[K]](len(d.seen[hash])); e != nil {
+				return e
+			}
 			d.seen[hash] = append(d.seen[hash], &seenFeature[K]{key: key, witnessed: retainable})
 			d.report.UniqueFeatures++
 			novel++
@@ -279,16 +294,19 @@ func (d *guidedDriver[S, I, O, K]) learn(inputs []I, caseNumber int, transition 
 	if e != nil {
 		return e
 	}
-	allowance := d.report.Config.MaxCorpusInputs - len(inputs)
-	for len(d.report.Corpus) >= d.report.Config.MaxCorpusEntries || d.report.CorpusInputs > allowance {
-		d.report.CorpusInputs -= len(d.report.Corpus[0].Inputs)
-		d.report.Corpus[0] = CorpusEntry[I]{}
+	allowance := d.report.Config.MaxCorpusInputs - uint64(len(inputs))
+	for uint64(len(d.report.Corpus)) >= d.report.Config.MaxCorpusEntries || d.report.CorpusInputs > allowance {
+		d.report.CorpusInputs -= uint64(len(d.report.Corpus[0].Inputs))
+		d.report.Corpus[0] = CorpusEntry64[I]{}
 		d.report.Corpus = d.report.Corpus[1:]
 		d.report.EvictedPrefixes++
 		d.report.CorpusLimitReached = true
 	}
-	d.report.CorpusInputs += len(inputs)
-	d.report.Corpus = append(d.report.Corpus, CorpusEntry[I]{owned, novel, caseNumber, transition})
+	d.report.CorpusInputs += uint64(len(inputs))
+	if e := countCanAppend[CorpusEntry64[I]](len(d.report.Corpus)); e != nil {
+		return e
+	}
+	d.report.Corpus = append(d.report.Corpus, CorpusEntry64[I]{owned, novel, caseNumber, transition})
 	return nil
 }
 func (d *guidedDriver[S, I, O, K]) candidate(_ []I, rng *Rng, percent int) ([]I, int, error) {

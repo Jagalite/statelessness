@@ -49,7 +49,7 @@ async function work(): Promise<void> {
 }
 
 function coordinate(): void {
-    const { config, guidance, module, data, deadline, cancellation: buffer } = workerData as { config: CampaignConfig; guidance: any; module: string; data: unknown; deadline?: number; cancellation: SharedArrayBuffer };
+    const { config, guidance, module, data, deadline, cancellation: buffer } = workerData as { config: CampaignConfig<number | bigint>; guidance: any; module: string; data: unknown; deadline?: number; cancellation: SharedArrayBuffer };
     const lifecycle = new Lifecycle(config.firstJob, config.jobs, config.stopOnFailure);
     const control = new CampaignControl({ cancellation: new CampaignCancellation(buffer) }, deadline);
     type Sender = { worker: any; active: bigint | null; completed: boolean; blocked: boolean; done: boolean; exited: boolean; error?: string };
@@ -61,7 +61,7 @@ function coordinate(): void {
     let finalized = false;
     let spawning = true;
     const probe = workerData.testProbe === undefined ? undefined : new BigInt64Array(workerData.testProbe);
-    let completedCount = 0, sendCount = 0, acceptedCount = 0, deniedCount = 0;
+    let completedCount = 0n, sendCount = 0n, acceptedCount = 0n, deniedCount = 0n;
 
     function publishProbe(): void {
         if (probe === undefined) return;
@@ -120,7 +120,7 @@ function coordinate(): void {
     });
     const stopped = control.stop();
     if (stopped) applyCampaignEvent(lifecycle, { kind: 'Claim', stop: stopped });
-    else for (let index = 0; index < Math.min(config.workers, config.jobs); index++) {
+    else for (let index = 0; index < Number(BigInt(config.workers) < BigInt(config.jobs) ? BigInt(config.workers) : BigInt(config.jobs)); index++) {
         let worker: any;
         try { worker = new Worker(new URL('./node_campaign_worker.js', import.meta.url), { workerData: { role: 'job', config, guidance, module, data, deadline, cancellation: buffer } }); }
         catch (error) {

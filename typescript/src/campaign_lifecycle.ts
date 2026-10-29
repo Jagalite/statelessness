@@ -1,3 +1,4 @@
+import { count64, countLike, type Count, type CountValue } from './counts.js';
 /** Private campaign decision core. Executors own reports, clocks, workers and sinks.
  * This module is deliberately absent from the package's public index.
  */
@@ -10,14 +11,14 @@ export type CampaignTermination =
   | { kind: 'JobsCompleted' | 'Cancelled' | 'Deadline' | 'FailureFound' }
   | { kind: 'CallbackError' | 'WorkerError'; error: ModelError };
 
-export interface CampaignReport {
-  requested: number;
-  started: number;
-  finished: number;
-  delivered: number;
-  notStarted: number;
-  failures: number;
-  errors: number;
+export interface CampaignReport<C extends Count = number> {
+  requested: CountValue<C>;
+  started: CountValue<C>;
+  finished: CountValue<C>;
+  delivered: CountValue<C>;
+  notStarted: CountValue<C>;
+  failures: CountValue<C>;
+  errors: CountValue<C>;
   reportedTransitions: bigint;
   reportedCases: bigint;
   reportedSkippedChecks: bigint;
@@ -37,8 +38,8 @@ export interface Summary {
 export type ExternalStop = 'Cancelled' | 'Deadline';
 export type Stop = 'Failure' | ExternalStop | 'Sink' | 'Worker';
 export type Pending = { kind: 'Running' } | { kind: 'Ready'; summary: Summary };
-export interface LifecycleState {
-  report: CampaignReport;
+export interface LifecycleState<C extends Count = number> {
+  report: CampaignReport<C>;
   stop: Stop | null;
   pending: Map<bigint, Pending>;
   delivering: bigint | null;
@@ -81,25 +82,25 @@ function copyTermination(termination: CampaignTermination): CampaignTermination 
   return { ...termination };
 }
 
-export class Lifecycle {
-  state: LifecycleState;
+export class Lifecycle<C extends Count = number> {
+  state: LifecycleState<C>;
   lastAccepted: boolean | null = null;
   lastRejection: string | null = null;
 
-  constructor(readonly firstJob: bigint, readonly jobs: number, readonly stopOnFailure: boolean) {
-    if (!isU64(firstJob) || !Number.isSafeInteger(jobs) || jobs < 1
-      || firstJob + BigInt(jobs - 1) > U64_MAX) {
+  constructor(readonly firstJob: bigint, readonly jobs: C, readonly stopOnFailure: boolean) {
+    if (!isU64(firstJob) || !validCount(jobs) || BigInt(jobs) < 1n
+      || firstJob + (BigInt(jobs) - 1n) > U64_MAX) {
       throw new ModelError('invalid campaign lifecycle job range');
     }
     if (typeof stopOnFailure !== 'boolean') throw new ModelError('invalid campaign lifecycle failure policy');
     this.state = this.initialState();
   }
 
-  initialState(): LifecycleState {
+  initialState(): LifecycleState<C> {
     return {
       report: {
-        requested: this.jobs, started: 0, finished: 0, delivered: 0,
-        notStarted: this.jobs, failures: 0, errors: 0,
+        requested: countLike(BigInt(this.jobs), this.jobs), started: countLike(0n, this.jobs), finished: countLike(0n, this.jobs), delivered: countLike(0n, this.jobs),
+        notStarted: countLike(BigInt(this.jobs), this.jobs), failures: countLike(0n, this.jobs), errors: countLike(0n, this.jobs),
         reportedTransitions: 0n, reportedCases: 0n, reportedSkippedChecks: 0n,
         accountingComplete: true, termination: { kind: 'JobsCompleted' },
       },
@@ -107,7 +108,7 @@ export class Lifecycle {
     };
   }
 
-  cloneState(state: LifecycleState): LifecycleState {
+  cloneState(state: LifecycleState<C>): LifecycleState<C> {
     return {
       ...state,
       report: { ...state.report, termination: copyTermination(state.report.termination) },
@@ -129,12 +130,12 @@ export class Lifecycle {
   }
 
   /** Snapshot entry for the self-model; it shares the runtime transition law. */
-  step(before: LifecycleState, input: LifecycleInput): Transition<LifecycleState, LifecycleOutput> {
+  step(before: LifecycleState<C>, input: LifecycleInput): Transition<LifecycleState<C>, LifecycleOutput> {
     return this.reduce(this.cloneState(before), input);
   }
 
-  private reduce(state: LifecycleState, input: LifecycleInput): Transition<LifecycleState, LifecycleOutput> {
-    const reject = (reason: string): Transition<LifecycleState, LifecycleOutput> =>
+  private reduce(state: LifecycleState<C>, input: LifecycleInput): Transition<LifecycleState<C>, LifecycleOutput> {
+    const reject = (reason: string): Transition<LifecycleState<C>, LifecycleOutput> =>
       ({ state, outputs: [], disposition: { kind: 'rejected', reason } });
     if (state.finalized) return reject('campaign is finalized');
     const outputs: LifecycleOutput[] = [];
@@ -147,8 +148,8 @@ export class Lifecycle {
         else {
           const jobId = this.firstJob + BigInt(report.started);
           state.pending.set(jobId, { kind: 'Running' });
-          report.started++;
-          report.notStarted--;
+          report.started = countLike(BigInt(report.started) + 1n, this.jobs);
+          report.notStarted = countLike(BigInt(report.notStarted) - 1n, this.jobs);
           outputs.push({ kind: 'RunJob', jobId });
         }
         break;
@@ -169,11 +170,11 @@ export class Lifecycle {
         if (state.delivering !== null) return reject('sink is already delivering a report');
         const summary = pending.summary;
         state.pending.delete(input.jobId);
-        report.finished++;
-        if (summary.failure) report.failures++;
-        if (summary.outcome === 'FactoryError') report.errors++;
+        report.finished = countLike(BigInt(report.finished) + 1n, this.jobs);
+        if (summary.failure) report.failures = countLike(BigInt(report.failures) + 1n, this.jobs);
+        if (summary.outcome === 'FactoryError') report.errors = countLike(BigInt(report.errors) + 1n, this.jobs);
         else if (summary.outcome === 'ModelError' || summary.outcome === 'Panicked') {
-          report.errors++;
+          report.errors = countLike(BigInt(report.errors) + 1n, this.jobs);
           report.accountingComplete = false;
         }
         for (const [key, count] of [
@@ -198,7 +199,7 @@ export class Lifecycle {
         if (input.error !== null) {
           report.termination = { kind: 'CallbackError', error: new ModelError(input.error.message) };
           state.stop = 'Sink';
-        } else report.delivered++;
+        } else report.delivered = countLike(BigInt(report.delivered) + 1n, this.jobs);
         break;
       }
       case 'WorkerFailed': {
@@ -225,3 +226,7 @@ export class Lifecycle {
     return { state, outputs, disposition: { kind: 'accepted', reason: '' } };
   }
 }
+
+function validCount(value: Count): boolean { try { count64(value, "jobs"); return true; } catch { return false; } }
+export type CampaignReport64 = CampaignReport<bigint>;
+export type LifecycleState64 = LifecycleState<bigint>;

@@ -20,8 +20,8 @@ func (c *guidedPollControl) stop() string {
 type guidedReuseDriver struct{}
 
 func (guidedReuseDriver) candidate([]int, *Rng, int) ([]int, int, error) { return []int{1}, -1, nil }
-func (guidedReuseDriver) initial(int, int) error                         { return nil }
-func (guidedReuseDriver) transition(int, int, Transition[int, int], []int, int, uint64) error {
+func (guidedReuseDriver) initial(int, uint64) error                      { return nil }
+func (guidedReuseDriver) transition(int, int, Transition[int, int], []int, uint64, uint64) error {
 	return nil
 }
 

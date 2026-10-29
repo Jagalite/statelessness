@@ -371,7 +371,7 @@ class ObserverSecondaryErrorTests(unittest.TestCase):
             def check_state(self, state): raise RuntimeError("primary checker")
         class Observer:
             def check_error(self, phase, checks, complete): raise RuntimeError("secondary observer")
-        with self.assertRaisesRegex(ModelError, "initial check: primary checker") as caught:
+        with self.assertRaisesRegex(ModelError, "initial check_state: primary checker") as caught:
             fuzz(Broken(), observer=Observer())
         self.assertEqual(len(caught.exception.observer_errors), 1)
         self.assertIn("secondary observer", str(caught.exception.observer_errors[0]))

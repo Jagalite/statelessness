@@ -235,7 +235,7 @@ class GuidedOrderingTests(unittest.TestCase):
         class Observer:
             def check_error(self, phase, checks, complete):
                 seen.append((phase, checks, complete)); raise RuntimeError("observer")
-        with self.assertRaisesRegex(ModelError, "initial check: check") as caught:
+        with self.assertRaisesRegex(ModelError, "initial check_state: check") as caught:
             run(Broken(), observer=Observer())
         self.assertEqual(seen, [("initial_state", (Check("partial"),), False)])
         self.assertEqual(len(caught.exception.observer_errors), 1)

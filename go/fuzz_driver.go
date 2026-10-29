@@ -5,8 +5,8 @@ package statelessness
 // ordinary previous-sequence mutation without adding any callback boundaries.
 type fuzzDriver[S, I, O any] interface {
 	candidate([]I, *Rng, int) ([]I, int, error)
-	initial(S, int) error
-	transition(S, I, Transition[S, O], []I, int, uint64) error
+	initial(S, uint64) error
+	transition(S, I, Transition[S, O], []I, uint64, uint64) error
 }
 
 func validateFuzzModel[S, I, O any](g GenerateModel[S, I, O]) error {
@@ -18,8 +18,8 @@ func validateFuzzModel[S, I, O any](g GenerateModel[S, I, O]) error {
 	}
 	return nil
 }
-func validateFuzzConfig(config FuzzConfig) error {
-	if config.Cases < 0 || config.MaxSteps < 0 || config.MutationPercent < 0 || config.MutationPercent > 100 {
+func validateFuzzConfig64(config FuzzConfig64) error {
+	if config.MutationPercent < 0 || config.MutationPercent > 100 {
 		return &ConfigError{"invalid fuzz configuration"}
 	}
 	return nil
@@ -41,6 +41,6 @@ func previousCandidate[S, I, O any](g GenerateModel[S, I, O], previous []I, rng 
 	span, _ := rng.Index(uint64(len(mutated)) - start)
 	end := int(start + span + 1)
 	mutated = append(mutated[:int(start)], mutated[end:]...)
-	r, _ := rng.Index(uint64(len(mutated) + 1))
+	r, _ := rng.Index(uint64(len(mutated)) + 1)
 	return mutated, int(r), nil
 }

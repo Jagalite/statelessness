@@ -57,7 +57,7 @@ func lcLedgerAdmissible(m campaignLifecycle, l lcLedger, input campaignEvent) bo
 	if l.finalized {
 		return false
 	}
-	claims, receipts, active := 0, 0, 0
+	claims, receipts, active := uint64(0), uint64(0), uint64(0)
 	for _, fact := range l.facts {
 		if fact.flags&lcClaimed != 0 {
 			claims++
@@ -187,7 +187,7 @@ func lcObserve(m campaignLifecycle, before lcAuditedState, input campaignEvent, 
 func lcAuditChecks(m campaignLifecycle, s lcAuditedState) []Check {
 	checks := lcStateChecks(m, s.core)
 	l, r := s.ledger, s.core.report
-	claims, receipts, successes, failures, jobErrors := 0, 0, 0, 0, 0
+	claims, receipts, successes, failures, jobErrors := uint64(0), uint64(0), uint64(0), uint64(0), uint64(0)
 	var sums [3]big.Int
 	complete := !l.lostWork
 	activeOK, destinationsOK := true, true
@@ -275,7 +275,7 @@ func lcAlphabet(m campaignLifecycle) []campaignEvent {
 	}
 	// Includes one never-allocated identity; stale/duplicate events are always
 	// enabled as inputs, although the reducer must reject them inertly.
-	for offset := 0; offset <= m.jobs; offset++ {
+	for offset := uint64(0); offset <= m.jobs; offset++ {
 		if uint64(offset) > math.MaxUint64-m.firstJob {
 			break
 		}

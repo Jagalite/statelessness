@@ -91,32 +91,32 @@ func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Tr
     }
     return try searchFindings("state", sc, skipped: &skipped) + searchFindings("transition", ec, skipped: &skipped)
 }
-public struct FuzzConfig: Sendable {
+public struct FuzzConfig64: Sendable {
     public let seed: UInt64
-    public let cases: Int
-    public let maxSteps: Int
+    public let cases: UInt64
+    public let maxSteps: UInt64
     public let maxTransitions: UInt64
     public let mutationPercent: Int
-    public init(seed: UInt64 = 0, cases: Int = 1_000, maxSteps: Int = 100, maxTransitions: UInt64 = 100_000, mutationPercent: Int = 50) {
+    public init(seed: UInt64 = 0, cases: UInt64 = 1_000, maxSteps: UInt64 = 100, maxTransitions: UInt64 = 100_000, mutationPercent: Int = 50) {
         self.seed = seed; self.cases = cases; self.maxSteps = maxSteps; self.maxTransitions = maxTransitions; self.mutationPercent = mutationPercent
     }
 }
-public struct FuzzReport<I> {
+public struct FuzzReport64<I> {
     public var termination: String
     public let seed: UInt64
-    public var cases: Int
+    public var cases: UInt64
     public var transitions: UInt64
     public var skippedChecks: UInt64
     public var failure: Failure<I>?
-    public var guidance: GuidanceReport<I>? = nil
+    public var guidance: GuidanceReport64<I>? = nil
 }
-extension FuzzReport: Sendable where I: Sendable {}
-func validateFuzzConfig(_ config: FuzzConfig) throws {
-    guard config.cases >= 0, config.maxSteps >= 0, (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
+extension FuzzReport64: Sendable where I: Sendable {}
+func validateFuzzConfig(_ config: FuzzConfig64) throws {
+    guard (0...100).contains(config.mutationPercent) else { throw ConfigError("invalid fuzz configuration") }
 }
 /// Seeded, state-aware sequence fuzzing. The sole mutation corpus is the previous
 /// passing case. Completion establishes only absence of findings in these cases.
-public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfig(), limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport<I> {
+public func fuzz64<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64 = FuzzConfig64(), limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
     try validateFuzzConfig(config)
     let control = try RunControl(limits)
     return try fuzzKernel(g, config: config, control: control, observer: observer, candidate: { previous, rng in
@@ -130,14 +130,14 @@ public func fuzz<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig = FuzzConfi
 }
 /// One reducer/check/observer/control path. Ordinary fuzz keeps its established
 /// polling behavior; feedback hooks add their own post-callback boundary.
-func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig, control: RunControl,
+func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64, control: RunControl,
     observer: SearchObserver<S, I, O>?, candidate: ([I], inout Rng) throws -> ([I], Int?),
-    initialFeedback: ((S, Int) throws -> Void)? = nil,
-    transitionFeedback: ((S, I, Transition<S, O>, [I], Int, UInt64) throws -> Void)? = nil) throws -> FuzzReport<I> {
+    initialFeedback: ((S, UInt64) throws -> Void)? = nil,
+    transitionFeedback: ((S, I, Transition<S, O>, [I], UInt64, UInt64) throws -> Void)? = nil) throws -> FuzzReport64<I> {
     let m = g.model
     let checkStorage = SearchCheckStorage()
     var rng = Rng(seed: config.seed), previous: [I] = []
-    var report = FuzzReport<I>(termination: "cases_completed", seed: config.seed, cases: 0, transitions: 0, skippedChecks: 0, failure: nil)
+    var report = FuzzReport64<I>(termination: "cases_completed", seed: config.seed, cases: 0, transitions: 0, skippedChecks: 0, failure: nil)
     if let stop = control.stop() { report.termination = stop; return report }
     for _ in 0..<config.cases {
         if let stop = control.stop() { report.termination = stop; return report }
@@ -156,9 +156,10 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig, control: Ru
             if report.transitions == config.maxTransitions { report.termination = "transition_limit"; return report }
             if let stop = control.stop() { report.termination = stop; return report }
             var reused: I?
-            if replacement != step, step < mutated.count {
-                let enabled = try call("is_enabled") { try g.isEnabled(copied(m.cloneState, state), copied(m.cloneInput, mutated[step])) }
-                if enabled { reused = try copied(m.cloneInput, mutated[step]) }
+            if step < UInt64(mutated.count), replacement.map({ UInt64($0) }) != step {
+                let index = Int(step) // bounded by the materialized array
+                let enabled = try call("is_enabled") { try g.isEnabled(copied(m.cloneState, state), copied(m.cloneInput, mutated[index])) }
+                if enabled { reused = try copied(m.cloneInput, mutated[index]) }
             }
             if let stop = control.stop() { report.termination = stop; return report }
             let next: I?
@@ -173,6 +174,7 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig, control: Ru
             guard enabled else { throw ModelError("generate returned a causally disabled input") }
             let t = try perform(m, state, input, stage: "step")
             report.transitions += 1
+            try requireNativeGrowth(history.count, elementStride: MemoryLayout<I>.stride, context: "fuzz history")
             history.append(try copied(m.cloneInput, input))
             let violations = try searchEdge(m, state: state, input: input, transition: t, skipped: &report.skippedChecks, observer: observer, history: history, storage: checkStorage)
             if !violations.isEmpty { report.termination = "failure_found"; report.failure = Failure(inputs: history, violations: violations); return report }

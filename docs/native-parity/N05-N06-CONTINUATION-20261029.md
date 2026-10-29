@@ -73,6 +73,13 @@ No assurance module is implemented by this lane.
 
 ## Remaining gates
 
+The later [Rust64 continuation](N03-N06-U64-CONTRACT.md) implements exact-width
+shared kernels and checked legacy adapters in a separate candidate. See its
+[source/evidence handoff](../../validation/native-parity/rust64-20261029/HANDOFF.md)
+and language API notes for the precise source cutoff and queued/executed status.
+The following paragraph describes the earlier `821ca5a` checkpoint, not a
+platform exclusion or qualification of the later continuation.
+
 Full Rust64 fuzz/guided/campaign count configurations, counters and lifecycle
 codecs remain unsupported beyond signed Int in Go/Swift and safe integers in
 TypeScript. This is unfinished implementation, not a platform exception or a pass.

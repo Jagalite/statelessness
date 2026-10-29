@@ -1,3 +1,4 @@
+import { count64, countLike, arrayGrowth, increment64, type Count, type CountValue } from './counts.js';
 import { runFuzz, snapshotFuzzConfig } from './fuzz_kernel.js';
 import { runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver } from './search_support.js';
 export type { RunLimits, SearchObserver } from './search_support.js';
@@ -11,8 +12,8 @@ export interface GenerateModel<S, I, O> extends Model<S, I, O> {
     simplerInputs?(input: I): Iterable<I>;
     equalInputs(left: I, right: I): boolean;
 }
-export interface AutoOptions {
-    readonly maxCandidates: number;
+export interface AutoOptions<C extends Count = number> {
+    readonly maxCandidates: C;
 }
 export const DEFAULT_AUTO: AutoOptions = Object.freeze({ maxCandidates: 100000 });
 function boolean(value: boolean, name: string): boolean {
@@ -41,20 +42,20 @@ function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
     });
 }
 /** Transactional reservoir sampling: an oversized/erroring domain never advances rng. */
-export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng: Rng, options: AutoOptions = DEFAULT_AUTO): I | typeof NO_INPUT {
+export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng: Rng, options: AutoOptions<Count> = DEFAULT_AUTO): I | typeof NO_INPUT {
     const maxCandidates=options.maxCandidates;
-    natural(maxCandidates, 'maxCandidates', 1);
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
     const candidate = rng.clone();
-    let selected: I | typeof NO_INPUT = NO_INPUT, count = 0;
+    let selected: I | typeof NO_INPUT = NO_INPUT, count = 0n;
     const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
     for (;;) {
         const item = call('enumerate inputs next', () => iterator.next());
         if (item.done)
             break;
-        if (count === maxCandidates)
+        if (count === BigInt(maxCandidates))
             throw new ModelError('automatic input domain exceeds max_candidates');
         count++;
-        if (count === 1 || candidate.index(BigInt(count)) === 0n)
+        if (count === 1n || candidate.index(BigInt(count)) === 0n)
             selected = input(m, item.value);
     }
     rng.copyFrom(candidate);
@@ -62,16 +63,16 @@ export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng:
 }
 export function containsEnumerated<S, I, O>(m: EnumerateModel<S, I, O> & {
     equalInputs(left: I, right: I): boolean;
-}, s: S, i: I, options: AutoOptions = DEFAULT_AUTO): boolean {
+}, s: S, i: I, options: AutoOptions<Count> = DEFAULT_AUTO): boolean {
     const maxCandidates=options.maxCandidates;
-    natural(maxCandidates, 'maxCandidates', 1);
-    let count = 0;
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    let count = 0n;
     const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
     for (;;) {
         const item = call('enumerate inputs next', () => iterator.next());
         if (item.done)
             return false;
-        if (count === maxCandidates)
+        if (count === BigInt(maxCandidates))
             throw new ModelError('automatic input domain exceeds max_candidates');
         count++;
         if (call('input equality', () => boolean(m.equalInputs(input(m, item.value), input(m, i)), 'equalInputs')))
@@ -81,9 +82,9 @@ export function containsEnumerated<S, I, O>(m: EnumerateModel<S, I, O> & {
 /** Preserve every model capability and bind delegated methods to their original receiver. */
 export function automatic<M extends EnumerateModel<any, any, any> & {
     equalInputs(left: any, right: any): boolean;
-}>(m: M, options: AutoOptions = DEFAULT_AUTO): M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never) {
+}>(m: M, options: AutoOptions<Count> = DEFAULT_AUTO): M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never) {
     const maxCandidates=options.maxCandidates;
-    natural(maxCandidates, 'maxCandidates', 1);
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
     const opts = { maxCandidates };
     const generate = (s: any, r: Rng) => sampleEnumerated(m, s, r, opts);
     const isEnabled = (s: any, i: any) => containsEnumerated(m, s, i, opts);
@@ -116,63 +117,67 @@ function u64(n: bigint, name: string): void {
     if (typeof n !== 'bigint' || n < 0n || n > MASK)
         throw new ConfigError(`${name} must be u64 bigint`);
 }
-export interface FuzzConfig {
+export interface FuzzConfig<C extends Count = number> {
     readonly seed: bigint;
-    readonly cases: number;
-    readonly maxSteps: number;
+    readonly cases: C;
+    readonly maxSteps: C;
     readonly maxTransitions: bigint;
     readonly mutationPercent: number;
 }
 export const DEFAULT_FUZZ: FuzzConfig = Object.freeze({ seed: 0n, cases: 1000, maxSteps: 100, maxTransitions: 100000n, mutationPercent: 50 });
-export interface FuzzReport<I> {
+export interface FuzzReport<I, C extends Count = number> {
     termination: 'cases_completed' | 'transition_limit' | 'failure_found' | ControlStop;
     seed: bigint;
-    cases: number;
+    cases: CountValue<C>;
     transitions: bigint;
     skipped_checks: bigint;
     failure: Failure<I> | null;
 }
-export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig = DEFAULT_FUZZ, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I> {
+export function fuzz<S, I, O>(m: GenerateModel<S, I, O>, config?: FuzzConfig, limits?: RunLimits, observer?: SearchObserver<S, I, O>): FuzzReport<I>;
+export function fuzz<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, config: FuzzConfig<C>, limits?: RunLimits, observer?: SearchObserver<S, I, O>): FuzzReport<I, C>;
+export function fuzz<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, config: FuzzConfig<C> = DEFAULT_FUZZ as FuzzConfig<C>, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I, C> {
     return runFuzz(m, snapshotFuzzConfig(config), runControl(limits), observer);
 }
 /** Observe every fully checked edge, including the first failing edge. */
-export function fuzzObserved<S, I, O>(m: GenerateModel<S, I, O>, config: FuzzConfig, observer: SearchObserver<S, I, O>, limits: RunLimits = {}): FuzzReport<I> { return fuzz(m, config, limits, observer); }
-export interface ShrinkConfig {
-    readonly maxAttempts: number;
+export function fuzzObserved<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, config: FuzzConfig<C>, observer: SearchObserver<S, I, O>, limits: RunLimits = {}): FuzzReport<I, C> { return fuzz(m, config, limits, observer); }
+export interface ShrinkConfig<C extends Count = number> {
+    readonly maxAttempts: C;
 }
 export const DEFAULT_SHRINK: ShrinkConfig = Object.freeze({ maxAttempts: 10000 });
 export type ShrinkTermination = 'search_complete' | 'attempt_limit' | 'transition_limit' | ControlStop;
-export type ShrinkOperation = {
+export type ShrinkOperation<C extends Count = number> = {
     kind: 'validate_original';
 } | {
     kind: 'remove';
-    start: number;
-    end: number;
+    start: CountValue<C>;
+    end: CountValue<C>;
 } | {
     kind: 'simplify';
-    index: number;
-    alternative: number;
+    index: CountValue<C>;
+    alternative: CountValue<C>;
 };
 export type ShrinkOutcome = 'retained' | 'invalid_causality' | 'different_failure' | 'no_failure' | 'already_seen' | 'resource_limit';
-export interface ShrinkAttempt {
-    readonly attempt: number;
-    readonly candidate_length: number;
-    readonly operation: ShrinkOperation;
+export interface ShrinkAttempt<C extends Count = number> {
+    readonly attempt: CountValue<C>;
+    readonly candidate_length: CountValue<C>;
+    readonly operation: ShrinkOperation<C>;
     readonly outcome: ShrinkOutcome;
 }
-export interface ShrinkReport<I> {
+export interface ShrinkReport<I, C extends Count = number> {
     original: Failure<I>;
     minimized: Failure<I>;
-    attempts: number;
+    attempts: CountValue<C>;
     termination: ShrinkTermination;
-    history: ShrinkAttempt[];
+    history: ShrinkAttempt<C>[];
     replayed_transitions: bigint;
     validated_original: boolean;
 }
-export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig = DEFAULT_SHRINK, limits: ShrinkLimits = {}): ShrinkReport<I> {
+export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>, config?: ShrinkConfig, limits?: ShrinkLimits): ShrinkReport<I>;
+export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig<C>, limits?: ShrinkLimits): ShrinkReport<I, C>;
+export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig<C> = DEFAULT_SHRINK as ShrinkConfig<C>, limits: ShrinkLimits = {}): ShrinkReport<I, C> {
     const maxAttempts=config.maxAttempts;
     const maxReplayedTransitions=limits.maxReplayedTransitions;
-    natural(maxAttempts, 'maxAttempts', 1);
+    if (count64(maxAttempts, 'maxAttempts') === 0n) throw new ConfigError('maxAttempts must be positive');
     if (maxReplayedTransitions !== undefined)
         u64(maxReplayedTransitions, 'maxReplayedTransitions');
     const stop = runControl(limits);
@@ -181,7 +186,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
     const supplied = copy(original), target = supplied.violations[0];
     if (!target || target.check.status !== 'failed')
         throw new ModelError('cannot shrink a sequence without a target violation');
-    const r: ShrinkReport<I> = { original: copy(supplied), minimized: copy(supplied), attempts: 0, termination: 'search_complete', history: [], replayed_transitions: 0n, validated_original: false };
+    const r: ShrinkReport<I, C> = { original: copy(supplied), minimized: copy(supplied), attempts: countLike(0n, maxAttempts), termination: 'search_complete', history: [], replayed_transitions: 0n, validated_original: false };
     type Candidate = {
         kind: 'failure';
         failure: Failure<I>;
@@ -217,7 +222,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             if (!valid)
                 return { kind: 'invalid' };
             const t = step(m, s, inputs[n]);
-            r.replayed_transitions++;
+            r.replayed_transitions = increment64(r.replayed_transitions, 'replayed transition count overflow');
             const observed = searchChecks(m,t.state,s,inputs[n],t,undefined,[],checkStorage);
             if (observed.violations.length)
                 return { kind: 'failure', failure: { inputs: inputs.slice(0, n + 1).map(i => input(m, i)), violations: observed.violations } };
@@ -230,10 +235,10 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
     };
     const hasTarget = (f: Failure<I>) => f.violations.some(v => v.phase === target.phase && v.check.id === target.check.id && v.check.status === 'failed');
     const validation = replay(supplied.inputs);
-    r.attempts = 1;
+    r.attempts = countLike(1n, maxAttempts);
     if (validation.kind === 'stopped') {
         r.termination = validation.reason;
-        r.history.push({ attempt: 1, candidate_length: supplied.inputs.length, operation: { kind: 'validate_original' }, outcome: 'resource_limit' });
+        r.history.push({ attempt: countLike(1n, maxAttempts), candidate_length: countLike(BigInt(supplied.inputs.length), maxAttempts), operation: { kind: 'validate_original' }, outcome: 'resource_limit' });
         return r;
     }
     if (validation.kind !== 'failure')
@@ -242,7 +247,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
         throw new ModelError('original failure does not reproduce the target check and phase');
     r.minimized = copy(validation.failure);
     r.validated_original = true;
-    r.history.push({ attempt: 1, candidate_length: supplied.inputs.length, operation: { kind: 'validate_original' }, outcome: 'retained' });
+    r.history.push({ attempt: countLike(1n, maxAttempts), candidate_length: countLike(BigInt(supplied.inputs.length), maxAttempts), operation: { kind: 'validate_original' }, outcome: 'retained' });
     const seen: I[][] = [r.minimized.inputs.map(i => input(m, i))];
     const known = (values: readonly I[]) => {
         for (const prior of seen) {
@@ -271,12 +276,12 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             r.termination = reason;
         return reason !== null;
     };
-    const attempt = (values: I[], operation: ShrinkOperation): boolean => {
+    const attempt = (values: I[], operation: ShrinkOperation<C>): boolean => {
         if (r.attempts === maxAttempts) {
             r.termination = 'attempt_limit';
             return false;
         }
-        r.attempts++;
+        r.attempts = countLike(BigInt(r.attempts) + 1n, maxAttempts);
         const candidate = replay(values);
         let outcome: ShrinkOutcome;
         if (candidate.kind === 'stopped') {
@@ -296,12 +301,14 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             else if (wasSeen)
                 outcome = 'already_seen';
             else {
+                arrayGrowth(seen.length);
                 seen.push(candidate.failure.inputs.map(i => input(m, i)));
                 r.minimized = copy(candidate.failure);
                 outcome = 'retained';
             }
         }
-        r.history.push({ attempt: r.attempts, candidate_length: values.length, operation, outcome });
+        arrayGrowth(r.history.length);
+        r.history.push({ attempt: r.attempts, candidate_length: countLike(BigInt(values.length), maxAttempts), operation, outcome });
         return outcome !== 'resource_limit';
     };
     for (;;) {
@@ -319,7 +326,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
                     return r;
                 if (wasSeen)
                     continue;
-                if (!attempt(candidate, { kind: 'remove', start, end }))
+                if (!attempt(candidate, { kind: 'remove', start: countLike(BigInt(start), maxAttempts), end: countLike(BigInt(end), maxAttempts) }))
                     return r;
                 if (r.history.at(-1)!.outcome === 'retained') {
                     accepted = true;
@@ -340,7 +347,7 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             const alternatives = call('simpler_inputs', () => (m.simplerInputs?.(input(m, r.minimized.inputs[index])) ?? [])[Symbol.iterator]());
             if (interrupted())
                 return r;
-            let alternative = 0;
+            let alternative = 0n;
             for (;;) {
                 if (interrupted())
                     return r;
@@ -349,16 +356,16 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
                     return r;
                 if (item.done)
                     break;
+                const alt = alternative;
+                alternative = increment64(alternative, 'simplification index overflow');
                 const candidate = r.minimized.inputs.map(i => input(m, i));
                 candidate[index] = input(m, item.value);
-                const alt = alternative++;
-                natural(alternative, 'simplification index');
                 const wasSeen = known(candidate);
                 if (interrupted())
                     return r;
                 if (wasSeen)
                     continue;
-                if (!attempt(candidate, { kind: 'simplify', index, alternative: alt }))
+                if (!attempt(candidate, { kind: 'simplify', index: countLike(BigInt(index), maxAttempts), alternative: countLike(alt, maxAttempts) }))
                     return r;
                 if (r.history.at(-1)!.outcome === 'retained') {
                     simplified = true;
@@ -370,3 +377,10 @@ export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>,
             return r;
     }
 }
+
+export type FuzzConfig64 = FuzzConfig<bigint>;
+export type FuzzReport64<I> = FuzzReport<I, bigint>;
+
+export type AutoOptions64 = AutoOptions<bigint>;
+export type ShrinkConfig64 = ShrinkConfig<bigint>;
+export type ShrinkReport64<I> = ShrinkReport<I, bigint>;

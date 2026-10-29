@@ -1,11 +1,9 @@
 import Foundation
 @testable import Statelessness
 
-// Rust-compatible test evidence within the native Int count domain only.
-// Rust64 usize permits counts > Int.max; those require a separate wire model
-// and are explicitly unsupported here, never narrowed. This is not queue resume.
-// src/campaign/lifecycle/codec.rs defines the byte layout; the properties below
-// independently inspect protocol facts without calling CampaignLifecycle.apply.
+// Rust64-compatible private lifecycle evidence. Counts remain UInt64; only
+// bounded materialized strings/pending tables convert to native indices.
+// This test codec does not expose a public durable queue/resume API.
 func campaignCheck(_ id: String, _ passed: Bool) -> Check {
     passed ? .passed(id) : .failed(id, "campaign lifecycle contract violated")
 }
@@ -50,7 +48,7 @@ func campaignStateChecks(_ core: CampaignLifecycle, _ state: CampaignLifecycleSt
     let accounting = countsNonnegative && r.requested == core.jobs && r.started <= r.requested
         && r.notStarted == r.requested - r.started && r.finished <= r.started
         && r.delivered <= r.finished && r.failures <= r.finished && r.errors <= r.finished - r.failures
-    let pending = r.started >= r.finished && r.finished >= 0 && r.started - r.finished == state.pending.count
+    let pending = r.started >= r.finished && r.finished >= 0 && r.started - r.finished == UInt64(state.pending.count)
         && state.pending.allSatisfy { id, value in
             guard claimed(id) else { return false }
             if case let .ready(summary) = value { return campaignSummaryValid(summary) }
@@ -112,7 +110,7 @@ func campaignTransitionChecks(_ core: CampaignLifecycle, _ before: CampaignLifec
         if case .callbackError = before.report.termination { expected = [.discard(id)] }
         else { expected = [.deliver(id)] }
     }
-    func incremented(_ old: Int, _ delta: Bool, _ new: Int) -> Bool {
+    func incremented(_ old: UInt64, _ delta: Bool, _ new: UInt64) -> Bool {
         let sum = old.addingReportingOverflow(delta ? 1 : 0)
         return !sum.overflow && sum.partialValue == new
     }
@@ -152,7 +150,7 @@ struct CampaignLifecycleTestCodec {
     func encodeState(_ state: CampaignLifecycleState) throws -> [UInt8] {
         var out = CampaignWireWriter()
         let r = state.report
-        for count in [r.requested, r.started, r.finished, r.notStarted, r.delivered, r.failures, r.errors] { try out.count(count) }
+        for count in [r.requested, r.started, r.finished, r.notStarted, r.delivered, r.failures, r.errors] { out.number(count) }
         out.number(r.reportedTransitions); out.number(r.reportedCases); out.number(r.reportedSkippedChecks)
         out.boolean(r.accountingComplete)
         switch r.termination {
@@ -186,9 +184,9 @@ struct CampaignLifecycleTestCodec {
 
     func decodeState(_ bytes: [UInt8]) throws -> CampaignLifecycleState {
         var input = CampaignWireReader(bytes: bytes)
-        var r = CampaignReport(requested: try input.count())
-        r.started = try input.count(); r.finished = try input.count(); r.notStarted = try input.count()
-        r.delivered = try input.count(); r.failures = try input.count(); r.errors = try input.count()
+        var r = CampaignReport64(requested: try input.number())
+        r.started = try input.number(); r.finished = try input.number(); r.notStarted = try input.number()
+        r.delivered = try input.number(); r.failures = try input.number(); r.errors = try input.number()
         r.reportedTransitions = try input.number(); r.reportedCases = try input.number(); r.reportedSkippedChecks = try input.number()
         r.accountingComplete = try input.boolean()
         switch try input.tag() {
@@ -210,8 +208,9 @@ struct CampaignLifecycleTestCodec {
         case 5: stop = .worker
         default: throw campaignWireError()
         }
-        let count = try input.count()
-        guard count <= core.jobs, count <= input.remaining / 9 else { throw campaignWireError() }
+        let width = try input.number()
+        guard width <= core.jobs, width <= UInt64(input.remaining / 9) else { throw campaignWireError() }
+        let count = Int(width) // bounded by materialized input bytes
         var pending: [UInt64: CampaignLifecyclePending] = [:]
         var previous: UInt64?
         for _ in 0..<count {
@@ -347,8 +346,9 @@ private struct CampaignWireReader {
         return count
     }
     mutating func string() throws -> String {
-        let count = try count()
-        let bytes = try take(count)
+        let width = try number()
+        guard width <= UInt64(remaining) else { throw campaignWireError() }
+        let bytes = try take(Int(width))
         guard let string = String(bytes: bytes, encoding: .utf8) else { throw campaignWireError() }
         return string
     }

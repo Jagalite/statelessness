@@ -133,6 +133,15 @@ does not itself merge the PR, publish a package, or authorize a release.
   qualification remain open. Existing job `216609077a3f4d5ab439d83b95a15ffa`
   consumes the preserved `/tmp/stateless-n0809-r6` snapshot; it must not be
   duplicated. See [the stateful handoff](N08-N09-HANDOFF.md).
+- Exact-width checkpoint `af22de11e9a47596f74a10dda650fb20552678a2` replaces
+  signed/safe-number execution limits with unsigned Go/Swift kernels and
+  TypeScript bigint kernels, retaining checked legacy adapters. Parent review
+  examined adapter conversions, bounded materialization, worker count transport,
+  and integrated exports. Independent source review has no open findings;
+  compilation/type-fixture/Python jobs remain queued and native runtime is not
+  run. Installed consumer adaptation continues in its existing lane; exact-width
+  job follow-through remains separate from final combined-source acceptance.
+  See [the exact-width handoff](../../validation/native-parity/rust64-20261029/HANDOFF.md).
 
 No final checklist item or broad language-parity cell closes from these source
 integrations. PR #12 remains unmerged and unchanged remotely.

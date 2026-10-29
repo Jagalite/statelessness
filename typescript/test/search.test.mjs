@@ -92,7 +92,7 @@ test('automatic preserves enumeration and codec capabilities with private class 
 });
 test('checker error remains primary when checkError observer also throws',()=>{
  const m={...base(),checkState:function*(){yield check('partial');throw Error('primary checker');}};
- assert.throws(()=>fuzz(m,config(),{},{checkError:()=>{throw Error('secondary observer');}}),/state check: primary checker; observer check_error: secondary observer/);
+ assert.throws(()=>fuzz(m,config(),{},{checkError:()=>{throw Error('secondary observer');}}),/initial check_state: primary checker; observer check_error: secondary observer/);
 });
 test('completed property failure wins cancellation; callback errors beat simultaneous stop',()=>{
  let cancel=false;const r=fuzz({...base(),checkState:s=>{if(s){cancel=true;return [check('bad','failed','bad')];}return [];}},config(),{cancellation:()=>cancel});assert.equal(r.termination,'failure_found');

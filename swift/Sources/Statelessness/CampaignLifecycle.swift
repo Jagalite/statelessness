@@ -40,7 +40,7 @@ enum CampaignLifecyclePending: Equatable, Sendable {
 }
 
 struct CampaignLifecycleState: Equatable, Sendable {
-    var report: CampaignReport
+    var report: CampaignReport64
     var stop: CampaignLifecycleStop?
     var pending: [UInt64: CampaignLifecyclePending]
     var delivering: UInt64?
@@ -81,21 +81,26 @@ enum CampaignLifecycleOutput: Equatable, Sendable {
 
 struct CampaignLifecycle: Sendable {
     let firstJob: UInt64
-    let jobs: Int
+    let jobs: UInt64
     let stopOnFailure: Bool
 
-    init(config: CampaignConfig) {
+    init(config: CampaignConfig64) {
         firstJob = config.firstJob
         jobs = config.jobs
         stopOnFailure = config.stopOnFailure
     }
 
+    init(config: CampaignConfig) {
+        firstJob = config.firstJob
+        jobs = UInt64(exactly: config.jobs) ?? 0 // invalid legacy counts fail initialState
+        stopOnFailure = config.stopOnFailure
+    }
+
     func initialState() throws -> CampaignLifecycleState {
-        guard jobs > 0, let lastOffset = UInt64(exactly: jobs - 1),
-              !firstJob.addingReportingOverflow(lastOffset).overflow else {
+        guard jobs > 0, !firstJob.addingReportingOverflow(jobs - 1).overflow else {
             throw ModelError("invalid campaign lifecycle job range")
         }
-        return CampaignLifecycleState(report: CampaignReport(requested: jobs), stop: nil,
+        return CampaignLifecycleState(report: CampaignReport64(requested: jobs), stop: nil,
                                       pending: [:], delivering: nil, lostWorker: false, finalized: false)
     }
 
