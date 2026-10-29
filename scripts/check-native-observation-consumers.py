@@ -913,10 +913,12 @@ visit(path.join(base,'index.js'));console.log(JSON.stringify({browser_module_fil
     helper('observation_suffix').qualify(utilities(), attempt, binaries, compiler)
     attempt.report['staged_artifacts_before'] = manifest(attempt.root, tree_identity(work))
     attempt.watch('installed-runtime-tree', work)
+    attempt.watch('measurement-tool', Path('/usr/bin/time'))
+    attempt.report['resource_measurements'] = dict(method='/usr/bin/time -l', workload='36 identical observation cases per engine', limitations='single process launch and fixture decoding included; not steady-state throughput or hard RSS bounds')
     for language, runner in runners.items():
         measurement = dict(completed=False, reported_cases=None, matched_contract=False)
         attempt.report.setdefault('language_invocations', {})[language] = measurement
-        raw, _, _ = attempt.run(language + '-observe', runner + ['observe', str(staged_fixture)])
+        raw, _, _ = attempt.run(language + '-observe', ['/usr/bin/time', '-l', *runner, 'observe', str(staged_fixture)])
         measurement['completed'] = True
         actual = strict_json(raw)
         if isinstance(actual, dict) and isinstance(actual.get('cases'), list):

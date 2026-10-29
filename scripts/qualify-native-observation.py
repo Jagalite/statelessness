@@ -338,7 +338,7 @@ def extended(attempt):
     stage_native_sources(attempt)
     go = q.require_tool(attempt, 'go')
     py = q.require_tool(attempt, 'python3')
-    exec_dir = attempt.output / 'go-race-executables'; exec_dir.mkdir()
+    exec_dir = attempt.output / 'go-executables'; exec_dir.mkdir()
     wrapper = shlex.join([py, '-I', '-B', str(attempt.work / 'scripts/qualify-native-observation.py'), '--go-exec'])
     attempt.run('go-race', ['/usr/bin/time', '-l', go, 'test', '-race', '-count=1', '-exec', wrapper, './...'],
                 attempt.work / 'go', overlay={'CGO_ENABLED': '1', 'OBSERVATION_GO_EXEC_DIR': str(exec_dir)})
