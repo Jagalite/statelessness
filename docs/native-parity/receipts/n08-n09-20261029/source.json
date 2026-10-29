@@ -1,0 +1,8 @@
+{
+  "snapshot": "/tmp/stateless-n0809-r6",
+  "manifest": "/tmp/stateless-n0809-r6-source-manifest.json",
+  "sha256": "633163fc3c6375ff316198fc1818db8f88325d631972341bb509336a387c6d79",
+  "files": 589,
+  "qualification": "queued, not executed",
+  "latest_job": "216609077a3f4d5ab439d83b95a15ffa"
+}

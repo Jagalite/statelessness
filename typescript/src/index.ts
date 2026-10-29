@@ -25,3 +25,5 @@ export type {Assumptions,Proposal,ExperimentConfig,ExperimentStatus,RequiredProp
 
 export {codecField,orderedRecord,tupleRecord,unitRecord,enumCases,taggedEnum,bindModelCodec} from './value_codec.js';
 export type {ValueEncoder,ValueDecoder,LengthEncoder,LengthDecoder,CodecField,RecordDeclaration,EnumCase} from './value_codec.js';
+
+export * from "./stateful.js";
