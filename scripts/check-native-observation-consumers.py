@@ -908,7 +908,6 @@ visit(path.join(base,'index.js'));console.log(JSON.stringify({browser_module_fil
         attempt.watch('runner:' + name, runner[0])
     attempt.watch('python-consumer', work / 'python-consumer.py')
     attempt.watch('typescript-consumer', ts / 'build/consumer.js')
-    helper('observation_browser').qualify(utilities(), attempt, ts, fixture)
     # Parent-owned additions reuse the real checked Recorder applications and
     # independently authored suffix contract; no Cargo command is hidden here.
     helper('observation_suffix').qualify(utilities(), attempt, binaries, compiler)

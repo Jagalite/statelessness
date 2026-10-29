@@ -337,9 +337,22 @@ def extended(attempt):
     """Additional runtime gates and measured process RSS; never a hard RSS quota."""
     stage_native_sources(attempt)
     go = q.require_tool(attempt, 'go')
-    attempt.run('go-race', ['/usr/bin/time', '-l', go, 'test', '-race', '-count=1', './...'],
-                attempt.work / 'go', overlay={'CGO_ENABLED': '1'})
+    py = q.require_tool(attempt, 'python3')
+    exec_dir = attempt.output / 'go-race-executables'; exec_dir.mkdir()
+    wrapper = shlex.join([py, '-I', '-B', str(attempt.work / 'scripts/qualify-native-observation.py'), '--go-exec'])
+    attempt.run('go-race', ['/usr/bin/time', '-l', go, 'test', '-race', '-count=1', '-exec', wrapper, './...'],
+                attempt.work / 'go', overlay={'CGO_ENABLED': '1', 'OBSERVATION_GO_EXEC_DIR': str(exec_dir)})
+    receipts = list(exec_dir.glob('*/receipt.json'))
+    if not receipts or any(q.strict_json(p.read_bytes()).get('status') != 'passed' for p in receipts):
+        raise ValueError('missing/failed Go race executable identity receipts')
+    attempt.report['go_race_executable_processes'] = len(receipts)
     cargo = q.require_tool(attempt, 'cargo')
+    rustup = q.require_tool(attempt, 'rustup')
+    for name in ('cargo', 'rustc', 'rustdoc'):
+        raw, _, _ = attempt.run('resolve-' + name, [rustup, 'which', name], attempt.root)
+        attempt.watch('resolved-tool:' + name, Path(raw.decode('utf-8').strip()))
+    attempt.run('cargo-version', [cargo, '-Vv'], attempt.root)
+    attempt.run('rustc-version', ['rustc', '-vV'], attempt.root)
     target = attempt.work / 'cargo-target'
     overlay = {'CARGO_TARGET_DIR': str(target), 'CARGO_INCREMENTAL': '0'}
     attempt.run('rust-doctests', [cargo, 'test', '--locked', '--offline', '-p', 'statelessness', '--doc', '-j', '2'],

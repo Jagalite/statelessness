@@ -441,20 +441,12 @@ reviewed [caller correction](OBSERVATION-FIXES-SWIFT-CALLERS.md). Their regressi
 sources are present. Source review and executable qualification are separate
 from this disposition; no passing result is implied.
 
-1. **P2, existing Swift recorder footer ordering.**
-   [Recorder.swift:46](../../swift/Sources/Statelessness/Recorder.swift#L46) clones,
-   encodes and ordinarily checks before final budget validation. Rust
-   [monitor.rs:213](../../src/monitor.rs#L213) validates the reserved terminal footer
-   before checkpoint encoding/checking. With maxFrameBytes below 13, callbacks
-   or their errors can win in Swift where Rust rejects first. This was inspected,
-   not executed; parent should decide a scoped fix or explicit open gate. A quota
-   rejection-only test does not establish callback/error precedence parity.
-2. **P2, existing Swift output-limit attribution.**
-   [Recorder.swift:204](../../swift/Sources/Statelessness/Recorder.swift#L204)
-   combines maxOutputsPerStep/maxItems under the outputs-per-step category.
-   Rust [monitor.rs:424](../../src/monitor.rs#L424) checks them separately.
-   A count exceeding only maxItems should not be mislabeled as the output cap.
-   Preserve separate checks and qualify conflicting-limit cases.
+1. **Historical Swift recorder footer ordering: source-resolved.** Current
+   `Recorder.swift` checks the reserved footer after metadata and before checkpoint
+   encoding/checks. Native clone hooks remain an explicit ownership adaptation.
+2. **Historical Swift output-limit attribution: source-resolved.** Current
+   `Recorder.swift` separately checks outputs-per-step then aggregate items.
+   `ObservationBudgetPrecedenceTests` exercises conflicting-limit precedence.
 3. Compile and execute the new public Rust consumer through Kyoto only after
    integrated source freeze. Compare all five languages' normalized case entries;
    the language discriminator belongs only at the result root. Keep returned
