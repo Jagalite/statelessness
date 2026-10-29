@@ -86,3 +86,15 @@ from .codec_declarations import (DECLARATION_API_V1, adapter, field,
 __all__ += ["DECLARATION_API_V1", "adapter", "field", "positional_field",
     "adapted_field", "ordered_record", "tuple_record", "unit_record", "case",
     "tagged_enum", "ModelCodecBinding", "model_codec"]
+
+from .observation import (Event, Started, Checkpoint, TransitionEvent, Message,
+    Finished, Observer, PayloadFormat, PayloadWriter, NoPayloads, EncodedPayloads,
+    TextObserver, TextObserverError, LogLevel, SnapshotPolicy, ObservationOptions)
+__all__ += ["Event", "Started", "Checkpoint", "TransitionEvent", "Message",
+    "Finished", "Observer", "PayloadFormat", "PayloadWriter", "NoPayloads",
+    "EncodedPayloads", "TextObserver", "TextObserverError", "LogLevel",
+    "SnapshotPolicy", "ObservationOptions"]
+EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("observation-v1",)
+
+from .observation import DebugObservation, DebugInitial, DebugTurn
+__all__ += ["DebugObservation", "DebugInitial", "DebugTurn"]

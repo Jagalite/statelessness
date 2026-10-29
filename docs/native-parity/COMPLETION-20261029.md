@@ -90,3 +90,25 @@ timeouts as successful semantic mutation detection.
 Full parity must remain open if any required capability or qualification is
 missing. A lane pass is not a combined-source pass. Completion of this checklist
 does not itself merge the PR, publish a package, or authorize a release.
+
+## Integration checkpoints (not acceptance)
+
+- M0/N12 candidate `630feb56f381ce661ee1cdb26d9cb2b72b5ed9f5` is retained
+  locally. Its ownership/protocol corrections and gate infrastructure have static
+  review, but its three current-source Kyoto jobs remain queued at integration.
+  Concrete optional protocol/service integrations continue in a separate lane.
+  See [the partial handoff](../../validation/native-parity/n12-completion-20261029/HANDOFF.md).
+- N07 candidate `b478e67f1668385d120cef2e8debb64042d32cb3` contributes seven
+  commits after the continuation baseline. Parent review examined the public
+  exports, oracle error ownership, Swift recording/replay budget changes, and
+  qualification dependencies. Integration with the M0/N12 checkpoint had no
+  textual conflicts. This does not establish combined runtime correctness.
+  Its native, Rust compilation, and extended execution jobs remain queued;
+  dependent Rust execution and installed replay/browser/resource gates remain
+  unexecuted. See [the N07 handoff](../../validation/native-parity/observation-slice/CURRENT-20261029.md).
+- The original N07 and M0/N12 worktrees remain frozen for their existing jobs.
+  Those jobs qualify only their sealed source if they pass. Final integration
+  needs its own current-source qualification after the other lanes arrive.
+
+No final checklist item or broad language-parity cell closes from these source
+integrations. PR #12 remains unmerged and unchanged remotely.

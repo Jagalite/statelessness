@@ -472,3 +472,114 @@ values intentionally fail validation rather than silently choosing a format.
 `BindModelCodec` returns a new model codec for explicit assignment, requires only
 encoding for Output, and preserves metadata and engine behavior. It checks the
 current metadata version on every hook and evaluates decode limits afresh.
+
+Runtime observation is optional, synchronous diagnostic text. `Event[S,I,O]`
+uses `EventStarted`, `EventCheckpoint`, `EventTransition`, `EventMessage`, and
+`EventFinished` tags. `Observer[S,I,O]` accepts a model and an application-owned
+event. `TextObserver` never calls initial-state, reducer, checker, enumeration,
+or effect execution callbacks. Events do not prove continuity or authorize
+unchecked recording; use existing `CheckInitial`/`CheckTurn` tokens and Recorder
+for exact evidence. `TurnObservation.Event()` is a diagnostic conversion only.
+
+```go
+options := statelessness.DefaultObservationOptions()
+options.Level = statelessness.LogTrace
+options.Snapshots = statelessness.SnapshotEveryTransition()
+log, err := statelessness.NewTextObserver[State, Input, Output](
+    writer, "application", options,
+    statelessness.NewEncodedPayloads[State, Input, Output](4096),
+)
+if err != nil { return err }
+// The application has already executed this turn and obtained these checks.
+err = log.Observe(model, statelessness.Event[State, Input, Output]{
+    Kind: statelessness.EventTransition, Sequence: sequence,
+    Before: before, Input: input, Transition: actual, Checks: checks,
+})
+```
+
+`DefaultObservationOptions()` is Off / None / 1 MiB. A literal zero options
+value retains a zero-byte bound; limits include the final LF and count UTF-8
+bytes. Levels are `LogOff`, `LogError`, `LogWarn`, `LogInfo`, `LogDebug`, and
+`LogTrace`. Failure checks take Error precedence over skipped checks at Warn.
+Ordinary checkpoints are Trace, transitions Debug even when rejected or ignored,
+and start/finish Info. Messages carry their own level; Off messages are filtered.
+Filtering precedes formatter and codec work. Only configured Trace formats
+payloads and Passed check details, even when the record itself is Error or Warn.
+
+`SnapshotNone()`, `SnapshotEvery(nonzero uint64)`, and
+`SnapshotEveryTransition()` select post-state payloads by absolute transition
+sequence. Explicit Trace checkpoints include state under any non-None policy,
+independent of interval. Payload order is input, ordered outputs, then selected
+post-state; before-state is unused. `SetLevel` and `SetSnapshots` affect future
+events and cannot recover omitted history. Emit a fresh checkpoint when enabling
+snapshots mid-run. Sequence and periodic arithmetic retain the full u64 range.
+
+`PayloadFormat` can format opaque application types without a codec; nil selects
+`NoPayloads`, which emits `unavailable`. `EncodedPayloads` uses the existing
+incremental-before-legacy dispatch, including declaration bindings, a reusable
+bounded EncodeBuffer, and lowercase hex. No codec is required on base Model.
+Legacy encoders necessarily allocate their return buffers before admission;
+clones and other callback allocations are also outside the logical byte limits.
+Encoding uses the existing model clone hooks; borrowed custom formatting does
+not copy payloads. Formatters must not mutate application data or execute effects.
+
+Events borrow slices, payload reference fields, and config parameters for the
+duration of `Observe`; neither event construction nor observation detaches them.
+Applications own ordering and must prevent concurrent mutation. Checked tokens
+retain their existing detached ownership and private authority. An event copied
+from a detached TurnObservation is still diagnostic data. No automatic observer
+hook was added to model execution, checking, or recording.
+
+Library text follows the pinned Rust variant names, field order, quoted strings,
+`Some(n)`/`None`, and metadata/config spelling in `observation-v1`. It escapes
+quote, backslash, NUL, LF/CR/TAB and nonprintable scalars with Rust-style escapes,
+while preserving common printable UTF-8. Native Unicode classification uses Go's
+Unicode tables, including grapheme-extending marks; exact bytes across every
+Unicode version/category or future Rust Debug format are not promised. Invalid
+library-owned UTF-8 is rejected. Custom formatter bytes are unsanitized; valid
+UTF-8 and single-line output are the caller's responsibility. This is diagnostic
+text, not a replay or persistence format.
+
+Every record is staged before destination I/O. Record/encode buffer failures are
+sticky even when a callback swallows an error. Format/codec errors publish no
+destination bytes and the next event can recover. `TextObserverError.Stage`
+attributes `format`, `format input/output/state`, `encode input/output/state`,
+`write`, `flush`, or `poisoned`; `Cause`/`Unwrap` retains opaque host errors without
+calling their Error/String/Format methods. Its own Error string is intentionally
+constant per stage. Callback panics become constant errors without formatting
+the panic value; fatal runtime errors such as unrecoverable OOM remain outside
+this contract. Formatter/encoder writer leases expire on return or panic.
+The generic oracle `ObservationError[S,O]` remains a separate API retaining the
+actual transition. Public diagnostic errors supplied by callbacks, including
+typed nil and errors propagated from another observer, are opaque causes under
+the active `format input/output/state` stage. Only an internal codec failure from
+the same active payload lease and matching payload kind retains its encode
+stage. A sticky record bound failure takes precedence over callback errors or
+panics. Public errors do not confer failure attribution or checked authority.
+
+Nested declaration/framing encoding reuses the existing batch and revocable
+leases. `EncodeRaw` callback errors remain cooperative; failed writes and failed
+framed calls remain sticky even if ignored. Panic containment targets the module's
+Go 1.23 default panic behavior. The legacy `GODEBUG=panicnil=1` setting is outside
+this observation profile: an existing raw value-codec boundary may swallow a nil
+panic before it reaches the observer.
+
+Writer/flush failures permanently poison the sink, including subsequent Off
+observations, and may leave a delivered prefix. Native `io.Writer` semantics
+apply: `n < len(p)` with nil error becomes `io.ErrShortWrite`; partial bytes plus
+an error are never retried or duplicated. Go writer errors, including Interrupted,
+are terminal here. `Flush` calls an optional `Flush() error` method and otherwise
+succeeds without writing. `GetRef` returns the caller's writer; direct external
+use is their responsibility. `IntoInner` transfers that reference without flushing
+or closing, including after poison, and disables further observer use. Call Flush
+explicitly before transfer when required. The sink and payload formatter are
+exclusive, nonconcurrent objects; reentrant observation, flush, settings changes,
+and ownership transfer during a callback are rejected.
+Do not copy TextObserver or EncodedPayloads after first use.
+
+The source-only observation tests include error-family compatibility, active
+stage attribution, typed-nil and hostile callback failures, nested declaration
+framing, sticky bounds, expired copied leases, and checked Recorder integration.
+The installed consumer is in `examples/native-observation/go`. `observation-v1`
+is advertised only by `ExperimentalProfiles()`. Compilation and execution remain
+deferred to the parent's frozen integrated Kyoto qualification.

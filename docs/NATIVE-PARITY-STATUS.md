@@ -402,6 +402,29 @@ research consumers remain gates until exact-candidate receipts establish them.
 Full N13 modeling/domain/inspection helpers, N05/N06, N12 direct wire and broad144
 remain separately open; no profile, release or parent integration is promoted.
 
+## N07 observation integration candidate
+
+The isolated `t3/n07-observation-parity` worktree extends committed candidate
+`54ba3f32796fc5c71458fb4cda14b2ab9290ee83` with independent native diagnostic
+events, severity/snapshot options, bounded synchronous text sinks and optional
+encoded payload presentation. Existing periodic checks, sealed checked results
+and runtime Recorder remain separate evidence-producing APIs. Logging neither
+executes the application nor certifies event continuity.
+
+The [integration contract and gates](native-parity/OBSERVATION-INTEGRATION.md)
+separate source implementation/review from compilation, executable suites,
+installed consumers and platform/resource qualification. The independent
+[observation corpus](../conformance/observation-v1.json) compares only its declared
+text contract; custom formatter output and arbitrary Rust Debug representations
+are not silently normalized into parity. Exact changed-tree execution state is
+recorded in the [observation receipts](../validation/native-parity/observation-slice/README.md).
+Previous checked, research and N13 receipts do not qualify this changed tree.
+The audit explicitly leaves the six dedicated `DebugObservation` sum/member
+mappings open. The planned installed gate uses 36 observation cases per engine
+and two suffix contracts (10 producers, 50 binary pairs, 50 JSON pairs); these
+counts describe source coverage until execution is recorded.
+Full N07 and broader native parity remain open pending their relevant gates.
+
 ## Other candidate evidence
 
 The separate `t3/integrate-n12-n13-native-parity` candidate combines reviewed

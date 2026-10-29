@@ -52,7 +52,7 @@ func differencesJSON(_ d: ReplayDifferences) -> [String: Bool] { ["disposition":
 func stepJSON(_ step: TraceStep) -> [String: Any] {
  ["input":hexString(step.input),"disposition":dispositionJSONValue(step.disposition),"outputs":step.outputs.map(hexString),"post_state":hexString(step.postState),"checks":checksJSON(step.checks)]
 }
-func observed(_ model: Model<Int,Int,String>, _ audit: AuditTrace, bounded: Bool) throws -> [String: Any] {
+func observed(_ model: Model<Int,Int,String>, _ trace: Trace, boundedAudit: AuditTrace? = nil) throws -> [String: Any] {
  var observations: [[String: Any]] = []
  let observer: (ReplayObservation<Int,Int,String>, ReplayReport) throws -> Void = { observation, report in
   switch observation {
@@ -62,12 +62,24 @@ func observed(_ model: Model<Int,Int,String>, _ audit: AuditTrace, bounded: Bool
   }
  }
  let report: ReplayReport
- if bounded { report = try replayWithObservationsBounded(model, trace: audit, limits: finiteLimits(), observer: observer) }
- else { report = try replayWithObservations(model, trace: audit.portable().trace, observer: observer) }
+ if let audit = boundedAudit { report = try replayWithObservationsBounded(model, trace: audit, limits: finiteLimits(), observer: observer) }
+ else { report = try replayWithObservations(model, trace: trace, observer: observer) }
  return ["report":reportJSON(report),"observations":observations]
+}
+func observed(_ model: Model<Int,Int,String>, _ audit: AuditTrace, bounded: Bool) throws -> [String: Any] {
+ try observed(model,audit.portable().trace,boundedAudit:bounded ? audit : nil)
 }
 func options(_ n:Int=3)->RecorderOptions { RecorderOptions(maxSteps:n,maxRetainedBytes:8192,limits:finiteLimits()) }
 func count(_ c:Counts)->[String:Int] { ["initial_state":c.initial,"reducer":c.step,"state":c.stateChecks,"transition":c.edgeChecks] }
+func callbackCounts(_ c:Counts)->[Int] { [c.initial,c.step,c.stateChecks,c.edgeChecks,c.state,c.input,c.output,c.legacy,c.decode] }
+func suffixReplays(_ trace:Trace,_ boundedAudit:AuditTrace)throws->(receipt:[String:Any],counts:[Counts]) {
+ let (richModel,richCounts)=application(), (boundedModel,boundedCounts)=application()
+ let rich=try observed(richModel,trace), bounded=try observed(boundedModel,trace,boundedAudit:boundedAudit)
+ let expected=["initial_state":0,"reducer":1,"state":2,"transition":1]
+ try require(count(richCounts)==expected,"suffix rich replay counts differ")
+ try require(count(boundedCounts)==expected,"suffix bounded replay counts differ")
+ return (["rich":rich,"bounded":bounded,"rich_counts":count(richCounts),"bounded_counts":count(boundedCounts)],[richCounts,boundedCounts])
+}
 func attach(_ m:Model<Int,Int,String>,_ state:Int=0,_ origin:UInt64=0,_ n:Int=3)throws->Recorder { try Recorder(checkedInitial:checkInitial(m,state:state),sequenceOrigin:origin,config:config,options:options(n)) }
 func token(_ m:Model<Int,Int,String>,_ before:Int,_ seq:UInt64,_ policy:CheckPolicy=CheckPolicy(),_ output:String="changed")throws->CheckedTurn<Int,Int,String>{try checkTurn(m,before:before,input:1,transition:Transition(state:before+1,outputs:[output]),sequence:seq,policy:policy)}
 func retainedConfig(_ a:AuditTrace)->[String:Any]{["strategy":a.config.strategy,"seed":a.config.seed.map { String($0) as Any } ?? NSNull(),"parameters":a.config.parameters.map { [$0.key,$0.value] }]}
@@ -92,8 +104,9 @@ func controls() throws -> ([String:Any],[String:Any]) {
  return (["check_once":true,"attach_rechecks":false,"handoff_rechecks":false,"token_reused":true,"sampled_rejected":true,"duplicate_rejected":true,"gap_rejected":true,"origin_preserved":true,"ring_state_prefix_only":true,"bounded_error_prefix":true,"statically_sealed":true,"accessor_ownership":true],["rich":try observed(m,audit,bounded:false),"bounded":try observed(m,audit,bounded:true),"retained_config":retainedConfig(audit)])
 }
 let args = CommandLine.arguments
-try require(args.count == 3, "expected record PREFIX, replay BIN, or replay-json JSON")
+try require(args.count == 3, "expected record PREFIX, record-suffix PREFIX, record-failing-suffix PREFIX, replay BIN, replay-json JSON, replay-suffix BIN, or replay-suffix-json JSON")
 let (model, counts) = application()
+var replayCounts: [Counts] = []
 var receipt: [String:Any]
 switch args[1] {
 case "record":
@@ -103,6 +116,83 @@ case "record":
  let audit=rec.snapshot(),mainCounts=count(counts);try require(mainCounts == ["initial_state":0,"reducer":3,"state":4,"transition":3],"check-once counts differ");let (control,ring)=try controls()
  try save(encodeAuditTrace(audit, limits:finiteLimits()), args[2]+".bin"); try save(encodeTrace(audit.portable().trace), args[2]+".json")
  receipt = ["steps":audit.steps.count,"termination":"property_failed","rich":try observed(model,audit,bounded:false),"bounded":try observed(model,audit,bounded:true),"controls":control,"ring":ring,"main_counts":mainCounts,"checked":["initial_checks":initial.stateCheckCount,"state_check_count":certificates[0].stateCheckCount,"full_checking":certificates[0].fullChecking,"sequence":String(certificates[0].sequence)] as [String:Any],"retained_config":["strategy":audit.config.strategy,"seed":audit.config.seed.map { String($0) as Any } ?? NSNull(),"parameters":audit.config.parameters.map { [$0.key,$0.value] }] as [String:Any]]
+case "record-suffix", "record-failing-suffix":
+ let failing = args[1] == "record-failing-suffix", turnCount = failing ? 3 : 2
+ let observerPrefix = "suffix-observer\n"
+ var writer = ObservationBytes()
+ _ = try writer.write(Array(observerPrefix.utf8)[...])
+ let observer = try TextObserver(writer:writer,streamID:"suffix",options:ObservationOptions(level:.trace,snapshots:.everyTransition,maxRecordBytes:1024),payloads:NoPayloads<Int,Int,String>())
+ var state = 0
+ let initial = try checkInitial(model,state:state), attachCounts = count(counts)
+ let rec = try Recorder(checkedInitial:initial,sequenceOrigin:40,config:config,options:options(1))
+ try require(count(counts)==attachCounts,"suffix attach repeated application work")
+ let checkpointEncodes = counts.encodes
+ try observer.observe(model,event:.checkpoint(sequence:40,state:try initial.state,checks:initial.checks))
+ try require(count(counts)==attachCounts && counts.encodes==checkpointEncodes,"suffix checkpoint observer repeated application work or encoded payloads")
+ var certificates: [CheckedTurn<Int,Int,String>] = []
+ for offset in 1...turnCount {
+  let sequence = UInt64(40+offset)
+  let before=state, actual=try model.step(before,1), checked=try checkTurn(model,before:before,input:1,transition:actual,sequence:sequence)
+  certificates.append(checked)
+  let beforeCounts = count(counts)
+  try rec.observeChecked(checked)
+  try require(count(counts)==beforeCounts,"suffix recorder repeated application work")
+  let beforeEncodes = counts.encodes
+  try observer.observe(model,event:.transition(sequence:try ObservationSequence(sequence),before:before,input:1,transition:actual,checks:checked.checks))
+  try require(count(counts)==beforeCounts && counts.encodes==beforeEncodes,"suffix turn observer repeated application work or encoded payloads")
+  state=actual.state
+ }
+ try observer.flush()
+ // Capture application work before the independent rich/bounded replay passes.
+ let audit=rec.snapshot(), mainCounts=count(counts), portable=audit.portable().trace
+ try require(mainCounts == ["initial_state":0,"reducer":turnCount,"state":turnCount+1,"transition":turnCount],"suffix check-once counts differ")
+ try require(state==turnCount && audit.steps.count==1 && audit.termination == (failing ? .propertyFailed : .interrupted) && rec.isFrozen==failing,"suffix retention or termination differs")
+ try require(audit.initialState==ascii(turnCount-1) && audit.initialChecks == [.passed("threshold.bound"),.passed("state.appended")],"suffix checkpoint promoted non-state checks")
+ let retainedChecks: [Check] = [failing ? .failed("threshold.bound","at least three") : .passed("threshold.bound"),.passed("state.appended"),.passed("edge.checked")]
+ try require(audit.steps[0].postState==ascii(turnCount) && audit.steps[0].checks==retainedChecks,"suffix retained turn differs")
+ try require(rec.observedSteps==UInt64(turnCount) && rec.evictedSteps==UInt64(turnCount-1),"suffix local counters differ")
+ for (key,value) in [("sequence_origin","40"),("observed_steps",String(turnCount)),("evicted_steps",String(turnCount-1)),("checkpoint_after_sequence",String(turnCount-1))] {
+  try require(audit.config.parameters.contains(where:{$0.key=="stateless.monitor."+key && $0.value==value}),"suffix retained metadata differs: "+key)
+ }
+ let observerText = String(decoding:try observer.getRef().bytes,as:UTF8.self)
+ let binary = try encodeAuditTrace(audit,limits:finiteLimits()), json = try encodeTrace(portable)
+ var freezeObserverText: String?
+ if failing {
+  let frozenCounts = callbackCounts(counts)
+  let freezeObserver = try TextObserver(writer:ObservationBytes(),streamID:"suffix",options:ObservationOptions(level:.trace,snapshots:.everyTransition,maxRecordBytes:1024),payloads:NoPayloads<Int,Int,String>())
+  // Supplied diagnostics confer neither continuity nor checked authority.
+  try freezeObserver.observe(model,event:.checkpoint(sequence:44,state:999,checks:[]))
+  try freezeObserver.flush()
+  freezeObserverText = String(decoding:try freezeObserver.getRef().bytes,as:UTF8.self)
+  try require(freezeObserverText == "Trace stream=\"suffix\" event=checkpoint sequence=44 checks=0 state=unavailable\n","suffix frozen diagnostic differs")
+  try require(callbackCounts(counts)==frozenCounts,"suffix frozen diagnostic repeated callbacks or codecs")
+  try require(binary == encodeAuditTrace(rec.snapshot(),limits:finiteLimits()) && json == encodeTrace(rec.snapshot().portable().trace),"suffix frozen diagnostic changed artifacts")
+  // Reuse the authentic final token; do not execute or check a fourth turn.
+  try require(rejects { try rec.observeChecked(certificates[turnCount-1]) },"suffix frozen handoff accepted")
+  try require(rec.isFrozen && rec.snapshot()==audit && binary == encodeAuditTrace(rec.snapshot(),limits:finiteLimits()) && json == encodeTrace(rec.snapshot().portable().trace),"suffix frozen handoff changed artifacts")
+  try require(callbackCounts(counts)==frozenCounts,"suffix frozen handoff repeated callbacks or codecs")
+ }
+ try save(binary,args[2]+".bin"); try save(json,args[2]+".json")
+ let replayed = try suffixReplays(portable,audit)
+ replayCounts = replayed.counts
+ receipt = replayed.receipt
+ receipt.merge(["steps":audit.steps.count,"termination":portable.termination.rawValue,"retained_config":retainedConfig(audit),"main_counts":mainCounts,
+  "checked":["initial_checks":initial.stateCheckCount,"state_check_count":certificates[0].stateCheckCount,"full_checking":certificates[0].fullChecking,"sequence":String(certificates[0].sequence)] as [String:Any],"observer_prefix":observerPrefix,"observer_text":observerText]
+ ) { _, new in new }
+ if let freezeObserverText { receipt["freeze_observer_text"] = freezeObserverText; receipt["freeze_verified"] = true }
+case "replay-suffix":
+ let audit = try decodeAuditTrace(load(args[2]),limits:finiteLimits())
+ let replayed = try suffixReplays(audit.portable().trace,audit)
+ receipt = replayed.receipt; replayCounts = replayed.counts
+ receipt["retained_config"] = retainedConfig(audit)
+case "replay-suffix-json":
+ let portable = try parseTrace(load(args[2]))
+ // Swift rich replay accepts portable Trace directly; bounded replay requires
+ // AuditTrace. Supply only default config through the public conversion API.
+ // Portable JSON has no retained audit configuration to return in the receipt.
+ let audit = try AuditTrace(portable:portable,config:RunConfig(strategy:"manual"))
+ let replayed = try suffixReplays(portable,audit)
+ receipt = replayed.receipt; replayCounts = replayed.counts
 case "replay":
  let audit = try decodeAuditTrace(load(args[2]), limits:finiteLimits())
  receipt = ["rich":try observed(model,audit,bounded:false),"bounded":try observed(model,audit,bounded:true),"retained_config":["strategy":audit.config.strategy,"seed":audit.config.seed.map { String($0) as Any } ?? NSNull(),"parameters":audit.config.parameters.map { [$0.key,$0.value] }] as [String:Any]]
@@ -110,6 +200,7 @@ case "replay-json":
  receipt = reportJSON(try replay(model,trace:parseTrace(load(args[2]))))
 default: throw ModelError("unknown mode")
 }
-receipt["legacy_encoder_calls"] = counts.legacy; receipt["codec_into_calls"] = counts.encodes
+receipt["legacy_encoder_calls"] = ([counts]+replayCounts).reduce(0) { $0+$1.legacy }
+receipt["codec_into_calls"] = ([counts]+replayCounts).reduce(0) { $0+$1.encodes }
 receipt["producer"] = "swift"; receipt["mode"] = args[1]
 print(String(decoding:try JSONSerialization.data(withJSONObject:receipt,options:[.sortedKeys]),as:UTF8.self))

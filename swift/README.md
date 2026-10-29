@@ -317,6 +317,10 @@ retained/observed/evicted counts, serialized retained bytes and freeze state.
 Serialized limits exclude callback allocations, clone work, backing capacities
 and process RSS. Callers still own reliable ordered observation delivery; encoded
 continuity cannot detect omitted transitions that return to the same state.
+After metadata, initialization validates the reserved error-footer frame before
+checkpoint encoding or checking, including when initial checks would fail.
+Turn admission checks `maxOutputsPerStep` before `maxItems` and reports their
+distinct `outputs per step` and `aggregate items` limits.
 
 These synchronous native checked-result/recorder APIs remain experimental and
 leave the four promoted portable profiles unchanged. Causal `EvidenceRecorder`
@@ -336,6 +340,104 @@ trace. `stopWithError` is therefore a throwing API. Transfer during a codec/chec
 callback is rejected and freezes the existing prefix. Read-only snapshots, exports
 and counters remain available after transfer as a native extension; the returned
 value owns its immutable/copy-on-write encoded evidence.
+
+## Candidate synchronous diagnostic observation
+
+`Event<State,Input,Output>` has `.started`, `.checkpoint`, `.transition`,
+`.message`, and `.finished` cases. `Observer` and `PayloadFormat` use associated
+native payload types. `TextObserver<Writer,Payloads>` observes values supplied by
+the application; it never calls initial state, reducers, checks, clone callbacks,
+or effects. Events and `TurnObservation` are diagnostic values with no continuity
+or checked-token authority. The existing `CheckedInitial`, `CheckedTurn`, periodic
+checks, and bounded `Recorder` retain their separate behavior and guards.
+
+```swift
+let log = try TextObserver(
+    writer: ObservationBytes(), streamID: "application-1",
+    options: ObservationOptions(level: .trace, snapshots: try .every(10)),
+    payloads: NoPayloads<MyState,MyInput,MyOutput>())
+// actual is the transition already produced by the application.
+try log.observe(model, event: .transition(
+    sequence: try ObservationSequence(sequence), before: before, input: input,
+    transition: actual, checks: checks))
+try log.flush() // Only when the application needs a flush.
+let bytes = try log.intoInner().bytes
+```
+
+`ObservationSequence` and `SnapshotPolicy.every(_:)` reject zero and preserve the
+full UInt64 range. Policies are `.none`, `try .every(n)`, and `.everyTransition`.
+Defaults are `.off`, `.none`, and a 1 MiB complete-record UTF-8 limit. Levels are
+`.off`, `.error`, `.warn`, `.info`, `.debug`, `.trace`. Failed checks take Error
+precedence over skipped checks (Warn). Ordinary transitions are Debug, including
+rejected/ignored turns; ordinary checkpoints are Trace; start/finish are Info.
+Messages use their own level and explicit Off is always filtered. Passed check
+details and payloads appear only when configured Trace. Filtering precedes all
+formatting/codec work, while poisoned-sink checks precede even Off.
+
+At Trace, payload order is input, outputs in supplied order, then selected post
+state; before-state is unused. Every(n) uses absolute sequence divisibility.
+Explicit checkpoints include state under every non-None policy regardless of
+interval. `setLevel`/`setSnapshots` apply to the next observation; each call takes
+a stable configuration. Enabling logging cannot recover omitted history, so emit
+an explicit checkpoint when appropriate.
+
+Values use ordinary Swift value semantics and reference payloads are borrowed by
+convention: keep them stable throughout `observe`. No cloning or serialization is
+implicit, and payloads/observers gain no `Sendable` requirement or guarantee.
+Callbacks must remain synchronous, nonreentrant, and observational. The library
+rejects nested observer I/O/ownership operations before touching active storage;
+it cannot sandbox arbitrary application effects, alias mutation, Swift traps,
+allocation failure, or a writer that makes no eventual progress after interrupts.
+
+`NoPayloads<S,I,O>` writes `unavailable` and requires no codec. Applications can
+implement `PayloadFormat` directly and write through a bounded, revocable
+`ObservationBuffer`. `EncodedPayloads<S,I,O>(maxBlobBytes:)` uses the existing
+`encodeStateInto`/`encodeInputInto`/`encodeOutputInto` dispatch and a reusable
+`EncodeBuffer`. Preferred into callbacks and `ModelCodecBinding` declaration hooks
+remain in force, including their version gate; output decoding is unnecessary.
+Encoded text is `hex:` followed by lowercase hex. Codec errors identify state,
+input, or output in `TextObservationError.stage`. Record and codec stages are
+preserved only for failures from the current formatter lease. A formatter that
+throws a public staged error or propagates a nested observer's error is reported
+as `formatInput`, `formatOutput`, or `formatState` for that callback; it cannot
+establish a sink failure or poison the outer observer. Legacy allocating callbacks
+necessarily allocate before their returned bytes enter the bound. Limits bound
+logical bytes, not backing capacity, application allocation, or RSS.
+
+Each complete record is staged before any destination write. The limit includes
+its LF and counts String payloads as UTF-8 and byte-array payloads byte for byte,
+including invalid UTF-8, NUL, and embedded LF. A rejected record or encoding-buffer
+write stays failed even when a callback catches its error; formatter leases expire on return
+or throw. Formatting/codec/record-limit errors publish no bytes for that event,
+leave the sink healthy, and allow later recovery. `ObservationWriter.write` may
+accept a prefix; TextObserver loops until all bytes are delivered and retries
+`ObservationWriteError.interrupted` (which must mean zero bytes accepted). Zero,
+negative, or oversized progress and other write/flush errors permanently poison
+the sink; a failed destination can contain a prefix. Logging errors do not stop
+the application or freeze a separately owned Recorder.
+
+`getRef()` returns a value copy for value writers and an alias for reference
+writers. `intoInner()` transfers the writer once, including after poison, without
+flushing or closing it. Subsequent observer I/O is rejected. Both accessors reject
+access during active callbacks to avoid overlapping mutable Swift accesses. The
+observer never flushes on destruction. Applications adapt file/stream writers by
+implementing `ObservationWriter`; they own open/close and synchronization policy.
+
+Text uses the pinned Rust variant names, aggregate field order, optional-value
+spelling, quoted control escapes, and printable UTF-8. The shared
+[`observation-v1`](../spec/observation-v1.md) profile pins exact fixture bytes,
+including common Unicode text. This is diagnostic text, not a stable replay
+format or a claim of identical Rust Debug rendering for every Unicode version.
+Library fields escape quotes, backslashes, LF/CR/TAB/NUL and nonprinting/control
+scalars. Custom formatter bytes are deliberately unsanitized; preserving a
+single line is the formatter's responsibility.
+
+`ObservationTests` and the public installed consumer under
+`examples/native-observation/swift` are source-authored qualification candidates.
+The declaration-bound consumer uses failing direct model codec hooks, so its
+expected bytes require the public declaration adapters and `ModelCodecBinding`.
+All execution is deferred to the parent's integrated source freeze and shared
+Kyoto run. No test pass, package qualification, or broader N07 closure is implied.
 
 ## Candidate causal evidence v2
 

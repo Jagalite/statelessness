@@ -3,9 +3,10 @@
 Experimental, dependency-free **Python implementation**, not a Rust/FFI binding.
 Python >=3.10. Applications retain their own state types, callbacks, and codecs.
 This package implements the `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and
-`trace-json-v1` profiles in `../spec/README.md`. It does not imply full Rust feature
-parity: guided search, runtime ring recording,
-campaigns, composition helpers, and the binary `.sttrace` format are not provided.
+`trace-json-v1` profiles in `../spec/README.md`. Features beyond these four
+profiles, including runtime observation, bounded recording, and binary interchange,
+retain their separately documented experimental status. Full Rust feature parity
+is not implied.
 
 `WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
 by the [`paired-v1` candidate](../spec/paired-v1.md). They keep independent reference
@@ -292,6 +293,95 @@ with that prefix are rejected. Python's build label `native-python-v1` identifie
 the implementation, not a source fingerprint. Replay preserves producer stamps.
 `encode-buffers-v1` and `replay-evidence-v1` are experimental candidates; the four
 qualified profiles and portable wire projections remain unchanged.
+
+## Candidate synchronous runtime diagnostics
+
+`Event.Started(metadata, config)`, `Event.Checkpoint(sequence, state, checks)`,
+`Event.Transition(sequence, before, input, transition, checks)`,
+`Event.Message(level, sequence_or_none, message)`, and
+`Event.Finished(transitions, reason)` describe work the application already owns.
+Top-level `Started`, `Checkpoint`, `TransitionEvent`, `Message`, and `Finished`
+are the same variants; the existing top-level `Transition` remains the model
+result. `Observer.observe(model, event)` is a structural synchronous protocol.
+Events borrow payloads and freeze only their wrapper/check collection. Keep
+payloads stable during observation; they are not detached snapshots. Diagnostics
+do not execute reducers, initializers, effects, or checks, and do not certify
+continuity or supply checked-token authority. Use the existing Recorder for that.
+
+```python
+import io
+from statelessness import (Event, TextObserver, ObservationOptions, LogLevel,
+                          SnapshotPolicy, EncodedPayloads)
+
+writer = io.BytesIO()
+observer = TextObserver(writer, "application", ObservationOptions(
+    level=LogLevel.TRACE, snapshots=SnapshotPolicy.every(10)), EncodedPayloads(4096))
+# actual and checked are the application's already computed values:
+observer.observe(model, Event.Transition(sequence, before, input, actual, checked.checks))
+observer.flush()  # Explicit; errors are the application's policy decision.
+assert observer.into_inner() is writer  # Transfer without flush or close.
+```
+
+`ObservationOptions()` defaults to `LogLevel.OFF`, `SnapshotPolicy.NONE`, and a
+1 MiB record limit. The ascending levels are `OFF/ERROR/WARN/INFO/DEBUG/TRACE`
+(Rust-style `Off/Error/Warn/Info/Debug/Trace` aliases are also available).
+Failed checks take Error precedence over Skipped checks at Warn. Ordinary
+checkpoints are Trace, transitions Debug even when rejected/ignored, and start/
+finish Info. Messages use their own level; Off messages are always filtered.
+Filtering precedes formatter and codec work. Only configured Trace includes
+payloads and passing check details; check failures do not suppress Trace payloads.
+
+Snapshots use `SnapshotPolicy.NONE`, `SnapshotPolicy.every(nonzero_u64)` (or
+`Every`), and `SnapshotPolicy.EVERY_TRANSITION`. At Trace, explicit checkpoints
+include state with any non-None policy regardless of interval. Transitions format
+input, ordered actual outputs, and then the selected post-state using absolute
+sequence divisibility. Before-state is unused. `set_level` and `set_snapshots`
+affect future events only; emit an explicit checkpoint when enabling snapshots.
+Python integers cover the full u64 sequence/period domain; invalid values and
+booleans are rejected. Gaps, duplicates, and reordered diagnostic events remain
+the application's responsibility.
+
+`PayloadFormat` callbacks `state/input/output(model, value, out)` synchronously
+write bytes and return `None`. The callback writer expires after each call; no
+retained lease may alter later records. `NoPayloads` writes `unavailable` and
+needs neither codecs, copying, nor repr on model values. `EncodedPayloads(limit)`
+uses the existing bounded `EncodeBuffer` dispatch, preferring `encode_*_into`,
+including explicit `model_codec(...).bind(model)` declarations. It reuses a
+bytearray and writes lowercase `hex:` bytes. Existing dispatch copies values;
+legacy return-bytes encoders can allocate before the bound is enforced. Buffer
+reuse promises neither Python capacity retention nor zero allocation.
+
+Each record is bounded in UTF-8 bytes including its final LF, and staged before
+any destination write. Rejected buffer writes stay sticky even if swallowed by
+callbacks. Codec/formatter/record-limit errors publish nothing and the next event
+can recover. `TextObserverError.stage` identifies `encode_input/output/state`,
+`format_input/output/state`, `record_limit`, `sink_write`, `sink_flush`, or
+`sink_poisoned` (generic invalid formatting/ownership has `format`/`sink`).
+Sink short writes are completed; interrupted writes are retried. Zero/invalid
+progress, write failure, and flush failure permanently poison the sink, including
+when subsequently set Off. Writer failures can leave partial records. Publication
+uses an additional bounded immutable byte snapshot so retained writer arguments
+cannot alias reusable record storage. Limits do not bound callback allocations,
+object copies, retained writers, process memory, or time spent in blocking I/O.
+
+`get_ref()` exposes the caller-owned binary writer; `into_inner()` transfers it
+and disables further observation without implicitly flushing/closing. Direct
+writer use is the caller's responsibility. `sink_poisoned` reports permanent I/O
+failure. Observers/formatters are synchronous and not thread-safe; nested observer
+entry and reinitialization are rejected. Ordinary Python exceptions are contained
+with stage attribution even if their string formatting fails; process interrupts
+are re-raised, and I/O interrupts other than `InterruptedError` still poison.
+
+Library text follows the pinned Rust field order, variant names, double-quoted
+escaping, and common printable UTF-8 from the
+[`observation-v1` contract](../spec/observation-v1.md). Python's Unicode printability
+tables determine additional `\u{...}` escapes, so arbitrary Unicode/future Rust
+Debug changes are outside exact byte compatibility. Library text stays on one
+line; custom payload bytes are deliberately unsanitized and their formatter owns
+escaping. Diagnostic text is not a replay artifact. The
+[installed consumer](../examples/native-observation/python/README.md) reads shared
+fixtures without importing source via path overrides. This remains an experimental
+candidate; the source additions and tests await integrated Kyoto qualification.
 
 ## Candidate checked results and runtime recording
 
