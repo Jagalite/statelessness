@@ -22,17 +22,17 @@ func (p *ProtocolSession[S, I, O]) status(out ProtocolResponse) ProtocolResponse
 	flag("capability.live_control", false)
 	flag("capability.live_restore", false)
 	flag("capability.effects", false)
-	flag("capability.probe_queries", p.adapters["probe_status"] != nil)
-	flag("capability.probe_configuration", p.authority.ConfigureDiagnostics && p.adapters["probe_status"] != nil)
+	flag("capability.probe_queries", p.probes != nil || p.adapters["probe_status"] != nil)
+	flag("capability.probe_configuration", p.authority.ConfigureDiagnostics && (p.probes != nil || p.adapters["probe_status"] != nil))
 	flag("capability.trace_export", p.authority.ExportExactTrace && p.session.recorder != nil)
 	flag("capability.effect_telemetry", p.adapters["telemetry_health"] != nil)
-	flag("capability.metric_queries", p.adapters["telemetry_health"] != nil)
+	flag("capability.metric_queries", p.adapters["metric_snapshot"] != nil)
 	field("limits.telemetry_snapshot_bytes", number(uint64(p.limits.MaxTelemetrySnapshot)))
 	field("limits.frame_bytes", number(uint64(p.limits.MaxFrame)))
 	field("limits.dedup_entries", number(uint64(p.limits.MaxCache)))
 	field("limits.dedup_bytes", number(uint64(p.limits.MaxCacheBytes)))
 	field("limits.page_size", number(uint64(p.limits.MaxPage)))
-	field("events.dropped", number(0))
+	field("events.dropped", number(p.eventDrops))
 	stop := "none"
 	if reason := p.session.Stop(); reason != nil {
 		stop = reason.Kind

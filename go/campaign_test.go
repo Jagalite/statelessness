@@ -580,6 +580,43 @@ func TestCampaignFailureStopsClaimsButNotClaimedJobs(t *testing.T) {
 	}
 }
 
+func TestCampaignActiveCancellationDrainsClaimedWorkers(t *testing.T) {
+	c := campaignTestConfig(2)
+	c.FirstJob, c.Jobs, c.ResultBuffer = 0, 8, 0
+	var cancelled atomic.Bool
+	var entered atomic.Int64
+	both := make(chan struct{})
+	var delivered []JobReport[uint64]
+	r, err := RunCampaign(c, RunLimits{Cancellation: &cancelled}, func(id uint64) (CampaignModel[int, uint64, int], error) {
+		if entered.Add(1) == 2 {
+			cancelled.Store(true)
+			close(both)
+		}
+		select {
+		case <-both:
+		case <-time.After(10 * time.Second):
+			return CampaignModel[int, uint64, int]{}, errors.New("workers did not both enter")
+		}
+		return campaignTestModel(id, false), nil
+	}, func(j JobReport[uint64]) error {
+		delivered = append(delivered, j)
+		return nil
+	})
+	if err != nil || r.Termination.Kind != "cancelled" || !r.AccountingComplete || r.Started != 2 || r.Finished != 2 || r.Delivered != 2 || r.NotStarted != 6 || len(delivered) != 2 {
+		t.Fatal(err, r, delivered)
+	}
+	seen := map[uint64]bool{}
+	for _, j := range delivered {
+		if seen[j.JobID] || j.Outcome.Report == nil || j.Outcome.Report.Termination != "cancelled" {
+			t.Fatal("unexpected delivered outcome", j, delivered)
+		}
+		seen[j.JobID] = true
+	}
+	if !seen[0] || !seen[1] {
+		t.Fatal("claimed jobs were not both delivered", delivered)
+	}
+}
+
 func TestCampaignReportInputTransferBeforeCleanup(t *testing.T) {
 	c := campaignTestConfig(2)
 	c.FirstJob, c.Jobs, c.ResultBuffer = 0, 2, 0

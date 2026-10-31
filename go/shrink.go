@@ -59,6 +59,25 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 		return shrinkCandidate[I]{kind: "stopped", stop: reason}, nil
 	}
 	g := w.g
+	// Preserve the candidate before initial/check callbacks can mutate aliased
+	// inputs. Capture only transitions that this replay can reach and defer
+	// individual copy failures until that position is actually needed.
+	count := len(inputs)
+	if w.maximum != nil {
+		remaining := uint64(0)
+		if w.transitions < *w.maximum {
+			remaining = *w.maximum - w.transitions
+		}
+		if remaining < uint64(count) {
+			count = int(remaining)
+		}
+	}
+	slots := append([]I(nil), inputs[:count]...)
+	captured := make([]I, count)
+	captureErrors := make([]error, count)
+	for i, value := range slots {
+		captured[i], captureErrors[i] = copied(g.CloneInput, value)
+	}
 	state, e := call("shrink initial state", g.InitialState)
 	if e != nil {
 		return shrinkCandidate[I]{}, e
@@ -79,13 +98,17 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 	if reason := w.control.stop(); reason != "" {
 		return shrinkCandidate[I]{kind: "stopped", stop: reason}, nil
 	}
-	for index, input := range inputs {
+	for index := range inputs {
 		if reason := w.control.stop(); reason != "" {
 			return shrinkCandidate[I]{kind: "stopped", stop: reason}, nil
 		}
 		if w.maximum != nil && w.transitions >= *w.maximum {
 			return shrinkCandidate[I]{kind: "stopped", stop: "transition_limit"}, nil
 		}
+		if captureErrors[index] != nil {
+			return shrinkCandidate[I]{}, captureErrors[index]
+		}
+		input := captured[index]
 		enabled, e := g.enabled(state, input)
 		if e != nil {
 			return shrinkCandidate[I]{}, e
@@ -109,7 +132,7 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 			return shrinkCandidate[I]{}, e
 		}
 		if len(violations) > 0 {
-			owned, e := cloneInputs(g, inputs[:index+1])
+			owned, e := cloneInputs(g, captured[:index+1])
 			if e != nil {
 				return shrinkCandidate[I]{}, e
 			}
@@ -342,6 +365,12 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 			if stopped() {
 				return report, nil
 			}
+			// Duplicate hints do not create replay attempts or history
+			// entries, but a lazy host iterator can produce them forever.
+			// Mirrors Rust shrink_ops: bound consecutive skips per iterator
+			// and reset after every replayed hint, so finite runs whose
+			// total skips exceed the cap are unaffected.
+			var duplicateHints uint64
 			for alternative := uint64(0); ; {
 				if stopped() {
 					return report, nil
@@ -377,8 +406,14 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 					return report, nil
 				}
 				if already {
+					if duplicateHints == config.MaxAttempts {
+						report.Termination = "attempt_limit"
+						return report, nil
+					}
+					duplicateHints++
 					continue
 				}
+				duplicateHints = 0
 				cont, e := attempt(candidate, ShrinkOperation64{Kind: "simplify", Index: uint64(index), Alternative: alternativeIndex})
 				if e != nil {
 					return nil, e

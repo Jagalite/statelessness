@@ -199,8 +199,11 @@ func cloneTransition[S, I, O any](m Model[S, I, O], t Transition[S, O]) (Transit
 		if err := t.Disposition.Validate(); err != nil {
 			return Transition[S, O]{}, err
 		}
-		result := Transition[S, O]{State: m.CloneState(t.State), Outputs: make([]O, len(t.Outputs)), Disposition: t.Disposition}
-		for i, o := range t.Outputs {
+		// Capture the output elements before invoking the independent state
+		// clone hook, which may hold an alias to the caller's output slice.
+		outputs := append([]O(nil), t.Outputs...)
+		result := Transition[S, O]{State: m.CloneState(t.State), Outputs: make([]O, len(outputs)), Disposition: t.Disposition}
+		for i, o := range outputs {
 			result.Outputs[i] = m.CloneOutput(o)
 		}
 		return result, nil

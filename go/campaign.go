@@ -4,7 +4,6 @@ import (
 	"math"
 	"math/bits"
 	"sync"
-	"time"
 )
 
 // CampaignConfig64 bounds independent jobs and queued reports. Zero ResultBuffer
@@ -14,6 +13,12 @@ type CampaignConfig64 struct {
 	Jobs, Workers, ResultBuffer uint64
 	Fuzz                        FuzzConfig64
 	StopOnFailure               bool
+	// AssuranceMaxJobs bounds the additional assurance job ledger; zero uses
+	// DefaultAssuranceMaxJobs. It does not alter ordinary campaign scheduling.
+	AssuranceMaxJobs uint64
+	// AssuranceMaxEvidenceBytes bounds the logical retained job-evidence ledger;
+	// zero uses DefaultAssuranceMaxEvidenceBytes.
+	AssuranceMaxEvidenceBytes uint64
 }
 
 func DefaultCampaignConfig64() CampaignConfig64 {
@@ -173,15 +178,7 @@ func RunGuidedCampaign64[S, I, O, K any](config CampaignConfig64, limits RunLimi
 }
 
 func campaignRemaining(c runControl) RunLimits {
-	limits := c.limits
-	if limits.MaxDuration != nil {
-		duration := *limits.MaxDuration - time.Since(c.started)
-		if duration < 0 {
-			duration = 0
-		}
-		limits.MaxDuration = &duration
-	}
-	return limits
+	return c.remaining()
 }
 
 type campaignCoordinator struct {

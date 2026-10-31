@@ -46,14 +46,19 @@ func protocolPath(args []string) []Segment {
 	out := []Segment{}
 	for _, arg := range args {
 		kind, value, _ := strings.Cut(arg, ":")
-		s := Segment{Kind: kind, Name: value}
+		s := Segment{Kind: kind}
 		if kind == "index" {
 			s.Index, _ = strconv.ParseUint(value, 10, 64)
-		}
-		if strings.HasPrefix(kind, "key.") {
+		} else if strings.HasPrefix(kind, "key.") {
 			s.Kind = "map_key"
 			s.KeyType = kind[4:]
-			s.Decimal = value
+			if s.KeyType == "string" || s.KeyType == "char" {
+				s.Name = value
+			} else {
+				s.Decimal = value
+			}
+		} else {
+			s.Name = value
 		}
 		out = append(out, s)
 	}
@@ -99,7 +104,11 @@ func (p *ProtocolSession[S, I, O]) watchCommand(r ProtocolRequest, out ProtocolR
 			old := p.session.busy
 			p.session.busy = true
 			defer func() { p.session.busy = old }()
-			return registry.AddValidated(registry.CaptureRevision(), config, w.project(p.session.State()), SnapshotID{p.session.Epoch(), p.session.Revision(), p.session.Sequence()})
+			adapter, err := watchAdapterSafely(func() InspectAdapter { return w.project(p.session.State()) })
+			if err != nil {
+				return ResolvedWatchAck{}, err
+			}
+			return registry.AddValidated(registry.CaptureRevision(), config, adapter, SnapshotID{p.session.Epoch(), p.session.Revision(), p.session.Sequence()})
 		}()
 		if err != nil {
 			return fail(p.classifyWatchError(err))
@@ -108,14 +117,20 @@ func (p *ProtocolSession[S, I, O]) watchCommand(r ProtocolRequest, out ProtocolR
 		out.Fields[0].Value = number(ack.WatchID)
 		out.Fields[1].Value = number(ack.Generation)
 		out.Fields[2].Value = number(ack.EffectiveSequence)
-		base := append([]ProtocolField{}, out.Fields...)
-		field("watch.display_schema_version", number(uint64(ack.DisplaySchema.Version)))
-		field("watch.display_schema", "string:"+ack.DisplaySchema.Name)
-		field("watch.resolved_type", "enum:"+ack.ResolvedKind)
-		if reserve() {
+		complete := true
+		for _, optional := range []ProtocolField{
+			{"watch.display_schema_version", number(uint64(ack.DisplaySchema.Version))},
+			{"watch.display_schema", "string:" + ack.DisplaySchema.Name},
+			{"watch.resolved_type", "enum:" + ack.ResolvedKind},
+		} {
+			out.Fields = append(out.Fields, optional)
+			if !reserve() {
+				out.Fields = out.Fields[:len(out.Fields)-1]
+				complete = false
+			}
+		}
+		if complete {
 			out.Fields[5].Value = "bool:true"
-		} else {
-			out.Fields = base
 		}
 	case "unwatch":
 		entry := registry.entries[id]
@@ -139,20 +154,38 @@ func (p *ProtocolSession[S, I, O]) watchCommand(r ProtocolRequest, out ProtocolR
 			ids = append(ids, id)
 		}
 		sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
-		field("watches.total", number(uint64(len(ids))))
-		flag("watches.truncated", len(ids) > p.limits.MaxPage)
-		for i, id := range ids[:min(len(ids), p.limits.MaxPage)] {
+		maximum := min(len(ids), p.limits.MaxPage, max(0, (p.limits.MaxFields-5)/5))
+		rows := make([][]ProtocolField, 0, maximum)
+		for i, id := range ids[:maximum] {
 			entry := registry.entries[id]
 			prefix := "watches." + strconv.Itoa(i)
-			field(prefix+".id", number(id))
-			field(prefix+".generation", number(entry.generation))
-			flag(prefix+".enabled", entry.config.Enabled)
-			flag(prefix+".has_baseline", entry.baseline != nil)
-			field(prefix+".effective_sequence", number(entry.effectiveSequence))
+			rows = append(rows, []ProtocolField{{prefix + ".id", number(id)}, {prefix + ".generation", number(entry.generation)}, {prefix + ".enabled", "bool:" + strconv.FormatBool(entry.config.Enabled)}, {prefix + ".has_baseline", "bool:" + strconv.FormatBool(entry.baseline != nil)}, {prefix + ".effective_sequence", number(entry.effectiveSequence)}})
 		}
-		field("watches.dropped_events", number(registry.droppedTotal))
-		field("watches.observation_gaps", number(registry.observationGaps))
-		field("watches.inspection_errors", number(registry.inspectionFailures))
+		page := func(count int) ProtocolResponse {
+			q := out
+			q.Fields = append([]ProtocolField(nil), out.Fields...)
+			// Rust protocol.rs WatchStatus: totals and health precede rows.
+			q.Fields = append(q.Fields, ProtocolField{"watches.total", number(uint64(len(ids)))}, ProtocolField{"watches.truncated", "bool:" + strconv.FormatBool(count < len(ids))})
+			q.Fields = append(q.Fields, ProtocolField{"watches.dropped_events", number(registry.droppedTotal)}, ProtocolField{"watches.observation_gaps", number(registry.observationGaps)}, ProtocolField{"watches.inspection_errors", number(registry.inspectionFailures)})
+			for _, row := range rows[:count] {
+				q.Fields = append(q.Fields, row...)
+			}
+			return q
+		}
+		fits := func(count int) bool { _, err := EncodeResponse(page(count), p.limits); return err == nil }
+		if !fits(0) {
+			return fail("limit")
+		}
+		low, high := 0, maximum
+		for low < high {
+			middle := low + (high-low+1)/2
+			if fits(middle) {
+				low = middle
+			} else {
+				high = middle - 1
+			}
+		}
+		out = page(low)
 	case "watch_current":
 		entry := registry.entries[id]
 		if entry == nil || entry.current == nil {
@@ -185,22 +218,35 @@ func (p *ProtocolSession[S, I, O]) watchCommand(r ProtocolRequest, out ProtocolR
 		field("watch.completeness", "enum:"+completeness)
 		field("watch.origin", "enum:"+protocolVariant(event.Origin))
 		if event.Node != nil {
-			out.Fields = append(out.Fields, protocolNode("watch.node", *event.Node)...)
+			fields, err := protocolNode("watch.node", *event.Node)
+			if err != nil {
+				return fail("limit")
+			}
+			out.Fields = append(out.Fields, fields...)
 		}
 
 	}
 	return out
 }
 func watchProtocolError(err error) string {
-	m := err.Error()
-	for _, p := range [][2]string{{"unauthorized", "unauthorized"}, {"redacted", "unauthorized"}, {"unknown watch", "stale_handle"}, {"exhausted", "exhausted"}, {"capacity", "limit"}, {"budget", "limit"}, {"callback active", "busy"}} {
+	m, ok := safeErrorMessage(err)
+	if !ok {
+		return "callback"
+	}
+	for _, p := range [][2]string{{"unauthorized", "unauthorized"}, {"redacted", "unauthorized"}, {"unknown watch", "stale_handle"}, {"exhausted", "exhausted"}, {"capacity", "limit"}, {"budget", "limit"}, {"callback active", "busy"}, {"callback panicked", "callback"}} {
 		if strings.Contains(m, p[0]) {
 			return p[1]
 		}
 	}
 	return "invalid_input"
 }
-func protocolNode(prefix string, node InspectNode) []ProtocolField {
+func protocolNode(prefix string, node InspectNode) ([]ProtocolField, error) {
+	return protocolNodeAt(prefix, node, 0)
+}
+func protocolNodeAt(prefix string, node InspectNode, depth int) ([]ProtocolField, error) {
+	if depth > 32 {
+		return nil, ProtocolError("limit")
+	}
 	fields := []ProtocolField{}
 	put := func(k, v string) { fields = append(fields, ProtocolField{prefix + "." + k, v}) }
 	completeness := "Complete"
@@ -213,6 +259,17 @@ func protocolNode(prefix string, node InspectNode) []ProtocolField {
 		count = number(*node.ChildCount)
 	}
 	put("child_count", count)
+	if node.Page != nil {
+		p := node.Page
+		put("page.offset", number(p.Offset))
+		put("page.returned", number(p.Returned))
+		put("page.total", number(p.Total))
+		next := "none"
+		if p.NextOffset != nil {
+			next = number(*p.NextOffset)
+		}
+		put("page.next", next)
+	}
 	kind, value := node.Kind, "none"
 	if node.Scalar != nil {
 		v := node.Scalar
@@ -229,6 +286,10 @@ func protocolNode(prefix string, node InspectNode) []ProtocolField {
 		case "f32", "f64":
 			kind = "float"
 			value = v.Kind + ":" + v.Decimal
+			put("bits", number(v.Bits))
+		case "float":
+			kind = "float"
+			value = v.Text + ":" + v.Decimal
 			put("bits", number(v.Bits))
 		default:
 			kind = "integer"
@@ -258,17 +319,6 @@ func protocolNode(prefix string, node InspectNode) []ProtocolField {
 	put("kind", "enum:"+kind)
 	put("value", value)
 	put("children.returned", number(uint64(len(node.Children))))
-	if node.Page != nil {
-		p := node.Page
-		put("page.offset", number(p.Offset))
-		put("page.returned", number(p.Returned))
-		put("page.total", number(p.Total))
-		next := "none"
-		if p.NextOffset != nil {
-			next = number(*p.NextOffset)
-		}
-		put("page.next", next)
-	}
 	for i, c := range node.Children {
 		key := prefix + ".children." + strconv.Itoa(i)
 		seg := c.Segment.Kind + ":" + c.Segment.Name
@@ -282,10 +332,14 @@ func protocolNode(prefix string, node InspectNode) []ProtocolField {
 			}
 			seg = "key." + c.Segment.KeyType + ":" + v
 		}
-		fields = append(fields, ProtocolField{key + ".label", "string:" + c.Label}, ProtocolField{key + ".segment", seg})
-		fields = append(fields, protocolNode(key+".node", c.Node)...)
+		fields = append(fields, ProtocolField{key + ".segment", seg}, ProtocolField{key + ".label", "string:" + c.Label})
+		child, err := protocolNodeAt(key+".node", c.Node, depth+1)
+		if err != nil {
+			return nil, err
+		}
+		fields = append(fields, child...)
 	}
-	return fields
+	return fields, nil
 }
 
 func protocolVariant(value string) string {

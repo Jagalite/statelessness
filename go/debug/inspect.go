@@ -2,8 +2,6 @@ package debug
 
 import (
 	"fmt"
-	"math"
-	"math/big"
 	"reflect"
 	"strconv"
 	"strings"
@@ -38,6 +36,16 @@ type Scalar struct {
 	Bits                uint64
 	Bool                bool
 }
+
+// FloatScalar represents Rust's Float kind and its independent text and bits.
+// Existing f32 and f64 values retain their established representations.
+func FloatScalar(kind, decimal string, bits uint64) Scalar {
+	if kind == "f32" || kind == "f64" {
+		return Scalar{Kind: kind, Decimal: decimal, Bits: bits}
+	}
+	return Scalar{Kind: "float", Text: kind, Decimal: decimal, Bits: bits}
+}
+
 type InspectNode struct {
 	Kind, Name, VariantID, VariantLabel, Text, Ordering, Incomplete string
 	Scalar                                                          *Scalar
@@ -46,6 +54,7 @@ type InspectNode struct {
 	Children                                                        []ChildNode
 	ChildCount                                                      *uint64
 	Page                                                            *PageInfo
+	engineExhausted                                                 bool
 }
 type ChildNode struct {
 	Segment Segment
@@ -63,13 +72,77 @@ const inspectResultHeader = uint64(unsafe.Sizeof(InspectResult{})) - uint64(unsa
 const inspectNodeHeader = uint64(unsafe.Sizeof(InspectNode{}))
 const inspectChildHeader = uint64(unsafe.Sizeof(ChildNode{})) - inspectNodeHeader
 
+// canonicalInspectSegment preserves the active tagged-union identity.
+func canonicalInspectSegment(segment Segment) (Segment, bool) {
+	switch segment.Kind {
+	case "field", "variant":
+		if !utf8.ValidString(segment.Name) {
+			return Segment{}, false
+		}
+		segment = Segment{Kind: segment.Kind, Name: segment.Name}
+	case "index":
+		segment = Segment{Kind: segment.Kind, Index: segment.Index}
+	case "map_key":
+		switch segment.KeyType {
+		case "string":
+			if !utf8.ValidString(segment.Name) {
+				return Segment{}, false
+			}
+		case "char":
+			if !utf8.ValidString(segment.Name) || utf8.RuneCountInString(segment.Name) != 1 {
+				return Segment{}, false
+			}
+		case "bool":
+			if segment.Decimal != "true" && segment.Decimal != "false" {
+				return Segment{}, false
+			}
+		case "i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize":
+			// Rust stores decimal as UTF-8 text; preserve it without numeric coercion.
+			if !utf8.ValidString(segment.Decimal) {
+				return Segment{}, false
+			}
+
+		default:
+			return Segment{}, false
+		}
+		if segment.KeyType == "string" || segment.KeyType == "char" {
+			segment = Segment{Kind: segment.Kind, KeyType: segment.KeyType, Name: segment.Name}
+		} else {
+			segment = Segment{Kind: segment.Kind, KeyType: segment.KeyType, Decimal: segment.Decimal}
+		}
+	default:
+		return Segment{}, false
+	}
+	return segment, true
+}
+
+func inspectChildSegmentKind(kind string) string {
+	switch kind {
+	case "object":
+		return "field"
+	case "sequence":
+		return "index"
+	case "map":
+		return "map_key"
+	case "enum":
+		return "variant"
+	default:
+		return ""
+	}
+}
+
 func (n InspectNode) IsComplete() bool {
 	if n.Incomplete != "" {
 		return false
 	}
+	for _, value := range []string{n.Name, n.VariantID, n.VariantLabel, n.Text} {
+		if !utf8.ValidString(value) {
+			return false
+		}
+	}
 	switch n.Kind {
 	case "scalar":
-		if n.Scalar == nil {
+		if n.Scalar == nil || validateScalar(*n.Scalar) != nil {
 			return false
 		}
 	case "object", "enum", "sequence":
@@ -99,7 +172,19 @@ func (n InspectNode) IsComplete() bool {
 	if n.Page != nil && (n.Page.Offset != 0 || n.Page.Returned != uint64(len(n.Children)) || n.Page.Total != uint64(len(n.Children)) || n.Page.NextOffset != nil) {
 		return false
 	}
-	for _, c := range n.Children {
+	segments := make(map[Segment]struct{}, len(n.Children))
+	for i, c := range n.Children {
+		if !utf8.ValidString(c.Label) || (c.Source != nil && !utf8.ValidString(c.Source.File)) {
+			return false
+		}
+		segment, ok := canonicalInspectSegment(c.Segment)
+		if !ok || segment.Kind != inspectChildSegmentKind(n.Kind) || (n.Kind == "sequence" && segment.Index != uint64(i)) {
+			return false
+		}
+		if _, exists := segments[segment]; exists {
+			return false
+		}
+		segments[segment] = struct{}{}
 		if !c.Node.IsComplete() {
 			return false
 		}
@@ -143,14 +228,21 @@ type InspectContext struct {
 }
 
 func Inspect(value InspectAdapter, q InspectQuery) (InspectResult, error) {
+	return inspect(value, q, false)
+}
+
+// Protocol inspection sends only the schema name and version. Rust does not
+// charge this borrowed metadata against the node projection budget.
+func inspect(value InspectAdapter, q InspectQuery, protocol bool) (InspectResult, error) {
 	r := InspectResult{Snapshot: q.Snapshot}
 	if value == nil {
 		return r, fmt.Errorf("nil inspect adapter")
 	}
-	r.Schema = value.DisplaySchema()
-	if uint64(len(r.Schema.Name)) > q.Limits.MaxValueBytes {
-		return r, fmt.Errorf("schema metadata value limit")
+	schema, err := inspectSchemaSafely(value)
+	if err != nil {
+		return r, err
 	}
+	r.Schema = schema
 	if r.Schema.Version != q.SchemaVersion {
 		return r, fmt.Errorf("schema mismatch")
 	}
@@ -161,16 +253,20 @@ func Inspect(value InspectAdapter, q InspectQuery) (InspectResult, error) {
 		return r, fmt.Errorf("invalid page")
 	}
 	cx := &InspectContext{limits: q.Limits, offset: q.Offset, limit: q.Limit}
-	if !cx.charge(inspectResultHeader + uint64(len(r.Schema.Name))) {
-		return r, fmt.Errorf("schema metadata byte limit")
+	if !protocol {
+		if !cx.charge(inspectResultHeader + uint64(len(r.Schema.Name))) {
+			return r, fmt.Errorf("schema metadata byte limit")
+		}
+		r.Schema.Name = strings.Clone(r.Schema.Name)
 	}
-	r.Schema.Name = strings.Clone(r.Schema.Name)
-	if r.Schema.Source != nil {
+	if !protocol && r.Schema.Source != nil {
 		source, e := cx.source(r.Schema.Source)
 		if e != nil {
 			return r, e
 		}
 		r.Schema.Source = source
+	} else if protocol {
+		r.Schema.Source = nil
 	}
 	for _, p := range q.Path {
 		if !cx.charge(uint64(len(p.Kind)+len(p.Name)+len(p.KeyType)+len(p.Decimal)) + segmentHeader) {
@@ -182,10 +278,16 @@ func Inspect(value InspectAdapter, q InspectQuery) (InspectResult, error) {
 		if uint64(len(p.Kind)+len(p.Name)+len(p.KeyType)+len(p.Decimal)) > q.Limits.MaxValueBytes {
 			return r, fmt.Errorf("path value limit")
 		}
+		if _, valid := canonicalInspectSegment(p); !valid {
+			return r, fmt.Errorf("invalid path segment")
+		}
 		r.Path[i] = cloneSegment(p)
 	}
 	metadataBytes := cx.bytes
-	node, e := value.Inspect(q.Path, cx)
+	// Projection callbacks own their argument and may mutate it. Keep both the
+	// caller's query and the retained result path isolated from those mutations.
+	callbackPath := append([]Segment(nil), r.Path...)
+	node, e := inspectValueSafely(value, callbackPath, cx)
 	if e != nil {
 		return r, e
 	}
@@ -197,6 +299,24 @@ func Inspect(value InspectAdapter, q InspectQuery) (InspectResult, error) {
 	}
 	r.Node = copied
 	return r, nil
+}
+
+func inspectSchemaSafely(value InspectAdapter) (schema DisplaySchema, err error) {
+	defer func() {
+		if recover() != nil {
+			err = fmt.Errorf("inspection callback panicked")
+		}
+	}()
+	return value.DisplaySchema(), nil
+}
+
+func inspectValueSafely(value InspectAdapter, path []Segment, cx *InspectContext) (node InspectNode, err error) {
+	defer func() {
+		if recover() != nil {
+			err = fmt.Errorf("inspection callback panicked")
+		}
+	}()
+	return value.Inspect(path, cx)
 }
 func (c *InspectContext) charge(n uint64) bool {
 	if n > c.limits.MaxBytes-c.bytes {
@@ -212,21 +332,30 @@ func (c *InspectContext) spend() bool {
 	c.work++
 	return true
 }
+func exhaustedChild(n InspectNode) bool {
+	return n.engineExhausted
+}
+func engineTruncated(reason string) InspectNode {
+	return InspectNode{Kind: "truncated", Incomplete: reason, engineExhausted: reason == "work" || reason == "nodes" || reason == "bytes"}
+}
 func (c *InspectContext) node(kind string) (InspectNode, bool) {
 	if !c.spend() {
-		return InspectNode{Kind: "truncated", Incomplete: "work"}, false
+		return engineTruncated("work"), false
 	}
 	if c.depth > c.limits.MaxDepth {
 		return InspectNode{Kind: "truncated", Incomplete: "depth"}, false
 	}
 	if c.nodes >= c.limits.MaxNodes {
-		return InspectNode{Kind: "truncated", Incomplete: "nodes"}, false
+		return engineTruncated("nodes"), false
 	}
 	if !c.charge(inspectNodeHeader) {
-		return InspectNode{Kind: "truncated", Incomplete: "bytes"}, false
+		return engineTruncated("bytes"), false
 	}
 	c.nodes++
-	return InspectNode{Kind: kind}, true
+	// Successful leaf projections have a known empty child set. Containers
+	// replace this with their actual count when their metadata is admitted.
+	count := uint64(0)
+	return InspectNode{Kind: kind, ChildCount: &count}, true
 }
 func (c *InspectContext) Scalar(path []Segment, value Scalar) (InspectNode, error) {
 	if len(path) > 0 {
@@ -246,7 +375,7 @@ func (c *InspectContext) Scalar(path []Segment, value Scalar) (InspectNode, erro
 		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
 	}
 	if !c.charge(64 + uint64(len(value.Kind)+len(value.Decimal)+len(value.Text))) {
-		return InspectNode{Kind: "truncated", Incomplete: "bytes"}, nil
+		return engineTruncated("bytes"), nil
 	}
 	v := value
 	v.Kind = strings.Clone(v.Kind)
@@ -265,17 +394,27 @@ func (c *InspectContext) String(path []Segment, value string) (InspectNode, erro
 	}
 	n.TotalBytes = uint64(len(value))
 	maximum := min(uint64(len(value)), c.limits.MaxValueBytes, c.limits.MaxBytes-c.bytes)
-	for maximum > 0 && maximum < uint64(len(value)) && !utf8.RuneStart(value[maximum]) {
-		maximum--
+	end := 0
+	// Go strings can contain invalid UTF-8 after the retained preview. Validate
+	// the whole string with bounded work before publishing it as a string.
+	for i := 0; i < len(value); {
+		if !c.spend() {
+			return engineTruncated("work"), nil
+		}
+		r, size := utf8.DecodeRuneInString(value[i:])
+		if r == utf8.RuneError && size == 1 {
+			return InspectNode{}, fmt.Errorf("invalid string UTF-8")
+		}
+		i += size
+		if uint64(i) <= maximum {
+			end = i
+		}
 	}
-	if !utf8.ValidString(value[:maximum]) {
-		return InspectNode{}, fmt.Errorf("invalid string preview UTF-8")
-	}
-	n.Text = strings.Clone(value[:maximum])
-	if !c.charge(maximum) {
+	n.Text = strings.Clone(value[:end])
+	if !c.charge(uint64(end)) {
 		return InspectNode{}, fmt.Errorf("budget exceeded")
 	}
-	if maximum < n.TotalBytes {
+	if uint64(end) < n.TotalBytes {
 		n.Incomplete = "value_limit"
 	}
 	return n, nil
@@ -307,43 +446,402 @@ type InspectField struct {
 }
 
 func (c *InspectContext) Object(path []Segment, name string, fields []InspectField) (InspectNode, error) {
-	return c.container(path, "object", name, "", fields)
+	return c.container(path, "object", name, "", fields, false)
 }
 func (c *InspectContext) Sequence(path []Segment, name string, fields []InspectField) (InspectNode, error) {
-	return c.container(path, "sequence", name, "", fields)
+	return c.container(path, "sequence", name, "", fields, false)
+}
+
+// SequenceIndexed constructs only selected page entries. The caller owns the
+// backing data and must keep it stable throughout the inspection callback.
+func (c *InspectContext) SequenceIndexed(path []Segment, name string, total uint64, at func(uint64, []Segment, *InspectContext) (InspectNode, error)) (InspectNode, error) {
+	if at == nil {
+		return InspectNode{}, fmt.Errorf("sequence accessor required")
+	}
+	if len(path) > 0 {
+		segment, ok := canonicalInspectSegment(path[0])
+		if !ok || segment.Kind != "index" {
+			return InspectNode{}, fmt.Errorf("invalid sequence path")
+		}
+		if segment.Index >= total {
+			return InspectNode{}, fmt.Errorf("path not found")
+		}
+		return at(segment.Index, path[1:], c)
+	}
+	n, ok := c.node("sequence")
+	if !ok {
+		return n, nil
+	}
+	if uint64(len(name)) > c.limits.MaxValueBytes {
+		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
+	}
+	if !c.charge(uint64(len(name))) || !c.charge(40) {
+		return engineTruncated("bytes"), nil
+	}
+	n.Name = strings.Clone(name)
+	n.ChildCount = &total
+	page := PageInfo{Offset: min(c.offset, total), Total: total}
+	if c.depth >= c.limits.MaxDepth && total > 0 {
+		n.Incomplete = "depth"
+		next := page.Offset
+		page.NextOffset = &next
+		n.Page = &page
+		return n, nil
+	}
+	end := page.Offset + min(c.limit, total-page.Offset)
+	for index := page.Offset; index < end; index++ {
+		oldNodes, oldBytes := c.nodes, c.bytes
+		if !c.spend() {
+			n.Incomplete = "work"
+			break
+		}
+		label := strconv.FormatUint(index, 10)
+		segment := IndexPath(index)
+		if uint64(len(label)+len(segment.Kind)) > c.limits.MaxValueBytes {
+			n.Incomplete = "value_limit"
+			break
+		}
+		child, err := func() (InspectNode, error) {
+			oldOffset := c.offset
+			c.offset = 0
+			c.depth++
+			defer func() { c.depth--; c.offset = oldOffset }()
+			return at(index, nil, c)
+		}()
+		if err != nil {
+			return InspectNode{}, err
+		}
+		if exhaustedChild(child) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = child.Incomplete
+			break
+		}
+		if !c.charge(inspectChildHeader + uint64(len(label)+len(segment.Kind))) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = "bytes"
+			break
+		}
+		n.Children = append(n.Children, ChildNode{Segment: segment, Label: label, Node: child})
+		if child.Incomplete != "" && n.Incomplete == "" {
+			n.Incomplete = child.Incomplete
+		}
+	}
+	page.Returned = uint64(len(n.Children))
+	if page.Offset+page.Returned < total {
+		next := page.Offset + page.Returned
+		page.NextOffset = &next
+	}
+	n.Page = &page
+	if (page.Offset > 0 || page.Returned < total) && n.Incomplete == "" {
+		n.Incomplete = "pagination"
+	}
+	return n, nil
 }
 func (c *InspectContext) Map(path []Segment, ordering string, fields []InspectField) (InspectNode, error) {
 	if ordering != "stable" && ordering != "unstable" {
 		return InspectNode{}, fmt.Errorf("map ordering declaration required")
 	}
-	return c.container(path, "map", "", ordering, fields)
+	return c.container(path, "map", "", ordering, fields, false)
+}
+
+// MapCanonical emits Rust-compatible map children: an empty label and no source.
+// Supplied label and source are ignored; keys, ordering and values are preserved.
+func (c *InspectContext) MapCanonical(path []Segment, ordering string, fields []InspectField) (InspectNode, error) {
+	if ordering != "stable" && ordering != "unstable" {
+		return InspectNode{}, fmt.Errorf("map ordering declaration required")
+	}
+	return c.container(path, "map", "", ordering, fields, true)
+}
+
+// MapIndexed obtains only page metadata for page queries. Selected-key queries
+// scan metadata within MaxWork to prove the requested identity is unique; no
+// value callback is invoked until that scan completes. The backing map must
+// remain stable while the callback runs and the declared order must be honest.
+func (c *InspectContext) MapIndexed(path []Segment, ordering string, total uint64, entry func(uint64) (InspectField, error)) (InspectNode, error) {
+	if ordering != "stable" && ordering != "unstable" {
+		return InspectNode{}, fmt.Errorf("map ordering declaration required")
+	}
+	return c.indexedFields(path, "map", "", ordering, "map_key", total, entry, false)
+}
+
+// MapIndexedCanonical is the lazy equivalent of MapCanonical.
+func (c *InspectContext) MapIndexedCanonical(path []Segment, ordering string, total uint64, entry func(uint64) (InspectField, error)) (InspectNode, error) {
+	if ordering != "stable" && ordering != "unstable" {
+		return InspectNode{}, fmt.Errorf("map ordering declaration required")
+	}
+	return c.indexedFields(path, "map", "", ordering, "map_key", total, entry, true)
+}
+
+// ObjectIndexed supports large dynamic objects without first materializing all
+// field descriptors. Selected fields are scanned under the work budget to
+// establish uniqueness before a value callback is invoked.
+func (c *InspectContext) ObjectIndexed(path []Segment, name string, total uint64, field func(uint64) (InspectField, error)) (InspectNode, error) {
+	return c.indexedFields(path, "object", name, "", "field", total, field, false)
+}
+
+func (c *InspectContext) indexedFields(path []Segment, kind, name, ordering, segmentKind string, total uint64, entry func(uint64) (InspectField, error), canonicalMap bool) (InspectNode, error) {
+	if entry == nil {
+		return InspectNode{}, fmt.Errorf("indexed entry accessor required")
+	}
+	if len(path) > 0 {
+		if reason := c.mapMetadataBound(path[0], "", nil); reason != "" {
+			return engineTruncated(reason), nil
+		}
+		target, ok := canonicalInspectSegment(path[0])
+		if !ok || target.Kind != segmentKind {
+			return InspectNode{}, fmt.Errorf("invalid indexed path")
+		}
+		var selected InspectField
+		found := false
+		for i := uint64(0); i < total; i++ {
+			if !c.spend() {
+				return engineTruncated("work"), nil
+			}
+			field, err := entry(i)
+			if err != nil {
+				return InspectNode{}, err
+			}
+			if canonicalMap {
+				field.Label, field.Source = "", nil
+			}
+			if reason := c.mapMetadataBound(field.Segment, field.Label, field.Source); reason != "" {
+				return engineTruncated(reason), nil
+			}
+			if !validIndexedMetadata(field) {
+				return InspectNode{}, fmt.Errorf("invalid indexed entry metadata")
+			}
+			segment, valid := canonicalInspectSegment(field.Segment)
+			if !valid || segment.Kind != segmentKind {
+				return InspectNode{}, fmt.Errorf("invalid indexed entry metadata")
+			}
+			if segment == target {
+				if found {
+					return InspectNode{}, fmt.Errorf("ambiguous path segment")
+				}
+				selected = field
+				found = true
+			}
+		}
+		if !found {
+			return InspectNode{}, fmt.Errorf("path not found")
+		}
+		return c.selectedField(selected, path[1:])
+	}
+	n, ok := c.node(kind)
+	if !ok {
+		return n, nil
+	}
+	if uint64(len(name)) > c.limits.MaxValueBytes {
+		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
+	}
+	if !c.charge(uint64(len(name))) || !c.charge(40) {
+		return engineTruncated("bytes"), nil
+	}
+	n.Ordering = ordering
+	n.Name = strings.Clone(name)
+	n.ChildCount = &total
+	page := PageInfo{Offset: min(c.offset, total), Total: total}
+	if c.depth >= c.limits.MaxDepth && total > 0 {
+		n.Incomplete = "depth"
+		next := page.Offset
+		page.NextOffset = &next
+		n.Page = &page
+		return n, nil
+	}
+	end := page.Offset + min(c.limit, total-page.Offset)
+	for i := page.Offset; i < end; i++ {
+		oldNodes, oldBytes := c.nodes, c.bytes
+		if !c.spend() {
+			n.Incomplete = "work"
+			break
+		}
+		field, err := entry(i)
+		if err != nil {
+			return InspectNode{}, err
+		}
+		if canonicalMap {
+			field.Label, field.Source = "", nil
+		}
+		if reason := c.mapMetadataBound(field.Segment, field.Label, field.Source); reason != "" {
+			n.Incomplete = reason
+			break
+		}
+		if !validIndexedMetadata(field) {
+			return InspectNode{}, fmt.Errorf("invalid indexed entry metadata")
+		}
+		segment, valid := canonicalInspectSegment(field.Segment)
+		if !valid || segment.Kind != segmentKind {
+			return InspectNode{}, fmt.Errorf("invalid indexed entry metadata")
+		}
+		size := uint64(len(field.Label) + len(segment.Kind) + len(segment.Name) + len(segment.KeyType) + len(segment.Decimal))
+		if size > c.limits.MaxValueBytes {
+			n.Incomplete = "value_limit"
+			break
+		}
+		sourceSnapshot := cloneInspectSource(field.Source)
+		child, err := func() (InspectNode, error) {
+			old := c.offset
+			c.offset = 0
+			defer func() { c.offset = old }()
+			return c.field(field, nil)
+		}()
+		if err != nil {
+			return InspectNode{}, err
+		}
+		if exhaustedChild(child) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = child.Incomplete
+			break
+		}
+		if !c.charge(inspectChildHeader + size) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = "bytes"
+			break
+		}
+		source, err := c.source(sourceSnapshot)
+		if err != nil {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = "bytes"
+			break
+		}
+		n.Children = append(n.Children, ChildNode{Segment: cloneSegment(segment), Label: strings.Clone(field.Label), Source: source, Node: child})
+		if child.Incomplete != "" && n.Incomplete == "" {
+			n.Incomplete = child.Incomplete
+		}
+	}
+	page.Returned = uint64(len(n.Children))
+	if page.Offset+page.Returned < total {
+		next := page.Offset + page.Returned
+		page.NextOffset = &next
+	}
+	n.Page = &page
+	if (page.Offset > 0 || page.Returned < total) && n.Incomplete == "" {
+		n.Incomplete = "pagination"
+	}
+	return n, nil
+}
+
+func validIndexedMetadata(field InspectField) bool {
+	return utf8.ValidString(field.Label) && (field.Source == nil || utf8.ValidString(field.Source.File))
+}
+
+// Bound returned metadata before UTF-8 validation, integer parsing or equality.
+func (c *InspectContext) mapMetadataBound(segment Segment, label string, source *SourceSite) string {
+	remainingValue := c.limits.MaxValueBytes
+	remainingBytes := c.limits.MaxBytes - c.bytes
+	values := []string{segment.Kind, segment.Name, segment.KeyType, segment.Decimal, label}
+	if source != nil {
+		values = append(values, source.File)
+	}
+	for _, value := range values {
+		size := uint64(len(value))
+		if size > remainingValue {
+			return "value_limit"
+		}
+		remainingValue -= size
+		if size > remainingBytes {
+			return "bytes"
+		}
+		remainingBytes -= size
+	}
+	return ""
 }
 func (c *InspectContext) field(f InspectField, path []Segment) (InspectNode, error) {
 	if f.Redacted {
-		n, _ := c.node("redacted")
+		n, ok := c.node("redacted")
+		if !ok {
+			return n, nil
+		}
 		n.Incomplete = "redacted"
 		return n, nil
 	}
 	if f.Value == nil {
-		n, _ := c.node("unavailable")
+		n, ok := c.node("unavailable")
+		if !ok {
+			return n, nil
+		}
 		n.Incomplete = "unavailable"
 		return n, nil
 	}
 	c.depth++
-	defer func() { c.depth-- }()
+	oldOffset := c.offset
+	c.offset = 0
+	defer func() {
+		c.offset = oldOffset
+		c.depth--
+	}()
 	return f.Value(path, c)
 }
-func (c *InspectContext) container(path []Segment, kind, name, ordering string, fields []InspectField) (InspectNode, error) {
+func (c *InspectContext) selectedField(f InspectField, path []Segment) (InspectNode, error) {
+	if f.Redacted || f.Value == nil {
+		if len(path) > 0 {
+			return InspectNode{}, fmt.Errorf("path not found")
+		}
+		return c.field(f, nil)
+	}
+	return f.Value(path, c)
+}
+func (c *InspectContext) container(path []Segment, kind, name, ordering string, fields []InspectField, canonicalMap bool) (InspectNode, error) {
+	expectedKind := inspectChildSegmentKind(kind)
+	if expectedKind == "" {
+		return InspectNode{}, fmt.Errorf("unknown container kind")
+	}
 	if len(path) > 0 {
-		for _, f := range fields {
-			if !c.spend() {
-				return InspectNode{Kind: "truncated", Incomplete: "work"}, nil
+		if reason := c.mapMetadataBound(path[0], "", nil); reason != "" {
+			return engineTruncated(reason), nil
+		}
+		target, ok := canonicalInspectSegment(path[0])
+		if !ok || target.Kind != expectedKind {
+			return InspectNode{}, fmt.Errorf("invalid path segment")
+		}
+		if kind == "sequence" {
+			if target.Index >= uint64(len(fields)) {
+				return InspectNode{}, fmt.Errorf("path not found")
 			}
-			if f.Segment == path[0] {
-				return c.field(f, path[1:])
+			field := fields[target.Index]
+			field.Label, field.Source = "", nil
+			if reason := c.mapMetadataBound(field.Segment, field.Label, field.Source); reason != "" {
+				return engineTruncated(reason), nil
+			}
+			segment, valid := canonicalInspectSegment(field.Segment)
+			if !valid || segment.Kind != "index" || segment.Index != target.Index || !validIndexedMetadata(field) {
+				return InspectNode{}, fmt.Errorf("invalid sequence entry metadata")
+			}
+			return c.selectedField(field, path[1:])
+		}
+		selected := -1
+		for i, f := range fields {
+			if !c.spend() {
+				return engineTruncated("work"), nil
+			}
+			if reason := c.mapMetadataBound(f.Segment, "", nil); reason != "" {
+				return engineTruncated(reason), nil
+			}
+			candidate, valid := canonicalInspectSegment(f.Segment)
+			if !valid || candidate.Kind != expectedKind || (kind == "sequence" && candidate.Index != uint64(i)) {
+				return InspectNode{}, fmt.Errorf("invalid container segment")
+			}
+			if candidate == target {
+				if selected >= 0 {
+					return InspectNode{}, fmt.Errorf("ambiguous path segment")
+				}
+				selected = i
 			}
 		}
-		return InspectNode{}, fmt.Errorf("path not found")
+		if selected < 0 {
+			return InspectNode{}, fmt.Errorf("path not found")
+		}
+		field := fields[selected]
+		if canonicalMap {
+			field.Label, field.Source = "", nil
+		}
+		if reason := c.mapMetadataBound(field.Segment, field.Label, field.Source); reason != "" {
+			return engineTruncated(reason), nil
+		}
+		if !validIndexedMetadata(field) {
+			return InspectNode{}, fmt.Errorf("invalid field metadata")
+		}
+		return c.selectedField(field, path[1:])
 	}
 	n, ok := c.node(kind)
 	if !ok {
@@ -353,47 +851,77 @@ func (c *InspectContext) container(path []Segment, kind, name, ordering string, 
 		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
 	}
 	if !c.charge(uint64(len(name))) {
-		return InspectNode{Kind: "truncated", Incomplete: "bytes"}, nil
+		return engineTruncated("bytes"), nil
 	}
 	n.Name = strings.Clone(name)
 	n.Ordering = ordering
 	if !c.charge(40) {
-		return InspectNode{Kind: "truncated", Incomplete: "bytes"}, nil
+		return engineTruncated("bytes"), nil
 	}
 	count := uint64(len(fields))
 	n.ChildCount = &count
 	page := PageInfo{Offset: min(c.offset, count), Total: count}
+	if c.depth >= c.limits.MaxDepth && count > 0 {
+		n.Incomplete = "depth"
+		next := page.Offset
+		page.NextOffset = &next
+		n.Page = &page
+		return n, nil
+	}
 	end := page.Offset + min(c.limit, count-page.Offset)
-	for i := uint64(0); i < end; i++ {
+	for i := page.Offset; i < end; i++ {
 		if !c.spend() {
 			n.Incomplete = "work"
 			break
 		}
-		if i < page.Offset {
-			continue
-		}
+		oldNodes, oldBytes := c.nodes, c.bytes
 		f := fields[i]
+		if canonicalMap {
+			f.Label, f.Source = "", nil
+		}
+		if kind == "sequence" {
+			f.Label, f.Source = strconv.FormatUint(i, 10), nil
+		}
+		if reason := c.mapMetadataBound(f.Segment, f.Label, f.Source); reason != "" {
+			n.Incomplete = reason
+			break
+		}
+		if !validIndexedMetadata(f) {
+			return InspectNode{}, fmt.Errorf("invalid field metadata")
+		}
+		if segment, valid := canonicalInspectSegment(f.Segment); !valid || segment.Kind != expectedKind || (kind == "sequence" && segment.Index != i) {
+			return InspectNode{}, fmt.Errorf("invalid field segment")
+		}
 		if uint64(len(f.Label)+len(f.Segment.Name)+len(f.Segment.Kind)+len(f.Segment.KeyType)+len(f.Segment.Decimal)) > c.limits.MaxValueBytes {
 			n.Incomplete = "value_limit"
 			break
 		}
-		if !c.charge(inspectChildHeader + uint64(len(f.Label)+len(f.Segment.Kind)+len(f.Segment.Name)+len(f.Segment.KeyType)+len(f.Segment.Decimal))) {
-			n.Incomplete = "bytes"
-			break
-		}
+		sourceSnapshot := cloneInspectSource(f.Source)
 		child, e := c.field(f, nil)
 		if e != nil {
 			return InspectNode{}, e
 		}
-		source, e := c.source(f.Source)
+		if exhaustedChild(child) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = child.Incomplete
+			break
+		}
+		if !c.charge(inspectChildHeader + uint64(len(f.Label)+len(f.Segment.Kind)+len(f.Segment.Name)+len(f.Segment.KeyType)+len(f.Segment.Decimal))) {
+			c.nodes, c.bytes = oldNodes, oldBytes
+			n.Incomplete = "bytes"
+			break
+		}
+		source, e := c.source(sourceSnapshot)
 		if e != nil {
+			c.nodes, c.bytes = oldNodes, oldBytes
 			n.Incomplete = "bytes"
 			break
 		}
 		n.Children = append(n.Children, ChildNode{cloneSegment(f.Segment), strings.Clone(f.Label), source, child})
-		if child.Kind == "truncated" {
+		// A parent cannot claim complete evidence when an admitted child is
+		// partial, even if all requested children fit on the current page.
+		if child.Incomplete != "" && n.Incomplete == "" {
 			n.Incomplete = child.Incomplete
-			break
 		}
 	}
 	page.Returned = uint64(len(n.Children))
@@ -452,6 +980,14 @@ func cloneSegment(p Segment) Segment {
 	p.Decimal = strings.Clone(p.Decimal)
 	return p
 }
+func cloneInspectSource(s *SourceSite) *SourceSite {
+	if s == nil {
+		return nil
+	}
+	copy := *s
+	copy.File = strings.Clone(copy.File)
+	return &copy
+}
 func (c *InspectContext) source(s *SourceSite) (*SourceSite, error) {
 	if s == nil {
 		return nil, nil
@@ -488,6 +1024,7 @@ func cloneProjection(root InspectNode, l InspectLimits) (InspectNode, error) {
 			return InspectNode{}, fmt.Errorf("projection selected-value budget")
 		}
 		out := n
+		out.engineExhausted = false
 		out.Name = strings.Clone(n.Name)
 		out.VariantID = strings.Clone(n.VariantID)
 		out.VariantLabel = strings.Clone(n.VariantLabel)
@@ -555,24 +1092,41 @@ func cloneProjection(root InspectNode, l InspectLimits) (InspectNode, error) {
 	}
 	// A truncation sentinel represents exhausted work and is still a finite result.
 	if root.Kind == "truncated" {
+		// Adapter-supplied nodes are untrusted. This sentinel bypasses the
+		// ordinary projection budget, so cap its retained reason independently.
+		if len(root.Incomplete) > 32 {
+			return InspectNode{}, fmt.Errorf("truncation reason limit")
+		}
 		return InspectNode{Kind: "truncated", Incomplete: strings.Clone(root.Incomplete)}, nil
 	}
 	return visit(root, 0)
 }
 
 func (c *InspectContext) Enum(path []Segment, name, variantID, label string, fields []InspectField) (InspectNode, error) {
-	if len(path) > 0 && path[0].Kind == "variant" {
-		if path[0].Name != variantID {
+	if len(path) > 0 {
+		if path[0].Kind != "variant" || path[0].Name != variantID {
 			return InspectNode{}, fmt.Errorf("variant path not found")
 		}
-		path = path[1:]
+		return c.Object(path[1:], label, fields)
 	}
-	node, e := c.container(path, "enum", name, "", fields)
+	if !utf8.ValidString(variantID) || !utf8.ValidString(label) {
+		return InspectNode{}, fmt.Errorf("invalid enum metadata")
+	}
+	if uint64(len(variantID)+len(label)) > c.limits.MaxValueBytes {
+		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
+	}
+	if !c.charge(uint64(len(variantID) + len(label))) {
+		return engineTruncated("bytes"), nil
+	}
+	variant := InspectField{Segment: Segment{Kind: "variant", Name: variantID}, Label: label, Value: func(rest []Segment, cx *InspectContext) (InspectNode, error) {
+		old := cx.offset
+		cx.offset = 0
+		defer func() { cx.offset = old }()
+		return cx.Object(rest, label, fields)
+	}}
+	node, e := c.container(nil, "enum", name, "", []InspectField{variant}, false)
 	if e != nil || node.Kind != "enum" {
 		return node, e
-	}
-	if uint64(len(variantID)+len(label)) > c.limits.MaxValueBytes || !c.charge(uint64(len(variantID)+len(label))) {
-		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
 	}
 	node.VariantID = strings.Clone(variantID)
 	node.VariantLabel = strings.Clone(label)
@@ -586,10 +1140,27 @@ func (c *InspectContext) Opaque(path []Segment, label string) (InspectNode, erro
 	if !ok {
 		return node, nil
 	}
-	if uint64(len(label)) > c.limits.MaxValueBytes || !c.charge(uint64(len(label))) {
-		return InspectNode{Kind: "truncated", Incomplete: "value_limit"}, nil
+	// Go strings may contain invalid UTF-8 even after the retained preview.
+	// Validate the entire label without allocating a copy, charging each rune
+	// against work so an untrusted label cannot cause an unbounded scan.
+	end := 0
+	for i := 0; i < len(label); {
+		if !c.spend() {
+			return engineTruncated("work"), nil
+		}
+		r, size := utf8.DecodeRuneInString(label[i:])
+		if r == utf8.RuneError && size == 1 {
+			return InspectNode{}, fmt.Errorf("invalid opaque label UTF-8")
+		}
+		i += size
+		if uint64(i) <= c.limits.MaxValueBytes {
+			end = i
+		}
 	}
-	node.Name = strings.Clone(label)
+	if !c.charge(uint64(end)) {
+		return engineTruncated("bytes"), nil
+	}
+	node.Name = strings.Clone(label[:end])
 	node.Incomplete = "opaque"
 	return node, nil
 }
@@ -597,7 +1168,10 @@ func (c *InspectContext) Unavailable(path []Segment) (InspectNode, error) {
 	if len(path) > 0 {
 		return InspectNode{}, fmt.Errorf("path not found")
 	}
-	node, _ := c.node("unavailable")
+	node, ok := c.node("unavailable")
+	if !ok {
+		return node, nil
+	}
 	node.Incomplete = "unavailable"
 	return node, nil
 }
@@ -662,75 +1236,25 @@ func validateScalar(v Scalar) error {
 		}
 		return nil
 	case "f32", "f64":
-		if v.Text != "" || v.Bool || v.Kind == "f32" && v.Bits > math.MaxUint32 {
-			return invalid()
-		}
-		text := v.Decimal
-		if text == "inf" {
-			text = "+Inf"
-		}
-		if text == "-inf" {
-			text = "-Inf"
-		}
-		bits := 64
-		if v.Kind == "f32" {
-			bits = 32
-		}
-		if _, e := strconv.ParseFloat(text, bits); e != nil {
+		// Rust stores float display text and bits independently, without parsing.
+		if v.Text != "" || v.Bool || !utf8.ValidString(v.Decimal) {
 			return invalid()
 		}
 		return nil
-	}
-	signed := false
-	bits := 0
-	switch v.Kind {
-	case "i8":
-		signed = true
-		bits = 8
-	case "i16":
-		signed = true
-		bits = 16
-	case "i32":
-		signed = true
-		bits = 32
-	case "i64":
-		signed = true
-		bits = 64
-	case "i128":
-		signed = true
-		bits = 128
-	case "isize":
-		signed = true
-		bits = strconv.IntSize
-	case "u8":
-		bits = 8
-	case "u16":
-		bits = 16
-	case "u32":
-		bits = 32
-	case "u64":
-		bits = 64
-	case "u128":
-		bits = 128
-	case "usize":
-		bits = strconv.IntSize
+	case "float":
+		// Text carries Rust's float-kind identity for nonstandard kinds. Keep
+		// f32/f64 canonical so equality agrees with the legacy representation.
+		if v.Bool || v.Text == "f32" || v.Text == "f64" || !utf8.ValidString(v.Text) || !utf8.ValidString(v.Decimal) {
+			return invalid()
+		}
+		return nil
+	case "i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize":
+		// Decimal is a UTF-8 identity string, not a parsed number.
+		if v.Text != "" || v.Bool || v.Bits != 0 || !utf8.ValidString(v.Decimal) {
+			return invalid()
+		}
+		return nil
 	default:
 		return invalid()
 	}
-	if v.Text != "" || v.Bool || v.Bits != 0 || len(v.Decimal) == 0 || len(v.Decimal) > 40 {
-		return invalid()
-	}
-	number, ok := new(big.Int).SetString(v.Decimal, 10)
-	if !ok {
-		return invalid()
-	}
-	if signed {
-		bound := new(big.Int).Lsh(big.NewInt(1), uint(bits-1))
-		if number.Cmp(new(big.Int).Neg(bound)) < 0 || number.Cmp(bound) >= 0 {
-			return invalid()
-		}
-	} else if number.Sign() < 0 || number.BitLen() > bits {
-		return invalid()
-	}
-	return nil
 }

@@ -1,6 +1,8 @@
 package statelessness
 
 import (
+	"math/bits"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -8,15 +10,41 @@ import (
 // RunLimits interrupt between callbacks, never preempt arbitrary callback work.
 // Cancellation takes priority over deadline. Nil duration means no wall clock.
 type RunLimits struct {
-	MaxDuration  *time.Duration
-	Cancellation *atomic.Bool
+	MaxDuration *time.Duration
+	// MaxDurationNS supports an exact unsigned 128-bit nanosecond budget. It is
+	// mutually exclusive with MaxDuration. The monotonic clock must be polled
+	// at least once per maximum time.Duration interval (about 292 years).
+	MaxDurationNS *Uint128
+	Cancellation  *atomic.Bool
+}
+type exactDeadlineClock struct {
+	mu      sync.Mutex
+	last    time.Time
+	elapsed Uint128
 }
 type runControl struct {
 	limits  RunLimits
 	started time.Time
+	exact   *exactDeadlineClock
+}
+
+func snapshotRunLimits(limits RunLimits) RunLimits {
+	if limits.MaxDuration != nil {
+		v := *limits.MaxDuration
+		limits.MaxDuration = &v
+	}
+	if limits.MaxDurationNS != nil {
+		v := *limits.MaxDurationNS
+		limits.MaxDurationNS = &v
+	}
+	return limits
 }
 
 func newRunControl(limits RunLimits) (runControl, error) {
+	limits = snapshotRunLimits(limits)
+	if limits.MaxDuration != nil && limits.MaxDurationNS != nil {
+		return runControl{}, &ConfigError{"duration forms are mutually exclusive"}
+	}
 	if limits.MaxDuration != nil && *limits.MaxDuration < 0 {
 		return runControl{}, &ConfigError{"negative duration"}
 	}
@@ -27,6 +55,9 @@ func newRunControl(limits RunLimits) (runControl, error) {
 		c.limits.MaxDuration = &duration
 		c.started = time.Now()
 	}
+	if limits.MaxDurationNS != nil {
+		c.exact = &exactDeadlineClock{last: time.Now()}
+	}
 	return c, nil
 }
 func (c runControl) stop() string {
@@ -36,7 +67,69 @@ func (c runControl) stop() string {
 	if c.limits.MaxDuration != nil && time.Since(c.started) >= *c.limits.MaxDuration {
 		return "deadline"
 	}
+	if c.exact != nil {
+		remaining := c.remainingExact()
+		if remaining.Hi == 0 && remaining.Lo == 0 {
+			return "deadline"
+		}
+	}
 	return ""
+}
+
+// remainingExact advances the shared monotonic checkpoint and saturates at
+// zero. Copies of a runControl share this clock for concurrent campaign polls.
+func (c runControl) remainingExact() Uint128 {
+	c.exact.mu.Lock()
+	now := time.Now()
+	elapsed := now.Sub(c.exact.last)
+	c.exact.last = now
+	if elapsed > 0 {
+		lo, carry := bits.Add64(c.exact.elapsed.Lo, uint64(elapsed), 0)
+		hi, overflow := bits.Add64(c.exact.elapsed.Hi, 0, carry)
+		if overflow != 0 {
+			lo, hi = ^uint64(0), ^uint64(0)
+		}
+		c.exact.elapsed = Uint128{Lo: lo, Hi: hi}
+	}
+	used := c.exact.elapsed
+	c.exact.mu.Unlock()
+	max := *c.limits.MaxDurationNS
+	if used.Hi > max.Hi || used.Hi == max.Hi && used.Lo >= max.Lo {
+		return Uint128{}
+	}
+	lo, borrow := bits.Sub64(max.Lo, used.Lo, 0)
+	hi, _ := bits.Sub64(max.Hi, used.Hi, borrow)
+	return Uint128{Hi: hi, Lo: lo}
+}
+
+// RunDeadline preserves one cooperative deadline across independently invoked
+// engine phases. Cancellation remains live; Remaining returns owned budgets.
+type RunDeadline struct{ control runControl }
+
+func NewRunDeadline(limits RunLimits) (*RunDeadline, error) {
+	control, err := newRunControl(limits)
+	if err != nil {
+		return nil, err
+	}
+	return &RunDeadline{control: control}, nil
+}
+func (d *RunDeadline) Stop() string         { return d.control.stop() }
+func (d *RunDeadline) Remaining() RunLimits { return d.control.remaining() }
+
+func (c runControl) remaining() RunLimits {
+	limits := c.limits
+	if limits.MaxDuration != nil {
+		duration := *limits.MaxDuration - time.Since(c.started)
+		if duration < 0 {
+			duration = 0
+		}
+		limits.MaxDuration = &duration
+	}
+	if limits.MaxDurationNS != nil {
+		remaining := c.remainingExact()
+		limits.MaxDurationNS = &remaining
+	}
+	return limits
 }
 
 type FuzzConfig64 struct {

@@ -120,6 +120,11 @@ func NewIndexedLifecycleMonitor[K cmp.Ordered](limits RetentionLimits) Lifecycle
 	}}
 }
 func (m LifecycleMonitor[K]) Validate(h LifecycleHistory[K]) error {
+	if m.Epoch == nil {
+		if err := validateLegacyLifecycleFields(h); err != nil {
+			return err
+		}
+	}
 	for _, e := range h.Obligations {
 		if !immutableLifecycleKey(reflect.ValueOf(e.Key)) {
 			return &ModelError{"lifecycle keys must be immutable reflexive values"}
@@ -147,6 +152,19 @@ func (m LifecycleMonitor[K]) Validate(h LifecycleHistory[K]) error {
 			if m.Epoch(e.Key) < h.RetiredBefore || i > 0 && m.Compare(h.Resources[i-1].Key, e.Key) >= 0 {
 				return &ModelError{"invalid indexed resource history"}
 			}
+		}
+	}
+	return nil
+}
+
+// Legacy histories cannot represent indexed retirement or publication state.
+func validateLegacyLifecycleFields[K comparable](h LifecycleHistory[K]) error {
+	if h.RetiredBefore != 0 {
+		return &ModelError{"legacy lifecycle history cannot retain a retirement fence"}
+	}
+	for _, entry := range h.Obligations {
+		if entry.Obligation.Published {
+			return &ModelError{"legacy lifecycle history cannot retain publication state"}
 		}
 	}
 	return nil
@@ -312,7 +330,13 @@ func (m LifecycleMonitor[K]) Advance(before LifecycleHistory[K], events []Lifecy
 					}
 				}
 			case "publish":
-				if !exists || h.Obligations[n].Obligation.Cancelled || !h.Obligations[n].Obligation.Settled {
+				eligible := exists && !h.Obligations[n].Obligation.Cancelled && h.Obligations[n].Obligation.Settled
+				if m.Epoch == nil {
+					eligible = slices.ContainsFunc(h.Obligations, func(e LifecycleEntry[K]) bool {
+						return e.Key == k && !e.Obligation.Cancelled && e.Obligation.Settled
+					})
+				}
+				if !eligible {
 					fail("stale_or_premature_publication")
 				} else if m.Epoch != nil {
 					if h.Obligations[n].Obligation.Published {
@@ -336,7 +360,13 @@ func (m LifecycleMonitor[K]) Advance(before LifecycleHistory[K], events []Lifecy
 					h.Resources = append(h.Resources, LifecycleResource[K]{k, true})
 				}
 			case "release":
-				if exists && h.Obligations[n].Obligation.pending() {
+				pending := exists && h.Obligations[n].Obligation.pending()
+				if m.Epoch == nil {
+					pending = slices.ContainsFunc(h.Obligations, func(e LifecycleEntry[K]) bool {
+						return e.Key == k && e.Obligation.pending()
+					})
+				}
+				if pending {
 					fail("release_before_settlement")
 				}
 				if !acquired {
@@ -397,8 +427,12 @@ func (m LifecycleMonitor[K]) Checks(h LifecycleHistory[K]) ([]Check, error) {
 		c = Failed(prefix+".safety", func() string {
 			codes := []string{}
 			for _, v := range h.Violations {
-				if m.Epoch == nil && v.Legacy != nil {
-					codes = append(codes, *v.Legacy)
+				if m.Epoch == nil {
+					text := legacyLifecycleText(v.Code)
+					if v.Legacy != nil {
+						text = *v.Legacy
+					}
+					codes = append(codes, text)
 				} else {
 					codes = append(codes, v.Code)
 				}
@@ -420,6 +454,8 @@ func (m LifecycleMonitor[K]) Checks(h LifecycleHistory[K]) ([]Check, error) {
 }
 
 // LifecycleOracle adapts classifiers to the existing independent Oracle API.
+// Output slots are copied before classifiers run; mutable data within an output
+// remains caller-owned and must not be changed through aliases during callbacks.
 func LifecycleOracle[S, I, O any, K comparable](monitor LifecycleMonitor[K], identity Metadata, input func(I, Disposition) ([]LifecycleEvent[K], error), output func([]O) ([]LifecycleEvent[K], error)) Oracle[S, LifecycleHistory[K], I, O] {
 	return Oracle[S, LifecycleHistory[K], I, O]{Metadata: func() (Metadata, error) {
 		m := identity
@@ -436,11 +472,19 @@ func LifecycleOracle[S, I, O any, K comparable](monitor LifecycleMonitor[K], ide
 			b = b.Clone()
 			for j := range a.Violations {
 				v := a.Violations[j]
-				a.Violations[j] = LifecycleViolation[K]{Legacy: v.Legacy}
+				text := legacyLifecycleText(v.Code)
+				if v.Legacy != nil {
+					text = *v.Legacy
+				}
+				a.Violations[j] = LifecycleViolation[K]{Legacy: &text}
 			}
 			for j := range b.Violations {
 				v := b.Violations[j]
-				b.Violations[j] = LifecycleViolation[K]{Legacy: v.Legacy}
+				text := legacyLifecycleText(v.Code)
+				if v.Legacy != nil {
+					text = *v.Legacy
+				}
+				b.Violations[j] = LifecycleViolation[K]{Legacy: &text}
 			}
 		}
 		if len(a.Obligations) == 0 {
@@ -463,15 +507,34 @@ func LifecycleOracle[S, I, O any, K comparable](monitor LifecycleMonitor[K], ide
 		}
 		return reflect.DeepEqual(a, b)
 	}, Advance: func(h LifecycleHistory[K], i I, o []O, d Disposition) (LifecycleHistory[K], error) {
+		// The classifiers are application callbacks and can hold aliases to the
+		// supplied history and to one another's event slices. Pin each observation
+		// before invoking the next classifier.
+		// Rust checks the attached history and records the prior overdue finding
+		// before calling either classifier. If there is no room for that finding,
+		// fail before application callbacks can run.
+		if e := monitor.Validate(h); e != nil {
+			return LifecycleHistory[K]{}, e
+		}
+		history := h.Clone()
+		if len(history.Violations) >= monitor.Limits.Violations {
+			for _, entry := range history.Obligations {
+				if entry.Obligation.pending() && entry.Obligation.Deadline <= history.Now {
+					return LifecycleHistory[K]{}, &ModelError{"lifecycle violation limit; verification incomplete"}
+				}
+			}
+		}
+		outputs := slices.Clone(o)
 		a, e := input(i, d)
 		if e != nil {
 			return LifecycleHistory[K]{}, e
 		}
-		b, e := output(o)
+		a = slices.Clone(a)
+		b, e := output(outputs)
 		if e != nil {
 			return LifecycleHistory[K]{}, e
 		}
-		return monitor.Advance(h, append(slices.Clone(a), b...))
+		return monitor.Advance(history, append(a, b...))
 	}, CheckState: func(h LifecycleHistory[K], _ S) ([]Check, error) { return monitor.Checks(h) }}
 }
 

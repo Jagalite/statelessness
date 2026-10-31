@@ -71,11 +71,11 @@ func evidenceTraceError(e error) error {
 }
 
 func evidenceLabel(v string, l EvidenceLimits) error {
-	if !utf8.ValidString(v) {
-		return &ModelError{"invalid UTF-8"}
-	}
 	if uint64(len(v)) > l.MaxLabelBytes {
 		return &ModelError{"evidence label byte limit"}
+	}
+	if !utf8.ValidString(v) {
+		return &ModelError{"invalid UTF-8"}
 	}
 	return nil
 }

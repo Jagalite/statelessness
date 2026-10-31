@@ -134,7 +134,7 @@ func (c CampaignConfig) Exact() (CampaignConfig64, error) {
 		return CampaignConfig64{}, &ConfigError{"campaign per-job steps must be nonnegative"}
 	}
 	f, _ := c.Fuzz.Exact()
-	exact := CampaignConfig64{c.MasterSeed, c.FirstJob, uint64(c.Jobs), uint64(c.Workers), uint64(c.ResultBuffer), f, c.StopOnFailure}
+	exact := CampaignConfig64{MasterSeed: c.MasterSeed, FirstJob: c.FirstJob, Jobs: uint64(c.Jobs), Workers: uint64(c.Workers), ResultBuffer: uint64(c.ResultBuffer), Fuzz: f, StopOnFailure: c.StopOnFailure}
 	return exact, exact.Validate()
 }
 func countsFit(values ...uint64) error {

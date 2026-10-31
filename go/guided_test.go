@@ -635,11 +635,53 @@ func TestGuidedDoesNotCloneUnusedPreviousSequence(t *testing.T) {
 	if e != nil || r.Termination != "cases_completed" || r.Transitions != 1 {
 		t.Fatal(r, e)
 	}
-	// Ordinary fuzz keeps its original case-end copy/error boundary.
+	// Ordinary fuzz also moves the executed case into its previous sequence,
+	// as Rust does, rather than copying it at case end.
 	afterFeedback = false
 	g.CheckTransition = func(int, int, s.Transition[int, int]) ([]s.Check, error) { afterFeedback = true; return nil, nil }
 	r, e = s.Fuzz(g, guidedConfig(1, 1))
-	if r != nil || e == nil || !strings.Contains(e.Error(), "snapshot inputs") || !strings.Contains(e.Error(), "unexpected case-end clone") {
+	if e != nil || r.Termination != "cases_completed" || r.Transitions != 1 {
 		t.Fatal(r, e)
+	}
+}
+
+func TestGuidedFeedbackRetainsInputBeforeEnabled(t *testing.T) {
+	var generatedCopy []int
+	copyInput := func(v []int) []int {
+		result := slices.Clone(v)
+		if generatedCopy == nil {
+			generatedCopy = result
+		}
+		return result
+	}
+	clone := func(v []int) []int { return slices.Clone(v) }
+	g := s.GenerateModel[[]int, []int, []int]{Model: s.Model[[]int, []int, []int]{
+		InitialState: func() ([]int, error) { return []int{0}, nil }, CloneState: clone, CloneInput: copyInput, CloneOutput: clone,
+		CheckState: func([]int) ([]s.Check, error) { return nil, nil },
+		CheckTransition: func(_ []int, input []int, _ s.Transition[[]int, []int]) ([]s.Check, error) {
+			if input[0] != 1 {
+				t.Fatalf("check input: %v", input)
+			}
+			return nil, nil
+		},
+		Step: func(state, input []int) (s.Transition[[]int, []int], error) {
+			if input[0] != 1 {
+				t.Fatalf("step input: %v", input)
+			}
+			return s.Accept[[]int, []int](state), nil
+		},
+	}, Generate: func([]int, *s.Rng) ([]int, bool, error) { return []int{1}, true, nil },
+		IsEnabled: func([]int, []int) (bool, error) { generatedCopy[0] = 99; return true, nil },
+	}
+	f := s.StateFeedback[[]int, []int, []int](guidedIdentity(), intFeatures(), func(state []int) (int, error) { return state[0], nil })
+	f.TransitionFeatures = func(_ []int, input []int, _ s.Transition[[]int, []int], _ *s.FeatureBuffer[int]) error {
+		if input[0] != 1 {
+			t.Fatalf("feedback input: %v", input)
+		}
+		return nil
+	}
+	_, err := s.GuidedFuzz(g, guidedConfig(1, 1), s.DefaultGuidanceConfig(), f)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

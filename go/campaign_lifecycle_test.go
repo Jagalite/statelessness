@@ -383,7 +383,7 @@ func TestCampaignLifecycleJobErrorsAndSaturation(t *testing.T) {
 				wantKind = "failure_found"
 			}
 			wantComplete := outcome != campaignModelError && outcome != campaignPanicked
-			wantErrors := 1
+			wantErrors := uint64(1)
 			if outcome == campaignFailure {
 				wantErrors = 0
 			}

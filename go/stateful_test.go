@@ -278,3 +278,60 @@ func TestAcknowledgedOwnershipHandoff(t *testing.T) {
 		t.Fatal(checks, e)
 	}
 }
+
+func TestLegacyLifecycleRejectsIndexedOnlyState(t *testing.T) {
+	m := NewLifecycleMonitor[uint8](8)
+	codec, err := LifecycleHistoryCodec(m, Uint8Codec())
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases := []struct {
+		name    string
+		history LifecycleHistory[uint8]
+	}{
+		{"retirement fence", LifecycleHistory[uint8]{RetiredBefore: 1}},
+		{"published obligation", LifecycleHistory[uint8]{Obligations: []LifecycleEntry[uint8]{{Key: 1, Obligation: LifecycleObligation{Settled: true, Published: true}}}}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := m.Validate(tc.history); err == nil {
+				t.Error("validation accepted indexed-only state")
+			}
+			if _, err := m.Advance(tc.history, nil); err == nil {
+				t.Error("advance accepted indexed-only state")
+			}
+			if _, err := EncodeValue(codec, tc.history, 1024); err == nil {
+				t.Error("legacy encoding silently lost indexed-only state")
+			}
+		})
+	}
+}
+
+func TestLegacyLifecycleDuplicateKeysUseAnyForPublishAndRelease(t *testing.T) {
+	m := NewLifecycleMonitor[uint8](8)
+	h := LifecycleHistory[uint8]{
+		Obligations: []LifecycleEntry[uint8]{
+			{Key: 1, Obligation: LifecycleObligation{Deadline: 10, Cancelled: true}},
+			{Key: 1, Obligation: LifecycleObligation{Deadline: 10, Settled: true}},
+			{Key: 1, Obligation: LifecycleObligation{Deadline: 10}},
+		},
+		Resources: []LifecycleResource[uint8]{{Key: 1, Acquired: true}},
+	}
+	published, err := m.Advance(h, []LifecycleEvent[uint8]{{Kind: "publish", Key: 1}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(published.Violations) != 0 {
+		t.Fatalf("publish should accept any settled noncancelled duplicate: %+v", published.Violations)
+	}
+	released, err := m.Advance(h, []LifecycleEvent[uint8]{{Kind: "release", Key: 1}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(released.Violations) != 1 || released.Violations[0].Code != "release_before_settlement" {
+		t.Fatalf("release should report any pending duplicate: %+v", released.Violations)
+	}
+	if released.Resources[0].Acquired {
+		t.Fatal("release must still release first matching resource")
+	}
+}

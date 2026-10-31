@@ -82,6 +82,36 @@ func OptionOf[T any](element ValueCodec[T]) (ValueCodec[Option[T]], error) {
 	}, weight, element.encode != nil, element.decode != nil)
 }
 
+// snapshotValueSlots pins slice slots before application element encoders run.
+// It is shallow: referenced mutable values and concurrent writers require
+// caller cooperation. The temporary allocation is proportional to the number
+// of elements and is not bounded by the encoded-byte limit.
+func snapshotValueSlots[T any](values []T) (result []T, err error) {
+	defer func() {
+		if recover() != nil {
+			result = nil
+			err = &ModelError{"value snapshot allocation failed"}
+		}
+	}()
+	return append([]T(nil), values...), nil
+}
+
+// Allocate separately from the decoder callback boundary so an impossible
+// Go slice allocation is reported as such, rather than as a decoder panic.
+// Logical Rust64 layout weights need not equal the actual size of T in Go.
+func allocateValueSlots[T any](n uint64) (result []T, err error) {
+	if n > uint64(math.MaxInt) {
+		return nil, &ModelError{"decode allocation failed"}
+	}
+	defer func() {
+		if recover() != nil {
+			result = nil
+			err = &ModelError{"decode allocation failed"}
+		}
+	}()
+	return make([]T, int(n)), nil
+}
+
 func EncodeVectorLength[T any](values []T, element ValueCodec[T], width uint8, out *EncodeBuffer) error {
 	if element.encode == nil {
 		return &ConfigError{"value codec has no encoder"}
@@ -89,7 +119,11 @@ func EncodeVectorLength[T any](values []T, element ValueCodec[T], width uint8, o
 	if e := encodeValueLength(uint64(len(values)), width, out); e != nil {
 		return e
 	}
-	for _, v := range values {
+	owned, e := snapshotValueSlots(values)
+	if e != nil {
+		return e
+	}
+	for _, v := range owned {
 		if e := element.EncodeRaw(v, out); e != nil {
 			return e
 		}
@@ -111,10 +145,10 @@ func DecodeVectorLength[T any](d *Decoder, element ValueCodec[T], width uint8) (
 	if e = d.Collection(n, weight); e != nil {
 		return nil, e
 	}
-	if n > uint64(math.MaxInt) {
-		return nil, &ModelError{"decode allocation failed"}
+	values, e := allocateValueSlots[T](n)
+	if e != nil {
+		return nil, e
 	}
-	values := make([]T, int(n))
 	for i := range values {
 		v, e := ReadValue(d, element)
 		if e != nil {
@@ -150,7 +184,11 @@ func ArrayOf[T any](n uint64, element ValueCodec[T]) (ValueCodec[[]T], error) {
 		if uint64(len(v)) != n {
 			return &ModelError{"fixed array length mismatch"}
 		}
-		for _, v := range v {
+		owned, e := snapshotValueSlots(v)
+		if e != nil {
+			return e
+		}
+		for _, v := range owned {
 			if e := element.EncodeRaw(v, out); e != nil {
 				return e
 			}
@@ -164,10 +202,10 @@ func ArrayOf[T any](n uint64, element ValueCodec[T]) (ValueCodec[[]T], error) {
 		if e := d.Collection(n, size); e != nil {
 			return nil, e
 		}
-		if n > uint64(math.MaxInt) {
-			return nil, &ModelError{"decode allocation failed"}
+		values, e := allocateValueSlots[T](n)
+		if e != nil {
+			return nil, e
 		}
-		values := make([]T, int(n))
 		for i := range values {
 			v, e := ReadValue(d, element)
 			if e != nil {

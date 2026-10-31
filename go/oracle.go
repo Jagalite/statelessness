@@ -3,6 +3,7 @@ package statelessness
 import (
 	"fmt"
 	"math"
+	"slices"
 	"unsafe"
 )
 
@@ -17,7 +18,9 @@ type OracleState[S, H any] struct {
 }
 
 // Oracle keeps explicit independent history. CloneHistory must deeply copy any
-// mutable values. Advance must be pure; outputs are defensive snapshots.
+// mutable values. Advance must be pure; outputs are defensive snapshots. When
+// both estimators exist, estimation clones history before calling the model
+// estimator, including when that estimator returns an unknown size or error.
 type Oracle[S, H, I, O any] struct {
 	Metadata            func() (Metadata, error)
 	InitialState        func() (H, error)
@@ -69,6 +72,10 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			if e != nil {
 				return OracleState[S, H]{}, e
 			}
+			s, e = copied(m.CloneState, s)
+			if e != nil {
+				return OracleState[S, H]{}, e
+			}
 			h, e := call("initial history", o.InitialState)
 			if e != nil {
 				return OracleState[S, H]{}, e
@@ -78,19 +85,34 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 	}
 	if m.Step != nil {
 		w.Step = func(s OracleState[S, H], i I) (Transition[OracleState[S, H], O], error) {
-			t, e := perform(m, s.Model, i)
+			// Preserve the history and input before the reducer can mutate external
+			// aliases. The actual reducer and oracle must observe the same input.
+			input, e := copied(m.CloneInput, i)
 			if e != nil {
 				return Transition[OracleState[S, H], O]{}, e
 			}
-			return w.ObserveTransition(s, i, t)
+			before, e := copied(w.CloneState, s)
+			if e != nil {
+				return Transition[OracleState[S, H], O]{}, e
+			}
+			t, e := perform(m, before.Model, input)
+			if e != nil {
+				return Transition[OracleState[S, H], O]{}, e
+			}
+			return w.ObserveTransition(before, input, t)
 		}
 	}
 	w.CheckStateInto = func(state OracleState[S, H], sink *CheckSink) error {
-		if e := appendStateChecks(m, state.Model, sink); e != nil {
+		// Capture both observations before either callback can mutate external aliases.
+		before, err := copied(w.CloneState, state)
+		if err != nil {
+			return err
+		}
+		if e := appendStateChecks(m, before.Model, sink); e != nil {
 			return e
 		}
 		return invokeChildChecks("oracle state check", sink, func(child *CheckSink) error {
-			history, actual := o.CloneHistory(state.Oracle), m.CloneState(state.Model)
+			history, actual := o.CloneHistory(before.Oracle), m.CloneState(before.Model)
 			if o.CheckStateInto != nil {
 				return o.CheckStateInto(history, actual, child)
 			}
@@ -98,14 +120,26 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 		})
 	}
 	w.CheckTransitionInto = func(state OracleState[S, H], input I, t Transition[OracleState[S, H], O], sink *CheckSink) error {
-		if e := appendEdgeChecks(m, state.Model, input, Transition[S, O]{t.State.Model, t.Outputs, t.Disposition}, sink); e != nil {
+		before, err := copied(w.CloneState, state)
+		if err != nil {
+			return err
+		}
+		ownedInput, err := copied(m.CloneInput, input)
+		if err != nil {
+			return err
+		}
+		ownedTransition, err := call("clone oracle transition", func() (Transition[OracleState[S, H], O], error) { return cloneOracleTransition(w, t), nil })
+		if err != nil {
+			return err
+		}
+		if e := appendEdgeChecks(m, before.Model, ownedInput, Transition[S, O]{ownedTransition.State.Model, ownedTransition.Outputs, ownedTransition.Disposition}, sink); e != nil {
 			return e
 		}
 		if o.CheckTransitionInto == nil && o.CheckTransition == nil {
 			return nil
 		}
 		return invokeChildChecks("oracle transition check", sink, func(child *CheckSink) error {
-			before, i, tr := w.CloneState(state), m.CloneInput(input), cloneOracleTransition(w, t)
+			before, i, tr := w.CloneState(before), m.CloneInput(ownedInput), cloneOracleTransition(w, ownedTransition)
 			if o.CheckTransitionInto != nil {
 				return o.CheckTransitionInto(before, i, tr, child)
 			}
@@ -127,6 +161,15 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 	}
 
 	w.EstimatedStateBytes = func(state OracleState[S, H]) (*uint64, error) {
+		// Capture history before the model estimator (or its clone hook) can
+		// mutate an external alias. Rust observes both components through the
+		// same immutable state reference. Skip the clone if no oracle estimate
+		// could be requested.
+		var historySnapshot H
+		var historyErr error
+		if m.EstimatedStateBytes != nil && o.EstimatedStateBytes != nil {
+			historySnapshot, historyErr = copied(o.CloneHistory, state.Oracle)
+		}
 		actual, e := estimateState(m, state.Model)
 		if e != nil || actual == nil {
 			return nil, e
@@ -134,8 +177,11 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 		if o.EstimatedStateBytes == nil {
 			return nil, nil
 		}
+		if historyErr != nil {
+			return nil, historyErr
+		}
 		history, e := call("oracle estimated_state_bytes", func() (*uint64, error) {
-			value, e := o.EstimatedStateBytes(o.CloneHistory(state.Oracle))
+			value, e := o.EstimatedStateBytes(o.CloneHistory(historySnapshot))
 			if e != nil || value == nil {
 				return nil, e
 			}
@@ -161,7 +207,12 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 	}
 	if m.EqualStates != nil && o.EqualHistory != nil {
 		w.EqualStates = func(a, b OracleState[S, H]) bool {
-			return m.EqualStates(a.Model, b.Model) && o.EqualHistory(a.Oracle, b.Oracle)
+			// Equality hooks receive independent snapshots. A mutating actual
+			// comparator must not alter retained states or oracle history before
+			// the history comparison, even when components share storage.
+			leftHistory, rightHistory := o.CloneHistory(a.Oracle), o.CloneHistory(b.Oracle)
+			leftModel, rightModel := m.CloneState(a.Model), m.CloneState(b.Model)
+			return m.EqualStates(leftModel, rightModel) && o.EqualHistory(leftHistory, rightHistory)
 		}
 	}
 	if m.Codec != nil && o.Metadata != nil && (o.EncodeHistory != nil || o.EncodeHistoryInto != nil) && o.DecodeHistory != nil {
@@ -198,6 +249,10 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			if e != nil {
 				return z, e
 			}
+			s, e = copied(m.CloneState, s)
+			if e != nil {
+				return z, e
+			}
 			h, e := o.DecodeHistory(b)
 			if e != nil {
 				return z, e
@@ -208,13 +263,19 @@ func WithOracle[S, H, I, O any](m Model[S, I, O], o Oracle[S, H, I, O]) (*Oracle
 			if e := buffer.Append([]byte("ORC1")); e != nil {
 				return e
 			}
+			// Preserve history before the model clone or encoder can mutate an
+			// external alias. Rust encodes both fields from an immutable state.
+			history, historyErr := copied(o.CloneHistory, state.Oracle)
 			if e := buffer.Framed(func(child *EncodeBuffer) error {
 				return appendEncoded(state.Model, m.CloneState, c.EncodeState, c.EncodeStateInto, child)
 			}); e != nil {
 				return e
 			}
 			return buffer.Framed(func(child *EncodeBuffer) error {
-				return appendEncoded(state.Oracle, o.CloneHistory, o.EncodeHistory, o.EncodeHistoryInto, child)
+				if historyErr != nil {
+					return historyErr
+				}
+				return appendEncoded(history, o.CloneHistory, o.EncodeHistory, o.EncodeHistoryInto, child)
 			})
 		}
 		inputInto := func(input I, buffer *EncodeBuffer) error {
@@ -268,18 +329,33 @@ func (w *OracleModel[S, H, I, O]) Attach(s S, h H) (OracleState[S, H], error) {
 // completed actual transition, independently of mutations in oracle callbacks.
 func (w *OracleModel[S, H, I, O]) ObserveTransition(s OracleState[S, H], i I, t Transition[S, O]) (Transition[OracleState[S, H], O], error) {
 	var z Transition[OracleState[S, H], O]
+	// Preserve output slots before application clone callbacks can replace them.
+	t.Outputs = slices.Clone(t.Outputs)
+	// Preserve the input before the transition's state/output clone hooks run;
+	// those callbacks can otherwise mutate an aliased caller input.
+	input, inputErr := copied(w.actual.CloneInput, i)
+	// Capture history before transition clone hooks. Defer a capture failure
+	// until the existing input/effect copies have succeeded so their failure
+	// order and the retained completed transition are preserved.
+	history, historyErr := copied(w.oracle.CloneHistory, s.Oracle)
 	retained, e := cloneTransition(w.actual, t)
 	if e != nil {
 		return z, &ObservationError[S, O]{e, t}
 	}
+	if inputErr != nil {
+		return z, &ObservationError[S, O]{inputErr, retained}
+	}
 	var cause error
 	result, e := call("advance history", func() (Transition[OracleState[S, H], O], error) {
-		input := w.actual.CloneInput(i)
+		input := w.actual.CloneInput(input)
 		effects := make([]O, len(retained.Outputs))
 		for k, v := range retained.Outputs {
 			effects[k] = w.actual.CloneOutput(v)
 		}
-		h, e := w.oracle.Advance(w.oracle.CloneHistory(s.Oracle), input, effects, retained.Disposition)
+		if historyErr != nil {
+			return z, historyErr
+		}
+		h, e := w.oracle.Advance(history, input, effects, retained.Disposition)
 		if e != nil {
 			cause = e
 			return z, e

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 	"sort"
 	"strings"
@@ -1282,13 +1283,6 @@ func TestLCWireEncodingRejectsUnrepresentableActiveValues(t *testing.T) {
 		}
 	}
 	for _, mutate := range []func(*campaignState){
-		func(s *campaignState) { s.report.Requested = -1 },
-		func(s *campaignState) { s.report.Started = -1 },
-		func(s *campaignState) { s.report.Finished = -1 },
-		func(s *campaignState) { s.report.NotStarted = -1 },
-		func(s *campaignState) { s.report.Delivered = -1 },
-		func(s *campaignState) { s.report.Failures = -1 },
-		func(s *campaignState) { s.report.Errors = -1 },
 		func(s *campaignState) { s.stop = "unknown" },
 		func(s *campaignState) { s.report.Termination.Kind = "unknown" },
 		func(s *campaignState) { s.report.Termination = CampaignTermination{Kind: "callback_error"} },
@@ -1308,5 +1302,40 @@ func TestLCWireEncodingRejectsUnrepresentableActiveValues(t *testing.T) {
 		if b, err := lcEncodeCore(state); err == nil || b != nil {
 			t.Fatalf("encoded unrepresentable core %#v: %x, %v", state, b, err)
 		}
+	}
+}
+
+func TestLCWireUnsignedCountsPreserveWidthAndRejectImpossibleState(t *testing.T) {
+	// Counts are u64 both in Go and on the wire, so a negative count is not
+	// representable. The all-ones bit pattern is MaxUint64, not a signed -1:
+	// encoding must preserve it, while the model rejects impossible counts.
+	setters := []struct {
+		name string
+		set  func(*campaignState)
+	}{
+		{"requested", func(s *campaignState) { s.report.Requested = math.MaxUint64 }},
+		{"started", func(s *campaignState) { s.report.Started = math.MaxUint64 }},
+		{"finished", func(s *campaignState) { s.report.Finished = math.MaxUint64 }},
+		{"not_started", func(s *campaignState) { s.report.NotStarted = math.MaxUint64 }},
+		{"delivered", func(s *campaignState) { s.report.Delivered = math.MaxUint64 }},
+		{"failures", func(s *campaignState) { s.report.Failures = math.MaxUint64 }},
+		{"errors", func(s *campaignState) { s.report.Errors = math.MaxUint64 }},
+	}
+	for i, tc := range setters {
+		t.Run(tc.name, func(t *testing.T) {
+			model := lcWireModel()
+			state := lcWireInitial(model)
+			tc.set(&state)
+			encoded, err := lcEncodeCore(state)
+			if err != nil {
+				t.Fatalf("u64 encoding rejected: %v", err)
+			}
+			if got := binary.LittleEndian.Uint64(encoded[i*8 : (i+1)*8]); got != math.MaxUint64 {
+				t.Fatalf("encoded count = %d", got)
+			}
+			if _, err = lcDecodeCore(model, encoded); err == nil {
+				t.Fatal("accepted impossible full-width count")
+			}
+		})
 	}
 }

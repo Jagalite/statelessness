@@ -18,7 +18,15 @@ func DefaultAutoOptions64() AutoOptions64 { return AutoOptions64{100000} }
 // Auto samples finite enumeration using reservoir sampling. The cap permits one
 // extra iterator call to distinguish exact exhaustion from overflow. RNG state
 // commits only after a successful complete scan, including successful snapshots.
+// Membership snapshots the query before domain callbacks; that copy hook runs
+// even for an empty or failing domain, though its error is deferred until needed.
+// Copy hooks must cooperate and cannot make external concurrent mutation atomic.
 func Auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options AutoOptions64) (GenerateModel[S, I, O], error) {
+	return auto64(m, equal, options, nil)
+}
+
+// auto64 optionally receives the owning run control, never an independent clock.
+func auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), options AutoOptions64, poll func() error) (GenerateModel[S, I, O], error) {
 	var z GenerateModel[S, I, O]
 	if err := m.validate(); err != nil {
 		return z, err
@@ -41,9 +49,19 @@ func Auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), optio
 			return zero, false, err
 		}
 		for count := uint64(0); ; count++ {
+			if poll != nil {
+				if e := poll(); e != nil {
+					return zero, false, e
+				}
+			}
 			v, more, e := next(it)
 			if e != nil {
 				return zero, false, e
+			}
+			if poll != nil {
+				if e := poll(); e != nil {
+					return zero, false, e
+				}
 			}
 			if !more {
 				*rng = candidate
@@ -67,14 +85,27 @@ func Auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), optio
 		}
 	}
 	g.IsEnabled = func(state S, input I) (bool, error) {
+		// Retain the query before the domain callback can mutate an external
+		// alias. Defer a copy failure until a candidate actually needs it.
+		query, queryErr := copied(m.CloneInput, input)
 		it, e := cursor(state)
 		if e != nil {
 			return false, e
 		}
 		for count := uint64(0); ; count++ {
+			if poll != nil {
+				if e := poll(); e != nil {
+					return false, e
+				}
+			}
 			v, more, e := next(it)
 			if e != nil {
 				return false, e
+			}
+			if poll != nil {
+				if e := poll(); e != nil {
+					return false, e
+				}
 			}
 			if !more {
 				return false, nil
@@ -82,7 +113,10 @@ func Auto64[S, I, O any](m Model[S, I, O], equal func(I, I) (bool, error), optio
 			if count == options.MaxCandidates {
 				return false, &ModelError{"automatic generation candidate limit"}
 			}
-			same, e := call("input equality", func() (bool, error) { return equal(m.CloneInput(v), m.CloneInput(input)) })
+			if queryErr != nil {
+				return false, queryErr
+			}
+			same, e := call("input equality", func() (bool, error) { return equal(m.CloneInput(v), m.CloneInput(query)) })
 			if e != nil {
 				return false, e
 			}
@@ -97,12 +131,18 @@ func (g GenerateModel[S, I, O]) enabled(state S, input I) (bool, error) {
 	if g.IsEnabled == nil {
 		return true, nil
 	}
-	return call("is_enabled", func() (bool, error) { return g.IsEnabled(g.CloneState(state), g.CloneInput(input)) })
+	return call("is_enabled", func() (bool, error) {
+		ownedInput := g.CloneInput(input)
+		return g.IsEnabled(g.CloneState(state), ownedInput)
+	})
 }
 func cloneInputs[S, I, O any](g GenerateModel[S, I, O], inputs []I) ([]I, error) {
+	// Freeze slice slots before invoking application clone hooks: a hook may
+	// hold an alias to the caller's slice and replace a later input.
+	slots := append([]I(nil), inputs...)
 	return call("snapshot inputs", func() ([]I, error) {
-		out := make([]I, len(inputs))
-		for k, v := range inputs {
+		out := make([]I, len(slots))
+		for k, v := range slots {
 			out[k] = g.CloneInput(v)
 		}
 		return out, nil

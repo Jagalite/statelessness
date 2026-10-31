@@ -18,6 +18,16 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 	if stop() {
 		return report, nil
 	}
+	// Only the built-in automatic scanner can set this private marker.
+	scanStopped := func() bool {
+		if c, ok := control.(interface{ scanInterrupted() string }); ok {
+			if reason := c.scanInterrupted(); reason != "" {
+				report.Termination = reason
+				return true
+			}
+		}
+		return false
+	}
 	rng := NewRng(config.Seed)
 	var checkStorage []Check
 	var previous []I
@@ -32,6 +42,14 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 		state, e = copied(g.CloneState, state)
 		if e != nil {
 			return nil, e
+		}
+		// Checks may mutate externally aliased application objects. Preserve the
+		// continuation before running them, but defer failure until it is needed.
+		initialState, initialStateErr := copied(g.CloneState, state)
+		var initialFeedback S
+		var initialFeedbackErr error
+		if driver != nil {
+			initialFeedback, initialFeedbackErr = copied(g.CloneState, state)
 		}
 		report.Cases++
 		checks, e := searchInitialObservedInto(g.Model, state, observer, &checkStorage)
@@ -48,7 +66,10 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 			return report, nil
 		}
 		if driver != nil {
-			if e := driver.initial(state, report.Cases); e != nil {
+			if initialFeedbackErr != nil {
+				return nil, initialFeedbackErr
+			}
+			if e := driver.initial(initialFeedback, report.Cases); e != nil {
 				return nil, e
 			}
 			if stop() {
@@ -66,6 +87,7 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 			return nil, e
 		}
 		inputs := []I{}
+		pendingState, pendingStateErr, hasPendingState := initialState, initialStateErr, true
 		for step := uint64(0); step < config.MaxSteps; step++ {
 			if report.Transitions == config.MaxTransitions {
 				report.Termination = "transition_limit"
@@ -74,18 +96,56 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 			if stop() {
 				return report, nil
 			}
+			if hasPendingState {
+				if pendingStateErr != nil {
+					return nil, pendingStateErr
+				}
+				state = pendingState
+				hasPendingState = false
+			}
+			// Admission callbacks can hold aliases to the current state. Keep the
+			// reducer's observation separate from the one used for admission.
+			executionState, executionStateErr := copied(g.CloneState, state)
+			admissionState, admissionStateErr := copied(g.CloneState, state)
+			var feedbackState S
+			var feedbackStateErr error
+			if driver != nil {
+				feedbackState, feedbackStateErr = copied(g.CloneState, state)
+			}
 			var input I
+			var feedbackInput I
+			var feedbackInputErr error
+			var executionInput I
+			var executionErr error
 			reused := false
 			if (replacement < 0 || uint64(replacement) != step) && step < uint64(len(mutated)) {
-				enabled, e := g.enabled(state, mutated[step])
+				candidate, candidateErr := copied(g.CloneInput, mutated[step])
+				query := mutated[step]
+				if candidateErr == nil {
+					query = candidate
+					executionInput, executionErr = copied(g.CloneInput, candidate)
+					if driver != nil && executionErr == nil {
+						feedbackInput, feedbackInputErr = copied(g.CloneInput, executionInput)
+					}
+				}
+				if g.IsEnabled != nil && admissionStateErr != nil {
+					return nil, admissionStateErr
+				}
+				enabled, e := g.enabled(admissionState, query)
 				if e != nil {
+					if scanStopped() {
+						return report, nil
+					}
 					return nil, e
 				}
 				if enabled {
-					input, e = copied(g.CloneInput, mutated[step])
-					if e != nil {
-						return nil, e
+					if candidateErr != nil {
+						return nil, candidateErr
 					}
+					if executionErr != nil {
+						return nil, executionErr
+					}
+					input = executionInput
 					reused = true
 				}
 			}
@@ -94,15 +154,21 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 			}
 			ok := true
 			if !reused {
+				if admissionStateErr != nil {
+					return nil, admissionStateErr
+				}
 				type generated struct {
 					value I
 					ok    bool
 				}
 				v, e := call("generate", func() (generated, error) {
-					value, ok, e := g.Generate(g.CloneState(state), rng)
+					value, ok, e := g.Generate(g.CloneState(admissionState), rng)
 					return generated{value, ok}, e
 				})
 				if e != nil {
+					if scanStopped() {
+						return report, nil
+					}
 					return nil, e
 				}
 				ok = v.ok
@@ -110,6 +176,10 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 					input, e = copied(g.CloneInput, v.value)
 					if e != nil {
 						return nil, e
+					}
+					executionInput, executionErr = copied(g.CloneInput, input)
+					if driver != nil && executionErr == nil {
+						feedbackInput, feedbackInputErr = copied(g.CloneInput, executionInput)
 					}
 				}
 			}
@@ -120,8 +190,11 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				break
 			}
 			if !reused {
-				enabled, e := g.enabled(state, input)
+				enabled, e := g.enabled(admissionState, input)
 				if e != nil {
+					if scanStopped() {
+						return report, nil
+					}
 					return nil, e
 				}
 				if stop() {
@@ -130,16 +203,45 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				if !enabled {
 					return nil, &ModelError{"generate returned a causally disabled input"}
 				}
+				if executionErr != nil {
+					return nil, executionErr
+				}
+				input = executionInput
 			} else if driver != nil && stop() {
 				// Rust's guided boundary polls after the short-circuited enabled
 				// result even on reuse. Preserve ordinary Go's existing boundary.
 				return report, nil
+			}
+			if executionStateErr != nil {
+				return nil, executionStateErr
+			}
+			state = executionState
+			var edgeObserver func(S, I, Transition[S, O], []Check, []Check, []I) error
+			if observer != nil {
+				edgeObserver = observer.Transition
 			}
 			transition, e := performStage(g.Model, state, input, "step")
 			if e != nil {
 				return nil, e
 			}
 			report.Transitions++
+			// Preserve the successor before check and observer callbacks can mutate
+			// external aliases. A failed copy is only relevant if another step
+			// actually needs the successor.
+			var successor S
+			var successorErr error
+			needSuccessor := step+1 < config.MaxSteps && report.Transitions < config.MaxTransitions
+			if needSuccessor {
+				successor, successorErr = copied(g.CloneState, transition.State)
+			}
+			// History copying invokes application hooks; retain both the checked
+			// edge and guided feedback transition before those hooks run.
+			edgeCapture := captureFuzzEdge(g, state, input, transition, edgeObserver)
+			var feedbackTransition Transition[S, O]
+			var feedbackTransitionErr error
+			if driver != nil {
+				feedbackTransition, feedbackTransitionErr = cloneTransition(g.Model, transition)
+			}
 			saved, e := copied(g.CloneInput, input)
 			if e != nil {
 				return nil, e
@@ -148,16 +250,19 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				return nil, e
 			}
 			inputs = append(inputs, saved)
-			violations, e := searchEdgeObservedInto(g, state, input, transition, inputs, &report.SkippedChecks, observer, &checkStorage)
+			var feedbackHistory []I
+			var feedbackHistoryErr error
+			if driver != nil {
+				feedbackHistory, feedbackHistoryErr = cloneInputs(g, inputs)
+			}
+			violations, e := searchEdgeObservedPrepared(g, state, input, transition, inputs, &report.SkippedChecks, observer, &checkStorage, edgeCapture)
 			if e != nil {
 				return nil, e
 			}
 			if len(violations) > 0 {
-				owned, e := cloneInputs(g, inputs)
-				if e != nil {
-					return nil, e
-				}
-				report.Failure = &Failure[I]{owned, violations}
+				// Every slot is an engine-owned copy (saved above) that no callback
+				// retains, so the failure takes ownership as Rust moves `inputs`.
+				report.Failure = &Failure[I]{inputs, violations}
 				report.Termination = "failure_found"
 				return report, nil
 			}
@@ -165,20 +270,26 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				return report, nil
 			}
 			if driver != nil {
-				if e := driver.transition(state, input, transition, inputs, report.Cases, report.Transitions); e != nil {
+				for _, captureErr := range []error{feedbackStateErr, feedbackInputErr, feedbackTransitionErr, feedbackHistoryErr} {
+					if captureErr != nil {
+						return nil, captureErr
+					}
+				}
+				if e := driver.transition(feedbackState, feedbackInput, feedbackTransition, feedbackHistory, report.Cases, report.Transitions); e != nil {
 					return nil, e
 				}
 				if stop() {
 					return report, nil
 				}
 			}
-			state = transition.State
+			if needSuccessor {
+				pendingState, pendingStateErr, hasPendingState = successor, successorErr, true
+			}
 		}
 		if driver == nil {
-			previous, e = cloneInputs(g, inputs)
-			if e != nil {
-				return nil, e
-			}
+			// Rust moves the executed case into `previous`. previousCandidate
+			// copies before handing any slot to a callback, so no clone is needed.
+			previous = inputs
 		}
 	}
 	return report, nil

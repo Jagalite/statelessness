@@ -50,13 +50,46 @@ func PairCodec[L, R, LI, RI, LO, RO any](left ValueCodec[L], right ValueCodec[R]
 		return nil, e
 	}
 	state, e := NewValueCodec("PairState", func(s PairState[L, R, LI, RI], b *EncodeBuffer) error {
+		// Capture address slots before child encoders can mutate a caller-owned
+		// pending slice. A valid address emits at least one tag byte. At most
+		// remaining+1 entries can therefore be inspected before a write fails;
+		// the extra slot preserves invalid-tag precedence at an exhausted buffer.
+		// This is a shallow structural copy: its allocation scales with address
+		// size and the output limit, and referenced payloads still need stable ownership.
+		batch, e := b.batch()
+		if e != nil {
+			return e
+		}
+		current := uint64(len(*batch.bytes))
+		count := len(s.Pending)
+		capture := count
+		if current <= batch.maximum {
+			remaining := batch.maximum - current
+			if remaining < uint64(count) {
+				capture = int(remaining) + 1
+			}
+		} else {
+			capture = 0
+		}
+		pending := append([]PairAddress[LI, RI](nil), s.Pending[:capture]...)
 		if e := left.EncodeRaw(s.Left, b); e != nil {
 			return e
 		}
 		if e := right.EncodeRaw(s.Right, b); e != nil {
 			return e
 		}
-		return queue.EncodeRaw(s.Pending, b)
+		if capture == count {
+			return queue.EncodeRaw(pending, b)
+		}
+		if e := encodeValueLength(uint64(count), 4, b); e != nil {
+			return e
+		}
+		for _, address := range pending {
+			if e := msg.EncodeRaw(address, b); e != nil {
+				return e
+			}
+		}
+		return &ModelError{"encoded blob exceeds byte limit"}
 	}, func(d *Decoder) (PairState[L, R, LI, RI], error) {
 		var s PairState[L, R, LI, RI]
 		var e error

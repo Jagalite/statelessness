@@ -17,7 +17,36 @@ import (
 func main() {
 	host := flag.Bool("host-check", false, "exercise real multiworker rendezvous and out-of-order callbacks")
 	ordinary := flag.Bool("ordinary", false, "use ordinary fuzz instead of guided fuzz")
+	referenceCase := flag.String("case", "", "run a named Rust public reference case")
+	allReference := flag.Bool("all-reference", false, "run all Rust public reference cases")
+	listCases := flag.Bool("list-cases", false, "list Rust public reference case names")
 	flag.Parse()
+	if (*referenceCase != "" && (*allReference || *listCases)) || (*allReference && *listCases) {
+		fmt.Fprintln(os.Stderr, "reference options are mutually exclusive")
+		os.Exit(2)
+	}
+	if *listCases {
+		for _, name := range referenceNames() {
+			fmt.Println(name)
+		}
+		return
+	}
+	if *allReference {
+		for _, name := range referenceNames() {
+			if err := emitReference(name); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+		}
+		return
+	}
+	if *referenceCase != "" {
+		if err := emitReference(*referenceCase); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
 	c := s.DefaultCampaignConfig()
 	c.FirstJob, c.Jobs = 7, 4
 	c.Fuzz = s.FuzzConfig{Cases: 2, MaxSteps: 3, MaxTransitions: 6, MutationPercent: 100}

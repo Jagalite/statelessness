@@ -203,7 +203,7 @@ func TestProtocolCommandSpecificRevisionGuards(t *testing.T) {
 		args    []string
 	}{
 		{"checks", []string{handle}}, {"outputs", []string{handle}},
-		{"telemetry_health", nil}, {"metric_catalog", []string{"u64:0", "u64:1"}}, {"events", []string{"u64:0"}},
+		{"telemetry_health", nil}, {"metric_catalog", []string{"u64:0", "u64:1"}}, {"events", []string{"u64:1"}},
 	} {
 		request.ID++
 		request.Command = test.command
@@ -387,5 +387,24 @@ func TestProtocolPreflightsRevisionGrowthAndReadCallbacks(t *testing.T) {
 	response = q.Handle(d.ProtocolRequest{Session: "reserve", Epoch: q.Epoch(), ID: 1, Command: "step", Args: []string{"bytes:31"}})
 	if response.Error != "" || count != 1 {
 		t.Fatal(response, count)
+	}
+}
+
+func TestProtocolStepMaxInputDoesNotOverflow(t *testing.T) {
+	count := 0
+	g := model(&count)
+	session, err := d.SessionFromState("huge-input", g.Model, 0, d.Unrestricted[int, int](), g.InputEqual, d.DefaultSessionLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	limits := d.DefaultProtocolLimits()
+	limits.MaxInput = math.MaxInt
+	p, err := d.NewProtocolSession(session, func(b []byte) (int, error) { return int(b[0]), nil }, d.ProtocolAuthority{DeliverInputs: true}, limits)
+	if err != nil {
+		t.Fatal(err)
+	}
+	response := p.Handle(d.ProtocolRequest{Session: "huge-input", Epoch: p.Epoch(), ID: 1, Command: "step", Args: []string{"bytes:31"}})
+	if response.Error != "" {
+		t.Fatalf("step rejected with huge input limit: %+v", response)
 	}
 }

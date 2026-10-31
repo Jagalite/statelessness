@@ -9,6 +9,21 @@ import (
 )
 
 func metadataPointer[T any](v T) *T { return &v }
+
+func TestEvidenceLabelChecksLengthBeforeUTF8(t *testing.T) {
+	limits := DefaultEvidenceLimits()
+	limits.MaxLabelBytes = 4
+	// The oversized input is rejected before scanning even if its suffix is invalid.
+	if err := evidenceLabel("abcde\xff", limits); err == nil || err.Error() != "evidence label byte limit" {
+		t.Fatalf("oversized label: %v", err)
+	}
+	if err := evidenceLabel("a\xff", limits); err == nil || err.Error() != "invalid UTF-8" {
+		t.Fatalf("invalid short label: %v", err)
+	}
+	if err := evidenceLabel("éé", limits); err != nil {
+		t.Fatalf("valid boundary: %v", err)
+	}
+}
 func metadataFixture() *TraceV2 {
 	return &TraceV2{CheckpointAfter: 7, Provenance: Provenance{Run: "run雪", Epoch: 9, Manifest: metadataPointer(""), Source: metadataPointer("src"), Environment: [][2]string{{"k", "v"}, {"k", "two"}}}, Steps: []StepEvidence{{Sequence: 8, StateCheckCount: 2, Causal: CausalContext{Machine: metadataPointer("m"), Generation: metadataPointer(uint64(3)), Correlation: metadataPointer("c"), LogicalTime: metadataPointer(uint64(5)), Causes: []OutputOrigin{{Sequence: 7, Output: 1}}}}}}
 }
@@ -161,5 +176,23 @@ func TestEvidenceMetadataRust64LogicalAllocationWeights(t *testing.T) {
 		if e == nil || !strings.Contains(e.Error(), tc.want) {
 			t.Fatalf("count%d: %v, want%s", tc.count, e, tc.want)
 		}
+	}
+}
+
+func TestEvidenceMetadataInvalidElementBeforeTruncatedVector(t *testing.T) {
+	// Two steps are advertised but only one minimum-sized body is supplied.
+	// Its first option tag is invalid, which must be reported before the
+	// absent second step as in the shared decoder.
+	data, err := encodeEvidenceMetadata(&TraceV2{}, 1024)
+	if err != nil {
+		t.Fatal(err)
+	}
+	binary.LittleEndian.PutUint32(data[26:], 2)
+	step := make([]byte, 20)
+	step[12] = 2
+	data = append(data, step...)
+	_, _, _, err = decodeEvidenceMetadata(data, 1024)
+	if err == nil || !strings.Contains(err.Error(), "invalid option tag") {
+		t.Fatalf("got %v, want invalid option tag", err)
 	}
 }

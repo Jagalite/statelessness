@@ -897,6 +897,20 @@ func TestCampaignLifecyclePersistedFaultReplay(t *testing.T) {
 	if trace.Termination != "property_failed" {
 		t.Fatalf("not fault evidence: %s", trace.Termination)
 	}
+	if trace.Config.Strategy != "go-campaign-self-model-fault-control" || len(trace.Config.Parameters) != 3 || trace.Config.Parameters[0] != [2]string{"injected_fault", "duplicate Deliver"} || trace.Config.Parameters[1][0] != "stateless.engine.version" || trace.Config.Parameters[2][0] != "stateless.engine.build" {
+		t.Fatalf("unexpected persisted configuration: %+v", trace.Config)
+	}
+	if len(trace.Steps) != 3 {
+		t.Fatalf("unexpected persisted witness length: got %d, want 3", len(trace.Steps))
+	}
+	expected := []campaignEvent{{kind: campaignClaim}, lcComplete(50, campaignCompleted), {kind: campaignReceive, jobID: 50}}
+	for i, step := range trace.Steps {
+		want, err := lcEncodeEvent(expected[i])
+		if err != nil || !bytes.Equal(step.Input, want) {
+			t.Fatalf("unexpected persisted witness input %d: %v", i, err)
+		}
+	}
+	lcMustFail(t, trace.Steps[2].Checks, "campaign.effects")
 	m := campaignLifecycle{firstJob: 50, jobs: 2}
 	lcAssertReplay(t, lcSelfModel(m, true), trace, false, "exact", true, true)
 	lcAssertReplay(t, lcSelfModel(m, false), trace, false, "incompatible", false, false)

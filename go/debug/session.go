@@ -194,12 +194,38 @@ func (v *Session[S, I, O]) CheckRevision(expected uint64) error {
 func (v *Session[S, I, O]) result(delivered bool) StepResult {
 	return StepResult{v.sequence, delivered, v.Stop()}
 }
-func (v *Session[S, I, O]) permits(input I) (bool, error) {
+
+// inputSnapshot captures before callbacks but delays a clone panic until the
+// input is actually needed. Empty enumerations can still reject without it.
+type inputSnapshot[I any] struct {
+	value   I
+	failure any
+	failed  bool
+}
+
+func captureInput[I any](clone func(I) I, input I) (result inputSnapshot[I]) {
+	result.failed = true
+	defer func() {
+		if result.failed {
+			result.failure = recover()
+		}
+	}()
+	result.value = clone(input)
+	result.failed = false
+	return
+}
+func (s inputSnapshot[I]) get() I {
+	if s.failed {
+		panic(s.failure)
+	}
+	return s.value
+}
+func (v *Session[S, I, O]) permits(query inputSnapshot[I]) (bool, error) {
 	if v.policy.Unrestricted {
 		return true, nil
 	}
 	if v.policy.Validate != nil {
-		return v.policy.Validate(v.State(), v.model.CloneInput(input))
+		return v.policy.Validate(v.State(), v.model.CloneInput(query.get()))
 	}
 	it, e := v.policy.Candidates(v.State())
 	if e != nil {
@@ -219,7 +245,7 @@ func (v *Session[S, I, O]) permits(input I) (bool, error) {
 		if n == v.limits.MaxCandidates {
 			return false, fmt.Errorf("environmental admission work budget exhausted")
 		}
-		same, e := v.equal(v.model.CloneInput(x), v.model.CloneInput(input))
+		same, e := v.equal(v.model.CloneInput(x), v.model.CloneInput(query.get()))
 		if e != nil {
 			return false, e
 		}
@@ -247,7 +273,13 @@ func (v *Session[S, I, O]) StepWithObserver(expected uint64, input I, observer f
 	defer func() { v.busy = false }()
 	oldPhase := v.phase
 	v.phase = Ended
-	ok, e := v.permits(input)
+	// Keep the input used by breakpoints and the reducer independent of aliases
+	// that policy or state-copy callbacks may change during admission.
+	query := captureInput(v.model.CloneInput, input)
+	ok, e := v.permits(query)
+	if e == nil && ok {
+		input = query.get()
+	}
 	v.phase = oldPhase
 	if e != nil {
 		return v.result(false), e

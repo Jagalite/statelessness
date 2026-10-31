@@ -2,6 +2,18 @@ package statelessness
 
 import "fmt"
 
+// networkCodecPrefix captures every slot that can be reached before the output
+// limit rejects a fixed-width header, plus one to preserve the next error. The
+// copied slots are shallow; application payloads still require stable ownership.
+func networkCodecPrefix[T any](values []T, remaining, minimum uint64) []T {
+	count := len(values)
+	limit := remaining / minimum
+	if limit < uint64(count) {
+		count = int(limit) + 1
+	}
+	return append([]T(nil), values[:count]...)
+}
+
 func NetworkAddressCodec[T any](value ValueCodec[T]) (ValueCodec[NetworkAddress[T]], error) {
 	l, ok := value.Layout()
 	if !ok || l.Size() > ^uint64(0)-64 {
@@ -71,13 +83,50 @@ func (n *Network[S, I, O]) BindCodec(state ValueCodec[S], input ValueCodec[I], o
 		if e := n.validateState(s); e != nil {
 			return e
 		}
+		// Capture structure before user state encoders can mutate caller slices.
+		// Each machine has a four-byte ID and each message has twelve bytes of
+		// routing metadata. Output limits bound the shallow prefix allocations.
+		batch, e := b.batch()
+		if e != nil {
+			return e
+		}
+		current := uint64(len(*batch.bytes))
+		remaining := uint64(0)
+		if current <= batch.maximum {
+			remaining = batch.maximum - current
+		}
+		machineCount, pendingCount := len(s.Machines), len(s.Pending)
+		machineSnapshot := networkCodecPrefix(s.Machines, remaining, 4)
+		pendingSnapshot := networkCodecPrefix(s.Pending, remaining, 12)
 		if e := Uint8Codec().EncodeRaw(1, b); e != nil {
 			return e
 		}
-		if e := entries.EncodeRaw(s.Machines, b); e != nil {
+		if len(machineSnapshot) != machineCount {
+			if e := encodeValueLength(uint64(machineCount), 4, b); e != nil {
+				return e
+			}
+			for _, item := range machineSnapshot {
+				if e := entry.EncodeRaw(item, b); e != nil {
+					return e
+				}
+			}
+			return &ModelError{"encoded blob exceeds byte limit"}
+		}
+		if e := entries.EncodeRaw(machineSnapshot, b); e != nil {
 			return e
 		}
-		return messages.EncodeRaw(s.Pending, b)
+		if len(pendingSnapshot) == pendingCount {
+			return messages.EncodeRaw(pendingSnapshot, b)
+		}
+		if e := encodeValueLength(uint64(pendingCount), 4, b); e != nil {
+			return e
+		}
+		for _, item := range pendingSnapshot {
+			if e := message.EncodeRaw(item, b); e != nil {
+				return e
+			}
+		}
+		return &ModelError{"encoded blob exceeds byte limit"}
 	}, func(d *Decoder) (NetworkState[S, I], error) {
 		var s NetworkState[S, I]
 		v, e := ReadValue(d, Uint8Codec())

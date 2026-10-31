@@ -142,8 +142,12 @@ func ForkWithOptions[S, I, O any](v *EvidenceViewer, m s.Model[S, I, O], sequenc
 			return nil, fmt.Errorf("normal branches must start before property failure")
 		}
 	}
-	if e := policyProvenance(t, &p); e != nil && !p.Unrestricted {
+	environment, unrestricted, present, e := recordedEnvironment(t)
+	if e != nil {
 		return nil, e
+	}
+	if present && !p.Unrestricted && (p.Label != environment || unrestricted) {
+		return nil, fmt.Errorf("fork environment differs from recorded policy")
 	}
 	t.Steps = t.Steps[:sequence]
 	t.Termination = "completed"

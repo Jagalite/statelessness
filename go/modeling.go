@@ -2,6 +2,7 @@ package statelessness
 
 import (
 	"fmt"
+	"slices"
 	"unicode/utf8"
 )
 
@@ -69,19 +70,45 @@ func (d *Domain[I]) Extend(next Iterator[I]) error {
 	}
 }
 func (d *Domain[I]) Entries() ([]I, error) {
+	// Capture the slice slots before invoking application clone hooks. A hook
+	// may consume the domain and mutate the returned backing array.
+	entries := slices.Clone(d.entries)
 	return call("domain clone", func() ([]I, error) {
-		out := make([]I, len(d.entries))
-		for i, v := range d.entries {
+		out := make([]I, len(entries))
+		for i, v := range entries {
 			out[i] = d.clone(v)
 		}
 		return out, nil
 	})
 }
 func (d *Domain[I]) IntoEntries() []I { out := d.entries; d.entries = nil; return out }
+
+// Contains captures entries before equality callbacks. Entry clone hooks run eagerly,
+// even after an earlier match; unused clone failures are deferred. Hooks must not
+// mutate other inputs during capture, and this does not provide thread safety.
 func (d *Domain[I]) Contains(value I, equal func(I, I) bool) (bool, error) {
 	return call("domain equality", func() (bool, error) {
-		for _, v := range d.entries {
-			if equal(d.clone(v), d.clone(value)) {
+		if len(d.entries) == 0 {
+			return false, nil
+		}
+		// Keep the query stable across equality callbacks that may hold an
+		// external alias. Each callback still receives a detached value.
+		// Capture the entry list before callbacks can consume or change it.
+		entries := append([]I(nil), d.entries...)
+		query := d.clone(value)
+		type captured struct {
+			value I
+			err   error
+		}
+		copies := make([]captured, len(entries))
+		for i, v := range entries {
+			copies[i].value, copies[i].err = call("domain clone", func() (I, error) { return d.clone(v), nil })
+		}
+		for _, v := range copies {
+			if v.err != nil {
+				return false, v.err
+			}
+			if equal(d.clone(v.value), d.clone(query)) {
 				return true, nil
 			}
 		}
@@ -99,12 +126,17 @@ func (d *Domain[I]) SampleIndexed(rng *Rng) (v I, ok bool, err error) {
 	return
 }
 
-// DomainProduct checks cardinality before invoking map. Callers own argument/result cloning.
+// DomainProduct checks cardinality before invoking map and snapshots the input
+// slices. Callers own deep cloning of reference-containing arguments and results.
 func DomainProduct[A, B, I any](a []A, b []B, maximum int, mapper func(A, B) (I, error)) ([]I, error) {
 	if maximum < 0 || len(b) > 0 && len(a) > maximum/len(b) {
 		return nil, &ModelError{"domain product limit exceeded"}
 	}
-	out := make([]I, 0, len(a)*len(b))
+	n := len(a) * len(b)
+	if n != 0 {
+		a, b = slices.Clone(a), slices.Clone(b)
+	}
+	out := make([]I, 0, n)
 	for _, x := range a {
 		for _, y := range b {
 			v, err := call("domain product", func() (I, error) { return mapper(x, y) })

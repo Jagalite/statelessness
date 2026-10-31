@@ -13,6 +13,11 @@ func LifecycleHistoryCodec[K comparable](m LifecycleMonitor[K], key ValueCodec[K
 	}
 	indexed := m.Epoch != nil
 	return NewValueCodec("lifecycle-history", func(h LifecycleHistory[K], b *EncodeBuffer) error {
+		if !indexed {
+			if e := validateLegacyLifecycleFields(h); e != nil {
+				return e
+			}
+		}
 		if indexed {
 			if e := m.Validate(h); e != nil {
 				return e

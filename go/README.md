@@ -9,6 +9,7 @@ cd go
 CGO_ENABLED=0 go test ./...
 go vet ./...
 go run ./examples/counter
+go run ./examples/reference-controller
 go build -o bin/stateless-corpus ./cmd/stateless-corpus
 ```
 
@@ -28,6 +29,42 @@ replace github.com/Jagalite/statelessness/go => /path/to/statelessness/go
 Import it as `s "github.com/Jagalite/statelessness/go"`. The counter in
 `examples/counter/main.go` is a complete native model that finds a failure, records
 its witness, and replays it. No JSON is used by the transition function.
+The reference-controller example runs two asynchronous workers through the
+ordered host, demonstrates supersession and cancellation, and replays the
+recorded execution against the same reducer.
+The optional `demo` package ports Rust's finite request-lifecycle fixture with
+fixed and intentionally buggy reducers, generation, and matching value bytes;
+it is a teaching fixture, not a qualified production controller.
+Its optional `demo/debug` package supplies an owned display projection for
+debugger inspection and watches without adding a debugger dependency to `demo`.
+
+The Go reference-suite verifier accepts a directory of preserved mutation
+witnesses. It defaults to the local build; `-pins` permits explicit foreign
+report and mutant build identities. For example, from the repository root:
+
+```sh
+npm --prefix typescript run build
+node typescript/scripts/write_reference_suite.mjs /tmp/reference-suite /tmp/reference-pins.json
+go -C go run ./cmd/verify-reference-suite -suite /tmp/reference-suite -pins /tmp/reference-pins.json
+```
+
+Both output paths must be new. The pins identify the chosen producer build;
+they do not authenticate the files or substitute for independent review.
+The reverse direction uses the same report and per-mutant pin format:
+
+```sh
+go -C go run ./cmd/write-reference-suite -suite /tmp/go-reference-suite -pins /tmp/go-reference-pins.json
+node typescript/scripts/verify_reference_suite.mjs /tmp/go-reference-suite /tmp/go-reference-pins.json
+```
+
+Rust can also produce a suite for the Go verifier. Build the `controller` and
+`reference_pins` examples, then run the compiled binaries:
+
+```sh
+target/debug/examples/controller mutations /tmp/rust-reference-suite
+target/debug/examples/reference_pins > /tmp/rust-reference-pins.json
+go -C go run ./cmd/verify-reference-suite -suite /tmp/rust-reference-suite -pins /tmp/rust-reference-pins.json
+```
 
 ## API and ownership
 
@@ -77,6 +114,9 @@ reducer; a typed `ObservationError` retains the actual transition if history
 advancement fails. `CloneHistory` must deeply copy mutable history; enumeration
 requires both actual state equality and `EqualHistory`. Persistence requires both
 component codecs and uses the shared `ORC1` framing and semantic/build identities.
+Encoding snapshots history before the actual encoder to isolate its observation
+from callback alias mutation. The history clone therefore runs even when the
+actual encoder later fails; clone hooks must cooperate and may have side effects.
 This is an experimental candidate, not complete Rust parity or a qualified profile.
 
 The golden tests read `../conformance/paired-v1.tsv`. For copied module test trees,
@@ -123,10 +163,25 @@ globally minimal witness. Reports include resource termination and whether origi
 evidence was validated before shrinking; interrupted validation preserves supplied
 evidence without asserting reproduction.
 
-`RunLimits` supports optional `*time.Duration` and `*atomic.Bool` cancellation.
-Zero duration expires at entry. Controls poll between engine callbacks, never
-preempt callbacks or an automatic iterator scan. Callback failures stay errors,
-and completed failing check batches win over simultaneous cancellation.
+`RunLimits` supports optional `*time.Duration`, an alternative exact unsigned
+128-bit nanosecond budget via `MaxDurationNS`, and `*atomic.Bool` cancellation.
+The duration forms are mutually exclusive. Direct enumeration, fuzzing, guided
+search, shrinking, campaigns, their assurance wrappers, and debugger offline
+verification/minimization support the exact form. Exact elapsed accounting
+requires a monotonic poll at least once
+per maximum Go duration interval (about 292 years).
+Zero duration expires at entry. Controls poll between engine callbacks and never
+preempt a callback already executing. `FuzzAutoWithLimits64` is an opt-in path
+that also polls its own run control between automatic-domain iterator calls,
+returning a cancelled or deadline report without committing the interrupted
+reservoir scan’s RNG state. `FuzzWithLimits64` with a separately constructed
+`Auto64` retains callback-boundary polling. `GuidedFuzzAutoWithLimits64`,
+`GuidedFuzzAutoObserved64`, `RunAutoCampaign64`, and `RunGuidedAutoCampaign64`
+provide the same cooperative scanning for their own runs. Campaign equality
+callbacks and factory captures must be concurrency-safe. The guided campaign
+feedback factory receives an ordinary Auto64 model: any work it performs inside
+that callback is not preempted. Callback failures stay errors, and completed
+failing check batches win over simultaneous cancellation.
 `ShrinkLimits.MaxReplayedTransitions` optionally bounds aggregate replay work,
 including original validation. Deadlines use the Go monotonic clock; unconstrained
 runs do not read the clock. Separate runs need separate RNGs and mutable models.
@@ -150,6 +205,39 @@ its combined history model/codec. Generation and causal membership see only the
 actual application's state; input simplification and semantic identity forward
 unchanged. The resulting typed `GenerateModel[OracleState[...], ...]` supports the
 same native fuzz, shrink, recording, and exact replay pipeline.
+
+## Assurance report JSON and Go-only extensions
+
+`AssuranceEvidence.JSON`, `AssuranceManifest.JSON` and `MergedAssurance.JSON`
+emit the Rust `src/assurance.rs` `to_json` shape byte-for-byte: Rust field
+order, Rust `quoted` string escaping, byte-ordered budget maps and numerically
+ordered job IDs. Terminations use Rust `{:?}` spelling (`GraphExhausted`,
+`CasesCompleted`, `ModelError`, `Panicked` for a campaign job that unwound,
+`MergedJobs`, and `Campaign::<CampaignTermination Debug>` such as
+`Campaign::CallbackError(ModelError("..."))`). Budget maps contain only the keys
+Rust writes (`fuzz_budgets`, `control_budgets`, guidance, merge and campaign
+keys); `max_duration_ns` is an unsigned 128-bit decimal. Observation admission
+limits (`AssuranceObservationLimits`) and automatic-domain options are not
+recorded as budgets. Campaign outcomes follow Rust `run_campaign` exactly: job
+errors alone do not change the aggregate outcome; they surface through the
+failed job evidence or missing jobs.
+
+`ParseAssuranceJSON` and `ParseMergedAssuranceJSON` accept genuine Rust output,
+including `Panicked` jobs and `Campaign::...` aggregates without any Go
+extension; such campaign reports are verified against the coordinator facts
+Rust records (termination plus `campaign.started`/`finished`/`delivered`/
+`accounting_complete`) and are re-emitted unchanged.
+
+Go-only extensions, kept outside every Rust-defined field:
+
+- `MergedAssurance.JSON` appends a top-level `nested_jobs` object (proofs for
+  jobs that are themselves merged reports) and a top-level `campaign` object
+  (coordinator counts, coordinator budgets and `assurance_max_evidence_bytes`,
+  the campaign evidence-ledger bound). Rust defines neither key; consumers
+  that require the exact Rust shape must strip them. When present, Go cross-checks coordinator
+  failure and transition totals that Rust does not record.
+- `AssuranceRunGuidedCampaign64` has no Rust counterpart; its job budgets
+  combine Rust `fuzz_budgets` with the Rust `guided_fuzz` guidance keys.
 
 ## Experimental Rust audit binary v1
 
@@ -202,6 +290,10 @@ and `OracleStateOverhead[S,H]()` using checked unsigned64 addition; missing valu
 or overflow remain unknown. The exposed overhead is actual architecture-specific
 Go inline pair padding (`unsafe.Sizeof(pair)` minus member sizes), excluding heap
 headers and RSS. Each application estimate includes its own owned representation.
+When both estimators are present, `WithOracle` clones history before the actual
+estimator runs to preserve its observation against callback alias mutation. That
+clone runs even if the actual estimate is unknown or fails; the actual result
+takes precedence over a clone failure. Clone hooks should be cooperative.
 Generation, enumeration, and persistence continue using the combined native model.
 
 These estimates bound admitted model-state representation only. Temporary
@@ -248,6 +340,14 @@ and `Paired` appends reference checks before projection comparisons, all sharing
 existing append positions. Child failures remain failures if enclosing code ignores
 them. Legacy Go callbacks returning checks plus an error retain only their valid
 prefix for diagnostics and preserve the original checker error.
+
+`Paired` snapshots reference history and effects before reference checks so those
+checks cannot change the later reference projection through an external alias.
+These earlier clone hooks may have side effects even when a reference check fails;
+check errors retain precedence over snapshot failures. The standalone `Paired`
+API has no actual-state or actual-output clone hooks, so callers must keep those
+values stable during its callbacks. Clone hooks must cooperate and do not make
+capture atomic against concurrent external mutation.
 
 `append-checks-v1` is experimental. Reusable check buffers retain capacity, while
 observer/trace snapshots and legacy defaults can allocate; no zero-allocation or
@@ -589,3 +689,17 @@ deferred to the parent's frozen integrated Kyoto qualification.
 hooks, callback-scoped feature buffers, and owned corpus witnesses. See
 [the Go guidance contract](GUIDED.md) and [example](examples/guided/main.go).
 This opt-in API leaves ordinary fuzz defaults and advertised profiles unchanged.
+
+Network step captures the selected input and retained pending payloads before
+machine-state clone hooks. These hooks may therefore run earlier than child
+reduction and must cooperate: cloning cannot provide an atomic snapshot if hooks
+or concurrent external code mutate other values through shared aliases.
+
+For indexed lifecycle checks, `WithIndexedRustDebugDiagnostics` returns an
+opt-in wrapper usable with `IndexedRustDebugOracle`. The application supplies
+formatters matching the pinned Rust toolchain's `Debug` output for its key type
+and for strings, together with a stable identity for both formatters. The identity
+is included in monitor metadata; it does not prove formatter equivalence or match
+Rust monitor metadata automatically. The original monitor and its native-code
+diagnostics remain the default. Formatter work and allocations are not bounded by
+lifecycle retention limits. See `docs/native-parity/N08-N09-CONTRACT.md`.
