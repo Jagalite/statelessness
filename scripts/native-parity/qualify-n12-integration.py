@@ -18,6 +18,7 @@ import shutil
 import stat
 import struct
 import subprocess
+import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -115,6 +116,38 @@ def run_command(entry, output):
             'assertion_scope': entry['scope']}
 
 
+def require(condition, message):
+    # Acceptance checks must survive `python -O`, which strips assert statements.
+    if not condition:
+        raise RuntimeError(message)
+
+
+def drain(stream, deadline, limit=65536):
+    """Read until EOF within the deadline and byte limit; never block past it."""
+    data = bytearray()
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not select.select([stream], [], [], max(0, remaining))[0]:
+            raise RuntimeError('stdout not closed by deadline')
+        chunk = os.read(stream.fileno(), 65536)
+        if not chunk:
+            return bytes(data)
+        data.extend(chunk)
+        if len(data) > limit:
+            raise RuntimeError('stdout exceeded output limit')
+
+
+def kill_group(process):
+    # Endpoints run in their own session so descendants holding pipes die too.
+    if os.name == 'posix':
+        try:
+            os.killpg(process.pid, 9)
+        except (ProcessLookupError, PermissionError):
+            pass
+    elif process.poll() is None:
+        process.kill()
+
+
 def pipe_fixture(entry, output):
     """Exercise genuine OS pipes against an explicitly configured readonly host."""
     golden = json.loads(GOLDEN.read_bytes())
@@ -123,7 +156,8 @@ def pipe_fixture(entry, output):
     rx = (output / 'stdout.frames').open('wb')
     stderr = (output / 'stderr.log').open('wb')
     process = subprocess.Popen(entry['argv'], cwd=ROOT, stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE, stderr=stderr, bufsize=0)
+                               stdout=subprocess.PIPE, stderr=stderr, bufsize=0,
+                               start_new_session=os.name == 'posix')
     timeout = entry.get('timeout_seconds', 30)
     deadline = time.monotonic() + timeout
 
@@ -156,37 +190,37 @@ def pipe_fixture(entry, output):
             raise AssertionError('invalid response frame length')
         raw = exact(size)
         fields = raw.decode('utf-8', errors='strict').split('\t')
-        assert fields[:4] == ['DDBG', 'u32:1', 'response', 'string:' + golden['session']]
-        assert fields[5:8] == [f'u64:{request_id}', 'u64:0', 'u64:0']
+        require(fields[:4] == ['DDBG', 'u32:1', 'response', 'string:' + golden['session']], 'response envelope header mismatch')
+        require(fields[5:8] == [f'u64:{request_id}', 'u64:0', 'u64:0'], 'response request identity mismatch')
         count = int(fields[10].removeprefix('u64:'))
-        assert len(fields) == 11 + 2 * count
+        require(len(fields) == 11 + 2 * count, 'response field count mismatch')
         pairs = list(zip(fields[11::2], fields[12::2]))
-        assert len(dict(pairs)) == count, 'duplicate response fields'
+        require(len(dict(pairs)) == count, 'duplicate response fields')
         return raw, fields, dict(pairs)
 
     try:
         _, status, values = request(0, golden['fullwidth_request_id'], 'status')
-        assert status[8:10] == ['ok', 'none']
-        assert all(values.get(k) == v for k, v in golden['read_only_status'].items())
+        require(status[8:10] == ['ok', 'none'], 'initial status was not ok')
+        require(all(values.get(k) == v for k, v in golden['read_only_status'].items()), 'read-only status differs from golden')
         epoch = int(status[4].removeprefix('u64:'))
-        assert 0 < epoch <= 18446744073709551615
+        require(0 < epoch <= 18446744073709551615, 'connection epoch out of range')
         raw, fields, values = request(epoch, golden['fullwidth_request_id'] + 1, 'snapshot')
-        assert fields[8:10] == ['ok', 'none']
-        assert values == golden['snapshot']
+        require(fields[8:10] == ['ok', 'none'], 'snapshot was not ok')
+        require(values == golden['snapshot'], 'snapshot differs from golden')
         duplicate, _, _ = request(epoch, golden['fullwidth_request_id'] + 1, 'snapshot')
-        assert duplicate == raw
+        require(duplicate == raw, 'duplicate request was not replayed byte-for-byte')
         _, fields, _ = request(epoch, golden['fullwidth_request_id'] + 1, 'status')
-        assert fields[8:10] == ['error', 'duplicate_conflict']
+        require(fields[8:10] == ['error', 'duplicate_conflict'], 'conflicting duplicate request was not rejected')
         # Authorization precedes model input decoding; no input callback can run.
         _, fields, _ = request(epoch, golden['fullwidth_request_id'] + 2, 'step\tbytes:')
-        assert fields[8:10] == ['error', 'unauthorized']
+        require(fields[8:10] == ['error', 'unauthorized'], 'read-only endpoint accepted a step')
         _, _, values = request(epoch, golden['fullwidth_request_id'] + 3, 'status')
-        assert values['sequence'] == 'u64:0'
+        require(values['sequence'] == 'u64:0', 'unauthorized step changed the sequence')
         process.stdin.close()
-        assert process.wait(timeout=max(1, deadline - time.monotonic())) == 0
-        extra = process.stdout.read()
+        require(process.wait(timeout=max(1, deadline - time.monotonic())) == 0, 'endpoint did not exit cleanly on EOF')
+        extra = drain(process.stdout, deadline)
         rx.write(extra)
-        assert extra == b'', 'stdout contains unframed bytes'
+        require(extra == b'', 'stdout contains unframed bytes')
         truncated = b'\x00\x00\x00\x03x'
         (output / 'truncated.stdin.frames').write_bytes(truncated)
         with (output / 'truncated.stdout.frames').open('wb') as bad_out, (output / 'truncated.stderr.log').open('wb') as bad_err:
@@ -197,25 +231,32 @@ def pipe_fixture(entry, output):
                 bad.kill()
                 bad.communicate()
                 raise RuntimeError('truncated-frame process did not exit')
-        assert bad.returncode != 0
-        assert (output / 'truncated.stdout.frames').stat().st_size == 0
+        require(bad.returncode != 0, 'truncated frame was accepted')
+        require((output / 'truncated.stdout.frames').stat().st_size == 0, 'truncated frame produced output')
         binary_after = executable_identity(entry['argv'], ROOT)
-        assert binary_before == binary_after, 'endpoint binary changed'
+        require(binary_before == binary_after, 'endpoint binary changed')
         return {'passed': True, 'argv': entry['argv'], 'scope': golden['scope'],
                 'binary_before': binary_before, 'binary_after': binary_after,
                 'requests': 6, 'delivered_sequence': 0,
                 'callback_count': 'not instrumented; sequence and authorization checked'}
     finally:
-        if process.poll() is None:
-            process.kill()
-            process.wait()
+        kill_group(process)
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            pass
         if not process.stdout.closed:
-            rx.write(process.stdout.read())
+            try:
+                rx.write(drain(process.stdout, time.monotonic() + 1))
+            except (RuntimeError, OSError):
+                pass  # Retain what was read; cleanup must not block or mask the primary error.
         for stream in (process.stdin, process.stdout, tx, rx, stderr):
             stream.close()
 
 
 def main():
+    if sys.flags.optimize:
+        raise SystemExit('refusing to qualify under python -O: acceptance checks must not be stripped')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--spec', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)

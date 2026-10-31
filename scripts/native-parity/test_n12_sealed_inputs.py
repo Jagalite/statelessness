@@ -28,4 +28,30 @@ class SealedCorpusTests(unittest.TestCase):
                 self.assertEqual(n12.snapshot([corpus])['validation/reference/manual-goldens.json']['type'],'missing')
             finally:n12.ROOT,n12.GOLDEN,n12.git=old
 
+
+
+class AcceptanceSafetyTests(unittest.TestCase):
+    def test_checks_survive_optimization_and_runner_refuses_it(self):
+        import subprocess, sys
+        with self.assertRaisesRegex(RuntimeError, 'mismatch'):
+            n12.require(False, 'mismatch')
+        script = Path(__file__).with_name('qualify-n12-integration.py')
+        result = subprocess.run([sys.executable, '-O', str(script)], capture_output=True, text=True, timeout=60)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('python -O', result.stderr)
+
+    def test_drain_is_bounded_when_a_descendant_keeps_the_pipe_open(self):
+        import os, time
+        read, write = os.pipe()
+        try:
+            os.write(write, b'tail')
+            with os.fdopen(read, 'rb', buffering=0) as stream:
+                start = time.monotonic()
+                with self.assertRaisesRegex(RuntimeError, 'deadline'):
+                    n12.drain(stream, time.monotonic() + 0.2)
+                self.assertLess(time.monotonic() - start, 5)
+        finally:
+            os.close(write)
+
+
 if __name__=='__main__':unittest.main()
