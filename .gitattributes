@@ -6,6 +6,7 @@ conformance/portability.py text eol=lf
 # compared byte-for-byte by every native port, including on Windows.
 conformance/*-wire-v1.tsv text eol=lf
 docs/requirements/** text eol=lf
+python/src/statelessness/controller_catalog/** text eol=lf
 go/** text eol=lf
 swift/** text eol=lf
 typescript/** text eol=lf
