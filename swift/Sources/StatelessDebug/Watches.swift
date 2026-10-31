@@ -213,7 +213,15 @@ public final class WatchRegistry {
     public private(set) var failureSnapshot: WatchSnapshot?
     private var observing = false
     private func eventBytes(_ event: WatchEvent) -> Int {
-        var size = [128,event.value.map(nodePayloadBytes) ?? 0,watchPathBytes(event.path),event.schema?.name.utf8.count ?? 0,event.schema?.source?.file.utf8.count ?? 0,event.inspectionError?.utf8.count ?? 0,event.model?.utf8.count ?? 0,event.machine?.utf8.count ?? 0].reduce(0,watchAdd)
+        // Typed parts keep this within Swift 6.0's type-checking budget.
+        let value: Int = event.value.map(nodePayloadBytes) ?? 0
+        let schema: Int = event.schema?.name.utf8.count ?? 0
+        let source: Int = event.schema?.source?.file.utf8.count ?? 0
+        let error: Int = event.inspectionError?.utf8.count ?? 0
+        let model: Int = event.model?.utf8.count ?? 0
+        let machine: Int = event.machine?.utf8.count ?? 0
+        let parts: [Int] = [128, value, watchPathBytes(event.path), schema, source, error, model, machine]
+        var size = parts.reduce(0, watchAdd)
         for id in event.failingProperties { size = watchAdd(size,watchAdd(24,id.utf8.count)) }
         if case let .equals(scalar) = event.trigger {
             switch scalar {

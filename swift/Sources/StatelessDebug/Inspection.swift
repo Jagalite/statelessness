@@ -48,7 +48,7 @@ public enum DisplayScalar: Equatable {
     case integer(kind: ExactString, decimal: ExactString)
     case float(kind: ExactString, decimal: ExactString, bits: UInt64)
 }
-public enum IncompleteReason: String { case pagination, sampled, observationGap, schemaChanged, work, depth, nodes, bytes, valueLimit, redacted, opaque, unavailable }
+public enum IncompleteReason: String, Sendable { case pagination, sampled, observationGap, schemaChanged, work, depth, nodes, bytes, valueLimit, redacted, opaque, unavailable }
 public enum Completeness: Equatable { case complete, partial(IncompleteReason) }
 public enum MapOrdering: Equatable { case stable, unstable }
 public enum NodeKind: Equatable {
