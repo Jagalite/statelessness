@@ -1,0 +1,1 @@
+{"case":"exact-item-limit","exact_byte_roundtrip":true,"fresh_record":false,"native_record":false,"operation":"generate","producer":"rust","semantic_replay":false,"steps":1}

@@ -125,9 +125,108 @@ func ParseTrace(data []byte) (*Trace, error) {
 	}
 	return TraceFromData(value, limits)
 }
+
+// preflightTraceJSON bounds the size of the intermediate hexadecimal tree before
+// constructing it. The count is a lower bound on JSON bytes: escaped text and
+// JSON syntax can only increase it. It may report a size error before another
+// error on a multiply-invalid trace. Caller-owned trace data must remain stable
+// throughout serialization.
+func preflightTraceJSON(t *Trace, limits TraceLimits) error {
+	if err := limits.validate(); err != nil {
+		return err
+	}
+	if len(t.Steps) > limits.MaxSteps {
+		return &FormatError{Message: "step limit"}
+	}
+	remaining, payload, items := limits.MaxJSONBytes, 0, 0
+	consume := func(n int) error {
+		if n > remaining {
+			return &FormatError{Message: "JSON byte limit"}
+		}
+		remaining -= n
+		return nil
+	}
+	blob := func(b []byte) error {
+		if len(b) > limits.MaxBlobBytes {
+			return &FormatError{Message: "hexadecimal byte limit"}
+		}
+		if len(b) > limits.MaxPayloadBytes-payload {
+			return &FormatError{Message: "aggregate payload limit"}
+		}
+		payload += len(b)
+		if len(b) > remaining/2 {
+			return &FormatError{Message: "JSON byte limit"}
+		}
+		remaining -= 2 * len(b)
+		return nil
+	}
+	count := func(n int) error {
+		if n > limits.MaxItems-items {
+			return &FormatError{Message: "aggregate trace item limit"}
+		}
+		items += n
+		return consume(n)
+	}
+	checks := func(cs []Check) error {
+		if err := count(len(cs)); err != nil {
+			return err
+		}
+		for _, c := range cs {
+			for _, s := range []string{c.ID, c.Status, c.Details} {
+				if err := consume(len(s)); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+	for _, s := range []string{t.Metadata.Name, t.Metadata.Build, t.Termination, t.Error} {
+		if err := consume(len(s)); err != nil {
+			return err
+		}
+	}
+	if err := blob(t.InitialState); err != nil {
+		return err
+	}
+	if err := checks(t.InitialChecks); err != nil {
+		return err
+	}
+	for _, s := range t.Steps {
+		if err := count(1); err != nil {
+			return err
+		}
+		if err := count(len(s.Outputs)); err != nil {
+			return err
+		}
+		if err := consume(len(s.Disposition.Kind)); err != nil {
+			return err
+		}
+		if err := consume(len(s.Disposition.Reason)); err != nil {
+			return err
+		}
+		if err := blob(s.Input); err != nil {
+			return err
+		}
+		if err := blob(s.PostState); err != nil {
+			return err
+		}
+		for _, o := range s.Outputs {
+			if err := blob(o); err != nil {
+				return err
+			}
+		}
+		if err := checks(s.Checks); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 func MarshalTrace(t *Trace) ([]byte, error) {
 	if t == nil {
 		return nil, &FormatError{Message: "nil trace"}
+	}
+	if err := preflightTraceJSON(t, DefaultTraceLimits()); err != nil {
+		return nil, err
 	}
 	// encoding/json substitutes invalid Go UTF-8. Reject it before serialization
 	// rather than silently changing persisted identity/check observations.

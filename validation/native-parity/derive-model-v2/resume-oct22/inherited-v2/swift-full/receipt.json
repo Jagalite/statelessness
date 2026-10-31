@@ -1,0 +1,32 @@
+{
+  "command": [
+    "swift",
+    "test",
+    "-j",
+    "2"
+  ],
+  "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-229137a9",
+  "started_ns": 1792542357271882000,
+  "source_commit": "eaf87d8bedfe6ec903ea12e96ba189099945ba30",
+  "command_exit_code": 1,
+  "finished_ns": 1792542363658888000,
+  "source_before_after_equal": true,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "files": {
+    "source-before.json": {
+      "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+      "size_bytes": 1050935
+    },
+    "source-after.json": {
+      "sha256": "42ef014147c8dc0100d6865bedd07fec2ac0bb545bed10f6048d38ca91f3b197",
+      "size_bytes": 1050935
+    },
+    "raw.log": {
+      "sha256": "f93e2041aa3144ef8b8674dbfbde706cab7c44379f0f31f53cf5ae6c3fbcc56e",
+      "size_bytes": 39269
+    }
+  },
+  "status": "failed"
+}

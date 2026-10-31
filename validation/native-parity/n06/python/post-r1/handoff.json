@@ -1,0 +1,218 @@
+{
+  "authored_regression_methods": 30,
+  "branch": "t3/native-campaign-runtime",
+  "checkout": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "created": "2026-10-22T16:41:16.222351+00:00",
+  "files": {
+    "docs/native-parity/N06-PYTHON.md": {
+      "mode": "0o644",
+      "sha256": "00d330b4c8cb3fa2ff2369c123d5c1d8f691fcc4d3b6adf5bc6a6e48989677a7",
+      "size": 20951,
+      "type": "file"
+    },
+    "examples/native-campaign/python/README.md": {
+      "mode": "0o644",
+      "sha256": "a2863bdc5d89316bb75df4baca8f0d9a6b457b7fc8fd811ea39dbc8cb6cb92ff",
+      "size": 9176,
+      "type": "file"
+    },
+    "examples/native-campaign/python/consumer.py": {
+      "mode": "0o644",
+      "sha256": "fd64e2b74402ee968a9fd0ecc3e54eeaad08e62a1fe769f1bd443ec687fed2ec",
+      "size": 25049,
+      "type": "file"
+    },
+    "python/tests/qualify_campaign_install.py": {
+      "mode": "0o644",
+      "sha256": "f72e2ff676254172e56d6abd99a9c5be152eb6965a82ba002700c282e52633ac",
+      "size": 38019,
+      "type": "file"
+    },
+    "validation/native-parity/n06/python/.gitignore": {
+      "mode": "0o644",
+      "sha256": "a5dada1f6ce69bcf9ffaa5403aa5d5f79185ccc27cd5ffcd72a4f023c1bbb524",
+      "size": 211,
+      "type": "file"
+    },
+    "validation/native-parity/n06/python/post-r1/test_install_qualifier.py": {
+      "mode": "0o644",
+      "sha256": "928134e0c6205996c7d05df929c442af3e2880a289b4ee80a1069da1c6c5ab80",
+      "size": 50675,
+      "type": "file"
+    }
+  },
+  "frozen_r1": {
+    "archive_reference": {
+      "git_ignored": true,
+      "path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/source.tar.gz",
+      "retained_losslessly_on_disk": true,
+      "sha256": "c560e67520e662c342d012724d94167f592ab19f4f322bc0d8793898b5fea40a"
+    },
+    "cleanup_limit": "Frozen runner probes/signals PGID after leader reap. Old success cannot qualify retained-leader cleanup or post-r1 source.",
+    "current_queue_state": "not polled in this follow-up",
+    "effective_command": [
+      "python3",
+      "-B",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/run.py",
+      "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc"
+    ],
+    "historical_observation": {
+      "exit_code": null,
+      "source": "validation/native-parity/n06/python/focused-r1/handoff.json",
+      "started": null,
+      "status": "queued"
+    },
+    "job_id": "be50a84c471f4fb6908ce960e2a54fd7",
+    "original_source_commit": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f",
+    "preserved_files": {
+      "validation/native-parity/n06/python/focused-r1/handoff.json": {
+        "mode": "0o644",
+        "sha256": "48670dd6199738b6794897a43af2a8f7d075ab7426a69dd91ba2af50561a2d5d",
+        "size": 3901,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/kyoto-at-handoff.log": {
+        "mode": "0o644",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/requested-command.json": {
+        "mode": "0o644",
+        "sha256": "e4ddf63daf6b5a9608036b60c809639c1cd87b5009ba7ba927563338d4490ee0",
+        "size": 608,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/run.py": {
+        "mode": "0o444",
+        "sha256": "4545398d812c034dbe9ba0222af2e4272d5448f2763c733bf47498770feeb8c0",
+        "size": 9273,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/show-at-handoff.json": {
+        "mode": "0o644",
+        "sha256": "1c3ca723819c46fb397d450fc4bf334028ead1ea88e456dc9caeeac796947e6b",
+        "size": 2036,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/source.json": {
+        "mode": "0o444",
+        "sha256": "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc",
+        "size": 6513,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/source.tar.gz": {
+        "mode": "0o444",
+        "sha256": "c560e67520e662c342d012724d94167f592ab19f4f322bc0d8793898b5fea40a",
+        "size": 106191,
+        "type": "file"
+      },
+      "validation/native-parity/n06/python/focused-r1/submit.json": {
+        "mode": "0o644",
+        "sha256": "57f73e468b19c7e4eeb840ba99e17a5a3a31274aa281ac3ca74d699d63cd1423",
+        "size": 2036,
+        "type": "file"
+      }
+    },
+    "requested_command": [
+      "python3",
+      "-B",
+      "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/run.py",
+      "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc"
+    ],
+    "unchanged": true
+  },
+  "future_commands_not_submitted": {
+    "installed_template": [
+      "python3",
+      "/Volumes/seed1/Projects/kyoto/kyoto.py",
+      "submit",
+      "--",
+      "python3",
+      "-I",
+      "-B",
+      "python/tests/qualify_campaign_install.py",
+      "--driver-sha256",
+      "<root-authenticated-reviewed-driver-sha256>",
+      "--output",
+      "<new-external-attempt-directory>"
+    ],
+    "regressions": [
+      "python3",
+      "/Volumes/seed1/Projects/kyoto/kyoto.py",
+      "submit",
+      "--",
+      "python3",
+      "-I",
+      "-B",
+      "validation/native-parity/n06/python/post-r1/test_install_qualifier.py",
+      "-v"
+    ],
+    "root_prerequisite": "Seal current source and driver identity; add owned timeout/cleanup around executable qualification as required; do not resubmit frozen r1."
+  },
+  "identity_scope": "Six listed follow-up files; not an atomic checkout freeze or authenticated execution seal. This manifest excludes itself.",
+  "observed_root_head": "53cc11adc637692d6a535b97fdfe744591c444dc",
+  "resolution_mapping": {
+    "Q1": "Exact ordered 49-case native and expected inventories; shared S and overflow jobs=2049; native N05 policy differences remain visible.",
+    "Q2": "All-exit owned process group cleanup retains leader through waitid WNOWAIT until every signal/probe finishes; primary errors and first interruption preserved.",
+    "Q3": "Full descriptor-relative lstat type/mode/file size/hash inventory, directory membership, special rejection, partial failures and genuine absence checks.",
+    "Q4": "Independent before/final captures on failures/interruption; original interruption retained across receipt failure; failed final save retries failure receipt, otherwise guarded rename to unconfirmed.",
+    "compact_artifacts": "Owned .gitignore excludes retained r1 archive, extracted source and generated logs; no archive, frozen runner, manifest or old receipt rewritten.",
+    "executing_source": "Required caller-authenticated driver SHA-256, exact original spelling and regular-file identity before commands/final; reject parent traversal before abspath and reject symlink ancestors; original package metadata/example/source/authorities captured."
+  },
+  "review_dispositions": [
+    {
+      "disposition": "Exact S=9007199254740991 and jobs=2049; no normalization; source only.",
+      "scope": "49 public consumer operands",
+      "task_id": "node:delegated-task:command%3Amcp%3A12a1207b-02f7-470b-9ce0-94791c7c5b12%3Adelegate-task%3An06-python-install-q1-inputs-r2"
+    },
+    {
+      "disposition": "Q1 and retained PID ownership accepted; interruption demotion and directory substitution findings addressed in subsequent revision.",
+      "scope": "Q1-Q4 first correction review",
+      "task_id": "node:delegated-task:command%3Amcp%3A12a1207b-02f7-470b-9ce0-94791c7c5b12%3Adelegate-task%3An06-python-qualifier-q1-q4-review-r2"
+    },
+    {
+      "disposition": "Prior findings closed; false missing and stale success receipt findings addressed in subsequent revision.",
+      "scope": "interruption/descriptors correction review",
+      "task_id": "node:delegated-task:command%3Amcp%3A12a1207b-02f7-470b-9ce0-94791c7c5b12%3Adelegate-task%3An06-python-qualifier-q1-q4-review-r3"
+    },
+    {
+      "disposition": "No actionable bounded source findings.",
+      "observed_head": "ee69e247e0b7a26a9c77a84f1228718f2922b14b",
+      "qualifier_sha256": "f72e2ff676254172e56d6abd99a9c5be152eb6965a82ba002700c282e52633ac",
+      "regressions_sha256": "928134e0c6205996c7d05df929c442af3e2880a289b4ee80a1069da1c6c5ab80",
+      "scope": "final missing/receipt and executing-driver/source corrections",
+      "task_id": "node:delegated-task:command%3Amcp%3A12a1207b-02f7-470b-9ce0-94791c7c5b12%3Adelegate-task%3An06-python-qualifier-q1-q4-review-r4"
+    },
+    {
+      "disposition": "No concrete source findings; fault reachability, incidental failure guards, process ownership and source drift witnesses reviewed.",
+      "observed_head": "53cc11adc637692d6a535b97fdfe744591c444dc",
+      "qualifier_sha256": "f72e2ff676254172e56d6abd99a9c5be152eb6965a82ba002700c282e52633ac",
+      "regressions_sha256": "928134e0c6205996c7d05df929c442af3e2880a289b4ee80a1069da1c6c5ab80",
+      "scope": "entire amended 30-method regression source",
+      "task_id": "node:delegated-task:command%3Amcp%3A12a1207b-02f7-470b-9ce0-94791c7c5b12%3Adelegate-task%3An06-python-qualifier-regressions-review-r3"
+    }
+  ],
+  "schema": "n06-python-post-r1-source-handoff/1",
+  "status": "source_reviewed_execution_pending",
+  "unresolved": [
+    "No test/build/install/project execution in this follow-up; all 30 authored regressions require a later root-authorized immutable Kyoto attempt.",
+    "Comparison downgrade and correction-failure renaming are source reviewed but lack dedicated authored fault-test branches.",
+    "Root must authenticate/select the reviewed driver hash from a new source seal binding the then-current root HEAD; this manifest is not that launch seal.",
+    "File checks do not attest interpreter memory or hostile concurrent replacement; escaped process groups and Windows containment are not claimed.",
+    "Baseline Python, fresh wheel/sdist consumer execution, exact 49-row Rust and lifecycle comparisons remain separate pending execution gates.",
+    "Native step/check diagnostics, early mutation constructor validation and feedback RuntimeError classification remain visible N05 policy differences; no N05 edits.",
+    "Root-owned N05 final qualification including explicit Swift provenance gap and final cross-language aggregate remain pending."
+  ],
+  "verification": {
+    "builds_tests_installations": false,
+    "git_staging_or_commits": false,
+    "imports_or_syntax_checks": false,
+    "metadata": "stdlib metadata-only script writes this manifest; no candidate modules imported or executed.",
+    "new_jobs_or_queue_operations": false,
+    "project_execution": false,
+    "source_review_only": true,
+    "tracked_runtime_or_n05_edits": false,
+    "whitespace": "git diff --no-index --check /dev/null on each of six follow-up files emitted no diagnostics; exit 1 denotes additions."
+  }
+}

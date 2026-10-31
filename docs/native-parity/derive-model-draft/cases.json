@@ -1,0 +1,1633 @@
+{
+  "format": "statelessness.derive-model-codec-draft/1",
+  "status": "independently_authored_unexecuted_peer_review_draft",
+  "qualification_claim": false,
+  "schema_registry": {
+    "Record": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "byte",
+          "codec": "u8"
+        },
+        {
+          "name": "ready",
+          "codec": "bool"
+        },
+        {
+          "name": "count",
+          "codec": "u16"
+        }
+      ]
+    },
+    "Pair": {
+      "kind": "record",
+      "shape": "tuple",
+      "fields": [
+        {
+          "name": "0",
+          "codec": "u8"
+        },
+        {
+          "name": "1",
+          "codec": "u16"
+        }
+      ]
+    },
+    "Unit": {
+      "kind": "record",
+      "shape": "unit",
+      "fields": []
+    },
+    "Empty": {
+      "kind": "record",
+      "shape": "named",
+      "fields": []
+    },
+    "Nested": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "marker",
+          "codec": "u8"
+        },
+        {
+          "name": "pair",
+          "codec": "Pair"
+        }
+      ]
+    },
+    "Text": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "text",
+          "codec": "string"
+        }
+      ]
+    },
+    "Text8": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "text",
+          "codec": "string",
+          "length_width": 1
+        }
+      ]
+    },
+    "Text16": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "text",
+          "codec": "string",
+          "length_width": 2
+        }
+      ]
+    },
+    "Text32": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "text",
+          "codec": "string",
+          "length_width": 4
+        }
+      ]
+    },
+    "LengthOnlyText": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "text",
+          "codec": "length_only_string",
+          "length_width": 1
+        }
+      ]
+    },
+    "Words8": {
+      "kind": "record",
+      "shape": "tuple",
+      "fields": [
+        {
+          "name": "0",
+          "codec": {
+            "vector": "u16"
+          },
+          "length_width": 1
+        }
+      ]
+    },
+    "BigEndian": {
+      "kind": "record",
+      "shape": "tuple",
+      "fields": [
+        {
+          "name": "0",
+          "codec": "u16",
+          "adapter": "be_u16"
+        }
+      ]
+    },
+    "Event8": {
+      "kind": "enum",
+      "tag_width": 1,
+      "cases": [
+        {
+          "name": "Idle",
+          "tag": 7,
+          "shape": "unit",
+          "fields": []
+        },
+        {
+          "name": "Set",
+          "tag": 2,
+          "shape": "tuple",
+          "fields": [
+            {
+              "name": "0",
+              "codec": "u16"
+            }
+          ]
+        },
+        {
+          "name": "Ready",
+          "tag": 255,
+          "shape": "named",
+          "fields": [
+            {
+              "name": "ready",
+              "codec": "bool"
+            },
+            {
+              "name": "byte",
+              "codec": "u8"
+            }
+          ]
+        }
+      ]
+    },
+    "Event16": {
+      "kind": "enum",
+      "tag_width": 2,
+      "cases": [
+        {
+          "name": "High",
+          "tag": 400,
+          "shape": "tuple",
+          "fields": [
+            {
+              "name": "0",
+              "codec": "u16"
+            }
+          ]
+        }
+      ]
+    },
+    "Event32": {
+      "kind": "enum",
+      "tag_width": 4,
+      "cases": [
+        {
+          "name": "Maximum",
+          "tag": 4294967295,
+          "shape": "tuple",
+          "fields": [
+            {
+              "name": "0",
+              "codec": "u8"
+            }
+          ]
+        }
+      ]
+    },
+    "PairVector": {
+      "kind": "vector",
+      "element": "Pair",
+      "declared_element_weight": 4,
+      "layout_status": "explicit_cooperative_fixture_weight_not_measured"
+    },
+    "AdapterError": {
+      "kind": "record",
+      "shape": "named",
+      "fields": [
+        {
+          "name": "prefix",
+          "codec": "u8"
+        },
+        {
+          "name": "value",
+          "codec": "u8",
+          "adapter": "append_aa_then_error"
+        }
+      ]
+    },
+    "Event16Maximum": {
+      "kind": "enum",
+      "tag_width": 2,
+      "cases": [
+        {
+          "name": "Maximum",
+          "tag": 65535,
+          "shape": "unit",
+          "fields": []
+        }
+      ]
+    },
+    "EncodeOnlyRecord": {
+      "kind": "record",
+      "shape": "tuple",
+      "requested_direction": "encode",
+      "fields": [
+        {
+          "name": "0",
+          "codec": "encode_only_u8"
+        }
+      ]
+    },
+    "DecodeOnlyRecord": {
+      "kind": "record",
+      "shape": "tuple",
+      "requested_direction": "decode",
+      "fields": [
+        {
+          "name": "0",
+          "codec": "decode_only_u8"
+        }
+      ]
+    },
+    "EncodeOnlyEvent": {
+      "kind": "enum",
+      "tag_width": 1,
+      "requested_direction": "encode",
+      "cases": [
+        {
+          "name": "Idle",
+          "tag": 7,
+          "shape": "unit",
+          "fields": []
+        },
+        {
+          "name": "Value",
+          "tag": 2,
+          "shape": "tuple",
+          "fields": [
+            {
+              "name": "0",
+              "codec": "encode_only_u8"
+            }
+          ]
+        }
+      ]
+    },
+    "DecodeOnlyEvent": {
+      "kind": "enum",
+      "tag_width": 1,
+      "requested_direction": "decode",
+      "cases": [
+        {
+          "name": "Idle",
+          "tag": 7,
+          "shape": "unit",
+          "fields": []
+        },
+        {
+          "name": "Value",
+          "tag": 2,
+          "shape": "tuple",
+          "fields": [
+            {
+              "name": "0",
+              "codec": "decode_only_u8"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "fixture_callbacks": {
+    "be_u16": "encode one u16 as exactly two big-endian bytes; decode by reader.take(2), no value/collection calls",
+    "append_aa_then_error": "append byte aa; return ModelError adapter rejected",
+    "length_only_string": "implements only LengthEncode/LengthDecode by delegating String length traits, no ordinary traits",
+    "encode_only_u8": "TraceEncode only; delegate u8 raw trace_encode; no TraceDecode implementation",
+    "decode_only_u8": "TraceDecode only; delegate u8 raw trace_decode; no TraceEncode implementation"
+  },
+  "default_entry": "guarded",
+  "default_limits": "canonical DecodeLimits defaults; provided keys override only listed fields",
+  "positive_cases": [
+    {
+      "case": "named-ordered",
+      "schema": "Record",
+      "value": {
+        "byte": 7,
+        "ready": true,
+        "count": 4660
+      },
+      "bytes_hex": "07013412",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "byte": 7,
+          "ready": true,
+          "count": 4660
+        },
+        "min_work": 5,
+        "min_depth": 3,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "tuple-record",
+      "schema": "Pair",
+      "value": [
+        7,
+        4660
+      ],
+      "bytes_hex": "073412",
+      "entry": "guarded",
+      "expected": {
+        "value": [
+          7,
+          4660
+        ],
+        "min_work": 3,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "unit-record",
+      "schema": "Unit",
+      "value": null,
+      "bytes_hex": "",
+      "entry": "guarded",
+      "expected": {
+        "value": null,
+        "min_work": 1,
+        "min_depth": 1,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "empty-named-record",
+      "schema": "Empty",
+      "value": {},
+      "bytes_hex": "",
+      "entry": "guarded",
+      "expected": {
+        "value": {},
+        "min_work": 1,
+        "min_depth": 1,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "nested-record",
+      "schema": "Nested",
+      "value": {
+        "marker": 9,
+        "pair": [
+          1,
+          258
+        ]
+      },
+      "bytes_hex": "09010201",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "marker": 9,
+          "pair": [
+            1,
+            258
+          ]
+        },
+        "min_work": 5,
+        "min_depth": 3,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "ordinary-string-abc",
+      "schema": "Text",
+      "value": {
+        "text": "abc"
+      },
+      "bytes_hex": "03000000616263",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": "abc"
+        },
+        "min_work": 6,
+        "min_depth": 3,
+        "allocation": 3,
+        "elements": 3
+      }
+    },
+    {
+      "case": "length8-string-abc",
+      "schema": "Text8",
+      "value": {
+        "text": "abc"
+      },
+      "bytes_hex": "03616263",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": "abc"
+        },
+        "min_work": 5,
+        "min_depth": 2,
+        "allocation": 3,
+        "elements": 3
+      }
+    },
+    {
+      "case": "length16-utf8",
+      "schema": "Text16",
+      "value": {
+        "text": "é"
+      },
+      "bytes_hex": "0200c3a9",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": "é"
+        },
+        "min_work": 4,
+        "min_depth": 2,
+        "allocation": 2,
+        "elements": 2
+      }
+    },
+    {
+      "case": "length32-bom",
+      "schema": "Text32",
+      "value": {
+        "text": "﻿"
+      },
+      "bytes_hex": "03000000efbbbf",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": "﻿"
+        },
+        "min_work": 5,
+        "min_depth": 2,
+        "allocation": 3,
+        "elements": 3
+      }
+    },
+    {
+      "case": "length8-empty-string",
+      "schema": "Text8",
+      "value": {
+        "text": ""
+      },
+      "bytes_hex": "00",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": ""
+        },
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "length8-vector-u16",
+      "schema": "Words8",
+      "value": [
+        [
+          258,
+          65535
+        ]
+      ],
+      "bytes_hex": "020201ffff",
+      "entry": "guarded",
+      "expected": {
+        "value": [
+          [
+            258,
+            65535
+          ]
+        ],
+        "min_work": 4,
+        "min_depth": 2,
+        "allocation": 4,
+        "elements": 2
+      }
+    },
+    {
+      "case": "length8-empty-vector",
+      "schema": "Words8",
+      "value": [
+        []
+      ],
+      "bytes_hex": "00",
+      "entry": "guarded",
+      "expected": {
+        "value": [
+          []
+        ],
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "custom-big-endian",
+      "schema": "BigEndian",
+      "value": [
+        4660
+      ],
+      "bytes_hex": "1234",
+      "entry": "guarded",
+      "expected": {
+        "value": [
+          4660
+        ],
+        "min_work": 1,
+        "min_depth": 1,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "length-only-field",
+      "schema": "LengthOnlyText",
+      "value": {
+        "text": "abc"
+      },
+      "bytes_hex": "03616263",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "text": "abc"
+        },
+        "min_work": 5,
+        "min_depth": 2,
+        "allocation": 3,
+        "elements": 3
+      }
+    },
+    {
+      "case": "enum8-unit",
+      "schema": "Event8",
+      "value": {
+        "case": "Idle",
+        "fields": null
+      },
+      "bytes_hex": "07",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "case": "Idle",
+          "fields": null
+        },
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "enum8-tuple",
+      "schema": "Event8",
+      "value": {
+        "case": "Set",
+        "fields": [
+          4660
+        ]
+      },
+      "bytes_hex": "023412",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "case": "Set",
+          "fields": [
+            4660
+          ]
+        },
+        "min_work": 3,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "enum8-named-maximum-tag",
+      "schema": "Event8",
+      "value": {
+        "case": "Ready",
+        "fields": {
+          "ready": true,
+          "byte": 9
+        }
+      },
+      "bytes_hex": "ff0109",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "case": "Ready",
+          "fields": {
+            "ready": true,
+            "byte": 9
+          }
+        },
+        "min_work": 5,
+        "min_depth": 3,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "enum16-sparse-tag",
+      "schema": "Event16",
+      "value": {
+        "case": "High",
+        "fields": [
+          4660
+        ]
+      },
+      "bytes_hex": "90013412",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "case": "High",
+          "fields": [
+            4660
+          ]
+        },
+        "min_work": 3,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "enum32-maximum-tag",
+      "schema": "Event32",
+      "value": {
+        "case": "Maximum",
+        "fields": [
+          7
+        ]
+      },
+      "bytes_hex": "ffffffff07",
+      "entry": "guarded",
+      "expected": {
+        "value": {
+          "case": "Maximum",
+          "fields": [
+            7
+          ]
+        },
+        "min_work": 3,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "explicit-record-storage-weight",
+      "schema": "PairVector",
+      "value": [
+        [
+          7,
+          4660
+        ],
+        [
+          1,
+          258
+        ]
+      ],
+      "bytes_hex": "02000000073412010201",
+      "entry": "guarded",
+      "expected": {
+        "value": [
+          [
+            7,
+            4660
+          ],
+          [
+            1,
+            258
+          ]
+        ],
+        "min_work": 8,
+        "min_depth": 3,
+        "allocation": 8,
+        "elements": 2
+      }
+    },
+    {
+      "case": "enum16-maximum-tag",
+      "schema": "Event16Maximum",
+      "operation": "roundtrip",
+      "entry": "guarded",
+      "value": {
+        "case": "Maximum",
+        "fields": null
+      },
+      "bytes_hex": "ffff",
+      "expected": {
+        "value": {
+          "case": "Maximum",
+          "fields": null
+        },
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0
+      }
+    },
+    {
+      "case": "positive-encode-only-record",
+      "schema": "EncodeOnlyRecord",
+      "operation": "encode",
+      "value": [
+        7
+      ],
+      "bytes_hex": "07",
+      "expected": {
+        "supports_encode": true,
+        "supports_decode": false,
+        "bytes_hex": "07",
+        "fake_decoder_callbacks": 0
+      }
+    },
+    {
+      "case": "positive-decode-only-record",
+      "schema": "DecodeOnlyRecord",
+      "operation": "decode",
+      "entry": "guarded",
+      "bytes_hex": "07",
+      "expected": {
+        "supports_encode": false,
+        "supports_decode": true,
+        "value": [
+          7
+        ],
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0,
+        "fake_encoder_callbacks": 0
+      }
+    },
+    {
+      "case": "positive-encode-only-enum-unit",
+      "schema": "EncodeOnlyEvent",
+      "operation": "encode",
+      "value": {
+        "case": "Idle",
+        "fields": null
+      },
+      "bytes_hex": "07",
+      "expected": {
+        "supports_encode": true,
+        "supports_decode": false,
+        "bytes_hex": "07",
+        "fake_decoder_callbacks": 0
+      }
+    },
+    {
+      "case": "positive-decode-only-enum-unit",
+      "schema": "DecodeOnlyEvent",
+      "operation": "decode",
+      "entry": "guarded",
+      "bytes_hex": "07",
+      "expected": {
+        "supports_encode": false,
+        "supports_decode": true,
+        "value": {
+          "case": "Idle",
+          "fields": null
+        },
+        "min_work": 2,
+        "min_depth": 2,
+        "allocation": 0,
+        "elements": 0,
+        "fake_encoder_callbacks": 0
+      }
+    }
+  ],
+  "budget_cases": [
+    {
+      "case": "pair-work-one-under",
+      "schema": "Pair",
+      "bytes_hex": "073412",
+      "limits": {
+        "work": 2
+      },
+      "expected": {
+        "error": "decode work limit"
+      }
+    },
+    {
+      "case": "pair-depth-one-under",
+      "schema": "Pair",
+      "bytes_hex": "073412",
+      "limits": {
+        "depth": 1
+      },
+      "expected": {
+        "error": "decode nesting limit"
+      }
+    },
+    {
+      "case": "ordinary-text-extra-guard-work",
+      "schema": "Text",
+      "bytes_hex": "03000000616263",
+      "limits": {
+        "work": 5
+      },
+      "expected": {
+        "error": "decode work limit"
+      }
+    },
+    {
+      "case": "ordinary-text-extra-guard-depth",
+      "schema": "Text",
+      "bytes_hex": "03000000616263",
+      "limits": {
+        "depth": 2
+      },
+      "expected": {
+        "error": "decode nesting limit"
+      }
+    },
+    {
+      "case": "direct-length-field-work-one-under",
+      "schema": "Text8",
+      "bytes_hex": "03616263",
+      "limits": {
+        "work": 4
+      },
+      "expected": {
+        "error": "decode work limit"
+      }
+    },
+    {
+      "case": "direct-length-field-allocation-one-under",
+      "schema": "Text8",
+      "bytes_hex": "03616263",
+      "limits": {
+        "allocation": 2
+      },
+      "expected": {
+        "error": "decode allocation limit"
+      }
+    },
+    {
+      "case": "direct-length-field-elements-one-under",
+      "schema": "Text8",
+      "bytes_hex": "03616263",
+      "limits": {
+        "elements": 2
+      },
+      "expected": {
+        "error": "decode element limit"
+      }
+    },
+    {
+      "case": "adapter-no-field-value-guard",
+      "schema": "BigEndian",
+      "bytes_hex": "1234",
+      "limits": {
+        "work": 1,
+        "depth": 1,
+        "allocation": 0,
+        "elements": 0
+      },
+      "expected": {
+        "value": [
+          4660
+        ]
+      }
+    },
+    {
+      "case": "raw-pair-no-record-guard",
+      "schema": "Pair",
+      "entry": "raw",
+      "bytes_hex": "073412",
+      "limits": {
+        "work": 2,
+        "depth": 1
+      },
+      "expected": {
+        "value": [
+          7,
+          4660
+        ]
+      }
+    },
+    {
+      "case": "raw-unit-zero-value-budget",
+      "schema": "Unit",
+      "entry": "raw",
+      "bytes_hex": "",
+      "limits": {
+        "work": 0,
+        "depth": 0
+      },
+      "expected": {
+        "value": null
+      }
+    },
+    {
+      "case": "record-collection-weight-one-under",
+      "schema": "PairVector",
+      "bytes_hex": "02000000073412010201",
+      "limits": {
+        "allocation": 7
+      },
+      "expected": {
+        "error": "decode allocation limit"
+      }
+    },
+    {
+      "case": "reader-byte-admission-before-fields",
+      "schema": "Record",
+      "bytes_hex": "07013412",
+      "limits": {
+        "bytes": 3
+      },
+      "expected": {
+        "error": "decode byte limit",
+        "field_callbacks": 0
+      }
+    }
+  ],
+  "runtime_error_cases": [
+    {
+      "case": "unknown-tag-before-payload",
+      "schema": "Event8",
+      "bytes_hex": "08ffff",
+      "expected": {
+        "error": "unknown enum tag",
+        "payload_callbacks": 0,
+        "constructors": 0
+      }
+    },
+    {
+      "case": "ordinary-bool-invalid",
+      "schema": "Record",
+      "bytes_hex": "07023412",
+      "expected": {
+        "error": "invalid boolean",
+        "constructors": 0
+      }
+    },
+    {
+      "case": "length-field-invalid-utf8",
+      "schema": "Text8",
+      "bytes_hex": "01ff",
+      "expected": {
+        "error": "invalid UTF-8",
+        "constructors": 0
+      }
+    },
+    {
+      "case": "length-field-truncated",
+      "schema": "Text8",
+      "bytes_hex": "0361",
+      "expected": {
+        "error": "truncated value",
+        "constructors": 0
+      }
+    },
+    {
+      "case": "record-trailing",
+      "schema": "Pair",
+      "bytes_hex": "07341200",
+      "expected": {
+        "error": "trailing value bytes"
+      }
+    },
+    {
+      "case": "raw-adapter-returned-error",
+      "schema": "AdapterError",
+      "operation": "raw_encode",
+      "value": {
+        "prefix": 7,
+        "value": 1
+      },
+      "expected": {
+        "error": "adapter rejected",
+        "accepted_prefix_hex": "07aa",
+        "sink_finish_error": null,
+        "subsequent_append_hex": "bb",
+        "final_bytes_hex": "07aabb"
+      }
+    },
+    {
+      "case": "raw-adapter-failed-write-sticky",
+      "schema": "BigEndian",
+      "operation": "raw_encode",
+      "value": [
+        4660
+      ],
+      "maximum": 1,
+      "expected": {
+        "error": "encoded blob exceeds byte or allocation limit",
+        "accepted_prefix_hex": "",
+        "sink_finish_error": "encoded blob exceeds byte or allocation limit"
+      }
+    },
+    {
+      "case": "record-encode-cap-one-under",
+      "schema": "Record",
+      "operation": "raw_encode",
+      "value": {
+        "byte": 7,
+        "ready": true,
+        "count": 4660
+      },
+      "maximum": 3,
+      "expected": {
+        "error": "encoded blob exceeds byte or allocation limit",
+        "accepted_prefix_hex": "0701"
+      }
+    },
+    {
+      "case": "length8-overflow-before-prefix",
+      "schema": "Text8",
+      "operation": "raw_encode",
+      "value": {
+        "repeat_text": {
+          "character": "a",
+          "count": 256
+        }
+      },
+      "maximum": 1024,
+      "expected": {
+        "error": "length overflow",
+        "accepted_prefix_hex": ""
+      }
+    }
+  ],
+  "declaration_negative_cases": [
+    {
+      "case": "missing-tag",
+      "declaration": "enum case lacks explicit tag",
+      "expected_category": "missing_tag",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "duplicate-tag",
+      "declaration": "two enum cases use tag 7",
+      "expected_category": "duplicate_or_out_of_range_tag",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "tag8-overflow",
+      "declaration": "u8 enum case tag 256",
+      "expected_category": "duplicate_or_out_of_range_tag",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "tag-negative",
+      "declaration": "enum tag -1",
+      "expected_category": "invalid_decimal_tag",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "tag32-overflow",
+      "declaration": "enum tag 4294967296",
+      "expected_category": "invalid_decimal_tag",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "tag-width64",
+      "declaration": "enum tag_type u64",
+      "expected_category": "unsupported_tag_width",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "record-tag-width",
+      "declaration": "record carries tag_type u8",
+      "expected_category": "enum_option_on_record",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "rust-discriminant",
+      "declaration": "enum variant has Rust discriminant",
+      "expected_category": "implicit_discriminant",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "skip-field",
+      "declaration": "record field requests skip",
+      "expected_category": "unknown_field_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "default-field",
+      "declaration": "record field requests default",
+      "expected_category": "unknown_field_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "length-and-adapter",
+      "declaration": "same field selects length and adapter",
+      "expected_category": "conflicting_field_options",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "duplicate-length",
+      "declaration": "same field selects length twice",
+      "expected_category": "duplicate_field_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "length-width64",
+      "declaration": "field requests length u64",
+      "expected_category": "unsupported_length_width",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "unknown-type-option",
+      "declaration": "record selects unknown type option",
+      "expected_category": "unknown_type_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "model-version-zero",
+      "declaration": "model binder version 0",
+      "expected_category": "invalid_model_codec_version",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "model-version-overflow",
+      "declaration": "model binder version 4294967296",
+      "expected_category": "invalid_model_codec_version",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "model-unknown-option",
+      "declaration": "model binder selects unknown option",
+      "expected_category": "unknown_model_codec_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "model-duplicate-option",
+      "declaration": "model binder selects version twice",
+      "expected_category": "duplicate_model_codec_option",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "model-enum-target",
+      "declaration": "ModelCodec derive target is enum",
+      "expected_category": "model_struct_required",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "field-missing-decoder",
+      "declaration": "derive decode record with encode-only ordinary field",
+      "expected_category": "missing_direction",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "enum-unselected-field-missing-decoder",
+      "declaration": "decode enum unit case while another variant field is encode-only",
+      "expected_category": "missing_direction",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire",
+      "schema": "EncodeOnlyEvent",
+      "requested_direction": "decode",
+      "selected_value": {
+        "case": "Idle",
+        "fields": null
+      }
+    },
+    {
+      "case": "field-length-only-missing-encode",
+      "declaration": "derive encode with decode-only length field",
+      "expected_category": "missing_direction",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    },
+    {
+      "case": "adapter-direction-missing",
+      "declaration": "derive decode with encode-only field adapter",
+      "expected_category": "missing_direction",
+      "evidence_kind": "compile_or_public_builder_rejection_not_runtime_wire"
+    }
+  ],
+  "model_binding_cases": [
+    {
+      "case": "version-mismatch-encode_state",
+      "operation": "encode_state",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-encode_input",
+      "operation": "encode_input",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-encode_output",
+      "operation": "encode_output",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-encode_state_into",
+      "operation": "encode_state_into",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-encode_input_into",
+      "operation": "encode_input_into",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-encode_output_into",
+      "operation": "encode_output_into",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-decode_state",
+      "operation": "decode_state",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "version-mismatch-decode_input",
+      "operation": "decode_input",
+      "declared_version": 1,
+      "metadata_codec_version": 2,
+      "expected": {
+        "error": "ModelCodec derive version does not match Model metadata",
+        "value_codec_callbacks": 0,
+        "limits_supplier_calls": 0,
+        "sink_delta_hex": ""
+      }
+    },
+    {
+      "case": "model-decode-exact-limits",
+      "operation": "decode_state",
+      "schema": "Pair",
+      "bytes_hex": "073412",
+      "declared_version": 1,
+      "metadata_codec_version": 1,
+      "limits": {
+        "bytes": 3,
+        "work": 3,
+        "depth": 2,
+        "allocation": 0,
+        "elements": 0
+      },
+      "expected": {
+        "value": [
+          7,
+          4660
+        ],
+        "limits_supplier_calls": 1
+      }
+    },
+    {
+      "case": "model-limits-fresh-each-decode",
+      "operations": [
+        "decode_state",
+        "decode_state"
+      ],
+      "schema": "Pair",
+      "bytes_hex": "073412",
+      "limits": {
+        "work": 3,
+        "depth": 2
+      },
+      "expected": {
+        "values": [
+          [
+            7,
+            4660
+          ],
+          [
+            7,
+            4660
+          ]
+        ],
+        "limits_supplier_calls": 2
+      }
+    },
+    {
+      "case": "model-encode-no-decode-limits",
+      "operation": "encode_output_into",
+      "schema": "BigEndian",
+      "output_capability": "encode_only",
+      "value": [
+        4660
+      ],
+      "expected": {
+        "bytes_hex": "1234",
+        "limits_supplier_calls": 0,
+        "output_decode_callbacks": 0
+      }
+    },
+    {
+      "case": "model-decode-trailing",
+      "operation": "decode_input",
+      "schema": "Event8",
+      "bytes_hex": "0700",
+      "expected": {
+        "error": "trailing value bytes"
+      }
+    }
+  ],
+  "diagnostic_cases": [
+    {
+      "case": "record-no-variant",
+      "schema": "Record",
+      "value": {
+        "byte": 7,
+        "ready": true,
+        "count": 4660
+      },
+      "expected": {
+        "variant": null,
+        "schema_role": "diagnostic_not_wire_identity"
+      }
+    },
+    {
+      "case": "enum-selected-unit-label",
+      "schema": "Event8",
+      "value": {
+        "case": "Idle",
+        "fields": null
+      },
+      "expected": {
+        "variant": "Idle",
+        "bytes_hex": "07"
+      }
+    },
+    {
+      "case": "enum-selected-named-label",
+      "schema": "Event8",
+      "value": {
+        "case": "Ready",
+        "fields": {
+          "ready": true,
+          "byte": 9
+        }
+      },
+      "expected": {
+        "variant": "Ready",
+        "bytes_hex": "ff0109"
+      }
+    },
+    {
+      "case": "enum-label-renamed-same-tag",
+      "schema_change": {
+        "from_case": "Idle",
+        "to_case": "Waiting",
+        "tag": 7
+      },
+      "expected": {
+        "variant": "Waiting",
+        "bytes_hex": "07",
+        "no_schema_compatibility_claim": true
+      }
+    },
+    {
+      "case": "rust-derived-schema-token-spelling",
+      "evidence_kind": "rust_source_fixture",
+      "expected": {
+        "schema_contains": [
+          "struct",
+          "Record",
+          "byte"
+        ],
+        "exact_cross_language_spelling_required": false
+      }
+    }
+  ],
+  "case_counts": {
+    "positive": 25,
+    "budget": 12,
+    "runtime_error": 9,
+    "declaration_negative": 23,
+    "model_binding": 12,
+    "diagnostic": 5,
+    "reader_script": 4
+  },
+  "authoring_note": "Literal wire/budget expectations derive from source call graphs and manual finite arithmetic. This file is a design draft, not a fixture consumed by current engines, and no runtime output was used to construct expectations.",
+  "reader_script_cases": [
+    {
+      "case": "raw-unknown-enum-error-swallowed",
+      "bytes_hex": "0809",
+      "actions": [
+        {
+          "operation": "raw_decode",
+          "schema": "Event8",
+          "catch_error": true
+        },
+        {
+          "operation": "guarded_value",
+          "codec": "u8"
+        },
+        {
+          "operation": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "error": "unknown enum tag"
+          },
+          {
+            "value": 9
+          },
+          {
+            "value": null
+          }
+        ],
+        "terminal_error": null
+      }
+    },
+    {
+      "case": "guarded-unknown-enum-error-sticky",
+      "bytes_hex": "0809",
+      "actions": [
+        {
+          "operation": "guarded_value",
+          "schema": "Event8",
+          "catch_error": true
+        },
+        {
+          "operation": "guarded_value",
+          "codec": "u8",
+          "catch_error": true
+        },
+        {
+          "operation": "finish",
+          "catch_error": true
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "error": "unknown enum tag"
+          },
+          {
+            "error": "unknown enum tag"
+          },
+          {
+            "error": "unknown enum tag"
+          }
+        ],
+        "terminal_error": "unknown enum tag"
+      }
+    },
+    {
+      "case": "raw-failed-tag-read-first-sticky",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "operation": "raw_decode",
+          "schema": "Event8",
+          "catch_error": true
+        },
+        {
+          "operation": "custom_guarded_value",
+          "body": [
+            {
+              "operation": "raw_decode",
+              "schema": "Event8",
+              "catch_error": true
+            },
+            {
+              "operation": "return_error",
+              "message": "later callback error"
+            }
+          ],
+          "catch_error": true
+        },
+        {
+          "operation": "finish",
+          "catch_error": true
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "error": "truncated value"
+          },
+          {
+            "error": "truncated value"
+          },
+          {
+            "error": "truncated value"
+          }
+        ],
+        "custom_body_invocations": 0,
+        "terminal_error": "truncated value"
+      }
+    },
+    {
+      "case": "guarded-callback-first-structural-error-beats-later",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "operation": "custom_guarded_value",
+          "body": [
+            {
+              "operation": "raw_decode",
+              "schema": "Event8",
+              "catch_error": true
+            },
+            {
+              "operation": "return_error",
+              "message": "later callback error"
+            }
+          ],
+          "catch_error": true
+        },
+        {
+          "operation": "finish",
+          "catch_error": true
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "error": "truncated value"
+          },
+          {
+            "error": "truncated value"
+          }
+        ],
+        "custom_body_invocations": 1,
+        "terminal_error": "truncated value"
+      }
+    }
+  ],
+  "capability_modes": {
+    "explicit_requested_direction": "Reject the declaration if any required field/case lacks that direction, before consuming/emitting bytes.",
+    "optional_inferred_direction_mode": "May expose honest intersection flags including neither; no operation succeeds for missing directions and no fake callbacks are added. Not required of every factory."
+  }
+}

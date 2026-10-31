@@ -1,0 +1,21 @@
+{
+  "note": "After static reviewer fixes and valid-prefix version gates. Root final frozen-source qualifier remains required.",
+  "files": {
+    "python/tests/test_codec_declarations.py": {
+      "sha256": "88e7f3841298bf5b1eda176162ab135b7c93fcd84a0d9363d5f43b56470502e9",
+      "bytes": 26587
+    },
+    "go/value_derive_test.go": {
+      "sha256": "988103461eb62920b4e793199aa49d85fa7f2c6f15683421d37ff7498bb761da",
+      "bytes": 35677
+    },
+    "docs/native-parity/derive-model-draft/python-dispositions.json": {
+      "sha256": "80f2d15f024c1af23c6faf4589d48bf56afac8fbb310507e91922fe11946f43d",
+      "bytes": 35498
+    },
+    "docs/native-parity/derive-model-draft/go-dispositions.json": {
+      "sha256": "b2034dafcc74e74f805c1fff25f2c778e1fd92084940ccb2de566955f9aeb300",
+      "bytes": 34489
+    }
+  }
+}

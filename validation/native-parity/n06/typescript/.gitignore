@@ -1,0 +1,11 @@
+# Keep immutable source/build/install payloads on disk without staging copies.
+# Compact manifests, freeze/submission/show receipts and command logs stay visible.
+/snapshots/*/source/
+/runs/*/work/
+/runs/*/installed-consumer/
+/runs/*/packages/
+/runs/*/npm-cache/
+/runs/*/tmp/
+/runs/*/home/
+/runs/*/tool-bin/
+__pycache__/

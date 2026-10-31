@@ -1,0 +1,39 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"taskId\":\"node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3\",\"childThreadId\":\"thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3\",\"childRunId\":\"run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:ordinal:1\",\"childNodeId\":\"node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3\",\"status\":\"failed\",\"workState\":\"result_available\",\"hasPendingChildRuns\":false,\"latestTerminalRunId\":\"run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:ordinal:1\",\"latestTerminalStatus\":\"failed\",\"latestTerminalSummary\":null,\"latestTerminalResultContextTransferId\":null,\"providerInstanceId\":\"codex\",\"model\":\"gpt-6-astra\",\"options\":[{\"id\":\"reasoningEffort\",\"value\":\"ultra\"},{\"id\":\"serviceTier\",\"value\":\"default\"}],\"summary\":\"Selected model is at capacity. Please try a different model.\",\"resultContextTransferId\":\"context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:f64b3796-3e5c-4e42-a420-80e22126d28c\",\"hasPendingQuestion\":false,\"pendingApproval\":null,\"waitTimedOut\":false}"
+    }
+  ],
+  "structuredContent": {
+    "taskId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-final-review-r3",
+    "status": "failed",
+    "workState": "result_available",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:ordinal:1",
+    "latestTerminalStatus": "failed",
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "codex",
+    "model": "gpt-6-astra",
+    "options": [
+      {
+        "id": "reasoningEffort",
+        "value": "ultra"
+      },
+      {
+        "id": "serviceTier",
+        "value": "default"
+      }
+    ],
+    "summary": "Selected model is at capacity. Please try a different model.",
+    "resultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-final-review-r3:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:f64b3796-3e5c-4e42-a420-80e22126d28c",
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false
+  },
+  "isError": false
+}

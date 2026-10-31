@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "python3",
+    "/Volumes/seed1/Projects/kyoto/kyoto.py",
+    "status",
+    "--json"
+  ],
+  "exit_code": 2,
+  "observed_utc": "2026-10-22T16:10:39.237294+00:00",
+  "raw": {
+    "stderr.log": {
+      "bytes": 232,
+      "path": "validation/native-parity/n06/queue-observations/raw/20261022T161039Z/stderr.log",
+      "sha256": "c6793f01a4fe622affcbb63c8cc7c2a3da15c7b53e46f1d1ab07a5a347c80934"
+    },
+    "stdout.json": {
+      "bytes": 0,
+      "path": "validation/native-parity/n06/queue-observations/raw/20261022T161039Z/stdout.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "schema": "n06-queue-observation/1"
+}

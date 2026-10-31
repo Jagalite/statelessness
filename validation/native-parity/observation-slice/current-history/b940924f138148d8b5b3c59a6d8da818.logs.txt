@@ -1,0 +1,17 @@
+Starting python-version
+Starting receipt-validator-regressions
+Starting python-full-suite
+Starting resolve-go-toolchain
+Starting go-version
+Starting go-full-suite
+Starting go-vet
+Starting typescript-dev-dependencies
+Starting node-version
+Starting typescript-build
+Starting typescript-full-suite
+Starting resolve-swift
+Starting resolve-swiftc
+Starting resolve-clang
+Starting swift-version
+Starting swift-tests-build
+{"status": "failed", "receipt": "/Users/jagatranvo/.t3/worktrees/stateless/t3-17ecaeca/validation/native-parity/observation-slice/native-a1/receipt.json"}

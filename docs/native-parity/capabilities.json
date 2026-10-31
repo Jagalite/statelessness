@@ -1,0 +1,3986 @@
+{
+  "schema_version": 1,
+  "kind": "reviewed_feature_api_mapping",
+  "rust_baseline_commit": "0876717bee85e335449c2c99ada41f6c6e6112d1",
+  "source_snapshot": {
+    "head_commit": "e711bd6694780aba50af0d972fbecccbab30534f",
+    "reviewed_at_utc": "2026-10-20T20:22:07.647166+00:00",
+    "working_tree_additions_included": [
+      "conformance/causal-evidence-v2.json",
+      "examples/native-evidence/README.md",
+      "examples/native-evidence/contract.json",
+      "examples/native-evidence/go/main.go",
+      "examples/native-evidence/python/consumer.py",
+      "examples/native-evidence/swift/Package.swift",
+      "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+      "examples/native-evidence/typescript/consumer.ts",
+      "examples/native-values/README.md",
+      "examples/native-values/contract.json",
+      "examples/native-values/go/main.go",
+      "examples/native-values/go/values.go",
+      "examples/native-values/python/consumer.py",
+      "examples/native-values/python/values.py",
+      "examples/native-values/swift/Package.swift",
+      "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+      "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+      "examples/native-values/typescript/consumer.ts",
+      "examples/native-values/typescript/values.ts",
+      "go/audit_binary.go",
+      "go/audit_binary_read.go",
+      "go/audit_record.go",
+      "go/check_sink.go",
+      "go/checked_results.go",
+      "go/encode_buffer.go",
+      "go/evidence.go",
+      "go/evidence_export.go",
+      "go/evidence_export_internal_test.go",
+      "go/evidence_export_test.go",
+      "go/evidence_metadata.go",
+      "go/evidence_metadata_test.go",
+      "go/evidence_recorder.go",
+      "go/evidence_recorder_corpus_test.go",
+      "go/evidence_recorder_test.go",
+      "go/evidence_replay_test.go",
+      "go/evidence_wire_corpus_test.go",
+      "go/fuzz.go",
+      "go/generate.go",
+      "go/oracle.go",
+      "go/paired.go",
+      "go/recorder.go",
+      "go/replay_evidence.go",
+      "go/search_observer.go",
+      "go/shrink.go",
+      "go/value_array_adapter.go",
+      "go/value_array_adapter_test.go",
+      "go/value_capability_test.go",
+      "go/value_codec.go",
+      "go/value_composite.go",
+      "go/value_composite_test.go",
+      "go/value_corpus_test.go",
+      "go/value_error_ownership_test.go",
+      "go/value_length.go",
+      "go/value_length_test.go",
+      "python/src/statelessness/audit_record.py",
+      "python/src/statelessness/checked.py",
+      "python/src/statelessness/codec.py",
+      "python/src/statelessness/evidence.py",
+      "python/src/statelessness/evidence_recorder.py",
+      "python/src/statelessness/monitor.py",
+      "python/src/statelessness/replay_evidence.py",
+      "python/src/statelessness/search.py",
+      "python/src/statelessness/trace_binary.py",
+      "python/src/statelessness/value_codec.py",
+      "python/tests/test_evidence.py",
+      "python/tests/test_evidence_recorder.py",
+      "python/tests/test_value_codec.py",
+      "scripts/check-native-evidence-consumers.py",
+      "scripts/check-native-value-consumers.py",
+      "spec/append-checks-v1.md",
+      "spec/bfs-controls-v1.md",
+      "spec/causal-evidence-v2.md",
+      "spec/checked-results-v1.md",
+      "spec/encode-buffers-v1.md",
+      "spec/replay-evidence-v1.md",
+      "swift/Sources/Statelessness/AuditRecording.swift",
+      "swift/Sources/Statelessness/AuditTrace.swift",
+      "swift/Sources/Statelessness/CheckSink.swift",
+      "swift/Sources/Statelessness/CheckedResults.swift",
+      "swift/Sources/Statelessness/EncodeBuffer.swift",
+      "swift/Sources/Statelessness/Evidence.swift",
+      "swift/Sources/Statelessness/EvidenceCodec.swift",
+      "swift/Sources/Statelessness/EvidenceExports.swift",
+      "swift/Sources/Statelessness/EvidenceRecorder.swift",
+      "swift/Sources/Statelessness/ExecutionBudget.swift",
+      "swift/Sources/Statelessness/Fuzz.swift",
+      "swift/Sources/Statelessness/Generate.swift",
+      "swift/Sources/Statelessness/Oracle.swift",
+      "swift/Sources/Statelessness/Recorder.swift",
+      "swift/Sources/Statelessness/Replay.swift",
+      "swift/Sources/Statelessness/Shrink.swift",
+      "swift/Sources/Statelessness/ValueCodec.swift",
+      "swift/Sources/Statelessness/ValueCodec128.swift",
+      "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+      "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+      "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+      "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+      "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+      "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+      "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+      "typescript/src/audit_budget.ts",
+      "typescript/src/audit_record.ts",
+      "typescript/src/binary.ts",
+      "typescript/src/checked.ts",
+      "typescript/src/checks.ts",
+      "typescript/src/encoding.ts",
+      "typescript/src/errors.ts",
+      "typescript/src/evidence.ts",
+      "typescript/src/evidence_recorder.ts",
+      "typescript/src/node_evidence.ts",
+      "typescript/src/replay.ts",
+      "typescript/src/runtime_recorder.ts",
+      "typescript/src/search.ts",
+      "typescript/src/search_support.ts",
+      "typescript/src/value_codec.ts",
+      "typescript/test/evidence-recorder.test.mjs",
+      "typescript/test/evidence.test.mjs",
+      "typescript/test/value-codec.test.mjs",
+      "validation/corpus/src/bin/native-evidence.rs",
+      "validation/corpus/src/bin/native-values.rs",
+      "validation/corpus/src/evidence_reference.rs",
+      "validation/corpus/src/values_reference.rs"
+    ],
+    "scope_note": "Static source audit after independent generation/fuzz/shrink, fuzz observers and oracle generation forwarding were added in all four languages. Authors reported source stable pending compiler/runtime findings; hashes identify audited bytes. Not a build, execution or installed-package receipt. Subsequent review fixes invalidate affected hashes and require refresh. A later binary-v1 scoped review adds/refreshes only the files listed in scoped_reviews; the original timestamp/head and unrelated feature mappings/hashes are preserved. Runtime qualification is not inferred. The subsequent bfs-controls-v1 review refreshes only its listed model/BFS/observer/estimate-adapter/control/export/wire-projection files and contract, including fixed-entry option snapshots and exact/saturating counters; unrelated feature mappings and source hashes remain unchanged. The append-checks-v1 scoped review refreshes only listed sink/dispatch/engine/adapter/export/contract sources plus the narrowly reviewed Python binary intrinsic-string variant validation fix. Check sinks are implemented; encoding buffers and broader qualification remain open. The encode-buffers/replay-evidence scoped review refreshes only its listed codec/replay/audit-record/adapter/export/wire-budget and contract files after root-authorized source freeze; finite installed macOS/arm64 evidence is recorded separately in validation/native-parity/codec-replay-slice; broad qualification remains pending. The checked-results/runtime-Recorder scoped review refreshes only its listed sealed-result, recorder, dispatch, adapter/export and contract files after root final-freeze authorization; installed handoff qualification remains pending. The causal-evidence-v2 scoped source snapshot refreshes only its listed new/modified code, contracts, shared corpus, tests and installed-consumer harness after root-authorized global source freeze. Causal source mapping is implemented; final native/installed receipts and all broad qualification remain pending. The canonical-value-codec-v1 scoped snapshot refreshes only listed built-in codec/reader/layout/direction/adapter/export/glue/contract/corpus/test/consumer files after global root source freeze; derive/model glue remains separate and installed proof is pending. The research-equivalence-v1 scoped review maps the committed N14 candidate cdc0a5a and contract/corpus0b9056d, pinning only listed research sources, narrow approved marker/export/harness changes, tests, examples and references. Manual fixtures/source review are not runtime qualification; suites and installed proof remain pending.",
+    "files": [
+      {
+        "path": "Package.swift",
+        "sha256": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4"
+      },
+      {
+        "path": "conformance/canonical-value-codec-v1.json",
+        "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c"
+      },
+      {
+        "path": "conformance/causal-evidence-v2.json",
+        "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7"
+      },
+      {
+        "path": "conformance/research-equivalence-v1.json",
+        "sha256": "a1dd99679878eae28bd1203a4dc51b2c8a307e058d043ce5567172db566f39aa"
+      },
+      {
+        "path": "crates/statelessness-debug/src/dashboard.rs",
+        "sha256": "a0755ab8b58fba853abb6bb5d747ff9c16c97394769d9f605d513146fd17c8a0"
+      },
+      {
+        "path": "crates/statelessness-debug/src/diagnostic.rs",
+        "sha256": "af84f58d588efed19580f885f211faea4c47bc14528e24ee0a4f74c287bd8e35"
+      },
+      {
+        "path": "crates/statelessness-debug/src/effects.rs",
+        "sha256": "9504964df78c82e0338d7f7592786dfd9dd9428749ecb02d4ae76b3fc635bcae"
+      },
+      {
+        "path": "crates/statelessness-debug/src/evidence.rs",
+        "sha256": "e1dfac178820ab7d7a095abf5d2bd72bd5fe553dc027bcb3aeed6d3eb9bcf091"
+      },
+      {
+        "path": "crates/statelessness-debug/src/inspect.rs",
+        "sha256": "106cee7faed51e0ba77d02695399faed8c84963538d970428a149766c84ce0c0"
+      },
+      {
+        "path": "crates/statelessness-debug/src/lib.rs",
+        "sha256": "31c5ba430bac71785170a78e9f613a9e4c1a61faed87057dfe697e4137b972e2"
+      },
+      {
+        "path": "crates/statelessness-debug/src/live.rs",
+        "sha256": "11bd9bde1a052515143fd86ed7c032e5016743f4b7aeaaf2ebfe8a35b2d6866b"
+      },
+      {
+        "path": "crates/statelessness-debug/src/metrics.rs",
+        "sha256": "78e69a0f9adba15bc34864109c7e86c57952f1037f32f2753b62383261a94d0f"
+      },
+      {
+        "path": "crates/statelessness-debug/src/protocol.rs",
+        "sha256": "3c6e3d38d49b3b3f82f5b1cee3b48ed7da8a20d5373538a05506d054f9c687d5"
+      },
+      {
+        "path": "crates/statelessness-debug/src/session.rs",
+        "sha256": "cda89b387534b898d264d47212bd46acf295e45329acfd3af06b561c45ce6a29"
+      },
+      {
+        "path": "crates/statelessness-debug/src/watches.rs",
+        "sha256": "323f6b4b5a30cb98351cc375244ce49f063af82cd4a3f13d1166c9026c087960"
+      },
+      {
+        "path": "crates/statelessness-debug/src/workbench.rs",
+        "sha256": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d"
+      },
+      {
+        "path": "crates/statelessness-macros/src/lib.rs",
+        "sha256": "4e9c4142739699ec35b5143a15024a942cb3659e54dffd94a7cc7660ba8c156c"
+      },
+      {
+        "path": "docs/REDUCTION_RESEARCH.md",
+        "sha256": "fbe74188c6b38db1cbb7512c363922b7850bf56e4db0a5cce55f0d4c50d46ff4"
+      },
+      {
+        "path": "examples/native-evidence/README.md",
+        "sha256": "c22e812d90bce6f6281e238ace312ff1e06012167c83973ebecf92767aa49dd9"
+      },
+      {
+        "path": "examples/native-evidence/contract.json",
+        "sha256": "cbb4039e7974db1cc0cda39a84069619a653c36791522ed9b63354d6aa17c10b"
+      },
+      {
+        "path": "examples/native-evidence/go/main.go",
+        "sha256": "31dad134e20d9ec12d50087c337846dcf57a7aa620ac40ccf4fdcaa5103c79bc"
+      },
+      {
+        "path": "examples/native-evidence/python/consumer.py",
+        "sha256": "63b89184712ba777a131d943bf83647354c6875fea209c2369e409c9eb071e50"
+      },
+      {
+        "path": "examples/native-evidence/swift/Package.swift",
+        "sha256": "bbb029107b7e2cf4e9de7079a61282192bcbd1783475508ef05d4cc605eded60"
+      },
+      {
+        "path": "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+        "sha256": "6b45d696eec5c972d3c37ab48923e6affc66018e70bb1e69bdb7b54ad34c620f"
+      },
+      {
+        "path": "examples/native-evidence/typescript/consumer.ts",
+        "sha256": "792dd5180977d04be632301ae8f775b12eef8c68e481e1abffe0c7e22610c3d4"
+      },
+      {
+        "path": "examples/native-research/README.md",
+        "sha256": "567b653400989160db060630e38d909edb7a07d98452cb523e1bc0f3541d24e7"
+      },
+      {
+        "path": "examples/native-research/go/main.go",
+        "sha256": "b6ec08ffa66f2b0d5ef18f59a9539adb5a57d6be814b70ed74f59dcf9a6cbc8c"
+      },
+      {
+        "path": "examples/native-research/python/consumer.py",
+        "sha256": "9be03c41e4e9bb6ac2ea7b22216265dd3deee498da7e2de73cbda70ee8cf3dd2"
+      },
+      {
+        "path": "examples/native-research/swift/Package.swift",
+        "sha256": "2402d6bfcb51d621514c847acba6d989e24944b71cfc653b521f463729645f65"
+      },
+      {
+        "path": "examples/native-research/swift/Sources/ResearchConsumer/main.swift",
+        "sha256": "2d20d149e8e90c357cbad728628f8c834cf2c9ef560a748df1cb05000c9bd475"
+      },
+      {
+        "path": "examples/native-research/typescript/consumer.ts",
+        "sha256": "e656edddae3297a845767030df828dd99d9c33b4c5041e44cc0628ead7ad47f6"
+      },
+      {
+        "path": "examples/native-values/README.md",
+        "sha256": "d473d7ec06dccf3aa482e9df43e9560727a390a8d4f3cfadcd7a0c837a5be64b"
+      },
+      {
+        "path": "examples/native-values/contract.json",
+        "sha256": "2f8b41e65715f0f57c43195ca0d38dde9459912c12a4c6db6b29d1f4b3d6dccc"
+      },
+      {
+        "path": "examples/native-values/go/main.go",
+        "sha256": "94e25c20076bca2f3f0d0393b503a377ee6220a9acf3f20e184332f9ed2107ef"
+      },
+      {
+        "path": "examples/native-values/go/values.go",
+        "sha256": "5b62a1039792cca3b434e10a1d463062df98b75641f3b9aa84e2581cf305430f"
+      },
+      {
+        "path": "examples/native-values/python/consumer.py",
+        "sha256": "9d1a6e626eb339334719c12bc0868a2cf84562b81621951d3e28908c3f89df00"
+      },
+      {
+        "path": "examples/native-values/python/values.py",
+        "sha256": "8b103d76556445987fd8996ff1f94d96fcb4df633304a535dfbe5cc497203e0d"
+      },
+      {
+        "path": "examples/native-values/swift/Package.swift",
+        "sha256": "129650cf1c0f8ae7f6f1b6babc8b9e8839cc02e035e89bd191cc0a9d57bf39a4"
+      },
+      {
+        "path": "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+        "sha256": "d3a19b3c1d6d2383e199864b75bbe36e4d670b30411746b5bdb3730ee496fe73"
+      },
+      {
+        "path": "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+        "sha256": "84d37075e4b5fbdaffe5010e0ce472468a3873cd97970485969fba5c832e2b9f"
+      },
+      {
+        "path": "examples/native-values/typescript/consumer.ts",
+        "sha256": "5f58cdd95bdc6db3cb53b67abc1d08b5eeeedb3b21141e5562785d7640e5db9d"
+      },
+      {
+        "path": "examples/native-values/typescript/values.ts",
+        "sha256": "a8cc88fb1e26a9af2502f41165a38f9c8a81b237efde522e76d7226c40949d27"
+      },
+      {
+        "path": "go/README.md",
+        "sha256": "36257ccfe4754afe8c570435e43ed7b94211952ab2f5ba8eb4f0d78d0928faa0"
+      },
+      {
+        "path": "go/audit_binary.go",
+        "sha256": "e752a148998bc62a3c01ab5d3ffd4710fbe06f83d1852077ced6af7c0fb05b66"
+      },
+      {
+        "path": "go/audit_binary_read.go",
+        "sha256": "6b2bc5630065d651a381d5aa8a402d016d47fddef2e62782c91c17f7e85049e4"
+      },
+      {
+        "path": "go/audit_record.go",
+        "sha256": "54fc5aaf97ef09543858a28700b85d35846cbe2655ee6f6cbd19b48991a04ce9"
+      },
+      {
+        "path": "go/check_sink.go",
+        "sha256": "cd59ecf161e680f95e6380e5790210c0bf6cfde2a5976dba2cd6346c28b9b6cf"
+      },
+      {
+        "path": "go/checked_results.go",
+        "sha256": "9f9172b1587a490afb8bcf867b11a2789bc3ae0eb07899d0a4cb5f61d15832c5"
+      },
+      {
+        "path": "go/cmd/stateless-corpus/main.go",
+        "sha256": "c798b7d5e3a3fc4513dd678685c67d9b45b3eb42b95fa448afea7b145395906d"
+      },
+      {
+        "path": "go/conformance/runner.go",
+        "sha256": "cdf7daade564d386e5672eb47b2eff0556e4442db73a028c88235d9a3740e9e1"
+      },
+      {
+        "path": "go/encode_buffer.go",
+        "sha256": "3860dddd9bb441c27b57e4cc6a3547206d5b2548d736baf3067c1a2d0f06030a"
+      },
+      {
+        "path": "go/evidence.go",
+        "sha256": "672720503ca45bdc32580004c1e1552d2733895d90231ec7dd472db1ea7baacc"
+      },
+      {
+        "path": "go/evidence_export.go",
+        "sha256": "6edefec03deb67679bcfe54a50f00d08864bb836494c8fdb2d32407b71286fa2"
+      },
+      {
+        "path": "go/evidence_export_internal_test.go",
+        "sha256": "49ac4db0ed8b9b5a855d6e4c784a89a7845582db0de8be626fc3c61d5e56da39"
+      },
+      {
+        "path": "go/evidence_export_test.go",
+        "sha256": "2e24bb87f747e12c0e56dcb12cec73ba54dad4d75c6336fbb34ec4becedbdb6d"
+      },
+      {
+        "path": "go/evidence_metadata.go",
+        "sha256": "3485515ddde313f4d0097974a919168d961364b745f6214734a4e76582dc2e84"
+      },
+      {
+        "path": "go/evidence_metadata_test.go",
+        "sha256": "07196abac3684690824d9610ed5f24d092e6e8976a05907faec5e76d72187fb9"
+      },
+      {
+        "path": "go/evidence_recorder.go",
+        "sha256": "7932bd357772bfcbcaa98bbaa6b142eb73930a431a5333de76d2d067845fec5b"
+      },
+      {
+        "path": "go/evidence_recorder_corpus_test.go",
+        "sha256": "bc12c54ccd1a9e5e2b60497d82b3aaf3fee8301a475f5b7630a30332da4ad771"
+      },
+      {
+        "path": "go/evidence_recorder_test.go",
+        "sha256": "a1fd654e9f492c3aeea5aec3bbaf8dc89f96469bc24b4ec02b228e319692660a"
+      },
+      {
+        "path": "go/evidence_replay_test.go",
+        "sha256": "0d0da04908f286be2417bfd3da547655ec147b185506c02c14540e997fa9b5d9"
+      },
+      {
+        "path": "go/evidence_wire_corpus_test.go",
+        "sha256": "34869c872e2f095a001ea170c53718c7dcf7ba2ca8f319c236a9742e891b0ff3"
+      },
+      {
+        "path": "go/examples/counter/main.go",
+        "sha256": "27b4acb959b3f0978b6ad95ef5514cc68b602e1371d3749be9a9bec76ac3bea6"
+      },
+      {
+        "path": "go/execution.go",
+        "sha256": "3d7f4096f89049a80e03ee8f8b965b5bfa531cf07204741f64ff7843ebb7fe0e"
+      },
+      {
+        "path": "go/explore.go",
+        "sha256": "8795e7988b2436f08476d245460a56c2259bca6ef936bbacffc6e27f93887168"
+      },
+      {
+        "path": "go/fuzz.go",
+        "sha256": "7a51c688243ab500846bf94e9aecb2563579655624ff5e59c792a66ae068a9b4"
+      },
+      {
+        "path": "go/generate.go",
+        "sha256": "49f60b652ea69d952cffb504f53c5c0b6b9c6d6c0f7034ba610c94cdcb630661"
+      },
+      {
+        "path": "go/model.go",
+        "sha256": "56b5d71946902ab9ec0266e6eac38d3e4823cac89b6d79229cfca63549773655"
+      },
+      {
+        "path": "go/oracle.go",
+        "sha256": "41ce83c231b85db49569067986eb487c67d83e964cf2344a6fdb2439d54bdcc5"
+      },
+      {
+        "path": "go/paired.go",
+        "sha256": "58789a9d47d4ab61a279cc72d3d2d4dfccd5f94867c0246943b2e7ac44fbe99b"
+      },
+      {
+        "path": "go/recorder.go",
+        "sha256": "910f44bbc0e63830a4867efc57fa7cfc022a8140a050c5b9be5abfea4bee19d7"
+      },
+      {
+        "path": "go/replay_evidence.go",
+        "sha256": "b635cc997f3fd50e45a4802c5c341a9799381740d269307e51f0b30c9a4d1e8b"
+      },
+      {
+        "path": "go/research.go",
+        "sha256": "87d04f1a54017516b7066b378fd08ed333d109c5976d23530333c3e8bc31d281"
+      },
+      {
+        "path": "go/research_corpus_test.go",
+        "sha256": "4f3aee384e2fca79682eac0f3a483c5a01bc3ecbd44b2e1341ca6b383254db73"
+      },
+      {
+        "path": "go/research_test.go",
+        "sha256": "76233cb49ea4a8c631a94296aabb6435661b049aa51f78435ec55fe8c6e740c0"
+      },
+      {
+        "path": "go/rng.go",
+        "sha256": "4b108ded7aab460047329c6ec74bb241fcafae5c14840fdc2d481e08ebe02a46"
+      },
+      {
+        "path": "go/search_observer.go",
+        "sha256": "359942d93c97797e1837b374f2c41caf22a571fe30f1f0023545925d7a5ead12"
+      },
+      {
+        "path": "go/shrink.go",
+        "sha256": "3488531212c20d2897a88c627b77124f3dde7169da6a307d184dba16f5156a16"
+      },
+      {
+        "path": "go/trace_json.go",
+        "sha256": "b5760742819f024638a055a757b29c20de4c1f90cba8bd50b3a2cb9ca724c8ed"
+      },
+      {
+        "path": "go/value_array_adapter.go",
+        "sha256": "797762172d9675ae4ccf9ae6ba16a00e309c5cfc649ae0484e803387e85bedba"
+      },
+      {
+        "path": "go/value_array_adapter_test.go",
+        "sha256": "0ad6585578eb878edab3abd492e5e7065f024e97d00f618c1f3026157a0abe76"
+      },
+      {
+        "path": "go/value_capability_test.go",
+        "sha256": "56a19f1df42df361dce5d023d0ad03c82fc6d303b3fe3808eb40ecca8efbe227"
+      },
+      {
+        "path": "go/value_codec.go",
+        "sha256": "1d1d0cec2828015e11e171592a267c3ece191111db32ecfaf75e22c2f3766108"
+      },
+      {
+        "path": "go/value_composite.go",
+        "sha256": "c6fc074dc2d8e86529790bd8f27481fa0107efa057d864d4702d577d6736d02a"
+      },
+      {
+        "path": "go/value_composite_test.go",
+        "sha256": "f19e75a084a15529cdabc114e9a3d7a4fe824106bb981e656be06dd6a33de0b4"
+      },
+      {
+        "path": "go/value_corpus_test.go",
+        "sha256": "1c1b921a5215018bd55af208e7efb24cc1847ede8cc1a77be9b7ccda712cfb49"
+      },
+      {
+        "path": "go/value_error_ownership_test.go",
+        "sha256": "6d1b3cdbfb6f34fc7d64ef6d51a48fd0544befa8ebfe77286299a0a1936419bd"
+      },
+      {
+        "path": "go/value_length.go",
+        "sha256": "f71b4d950bce4df709999a9e15066a0e649069e26aa360718a55a3996f8b925c"
+      },
+      {
+        "path": "go/value_length_test.go",
+        "sha256": "ac68af4417b22c1f63b6a8b58c47586474daedc6e9128d06f96e9a5302e7cf9f"
+      },
+      {
+        "path": "python/README.md",
+        "sha256": "c2bedd2edd7bd3e56ae24fdf2780deb3f3d9f963ce829c000575fe9536cbbff1"
+      },
+      {
+        "path": "python/examples/counter.py",
+        "sha256": "70b6be7d796d191b9ac5a06d38015fbd004e6c68a3b56761d89fa1600516c913"
+      },
+      {
+        "path": "python/src/statelessness/__init__.py",
+        "sha256": "cef793916954de35d232926f1c72f1125088645f4cc783771a0fdaf65b61c03f"
+      },
+      {
+        "path": "python/src/statelessness/audit_record.py",
+        "sha256": "e8f20bbbc76c58bbbe451193089c4793fba46d5708efaa75e1e24b88b8e4db54"
+      },
+      {
+        "path": "python/src/statelessness/checked.py",
+        "sha256": "5a450a24632d2f304d3714cccd1723654d568550d92d47f7ff38d7f8568e0b70"
+      },
+      {
+        "path": "python/src/statelessness/codec.py",
+        "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a"
+      },
+      {
+        "path": "python/src/statelessness/conformance.py",
+        "sha256": "f0939e303f50cbef885ef5ee4770ee1bbe85aa0061dc7766fbbc21601a0403e0"
+      },
+      {
+        "path": "python/src/statelessness/core.py",
+        "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397"
+      },
+      {
+        "path": "python/src/statelessness/evidence.py",
+        "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3"
+      },
+      {
+        "path": "python/src/statelessness/evidence_recorder.py",
+        "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b"
+      },
+      {
+        "path": "python/src/statelessness/monitor.py",
+        "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493"
+      },
+      {
+        "path": "python/src/statelessness/native_conformance.py",
+        "sha256": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105"
+      },
+      {
+        "path": "python/src/statelessness/oracle.py",
+        "sha256": "50d26c0430ae2bf67c43d9874817a69cc673d655dd835c9218f1fb31eaa3245f"
+      },
+      {
+        "path": "python/src/statelessness/replay_evidence.py",
+        "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055"
+      },
+      {
+        "path": "python/src/statelessness/research.py",
+        "sha256": "cf1700faf152f28c0d27967b880bc6fe87b4ed6a152f0d4a1c8b89bf09a345bf"
+      },
+      {
+        "path": "python/src/statelessness/search.py",
+        "sha256": "5195e85fef070a460d877151dee0c481089f01d7a9e006617ae2299850c75223"
+      },
+      {
+        "path": "python/src/statelessness/trace_binary.py",
+        "sha256": "68f7797071346d294ab8077c031c182973787d42371c2b951af46124c1e419d4"
+      },
+      {
+        "path": "python/src/statelessness/trace_json.py",
+        "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885"
+      },
+      {
+        "path": "python/src/statelessness/value_codec.py",
+        "sha256": "c85edbe7133374af8cbe01b50ba6256fd34ff897819a82abd461e7fb61fe5735"
+      },
+      {
+        "path": "python/tests/test_evidence.py",
+        "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355"
+      },
+      {
+        "path": "python/tests/test_evidence_recorder.py",
+        "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286"
+      },
+      {
+        "path": "python/tests/test_research.py",
+        "sha256": "8496474f7aa3a9d6d9fc81ebc4592bbeb9408001ba4eb82adecdd3355fc87d93"
+      },
+      {
+        "path": "python/tests/test_value_codec.py",
+        "sha256": "f061cb63ea44e1ff8a94d17a98836607097c256094a7328b5a089a2fe283680b"
+      },
+      {
+        "path": "scripts/check-native-evidence-consumers.py",
+        "sha256": "aa187962b492fcb80c3a75881cc4de9880b44bd6263455c61924f762f485fa3c"
+      },
+      {
+        "path": "scripts/check-native-ports.py",
+        "sha256": "0223620e33dd7c3cf92fa0478de4f0c998495f214397575a4a5ab3dd7dcef61b"
+      },
+      {
+        "path": "scripts/check-native-research-consumers.py",
+        "sha256": "110b4a1351a6aa8c166d8d9219f2ba805e9ba3ef5c128f6bdc9e5b11997088c2"
+      },
+      {
+        "path": "scripts/check-native-value-consumers.py",
+        "sha256": "b10f7b05f913453c8da9d443c2e536aa5d2500bebced32ecfb8a18347def6bf2"
+      },
+      {
+        "path": "spec/README.md",
+        "sha256": "a7cbec5e7591ac7fb0324e0297b86b3f92ccb9865a18acff23bcc7f387360667"
+      },
+      {
+        "path": "spec/append-checks-v1.md",
+        "sha256": "d5f2fb410201b8d63b5c8403541d8bf611932d3c15cc8de48c093b80e14d09ce"
+      },
+      {
+        "path": "spec/bfs-controls-v1.md",
+        "sha256": "6a0dd2efee96b2a02e424255d77a9980b72ad3613ca088b08839e8a9256b78fc"
+      },
+      {
+        "path": "spec/canonical-value-codec-v1.md",
+        "sha256": "2e98d48a7893d33ac42cf644a18ce3cf4566bbe88d14a57419f79dbb739ed80c"
+      },
+      {
+        "path": "spec/causal-evidence-v2.md",
+        "sha256": "c4b22b63aebc8e94dfe83e0228f0bc0aeb7abce899eb18987154bd98e7a203e7"
+      },
+      {
+        "path": "spec/checked-results-v1.md",
+        "sha256": "e919f3fedebdecfa44443dc28e2dd006b4cd731a9fcfbcb7243cfb4dad3eb51c"
+      },
+      {
+        "path": "spec/encode-buffers-v1.md",
+        "sha256": "ebc6ac542986695fe3152f2939722dbd77341461c85e0fba81973f979bf85de1"
+      },
+      {
+        "path": "spec/native-binary-v1.md",
+        "sha256": "60df8d1985f8fe711bb4415be028147da4e576be159c336201792e6595c88c83"
+      },
+      {
+        "path": "spec/paired-v1.md",
+        "sha256": "41e19e569aac0054cbbb4e3367f789951914c83dce7e6d4150b712f3549dead6"
+      },
+      {
+        "path": "spec/replay-evidence-v1.md",
+        "sha256": "7be3f8d660477821996e338646eafdbe0c93c375926d1b09c9f841bd34fbf634"
+      },
+      {
+        "path": "spec/research-equivalence-v1.md",
+        "sha256": "bbaffbcb09f24e5e85bfa3ca59ed7ff5b3d242f8c086b91af43f7373ca022649"
+      },
+      {
+        "path": "spec/search-v1.md",
+        "sha256": "b62f22b3996adc8253aeaa3ef99e92cc4a37fb76b1acec4466795716abfd84d7"
+      },
+      {
+        "path": "src/assurance.rs",
+        "sha256": "bca62843eecca4c264a620e13a7ab274115e6d1f8e05ebefd8479d71bdecbbaf"
+      },
+      {
+        "path": "src/automatic.rs",
+        "sha256": "c1e2e2cfaade485a0c4a71d24f22368cb6564bdbeb5f7ab2241de9bffadf556f"
+      },
+      {
+        "path": "src/campaign.rs",
+        "sha256": "4d4da9479fe3512589df379cba9a1f3e5df989bba6920e3691479e6b3ef19005"
+      },
+      {
+        "path": "src/campaign/lifecycle.rs",
+        "sha256": "7931c3ef82bf7f2b806448ef8a65f8f2e4a136d38c58d8e06307ee4b090ef44a"
+      },
+      {
+        "path": "src/composition.rs",
+        "sha256": "dcef4c9ed0f1a64bba8834f2482261c02ea630d9666237d3b08cd5eb1f5b94ec"
+      },
+      {
+        "path": "src/conformance.rs",
+        "sha256": "2162d07b340a14a13b04e863f8ac134b0498fa35e3e503b561f6461e7b2bcb54"
+      },
+      {
+        "path": "src/demo.rs",
+        "sha256": "0a644f878de5408954ab0b3d621dd869b7fab60dcfe79da0a63c4a00d628c289"
+      },
+      {
+        "path": "src/evidence.rs",
+        "sha256": "bac44cf62db1c2c40c9f66fe7ad1d941fa33cda5badc4709374d0b930355391e"
+      },
+      {
+        "path": "src/execution.rs",
+        "sha256": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0"
+      },
+      {
+        "path": "src/explore.rs",
+        "sha256": "496c19c7181a6bf3f2af97d3e04df1d3c7b22c241351104b4cd66201f6706ecb"
+      },
+      {
+        "path": "src/ffi_v2/mod.rs",
+        "sha256": "1ad89ea646449ff93f959371f98910a8e391884b0636a9f291170c68a1641a42"
+      },
+      {
+        "path": "src/guided.rs",
+        "sha256": "bbc7b214510f862738991074f8f2053389c4cac85caf005ebc129df9b06a18d7"
+      },
+      {
+        "path": "src/lib.rs",
+        "sha256": "e11f13805755f9923c00840e9352d235cfbd61d1c66c8b3245d2c59fa91165c7"
+      },
+      {
+        "path": "src/lifecycle.rs",
+        "sha256": "e13a66e70a6b29b692e95093b4d7cc722bcc6983c709a9575a9df8ef7907cc6f"
+      },
+      {
+        "path": "src/lifecycle/indexed.rs",
+        "sha256": "5a2a774dd4ccff1f5e2ae7db0ea4ab1897b10fe96a5d9e9ccf99ee4d142cfd25"
+      },
+      {
+        "path": "src/main.rs",
+        "sha256": "2d0ddf1a470d6f0fe777c40bd9cce8ded4670a37e5170c5ae4d7f25c2333a57e"
+      },
+      {
+        "path": "src/model.rs",
+        "sha256": "e69a80ad96826a27871807f848e22fd213a7bee9f95d76be92069e68504f5beb"
+      },
+      {
+        "path": "src/modeling.rs",
+        "sha256": "f31eac68547754d3d55647d92427a10e06cbcb30807fe4bd5fb38c6528968635"
+      },
+      {
+        "path": "src/monitor.rs",
+        "sha256": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac"
+      },
+      {
+        "path": "src/network.rs",
+        "sha256": "5fac0e0934d7e2c9d462ea52fa8fe459b8f45c67041538e4c74a6d2455d6f25d"
+      },
+      {
+        "path": "src/observation.rs",
+        "sha256": "c0c288b687dbf03a87be44dab322af47ca8c3472997da337544972f5962fd870"
+      },
+      {
+        "path": "src/oracle.rs",
+        "sha256": "8f252af5945c81b236a19caf326ab626d060702791675d918cea2ef9663e2fdf"
+      },
+      {
+        "path": "src/reference.rs",
+        "sha256": "b997d55b7df3cad317d36f41bb19f4c42124e59cfe6de940d78961463932de93"
+      },
+      {
+        "path": "src/reference/coverage.rs",
+        "sha256": "13123dba59e05445a90257f8d90d43d4484338c80a6d275efa4d4ac6213bb212"
+      },
+      {
+        "path": "src/reference/evidence.rs",
+        "sha256": "cd732d43386cbe66e05161bb6d353152f6a3c3bcf0376c75d09d235e2497b0f6"
+      },
+      {
+        "path": "src/reference/host.rs",
+        "sha256": "597ea41d8f15e6d46f6d948874db81da15a207dc0495b8c466dbcca4b7b4fe00"
+      },
+      {
+        "path": "src/research.rs",
+        "sha256": "c3e436ae05e7b7a08279af9447679b021a893a33196e844f432962bb13648bb7"
+      },
+      {
+        "path": "src/trace.rs",
+        "sha256": "157ed1c5e070372220c14a23e6ba9e636e0ab94507160e7197f1419052bfc786"
+      },
+      {
+        "path": "src/value_codec.rs",
+        "sha256": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3"
+      },
+      {
+        "path": "swift/Examples/Counter/Sources/Counter/main.swift",
+        "sha256": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1"
+      },
+      {
+        "path": "swift/README.md",
+        "sha256": "51baf2ee9fb6df8667665ca366882492e2383b85b7c665f8c7a5c796c02a33a4"
+      },
+      {
+        "path": "swift/Sources/StatelessConformance/Conformance.swift",
+        "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5"
+      },
+      {
+        "path": "swift/Sources/StatelessCorpus/main.swift",
+        "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8"
+      },
+      {
+        "path": "swift/Sources/Statelessness/AuditRecording.swift",
+        "sha256": "0c59aa7540cadfa788e13eb5cc04c049667a1b631213bc51711f4a01231a1431"
+      },
+      {
+        "path": "swift/Sources/Statelessness/AuditTrace.swift",
+        "sha256": "de880b933f6a0079e452c9502e5a5226b459598a6275ccb0d6df8976c752c920"
+      },
+      {
+        "path": "swift/Sources/Statelessness/CheckSink.swift",
+        "sha256": "1e758da07c07a1b8dfb6600b2207fd09d0295cd5b15368ad891840d422b17f74"
+      },
+      {
+        "path": "swift/Sources/Statelessness/CheckedResults.swift",
+        "sha256": "d2f92206250ddbc1368364c8c6cce4100074ce599e26bb722125e1d8c7dc2ccb"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EncodeBuffer.swift",
+        "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Evidence.swift",
+        "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceCodec.swift",
+        "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceExports.swift",
+        "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff"
+      },
+      {
+        "path": "swift/Sources/Statelessness/EvidenceRecorder.swift",
+        "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Execution.swift",
+        "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ExecutionBudget.swift",
+        "sha256": "cf75a82573b229491ce58103d4c61574fe508e2fe4ffbc13e675444f56f64fd9"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Explore.swift",
+        "sha256": "fffc09255cb098b89b43eb3967f0deea6535ba42c8c20035bf28a3d744ed4b84"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Fuzz.swift",
+        "sha256": "acfd01988b28eca0789f3293c32add76dc381ef7029e4631f155befa35d00a37"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Generate.swift",
+        "sha256": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Model.swift",
+        "sha256": "3c00084776a8d530b3edca6d90dcac839d422880b8ba996cda7ebc7d9db6270c"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Oracle.swift",
+        "sha256": "7c1077e7ff48699ab72b73ac34e3d53382dd372f2bd19df52dab6926e9d80a4a"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Recorder.swift",
+        "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Replay.swift",
+        "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Research.swift",
+        "sha256": "30dda4aea30d12d2bc15b88a300c0909abae7c6599aa539a214515eaa7c5067d"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Rng.swift",
+        "sha256": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d"
+      },
+      {
+        "path": "swift/Sources/Statelessness/Shrink.swift",
+        "sha256": "3a5fdfc8f45d4d3a74471ad86ac832855574853abcee78987e4ae0d11ae515c8"
+      },
+      {
+        "path": "swift/Sources/Statelessness/TraceJSON.swift",
+        "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodec.swift",
+        "sha256": "ee822a34fa231667e4899fb5f0c529698f46fd20ab0c62bd28a0b29c8ca4fb09"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodec128.swift",
+        "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+        "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+        "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4"
+      },
+      {
+        "path": "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+        "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+        "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+        "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+        "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ResearchTests.swift",
+        "sha256": "9bc3d857910dc6ba0a5f628ed2629dea87c87130284f19414a832d41d00788db"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+        "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+        "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+        "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+        "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996"
+      },
+      {
+        "path": "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+        "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b"
+      },
+      {
+        "path": "tests/research.rs",
+        "sha256": "265ffa49db72889b499f5588dfc5791932978b7a0b331da6b3f9304db169751f"
+      },
+      {
+        "path": "typescript/README.md",
+        "sha256": "9360dde4d777a41be87599935747345fd57a529020e90ef4a49220d2b7a06dc1"
+      },
+      {
+        "path": "typescript/bin/corpus.mjs",
+        "sha256": "41d2e4be5fb23d7a6542b65bc89b5576eb882f91b58f4e26feda71abe68b6647"
+      },
+      {
+        "path": "typescript/examples/counter.ts",
+        "sha256": "780ddf1bf6def264286108936b6472a9c3f773b98b1cfd23ab3f917edfb6d4d6"
+      },
+      {
+        "path": "typescript/package.json",
+        "sha256": "4d74b3d46fadb648fb4c501f8056eb4ca2e82e39dc065c366c0d843558f91413"
+      },
+      {
+        "path": "typescript/src/audit_budget.ts",
+        "sha256": "c8ee8e8244ea9407842e99c9a00a977378a362e08e6389ead65a486bb8a92d24"
+      },
+      {
+        "path": "typescript/src/audit_record.ts",
+        "sha256": "0cf79df2f0b3170338e925a12fcc8059b16c28d0873df6e8a887ec4efb1c2bf8"
+      },
+      {
+        "path": "typescript/src/binary.ts",
+        "sha256": "9da3c179525b336a779cd88afe396b90bf3ab06e16c9184c117d0b1d2cdb2747"
+      },
+      {
+        "path": "typescript/src/checked.ts",
+        "sha256": "ee3df47d3b03c09489343184aa2ce2917f29348119dd605b55003aee727ce45d"
+      },
+      {
+        "path": "typescript/src/checks.ts",
+        "sha256": "29a2d57640cae0534626d3e3768e7ea8c1cef5c4536176a6f11fb6b35abf4859"
+      },
+      {
+        "path": "typescript/src/conformance.ts",
+        "sha256": "f10b8a0d2c1541b7149040b26098ba495fe4b8835df06ef86d209739e429a49e"
+      },
+      {
+        "path": "typescript/src/core.ts",
+        "sha256": "31af1c80e8431322300d392c54e1d2448f1201551bedd036395d5091e678abcd"
+      },
+      {
+        "path": "typescript/src/encoding.ts",
+        "sha256": "cdf3f58810813dcb555a9479c2a65962f12ca5a6290659e50a41b6b7b9e7f93b"
+      },
+      {
+        "path": "typescript/src/errors.ts",
+        "sha256": "1d50ab177ce083dae51ed5a0f76107e632df9e35ef386646be766d79b2bee85a"
+      },
+      {
+        "path": "typescript/src/evidence.ts",
+        "sha256": "b4db937ad59a667fbaca66a2b9473461d72a7373b7fc7124637dfafcfd0f1a33"
+      },
+      {
+        "path": "typescript/src/evidence_recorder.ts",
+        "sha256": "10148303f4f88cb4d7433aacfdbbeff2d53c75a31153569fde29cc57da23e566"
+      },
+      {
+        "path": "typescript/src/index.ts",
+        "sha256": "25609fd95d008a9a3632eedadbd8ef417c308239726fbfddf301e4a3c9c3c1df"
+      },
+      {
+        "path": "typescript/src/json.ts",
+        "sha256": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd"
+      },
+      {
+        "path": "typescript/src/node_evidence.ts",
+        "sha256": "c659fa34979b129591ec6b9789fdf9383867c931572226c59e26fe914ad7c846"
+      },
+      {
+        "path": "typescript/src/oracle.ts",
+        "sha256": "25e7ff8f56573dd5b4fb187a5e7b057ac9550b8f6c600ef8c5c5fe8d949b19ea"
+      },
+      {
+        "path": "typescript/src/replay.ts",
+        "sha256": "207923eb14891e6e99e8199530ec4cf0fb9282e7c12a704545f0ba76dbfd588e"
+      },
+      {
+        "path": "typescript/src/research.ts",
+        "sha256": "19d83be8f4f0ca0bd181201c8e71bf87cbc97738b7baf12378332ea6b50994be"
+      },
+      {
+        "path": "typescript/src/runtime_recorder.ts",
+        "sha256": "5aeda96d9d961d04632361b017d1ab841a1a3f260cf63c36c1a8be88bab7e732"
+      },
+      {
+        "path": "typescript/src/search.ts",
+        "sha256": "51c9e22970e93c8943ff959002e09f7ec7802a105e97fb3268766190d4e7bf4c"
+      },
+      {
+        "path": "typescript/src/search_support.ts",
+        "sha256": "f0ad6fbd97f3e5730327b2d43bfbee26fa5348dc306bb1028aed4bb962f91403"
+      },
+      {
+        "path": "typescript/src/value_codec.ts",
+        "sha256": "5735f0def5d622d94eddcb5206668900d9396a2bb4ab4f506741386b7ab682a5"
+      },
+      {
+        "path": "typescript/test/evidence-recorder.test.mjs",
+        "sha256": "88bd6d6d79bc167e14705d52125ca97f05fe0dbdd81d43c3102f97d77aef16f5"
+      },
+      {
+        "path": "typescript/test/evidence.test.mjs",
+        "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f"
+      },
+      {
+        "path": "typescript/test/research.test.mjs",
+        "sha256": "56dd23d7ab13ab368411efcbacf43deddb7faf8426a9b04463ae06c1313bd487"
+      },
+      {
+        "path": "typescript/test/value-codec.test.mjs",
+        "sha256": "0fa55eb47f42badf5409ce3b34426564e23f3a3fa8a66ab3aa90180798532038"
+      },
+      {
+        "path": "validation/corpus/src/bin/native-evidence.rs",
+        "sha256": "5646d58db11454ad47c25055cf240d2e2f3652571e1c1fe1797f1c5951a853c4"
+      },
+      {
+        "path": "validation/corpus/src/bin/native-research.rs",
+        "sha256": "49949f5f85c134b0c214755866c77c4729d842dfc946ecc548c00eec07f9d2a9"
+      },
+      {
+        "path": "validation/corpus/src/bin/native-values.rs",
+        "sha256": "53034f37d1f2c33259eaa725653dabc58550f3c8ba061866c28a82628de7fbe9"
+      },
+      {
+        "path": "validation/corpus/src/evidence_reference.rs",
+        "sha256": "dddd7c3ff2dec7974118da06c22bc7b47d7a1532c53238e0bc6f2b7975bb0da1"
+      },
+      {
+        "path": "validation/corpus/src/research_reference.rs",
+        "sha256": "3d406381d23bba0a6885093af136434810c402522fd44b7a09536d0ab3372c95"
+      },
+      {
+        "path": "validation/corpus/src/values_reference.rs",
+        "sha256": "2e0330e018adc3247dccb5b9191e9edd8d8fdb6a761a2fe2b03187191370992a"
+      }
+    ],
+    "scoped_reviews": [
+      {
+        "scope": "binary-v1 structural codecs, explicit run configuration, binary limits, exports and candidate markers",
+        "reviewed_at_utc": "2026-10-20T20:53:36.935369+00:00",
+        "head_commit": "daaf76c15d1c04c8720e4710b9e746a7d72ddb97",
+        "files_reviewed": [
+          "go/audit_binary.go",
+          "go/audit_binary_read.go",
+          "go/oracle.go",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/trace_binary.py",
+          "spec/native-binary-v1.md",
+          "swift/Sources/Statelessness/AuditTrace.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/binary.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts"
+        ],
+        "feature_ids_changed": [
+          "binary-v1",
+          "record-replay",
+          "causal-evidence"
+        ],
+        "qualification_note": "Static implementation mapping only. Qualification fields and receipt links remain unchanged; parent-owned runtime/cross-language receipts are separate. All unrelated feature cells and source hashes were preserved."
+      },
+      {
+        "scope": "bfs-controls-v1 controls, state estimates, BFS observations, wrapper forwarding, exact/saturating counters and fixed-entry resource settings",
+        "reviewed_at_utc": "2026-10-20T21:14:42.142113+00:00",
+        "head_commit": "7ba10472cd084afcc763d0d044e4c00f677ac9cd",
+        "files_reviewed": [
+          "go/conformance/runner.go",
+          "go/explore.go",
+          "go/model.go",
+          "go/oracle.go",
+          "go/paired.go",
+          "go/search_observer.go",
+          "go/fuzz.go",
+          "go/shrink.go",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/core.py",
+          "python/src/statelessness/search.py",
+          "python/src/statelessness/oracle.py",
+          "python/src/statelessness/conformance.py",
+          "swift/Sources/Statelessness/Explore.swift",
+          "swift/Sources/Statelessness/Fuzz.swift",
+          "swift/Sources/Statelessness/Model.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/core.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/search.ts",
+          "typescript/src/search_support.ts",
+          "typescript/src/conformance.ts",
+          "spec/bfs-controls-v1.md"
+        ],
+        "feature_ids_changed": [
+          "append-buffers",
+          "finite-bfs",
+          "search-controls",
+          "replay-observations",
+          "oracle-history",
+          "paired-projection",
+          "fuzz-observers"
+        ],
+        "qualification_note": "Static implementation mapping only. Parent-owned current test/consumer/Rust receipts remain separate; no qualification fields or receipt links were promoted. Go/Swift inline-padding and Python/TypeScript explicit logical-overhead conventions are not equal-RSS claims."
+      },
+      {
+        "scope": "append-checks-v1 leased check sinks, preferred dispatch, engine scratch, observed-into error cleanup and adapter forwarding; Python binary variant string validation fix",
+        "reviewed_at_utc": "2026-10-20T21:30:57.786046+00:00",
+        "head_commit": "3c05c21e42b991b77651e1c898bc0dbefe6a1773",
+        "files_reviewed": [
+          "go/check_sink.go",
+          "go/model.go",
+          "go/execution.go",
+          "go/explore.go",
+          "go/fuzz.go",
+          "go/shrink.go",
+          "go/search_observer.go",
+          "go/oracle.go",
+          "go/paired.go",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/core.py",
+          "python/src/statelessness/search.py",
+          "python/src/statelessness/oracle.py",
+          "python/src/statelessness/trace_binary.py",
+          "swift/Sources/Statelessness/CheckSink.swift",
+          "swift/Sources/Statelessness/Model.swift",
+          "swift/Sources/Statelessness/Execution.swift",
+          "swift/Sources/Statelessness/Explore.swift",
+          "swift/Sources/Statelessness/Fuzz.swift",
+          "swift/Sources/Statelessness/Shrink.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/checks.ts",
+          "typescript/src/core.ts",
+          "typescript/src/search.ts",
+          "typescript/src/search_support.ts",
+          "typescript/src/oracle.ts",
+          "spec/append-checks-v1.md"
+        ],
+        "feature_ids_changed": [
+          "append-buffers",
+          "oracle-history",
+          "fuzz-observers",
+          "observed-checks",
+          "record-replay"
+        ],
+        "qualification_note": "Static source mapping only; parent collects current Kyoto/installed consumer receipts separately. No qualification states or receipt links promoted. CheckSink does not implement EncodeBuffer/codec *_into/bounded recording; runtime leases and contained-error behavior are native extensions, not Rust borrowing or panic guarantees."
+      },
+      {
+        "scope": "Python binary enum validation and quota-before-copy follow-up",
+        "reviewed_at_utc": "2026-10-20T21:35:21.421007+00:00",
+        "head_commit": "3c05c21e42b991b77651e1c898bc0dbefe6a1773",
+        "files_reviewed": [
+          "python/src/statelessness/trace_binary.py"
+        ],
+        "feature_ids_changed": [],
+        "note": "Intrinsic string variant comparison and borrowed payload reasons; no qualification-cell promotion."
+      },
+      {
+        "scope": "encode-buffers-v1 and replay-evidence-v1 incremental codec forwarding, rich/bounded replay and direct full AuditTrace recording",
+        "reviewed_at_utc": "2026-10-20T21:59:28.277197+00:00",
+        "head_commit": "8bb4fe3924fdaf0f7227acfb0f4260277ec6b7ee",
+        "files_reviewed": [
+          "go/encode_buffer.go",
+          "go/replay_evidence.go",
+          "go/audit_record.go",
+          "go/execution.go",
+          "go/model.go",
+          "go/oracle.go",
+          "go/paired.go",
+          "python/src/statelessness/codec.py",
+          "python/src/statelessness/replay_evidence.py",
+          "python/src/statelessness/audit_record.py",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/core.py",
+          "python/src/statelessness/oracle.py",
+          "swift/Sources/Statelessness/EncodeBuffer.swift",
+          "swift/Sources/Statelessness/Replay.swift",
+          "swift/Sources/Statelessness/ExecutionBudget.swift",
+          "swift/Sources/Statelessness/AuditRecording.swift",
+          "swift/Sources/Statelessness/AuditTrace.swift",
+          "swift/Sources/Statelessness/Execution.swift",
+          "swift/Sources/Statelessness/Model.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/encoding.ts",
+          "typescript/src/replay.ts",
+          "typescript/src/audit_record.ts",
+          "typescript/src/audit_budget.ts",
+          "typescript/src/errors.ts",
+          "typescript/src/binary.ts",
+          "typescript/src/core.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "spec/encode-buffers-v1.md",
+          "spec/replay-evidence-v1.md"
+        ],
+        "feature_ids_changed": [
+          "append-buffers",
+          "oracle-history",
+          "record-replay",
+          "replay-observations"
+        ],
+        "qualification_note": "Static source/API mapping after root-authorized final context-only refreeze. Final Kyoto full suites passed: Python154/12 ABI skips, Go tests/vet, Swift83 methods and TypeScript421 tests. Public Rust46 encode/54 replay/17 recording cases and expanded native corpus runs passed. Installed five-engine25 audit/25 portable replay pairs and unchanged717 cases per engine plus550 baseline fresh replays passed. Exact receipts: validation/native-parity/codec-replay-slice. All144 broader qualification cells remain pending; no profile promotion. Byte budgets do not bound process RSS, legacy callbacks or snapshots."
+      },
+      {
+        "scope": "checked-results-v1 sealed initial/turn handoffs and full bounded runtime Recorder",
+        "reviewed_at_utc": "2026-10-20T22:19:58.225842+00:00",
+        "head_commit": "d35a546410a717d61c031c77e0e82c4153786488",
+        "files_reviewed": [
+          "go/checked_results.go",
+          "go/recorder.go",
+          "go/model.go",
+          "go/check_sink.go",
+          "go/oracle.go",
+          "python/src/statelessness/checked.py",
+          "python/src/statelessness/monitor.py",
+          "python/src/statelessness/__init__.py",
+          "swift/Sources/Statelessness/CheckedResults.swift",
+          "swift/Sources/Statelessness/Recorder.swift",
+          "swift/Sources/Statelessness/Model.swift",
+          "swift/Sources/Statelessness/CheckSink.swift",
+          "swift/Sources/Statelessness/Replay.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "typescript/src/checked.ts",
+          "typescript/src/runtime_recorder.ts",
+          "typescript/src/checks.ts",
+          "typescript/src/core.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "spec/checked-results-v1.md"
+        ],
+        "feature_ids_changed": [
+          "observed-checks",
+          "ring-recording",
+          "append-buffers",
+          "record-replay",
+          "replay-observations"
+        ],
+        "qualification_note": "Static source/API mapping after final source-freeze authorization. Parent reports final native suites, actual Rust27 token+36 recorder vectors/app smoke and installed matrix cbf8e4c1426e4f6bb741e6c4a01b42e9 passed: five producers,25 binary audit+25 JSON pairs, main/ring rich sessions, Swift compiler cases and unchanged717-per-engine/550-fresh baseline. Scoped receipts: validation/native-parity/checked-slice. All144 broader qualification cells and receipt links unchanged; finite evidence does not close full native parity. No CausalEvidenceRecorder/profile promotion/hard RSS guarantee; Go heterogeneous free functions and Swift logical-transfer/read-only conventions remain native extensions."
+      },
+      {
+        "scope": "causal-evidence-v2 envelopes, phases, causal retention and bounded exports",
+        "reviewed_at_utc": "2026-10-20T22:50:26.500095+00:00",
+        "head_commit": "7f37c2f2dadb4d251f75762ac60d0976a5198ab2",
+        "files_reviewed": [
+          "conformance/causal-evidence-v2.json",
+          "examples/native-evidence/README.md",
+          "examples/native-evidence/contract.json",
+          "examples/native-evidence/go/main.go",
+          "examples/native-evidence/python/consumer.py",
+          "examples/native-evidence/swift/Package.swift",
+          "examples/native-evidence/swift/Sources/EvidenceConsumer/main.swift",
+          "examples/native-evidence/typescript/consumer.ts",
+          "go/README.md",
+          "go/evidence.go",
+          "go/evidence_export.go",
+          "go/evidence_export_internal_test.go",
+          "go/evidence_export_test.go",
+          "go/evidence_metadata.go",
+          "go/evidence_metadata_test.go",
+          "go/evidence_recorder.go",
+          "go/evidence_recorder_corpus_test.go",
+          "go/evidence_recorder_test.go",
+          "go/evidence_replay_test.go",
+          "go/evidence_wire_corpus_test.go",
+          "go/oracle.go",
+          "go/recorder.go",
+          "go/replay_evidence.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/evidence.py",
+          "python/src/statelessness/evidence_recorder.py",
+          "python/src/statelessness/monitor.py",
+          "python/tests/test_evidence.py",
+          "python/tests/test_evidence_recorder.py",
+          "scripts/check-native-evidence-consumers.py",
+          "scripts/check-native-ports.py",
+          "spec/causal-evidence-v2.md",
+          "swift/README.md",
+          "swift/Sources/Statelessness/Evidence.swift",
+          "swift/Sources/Statelessness/EvidenceCodec.swift",
+          "swift/Sources/Statelessness/EvidenceExports.swift",
+          "swift/Sources/Statelessness/EvidenceRecorder.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/Recorder.swift",
+          "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift",
+          "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift",
+          "swift/Tests/StatelessnessTests/EvidenceTests.swift",
+          "typescript/README.md",
+          "typescript/package.json",
+          "typescript/src/binary.ts",
+          "typescript/src/checked.ts",
+          "typescript/src/evidence.ts",
+          "typescript/src/evidence_recorder.ts",
+          "typescript/src/index.ts",
+          "typescript/src/node_evidence.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/runtime_recorder.ts",
+          "typescript/test/evidence-recorder.test.mjs",
+          "typescript/test/evidence.test.mjs",
+          "validation/corpus/src/bin/native-evidence.rs",
+          "validation/corpus/src/evidence_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "causal-evidence",
+          "record-replay",
+          "ring-recording",
+          "binary-v1"
+        ],
+        "qualification_note": "Scoped source/API mapping and exact candidate-byte snapshot after root-authorized global source freeze. Hashes include associated contracts, corpus, tests and consumer harness; they do not imply independent static review of every test or runtime success. Parent reports final Rust101 causal cases plus 3150 truncation prefixes/44 chunks/app smoke, Go tests (5e59) and vet (bd5a), Python216 tests with12 ABI skips (d6b6), TypeScript627 tests (cbcf), and Swift115 methods (efc) passed. Installed r1 exposed ambiguous Swift helper disposition JSON; root reviewed the two-occurrence ApplicationDispositionJSON rename. Installed r2 exposed a driver requirement for optional Rust record.diagnostic; root reviewed mandatory three-file validation plus validation of optional diagnostics, preserving all25 explicit diagnostic comparisons and10 sentinel checks. Only the Swift consumer and installed driver hashes were refreshed for these fixes. Root reports installed r3 663603987cbf44179af313cb9400b6d2 terminal SUCCEEDED exit0: five producers,25 v2 rewrite/phase-replay pairs,25 explicit upgrades,25 private exact diagnostic comparisons,25 passive-v1 pairs and10 sentinel negative checks, plus unchanged baseline passed. Finite macOS/arm64 proof is archived at validation/native-parity/evidence-slice/installed-r3; failed r1/r2 remain preserved. Registry, browser, broader platforms and hard RSS qualification remain open. All144 broader qualification cells and receipt links remain unchanged; no profile promotion, general canonical-value-codec API, hard RSS, authentication or durable atomic-publication claim."
+      },
+      {
+        "scope": "canonical-value-codec-v1 built-ins, cooperative readers and independent codec directions",
+        "reviewed_at_utc": "2026-10-20T23:32:25.338086+00:00",
+        "head_commit": "d7c659211067d5226cbe2393b8092c5df81f9774",
+        "files_reviewed": [
+          "conformance/canonical-value-codec-v1.json",
+          "examples/native-values/README.md",
+          "examples/native-values/contract.json",
+          "examples/native-values/go/main.go",
+          "examples/native-values/go/values.go",
+          "examples/native-values/python/consumer.py",
+          "examples/native-values/python/values.py",
+          "examples/native-values/swift/Package.swift",
+          "examples/native-values/swift/Sources/ValueConsumer/Values.swift",
+          "examples/native-values/swift/Sources/ValueConsumer/main.swift",
+          "examples/native-values/typescript/consumer.ts",
+          "examples/native-values/typescript/values.ts",
+          "go/README.md",
+          "go/oracle.go",
+          "go/value_array_adapter.go",
+          "go/value_array_adapter_test.go",
+          "go/value_capability_test.go",
+          "go/value_codec.go",
+          "go/value_composite.go",
+          "go/value_composite_test.go",
+          "go/value_corpus_test.go",
+          "go/value_error_ownership_test.go",
+          "go/value_length.go",
+          "go/value_length_test.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/codec.py",
+          "python/src/statelessness/value_codec.py",
+          "python/tests/test_value_codec.py",
+          "scripts/check-native-ports.py",
+          "scripts/check-native-value-consumers.py",
+          "spec/canonical-value-codec-v1.md",
+          "swift/README.md",
+          "swift/Sources/Statelessness/EncodeBuffer.swift",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/ValueCodec.swift",
+          "swift/Sources/Statelessness/ValueCodec128.swift",
+          "swift/Sources/Statelessness/ValueCodecBuiltins.swift",
+          "swift/Sources/Statelessness/ValueCodecDecoder.swift",
+          "swift/Sources/Statelessness/ValueCodecLayouts.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift",
+          "swift/Tests/StatelessnessTests/ValueCodecTests.swift",
+          "typescript/README.md",
+          "typescript/src/encoding.ts",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/value_codec.ts",
+          "typescript/test/value-codec.test.mjs",
+          "validation/corpus/src/bin/native-values.rs",
+          "validation/corpus/src/values_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "value-codec",
+          "record-replay",
+          "binary-v1",
+          "causal-evidence"
+        ],
+        "qualification_note": "Root-authorized frozen source/API mapping and candidate-byte pinning; associated tests/harness hashes do not imply independent static review of every test. Parent reports Rust149 reference cases, Python248 tests with12 ABI skips, TypeScript829 tests, Swift134 methods, and final Go tests/vet passed. Finite Rust64 layout receipts include11 additional compound shapes; independent static Go/Swift review is validation/native-parity/value-codec-slice/review-go-swift.md. Installed r4 e7ba3927063346ce90c2b99a7071090b passed terminal:82 commands all exit0, five producers/83 independent goldens,25 typed producer-consumer pairs/2075 values,25 actual v2 phase-aware exact-byte replay/rewrite pairs, and unchanged baseline717 cases per engine plus550 fresh replays. Receipts: validation/native-parity/value-codec-slice/consumers/installed-r4. Root reconciled281 report input files and owner212 runtime/staged files to current source; preserved earlier failed attempts remain historical evidence. This is finite installed macOS/arm64 proof, not registry/browser/platform or broad qualification. All144 broader qualification cells, per-cell receipt links and four promoted profiles are unchanged. No derive/model-codec glue, registry/browser/platform, arbitrary layout inference, foreign-error cloning, hard RSS or performance claim."
+      },
+      {
+        "scope": "research-equivalence-v1 finite exact/projected fixture experiment",
+        "reviewed_at_utc": "2026-10-21T00:14:26.900012+00:00",
+        "head_commit": "cdc0a5aba53cf2e05250ad01c717a00cd9389131",
+        "files_reviewed": [
+          "conformance/research-equivalence-v1.json",
+          "docs/REDUCTION_RESEARCH.md",
+          "examples/native-research/README.md",
+          "examples/native-research/go/main.go",
+          "examples/native-research/python/consumer.py",
+          "examples/native-research/swift/Package.swift",
+          "examples/native-research/swift/Sources/ResearchConsumer/main.swift",
+          "examples/native-research/typescript/consumer.ts",
+          "go/README.md",
+          "go/oracle.go",
+          "go/research.go",
+          "go/research_corpus_test.go",
+          "go/research_test.go",
+          "python/README.md",
+          "python/src/statelessness/__init__.py",
+          "python/src/statelessness/research.py",
+          "python/tests/test_research.py",
+          "scripts/check-native-ports.py",
+          "scripts/check-native-research-consumers.py",
+          "spec/research-equivalence-v1.md",
+          "src/research.rs",
+          "swift/README.md",
+          "swift/Sources/Statelessness/Oracle.swift",
+          "swift/Sources/Statelessness/Research.swift",
+          "swift/Tests/StatelessnessTests/ResearchTests.swift",
+          "tests/research.rs",
+          "typescript/README.md",
+          "typescript/src/index.ts",
+          "typescript/src/oracle.ts",
+          "typescript/src/research.ts",
+          "typescript/test/research.test.mjs",
+          "validation/corpus/src/bin/native-research.rs",
+          "validation/corpus/src/research_reference.rs"
+        ],
+        "feature_ids_changed": [
+          "reduction-research"
+        ],
+        "qualification_note": "Source/API mapping of committed N14 candidate cdc0a5a with spec/corpus0b9056d;67 independent shared expectations and10 native-only cases remain distinct evidence classes. Static four-language review: docs/native-parity/RESEARCH-EQUIVALENCE-REVIEW.md. Runtime qualification PENDING: Rust build c2def9cef475478e82fa2844cc78626a; Go tests8b4ec2fa696149d2961cad615ca86c31/vet4e3bedd9c73845e5aa0c232f4309f110; Python73186c42f181435398b8a692c7d02e1e; TypeScripte88c7597c3b4489b97189f51e9e9afa8; Swiftcecb24161e1a4d72b070ca0383a135eb. Installed consumers are not queued until suites pass. No execution success inferred. All144 broad qualification cells, existing per-cell receipt links and promoted profiles remain unchanged. No production pruning, general reduction/liveness, arbitrary callback resource, performance or broad platform qualification."
+      }
+    ]
+  },
+  "status_definitions": {
+    "implemented": "Named scoped behavior has a native implementation in reviewed source; not full gap closure.",
+    "partial": "Native APIs implement part of named Rust behavior; remaining states exact omissions.",
+    "missing": "No independent native engine API in reviewed export surfaces; application workarounds and ABI adapters do not close this gap.",
+    "qualification-pending": "No runtime qualification performed or imported as current evidence by this source audit."
+  },
+  "state_model_note": "Implementation audit states are separate from plan milestone/qualification/release states. No qualified or released assertions are made.",
+  "absence_review_scopes": {
+    "python": [
+      "python/src/statelessness/__init__.py:2",
+      "python/src/statelessness/core.py:95",
+      "python/src/statelessness/oracle.py:62",
+      "python/src/statelessness/trace_json.py:114",
+      "python/src/statelessness/search.py:28 GenerateModel"
+    ],
+    "go": [
+      "go/model.go:114",
+      "go/explore.go:58",
+      "go/execution.go:60",
+      "go/trace_json.go:120",
+      "go/oracle.go:43",
+      "go/paired.go:19",
+      "go/generate.go:7 GenerateModel",
+      "go/fuzz.go:56 Fuzz"
+    ],
+    "typescript": [
+      "typescript/src/index.ts:1",
+      "typescript/src/core.ts:58",
+      "typescript/src/oracle.ts:31",
+      "typescript/package.json:8",
+      "typescript/src/search.ts:5 GenerateModel"
+    ],
+    "swift": [
+      "Package.swift:1",
+      "swift/Sources/Statelessness/Model.swift:105",
+      "swift/Sources/Statelessness/Explore.swift:26",
+      "swift/Sources/Statelessness/Oracle.swift:41",
+      "swift/Sources/Statelessness/TraceJSON.swift:69",
+      "swift/Sources/Statelessness/Generate.swift:3 Generate"
+    ]
+  },
+  "features": [
+    {
+      "id": "core-model",
+      "gap_ids": [
+        "N01",
+        "N13"
+      ],
+      "capability": "Application-owned state/input/output and ordered state/transition checks",
+      "rust_api": [
+        "src/model.rs:285 Disposition::{Accepted,Rejected,Ignored}",
+        "src/model.rs:292 CheckStatus::{Passed,Failed,Skipped}",
+        "src/model.rs:330 Transition<State,Output>",
+        "src/model.rs:366 Model::{State,Input,Output,metadata,initial_state,step,check_state,check_transition}"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:42 Check",
+            "python/src/statelessness/core.py:57 Disposition",
+            "python/src/statelessness/core.py:95 Model"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/model.go:25 Check",
+            "go/model.go:41 Disposition",
+            "go/model.go:114 Model[S,I,O]"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/core.ts:14 CheckStatus,Check,Disposition,Transition",
+            "typescript/src/core.ts:58 Model<S,I,O>"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Model.swift:25 CheckStatus,Check",
+            "swift/Sources/Statelessness/Model.swift:41 Disposition",
+            "swift/Sources/Statelessness/Model.swift:105 Model<State,Input,Output>"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped core callbacks exist. Requalify full Rust callback ordering/errors, alias isolation and non-boolean disposition reasons; no new runtime qualification inferred. Metadata is codec-owned in Go/Swift and optional on basic Python/TS models."
+    },
+    {
+      "id": "append-buffers",
+      "gap_ids": [
+        "N01",
+        "N11"
+      ],
+      "capability": "Caller-owned append-only check/encoding buffers",
+      "rust_api": [
+        "src/model.rs:123 CheckSink",
+        "src/model.rs:164 EncodeBuffer",
+        "src/model.rs:381 Model::check_state_into",
+        "src/model.rs:398 Model::check_transition_into",
+        "src/model.rs:417 ModelCodec::*_into",
+        "src/execution.rs:106 check_observed_into"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "equivalent_resource_and_error_semantics",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:182 CheckSink",
+            "python/src/statelessness/core.py:352 check_observed_into",
+            "python/src/statelessness/codec.py:11 EncodeBuffer; encode_value preferred codec dispatch"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/check_sink.go:9 CheckSink; Model.AppendStateChecks/AppendTransitionChecks",
+            "go/model.go:236 CheckObservedInto",
+            "go/encode_buffer.go:11 EncodeBuffer; WithEncodeBuffer; Model.Append*Encoding"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/checks.ts:55 CheckSink; withCheckSink",
+            "typescript/src/core.ts:127 checkObservedInto",
+            "typescript/src/encoding.ts:89 EncodeBuffer; EncodeStorage/withEncodeBuffer; preferred codec dispatch"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/CheckSink.swift:10 CheckSink; checkStateInto/checkTransitionInto",
+            "swift/Sources/Statelessness/Model.swift:187 checkObservedInto",
+            "swift/Sources/Statelessness/EncodeBuffer.swift:9 EncodeBuffer; encodeStateInto/encodeInputInto/encodeOutputInto"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped CheckSink and EncodeBuffer APIs, preferred check/codec hooks, engine scratch, revocable nested leases and adapter forwarding are implemented in all four. EncodeBuffer enforces logical accepted length, sticky failure, same-budget u64 framing and finish checks. Native runtime leases/contained errors extend Rust borrowing/Result behavior; legacy encoders and snapshots allocate outside sink quotas. Python cannot guarantee retained bytearray capacity; host allocation failures/traps differ. Canonical value-codec families, hard allocation/RSS/performance claims remain separate features or qualification gates. Mutable built-in adapter legacy overrides must also replace/clear preferred hooks. All runtime/installed qualification remains scoped and pending here."
+    },
+    {
+      "id": "finite-bfs",
+      "gap_ids": [
+        "N01"
+      ],
+      "capability": "Finite exact-equality BFS and structural limits",
+      "rust_api": [
+        "src/model.rs:450 Enumerate::{inputs,input_iter}",
+        "src/explore.rs:200 SearchConfig",
+        "src/explore.rs:220 SearchTermination",
+        "src/explore.rs:261 enumerate",
+        "src/explore.rs:233 SearchReport::estimated_retained_state_bytes"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:111 EnumerateModel.inputs",
+            "python/src/statelessness/core.py:415 enumerate_states",
+            "python/src/statelessness/core.py:397 SearchReport"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/model.go:84 Iterator",
+            "go/explore.go:95 Enumerate",
+            "go/explore.go:98 EnumerateWithLimits",
+            "go/explore.go:101 EnumerateObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/core.ts:71 EnumerateModel",
+            "typescript/src/core.ts:138 enumerateStates",
+            "typescript/src/core.ts:146 enumerateStatesExact",
+            "typescript/src/core.ts:294 enumerateStatesObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Model.swift:75 InputIterator",
+            "swift/Sources/Statelessness/Explore.swift:39 enumerateStates",
+            "swift/Sources/Statelessness/Explore.swift:140 enumerateObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Native FIFO exact-equality BFS now includes default structural bounds plus optional cooperative controls, admitted-state estimates, byte-limit outcomes and observations under the candidate bfs-controls-v1 contract. Executed edges are checked before deduplication/admission; collision comparisons use newest-admitted-first order and histories are true predecessor prefixes. Existing qualified portable runners retain their original report projection. Source mapping alone does not qualify callback order, cutoff/error priority, lazy probes, counts, memory estimates or installed consumers."
+    },
+    {
+      "id": "search-controls",
+      "gap_ids": [
+        "N01"
+      ],
+      "capability": "Cooperative search controls, observed BFS and retained-state estimate admission",
+      "rust_api": [
+        "src/model.rs:410 Model::estimated_state_bytes",
+        "src/explore.rs:101 RunLimits",
+        "src/explore.rs:109 SearchLimits",
+        "src/explore.rs:276 enumerate_with_limits",
+        "src/explore.rs:289 enumerate_observed"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/search.py:118 RunLimits",
+            "python/src/statelessness/search.py:132 SearchLimits",
+            "python/src/statelessness/core.py:415 enumerate_states(limits=...,observer=...)",
+            "python/src/statelessness/core.py:397 SearchReport.estimated_retained_state_bytes",
+            "python/src/statelessness/search.py:181 SearchObserver.needs_history",
+            "python/src/statelessness/oracle.py:107 WithOracle.estimated_state_bytes",
+            "python/src/statelessness/oracle.py:220 Paired.estimated_state_bytes"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/fuzz.go:10 RunLimits",
+            "go/explore.go:62 SearchLimits",
+            "go/model.go:128 Model.EstimatedStateBytes",
+            "go/explore.go:98 EnumerateWithLimits",
+            "go/explore.go:101 EnumerateObserved",
+            "go/explore.go:22 SearchReport.EstimatedRetainedStateBytes",
+            "go/search_observer.go:9 SearchObserver.NeedsHistory",
+            "go/oracle.go:289 OracleStateOverhead"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/search_support.ts:3 RunLimits (reexported by search.ts)",
+            "typescript/src/core.ts:121 SearchLimits",
+            "typescript/src/core.ts:61 Model.estimatedStateBytes",
+            "typescript/src/core.ts:134 ExactSearchConfig",
+            "typescript/src/core.ts:136 ExactSearchReport",
+            "typescript/src/core.ts:146 enumerateStatesExact",
+            "typescript/src/core.ts:138 enumerateStates (safe-Number compatibility wrapper)",
+            "typescript/src/core.ts:294 enumerateStatesObserved",
+            "typescript/src/search_support.ts:20 SearchObserver.needsHistory (reexported by search.ts)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Fuzz.swift:6 RunLimits",
+            "swift/Sources/Statelessness/Explore.swift:12 SearchLimits",
+            "swift/Sources/Statelessness/Model.swift:116 Model.estimatedStateBytes",
+            "swift/Sources/Statelessness/Explore.swift:39 enumerateStates(limits:observer:)",
+            "swift/Sources/Statelessness/Explore.swift:140 enumerateObserved",
+            "swift/Sources/Statelessness/Explore.swift:27 SearchReport.estimatedRetainedStateBytes",
+            "swift/Sources/Statelessness/Fuzz.swift:38 SearchObserver.needsHistory",
+            "swift/Sources/Statelessness/Oracle.swift:50 WithOracle.estimatedWrapperBytes"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped BFS/fuzz/shrink cooperative controls, BFS retained-state estimates/admission and checked observations now have independent native implementations. Configuration budgets are copied at entry where pointer/object aliasing applies; cancellation remains the live channel. TypeScript enumerateStatesExact preserves u64 transition budgets/counters and saturated skipped checks as bigint; its legacy Number wrapper rejects unsafe conversion, while state/depth container bounds remain host safe integers. Unknown estimates and checked overflow remain explicit; capped missing estimates error and rejected admission preserves prior totals. Byte estimates do not cap temporary successors, predecessor inputs, frontier/maps, callbacks, allocator overhead or RSS. Reusable append-only storage, checked-token provenance and rich/bounded replay observations are separate missing features; Rust replay does not take search RunLimits directly. Runtime/platform/installed-consumer qualification remains pending.",
+      "native_convention_note": "Go/Swift oracle wrappers add actual native inline padding beyond member sizes; Python/TypeScript require explicit caller-supplied logical wrapper overhead and default to unknown. Application estimates include their owned representation. No universal equal-byte or process-RSS claim follows."
+    },
+    {
+      "id": "record-replay",
+      "gap_ids": [
+        "N01",
+        "N11"
+      ],
+      "capability": "Model codecs, bounded recording and exact replay",
+      "rust_api": [
+        "src/model.rs:417 ModelCodec",
+        "src/execution.rs:195 record",
+        "src/execution.rs:206 record_with_limits",
+        "src/execution.rs:495 ReplayOptions",
+        "src/execution.rs:528 replay",
+        "src/execution.rs:780 validate_recording"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:124 ModelCodec",
+            "python/src/statelessness/core.py:419 record",
+            "python/src/statelessness/core.py:516 replay",
+            "python/src/statelessness/audit_record.py:40 record_audit (explicit RunConfig; nine binary quotas)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/model.go:102 Codec",
+            "go/execution.go:49 RecordWithLimits",
+            "go/execution.go:236 Replay",
+            "go/audit_record.go:12 RecordAudit (explicit RunConfig; nine binary quotas)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/core.ts:81 CodecModel",
+            "typescript/src/core.ts:320 record",
+            "typescript/src/core.ts:370 replay",
+            "typescript/src/audit_record.ts:38 recordAudit (explicit RunConfig; nine binary quotas)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Model.swift:85 Codec",
+            "swift/Sources/Statelessness/Execution.swift:36 record",
+            "swift/Sources/Statelessness/Execution.swift:102 replay",
+            "swift/Sources/Statelessness/AuditRecording.swift:4 recordAudit (explicit RunConfig; nine binary quotas)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Portable record/replay remains available; explicit RecordAudit/record_audit/recordAudit now retains RunConfig and native engine stamps during capture, enforces nine wire quotas with shared incremental encoding budgets, reserves bounded UTF-8 model-error footer space, and commits only coherent steps. Reserved stateless.engine. keys are rejected; producer stamps identify native package/build labels rather than source hashes. Native binary-v2 causal evidence is mapped separately; canonical built-in value codecs are mapped separately and broader installed/platform/resource qualification remains open. Replaying an exact model_error prefix does not reproduce its terminal error."
+    },
+    {
+      "id": "replay-observations",
+      "gap_ids": [
+        "N01",
+        "N12"
+      ],
+      "capability": "Phase-aware replay observations, bounded differences and actual-error context",
+      "rust_api": [
+        "src/execution.rs:538 replay_with_observer",
+        "src/execution.rs:556 ReplayDifferences",
+        "src/execution.rs:603 ReplayObservation",
+        "src/execution.rs:632 ReplayError",
+        "src/execution.rs:668 replay_with_observations",
+        "src/execution.rs:684 replay_with_observations_bounded"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/replay_evidence.py:15 ReplayDifferences/ReplayActual/ReplayError",
+            "python/src/statelessness/replay_evidence.py:122 replay_with_observations",
+            "python/src/statelessness/replay_evidence.py:126 replay_with_observations_bounded"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/replay_evidence.go:12 ReplayDifferences/ReplayActual/ReplayError",
+            "go/replay_evidence.go:137 ReplayWithObservations",
+            "go/replay_evidence.go:140 ReplayWithObservationsBounded"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/replay.ts:9 ReplayDifferences/ReplayActual/ReplayError",
+            "typescript/src/replay.ts:109 replayWithObservations",
+            "typescript/src/replay.ts:110 replayWithObservationsBounded"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Replay.swift:1 ReplayDifferences/ReplayActual/ReplayError",
+            "swift/Sources/Statelessness/Replay.swift:64 replayWithObservations",
+            "swift/Sources/Statelessness/Replay.swift:67 replayWithObservationsBounded"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped rich and bounded APIs now exist in all four: initial/turn/error observations, typed actual results, all difference flags, ordered primary divergence, failed-ID reproduction, report-before-observer order and primary/secondary error retention. Checker errors retain actual with checks/boundary unknown; later encoding errors retain completed checks. Snapshot failure transfers original recovery ownership with unavailable error-observation metadata rather than rerunning callbacks. Bounded replay prevalidates all nine stored-artifact quotas then charges actual shared frame/aggregate evidence independently. Rust stops via observer errors, not search RunLimits. Broad installed/platform/resource qualification remain pending; Swift unchecked generic error Sendable is not a safe task-transfer guarantee."
+    },
+    {
+      "id": "oracle-history",
+      "gap_ids": [
+        "N02"
+      ],
+      "capability": "Independent history, observed transitions, checks and ORC1 checkpoints",
+      "rust_api": [
+        "src/oracle.rs:15 Oracle",
+        "src/oracle.rs:47 OracleCodec",
+        "src/oracle.rs:61 WithOracle",
+        "src/oracle.rs:81 ObservationError"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/oracle.py:24 OracleState",
+            "python/src/statelessness/oracle.py:49 WithOracle",
+            "python/src/statelessness/oracle.py:73 WithOracle.observe_transition",
+            "python/src/statelessness/oracle.py:94 WithOracle.estimated_state_bytes (explicit logical wrapper overhead)",
+            "python/src/statelessness/oracle.py:110 WithOracle.generate/is_enabled/simpler_inputs"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/oracle.go:21 Oracle",
+            "go/oracle.go:53 WithOracle (including estimate aggregation)",
+            "go/oracle.go:344 OracleStateOverhead",
+            "go/oracle.go:305 WithOracleGenerate"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/oracle.ts:12 Oracle",
+            "typescript/src/oracle.ts:43 WithOracle",
+            "typescript/src/oracle.ts:48 WithOracle.estimatedStateBytes (explicit logical wrapper overhead)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Oracle.swift:21 Oracle.estimatedStateBytes",
+            "swift/Sources/Statelessness/Oracle.swift:137 WithOracle.model (including estimate aggregation)",
+            "swift/Sources/Statelessness/Oracle.swift:57 WithOracle.estimatedWrapperBytes",
+            "swift/Sources/Statelessness/Generate.swift:66 Generate.withOracle"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent history, observations, checks, generation, estimates and append/codec forwarding now exist in all four. ORC1 components encode directly into one framed budget; input/output forward to actual codecs and paired history to reference codecs. Go/Swift inline-padding estimates and Python/TypeScript explicit logical overhead remain native conventions. Mutable adapter legacy overrides must also replace/clear preferred hooks. Native recovery ownership and synchronous confinement do not imply task-safe transfer or Rust panic containment. Broad aliasing/platform/installed qualification remains pending."
+    },
+    {
+      "id": "paired-projection",
+      "gap_ids": [
+        "N02"
+      ],
+      "capability": "Independent reference advancement and state/effect/disposition projection comparison",
+      "rust_api": [
+        "src/conformance.rs:7 Projection::{State,Effect,actual_state,reference_state,actual_effect,reference_effect,metadata}",
+        "src/conformance.rs:18 Paired<R,P>"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/oracle.py:192 Projection",
+            "python/src/statelessness/oracle.py:204 Paired",
+            "python/src/statelessness/oracle.py:220 Paired.estimated_state_bytes"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/paired.go:9 Projection",
+            "go/paired.go:19 Paired (including reference estimate forwarding)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/oracle.ts:128 Projection",
+            "typescript/src/oracle.ts:137 Paired",
+            "typescript/src/oracle.ts:145 Paired.estimatedStateBytes"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Oracle.swift:137 Projection",
+            "swift/Sources/Statelessness/Oracle.swift:155 Paired.oracle (including reference estimate forwarding)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Candidate paired-v1 APIs exist in all four and can feed native generation/fuzz/shrink through oracle adapters. Experimental profile status remains; exact reference independence, ordered effects, disposition reason, history-only differences and actual failure replay still need retained runtime/installed-consumer evidence."
+    },
+    {
+      "id": "rng",
+      "gap_ids": [
+        "N03"
+      ],
+      "capability": "SplitMix64 vectors and unbiased bounded-choice primitive",
+      "rust_api": [
+        "src/model.rs:479 Rng::{new,next_u64,index}"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:470 Rng"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/rng.go:5 Rng"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/core.ts:259 Rng"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Rng.swift:3 Rng"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "rng-splitmix64-v1 primitive exists independently; this is not a generator/fuzz implementation. Exact max-width arithmetic, zero-bound and rejection consumption remain qualification obligations."
+    },
+    {
+      "id": "generation",
+      "gap_ids": [
+        "N03",
+        "N13"
+      ],
+      "capability": "Explicit generation, automatic finite-domain sampling and bounded membership",
+      "rust_api": [
+        "src/model.rs:462 Generate::{generate,is_enabled,simpler_inputs}",
+        "src/automatic.rs:18 AutoOptions",
+        "src/automatic.rs:36 Auto<M>",
+        "src/automatic.rs:194 sample_enumerated",
+        "src/automatic.rs:205 contains_enumerated"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/search.py:28 GenerateModel",
+            "python/src/statelessness/search.py:34 Generated",
+            "python/src/statelessness/search.py:58 AutoOptions",
+            "python/src/statelessness/search.py:65 Auto::{generate,is_enabled}"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/generate.go:7 GenerateModel",
+            "go/generate.go:14 AutoOptions",
+            "go/generate.go:21 Auto"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/search.ts:5 GenerateModel",
+            "typescript/src/search.ts:100 sampleEnumerated",
+            "typescript/src/search.ts:118 containsEnumerated",
+            "typescript/src/search.ts:136 automatic"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Generate.swift:3 Generate",
+            "swift/Sources/Statelessness/Generate.swift:17 AutoOptions",
+            "swift/Sources/Statelessness/Generate.swift:23 sampleEnumerated",
+            "swift/Sources/Statelessness/Generate.swift:36 containsEnumerated",
+            "swift/Sources/Statelessness/Generate.swift:17 Auto.generated"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Native explicit generation, finite reservoir sampling, bounded causal membership and default empty simplifiers are implemented for candidate search-v1. Sampling commits RNG only after complete successful domain scan; cap+1 distinguishes overflow. Exhaustion is EXHAUSTED/Python, present bool/Go, NO_INPUT/TypeScript, outer Optional/Swift; null-like supported inputs must remain distinguishable. Named public helper shapes differ (Python/Go expose behavior through Auto). Independent hostile-domain and installed-consumer qualification remains pending."
+    },
+    {
+      "id": "fuzz",
+      "gap_ids": [
+        "N03"
+      ],
+      "capability": "Seeded fuzz execution and structured bounded reports",
+      "rust_api": [
+        "src/explore.rs:570 FuzzConfig",
+        "src/explore.rs:593 FuzzTermination",
+        "src/explore.rs:602 FuzzReport",
+        "src/explore.rs:616 fuzz",
+        "src/explore.rs:623 fuzz_with_limits",
+        "src/explore.rs:701 fuzz_observed"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/search.py:232 FuzzConfig",
+            "python/src/statelessness/search.py:246 FuzzReport",
+            "python/src/statelessness/search.py:255 fuzz"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/fuzz.go:39 FuzzConfig",
+            "go/fuzz.go:48 FuzzReport",
+            "go/fuzz.go:56 Fuzz",
+            "go/fuzz.go:59 FuzzWithLimits"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/search.ts:187 FuzzConfig",
+            "typescript/src/search.ts:195 FuzzReport",
+            "typescript/src/search.ts:203 fuzz",
+            "typescript/src/search.ts:287 fuzzObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Fuzz.swift:85 FuzzConfig",
+            "swift/Sources/Statelessness/Fuzz.swift:95 FuzzReport",
+            "swift/Sources/Statelessness/Fuzz.swift:105 fuzz"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent seeded case loops, previous-passing-case deletion/replacement mutation, input-enabled checks, initial/successor/transition properties, witnesses and structured budgets/reports are implemented. Candidate search-v1 fixes random consumption and boundary semantics. No guided corpus/campaign implementation or exhaustive-search claim follows; independent qualification, installed packages, platforms and resource measurements remain pending."
+    },
+    {
+      "id": "fuzz-observers",
+      "gap_ids": [
+        "N01",
+        "N03"
+      ],
+      "capability": "Fuzz initial/transition/check-error observations with owned input history",
+      "rust_api": [
+        "src/explore.rs:20 SearchObserver::{needs_history,initial,transition,check_error}",
+        "src/explore.rs:701 fuzz_observed"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "equivalent_observation_semantics",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/search.py:181 SearchObserver",
+            "python/src/statelessness/search.py:277 fuzz(observer=...)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/search_observer.go:9 SearchObserver",
+            "go/search_observer.go:18 FuzzObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/search_support.ts:20 SearchObserver (reexported by search.ts)",
+            "typescript/src/search.ts:221 fuzzObserved"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Fuzz.swift:38 SearchObserver",
+            "swift/Sources/Statelessness/Fuzz.swift:135 fuzz(observer:)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Fuzz observers expose defensive snapshots, full executed prefixes including failing turns, ordered state/transition batches and check-error completeness. BFS uses optional needs_history without removing fuzz history. Append callbacks preserve actual valid emissions before a throw; legacy eager callbacks cannot expose never-returned work. Shared scratch is cleared at boundaries; retained observer batches are detached. Transition errors notify completed state then incomplete transition, attempting both notifications while retaining checker error primary. Native recoverable observer errors extend Rust unit callbacks. Logging/ring/debug observation families and broad runtime qualification remain separate."
+    },
+    {
+      "id": "shrink",
+      "gap_ids": [
+        "N04"
+      ],
+      "capability": "Failure/phase-preserving sequence and input shrinking",
+      "rust_api": [
+        "src/explore.rs:118 ShrinkLimits",
+        "src/explore.rs:901 ShrinkConfig",
+        "src/explore.rs:915 ShrinkTermination",
+        "src/explore.rs:926 ShrinkOperation",
+        "src/explore.rs:933 ShrinkOutcome",
+        "src/explore.rs:944 ShrinkAttempt",
+        "src/explore.rs:952 ShrinkReport",
+        "src/explore.rs:969 shrink",
+        "src/explore.rs:979 shrink_with_limits"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/search.py:329 ShrinkConfig",
+            "python/src/statelessness/search.py:337 ShrinkLimits",
+            "python/src/statelessness/search.py:356 ShrinkAttempt",
+            "python/src/statelessness/search.py:364 ShrinkReport",
+            "python/src/statelessness/search.py:374 shrink"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/shrink.go:3 ShrinkConfig",
+            "go/shrink.go:20 ShrinkReport",
+            "go/shrink.go:121 Shrink",
+            "go/shrink.go:124 ShrinkWithLimits"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/search.ts:288 ShrinkConfig",
+            "typescript/src/search.ts:293 ShrinkOperation",
+            "typescript/src/search.ts:311 ShrinkReport",
+            "typescript/src/search.ts:320 shrink"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Shrink.swift:1 ShrinkConfig",
+            "swift/Sources/Statelessness/Shrink.swift:16 ShrinkOutcome",
+            "swift/Sources/Statelessness/Shrink.swift:26 ShrinkReport",
+            "swift/Sources/Statelessness/Shrink.swift:119 shrink"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent original validation, ordered chunk deletion/input alternatives, causal membership, first-target property ID+phase preservation, accepted-sequence cycle checks, operation history, cancellation/deadline and aggregate replay budgets are implemented. Runtime qualification remains pending. Attempt caps bound replays, not arbitrary iterator/equality work: infinite already-seen alternatives may consume no attempts; cooperative controls cannot preempt a nonreturning callback. Reports establish no global minimality."
+    },
+    {
+      "id": "guided",
+      "gap_ids": [
+        "N05"
+      ],
+      "capability": "Feedback, novelty, retained corpus and guided fuzz",
+      "rust_api": [
+        "src/guided.rs:14 FeedbackMetadata",
+        "src/guided.rs:21 FeatureBuffer",
+        "src/guided.rs:42 Feedback::Feature",
+        "src/guided.rs:95 exact_state",
+        "src/guided.rs:110 GuidanceConfig",
+        "src/guided.rs:141 CorpusEntry",
+        "src/guided.rs:149 GuidanceReport",
+        "src/guided.rs:165 fuzz"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "No independent feedback/corpus/guided search API. An application state hash alone is not novelty accounting or bounded corpus semantics."
+    },
+    {
+      "id": "campaigns",
+      "gap_ids": [
+        "N06"
+      ],
+      "capability": "Reproducible ordinary/guided jobs, scheduling, delivery and acknowledgement",
+      "rust_api": [
+        "src/campaign.rs:22 CampaignConfig",
+        "src/campaign.rs:91 job_seed",
+        "src/campaign.rs:96 JobReport",
+        "src/campaign.rs:106 JobOutcome",
+        "src/campaign.rs:116 CampaignTermination",
+        "src/campaign.rs:127 CampaignReport",
+        "src/campaign.rs:413 run_campaign",
+        "src/campaign.rs:433 run_guided_campaign"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "No independent campaign APIs. src/campaign/lifecycle.rs is private implementation, not an exported lifecycle module; lifecycle behavior remains required by campaign reports/delivery and the plan explicitly requires a native fixture."
+    },
+    {
+      "id": "observed-checks",
+      "gap_ids": [
+        "N07"
+      ],
+      "capability": "Check completed transitions once with periodic/disabled checks",
+      "rust_api": [
+        "src/execution.rs:14 CheckPolicy",
+        "src/execution.rs:30 check_initial",
+        "src/execution.rs:48 check_turn",
+        "src/execution.rs:81 check_observed",
+        "src/observation.rs:22 CheckedInitial",
+        "src/observation.rs:61 CheckedTurn"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/core.py:310 check_observed_into",
+            "python/src/statelessness/core.py:117 CheckPolicy",
+            "python/src/statelessness/core.py:155 check_observed",
+            "python/src/statelessness/checked.py:27 CheckedInitial/CheckedTurn; check_initial/check_turn"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/model.go:236 CheckObservedInto",
+            "go/model.go:236 CheckPolicy",
+            "go/model.go:245 CheckObserved",
+            "go/checked_results.go:10 CheckedInitial/CheckedTurn; CheckInitial/CheckTurn"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/core.ts:107 checkObservedInto",
+            "typescript/src/core.ts:103 CheckPolicy",
+            "typescript/src/core.ts:106 checkObserved",
+            "typescript/src/checked.ts:43 CheckedInitial/CheckedTurn; checkInitial/checkTurnExact/checkTurn"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Model.swift:173 checkObservedInto",
+            "swift/Sources/Statelessness/Model.swift:152 CheckPolicy; checkObserved at line 158",
+            "swift/Sources/Statelessness/CheckedResults.swift:19 CheckedInitial/CheckedTurn; checkInitial/checkTurn"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped sealed CheckedInitial/CheckedTurn results now bind detached supplied context, complete ordered checks, exact state boundary, sequence and full-checking coverage in all four. Error paths mint no token; diagnostic observations cannot replace authority. TypeScript additive BigInt APIs cover exact u64 sequences/periods while compatibility Number APIs reject unsafe values. Runtime Recorder consumes complete tokens without rechecking. Native private storage and caller clone/purity contracts replace Rust borrows; hostile reflection and mutable callback internals are not sandboxed. EvidenceRecorder/debugger-specific checked handoffs and broader installed/platform qualification remain separate."
+    },
+    {
+      "id": "observer-logging",
+      "gap_ids": [
+        "N07"
+      ],
+      "capability": "Configurable observer events, payload formatting, levels and snapshot policy",
+      "rust_api": [
+        "src/observation.rs:114 TurnObservation",
+        "src/observation.rs:123 DebugObservation",
+        "src/observation.rs:134 LogLevel",
+        "src/observation.rs:145 SnapshotPolicy",
+        "src/observation.rs:163 ObservationOptions",
+        "src/observation.rs:187 Event",
+        "src/observation.rs:217 Observer",
+        "src/observation.rs:225 PayloadFormat",
+        "src/observation.rs:299 TextObserver"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "checkObserved output can be logged by applications but no independent equivalent event/observer/formatting or snapshot policy API exists."
+    },
+    {
+      "id": "ring-recording",
+      "gap_ids": [
+        "N07"
+      ],
+      "capability": "Bounded production recording, checkpoints, retained suffix and eviction provenance",
+      "rust_api": [
+        "src/monitor.rs:31 RecorderOptions",
+        "src/monitor.rs:71 Recorder",
+        "src/monitor.rs:134 Recorder::with_checked_initial",
+        "src/monitor.rs:275 Recorder::observe",
+        "src/monitor.rs:308 Recorder::observe_checked",
+        "src/monitor.rs:685 Recorder::retained_steps",
+        "src/monitor.rs:696 Recorder::evicted_steps"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/monitor.py:38 Recorder; with_checked_initial_at; observe_checked/observe; into_trace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/recorder.go:31 Recorder; NewRecorderWithCheckedInitialAt; ObserveRecorder/ObserveCheckedRecorder (heterogeneous free functions)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/runtime_recorder.ts:87 Recorder; withCheckedInitialAt; heterogeneous observe/observeChecked; intoTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Recorder.swift:14 Recorder; generic checkedInitial/observe/observeChecked; logical consuming intoTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "All four now implement the scoped runtime Recorder: ordinary/checked checkpoint construction, exact host-origin sequence and full-coverage gates, metadata/canonical-byte continuity, representation-independent checked handoff, all nine wire quotas plus retained byte/step budgets, bounded footer reservation, atomic coherent-window eviction, state-check-only checkpoint promotion, freeze/error-stop and export/counters. Go heterogeneous handoff uses generic free functions over a nongeneric Recorder. Swift logical consuming intoTrace rejects later mutation/second transfer while permitting read-only snapshots/counters as a documented native extension; other host transfer/error details remain native. The separate causal-evidence mapping now includes EvidenceRecorder envelopes/origins and coordinated metadata eviction; live debugger integration and broad resource/platform/installed qualification remain open. Continuity cannot detect omitted state cycles; delivery and clone fidelity remain application obligations."
+    },
+    {
+      "id": "composition",
+      "gap_ids": [
+        "N08"
+      ],
+      "capability": "Two-model routing and queue-bearing composite model",
+      "rust_api": [
+        "src/composition.rs:7 Address",
+        "src/composition.rs:12 Input",
+        "src/composition.rs:17 State",
+        "src/composition.rs:22 PairState/Message/PairInput/PairOutput",
+        "src/composition.rs:31 Wiring",
+        "src/composition.rs:49 Pair"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Paired conformance is an oracle/reference comparison, not composition::Pair routing. No independent composition wrapper or modeled delivery actions exist."
+    },
+    {
+      "id": "network",
+      "gap_ids": [
+        "N08"
+      ],
+      "capability": "Multi-machine scheduling and FIFO/unordered queues",
+      "rust_api": [
+        "src/network.rs:15 MachineId",
+        "src/network.rs:18 Address/Route/Message",
+        "src/network.rs:39 Input",
+        "src/network.rs:47 State",
+        "src/network.rs:60 NetworkState/NetworkInput/NetworkOutput",
+        "src/network.rs:65 DeliveryOrder",
+        "src/network.rs:71 QueuePolicy",
+        "src/network.rs:95 Wiring",
+        "src/network.rs:114 Network"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "No independent network model/queue policy/local-deliver-drop-duplicate API. User-constructed models are possible but not a library equivalent."
+    },
+    {
+      "id": "lifecycle",
+      "gap_ids": [
+        "N09"
+      ],
+      "capability": "Legacy event/history monitor and indexed epoch/generation retention",
+      "rust_api": [
+        "src/lifecycle.rs:10 Event",
+        "src/lifecycle.rs:25 History",
+        "src/lifecycle.rs:63 LifecycleSpec",
+        "src/lifecycle.rs:73 LifecycleMonitor",
+        "src/lifecycle/indexed.rs:19 ScopedKey",
+        "src/lifecycle/indexed.rs:26 IndexedEvent",
+        "src/lifecycle/indexed.rs:59 IndexedHistory",
+        "src/lifecycle/indexed.rs:79 RetentionLimits",
+        "src/lifecycle/indexed.rs:105 IndexedLifecycleSpec",
+        "src/lifecycle/indexed.rs:119 IndexedLifecycleMonitor"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "OracleState can store application history but does not implement lifecycle obligations, stale-generation rejection, retirement fences or historical lifecycle codecs."
+    },
+    {
+      "id": "assurance",
+      "gap_ids": [
+        "N10"
+      ],
+      "capability": "Required properties, phases, coverage, provenance, assessment and aggregation",
+      "rust_api": [
+        "src/assurance.rs:21 PropertyPhase",
+        "src/assurance.rs:65 Manifest",
+        "src/assurance.rs:153 Coverage",
+        "src/assurance.rs:265 SearchEvidence",
+        "src/assurance.rs:272 AssuranceReport",
+        "src/assurance.rs:451 AssuredRun",
+        "src/assurance.rs:740 enumerate/fuzz/guided_fuzz",
+        "src/assurance.rs:846 merge_reports",
+        "src/assurance.rs:979 run_campaign"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Native Check/Violation/SearchReport do not establish required observations, applicability, input-family/goal coverage or assurance assessments. String property IDs are a foundation only."
+    },
+    {
+      "id": "reference-controller",
+      "gap_ids": [
+        "N10",
+        "N13",
+        "N14"
+      ],
+      "capability": "Production-shaped controller, named mutations, host and coverage fixtures",
+      "rust_api": [
+        "src/reference.rs:200 Controller",
+        "src/reference.rs:241 reduce",
+        "src/reference.rs:793 MutationStatus",
+        "src/reference.rs:814 evaluate_mutation",
+        "src/reference/coverage.rs:19 manifest",
+        "src/reference/host.rs:21 Host",
+        "src/reference/evidence.rs:44 write_mutation_suite"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Native counter/queue examples do not port the Rust controller, mutation catalog, requirement/coverage manifest, host and evidence regression suite."
+    },
+    {
+      "id": "json-envelope",
+      "gap_ids": [
+        "N11"
+      ],
+      "capability": "Portable JSON observation envelope and strict parsing",
+      "rust_api": [
+        "spec/README.md:214 trace-json-v1",
+        "src/trace.rs:63 Trace (underlying engine trace; JSON is a portable adapter envelope, not Trace::write_to binary format)"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/trace_json.py:114 trace_to_data",
+            "python/src/statelessness/trace_json.py:124 trace_from_data",
+            "python/src/statelessness/trace_json.py:165 dumps/loads"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/trace_json.go:36 TraceData",
+            "go/trace_json.go:53 TraceFromData",
+            "go/trace_json.go:120 ParseTrace/MarshalTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/index.ts:3 parseTrace,stringifyTrace,traceFromData,traceToData",
+            "typescript/src/json.ts:1 strict JSON adapter"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/TraceJSON.swift:36 traceToJSON/traceFromJSON",
+            "swift/Sources/Statelessness/TraceJSON.swift:69 parseTrace/encodeTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Current portable JSON profile implemented. Must retain historical parsing/limits/canonical checkpoint behavior when binary formats are added. No 25-pair binary interoperability claim follows."
+    },
+    {
+      "id": "binary-v1",
+      "gap_ids": [
+        "N11"
+      ],
+      "capability": "Structural Rust binary trace v1 read/write and lossless run-configuration representation",
+      "rust_api": [
+        "src/trace.rs:23 RunConfig",
+        "src/trace.rs:40 TraceStep",
+        "src/trace.rs:49 Termination",
+        "src/trace.rs:63 Trace",
+        "src/trace.rs:75 ReadLimits",
+        "src/trace.rs:105 TraceError",
+        "src/trace.rs:523 Trace::write_to",
+        "src/trace.rs:527 Trace::write_with_limits",
+        "src/trace.rs:547 Trace::read_from"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/trace_binary.py:37 BinaryLimits",
+            "python/src/statelessness/trace_binary.py:54 RunConfig",
+            "python/src/statelessness/trace_binary.py:74 AuditTrace::{from_portable,to_portable}",
+            "python/src/statelessness/trace_binary.py:256 write_audit",
+            "python/src/statelessness/trace_binary.py:283 audit_to_bytes",
+            "python/src/statelessness/trace_binary.py:386 read_audit",
+            "python/src/statelessness/trace_binary.py:452 audit_from_bytes",
+            "python/src/statelessness/__init__.py:33 public binary exports"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/audit_binary.go:14 RunConfig",
+            "go/audit_binary.go:22 AuditTrace",
+            "go/audit_binary.go:30 BinaryLimits/DefaultBinaryLimits",
+            "go/audit_binary.go:97 AuditFromPortable",
+            "go/audit_binary.go:106 AuditTrace.Portable",
+            "go/audit_binary.go:298 AuditTrace.WriteBinaryWithLimits",
+            "go/audit_binary.go:375 AuditTrace.WriteBinary",
+            "go/audit_binary.go:378 MarshalAuditTrace",
+            "go/audit_binary_read.go:213 ReadAuditTrace",
+            "go/audit_binary_read.go:347 ParseAuditTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/binary.ts:3 RunConfig",
+            "typescript/src/binary.ts:11 AuditTrace",
+            "typescript/src/binary.ts:14 BinaryLimits/DEFAULT_BINARY_LIMITS",
+            "typescript/src/binary.ts:29 BinaryError/AuditReader/AuditWriter",
+            "typescript/src/binary.ts:140 auditTraceFromPortable",
+            "typescript/src/binary.ts:146 auditTraceToPortable",
+            "typescript/src/binary.ts:268 writeAuditTrace",
+            "typescript/src/binary.ts:322 writeAuditTraceTo",
+            "typescript/src/binary.ts:411 readAuditTrace",
+            "typescript/src/index.ts:6 public binary reexport"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/AuditTrace.swift:2 AuditParameter",
+            "swift/Sources/Statelessness/AuditTrace.swift:8 RunConfig",
+            "swift/Sources/Statelessness/AuditTrace.swift:17 AuditTermination",
+            "swift/Sources/Statelessness/AuditTrace.swift:29 AuditTrace/init(portable:config:)/portable",
+            "swift/Sources/Statelessness/AuditTrace.swift:66 BinaryTraceLimits",
+            "swift/Sources/Statelessness/AuditTrace.swift:78 BinaryTraceError",
+            "swift/Sources/Statelessness/AuditTrace.swift:208 writeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:242 encodeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:338 decodeAuditTrace",
+            "swift/Sources/Statelessness/AuditTrace.swift:367 readAuditTrace"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped to independent structural binary-v1 codecs and explicit configuration-preserving conversions. All nine independent byte/item/step limits and full-trace writer preflight have source implementations; no runtime, adversarial allocation/I/O, installed-package or cross-language interoperability qualification is imported. Separate direct audit and runtime Recorder APIs now retain configuration/stamps, enforce capture quotas and reserve footer headroom. Step check phases are unknown_legacy; binary v2/causal evidence is mapped separately; canonical built-in value codecs are mapped separately; durable publication remains open. A structurally decoded model_error prefix does not establish terminal-error reproduction. Rust TraceError::AllocationFailed is not a uniform native error variant: Python translates MemoryError, while the reviewed Go/Swift/TypeScript surfaces do not expose that same recoverable variant. Swift stream callback errors propagate as their original host errors rather than a BinaryTraceError I/O case. Full error-family parity is therefore not claimed."
+    },
+    {
+      "id": "value-codec",
+      "gap_ids": [
+        "N11",
+        "N13"
+      ],
+      "capability": "Bounded canonical scalar/container codecs",
+      "rust_api": [
+        "src/value_codec.rs:6 DecodeLimits",
+        "src/value_codec.rs:24 TraceEncode",
+        "src/value_codec.rs:45 TraceDecode",
+        "src/value_codec.rs:54 Decoder",
+        "src/value_codec.rs:179 LengthEncode/LengthDecode"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/value_codec.py:45 Decoder; DecodeLimits; Schema; encode_canonical/decode_canonical; raw and independent length operations"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/value_codec.go:142 NewValueCodec; ValueCodec; Decoder; exact128; raw/guarded encode/decode",
+            "go/value_composite.go:34 OptionOf; VectorOf; ArrayOf; Tuple1..4Of; OracleStateOf",
+            "go/value_length.go:5 LengthValueCodec; WithWidth; independent length directions",
+            "go/value_array_adapter.go:6 AdaptFixedArray"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/value_codec.ts:93 Decoder; schema descriptors; valueCodecs; exact bigint64/128; raw and independent length operations"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/ValueCodec.swift:14 TraceValueCodec; independent ordinary/length directions; withLength",
+            "swift/Sources/Statelessness/ValueCodecDecoder.swift:17 ValueDecoder; DecodeLimits",
+            "swift/Sources/Statelessness/ValueCodecBuiltins.swift:4 ValueCodecs; built-in composable schemas",
+            "swift/Sources/Statelessness/ValueCodec128.swift:2 TraceUInt128; TraceInt128",
+            "swift/Sources/Statelessness/ValueCodecLayouts.swift:4 Rust64ValueLayouts finite measured lookup"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped independent canonical built-ins, exact128 values, strict UTF-8, composable containers/OracleState, public cooperative readers, bounded raw/guarded operations and independent ordinary/length encode/decode capabilities now exist. Explicit finite Rust64 collection weights are pinned to measured target/compiler receipts; they are not native heap/RSS measurements or a generic compound-layout algorithm. Unknown compound collection elements require explicit truthful layouts. Custom record/enum builders, derive length-field and ModelCodec version glue remain a separate N13 gate; descriptors are manually wired to existing model callbacks. Native invalid-type and exception/opaque foreign-error policies are documented boundaries, not fabricated Rust typed cases. Finite installed macOS/arm64 consumer proof passed as scoped in the review; registry/browser/broader platform/resource qualification remains open."
+    },
+    {
+      "id": "causal-evidence",
+      "gap_ids": [
+        "N11"
+      ],
+      "capability": "Binary v2 phase-aware evidence, provenance and causal output origins",
+      "rust_api": [
+        "src/evidence.rs:25 Provenance",
+        "src/evidence.rs:35 OutputOrigin",
+        "src/evidence.rs:42 CausalContext",
+        "src/evidence.rs:52 StepEvidence",
+        "src/evidence.rs:82 TraceV2",
+        "src/evidence.rs:400 Artifact",
+        "src/evidence.rs:494 EvidenceRecorder",
+        "src/evidence.rs:744 diagnostic_json",
+        "src/evidence.rs:817 export_diagnostic_new"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/evidence.py:25 Provenance; TraceV2; Artifact; verified upgrade; diagnostic_json; exclusive exports",
+            "python/src/statelessness/evidence_recorder.py:13 EvidenceRecorder; atomic trace/phase retention"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/evidence.go:17 Provenance; TraceV2; Artifact; ReplayTraceV2; VerifyUpgrade",
+            "go/evidence_metadata.go:184 Rust64 logical structural decoder budgets",
+            "go/evidence_recorder.go:23 NewEvidenceRecorder; ObserveEvidenceRecorder; private runtime retention bridge",
+            "go/evidence_export.go:14 ExportPolicy; DiagnosticJSON; exclusive raw/diagnostic exports"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/evidence.ts:20 Provenance; TraceV2; Artifact; phase-aware replay; verifyUpgrade; diagnosticJSON",
+            "typescript/src/evidence_recorder.ts:21 EvidenceRecorder; atomic trace/phase retention",
+            "typescript/src/node_evidence.ts:33 writeRawEvidenceNew; exportDiagnosticNew (explicit Node adapter)"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Evidence.swift:7 Provenance; TraceV2; Artifact; phase-aware replay; verifyUpgrade",
+            "swift/Sources/Statelessness/EvidenceCodec.swift:60 logical Rust64 structural budgets and bounded envelope reading",
+            "swift/Sources/Statelessness/EvidenceRecorder.swift:3 EvidenceRecorder; private runtime retention bridge",
+            "swift/Sources/Statelessness/EvidenceExports.swift:18 diagnosticJSON; exclusive raw/diagnostic exports"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped native v2 envelopes, phase-aware replay/verified upgrade, provenance/causal origins, coordinated EvidenceRecorder retention and bounded diagnostic/exclusive exports now have source implementations. Passive v1 evidence retains unknown_legacy later phases; missing causal origins/provenance cannot be reconstructed from flat v1 traces. Canonical built-in value codecs are now mapped separately; derive/model glue, debugger integration and broad platform/browser/resource qualification remain open. Decoder allocation accounting uses Rust64 logical schema weights, not native heap/RSS. CRC and host labels are not authentication; exclusive synced exports provide neither atomic rename nor parent-directory fsync. Final native suites and finite macOS/arm64 installed-consumer matrix passed as recorded in the scoped review; registry/browser/broader platform/resource qualification remains open; no broad qualification is inferred."
+    },
+    {
+      "id": "debug-session",
+      "gap_ids": [
+        "N12"
+      ],
+      "capability": "Simulation sessions, exact historical viewers, verified branches and minimization",
+      "rust_api": [
+        "crates/statelessness-debug/src/session.rs:193 DebugSession",
+        "crates/statelessness-debug/src/session.rs:81 InputPolicy",
+        "crates/statelessness-debug/src/workbench.rs:79 TraceViewer",
+        "crates/statelessness-debug/src/workbench.rs:389 Branch",
+        "crates/statelessness-debug/src/workbench.rs:476 minimize",
+        "crates/statelessness-debug/src/evidence.rs:8 EvidenceViewer"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/debugger_session.py class DebugSession"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/debug/session.go type Session["
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/debug_session.ts class DebugSession"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/StatelessDebug/Session.swift class DebugSession"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent session/viewer/fork/minimizer implementations exist. Full semantic API review and qualification remain open; Go/TypeScript candidate and Go/TypeScript/Swift export protocol bindings are missing.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_session.py": "d452fcfc6966221a8d9e6e4a68c005ee143b8164e84e629e176628890fa4d945",
+          "go/debug/session.go": "6e351b579241911d86fba20c31967c2cf711d1c2b53e81b00175ce793aeac178",
+          "typescript/src/debug_session.ts": "22195f0a80b0d4198acf07d4e583a3699aebfebec0202f32b9aa4570475c8a9b",
+          "swift/Sources/StatelessDebug/Session.swift": "c679b6f99c417d4dda4227255b4a593916b2d566b33ecc44405287f5879c1faf"
+        }
+      }
+    },
+    {
+      "id": "debug-inspection",
+      "gap_ids": [
+        "N12"
+      ],
+      "capability": "Structural bounded inspection, differences, watches and diagnostic sinks",
+      "rust_api": [
+        "crates/statelessness-debug/src/inspect.rs:310 Inspect",
+        "crates/statelessness-debug/src/inspect.rs:324 inspect",
+        "crates/statelessness-debug/src/inspect.rs:847 diff",
+        "crates/statelessness-debug/src/watches.rs:52 WatchConfig",
+        "crates/statelessness-debug/src/diagnostic.rs:354 DiagnosticHub",
+        "crates/statelessness-debug/src/diagnostic.rs:1076 DiagnosticSink"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/debugger_inspect.py class InspectNode"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/debug/inspect.go type InspectNode"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/debug_inspect.ts InspectNode"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/StatelessDebug/Inspection.swift InspectNode"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent structural inspection, watches and scoped diagnostics exist. Concrete watch/probe protocol service adapters remain missing in all four languages.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_inspect.py": "80541243888522f3c6f9e96b2a80fce5a5c026f6b810f05f59ef7b7f64e32dd1",
+          "go/debug/inspect.go": "4e03d5790f8c11c615976fda44f39355928ce1420a41c731a7ba5869c0789319",
+          "typescript/src/debug_inspect.ts": "73bc0ef4791ccc62908c31213dff087232198048ed69e1ce3648928abea58449",
+          "swift/Sources/StatelessDebug/Inspection.swift": "4fc0a23b095893dff708e3e61bd72216250e59cfaefb880c6c6a24614018e4de"
+        }
+      }
+    },
+    {
+      "id": "debug-live-protocol",
+      "gap_ids": [
+        "N12"
+      ],
+      "capability": "Bounded stdio protocol and cooperative live pause/delivery authority",
+      "rust_api": [
+        "crates/statelessness-debug/src/protocol.rs:307 ProtocolSession",
+        "crates/statelessness-debug/src/protocol.rs:2672 serve",
+        "crates/statelessness-debug/src/live.rs:138 LiveBridge",
+        "crates/statelessness-debug/src/live.rs:541 LiveController",
+        "crates/statelessness-debug/src/live.rs:652 LiveController::safe_point"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/debugger_protocol.py class ProtocolSession"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/debug/protocol.go type ProtocolSession"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/debug_protocol.ts class ProtocolSession"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/StatelessDebug/Protocol.swift class ProtocolAdapter"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent framing, authority/revision checks and live permit controllers exist. Generic host callbacks do not close missing watch/probe, candidate/export and telemetry service integrations.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_protocol.py": "3da7f220d0a515af18d2a414cb8cbdc33bce4d099cfafee3d724d7f84cbb62f5",
+          "go/debug/protocol.go": "979386376cf7330bb029f05fc1a24869254a2e0851753a9a3f62a484658cc6af",
+          "typescript/src/debug_protocol.ts": "39259b2839297bee6497b847373061af5af06b0729da910d429fa59c38308dbc",
+          "swift/Sources/StatelessDebug/Protocol.swift": "115efedc37cb34327e625bf07e4257d8dbec20d5e91648191114816b1a9668dd"
+        }
+      }
+    },
+    {
+      "id": "debug-telemetry",
+      "gap_ids": [
+        "N12"
+      ],
+      "capability": "Effect timing, metrics, passive dashboard and evidence correlation",
+      "rust_api": [
+        "crates/statelessness-debug/src/effects.rs:345 EffectTimeline",
+        "crates/statelessness-debug/src/effects.rs:401 EffectObserver",
+        "crates/statelessness-debug/src/effects.rs:1850 ObservedFuture",
+        "crates/statelessness-debug/src/metrics.rs:292 metric_catalog",
+        "crates/statelessness-debug/src/metrics.rs:764 MetricsStore",
+        "crates/statelessness-debug/src/dashboard.rs:41 Dashboard",
+        "crates/statelessness-debug/src/dashboard.rs:302 correlate"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/debugger_effects.py class EffectObserver"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/debug/effects.go type EffectObserver"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/debug_effects.ts class EffectObserver"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/StatelessDebug/Effects.swift class EffectObserver"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent effect lifecycle, timing, metrics and passive dashboards exist. Concrete Go/Swift telemetry protocol service adapters remain missing; current-source/platform/resource qualification is pending.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_effects.py": "00bc25ea321b94cd46ec6b6c603aee756d6bffed9989cea8b6593f7a03d73496",
+          "go/debug/effects.go": "12667a330265ae965605902971b6bb20952f9c3fd68c68b7a55637b149df4617",
+          "typescript/src/debug_effects.ts": "8dd3ca7e3646960272e14f0ba95e1635998cd10de9b556375c9274858e925788",
+          "swift/Sources/StatelessDebug/Effects.swift": "e8f08deca319b449ba7eef010ef2213320645dfb055fd87d5eeea10febf84642"
+        }
+      }
+    },
+    {
+      "id": "modeling-helpers",
+      "gap_ids": [
+        "N13"
+      ],
+      "capability": "Bounded domains, lazy check details and typed modeling metadata",
+      "rust_api": [
+        "src/modeling.rs:14 check_lazy",
+        "src/modeling.rs:27 #[macro_export] check!",
+        "src/modeling.rs:35 DomainDescriptor",
+        "src/modeling.rs:57 Domain::{new,push,extend,contains,sample_indexed,product}"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "equivalent_modeling_outcomes",
+      "languages": {
+        "python": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "python/src/statelessness/__init__.py:2",
+            "python/src/statelessness/core.py:95",
+            "python/src/statelessness/oracle.py:62",
+            "python/src/statelessness/trace_json.py:114",
+            "python/src/statelessness/search.py:28 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "go/model.go:114",
+            "go/explore.go:58",
+            "go/execution.go:60",
+            "go/trace_json.go:120",
+            "go/oracle.go:43",
+            "go/paired.go:19",
+            "go/generate.go:7 GenerateModel",
+            "go/fuzz.go:56 Fuzz"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "typescript/src/index.ts:1",
+            "typescript/src/core.ts:58",
+            "typescript/src/oracle.ts:31",
+            "typescript/package.json:8",
+            "typescript/src/search.ts:5 GenerateModel"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "missing",
+          "qualification": "qualification-pending",
+          "native_api": [],
+          "absence_review_scope": [
+            "Package.swift:1",
+            "swift/Sources/Statelessness/Model.swift:105",
+            "swift/Sources/Statelessness/Explore.swift:26",
+            "swift/Sources/Statelessness/Oracle.swift:41",
+            "swift/Sources/Statelessness/TraceJSON.swift:69",
+            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Native check constructors and ordinary input arrays do not provide bounded Domain descriptors/product generation or lazy failure-detail helpers. Rust check! syntax needs an idiomatic lazy-details equivalent, not a literal macro port."
+    },
+    {
+      "id": "derive-adapters",
+      "gap_ids": [
+        "N13"
+      ],
+      "capability": "Model/codec/domain/inspection adapters and validation diagnostics",
+      "rust_api": [
+        "crates/statelessness-macros/src/lib.rs:32 #[model]",
+        "crates/statelessness-macros/src/lib.rs:36 derive(TraceEncode)",
+        "crates/statelessness-macros/src/lib.rs:40 derive(TraceDecode)",
+        "crates/statelessness-macros/src/lib.rs:55 derive(Inspect)",
+        "crates/statelessness-macros/src/lib.rs:60 input_domain!",
+        "crates/statelessness-macros/src/lib.rs:66 macro_build_id!",
+        "crates/statelessness-macros/src/lib.rs:83 derive(ModelCodec)",
+        "src/modeling.rs:5 MACRO_API_V1/MACRO_API_V2/RUNTIME_BUILD_ID"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "idiomatic_equivalent_outcomes_not_rust_syntax",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/codec_declarations.py class "
+          ],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/value_derive.go type RecordFields"
+          ],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/value_codec.ts record"
+          ],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/DeriveCodec.swift enum TraceRecords"
+          ],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Ordered record/enum codec declarations and model codec binders exist; full model/domain/inspection helper correspondence remains owned by N13/N14. See derive-model-implementation-review.md; no broad qualification promotion.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/codec_declarations.py": "7e5c0bc9fb837121b88e6ec9728b6c787ee58c37cc22245bda18d1442e98034f",
+          "go/value_derive.go": "6d69ab76a6abecddabf4be455ec8e8e279e7ae09379fa30a82eaaa158bb531c3",
+          "typescript/src/value_codec.ts": "f42623926009fef488763f810e9ec9a877a4d20856316e527ebe81816c155e5d",
+          "swift/Sources/Statelessness/DeriveCodec.swift": "8acc14a3b5597c813f3f197775af04cb2c8a58ede2574e0cf3411cd54a7eb841"
+        }
+      }
+    },
+    {
+      "id": "native-conformance-tooling",
+      "gap_ids": [
+        "N14"
+      ],
+      "capability": "Native corpus runner, table model and portable fixture entrypoints",
+      "rust_api": [
+        "src/conformance.rs:7 Projection (paired engine API, distinct from corpus executables)",
+        "src/main.rs:1 CLI",
+        "spec/README.md:18 portable profiles"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/native_conformance.py:11 Backend",
+            "python/src/statelessness/native_conformance.py:36 main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/conformance/runner.go:192 Execute",
+            "go/conformance/runner.go:328 Run",
+            "go/cmd/stateless-corpus/main.go:1 main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/conformance.ts:7 TableModel",
+            "typescript/src/conformance.ts:64 execute",
+            "typescript/bin/corpus.mjs:1 executable"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/StatelessConformance/Conformance.swift:111 execute",
+            "swift/Sources/StatelessConformance/Conformance.swift:163 run",
+            "swift/Sources/StatelessCorpus/main.swift:1 executable"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Independent conformance runners exist for current portable profiles and candidate pairing; broad Rust CLI/demo/example parity is not established. Packaging, installed-consumer commands and expanded native fixtures remain work."
+    },
+    {
+      "id": "reduction-research",
+      "gap_ids": [
+        "N14"
+      ],
+      "capability": "Finite exact-versus-projected reachability experiment and known unsound witness",
+      "rust_api": [
+        "src/research.rs:15 Assumptions",
+        "src/research.rs:47 Proposal",
+        "src/research.rs:55 ExperimentConfig",
+        "src/research.rs:73 ExperimentStatus",
+        "src/research.rs:107 ExperimentReport",
+        "src/research.rs:145 compare_equivalence",
+        "src/research.rs:458 qualification_parameters"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/src/statelessness/research.py:35 Assumptions; Proposal; ExperimentConfig; ExperimentReport",
+            "python/src/statelessness/research.py:288 compare_equivalence",
+            "python/src/statelessness/research.py:364 qualification_parameters"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/research.go:18 RequiredProperty; ResearchProposal; ResearchConfig; ExperimentReport",
+            "go/research.go:104 CompareEquivalence; explicit non-codec metadata and exact equality",
+            "go/research.go:483 QualificationParameters"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/src/research.ts:178 compareEquivalence; ResearchEquality; ResearchModel; report types",
+            "typescript/src/research.ts:433 qualificationParameters",
+            "typescript/src/index.ts:23 opt-in research exports"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "implemented",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Sources/Statelessness/Research.swift:6 ResearchRequiredProperty; Research namespace report/proposal/config",
+            "swift/Sources/Statelessness/Research.swift:102 compareEquivalence convenience and explicit equality overloads",
+            "swift/Sources/Statelessness/Research.swift:273 qualificationParameters"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Scoped opt-in finite-domain exact-versus-projected research implementations now exist in all four, including closed one-time materialization, ordered observables, deterministic property/phase witnesses, explicit incomplete/counterexample precedence and qualification strings that keep production pruning false. Known unsound history/population projections remain explicit rejection fixtures. The67 shared manually authored cases and10 native-only controls are classified separately; no runtime execution pass is yet claimed. Native equality/clone callbacks remain cooperative and lawful; nonreflexive host keys are rejected with exact-index termination guards, and compound Swift equality may need explicit byte-faithful comparators. No general POR/symmetry/liveness, performance or production-equivalence claim; native suites and later installed proof remain pending."
+    },
+    {
+      "id": "demo-and-cli",
+      "gap_ids": [
+        "N14",
+        "N13"
+      ],
+      "capability": "Runnable request-model teaching example and native CLI behavior",
+      "rust_api": [
+        "src/demo.rs:6 State",
+        "src/demo.rs:13 Input",
+        "src/demo.rs:19 Output",
+        "src/demo.rs:26 RequestModel",
+        "src/main.rs:1 CLI"
+      ],
+      "mapping_review": "source_reviewed",
+      "required_outcome": "behavioral_api",
+      "languages": {
+        "python": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "python/examples/counter.py:1 counter example",
+            "python/src/statelessness/native_conformance.py:36 corpus main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "go": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "go/examples/counter/main.go:1 counter example",
+            "go/cmd/stateless-corpus/main.go:1 corpus main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "typescript": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "typescript/examples/counter.ts:1 counter example",
+            "typescript/bin/corpus.mjs:1 corpus main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        },
+        "swift": {
+          "implementation": "partial",
+          "qualification": "qualification-pending",
+          "native_api": [
+            "swift/Examples/Counter/Sources/Counter/main.swift:1 counter example",
+            "swift/Sources/StatelessCorpus/main.swift:1 corpus main"
+          ],
+          "absence_review_scope": [],
+          "receipt_ids": []
+        }
+      },
+      "remaining": "Counter/corpus programs are present, but not the Rust RequestModel teaching surface or the broad Rust CLI command set. Equivalent runnable teaching scenarios and user-facing tooling behavior are required; literal Rust binary syntax and private CLI helpers are not."
+    }
+  ],
+  "residuals": [
+    "Feature/API grouping is reviewed; every lexical declaration has not yet received individual semantic disposition.",
+    "Associated types and representative enum variants are accounted in audit; exhaustive variant/case/trait-implementation parity remains pending.",
+    "Rust cfg and target-specific FFI exports require target expansion audit. Macro-generated application exports depend on invocation and are not enumerated.",
+    "Exact language deployment/platform/runtime floors and installed-consumer performance qualification remain open.",
+    "Native bounded generation/fuzz/shrink plus BFS cooperative controls, state-estimate admission and checked search observations have scoped implementations. Append/encode storage, sealed checked results and rich/bounded replay now have scoped source implementations; causal evidence and later milestone groups remain open, and broad qualification is not inferred.",
+    "Native binary-v1 structural read/write, lossless RunConfig and all nine limit families have source implementations; binary v2 causal evidence, canonical value codecs, durable publication and installed native/Rust interoperability qualification remain open. N11 is not closed.",
+    "General liveness, general partial-order reduction, a TUI and LLDB/GDB integration are outside the pinned Rust baseline; no extra native gap is invented for them."
+  ],
+  "experimental_profiles": {
+    "profiles": [
+      "paired-v1",
+      "search-v1",
+      "native-binary-v1",
+      "bfs-controls-v1"
+    ],
+    "qualified_profile_list_unchanged": [
+      "core-v1",
+      "bfs-v1",
+      "rng-splitmix64-v1",
+      "trace-json-v1"
+    ],
+    "declarations": [
+      "python/src/statelessness/__init__.py:39 EXPERIMENTAL_PROFILES (paired-v1/search-v1/native-binary-v1/bfs-controls-v1)",
+      "go/oracle.go:10 ExperimentalProfiles",
+      "typescript/src/oracle.ts:7 EXPERIMENTAL_PROFILES",
+      "swift/Sources/Statelessness/Oracle.swift:2 experimentalProfiles"
+    ],
+    "contracts": [
+      "spec/paired-v1.md",
+      "spec/search-v1.md",
+      "spec/native-binary-v1.md",
+      "spec/bfs-controls-v1.md"
+    ],
+    "note": "Candidate markers advertise opt-in API scope only, not qualification or release."
+  }
+}

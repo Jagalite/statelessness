@@ -1,0 +1,44 @@
+{
+  "authorship": "manual expectations recorded before executing Rust reference",
+  "scope": "acceptance targets, not evidence of execution or implementation",
+  "simulation": [
+    "initial checks once at sequence/revision zero; new calls initial_state before initialization validation",
+    "accepted/rejected/ignored returned transitions increment both counters; reducer error does not invent transition",
+    "property failure survives observer fault; observer runs after state and last-turn commit",
+    "pre breakpoint no delivery; identical pending repeat at same revision bypasses once",
+    "candidate tokens reject cross-session/stale revision; bounded enumeration observes maximum plus one lookahead",
+    "no-codec typed simulation works; recorder/fork separately require codecs"
+  ],
+  "inspection": [
+    "redacted closure evaluation count zero; incomplete redacted equality unknown",
+    "unknown before equal for opaque/unavailable/sampled/paginated/truncated nodes",
+    "typed path segments and stable/unstable map labels retained; decimal u128 stays exact"
+  ],
+  "capture": [
+    "no interested watch or probe consumer invokes zero projection closures",
+    "selected probe closure once across multiple independent sinks",
+    "producer applies capture revision only after acknowledgement; stale producers retain old config",
+    "redaction precedes queueing; exporter failure outside reducer; drop/loss/abandon separate"
+  ],
+  "protocol": [
+    "zero/oversized lengths reject before allocating payload; partial frame dispatch count zero",
+    "authorities independent default false; exact value reads and trace export separately gated",
+    "identical request replay response without callback; conflicting reuse reject; retired IDs never rerun",
+    "reconnect changes epoch and invalidates handles/candidates/dedup without model reset",
+    "u64 request/revision identities exact; failed write after transition does not rollback"
+  ],
+  "live": [
+    "checked handoff does not reduce/check again; missing/duplicate sequence observable",
+    "pause acknowledgement only safe point; one authorization buffers at most one delivery",
+    "permits controller-bound and one-use; reservation not confirmed dispatch; uncertainty blocks retry",
+    "external rejected input remains host-owned; no preemption promise"
+  ],
+  "telemetry": [
+    "request/ready0 start12 finish/resolution96 publish97 delivery100 observed102 => queue12 elapsed84 preparation1 completion_queue3 processing2 end_to_end100",
+    "missing/cross-domain/reversed endpoints unknown/error; coincident observed timestamps zero",
+    "cancellation request does not terminate running attempt; late completion remains possible",
+    "replay/imported sources do not ingest production live aggregates",
+    "detail eviction not active work termination; absent dashboard series null",
+    "causal join exact run/machine/epoch/sequence/output; conflict and before-checkpoint distinct"
+  ]
+}

@@ -1,0 +1,1 @@
+{"build_matches":true,"failure_reproduced":false,"operation":"replay-single","outcome":"exact","producer":"rust","retained_config":{"parameters":[["stateless.engine.version","0.2.0"],["stateless.engine.build","source-fnv1a64:0e6fa725c30d4235"]],"seed":null,"strategy":"manual"},"semantic_replay":true,"steps":1}

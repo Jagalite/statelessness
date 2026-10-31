@@ -966,6 +966,247 @@ fn telemetry_queries_need_explicit_adapter_and_never_grant_model_authority() {
     assert_eq!(endpoint.session().sequence(), 0);
 }
 #[test]
+fn export_swift_inspection_wire_fixture() {
+    let mut endpoint = super_readonly();
+    endpoint.enable_inspection();
+    assert!(
+        transact(&mut endpoint, req(1, 0, Command::Snapshot))
+            .result
+            .is_ok()
+    );
+    let cases = [
+        ("root", 1, 0, 1, vec![]),
+        (
+            "scalar",
+            1,
+            0,
+            1,
+            vec![PathSegment::Field("generation".into())],
+        ),
+        ("page", 1, 0, 1, vec![PathSegment::Field("pending".into())]),
+        ("object_past_end", 1, 9, 1, vec![]),
+        (
+            "sequence_past_end",
+            1,
+            9,
+            1,
+            vec![PathSegment::Field("pending".into())],
+        ),
+        (
+            "missing",
+            1,
+            0,
+            1,
+            vec![PathSegment::Field("missing".into())],
+        ),
+        ("schema", 2, 0, 1, vec![]),
+    ];
+    let mut output = String::new();
+    for (i, (name, schema, offset, limit, path)) in cases.into_iter().enumerate() {
+        let response = transact(
+            &mut endpoint,
+            req(
+                (i + 2) as u64,
+                0,
+                Command::Inspect {
+                    handle: 1,
+                    schema,
+                    offset,
+                    limit,
+                    path,
+                },
+            ),
+        );
+        let bytes = encode_response(&response, &ProtocolLimits::default()).unwrap();
+        output.push_str(name);
+        output.push('\t');
+        output.push_str(std::str::from_utf8(&bytes).unwrap());
+        output.push('\n');
+    }
+    if let Ok(path) = std::env::var("STATELESS_SWIFT_INSPECTION_WIRE_OUT") {
+        std::fs::write(path, &output).unwrap();
+        return;
+    }
+    // Session, request and epoch envelope values are process-specific; compare
+    // status and every encoded field in the exact emitted order.
+    fn normalized(text: &str) -> Vec<String> {
+        text.lines()
+            .map(|line| {
+                let values = line.split('\t').collect::<Vec<_>>();
+                format!("{}\t{}", values[0], values[9..].join("\t"))
+            })
+            .collect()
+    }
+    assert_eq!(
+        normalized(&output),
+        normalized(include_str!(
+            "../../../conformance/swift-inspection-wire-v1.tsv"
+        ))
+    );
+}
+#[test]
+fn effect_detail_distinguishes_original_label_from_aggregate_affected_state() {
+    use statelessness_debug::effects::Admission;
+    let observer = telemetry();
+    let effect = observer.requested(origin(1), Default::default()).unwrap();
+    observer.debugger_pause(true);
+    observer.admission(&effect, Admission::Accepted).unwrap();
+    let attempt = observer.attempt_created(&effect).unwrap();
+    observer.attempt_started(&attempt).unwrap();
+    let mut endpoint = super_readonly();
+    endpoint.attach_telemetry(observer).unwrap();
+    for (id, command) in [
+        (1, Command::EffectDetails { id: effect.id() }),
+        (
+            2,
+            Command::EffectTimeline {
+                id: effect.id(),
+                limit: 2,
+            },
+        ),
+    ] {
+        let response = transact(&mut endpoint, req(id, 0, command));
+        assert_eq!(response.result, Ok(()));
+        assert_eq!(
+            response
+                .fields
+                .iter()
+                .filter(|(key, _)| key == "effect.labels.debugger_affected")
+                .map(|(_, value)| value.as_str())
+                .collect::<Vec<_>>(),
+            ["bool:false"]
+        );
+        assert_eq!(
+            response
+                .fields
+                .iter()
+                .filter(|(key, _)| key == "effect.debugger_affected")
+                .map(|(_, value)| value.as_str())
+                .collect::<Vec<_>>(),
+            ["bool:true"]
+        );
+        let encoded = encode_response(&response, &ProtocolLimits::default()).unwrap();
+        let decoded = decode_response(&encoded, &ProtocolLimits::default()).unwrap();
+        assert_eq!(decoded.fields, response.fields);
+    }
+}
+#[test]
+fn export_swift_effect_wire_fixture() {
+    use statelessness_debug::effects::Admission;
+    let observer = telemetry();
+    let effect = observer.requested(origin(1), Default::default()).unwrap();
+    observer.debugger_pause(true);
+    observer.admission(&effect, Admission::Accepted).unwrap();
+    let attempt = observer.attempt_created(&effect).unwrap();
+    observer.attempt_started(&attempt).unwrap();
+    let mut endpoint = super_readonly();
+    endpoint.attach_telemetry(observer).unwrap();
+    let mut output = String::new();
+    for (i, (name, command)) in [
+        ("details", Command::EffectDetails { id: effect.id() }),
+        (
+            "timeline",
+            Command::EffectTimeline {
+                id: effect.id(),
+                limit: 4,
+            },
+        ),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let response = transact(&mut endpoint, req((i + 1) as u64, 0, command));
+        let bytes = encode_response(&response, &ProtocolLimits::default()).unwrap();
+        output.push_str(name);
+        output.push('\t');
+        output.push_str(std::str::from_utf8(&bytes).unwrap());
+        output.push('\n');
+    }
+    if let Ok(path) = std::env::var("STATELESS_SWIFT_EFFECT_WIRE_OUT") {
+        std::fs::write(path, &output).unwrap();
+        return;
+    }
+    fn normalized(text: &str) -> Vec<String> {
+        text.lines()
+            .map(|line| {
+                let values = line.split('\t').collect::<Vec<_>>();
+                format!("{}\t{}", values[0], values[9..].join("\t"))
+            })
+            .collect()
+    }
+    assert_eq!(
+        normalized(&output),
+        normalized(include_str!(
+            "../../../conformance/swift-effect-wire-v1.tsv"
+        ))
+    );
+}
+#[test]
+fn export_swift_watch_probe_wire_fixture() {
+    let limits = ProtocolLimits {
+        max_response_fields: 32,
+        ..Default::default()
+    };
+    let mut endpoint = endpoint(ProtocolAuthority::default(), limits.clone());
+    let mut watches = WatchRegistry::new(WatchLimits::default(), WatchAuthorization::allow_all());
+    for _ in 0..8 {
+        watches
+            .add(statelessness_debug::watches::WatchConfig::changed(
+                vec![],
+                1,
+            ))
+            .unwrap();
+    }
+    endpoint.enable_watches(watches).unwrap();
+    endpoint
+        .attach_probes(
+            probe_hub("counter"),
+            vec![
+                probe_profile(7, 1, "counter"),
+                probe_profile(8, 1, "counter"),
+            ],
+            vec![1, 2],
+        )
+        .unwrap();
+    let cases = [
+        ("watches", Command::WatchStatus),
+        (
+            "probes",
+            Command::ProbeStatus {
+                offset: 0,
+                limit: 1,
+            },
+        ),
+    ];
+    let mut output = String::new();
+    for (i, (name, command)) in cases.into_iter().enumerate() {
+        let response = transact(&mut endpoint, req((i + 1) as u64, 0, command));
+        let bytes = encode_response(&response, &limits).unwrap();
+        output.push_str(name);
+        output.push('\t');
+        output.push_str(std::str::from_utf8(&bytes).unwrap());
+        output.push('\n');
+    }
+    if let Ok(path) = std::env::var("STATELESS_SWIFT_WATCH_PROBE_OUT") {
+        std::fs::write(path, &output).unwrap();
+        return;
+    }
+    fn normalized(text: &str) -> Vec<String> {
+        text.lines()
+            .map(|line| {
+                let v = line.split('\t').collect::<Vec<_>>();
+                format!("{}\t{}", v[0], v[9..].join("\t"))
+            })
+            .collect()
+    }
+    assert_eq!(
+        normalized(&output),
+        normalized(include_str!(
+            "../../../conformance/swift-watch-probe-wire-v1.tsv"
+        ))
+    );
+}
+#[test]
 fn metric_pages_bind_to_immutable_snapshot_and_metric_revision_is_separate() {
     use statelessness_debug::effects::Admission;
     let observer = telemetry();
@@ -2189,5 +2430,66 @@ fn probe_wire_roundtrip_and_framed_configuration_leave_workers_pending() {
     let mut output = Cursor::new(output);
     while let Some(frame) = read_frame(&mut output, limits.max_frame_bytes).unwrap() {
         assert!(decode_response(&frame, &limits).unwrap().result.is_ok());
+    }
+}
+
+#[test]
+fn watch_status_returns_whole_bounded_prefix_with_truthful_total() {
+    for field_limited in [true, false] {
+        let mut limits = ProtocolLimits::default();
+        if field_limited {
+            limits.max_response_fields = 32;
+        } else {
+            limits.max_frame_bytes = 2048;
+        }
+        limits.max_page_size = 50;
+        let mut endpoint = endpoint(ProtocolAuthority::default(), limits.clone());
+        let mut watches =
+            WatchRegistry::new(WatchLimits::default(), WatchAuthorization::allow_all());
+        for _ in 0..30 {
+            watches
+                .add(statelessness_debug::watches::WatchConfig::changed(
+                    vec![],
+                    1,
+                ))
+                .unwrap();
+        }
+        endpoint.enable_watches(watches).unwrap();
+        let result = transact(&mut endpoint, req(1, 0, Command::WatchStatus));
+        assert!(result.result.is_ok(), "{result:?}");
+        assert!(encode_response(&result, &limits).is_ok());
+        assert_eq!(number(&result, "watches.total"), 30);
+        assert!(
+            result
+                .fields
+                .iter()
+                .any(|(k, v)| k == "watches.truncated" && v == "bool:true")
+        );
+        let mut count = 0;
+        while result
+            .fields
+            .iter()
+            .any(|(k, _)| k == &format!("watches.{count}.id"))
+        {
+            assert_eq!(
+                number(&result, &format!("watches.{count}.id")),
+                count as u64 + 1
+            );
+            for name in [
+                "generation",
+                "enabled",
+                "has_baseline",
+                "effective_sequence",
+            ] {
+                assert!(
+                    result
+                        .fields
+                        .iter()
+                        .any(|(k, _)| k == &format!("watches.{count}.{name}"))
+                );
+            }
+            count += 1;
+        }
+        assert!(count > 0 && count < 30, "{count}");
     }
 }

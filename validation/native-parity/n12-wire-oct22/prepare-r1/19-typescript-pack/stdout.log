@@ -1,0 +1,846 @@
+[
+  {
+    "id": "@jagalite/statelessness@0.1.0",
+    "name": "@jagalite/statelessness",
+    "version": "0.1.0",
+    "size": 344795,
+    "unpackedSize": 1692525,
+    "shasum": "e13b25dc54540a031eb6bb09a22e900345411cdd",
+    "integrity": "sha512-0jKa2meyiqDVJ8r8ozPcTVVWF/yjoPCJyXnkXoNxAGS+9kqG1xiWCSY9vpSW0hUxyv26eftqhKe9wbTOa4E6tg==",
+    "filename": "jagalite-statelessness-0.1.0.tgz",
+    "files": [
+      {
+        "path": "DEBUGGER.md",
+        "size": 6393,
+        "mode": 420
+      },
+      {
+        "path": "LICENSE",
+        "size": 1068,
+        "mode": 420
+      },
+      {
+        "path": "README.md",
+        "size": 27219,
+        "mode": 420
+      },
+      {
+        "path": "bin/corpus.mjs",
+        "size": 1035,
+        "mode": 420
+      },
+      {
+        "path": "dist/audit_budget.d.ts",
+        "size": 2180,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_budget.d.ts.map",
+        "size": 1870,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_budget.js",
+        "size": 7747,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_budget.js.map",
+        "size": 8995,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_record.d.ts",
+        "size": 438,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_record.d.ts.map",
+        "size": 478,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_record.js",
+        "size": 4977,
+        "mode": 384
+      },
+      {
+        "path": "dist/audit_record.js.map",
+        "size": 5985,
+        "mode": 384
+      },
+      {
+        "path": "dist/binary.d.ts",
+        "size": 4001,
+        "mode": 384
+      },
+      {
+        "path": "dist/binary.d.ts.map",
+        "size": 2710,
+        "mode": 384
+      },
+      {
+        "path": "dist/binary.js",
+        "size": 24414,
+        "mode": 384
+      },
+      {
+        "path": "dist/binary.js.map",
+        "size": 31634,
+        "mode": 384
+      },
+      {
+        "path": "dist/checked.d.ts",
+        "size": 3328,
+        "mode": 384
+      },
+      {
+        "path": "dist/checked.d.ts.map",
+        "size": 3693,
+        "mode": 384
+      },
+      {
+        "path": "dist/checked.js",
+        "size": 6694,
+        "mode": 384
+      },
+      {
+        "path": "dist/checked.js.map",
+        "size": 8029,
+        "mode": 384
+      },
+      {
+        "path": "dist/checks.d.ts",
+        "size": 1494,
+        "mode": 384
+      },
+      {
+        "path": "dist/checks.d.ts.map",
+        "size": 1180,
+        "mode": 384
+      },
+      {
+        "path": "dist/checks.js",
+        "size": 5510,
+        "mode": 384
+      },
+      {
+        "path": "dist/checks.js.map",
+        "size": 5653,
+        "mode": 384
+      },
+      {
+        "path": "dist/conformance.d.ts",
+        "size": 2130,
+        "mode": 384
+      },
+      {
+        "path": "dist/conformance.d.ts.map",
+        "size": 2174,
+        "mode": 384
+      },
+      {
+        "path": "dist/conformance.js",
+        "size": 8438,
+        "mode": 384
+      },
+      {
+        "path": "dist/conformance.js.map",
+        "size": 10367,
+        "mode": 384
+      },
+      {
+        "path": "dist/core.d.ts",
+        "size": 8918,
+        "mode": 384
+      },
+      {
+        "path": "dist/core.d.ts.map",
+        "size": 8638,
+        "mode": 384
+      },
+      {
+        "path": "dist/core.js",
+        "size": 20573,
+        "mode": 384
+      },
+      {
+        "path": "dist/core.js.map",
+        "size": 21853,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_dashboard.d.ts",
+        "size": 2800,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_dashboard.d.ts.map",
+        "size": 2610,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_dashboard.js",
+        "size": 9247,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_dashboard.js.map",
+        "size": 11327,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_diagnostic.d.ts",
+        "size": 4918,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_diagnostic.d.ts.map",
+        "size": 4592,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_diagnostic.js",
+        "size": 20904,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_diagnostic.js.map",
+        "size": 22673,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_effects.d.ts",
+        "size": 9641,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_effects.d.ts.map",
+        "size": 5950,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_effects.js",
+        "size": 29973,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_effects.js.map",
+        "size": 39554,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_fork.d.ts",
+        "size": 1765,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_fork.d.ts.map",
+        "size": 1497,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_fork.js",
+        "size": 4492,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_fork.js.map",
+        "size": 4645,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_inspect.d.ts",
+        "size": 6086,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_inspect.d.ts.map",
+        "size": 5905,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_inspect.js",
+        "size": 19599,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_inspect.js.map",
+        "size": 26225,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_internal.d.ts",
+        "size": 177,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_internal.d.ts.map",
+        "size": 175,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_internal.js",
+        "size": 197,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_internal.js.map",
+        "size": 190,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_live.d.ts",
+        "size": 4809,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_live.d.ts.map",
+        "size": 4000,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_live.js",
+        "size": 16147,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_live.js.map",
+        "size": 18813,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_metrics.d.ts",
+        "size": 6837,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_metrics.d.ts.map",
+        "size": 4527,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_metrics.js",
+        "size": 28645,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_metrics.js.map",
+        "size": 36521,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_protocol.d.ts",
+        "size": 4688,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_protocol.d.ts.map",
+        "size": 4094,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_protocol.js",
+        "size": 26974,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_protocol.js.map",
+        "size": 33703,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_session.d.ts",
+        "size": 4451,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_session.d.ts.map",
+        "size": 4570,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_session.js",
+        "size": 18732,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_session.js.map",
+        "size": 20856,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_watches.d.ts",
+        "size": 6376,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_watches.d.ts.map",
+        "size": 5111,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_watches.js",
+        "size": 24752,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug_watches.js.map",
+        "size": 29810,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug.d.ts",
+        "size": 2846,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug.d.ts.map",
+        "size": 2708,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug.js",
+        "size": 11406,
+        "mode": 384
+      },
+      {
+        "path": "dist/debug.js.map",
+        "size": 10773,
+        "mode": 384
+      },
+      {
+        "path": "dist/encoding.d.ts",
+        "size": 2442,
+        "mode": 384
+      },
+      {
+        "path": "dist/encoding.d.ts.map",
+        "size": 1603,
+        "mode": 384
+      },
+      {
+        "path": "dist/encoding.js",
+        "size": 8478,
+        "mode": 384
+      },
+      {
+        "path": "dist/encoding.js.map",
+        "size": 8868,
+        "mode": 384
+      },
+      {
+        "path": "dist/errors.d.ts",
+        "size": 205,
+        "mode": 384
+      },
+      {
+        "path": "dist/errors.d.ts.map",
+        "size": 213,
+        "mode": 384
+      },
+      {
+        "path": "dist/errors.js",
+        "size": 262,
+        "mode": 384
+      },
+      {
+        "path": "dist/errors.js.map",
+        "size": 357,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence_recorder.d.ts",
+        "size": 804,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence_recorder.d.ts.map",
+        "size": 798,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence_recorder.js",
+        "size": 7241,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence_recorder.js.map",
+        "size": 6934,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence.d.ts",
+        "size": 4284,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence.d.ts.map",
+        "size": 3770,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence.js",
+        "size": 36358,
+        "mode": 384
+      },
+      {
+        "path": "dist/evidence.js.map",
+        "size": 43578,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.d.ts",
+        "size": 2032,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.d.ts.map",
+        "size": 1582,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js",
+        "size": 1305,
+        "mode": 384
+      },
+      {
+        "path": "dist/index.js.map",
+        "size": 1036,
+        "mode": 384
+      },
+      {
+        "path": "dist/json.d.ts",
+        "size": 1496,
+        "mode": 384
+      },
+      {
+        "path": "dist/json.d.ts.map",
+        "size": 1392,
+        "mode": 384
+      },
+      {
+        "path": "dist/json.js",
+        "size": 9682,
+        "mode": 384
+      },
+      {
+        "path": "dist/json.js.map",
+        "size": 11248,
+        "mode": 384
+      },
+      {
+        "path": "dist/node_evidence.d.ts",
+        "size": 484,
+        "mode": 384
+      },
+      {
+        "path": "dist/node_evidence.d.ts.map",
+        "size": 421,
+        "mode": 384
+      },
+      {
+        "path": "dist/node_evidence.js",
+        "size": 1574,
+        "mode": 384
+      },
+      {
+        "path": "dist/node_evidence.js.map",
+        "size": 1556,
+        "mode": 384
+      },
+      {
+        "path": "dist/oracle.d.ts",
+        "size": 5590,
+        "mode": 384
+      },
+      {
+        "path": "dist/oracle.d.ts.map",
+        "size": 6928,
+        "mode": 384
+      },
+      {
+        "path": "dist/oracle.js",
+        "size": 14073,
+        "mode": 384
+      },
+      {
+        "path": "dist/oracle.js.map",
+        "size": 16240,
+        "mode": 384
+      },
+      {
+        "path": "dist/replay.d.ts",
+        "size": 2793,
+        "mode": 384
+      },
+      {
+        "path": "dist/replay.d.ts.map",
+        "size": 3106,
+        "mode": 384
+      },
+      {
+        "path": "dist/replay.js",
+        "size": 12685,
+        "mode": 384
+      },
+      {
+        "path": "dist/replay.js.map",
+        "size": 14266,
+        "mode": 384
+      },
+      {
+        "path": "dist/runtime_recorder.d.ts",
+        "size": 2019,
+        "mode": 384
+      },
+      {
+        "path": "dist/runtime_recorder.d.ts.map",
+        "size": 2070,
+        "mode": 384
+      },
+      {
+        "path": "dist/runtime_recorder.js",
+        "size": 21314,
+        "mode": 384
+      },
+      {
+        "path": "dist/runtime_recorder.js.map",
+        "size": 23112,
+        "mode": 384
+      },
+      {
+        "path": "dist/search_support.d.ts",
+        "size": 1541,
+        "mode": 384
+      },
+      {
+        "path": "dist/search_support.d.ts.map",
+        "size": 1479,
+        "mode": 384
+      },
+      {
+        "path": "dist/search_support.js",
+        "size": 4445,
+        "mode": 384
+      },
+      {
+        "path": "dist/search_support.js.map",
+        "size": 5214,
+        "mode": 384
+      },
+      {
+        "path": "dist/search.d.ts",
+        "size": 3749,
+        "mode": 384
+      },
+      {
+        "path": "dist/search.d.ts.map",
+        "size": 3906,
+        "mode": 384
+      },
+      {
+        "path": "dist/search.js",
+        "size": 16997,
+        "mode": 384
+      },
+      {
+        "path": "dist/search.js.map",
+        "size": 18955,
+        "mode": 384
+      },
+      {
+        "path": "dist/value_codec.d.ts",
+        "size": 4643,
+        "mode": 384
+      },
+      {
+        "path": "dist/value_codec.d.ts.map",
+        "size": 4563,
+        "mode": 384
+      },
+      {
+        "path": "dist/value_codec.js",
+        "size": 22624,
+        "mode": 384
+      },
+      {
+        "path": "dist/value_codec.js.map",
+        "size": 27623,
+        "mode": 384
+      },
+      {
+        "path": "examples/counter.ts",
+        "size": 1769,
+        "mode": 420
+      },
+      {
+        "path": "package.json",
+        "size": 2416,
+        "mode": 420
+      },
+      {
+        "path": "src/audit_budget.ts",
+        "size": 7841,
+        "mode": 420
+      },
+      {
+        "path": "src/audit_record.ts",
+        "size": 5342,
+        "mode": 420
+      },
+      {
+        "path": "src/binary.ts",
+        "size": 27234,
+        "mode": 420
+      },
+      {
+        "path": "src/checked.ts",
+        "size": 9183,
+        "mode": 420
+      },
+      {
+        "path": "src/checks.ts",
+        "size": 6314,
+        "mode": 420
+      },
+      {
+        "path": "src/conformance.ts",
+        "size": 9588,
+        "mode": 420
+      },
+      {
+        "path": "src/core.ts",
+        "size": 25277,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_dashboard.ts",
+        "size": 9358,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_diagnostic.ts",
+        "size": 18543,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_effects.ts",
+        "size": 30581,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_fork.ts",
+        "size": 5122,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_inspect.ts",
+        "size": 20680,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_internal.ts",
+        "size": 168,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_live.ts",
+        "size": 16584,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_metrics.ts",
+        "size": 26921,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_protocol.ts",
+        "size": 25004,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_session.ts",
+        "size": 16988,
+        "mode": 420
+      },
+      {
+        "path": "src/debug_watches.ts",
+        "size": 23307,
+        "mode": 420
+      },
+      {
+        "path": "src/debug.ts",
+        "size": 10534,
+        "mode": 420
+      },
+      {
+        "path": "src/encoding.ts",
+        "size": 9746,
+        "mode": 420
+      },
+      {
+        "path": "src/errors.ts",
+        "size": 240,
+        "mode": 420
+      },
+      {
+        "path": "src/evidence_recorder.ts",
+        "size": 7690,
+        "mode": 420
+      },
+      {
+        "path": "src/evidence.ts",
+        "size": 40920,
+        "mode": 420
+      },
+      {
+        "path": "src/index.ts",
+        "size": 1901,
+        "mode": 420
+      },
+      {
+        "path": "src/json.ts",
+        "size": 8969,
+        "mode": 420
+      },
+      {
+        "path": "src/node_evidence.ts",
+        "size": 1742,
+        "mode": 420
+      },
+      {
+        "path": "src/oracle.ts",
+        "size": 15665,
+        "mode": 420
+      },
+      {
+        "path": "src/replay.ts",
+        "size": 12623,
+        "mode": 420
+      },
+      {
+        "path": "src/runtime_recorder.ts",
+        "size": 23674,
+        "mode": 420
+      },
+      {
+        "path": "src/search_support.ts",
+        "size": 5749,
+        "mode": 420
+      },
+      {
+        "path": "src/search.ts",
+        "size": 20647,
+        "mode": 420
+      },
+      {
+        "path": "src/value_codec.ts",
+        "size": 27160,
+        "mode": 420
+      }
+    ],
+    "entryCount": 166,
+    "bundled": []
+  }
+]

@@ -1,0 +1,55 @@
+[0/1] Planning build
+Building for debugging...
+[0/7] Write sources
+[2/7] Write swift-version--58304C5D6DBC2206.txt
+[4/12] Emitting module Statelessness
+[5/12] Compiling Statelessness Model.swift
+[6/15] Compiling Statelessness Fuzz.swift
+[7/15] Compiling Statelessness Explore.swift
+[8/15] Compiling Statelessness Oracle.swift
+[9/15] Compiling Statelessness Generate.swift
+[10/15] Compiling Statelessness Shrink.swift
+[11/15] Compiling Statelessness Execution.swift
+[12/17] Compiling StatelessConformance Conformance.swift
+[13/17] Emitting module StatelessConformance
+[13/18] Write Objects.LinkFileList
+[14/25] Linking stateless-corpus
+[15/25] Applying stateless-corpus
+[17/25] Compiling StatelessnessTests AuditTraceTests.swift
+[18/25] Compiling StatelessnessTests NativeTests.swift
+[19/25] Compiling StatelessnessTests BFSControlsTests.swift
+[20/25] Emitting module StatelessnessTests
+[21/25] Compiling StatelessnessTests SearchTests.swift
+[22/25] Compiling StatelessnessTests RecordingErrorTests.swift
+[23/25] Compiling StatelessnessTests OracleTests.swift
+[23/25] Write Objects.LinkFileList
+[24/25] Linking StatelessnessPackageTests
+Build complete! (10.01s)
+Test Suite 'Selected tests' started at 2026-10-20 17:05:54.520.
+Test Suite 'StatelessnessPackageTests.xctest' started at 2026-10-20 17:05:54.524.
+Test Suite 'BFSControlsTests' started at 2026-10-20 17:05:54.524.
+Test Case '-[StatelessnessTests.BFSControlsTests testAdmittedByteTotalsAndInitialCap]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testAdmittedByteTotalsAndInitialCap]' passed (0.003 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testDetachedDiamondHistoriesAndOptionalHistory]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testDetachedDiamondHistoriesAndOptionalHistory]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testOracleNativePaddingUnknownOverflowAndPairedForwarding]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testOracleNativePaddingUnknownOverflowAndPairedForwarding]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testPrimaryCheckerErrorAndValidatedPrefix]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testPrimaryCheckerErrorAndValidatedPrefix]' passed (0.001 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testPromotedConformanceProjectionStaysStable]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testPromotedConformanceProjectionStaysStable]' passed (0.000 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testRealDeadlineDuringChecksPreservesFailure]' started.
+Test Case '-[StatelessnessTests.BFSControlsTests testRealDeadlineDuringChecksPreservesFailure]' passed (1.021 seconds).
+Test Case '-[StatelessnessTests.BFSControlsTests testSharedBFSControlsCorpus]' started.
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/BFSControlsTests.swift:64: error: -[StatelessnessTests.BFSControlsTests testSharedBFSControlsCorpus] : XCTAssertTrue failed - zero-state-config: invalid search configuration
+Test Case '-[StatelessnessTests.BFSControlsTests testSharedBFSControlsCorpus]' failed (3.480 seconds).
+Test Suite 'BFSControlsTests' failed at 2026-10-20 17:05:59.030.
+	 Executed 7 tests, with 1 failure (0 unexpected) in 4.506 (4.507) seconds
+Test Suite 'StatelessnessPackageTests.xctest' failed at 2026-10-20 17:05:59.031.
+	 Executed 7 tests, with 1 failure (0 unexpected) in 4.506 (4.507) seconds
+Test Suite 'Selected tests' failed at 2026-10-20 17:05:59.031.
+	 Executed 7 tests, with 1 failure (0 unexpected) in 4.506 (4.510) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

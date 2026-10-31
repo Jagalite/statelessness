@@ -1,0 +1,73 @@
+{
+  "schema": "statelessness.observation-suffix.v1",
+  "derivation": "Literal source-derived expectations: native-checked Threshold and checked contract; src/monitor.rs state-prefix eviction and local counters; src/observation.rs Trace NoPayloads formatting. No implementation output generated this contract.",
+  "limits": {"max_total_bytes":8192,"max_frame_bytes":2048,"max_blob_bytes":64,"max_string_bytes":256,"max_steps":16,"max_checks_per_step":16,"max_outputs_per_step":16,"max_parameters":32,"max_items":256},
+  "main_counts": {"initial_state":0,"reducer":2,"state":3,"transition":2},
+  "replay_counts": {"initial_state":0,"reducer":1,"state":2,"transition":1},
+  "checked": {"initial_checks":2,"state_check_count":2,"full_checking":true,"sequence":"41"},
+  "steps": 1,
+  "termination": "interrupted",
+  "binary": {
+    "header_hex":"53544c4553531a0a01000000",
+    "frame_tags":[1,2,3],
+    "step_indices":[0],
+    "footer_payload_hex":"010000000000000003"
+  },
+  "retained_config": {
+    "strategy":"manual","seed":null,
+    "parameters_after_engine_stamp":[
+      ["stateless.monitor.sequence_origin","40"],
+      ["stateless.monitor.max_steps","1"],
+      ["stateless.monitor.max_retained_bytes","8192"],
+      ["stateless.monitor.checking","full"],
+      ["stateless.monitor.observed_steps","2"],
+      ["stateless.monitor.evicted_steps","1"],
+      ["stateless.monitor.checkpoint_after_sequence","1"]
+    ]
+  },
+  "observer_prefix": "suffix-observer\n",
+  "observer_records": [
+    "Trace stream=\"suffix\" event=checkpoint sequence=40 checks=2 check=\"threshold.bound\":Passed check=\"state.appended\":Passed state=unavailable\n",
+    "Debug stream=\"suffix\" event=transition sequence=41 disposition=Accepted outputs=1 checks=3 check=\"threshold.bound\":Passed check=\"state.appended\":Passed check=\"edge.checked\":Passed input=unavailable output[0]=unavailable post_state=unavailable\n",
+    "Debug stream=\"suffix\" event=transition sequence=42 disposition=Accepted outputs=1 checks=3 check=\"threshold.bound\":Passed check=\"state.appended\":Passed check=\"edge.checked\":Passed input=unavailable output[0]=unavailable post_state=unavailable\n"
+  ],
+  "observer_max_record_bytes": 1024,
+  "session": {
+    "report":{"outcome":"exact","divergence_step":null,"divergence_field":null,"steps_verified":1,"failure_reproduced":false,"build_matches":true},
+    "observations":[
+      {
+        "kind":"initial","sequence":0,"state":1,
+        "checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""}],
+        "expected_state":"31","actual_state":"31",
+        "expected_checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""}],
+        "differences":{"disposition":false,"outputs":false,"state":false,"checks":false},
+        "report":{"outcome":"exact","divergence_step":null,"divergence_field":null,"steps_verified":0,"failure_reproduced":false,"build_matches":true}
+      },
+      {
+        "kind":"turn","sequence":1,"before":1,"input":1,
+        "transition":{"state":2,"outputs":["changed"],"disposition":{"kind":"accepted","reason":""}},
+        "checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""},{"id":"edge.checked","status":"passed","details":""}],
+        "state_check_count":2,
+        "expected":{
+          "input":"31","disposition":{"kind":"accepted","reason":""},"outputs":["6368616e676564"],"post_state":"32",
+          "checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""},{"id":"edge.checked","status":"passed","details":""}]
+        },
+        "actual_input":"31","actual_outputs":["6368616e676564"],"actual_state":"32",
+        "differences":{"disposition":false,"outputs":false,"state":false,"checks":false},
+        "report":{"outcome":"exact","divergence_step":null,"divergence_field":null,"steps_verified":1,"failure_reproduced":false,"build_matches":true}
+      }
+    ]
+  },
+  "portable": {
+    "format":"stateless.trace-json","version":1,
+    "metadata":{"name":"native-checked-threshold","model_version":1,"properties_version":1,"codec_version":1,"build":"application-v1"},
+    "initial_state":"31",
+    "initial_checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""}],
+    "steps":[{
+      "input":"31","disposition":{"kind":"accepted","reason":""},"outputs":["6368616e676564"],"post_state":"32",
+      "checks":[{"id":"threshold.bound","status":"passed","details":""},{"id":"state.appended","status":"passed","details":""},{"id":"edge.checked","status":"passed","details":""}]
+    }],
+    "termination":"interrupted","error":""
+  },
+  "scope": "Only the retained checkpoint and one local turn replay. Origin 40 plus local eviction 1 identifies absolute checkpoint 41; diagnostic events do not certify the evicted prefix, continuity, or checked authority. Portable JSON omits audit configuration."
+}

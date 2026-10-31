@@ -1,0 +1,654 @@
+{
+  "schema": "native-parity-requirements/1",
+  "rust_baseline": "0876717bee85e335449c2c99ada41f6c6e6112d1",
+  "inventory": {
+    "path": "docs/native-parity/semantic-symbols.jsonl",
+    "sha256": "a400ebd6aaac0a2bad40c72b0586b5df614fa2dec8687427767e250e15469a12",
+    "records": 5864,
+    "scope": "aarch64-apple-darwin/default library rustdoc only"
+  },
+  "default_symbol_disposition": "pending_individual_api_review",
+  "correspondences": [
+    {
+      "symbol": "statelessness-debug:404",
+      "definition_sha256": "b179f964c2b49d1f26be53e0412522a5c2b7be3ed613c4599c6f64469990fb43",
+      "disposition": "source_correspondence_only",
+      "capability": "debug-session",
+      "review": "Independent read-only N12 review 2026-10-29; member equivalence and service integration remain open.",
+      "native": {
+        "python": {
+          "path": "python/src/statelessness/debugger_session.py",
+          "anchor": "class DebugSession",
+          "sha256": "d452fcfc6966221a8d9e6e4a68c005ee143b8164e84e629e176628890fa4d945"
+        },
+        "go": {
+          "path": "go/debug/session.go",
+          "anchor": "type Session[",
+          "sha256": "6e351b579241911d86fba20c31967c2cf711d1c2b53e81b00175ce793aeac178"
+        },
+        "typescript": {
+          "path": "typescript/src/debug_session.ts",
+          "anchor": "class DebugSession",
+          "sha256": "22195f0a80b0d4198acf07d4e583a3699aebfebec0202f32b9aa4570475c8a9b"
+        },
+        "swift": {
+          "path": "swift/Sources/StatelessDebug/Session.swift",
+          "anchor": "class DebugSession",
+          "sha256": "c679b6f99c417d4dda4227255b4a593916b2d566b33ecc44405287f5879c1faf"
+        }
+      }
+    },
+    {
+      "symbol": "statelessness-debug:1243",
+      "definition_sha256": "aea253877d1058f0cb0dcd6f49e5b949f1cc11620ba27809ac0b7dff69980d80",
+      "disposition": "source_correspondence_only",
+      "capability": "debug-inspection",
+      "review": "Independent read-only N12 review 2026-10-29; member equivalence and service integration remain open.",
+      "native": {
+        "python": {
+          "path": "python/src/statelessness/debugger_inspect.py",
+          "anchor": "class InspectNode",
+          "sha256": "80541243888522f3c6f9e96b2a80fce5a5c026f6b810f05f59ef7b7f64e32dd1"
+        },
+        "go": {
+          "path": "go/debug/inspect.go",
+          "anchor": "type InspectNode",
+          "sha256": "4e03d5790f8c11c615976fda44f39355928ce1420a41c731a7ba5869c0789319"
+        },
+        "typescript": {
+          "path": "typescript/src/debug_inspect.ts",
+          "anchor": "InspectNode",
+          "sha256": "73bc0ef4791ccc62908c31213dff087232198048ed69e1ce3648928abea58449"
+        },
+        "swift": {
+          "path": "swift/Sources/StatelessDebug/Inspection.swift",
+          "anchor": "InspectNode",
+          "sha256": "4fc0a23b095893dff708e3e61bd72216250e59cfaefb880c6c6a24614018e4de"
+        }
+      }
+    },
+    {
+      "symbol": "statelessness-debug:4497",
+      "definition_sha256": "cb2237fbe3545ea063f6328536ffa6c3cc9e221522d5cd064347be40083d59ff",
+      "disposition": "source_correspondence_only",
+      "capability": "debug-live-protocol",
+      "review": "Independent read-only N12 review 2026-10-29; member equivalence and service integration remain open.",
+      "native": {
+        "python": {
+          "path": "python/src/statelessness/debugger_protocol.py",
+          "anchor": "class ProtocolSession",
+          "sha256": "3da7f220d0a515af18d2a414cb8cbdc33bce4d099cfafee3d724d7f84cbb62f5"
+        },
+        "go": {
+          "path": "go/debug/protocol.go",
+          "anchor": "type ProtocolSession",
+          "sha256": "979386376cf7330bb029f05fc1a24869254a2e0851753a9a3f62a484658cc6af"
+        },
+        "typescript": {
+          "path": "typescript/src/debug_protocol.ts",
+          "anchor": "class ProtocolSession",
+          "sha256": "39259b2839297bee6497b847373061af5af06b0729da910d429fa59c38308dbc"
+        },
+        "swift": {
+          "path": "swift/Sources/StatelessDebug/Protocol.swift",
+          "anchor": "class ProtocolAdapter",
+          "sha256": "115efedc37cb34327e625bf07e4257d8dbec20d5e91648191114816b1a9668dd"
+        }
+      }
+    },
+    {
+      "symbol": "statelessness-debug:4491",
+      "definition_sha256": "39896a0de46dc2ef006dded2b82fce086c530eb75dd84c2ae1c3ea40f060f137",
+      "disposition": "source_correspondence_only",
+      "capability": "debug-telemetry",
+      "review": "Independent read-only N12 review 2026-10-29; member equivalence and service integration remain open.",
+      "native": {
+        "python": {
+          "path": "python/src/statelessness/debugger_effects.py",
+          "anchor": "class EffectObserver",
+          "sha256": "00bc25ea321b94cd46ec6b6c603aee756d6bffed9989cea8b6593f7a03d73496"
+        },
+        "go": {
+          "path": "go/debug/effects.go",
+          "anchor": "type EffectObserver",
+          "sha256": "12667a330265ae965605902971b6bb20952f9c3fd68c68b7a55637b149df4617"
+        },
+        "typescript": {
+          "path": "typescript/src/debug_effects.ts",
+          "anchor": "class EffectObserver",
+          "sha256": "8dd3ca7e3646960272e14f0ba95e1635998cd10de9b556375c9274858e925788"
+        },
+        "swift": {
+          "path": "swift/Sources/StatelessDebug/Effects.swift",
+          "anchor": "class EffectObserver",
+          "sha256": "e8f08deca319b449ba7eef010ef2213320645dfb055fd87d5eeea10febf84642"
+        }
+      }
+    }
+  ],
+  "required_gates": [
+    "contract-review",
+    "independent-tests",
+    "negative-controls",
+    "installed-consumer",
+    "fresh-process-replay",
+    "baseline-regression",
+    "resource-budget",
+    "integration-review"
+  ],
+  "platforms": {
+    "python": [
+      "linux/cpython",
+      "macos/cpython",
+      "windows/cpython"
+    ],
+    "go": [
+      "linux/go",
+      "macos/go",
+      "windows/go"
+    ],
+    "typescript": [
+      "linux/node",
+      "macos/node",
+      "windows/node",
+      "browser/chromium",
+      "browser/firefox",
+      "browser/webkit"
+    ],
+    "swift": [
+      "linux/swift",
+      "macos/swift"
+    ]
+  },
+  "conditional_expansions": [
+    "Swift iOS simulator and device before mobile claims; other Apple/Windows targets separately",
+    "Rust wasm, compiled-out-diagnostics and nondefault cfg inventory snapshots",
+    "Exact supported runtime-version matrix and cross-engine interchange require parent review"
+  ],
+  "capabilities": [
+    {
+      "capability": "core-model",
+      "gap_ids": [
+        "N01",
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "append-buffers",
+      "gap_ids": [
+        "N01",
+        "N11"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "finite-bfs",
+      "gap_ids": [
+        "N01"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "search-controls",
+      "gap_ids": [
+        "N01"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "record-replay",
+      "gap_ids": [
+        "N01",
+        "N11"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "replay-observations",
+      "gap_ids": [
+        "N01",
+        "N12"
+      ],
+      "dependency": "M0/N12",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "oracle-history",
+      "gap_ids": [
+        "N02"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "paired-projection",
+      "gap_ids": [
+        "N02"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "rng",
+      "gap_ids": [
+        "N03"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "generation",
+      "gap_ids": [
+        "N03",
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "fuzz",
+      "gap_ids": [
+        "N03"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "fuzz-observers",
+      "gap_ids": [
+        "N01",
+        "N03"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "shrink",
+      "gap_ids": [
+        "N04"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "guided",
+      "gap_ids": [
+        "N05"
+      ],
+      "dependency": "N05/N06",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "campaigns",
+      "gap_ids": [
+        "N06"
+      ],
+      "dependency": "N05/N06",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "observed-checks",
+      "gap_ids": [
+        "N07"
+      ],
+      "dependency": "N07",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "observer-logging",
+      "gap_ids": [
+        "N07"
+      ],
+      "dependency": "N07",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "ring-recording",
+      "gap_ids": [
+        "N07"
+      ],
+      "dependency": "N07",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "composition",
+      "gap_ids": [
+        "N08"
+      ],
+      "dependency": "N08/N09",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "network",
+      "gap_ids": [
+        "N08"
+      ],
+      "dependency": "N08/N09",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "lifecycle",
+      "gap_ids": [
+        "N09"
+      ],
+      "dependency": "N08/N09",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "assurance",
+      "gap_ids": [
+        "N10"
+      ],
+      "dependency": "N10",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "reference-controller",
+      "gap_ids": [
+        "N10",
+        "N13",
+        "N14"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "json-envelope",
+      "gap_ids": [
+        "N11"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "binary-v1",
+      "gap_ids": [
+        "N11"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "value-codec",
+      "gap_ids": [
+        "N11",
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "causal-evidence",
+      "gap_ids": [
+        "N11"
+      ],
+      "dependency": "parent baseline/integration",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "debug-session",
+      "gap_ids": [
+        "N12"
+      ],
+      "dependency": "M0/N12",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "debug-inspection",
+      "gap_ids": [
+        "N12"
+      ],
+      "dependency": "M0/N12",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "debug-live-protocol",
+      "gap_ids": [
+        "N12"
+      ],
+      "dependency": "M0/N12",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "debug-telemetry",
+      "gap_ids": [
+        "N12"
+      ],
+      "dependency": "M0/N12",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "modeling-helpers",
+      "gap_ids": [
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "derive-adapters",
+      "gap_ids": [
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "native-conformance-tooling",
+      "gap_ids": [
+        "N14"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "reduction-research",
+      "gap_ids": [
+        "N14"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    },
+    {
+      "capability": "demo-and-cli",
+      "gap_ids": [
+        "N14",
+        "N13"
+      ],
+      "dependency": "N13/N14",
+      "languages": {
+        "python": "qualification-pending",
+        "go": "qualification-pending",
+        "typescript": "qualification-pending",
+        "swift": "qualification-pending"
+      }
+    }
+  ],
+  "mandatory_blockers": [
+    "individual-semantic-equivalence-review",
+    "supported-runtime-floors-and-current-versions",
+    "cross-engine-installed-interchange",
+    "nondefault-rust-inventory-snapshots"
+  ]
+}

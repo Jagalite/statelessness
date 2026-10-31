@@ -1,0 +1,16 @@
+{
+  "source_manifest": {
+    "path": "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+    "sha256": "558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481",
+    "size_bytes": 949381,
+    "entries": 4706
+  },
+  "after_manifest": {
+    "path": "validation/native-parity/derive-model-v2/integration-oct22/manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json",
+    "sha256": "558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481",
+    "size_bytes": 949381,
+    "entries": 4706
+  },
+  "equal": true,
+  "sampled_ns": 1792683216802539000
+}

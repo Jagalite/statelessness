@@ -1,0 +1,51 @@
+warning: unused import: `TraceDecode as _`
+ --> crates/macro-qualification/src/bin/n13-model-interchange.rs:7:42
+  |
+7 |     value_codec::{DecodeLimits, Decoder, TraceDecode as _, TraceEncode as _},
+  |                                          ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `macro-qualification` (bin "n13-model-interchange") generated 1 warning (run `cargo fix --bin "n13-model-interchange" -p macro-qualification` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running tests/n13_derive_reference.rs (target/debug/deps/n13_derive_reference-00d76c8a46e5b487)
+
+running 14 tests
+test callback_order::admission_and_unknown_tag_precede_field_callbacks ... ok
+test literal_binding::literal_model_exact_fresh_limits_and_encode_only_big_endian_output ... ok
+test exact_guard_and_direct_field_budgets ... ok
+test literal_binding::literal_bound_enum_trailing ... ok
+test binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only ... ok
+test exact_and_one_under_all_quotas_and_error_routes ... ok
+test independent_length::length_only_field_needs_no_ordinary_direction ... ok
+test finite_independent_wire_goldens ... ok
+test raw_unknown_tag_can_be_swallowed_but_guarded_and_structural_errors_stick ... ok
+test raw_failure::raw_callback_error_priority_and_sticky_actual_write_failure ... ok
+test script_callbacks::all_sticky_script_callback_counts ... ok
+test literal_positive_row_budgets ... ok
+test literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write ... FAILED
+test literal_draft_routes_and_diagnostics ... FAILED
+
+failures:
+
+---- literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write stdout ----
+
+thread 'literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write' (39068) panicked at crates/macro-qualification/tests/n13_derive_reference.rs:546:11:
+assertion `left == right` failed
+  left: "encoded blob exceeds byte limit"
+ right: "encoded blob exceeds byte or allocation limit"
+
+---- literal_draft_routes_and_diagnostics stdout ----
+
+thread 'literal_draft_routes_and_diagnostics' (39066) panicked at crates/macro-qualification/tests/n13_derive_reference.rs:428:69:
+called `Result::unwrap()` on an `Err` value: ModelError("decode work limit")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    literal_draft_routes_and_diagnostics
+    literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write
+
+test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p macro-qualification --test n13_derive_reference`

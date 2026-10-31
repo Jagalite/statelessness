@@ -1,0 +1,3904 @@
+{
+  "profile": "canonical-value-codec-v1",
+  "status": "design-only-unexecuted",
+  "qualified_targets": [],
+  "defaults": {
+    "bytes": "16777216",
+    "allocation": "33554432",
+    "elements": "1000000",
+    "depth": "64",
+    "work": "2000000"
+  },
+  "layout_convention": {
+    "name": "explicit-logical-rust64-schema-descriptors",
+    "status": "source-derived-awaiting-target-compiler-measurement",
+    "usize_bits": 64,
+    "expected_sizes": {
+      "u8": "1",
+      "u16": "2",
+      "u32": "4",
+      "u64": "8",
+      "u128": "16",
+      "i8": "1",
+      "i16": "2",
+      "i32": "4",
+      "i64": "8",
+      "i128": "16",
+      "bool": "1",
+      "unit": "0",
+      "String": "24",
+      "Vec<T> header": "24",
+      "Option<()>": "1",
+      "Option<bool>": "1",
+      "Option<u8>": "2",
+      "Option<u64>": "16",
+      "Option<String>": "24",
+      "[u16;3]": "6",
+      "(u8,u64)": "16"
+    },
+    "unknown_layout_policy": "require-explicit-validated-descriptor-no-inferred-zero-or-wire-sum"
+  },
+  "value_cases": [
+    {
+      "case": "u8-zero",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "u8-max",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "255",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "255",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "u16-zero",
+      "schema": {
+        "kind": "u16"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "u16-max",
+      "schema": {
+        "kind": "u16"
+      },
+      "entry": "guarded_value",
+      "value": "65535",
+      "bytes_hex": "ffff",
+      "expected": {
+        "value": "65535",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "u32-zero",
+      "schema": {
+        "kind": "u32"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "u32-max",
+      "schema": {
+        "kind": "u32"
+      },
+      "entry": "guarded_value",
+      "value": "4294967295",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "value": "4294967295",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "u64-zero",
+      "schema": {
+        "kind": "u64"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "u64-max",
+      "schema": {
+        "kind": "u64"
+      },
+      "entry": "guarded_value",
+      "value": "18446744073709551615",
+      "bytes_hex": "ffffffffffffffff",
+      "expected": {
+        "value": "18446744073709551615",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "u128-zero",
+      "schema": {
+        "kind": "u128"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000000000000000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "u128-max",
+      "schema": {
+        "kind": "u128"
+      },
+      "entry": "guarded_value",
+      "value": "340282366920938463463374607431768211455",
+      "bytes_hex": "ffffffffffffffffffffffffffffffff",
+      "expected": {
+        "value": "340282366920938463463374607431768211455",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i8-zero",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-min",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "-128",
+      "bytes_hex": "80",
+      "expected": {
+        "value": "-128",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-max",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "127",
+      "bytes_hex": "7f",
+      "expected": {
+        "value": "127",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i8-negative-one",
+      "schema": {
+        "kind": "i8"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "i16-zero",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-min",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "-32768",
+      "bytes_hex": "0080",
+      "expected": {
+        "value": "-32768",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-max",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "32767",
+      "bytes_hex": "ff7f",
+      "expected": {
+        "value": "32767",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i16-negative-one",
+      "schema": {
+        "kind": "i16"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "i32-zero",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-min",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "-2147483648",
+      "bytes_hex": "00000080",
+      "expected": {
+        "value": "-2147483648",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-max",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "2147483647",
+      "bytes_hex": "ffffff7f",
+      "expected": {
+        "value": "2147483647",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i32-negative-one",
+      "schema": {
+        "kind": "i32"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "i64-zero",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "0000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-min",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "-9223372036854775808",
+      "bytes_hex": "0000000000000080",
+      "expected": {
+        "value": "-9223372036854775808",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-max",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "9223372036854775807",
+      "bytes_hex": "ffffffffffffff7f",
+      "expected": {
+        "value": "9223372036854775807",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i64-negative-one",
+      "schema": {
+        "kind": "i64"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffffffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "i128-zero",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "0",
+      "bytes_hex": "00000000000000000000000000000000",
+      "expected": {
+        "value": "0",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-min",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "-170141183460469231731687303715884105728",
+      "bytes_hex": "00000000000000000000000000000080",
+      "expected": {
+        "value": "-170141183460469231731687303715884105728",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-max",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "170141183460469231731687303715884105727",
+      "bytes_hex": "ffffffffffffffffffffffffffffff7f",
+      "expected": {
+        "value": "170141183460469231731687303715884105727",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "i128-negative-one",
+      "schema": {
+        "kind": "i128"
+      },
+      "entry": "guarded_value",
+      "value": "-1",
+      "bytes_hex": "ffffffffffffffffffffffffffffffff",
+      "expected": {
+        "value": "-1",
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "bool-false",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": false,
+      "bytes_hex": "00",
+      "expected": {
+        "value": false,
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "bool-true",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": true,
+      "bytes_hex": "01",
+      "expected": {
+        "value": true,
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "unit",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "value": null,
+      "bytes_hex": "",
+      "expected": {
+        "value": null,
+        "error": null
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "string-empty",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "",
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": "",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "string-ascii",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "hello",
+      "bytes_hex": "0500000068656c6c6f",
+      "expected": {
+        "value": "hello",
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "string-unicode",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "雪😀",
+      "bytes_hex": "07000000e99baaf09f9880",
+      "expected": {
+        "value": "雪😀",
+        "error": null
+      },
+      "encode_max_bytes": "11"
+    },
+    {
+      "case": "string-nul",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "a\u0000b",
+      "bytes_hex": "03000000610062",
+      "expected": {
+        "value": "a\u0000b",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "string-leading-bom",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "﻿x",
+      "bytes_hex": "04000000efbbbf78",
+      "expected": {
+        "value": "﻿x",
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "string-nfc",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "é",
+      "bytes_hex": "02000000c3a9",
+      "expected": {
+        "value": "é",
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "string-nfd",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "é",
+      "bytes_hex": "0300000065cc81",
+      "expected": {
+        "value": "é",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "none-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": false
+      },
+      "bytes_hex": "00",
+      "expected": {
+        "value": {
+          "some": false
+        },
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": null
+      },
+      "bytes_hex": "01",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": null
+        },
+        "error": null
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-empty-string",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "string"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": ""
+      },
+      "bytes_hex": "0100000000",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": ""
+        },
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "some-none",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": false
+        }
+      },
+      "bytes_hex": "0100",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": false
+          }
+        },
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "some-some-unit",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      },
+      "bytes_hex": "0101",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": true,
+            "value": null
+          }
+        },
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "vector-empty",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [],
+      "bytes_hex": "00000000",
+      "expected": {
+        "value": [],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "vector-u16-order-duplicates",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660",
+        "0",
+        "4660"
+      ],
+      "bytes_hex": "03000000341200003412",
+      "expected": {
+        "value": [
+          "4660",
+          "0",
+          "4660"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "10"
+    },
+    {
+      "case": "vector-unit-three",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        null,
+        null
+      ],
+      "bytes_hex": "03000000",
+      "expected": {
+        "value": [
+          null,
+          null,
+          null
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "array-empty",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u8"
+        },
+        "length": 0
+      },
+      "entry": "guarded_value",
+      "value": [],
+      "bytes_hex": "",
+      "expected": {
+        "value": [],
+        "error": null
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "array-u16-three",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u16"
+        },
+        "length": 3
+      },
+      "entry": "guarded_value",
+      "value": [
+        "1",
+        "2",
+        "3"
+      ],
+      "bytes_hex": "010002000300",
+      "expected": {
+        "value": [
+          "1",
+          "2",
+          "3"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "tuple-one",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u16"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660"
+      ],
+      "bytes_hex": "3412",
+      "expected": {
+        "value": [
+          "4660"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "tuple-two",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u8"
+          },
+          {
+            "kind": "u64"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "1",
+        "72623859790382856"
+      ],
+      "bytes_hex": "010807060504030201",
+      "expected": {
+        "value": [
+          "1",
+          "72623859790382856"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "tuple-three",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "unit"
+          },
+          {
+            "kind": "i8"
+          },
+          {
+            "kind": "bool"
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        "-2",
+        false
+      ],
+      "bytes_hex": "fe00",
+      "expected": {
+        "value": [
+          null,
+          "-2",
+          false
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "tuple-four-small-witness",
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u16"
+          },
+          {
+            "kind": "i32"
+          },
+          {
+            "kind": "bool"
+          },
+          {
+            "kind": "option",
+            "element": {
+              "kind": "u8"
+            }
+          }
+        ]
+      },
+      "entry": "guarded_value",
+      "value": [
+        "4660",
+        "-2",
+        true,
+        {
+          "some": true,
+          "value": "9"
+        }
+      ],
+      "bytes_hex": "3412feffffff010109",
+      "expected": {
+        "value": [
+          "4660",
+          "-2",
+          true,
+          {
+            "some": true,
+            "value": "9"
+          }
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "9"
+    },
+    {
+      "case": "oracle-state-no-orc1-frame",
+      "schema": {
+        "kind": "oracle_state",
+        "model": {
+          "kind": "u16"
+        },
+        "oracle": {
+          "kind": "string"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "model": "4660",
+        "oracle": "H"
+      },
+      "bytes_hex": "34120100000048",
+      "expected": {
+        "value": {
+          "model": "4660",
+          "oracle": "H"
+        },
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "nested-vectors",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "13"
+    },
+    {
+      "case": "vector-arrays",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "array",
+          "element": {
+            "kind": "u16"
+          },
+          "length": 3
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ],
+      "bytes_hex": "02000000010002000300040005000600",
+      "expected": {
+        "value": [
+          [
+            "1",
+            "2",
+            "3"
+          ],
+          [
+            "4",
+            "5",
+            "6"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "vector-options-u64",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "u64"
+          }
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "18446744073709551615"
+        }
+      ],
+      "bytes_hex": "020000000001ffffffffffffffff",
+      "expected": {
+        "value": [
+          {
+            "some": false
+          },
+          {
+            "some": true,
+            "value": "18446744073709551615"
+          }
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "14"
+    },
+    {
+      "case": "string-length-width-1",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "03e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "vector-length-width-1",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "020100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "direct-string-width-1",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0141",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "direct-vector-width-1",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "string-length-width-2",
+      "schema": {
+        "kind": "string",
+        "length_width": 2
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "0300e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "vector-length-width-2",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 2
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "02000100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "direct-string-width-2",
+      "schema": {
+        "kind": "string",
+        "length_width": 2
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "010041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "direct-vector-width-2",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 2
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "02000102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "string-length-width-4",
+      "schema": {
+        "kind": "string",
+        "length_width": 4
+      },
+      "entry": "guarded_length",
+      "value": "雪",
+      "bytes_hex": "03000000e99baa",
+      "expected": {
+        "value": "雪",
+        "error": null
+      },
+      "encode_max_bytes": "7"
+    },
+    {
+      "case": "vector-length-width-4",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_length",
+      "value": [
+        "1",
+        "65535"
+      ],
+      "bytes_hex": "020000000100ffff",
+      "expected": {
+        "value": [
+          "1",
+          "65535"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "8"
+    },
+    {
+      "case": "direct-string-width-4",
+      "schema": {
+        "kind": "string",
+        "length_width": 4
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "direct-vector-width-4",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 4
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020000000102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "6"
+    },
+    {
+      "case": "integer-all-budgets-exact",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "value": "255",
+      "bytes_hex": "ff",
+      "expected": {
+        "value": "255",
+        "error": null
+      },
+      "limits": {
+        "bytes": "1",
+        "allocation": "0",
+        "elements": "0",
+        "depth": "1",
+        "work": "1"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "unit-zero-byte-allocation-elements",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "value": null,
+      "bytes_hex": "",
+      "expected": {
+        "value": null,
+        "error": null
+      },
+      "limits": {
+        "bytes": "0",
+        "allocation": "0",
+        "elements": "0",
+        "depth": "1",
+        "work": "1"
+      },
+      "encode_max_bytes": "0"
+    },
+    {
+      "case": "bool-work-depth-exact",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "value": true,
+      "bytes_hex": "01",
+      "expected": {
+        "value": true,
+        "error": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "2"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-unit-work-depth-exact",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": null
+      },
+      "bytes_hex": "01",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": null
+        },
+        "error": null
+      },
+      "limits": {
+        "work": "3",
+        "depth": "2"
+      },
+      "encode_max_bytes": "1"
+    },
+    {
+      "case": "some-some-unit-work-depth-exact",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "unit"
+          }
+        }
+      },
+      "entry": "guarded_value",
+      "value": {
+        "some": true,
+        "value": {
+          "some": true,
+          "value": null
+        }
+      },
+      "bytes_hex": "0101",
+      "expected": {
+        "value": {
+          "some": true,
+          "value": {
+            "some": true,
+            "value": null
+          }
+        },
+        "error": null
+      },
+      "limits": {
+        "work": "5",
+        "depth": "3"
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "string-budget-exact",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "value": "A",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "limits": {
+        "bytes": "5",
+        "allocation": "1",
+        "elements": "1",
+        "work": "3",
+        "depth": "2"
+      },
+      "encode_max_bytes": "5"
+    },
+    {
+      "case": "vector-unit-budget-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        null,
+        null,
+        null
+      ],
+      "bytes_hex": "03000000",
+      "expected": {
+        "value": [
+          null,
+          null,
+          null
+        ],
+        "error": null
+      },
+      "limits": {
+        "bytes": "4",
+        "allocation": "0",
+        "elements": "3",
+        "work": "5",
+        "depth": "2"
+      },
+      "encode_max_bytes": "4"
+    },
+    {
+      "case": "nested-vector-budget-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "49",
+        "elements": "3",
+        "work": "7",
+        "depth": "3"
+      },
+      "encode_max_bytes": "13"
+    },
+    {
+      "case": "vector-array-double-storage-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "array",
+          "element": {
+            "kind": "u16"
+          },
+          "length": 3
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        [
+          "1",
+          "2",
+          "3"
+        ],
+        [
+          "4",
+          "5",
+          "6"
+        ]
+      ],
+      "bytes_hex": "02000000010002000300040005000600",
+      "expected": {
+        "value": [
+          [
+            "1",
+            "2",
+            "3"
+          ],
+          [
+            "4",
+            "5",
+            "6"
+          ]
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "24",
+        "elements": "8",
+        "work": "10",
+        "depth": "3"
+      },
+      "encode_max_bytes": "16"
+    },
+    {
+      "case": "vector-option-storage-exact",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "option",
+          "element": {
+            "kind": "u64"
+          }
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "value": [
+        {
+          "some": false
+        },
+        {
+          "some": true,
+          "value": "1"
+        }
+      ],
+      "bytes_hex": "0200000000010100000000000000",
+      "expected": {
+        "value": [
+          {
+            "some": false
+          },
+          {
+            "some": true,
+            "value": "1"
+          }
+        ],
+        "error": null
+      },
+      "limits": {
+        "allocation": "32",
+        "elements": "2",
+        "work": "7",
+        "depth": "3"
+      },
+      "encode_max_bytes": "14"
+    },
+    {
+      "case": "direct-vector-omits-outer-work",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": [
+        "1",
+        "2"
+      ],
+      "bytes_hex": "020102",
+      "expected": {
+        "value": [
+          "1",
+          "2"
+        ],
+        "error": null
+      },
+      "limits": {
+        "work": "3",
+        "depth": "1"
+      },
+      "encode_max_bytes": "3"
+    },
+    {
+      "case": "direct-string-omits-outer-work",
+      "schema": {
+        "kind": "string",
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "value": "A",
+      "bytes_hex": "0141",
+      "expected": {
+        "value": "A",
+        "error": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "1"
+      },
+      "encode_max_bytes": "2"
+    },
+    {
+      "case": "outer-length-override-keeps-inner-default",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 1
+      },
+      "entry": "guarded_length",
+      "value": [
+        [],
+        [
+          "1"
+        ]
+      ],
+      "bytes_hex": "02000000000100000001",
+      "expected": {
+        "value": [
+          [],
+          [
+            "1"
+          ]
+        ],
+        "error": null
+      },
+      "encode_max_bytes": "10"
+    }
+  ],
+  "decode_error_cases": [
+    {
+      "case": "decode-unsupported-width-0",
+      "schema": {
+        "kind": "string",
+        "length_width": 0
+      },
+      "entry": "guarded_length",
+      "bytes_hex": "",
+      "expected": {
+        "error": "unsupported length width",
+        "value": null
+      }
+    },
+    {
+      "case": "decode-unsupported-width-3",
+      "schema": {
+        "kind": "string",
+        "length_width": 3
+      },
+      "entry": "guarded_length",
+      "bytes_hex": "",
+      "expected": {
+        "error": "unsupported length width",
+        "value": null
+      }
+    },
+    {
+      "case": "decode-unsupported-width-8",
+      "schema": {
+        "kind": "string",
+        "length_width": 8
+      },
+      "entry": "guarded_length",
+      "bytes_hex": "",
+      "expected": {
+        "error": "unsupported length width",
+        "value": null
+      }
+    },
+    {
+      "case": "bool-tag2",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02",
+      "expected": {
+        "error": "invalid boolean",
+        "value": null
+      }
+    },
+    {
+      "case": "option-tag2",
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02",
+      "expected": {
+        "error": "invalid option tag",
+        "value": null
+      }
+    },
+    {
+      "case": "utf8-invalid-byte",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01000000ff",
+      "expected": {
+        "error": "invalid UTF-8",
+        "value": null
+      }
+    },
+    {
+      "case": "utf8-overlong",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02000000c080",
+      "expected": {
+        "error": "invalid UTF-8",
+        "value": null
+      }
+    },
+    {
+      "case": "utf8-surrogate",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "03000000eda080",
+      "expected": {
+        "error": "invalid UTF-8",
+        "value": null
+      }
+    },
+    {
+      "case": "utf8-out-of-range",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "04000000f4908080",
+      "expected": {
+        "error": "invalid UTF-8",
+        "value": null
+      }
+    },
+    {
+      "case": "utf8-truncated-declared-body",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "03000000c3a9",
+      "expected": {
+        "error": "truncated value",
+        "value": null
+      }
+    },
+    {
+      "case": "array-missing-element",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u16"
+        },
+        "length": 3
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01000200",
+      "expected": {
+        "error": "truncated value",
+        "value": null
+      }
+    },
+    {
+      "case": "array-extra-element",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u16"
+        },
+        "length": 1
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01000200",
+      "expected": {
+        "error": "trailing value bytes",
+        "value": null
+      }
+    },
+    {
+      "case": "unit-trailing-byte",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "00",
+      "expected": {
+        "error": "trailing value bytes",
+        "value": null
+      }
+    },
+    {
+      "case": "byte-before-work-depth",
+      "schema": {
+        "kind": "u8"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "ff",
+      "expected": {
+        "error": "decode byte limit",
+        "value": null
+      },
+      "limits": {
+        "bytes": "0",
+        "work": "0",
+        "depth": "0"
+      }
+    },
+    {
+      "case": "work-before-depth",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "work": "0",
+        "depth": "0"
+      }
+    },
+    {
+      "case": "depth-zero-after-work",
+      "schema": {
+        "kind": "unit"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "",
+      "expected": {
+        "error": "decode nesting limit",
+        "value": null
+      },
+      "limits": {
+        "work": "1",
+        "depth": "0"
+      }
+    },
+    {
+      "case": "bool-inner-work",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "work": "1",
+        "depth": "2"
+      }
+    },
+    {
+      "case": "bool-inner-depth",
+      "schema": {
+        "kind": "bool"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01",
+      "expected": {
+        "error": "decode nesting limit",
+        "value": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "1"
+      }
+    },
+    {
+      "case": "string-element-before-allocation",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "error": "decode element limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "0",
+        "allocation": "0",
+        "work": "2"
+      }
+    },
+    {
+      "case": "string-allocation-before-work",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "0100000041",
+      "expected": {
+        "error": "decode allocation limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "1",
+        "allocation": "0",
+        "work": "2"
+      }
+    },
+    {
+      "case": "string-work-before-take",
+      "schema": {
+        "kind": "string"
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "01000000",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "1",
+        "allocation": "1",
+        "work": "2"
+      }
+    },
+    {
+      "case": "zero-size-count-work",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "03000000",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "3",
+        "allocation": "0",
+        "work": "4"
+      }
+    },
+    {
+      "case": "huge-zero-size-count-elements",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "error": "decode element limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "1000000",
+        "allocation": "0",
+        "work": "2000000"
+      }
+    },
+    {
+      "case": "huge-zero-size-count-work",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "unit"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "ffffffff",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "4294967295",
+        "allocation": "0",
+        "work": "2000000"
+      }
+    },
+    {
+      "case": "vector-declared-count-quota-before-truncation",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02000000",
+      "expected": {
+        "error": "decode allocation limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "2",
+        "allocation": "3",
+        "work": "100"
+      }
+    },
+    {
+      "case": "nested-elements-aggregate",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "error": "decode element limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "2",
+        "allocation": "49",
+        "work": "7"
+      }
+    },
+    {
+      "case": "nested-allocation-aggregate",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "vector",
+          "element": {
+            "kind": "u8"
+          },
+          "length_width": 4
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02000000000000000100000001",
+      "expected": {
+        "error": "decode allocation limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "3",
+        "allocation": "48",
+        "work": "7"
+      }
+    },
+    {
+      "case": "array-allocation-one-under",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u16"
+        },
+        "length": 3
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "010002000300",
+      "expected": {
+        "error": "decode allocation limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "3",
+        "allocation": "5",
+        "work": "4"
+      }
+    },
+    {
+      "case": "vector-array-allocation-one-under",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "array",
+          "element": {
+            "kind": "u16"
+          },
+          "length": 3
+        },
+        "length_width": 4
+      },
+      "entry": "guarded_value",
+      "bytes_hex": "02000000010002000300040005000600",
+      "expected": {
+        "error": "decode allocation limit",
+        "value": null
+      },
+      "limits": {
+        "elements": "8",
+        "allocation": "23",
+        "work": "10"
+      }
+    },
+    {
+      "case": "direct-vector-work-one-under",
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u8"
+        },
+        "length_width": 1
+      },
+      "entry": "direct_length",
+      "bytes_hex": "020102",
+      "expected": {
+        "error": "decode work limit",
+        "value": null
+      },
+      "limits": {
+        "work": "2",
+        "depth": "1"
+      }
+    }
+  ],
+  "length_cases": [
+    {
+      "case": "length-prefix-1-exact",
+      "operation": "write_length_primitive",
+      "width": 1,
+      "count": "255",
+      "expected": {
+        "bytes_hex": "ff",
+        "error": null
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "length-prefix-1-overflow",
+      "operation": "write_length_primitive",
+      "width": 1,
+      "count": "256",
+      "expected": {
+        "bytes_hex": null,
+        "error": "length overflow"
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "length-prefix-2-exact",
+      "operation": "write_length_primitive",
+      "width": 2,
+      "count": "65535",
+      "expected": {
+        "bytes_hex": "ffff",
+        "error": null
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "length-prefix-2-overflow",
+      "operation": "write_length_primitive",
+      "width": 2,
+      "count": "65536",
+      "expected": {
+        "bytes_hex": null,
+        "error": "length overflow"
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "length-prefix-4-exact",
+      "operation": "write_length_primitive",
+      "width": 4,
+      "count": "4294967295",
+      "expected": {
+        "bytes_hex": "ffffffff",
+        "error": null
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "length-prefix-4-overflow",
+      "operation": "write_length_primitive",
+      "width": 4,
+      "count": "4294967296",
+      "expected": {
+        "bytes_hex": null,
+        "error": "length overflow"
+      },
+      "scope": "arithmetic_only_not_an_exported_rust_primitive",
+      "execution_policy": "Do not execute a multi-billion-element encoder loop; these prefix arithmetic bounds require a separately reviewed bounded public reference strategy."
+    },
+    {
+      "case": "unsupported-length-width-0",
+      "operation": "encode_length_empty",
+      "width": 0,
+      "schema": {
+        "kind": "string"
+      },
+      "expected": {
+        "bytes_hex": null,
+        "error": "unsupported length width"
+      }
+    },
+    {
+      "case": "unsupported-length-width-3",
+      "operation": "encode_length_empty",
+      "width": 3,
+      "schema": {
+        "kind": "string"
+      },
+      "expected": {
+        "bytes_hex": null,
+        "error": "unsupported length width"
+      }
+    },
+    {
+      "case": "unsupported-length-width-8",
+      "operation": "encode_length_empty",
+      "width": 8,
+      "schema": {
+        "kind": "string"
+      },
+      "expected": {
+        "bytes_hex": null,
+        "error": "unsupported length width"
+      }
+    }
+  ],
+  "native_admission_cases": [
+    {
+      "case": "u8-below-min",
+      "schema": {
+        "kind": "u8"
+      },
+      "value": "-1",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u8-above-max",
+      "schema": {
+        "kind": "u8"
+      },
+      "value": "256",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u16-below-min",
+      "schema": {
+        "kind": "u16"
+      },
+      "value": "-1",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u16-above-max",
+      "schema": {
+        "kind": "u16"
+      },
+      "value": "65536",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u32-below-min",
+      "schema": {
+        "kind": "u32"
+      },
+      "value": "-1",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u32-above-max",
+      "schema": {
+        "kind": "u32"
+      },
+      "value": "4294967296",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u64-below-min",
+      "schema": {
+        "kind": "u64"
+      },
+      "value": "-1",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u64-above-max",
+      "schema": {
+        "kind": "u64"
+      },
+      "value": "18446744073709551616",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u128-below-min",
+      "schema": {
+        "kind": "u128"
+      },
+      "value": "-1",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "u128-above-max",
+      "schema": {
+        "kind": "u128"
+      },
+      "value": "340282366920938463463374607431768211456",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i8-below-min",
+      "schema": {
+        "kind": "i8"
+      },
+      "value": "-129",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i8-above-max",
+      "schema": {
+        "kind": "i8"
+      },
+      "value": "128",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i16-below-min",
+      "schema": {
+        "kind": "i16"
+      },
+      "value": "-32769",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i16-above-max",
+      "schema": {
+        "kind": "i16"
+      },
+      "value": "32768",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i32-below-min",
+      "schema": {
+        "kind": "i32"
+      },
+      "value": "-2147483649",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i32-above-max",
+      "schema": {
+        "kind": "i32"
+      },
+      "value": "2147483648",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i64-below-min",
+      "schema": {
+        "kind": "i64"
+      },
+      "value": "-9223372036854775809",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i64-above-max",
+      "schema": {
+        "kind": "i64"
+      },
+      "value": "9223372036854775808",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i128-below-min",
+      "schema": {
+        "kind": "i128"
+      },
+      "value": "-170141183460469231731687303715884105729",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "i128-above-max",
+      "schema": {
+        "kind": "i128"
+      },
+      "value": "170141183460469231731687303715884105728",
+      "expected_error": "integer_range",
+      "scope": "native_only"
+    },
+    {
+      "case": "strict-bool-0",
+      "schema": {
+        "kind": "bool"
+      },
+      "value": 0,
+      "expected_error": "boolean_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "strict-bool-1",
+      "schema": {
+        "kind": "bool"
+      },
+      "value": 1,
+      "expected_error": "boolean_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "strict-bool-false",
+      "schema": {
+        "kind": "bool"
+      },
+      "value": "false",
+      "expected_error": "boolean_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "strict-bool-None",
+      "schema": {
+        "kind": "bool"
+      },
+      "value": null,
+      "expected_error": "boolean_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "integer-reject-bool-u8",
+      "schema": {
+        "kind": "u8"
+      },
+      "value": true,
+      "expected_error": "integer_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "integer-reject-bool-i64",
+      "schema": {
+        "kind": "i64"
+      },
+      "value": true,
+      "expected_error": "integer_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "integer-reject-bool-u128",
+      "schema": {
+        "kind": "u128"
+      },
+      "value": true,
+      "expected_error": "integer_type",
+      "scope": "native_only"
+    },
+    {
+      "case": "lone-surrogate-string",
+      "schema": {
+        "kind": "string"
+      },
+      "utf16_code_units": [
+        55296
+      ],
+      "expected_error": "invalid_unicode",
+      "scope": "native_only"
+    },
+    {
+      "case": "fixed-array-wrong-length",
+      "schema": {
+        "kind": "array",
+        "element": {
+          "kind": "u8"
+        },
+        "length": 2
+      },
+      "value": [
+        "1"
+      ],
+      "expected_error": "array_length",
+      "scope": "native_only"
+    },
+    {
+      "case": "typescript-unsafe-number-u64",
+      "schema": {
+        "kind": "u64"
+      },
+      "host_value": {
+        "kind": "typescript_number",
+        "decimal": "9007199254740993"
+      },
+      "expected_error": "integer_type_or_unsafe_number",
+      "scope": "native_only"
+    },
+    {
+      "case": "integer-fractional-input",
+      "schema": {
+        "kind": "u32"
+      },
+      "host_value": {
+        "kind": "floating_number",
+        "decimal": "1.5"
+      },
+      "expected_error": "integer_type",
+      "scope": "native_only"
+    }
+  ],
+  "reader_cases": [
+    {
+      "case": "raw-take-no-value-work",
+      "bytes_hex": "01020304",
+      "actions": [
+        {
+          "kind": "take",
+          "count": "4"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": "01020304",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "work": "0",
+        "depth": "0"
+      }
+    },
+    {
+      "case": "finish-trailing-is-not-sticky-rust",
+      "bytes_hex": "01",
+      "actions": [
+        {
+          "kind": "finish"
+        },
+        {
+          "kind": "take",
+          "count": "1"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "trailing value bytes"
+          },
+          {
+            "value": "01",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "rust_reader_lifecycle_native_policy_declared"
+    },
+    {
+      "case": "collection-does-not-consume-work",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "collection",
+          "count": "2",
+          "element_size": "0"
+        },
+        {
+          "kind": "value",
+          "schema": {
+            "kind": "unit"
+          }
+        },
+        {
+          "kind": "value",
+          "schema": {
+            "kind": "unit"
+          }
+        },
+        {
+          "kind": "value",
+          "schema": {
+            "kind": "unit"
+          }
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": null,
+            "error": "decode work limit"
+          },
+          {
+            "value": null,
+            "error": "decode work limit"
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "work": "2",
+        "elements": "2",
+        "allocation": "0",
+        "depth": "1"
+      }
+    },
+    {
+      "case": "zero-collection-large-weight-no-overflow",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "collection",
+          "count": "0",
+          "element_size": "18446744073709551615"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "work": "0",
+        "elements": "0",
+        "allocation": "0"
+      }
+    },
+    {
+      "case": "element-before-multiplication",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "collection",
+          "count": "2",
+          "element_size": "18446744073709551615"
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "decode element limit"
+          },
+          {
+            "value": null,
+            "error": "decode element limit"
+          },
+          {
+            "value": null,
+            "error": "decode element limit"
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1",
+        "allocation": "0",
+        "work": "0"
+      }
+    },
+    {
+      "case": "multiplication-overflow-before-allocation",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "collection",
+          "count": "2",
+          "element_size": "18446744073709551615"
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "decode allocation overflow"
+          },
+          {
+            "value": null,
+            "error": "decode allocation overflow"
+          },
+          {
+            "value": null,
+            "error": "decode allocation overflow"
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "2",
+        "allocation": "0",
+        "work": "0"
+      }
+    },
+    {
+      "case": "swallowed-take-remains-sticky",
+      "bytes_hex": "00",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "take",
+              "count": "2",
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "truncated value"
+          },
+          {
+            "value": null,
+            "error": "truncated value"
+          },
+          {
+            "value": null,
+            "error": "truncated value"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "take:error:truncated value",
+          "swallow",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1"
+      }
+    },
+    {
+      "case": "swallowed-guarded-bool-remains-sticky",
+      "bytes_hex": "02",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "value",
+              "schema": {
+                "kind": "bool"
+              },
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "invalid boolean"
+          },
+          {
+            "value": null,
+            "error": "invalid boolean"
+          },
+          {
+            "value": null,
+            "error": "invalid boolean"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "value:error:invalid boolean",
+          "swallow",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1"
+      }
+    },
+    {
+      "case": "swallowed-collection-remains-sticky",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "collection",
+              "count": "2",
+              "element_size": "1",
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "decode element limit"
+          },
+          {
+            "value": null,
+            "error": "decode element limit"
+          },
+          {
+            "value": null,
+            "error": "decode element limit"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "collection:error:decode element limit",
+          "swallow",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1"
+      }
+    },
+    {
+      "case": "first-reader-failure-beats-custom-return-error",
+      "bytes_hex": "00",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "take",
+              "count": "2",
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "error": "later callback error"
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "truncated value"
+          },
+          {
+            "value": null,
+            "error": "truncated value"
+          },
+          {
+            "value": null,
+            "error": "truncated value"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "take:error:truncated value",
+          "swallow",
+          "return_error:later callback error"
+        ]
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1"
+      }
+    },
+    {
+      "case": "callback-return-error-becomes-sticky",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [],
+          "returns": {
+            "error": "custom failure"
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "custom failure"
+          },
+          {
+            "value": null,
+            "error": "custom failure"
+          },
+          {
+            "value": null,
+            "error": "custom failure"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "return_error:custom failure"
+        ]
+      },
+      "scope": "shared_guarded_reader",
+      "limits": {
+        "elements": "1"
+      }
+    },
+    {
+      "case": "swallowed-direct-bool-validation-is-not-reader-failure",
+      "bytes_hex": "02",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "direct_decode",
+              "schema": {
+                "kind": "bool"
+              },
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": "",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "direct_decode:error:invalid boolean",
+          "swallow",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "direct-unsupported-length-error-is-not-sticky",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "direct_length",
+          "schema": {
+            "kind": "string"
+          },
+          "width": 3
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "unsupported length width"
+          },
+          {
+            "value": "",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "guarded-unsupported-length-error-is-sticky",
+      "bytes_hex": "",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "direct_length",
+              "schema": {
+                "kind": "string"
+              },
+              "width": 3
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "unsupported length width"
+          },
+          {
+            "value": null,
+            "error": "unsupported length width"
+          },
+          {
+            "value": null,
+            "error": "unsupported length width"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "direct_length:error:unsupported length width",
+          "propagate:unsupported length width"
+        ]
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "swallowed-direct-utf8-validation-is-not-reader-failure",
+      "bytes_hex": "01000000ff",
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "direct_decode",
+              "schema": {
+                "kind": "string"
+              },
+              "on_error": "swallow"
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "take",
+          "count": "0"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": "",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "direct_decode:error:invalid UTF-8",
+          "swallow",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "guard-depth-restored-after-success",
+      "bytes_hex": "0102",
+      "limits": {
+        "depth": "1",
+        "work": "2"
+      },
+      "actions": [
+        {
+          "kind": "value",
+          "schema": {
+            "kind": "u8"
+          }
+        },
+        {
+          "kind": "value",
+          "schema": {
+            "kind": "u8"
+          }
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": "1",
+            "error": null
+          },
+          {
+            "value": "2",
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "custom-direct-length-field-no-extra-guard",
+      "bytes_hex": "020102",
+      "limits": {
+        "work": "5",
+        "depth": "2"
+      },
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "direct_length",
+              "schema": {
+                "kind": "vector",
+                "element": {
+                  "kind": "u8"
+                },
+                "length_width": 1
+              },
+              "width": 1
+            },
+            {
+              "kind": "value",
+              "schema": {
+                "kind": "unit"
+              }
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null
+          },
+          {
+            "value": null,
+            "error": null
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "direct_length:ok",
+          "value:ok",
+          "return_ok"
+        ]
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "custom-direct-length-field-next-value-work-limit",
+      "bytes_hex": "020102",
+      "limits": {
+        "work": "4",
+        "depth": "2"
+      },
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [
+            {
+              "kind": "direct_length",
+              "schema": {
+                "kind": "vector",
+                "element": {
+                  "kind": "u8"
+                },
+                "length_width": 1
+              },
+              "width": 1
+            },
+            {
+              "kind": "value",
+              "schema": {
+                "kind": "unit"
+              }
+            }
+          ],
+          "returns": {
+            "ok": null
+          }
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "decode work limit"
+          },
+          {
+            "value": null,
+            "error": "decode work limit"
+          }
+        ],
+        "callback_events": [
+          "enter",
+          "direct_length:ok",
+          "value:error:decode work limit",
+          "propagate:decode work limit"
+        ]
+      },
+      "scope": "shared_guarded_reader"
+    },
+    {
+      "case": "constructor-byte-limit-before-custom-entry",
+      "bytes_hex": "00",
+      "limits": {
+        "bytes": "0",
+        "work": "0",
+        "depth": "0"
+      },
+      "actions": [
+        {
+          "kind": "value_custom",
+          "body": [],
+          "returns": {
+            "ok": null
+          }
+        }
+      ],
+      "expected": {
+        "construction_error": "decode byte limit",
+        "results": [],
+        "callback_events": []
+      },
+      "scope": "shared_guarded_reader"
+    }
+  ],
+  "encode_error_cases": [
+    {
+      "schema": {
+        "kind": "u128"
+      },
+      "value": "340282366920938463463374607431768211455",
+      "entry": "guarded_value",
+      "case": "u128-max-encode-one-under",
+      "encode_max_bytes": "15",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "i128"
+      },
+      "value": "-170141183460469231731687303715884105728",
+      "entry": "guarded_value",
+      "case": "i128-min-encode-one-under",
+      "encode_max_bytes": "15",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "bool"
+      },
+      "value": true,
+      "entry": "guarded_value",
+      "case": "bool-true-encode-one-under",
+      "encode_max_bytes": "0",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "string"
+      },
+      "value": "雪😀",
+      "entry": "guarded_value",
+      "case": "string-unicode-encode-one-under",
+      "encode_max_bytes": "10",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "option",
+        "element": {
+          "kind": "unit"
+        }
+      },
+      "value": {
+        "some": true,
+        "value": null
+      },
+      "entry": "guarded_value",
+      "case": "some-unit-encode-one-under",
+      "encode_max_bytes": "0",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "vector",
+        "element": {
+          "kind": "u16"
+        },
+        "length_width": 4
+      },
+      "value": [
+        "4660",
+        "0",
+        "4660"
+      ],
+      "entry": "guarded_value",
+      "case": "vector-u16-order-duplicates-encode-one-under",
+      "encode_max_bytes": "9",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "tuple",
+        "fields": [
+          {
+            "kind": "u16"
+          },
+          {
+            "kind": "i32"
+          },
+          {
+            "kind": "bool"
+          },
+          {
+            "kind": "option",
+            "element": {
+              "kind": "u8"
+            }
+          }
+        ]
+      },
+      "value": [
+        "4660",
+        "-2",
+        true,
+        {
+          "some": true,
+          "value": "9"
+        }
+      ],
+      "entry": "guarded_value",
+      "case": "tuple-four-small-witness-encode-one-under",
+      "encode_max_bytes": "8",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    },
+    {
+      "schema": {
+        "kind": "oracle_state",
+        "model": {
+          "kind": "u16"
+        },
+        "oracle": {
+          "kind": "string"
+        }
+      },
+      "value": {
+        "model": "4660",
+        "oracle": "H"
+      },
+      "entry": "guarded_value",
+      "case": "oracle-state-no-orc1-frame-encode-one-under",
+      "encode_max_bytes": "6",
+      "expected": {
+        "error": "encoded blob exceeds byte limit"
+      }
+    }
+  ],
+  "automatic_checks": {
+    "strict_prefixes": "Every proper prefix of a nonempty valid encoding rejects with truncated value under its declared entry/schema and fitting case budgets; zero-width encodings have no proper prefixes.",
+    "trailing_bytes": "Append 00 and decode under default limits with the same entry/schema; finish rejects trailing value bytes. Do not let an exact selected bytes limit mask this separate finish check.",
+    "owned_results": "Decode from an admitted mutable input view, mutate the caller view afterward, and require returned owned values unchanged; use native-only tests where immutable input types make aliasing unrepresentable.",
+    "exact_subviews": "Decode a bounded typed byte subview with unrelated prefix/suffix storage; only the selected view participates."
+  },
+  "native_admission_policy": "Qualify a rejection at the actual public native boundary when the host value is representable. A statically impossible input may be recorded as a documented type exclusion, not fabricated by a narrowing cast. Fixture-adapter-only validation is not runtime codec evidence.",
+  "encoder_cases": [
+    {
+      "case": "direct-length-unsupported-error-caught-does-not-poison",
+      "max_bytes": "8",
+      "actions": [
+        {
+          "kind": "direct_length",
+          "schema": {
+            "kind": "string"
+          },
+          "width": 3,
+          "value": ""
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "aa"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "unsupported length width",
+            "error_family": "unsupported_length_width"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "aa"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-length-overflow-caught-does-not-poison",
+      "max_bytes": "512",
+      "actions": [
+        {
+          "kind": "direct_length",
+          "schema": {
+            "kind": "string"
+          },
+          "width": 1,
+          "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "bb"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "length overflow",
+            "error_family": "length_overflow"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "bb"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-custom-return-error-retains-prefix-without-poison",
+      "max_bytes": "4",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "aa",
+          "returns_error": "custom encode failure"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "bb"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "custom encode failure",
+            "error_family": "custom_callback"
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          }
+        ],
+        "bytes_hex": "aabb"
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "direct-write-rejection-stays-sticky",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode",
+          "schema": {
+            "kind": "u16"
+          },
+          "value": "1"
+        },
+        {
+          "kind": "append",
+          "bytes_hex": "ff"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte limit",
+            "error_family": "encode_limit"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte limit",
+            "error_family": "encode_limit"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "raw-custom-swallowed-write-failure-returns-ok-before-finish",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "0102",
+          "ignore_prefix_error": true,
+          "returns_error": null
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": null,
+            "error_family": null
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    },
+    {
+      "case": "raw-custom-callback-error-primary-over-sticky-write",
+      "max_bytes": "1",
+      "actions": [
+        {
+          "kind": "direct_encode_custom",
+          "prefix_hex": "0102",
+          "ignore_prefix_error": true,
+          "returns_error": "different callback error"
+        },
+        {
+          "kind": "finish"
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "value": null,
+            "error": "different callback error",
+            "error_family": "custom_callback"
+          },
+          {
+            "value": null,
+            "error": "encoded blob exceeds byte or allocation limit",
+            "error_family": "encode_limit"
+          }
+        ],
+        "bytes_hex": ""
+      },
+      "scope": "raw_rust_encode_boundary"
+    }
+  ],
+  "encoder_error_policy": {
+    "rust_reference": "Assert exact Rust error strings as well as family.",
+    "native": "Only encode-limit message presentation may normalize between the first sticky byte/allocation limit wording and Rust finish generic byte-or-allocation wording. Preserve the actual direct callback result, subsequent finish result, failure family, sticky state and retained bytes.",
+    "forbidden": "Do not auto-finish a raw successful callback, replace a callback error with an earlier writer error, clear sticky failures, or fabricate success/recovery in the fixture adapter."
+  }
+}

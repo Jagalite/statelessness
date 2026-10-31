@@ -1,0 +1,150 @@
+Building for debugging...
+[0/13] /Volumes/seed2/Projects/stateless-native-parity/target/native-parity-swift/arm64-apple-macosx/debug/StatelessnessPackageTests.derived/runner.swift
+[1/13] Write sources
+[6/13] Write stateless-corpus-entitlement.plist
+[7/13] Write swift-version--58304C5D6DBC2206.txt
+[9/21] Compiling Statelessness Model.swift
+[10/21] Compiling Statelessness Oracle.swift
+[11/21] Compiling Statelessness TraceJSON.swift
+[12/21] Compiling Statelessness Rng.swift
+[13/21] Compiling Statelessness Explore.swift
+[14/21] Compiling Statelessness Execution.swift
+[15/21] Compiling Statelessness JSON.swift
+[16/21] Emitting module Statelessness
+[17/23] Compiling StatelessConformance Conformance.swift
+[18/23] Emitting module StatelessConformance
+[19/29] Emitting module StatelessCorpus
+[20/29] Compiling StatelessCorpus main.swift
+[20/29] Write Objects.LinkFileList
+[21/29] Linking stateless-corpus
+[22/29] Applying stateless-corpus
+[24/29] Compiling StatelessnessTests OracleTests.swift
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:63:25: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+ 61 |     func testCheckOrderAndExactFailureReplay() throws {
+ 62 |         let adapter = queue("order"), model = adapter.model
+ 63 |         let trace = try record(model, inputs: InputIterator(values: [0, 1, 2]))
+    |                         |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                         `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+ 64 |         XCTAssertEqual(trace.initialChecks.map { $0.id }, ["actual.state", "reference.state", "pair.state"])
+ 65 |         XCTAssertEqual(trace.steps[0].checks.map { $0.id }, ["actual.state", "reference.state", "pair.state", "actual.edge", "reference.edge", "pair.effects", "pair.outcome"])
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:66:82: error: type 'Equatable' has no member 'propertyFailed'
+ 64 |         XCTAssertEqual(trace.initialChecks.map { $0.id }, ["actual.state", "reference.state", "pair.state"])
+ 65 |         XCTAssertEqual(trace.steps[0].checks.map { $0.id }, ["actual.state", "reference.state", "pair.state", "actual.edge", "reference.edge", "pair.effects", "pair.outcome"])
+ 66 |         XCTAssertEqual(trace.steps.count, 1); XCTAssertEqual(trace.termination, .propertyFailed)
+    |                                                                                  `- error: type 'Equatable' has no member 'propertyFailed'
+ 67 |         let report = try replay(model, trace: parseTrace(encodeTrace(trace)))
+ 68 |         XCTAssertEqual(report.outcome, "exact"); XCTAssertTrue(report.failureReproduced)
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:79:21: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+ 77 |         XCTAssertEqual(restored.model, [0,1]); XCTAssertEqual(restored.oracle, 7)
+ 78 |         var restarted = m; restarted.initialState = { restored }
+ 79 |         let t = try record(restarted, inputs: InputIterator(values: [2,2,2]))
+    |                     |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                     `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+ 80 |         XCTAssertEqual(t.termination, .completed); XCTAssertEqual(try replay(m, trace: t).outcome, "exact")
+ 81 |         for size in 0..<bytes.count { XCTAssertThrowsError(try adapter.decodeState(Array(bytes.prefix(size)))) }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:80:40: error: type 'Equatable' has no member 'completed'
+ 78 |         var restarted = m; restarted.initialState = { restored }
+ 79 |         let t = try record(restarted, inputs: InputIterator(values: [2,2,2]))
+ 80 |         XCTAssertEqual(t.termination, .completed); XCTAssertEqual(try replay(m, trace: t).outcome, "exact")
+    |                                        `- error: type 'Equatable' has no member 'completed'
+ 81 |         for size in 0..<bytes.count { XCTAssertThrowsError(try adapter.decodeState(Array(bytes.prefix(size)))) }
+ 82 |         XCTAssertThrowsError(try adapter.decodeState(bytes + [0]))
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:112:25: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+110 |         let p = Projection<Int, Int, Int, Int, Int, Int>(metadata: { Metadata(name: "projection") }, actualState: { $0 }, referenceState: { $0 }, actualEffect: { $0 }, referenceEffect: { $0 }, equalState: { $0 == $1 }, equalEffect: { $0 == $1 })
+111 |         let a = WithOracle(actual, oracle: Paired(reference: reference, projection: p).oracle)
+112 |         let trace = try record(a.model, inputs: InputIterator(values: [0]))
+    |                         |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                         `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+113 |         XCTAssertEqual(trace.steps[0].checks.last?.id, "pair.outcome")
+114 |         XCTAssertEqual(trace.steps[0].checks.last?.status, .failed)
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:138:25: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+136 |     func testReplayRejectsNoncanonicalInitialAndInput() throws {
+137 |         let a = queue(), m = a.model
+138 |         let trace = try record(m, inputs: InputIterator(values: [0]))
+    |                         |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                         `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+139 |         // The reference integer decoder accepts 00; exact replay requires 0.
+140 |         var initial = Array(trace.initialState.dropLast())
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:155:38: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+153 |     }
+154 |     func testReferenceSemanticsRemainStrictWithBuildOverride() throws {
+155 |         let a = queue(), trace = try record(a.model, inputs: InputIterator(values: []))
+    |                                      |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                                      `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+156 |         var history = a.oracle
+157 |         let original = history.metadata
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:184:25: error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+182 |         failing = queue().oracle
+183 |         failing.advance = { _, _, _, _ in throw ModelError("advance callback failed") }
+184 |         let trace = try record(WithOracle(queue().actual, oracle: failing).model, inputs: InputIterator(values: [0]))
+    |                         |- error: use of 'record' refers to instance method rather than global function 'record(_:inputs:maxSteps:limits:)' in module 'Statelessness'
+    |                         `- note: use 'Statelessness.' to reference the global function in module 'Statelessness'
+185 |         XCTAssertEqual(trace.termination, .modelError); XCTAssertEqual(trace.steps.count, 0)
+186 |     }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Sources/Statelessness/Execution.swift:39:13: note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 37 |     try call(stage) { let bytes = try callback(value); if bytes.count > maximum { throw ModelError("encoded blob exceeds byte limit") }; return bytes }
+ 38 | }
+ 39 | public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    |             `- note: 'record(_:inputs:maxSteps:limits:)' declared here
+ 40 |     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
+ 41 |     guard let codec = m.codec else { throw ModelError("record requires a codec") }
+
+/Volumes/seed2/Projects/stateless-native-parity/swift/Tests/StatelessnessTests/OracleTests.swift:185:44: error: type 'Equatable' has no member 'modelError'
+183 |         failing.advance = { _, _, _, _ in throw ModelError("advance callback failed") }
+184 |         let trace = try record(WithOracle(queue().actual, oracle: failing).model, inputs: InputIterator(values: [0]))
+185 |         XCTAssertEqual(trace.termination, .modelError); XCTAssertEqual(trace.steps.count, 0)
+    |                                            `- error: type 'Equatable' has no member 'modelError'
+186 |     }
+187 | }
+[25/29] Compiling StatelessnessTests RecordingErrorTests.swift
+[26/29] Emitting module StatelessnessTests
+[27/29] Compiling StatelessnessTests NativeTests.swift
+error: fatalError

@@ -1,0 +1,115 @@
+{
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "source_manifest_sha256": "ea3b1f819695f95a40819e7cd970d4c04a5b8f4522272d901c3a85b11ae6b9d9",
+  "commands": [
+    {
+      "name": "tools",
+      "command": [
+        "sh",
+        "-c",
+        "python3 --version; go version; node --version; npm --version; swift --version; rustc --version; cargo --version"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source",
+      "exit_code": 0,
+      "elapsed_seconds": 0.9969452919904143,
+      "log_sha256": "64cbf91d7033f0e1b5d6fb0f132b2b3b13530f4aa5afa91fd20c547fe3b55741"
+    },
+    {
+      "name": "python",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "python/tests",
+        "-v"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source",
+      "exit_code": 1,
+      "elapsed_seconds": 11.298846707999473,
+      "log_sha256": "f9675ab32630a4cd5b4acd2d021cece0eaee762b608623a09edbb5b6067d7bf1"
+    },
+    {
+      "name": "go-compile",
+      "command": [
+        "go",
+        "test",
+        "-c",
+        "-o",
+        "/tmp/stateless-n0506-r1/run/go.test"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source/go",
+      "exit_code": 0,
+      "elapsed_seconds": 70.24722575000487,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "go",
+      "command": [
+        "/tmp/stateless-n0506-r1/run/go.test",
+        "-test.v",
+        "-test.timeout=180s"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source/go",
+      "exit_code": 1,
+      "elapsed_seconds": 8.729730249993736,
+      "log_sha256": "450fa4dc83005727a15b6c7d38df1dda79b172955976f8c4e4844cf5774c6b4a"
+    },
+    {
+      "name": "go-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source/go",
+      "exit_code": 0,
+      "elapsed_seconds": 10.113333874993259,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "npm-install",
+      "command": [
+        "npm",
+        "ci",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source/typescript",
+      "exit_code": 0,
+      "elapsed_seconds": 1.0995706249959767,
+      "log_sha256": "9e1388fbbb3f10f54efe0b160a194363e580a527e36dcf4cfdac72e6f0f6bc6d"
+    },
+    {
+      "name": "typescript",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source/typescript",
+      "exit_code": 0,
+      "elapsed_seconds": 101.7354129999876,
+      "log_sha256": "3a2cf55120d2254cd5dff2c4f14863594393e838f51d007772f9864ec37be700"
+    },
+    {
+      "name": "swift",
+      "command": [
+        "swift",
+        "test",
+        "-j",
+        "2"
+      ],
+      "cwd": "/private/tmp/stateless-n0506-r1/source",
+      "exit_code": 1,
+      "elapsed_seconds": 20.381551208003657,
+      "log_sha256": "a181a2bb5d8cad8e188c0a01403ff69f987d0c6a629357de22e440eac968e6b0"
+    }
+  ],
+  "go_executable_sha256": "7386be3841e2ecfbddf89837c3053cb4b7dee915be3de62699049ea56c61325f",
+  "swift_executables": {},
+  "source_unchanged": true,
+  "child_peak_rss_bytes": 467173376,
+  "status": "failed"
+}

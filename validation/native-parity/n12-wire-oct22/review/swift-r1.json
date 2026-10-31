@@ -1,0 +1,30 @@
+{
+  "taskId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-swift-r1",
+  "childThreadId": "thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-swift-r1",
+  "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-swift-r1:ordinal:1",
+  "childNodeId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-swift-r1",
+  "status": "completed",
+  "workState": "result_available",
+  "hasPendingChildRuns": false,
+  "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-swift-r1:ordinal:2",
+  "latestTerminalStatus": "completed",
+  "latestTerminalSummary": null,
+  "latestTerminalResultContextTransferId": null,
+  "providerInstanceId": "codex",
+  "model": "gpt-6-astra",
+  "options": [
+    {
+      "id": "reasoningEffort",
+      "value": "ultra"
+    },
+    {
+      "id": "serviceTier",
+      "value": "default"
+    }
+  ],
+  "summary": "Ready for root qualification. Implementation and static review are complete.\n\n[main.swift](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/swift/Sources/main.swift) now ignores SIGPIPE and emits one `FINAL state revision sequence` line from public session values after `serve` finishes, before rethrowing any transport error. [README.md](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/scripts/native-parity/n12-wire/swift/README.md) documents the behavior.\n\nFixture-only changes; no builds or tests run.",
+  "resultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-swift-r1:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:55253596-a36e-4070-8379-bfbc0cedc159",
+  "hasPendingQuestion": false,
+  "pendingApproval": null,
+  "waitTimedOut": false
+}

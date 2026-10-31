@@ -1,0 +1,10 @@
+Command:
+python3 /Volumes/seed1/Projects/kyoto/kyoto.py cancel 6f624c723cc7431cbaaa4f518ebaffdb
+
+Exit code: 2
+kyoto.py: error: cancellation denied: supply the matching --user-id / KYOTO_USER_ID, or explicitly use --force
+
+Correction: supplied the matching owner ID 1969850b-0f5d-412b-bb9f-1b3576cc8154
+from this task's author-v3 submission. No --force was used. The corrected raw
+result is author-v3-cancel.json; author-v3-show.json records cancelled with
+started=null, confirming that the superseded intermediate job did not execute.

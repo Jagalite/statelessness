@@ -1,0 +1,191 @@
+{
+  "excludes": "receipt-file-manifest.json itself",
+  "files": {
+    "HANDOFF.md": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 6115,
+      "sha256": "3b4e4ee28e5db334df8f04bc85dbd5730b17c5bca6ecd59b40c866f1dc792d67"
+    },
+    "admission-checkpoint.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 830,
+      "sha256": "a7cc275ecafac1562fd6cada41a33947cad8376fd93fdd0ec76080fd657cb9ea"
+    },
+    "current-state.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 7086,
+      "sha256": "16f1d6cabc05797eadb52cffa627d0346bdbc55bc8e31bc75c62611b4119e2ba"
+    },
+    "historical-evidence.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 3008,
+      "sha256": "2f3678e8f3dcf5d9d837efc06499dda5f15815fbf0d2a747b6ddd7e7bac18739"
+    },
+    "integration-review.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1795,
+      "sha256": "38215e4ef03a91cc8b32137bf1defd11e7cda877c8f25b5603359d1af3039ee5"
+    },
+    "jobs/native-handoff.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 2191,
+      "sha256": "018165582677728b963767acb5837c18380162d7ff2c8264e6500b05c51510ed"
+    },
+    "jobs/native-submit.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 2192,
+      "sha256": "70d0421fb956ca019558803bf97bc79846dd49d1b73949245e858767a3ad91a2"
+    },
+    "jobs/old-driver-handoff.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1871,
+      "sha256": "81991d13d0a509c70cf43d4520d63191bc55241ab68f304fe441f3ecf53e97cd"
+    },
+    "jobs/old-installed-handoff.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 2057,
+      "sha256": "335c6c2a7c73fe6da90280e825e77a85bb5a6dd7d9373b5106582eef1c3b2aa4"
+    },
+    "jobs/rust-compile-handoff.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1913,
+      "sha256": "38cb75af3144cb634f2bb72e7c7997fcd187e7f6bf63a0d0022866d8d52e819b"
+    },
+    "jobs/rust-compile-submit.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1913,
+      "sha256": "15bd26de33a118b2406d2beb132726d5efdace57747fe25e961e64dcc49baee4"
+    },
+    "manifests/558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481.json": {
+      "type": "regular",
+      "mode": 384,
+      "size_bytes": 949381,
+      "sha256": "558c93519c417fe193fd55495ba36282c39ff12d36838b48e70fb8313d4df481"
+    },
+    "merge-resolution.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1674,
+      "sha256": "c79da2ad1819f79b87cc9e6a72772cc5d4c7ce634268101619a45555b1eb62e0"
+    },
+    "merge-source-reconciliation.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 29500,
+      "sha256": "2ae3705ba5f697406b13bd01c20ade9506c99948dd438d800d408001aaa0f0c0"
+    },
+    "n13-oldtree-protected-before.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 81434,
+      "sha256": "912a66e225dfa518ee5fd98ea02158279fb2a81d778b2e2a71e09deab56cfb25"
+    },
+    "old-driver-initial.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 1872,
+      "sha256": "5edb7c671f1495c3fccf9125b06d435584337ef2f7b5a99b970df987ccef3515"
+    },
+    "old-installed-initial.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 2057,
+      "sha256": "f3bbb471fd850f10b2d203363a7fa82523803853f90a27796a265bc0d5acd3b2"
+    },
+    "parent-protected-before.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 79530,
+      "sha256": "4b551747af262cbcd4f7b36b6f90b8f81199951aba2150120ce1db832ff766ab"
+    },
+    "protected-tree-comparison.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 705,
+      "sha256": "90c3d2a8e12bfe3dba084287389b2a2edb9151d866c585dd38be9e72a72d7a26"
+    },
+    "qualification-plan.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 3773,
+      "sha256": "cd776642b7eaa3c06170e0d7573c462efd2de094b7c15ebe930852d7a5916d09"
+    },
+    "review-go-swift.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 3971,
+      "sha256": "dcbc1905a9b4b11637a888170362934630008606cebf4835e818870493a57a77"
+    },
+    "review-python-typescript-r1.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 4836,
+      "sha256": "7f4de8f70d3070130a1020d6cf1f0aecc4a4deac566358c26f6fc903d9045a30"
+    },
+    "review-python-typescript-r2.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 3399,
+      "sha256": "8f59cbb0850ddc5f0d61f2eb61d4d56d4a6d79f22035763a8831b58ddc1038be"
+    },
+    "review-runner-r1.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 4681,
+      "sha256": "734e39de550625de10e4689da4fe4b046d1b6ee29080f8049cd9cedbb4463b19"
+    },
+    "review-runner-r2.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 3651,
+      "sha256": "b85f50bdaf12c652e78dd1964940a81b179ba55a7414c5f7e6280a4cfb46f952"
+    },
+    "review-runner-r3.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 2577,
+      "sha256": "4c1ede11131887e14ab9dd4665e604b3e9da7658a18a24a98fe08fafbf43fad9"
+    },
+    "review-rust-inheritance.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 10228,
+      "sha256": "dea3e666c283743101a4dd99fb27477f64ca4a959d206a96cf809feee68a6948"
+    },
+    "rust-compile-before.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 45552,
+      "sha256": "9ebf76f9092a55d9125b72a1eb5fc76c085c74c63f94216aa90202cd5c16d707"
+    },
+    "rust-recursive-inputs.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 10213,
+      "sha256": "e9d720988642c43767295880a0cecef689011ebd65179ee2462f5e4874c8c758"
+    },
+    "sealed-source-comparison.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 676,
+      "sha256": "3b081804a07156d1227ee4ac478bd092913da8b58c9f57fad48d4fe07e38530c"
+    },
+    "source-seal.json": {
+      "type": "regular",
+      "mode": 420,
+      "size_bytes": 585,
+      "sha256": "ecc3ec200c5b28d750a89a72139cc8e1f1887df8fb1494022d24a79d1fc66ed6"
+    }
+  }
+}

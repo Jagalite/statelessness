@@ -1,0 +1,86 @@
+{
+  "captured_utc": "2026-10-20T22:38:18.763193+00:00",
+  "repository_head": "7f37c2f2dadb4d251f75762ac60d0976a5198ab2",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "source_snapshot_note": "Receipt-time source snapshot; Rust reference source was frozen before final build. Intermediate failed execution used an earlier corpus revision; no exact intermediate input snapshot is claimed.",
+  "files": {
+    "validation/corpus/src/evidence_reference.rs": {
+      "sha256": "dddd7c3ff2dec7974118da06c22bc7b47d7a1532c53238e0bc6f2b7975bb0da1",
+      "size": 63838
+    },
+    "validation/corpus/src/bin/native-evidence.rs": {
+      "sha256": "5646d58db11454ad47c25055cf240d2e2f3652571e1c1fe1797f1c5951a853c4",
+      "size": 1577
+    },
+    "validation/corpus/Cargo.toml": {
+      "sha256": "9ce8bce273f018b11dacd43ef28dc9f1eede950b4562608d24187414bacdeec6",
+      "size": 357
+    },
+    "validation/corpus/Cargo.lock": {
+      "sha256": "41b94c5d964f4d5eec6935a59b8b0be6169b417f20689ca6cba5015e62cee14f",
+      "size": 2728
+    },
+    "conformance/causal-evidence-v2.json": {
+      "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7",
+      "size": 293722
+    },
+    "spec/causal-evidence-v2.md": {
+      "sha256": "c4b22b63aebc8e94dfe83e0228f0bc0aeb7abce899eb18987154bd98e7a203e7",
+      "size": 12647
+    },
+    "src/evidence.rs": {
+      "sha256": "bac44cf62db1c2c40c9f66fe7ad1d941fa33cda5badc4709374d0b930355391e",
+      "size": 30342
+    },
+    "src/value_codec.rs": {
+      "sha256": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3",
+      "size": 11471
+    },
+    "src/monitor.rs": {
+      "sha256": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac",
+      "size": 29844
+    },
+    "src/model.rs": {
+      "sha256": "e69a80ad96826a27871807f848e22fd213a7bee9f95d76be92069e68504f5beb",
+      "size": 15663
+    },
+    "src/observation.rs": {
+      "sha256": "c0c288b687dbf03a87be44dab322af47ca8c3472997da337544972f5962fd870",
+      "size": 16654
+    },
+    "src/execution.rs": {
+      "sha256": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0",
+      "size": 30401
+    },
+    "src/execution/replay_kernel.rs": {
+      "sha256": "a7a4c8242408531e10453b0314c11b26c8c469ce2c8eca56e81c2e748d783cd1",
+      "size": 18912
+    },
+    "src/operations.rs": {
+      "sha256": "ec19cf028645dd16f6f389cc7fa0fa3a44a72a02838842a906ca11bb2303649b",
+      "size": 10443
+    },
+    "src/lib.rs": {
+      "sha256": "e11f13805755f9923c00840e9352d235cfbd61d1c66c8b3245d2c59fa91165c7",
+      "size": 2595
+    },
+    "Cargo.toml": {
+      "sha256": "adabbcff4b29003b76ec881cd95d5753c1e8c89371684c8f08490eee70a54744",
+      "size": 1714
+    },
+    "Cargo.lock": {
+      "sha256": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2",
+      "size": 462
+    },
+    "build.rs": {
+      "sha256": "7aa837eaa71019a2fc6994d4c5886a0aabd6e0dc523e8cd8e964decde1dcf37b",
+      "size": 2124
+    }
+  },
+  "binary": {
+    "path": "/Volumes/seed2/Projects/stateless-native-parity/validation/corpus/target/debug/native-evidence",
+    "sha256": "b7deb969d965a8b4912cffc2b8bf954dc11ccd937e1d4964420afa030238ef07",
+    "size": 3235168
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.2"
+}

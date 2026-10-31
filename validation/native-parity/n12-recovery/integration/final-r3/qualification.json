@@ -1,0 +1,114 @@
+{
+  "branch": "t3/recover-n12-debugger-parity",
+  "broad_qualification_cells_pending": 144,
+  "commands": [
+    {
+      "argv": [
+        "target/n12-recovery/debug/deps/n12_reference-d8e214de9c5d60da",
+        "--nocapture"
+      ],
+      "artifacts": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 1969,
+          "sha256": "926d0af7db770dfc8ef6e9bb84894e67601a39690b2481b21fa8f8f4ac53b71a"
+        }
+      },
+      "assertion_scope": "Actual precompiled public Rust N12 finite reference execution; eleven independently authored tests; compile was a distinct Kyoto --no-run job",
+      "binary_after": {
+        "bytes": 4568672,
+        "path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/target/n12-recovery/debug/deps/n12_reference-d8e214de9c5d60da",
+        "sha256": "55b797fdd33ef0b9b07d7adc3b80326a63a50167cba26edb4bbc171b05b83729"
+      },
+      "binary_before": {
+        "bytes": 4568672,
+        "path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/target/n12-recovery/debug/deps/n12_reference-d8e214de9c5d60da",
+        "sha256": "55b797fdd33ef0b9b07d7adc3b80326a63a50167cba26edb4bbc171b05b83729"
+      },
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a",
+      "exit_code": 0,
+      "passed": true,
+      "required_stdout": [
+        "running 11 tests",
+        "test result: ok. 11 passed; 0 failed",
+        "N12_PROTOCOL_STATUS",
+        "N12_PROTOCOL_SNAPSHOT",
+        "N12_PROTOCOL_STEP",
+        "N12_PROTOCOL_CANCEL"
+      ],
+      "required_stdout_matched": true
+    },
+    {
+      "argv": [
+        "target/n12-recovery/debug/examples/debug_stdio",
+        "--fixed",
+        "--read-only"
+      ],
+      "artifacts": {
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdin.frames": {
+          "bytes": 567,
+          "sha256": "633c77ce574d975ee444060a09b94c45063a2508206dc438577e319921d5bd0b"
+        },
+        "stdout.frames": {
+          "bytes": 2192,
+          "sha256": "aec56718cdd4f94adf31e602392aaa14a6b5999e49e739a362e61e770f194db4"
+        },
+        "truncated.stderr.log": {
+          "bytes": 77,
+          "sha256": "9bf0cfb71902dcc3e887aa753073baec33bc704b231663c3fd93deb73c9558e4"
+        },
+        "truncated.stdin.frames": {
+          "bytes": 5,
+          "sha256": "add13c54df0f6f56726c2032eb2cccadd1cd72329badfdb430e124157f3575cd"
+        },
+        "truncated.stdout.frames": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "binary_after": {
+        "bytes": 2623056,
+        "path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/target/n12-recovery/debug/examples/debug_stdio",
+        "sha256": "af1d9b08b2abd19a9383985fa13bec0f251fe492beab40f0f8266f3d89fe0a8d"
+      },
+      "binary_before": {
+        "bytes": 2623056,
+        "path": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/target/n12-recovery/debug/examples/debug_stdio",
+        "sha256": "af1d9b08b2abd19a9383985fa13bec0f251fe492beab40f0f8266f3d89fe0a8d"
+      },
+      "callback_count": "not instrumented; sequence and authorization checked",
+      "delivered_sequence": 0,
+      "passed": true,
+      "requests": 6,
+      "scope": "OS stdin/stdout pipes and finite protocol authority/dedup behavior only. No callback-count, native module, installed-package, live safepoint, or broad N12 completion claim."
+    }
+  ],
+  "commit": "f866f7552df77736297fec5bf515481730a23f4c",
+  "finished_at": "2026-10-21T00:34:15.645999+00:00",
+  "golden": {
+    "bytes": 1348,
+    "sha256": "2b5738ae9954fd218d0bc7c41bdd1f49dfb3cf041b568c9776763369f3928800"
+  },
+  "passed": true,
+  "profile_promotion": false,
+  "source_baseline": {
+    "bytes": 20027,
+    "sha256": "adbed3c10317714e0008d02244122a96f978abdf6313f001c139164de1e4d6bd"
+  },
+  "source_baseline_matched": true,
+  "source_changed_paths": [],
+  "source_stable": true,
+  "spec": {
+    "bytes": 764,
+    "sha256": "dfb1b53f05c4c429d2721ff8f888f6f4536512e78abbefb3af4e62dcdbd6876e"
+  },
+  "started_at": "2026-10-21T00:34:15.046695+00:00",
+  "worktree": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a"
+}

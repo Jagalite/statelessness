@@ -1,0 +1,25 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const script=fileURLToPath(new URL('./reference.mjs',import.meta.url));
+const run=(...args)=>execFileSync(process.execPath,[script,...args],{encoding:'utf8',timeout:30000,stdio:['ignore','pipe','pipe']}).trim().split('\n').map(JSON.parse);
+test('reference adapter emits complete real campaign case inventory',()=>{
+ const [inventory]=run('--list-cases'), rows=run('--all-reference');
+ assert.equal(inventory.schema,'native-campaign-case-inventory-v1');
+ assert.equal(inventory.cases.length,49);assert.equal(new Set(inventory.cases).size,49);
+ assert.deepEqual(rows.map(r=>r.case),inventory.cases);
+ assert.ok(rows.every(r=>r.schema==='native-campaign-v1'));
+ const byName=Object.fromEntries(rows.map(r=>[r.case,r]));
+ assert.equal(byName['seed-00'].seed,'16294208416658607535');
+ assert.ok(byName['jobs-zero'].error);assert.equal(byName['workers-256'].error,null);
+ const ordinary=byName['ordinary-basic'];assert.equal(ordinary.report.termination,'JobsCompleted');
+ assert.equal(ordinary.jobs[0].fuzz.transitions,'2');assert.equal(ordinary.jobs[0].fuzz.guidance,null);
+ const guided=byName['guided-basic'];assert.equal(guided.report.termination,'JobsCompleted');
+ assert.ok(guided.jobs[0].fuzz.guidance);assert.ok(guided.callbacks.includes('7:feedback_transition'));
+ assert.equal(byName['property-stop'].report.termination,'FailureFound');
+ assert.equal(byName['property-stop'].jobs[0].fuzz.failure.violations[0].id,'n06.counter');
+ assert.equal(byName['sink-error'].report.termination,'CallbackError');
+ assert.equal(byName['pre-cancelled'].report.termination,'Cancelled');
+ assert.throws(()=>run('--case','not-a-case'));
+});

@@ -1,0 +1,1 @@
+{"chunked_reads":120,"error_cases":34,"every_prefix_truncations":2565,"exact_byte_roundtrip":true,"io_error_checks":280,"producer":"rust","profile":"native-binary-v1","semantic_replay":false,"semantic_replay_checks":3,"valid_cases":20,"writer_preflight_checks":18}

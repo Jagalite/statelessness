@@ -1,0 +1,9 @@
+{
+  "superseded": "3cf06228faec49408e9d411e7c46fda5",
+  "replacement": "47fbcc6ce3c941bf8d74727338f51e08",
+  "reason": "Three automatic Kyoto sustained memory/swap-pressure deferrals restarted core compilation without completing it. Root explicitly authorized superseding only our own reference job with a resource-appropriate command, preserving all raw attempts. This was not a duplicate timeout retry.",
+  "authorization": "Root agent message authorized cancellation of our own reference job after preserving attempt3 and terminal metadata, then distinct jobs1/devdebug0 command. No queue settings or other jobs touched.",
+  "inactive_confirmed": "Original scheduler status cancelled before replacement submitted",
+  "new_environment": {"CARGO_BUILD_JOBS":"1","CARGO_PROFILE_DEV_DEBUG":"0","CARGO_TARGET_DIR":"/Volumes/seed2/Projects/stateless-n12-reference-target"},
+  "qualification": "Replacement effective cargo command includes --no-run under unchanged shared policy; actual matching binary execution remains required."
+}

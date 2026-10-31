@@ -1,0 +1,1709 @@
+{
+  "status": "passed",
+  "profile": "search-v1 candidate",
+  "workspace": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "commands": [
+    {
+      "name": "python-builder-venv",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-m",
+        "venv",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/builder-venv"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "python-builder-tools",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/builder-venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "setuptools>=77",
+        "wheel"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "0c29fb5070870b4dc80d6a8016dc3c36da3a3078ffc912a6f9f1449873399080"
+    },
+    {
+      "name": "python-builder-freeze",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/builder-venv/bin/python",
+        "-m",
+        "pip",
+        "freeze",
+        "--all"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "0ab3d1305cf3b2031a43ecc3818882ac0bc23c094e0ee519b4c45258fa00ad9e"
+    },
+    {
+      "name": "python-wheel",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/builder-venv/bin/python",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--no-build-isolation",
+        "--wheel-dir",
+        "/private/tmp/stateless-search-consumers-20261020-r5/packages",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-package"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5a0cc1e13ec8695d52664c4f8d35ded3be5cdb3e745e58e3fbd844aa0571406d"
+    },
+    {
+      "name": "python-venv",
+      "argv": [
+        "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+        "-m",
+        "venv",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "python-install",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "/private/tmp/stateless-search-consumers-20261020-r5/packages/statelessness-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "b8db8b872d0283a135bcff5c162647a80f8be321dfd3d167a3dd9363571c3898"
+    },
+    {
+      "name": "go-version",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "version"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9"
+    },
+    {
+      "name": "go-build",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "build",
+        "-trimpath",
+        "-o",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "."
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "node-version",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6"
+    },
+    {
+      "name": "npm-version",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5"
+    },
+    {
+      "name": "typescript-version",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/Volumes/seed2/Projects/stateless-native-parity/typescript/node_modules/typescript/bin/tsc",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "9265ac58ff367868abd52fc852ecff28622facad715e3c3a0fcf92c4ca2d86e2"
+    },
+    {
+      "name": "typescript-package-build",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/Volumes/seed2/Projects/stateless-native-parity/typescript/node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-package",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "typescript-pack",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "pack",
+        "--ignore-scripts",
+        "--pack-destination",
+        "/private/tmp/stateless-search-consumers-20261020-r5/packages"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-package",
+      "exit_code": 0,
+      "log_sha256": "1ce690677ef1651c002d38c6f01c6d0bcd62c81ebf994532dfa25e5d948ffd54"
+    },
+    {
+      "name": "typescript-install",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/npm",
+        "install",
+        "--offline",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--package-lock=false",
+        "--omit=dev",
+        "/private/tmp/stateless-search-consumers-20261020-r5/packages/jagalite-statelessness-0.1.0.tgz"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer",
+      "exit_code": 0,
+      "log_sha256": "8fd9411c15732d5a80c0afbdc6ada798373812a2e4f739b1462dd4cdf93d8f51"
+    },
+    {
+      "name": "typescript-declarations",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/Volumes/seed2/Projects/stateless-native-parity/typescript/node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "swift-version",
+      "argv": [
+        "/usr/bin/swift",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5fa4b669e41b23b9ad0760253d062493487f93cf5d8ad8c44f0d4fd635137499"
+    },
+    {
+      "name": "swift-build",
+      "argv": [
+        "/usr/bin/swift",
+        "build",
+        "--package-path",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer",
+        "-j",
+        "2"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "32b1ba64350e2c08c1164852f09f923636f9967ba59d2575fdb076d8c14ff870"
+    },
+    {
+      "name": "swift-bin-path",
+      "argv": [
+        "/usr/bin/swift",
+        "build",
+        "--package-path",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer",
+        "--show-bin-path"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "4f19cb50aece2ece35ebbf0616759f25e9caa2d4773a1a37fdfc78561fc0d553"
+    },
+    {
+      "name": "python-record",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "record",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "143967277f5b7c0ca70b123711093b1552fa22392faaffd9719b1e3d50905a8c"
+    },
+    {
+      "name": "go-record",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "record",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "7a2df3c9539e57732b9f668b3d5a5cd8deb5f33fc45001c19a82b4498195e7d4"
+    },
+    {
+      "name": "typescript-record",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "record",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "93414688a02839c7a877f4d32ec338c2c1be653ef14aac7559249d30feb54a87"
+    },
+    {
+      "name": "swift-record",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "record",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "7a2df3c9539e57732b9f668b3d5a5cd8deb5f33fc45001c19a82b4498195e7d4"
+    },
+    {
+      "name": "python-original-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "1bc02a7f3ce0ce25836afca68da15de4ee6601ee4a4123401177f7977c300590"
+    },
+    {
+      "name": "python-original-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "python-original-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "dbc57676c537ca134817e57b9c7b1bdf1817a9e90ecdc7f64a9cb7a726b765ee"
+    },
+    {
+      "name": "python-original-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "python-minimized-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "51a4c14147d84d1365843d921d474c6f005924c53fd0b555d3ca295f23106c79"
+    },
+    {
+      "name": "python-minimized-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "python-minimized-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5ee6e38cdb8a3079b8216a61f76012d2dc804c85ffeaea76a692c8b46e3b6beb"
+    },
+    {
+      "name": "python-minimized-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/python.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "go-original-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "1bc02a7f3ce0ce25836afca68da15de4ee6601ee4a4123401177f7977c300590"
+    },
+    {
+      "name": "go-original-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "go-original-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "dbc57676c537ca134817e57b9c7b1bdf1817a9e90ecdc7f64a9cb7a726b765ee"
+    },
+    {
+      "name": "go-original-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "go-minimized-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "51a4c14147d84d1365843d921d474c6f005924c53fd0b555d3ca295f23106c79"
+    },
+    {
+      "name": "go-minimized-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "go-minimized-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5ee6e38cdb8a3079b8216a61f76012d2dc804c85ffeaea76a692c8b46e3b6beb"
+    },
+    {
+      "name": "go-minimized-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/go.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "typescript-original-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "1bc02a7f3ce0ce25836afca68da15de4ee6601ee4a4123401177f7977c300590"
+    },
+    {
+      "name": "typescript-original-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "typescript-original-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "dbc57676c537ca134817e57b9c7b1bdf1817a9e90ecdc7f64a9cb7a726b765ee"
+    },
+    {
+      "name": "typescript-original-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "typescript-minimized-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "51a4c14147d84d1365843d921d474c6f005924c53fd0b555d3ca295f23106c79"
+    },
+    {
+      "name": "typescript-minimized-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "typescript-minimized-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5ee6e38cdb8a3079b8216a61f76012d2dc804c85ffeaea76a692c8b46e3b6beb"
+    },
+    {
+      "name": "typescript-minimized-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/typescript.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "swift-original-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "1bc02a7f3ce0ce25836afca68da15de4ee6601ee4a4123401177f7977c300590"
+    },
+    {
+      "name": "swift-original-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "swift-original-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "dbc57676c537ca134817e57b9c7b1bdf1817a9e90ecdc7f64a9cb7a726b765ee"
+    },
+    {
+      "name": "swift-original-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json.original.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "866aa71a3929682527943b4c3cc069d51fd39d1881a49d80657dd97b06736586"
+    },
+    {
+      "name": "swift-minimized-to-python",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+        "-I",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "51a4c14147d84d1365843d921d474c6f005924c53fd0b555d3ca295f23106c79"
+    },
+    {
+      "name": "swift-minimized-to-go",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    },
+    {
+      "name": "swift-minimized-to-typescript",
+      "argv": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "5ee6e38cdb8a3079b8216a61f76012d2dc804c85ffeaea76a692c8b46e3b6beb"
+    },
+    {
+      "name": "swift-minimized-to-swift",
+      "argv": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer",
+        "replay",
+        "/private/tmp/stateless-search-consumers-20261020-r5/traces/swift.json"
+      ],
+      "cwd": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi",
+      "exit_code": 0,
+      "log_sha256": "897d5318d9b4410df94b854d2c5a8443bcd2fc1a49e4e0a7d89bb8f00363ab22"
+    }
+  ],
+  "pairs": [
+    {
+      "producer": "python",
+      "consumer": "python",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "go",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "typescript",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "swift",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "python",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "go",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "typescript",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3
+      }
+    },
+    {
+      "producer": "python",
+      "consumer": "swift",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "python",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "go",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "typescript",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "swift",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "python",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "go",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "typescript",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3
+      }
+    },
+    {
+      "producer": "go",
+      "consumer": "swift",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "python",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "go",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "typescript",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "swift",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "python",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "go",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "typescript",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3
+      }
+    },
+    {
+      "producer": "typescript",
+      "consumer": "swift",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "python",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "go",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "typescript",
+      "artifact": "original",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 6
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "swift",
+      "artifact": "original",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 6
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "python",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3,
+        "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py"
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "go",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "typescript",
+      "artifact": "minimized",
+      "receipt": {
+        "mode": "replay",
+        "outcome": "exact",
+        "failure_reproduced": true,
+        "steps": 3
+      }
+    },
+    {
+      "producer": "swift",
+      "consumer": "swift",
+      "artifact": "minimized",
+      "receipt": {
+        "failure_reproduced": true,
+        "mode": "replay",
+        "outcome": "exact",
+        "steps": 3
+      }
+    }
+  ],
+  "producers": {
+    "python": {
+      "mode": "record",
+      "outcome": "exact",
+      "failure_reproduced": true,
+      "steps": 3,
+      "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/lib/python3.13/site-packages/statelessness/__init__.py",
+      "original_steps": 6,
+      "minimized_steps": 3,
+      "shrink_attempts": 15,
+      "validated_original": true,
+      "phase": "state",
+      "property": "threshold.bound"
+    },
+    "go": {
+      "failure_reproduced": true,
+      "minimized_steps": 3,
+      "mode": "record",
+      "original_steps": 6,
+      "outcome": "exact",
+      "phase": "state",
+      "property": "threshold.bound",
+      "shrink_attempts": 15,
+      "steps": 3,
+      "validated_original": true
+    },
+    "typescript": {
+      "mode": "record",
+      "outcome": "exact",
+      "failure_reproduced": true,
+      "steps": 3,
+      "original_steps": 6,
+      "minimized_steps": 3,
+      "shrink_attempts": 15,
+      "validated_original": true,
+      "phase": "state",
+      "property": "threshold.bound"
+    },
+    "swift": {
+      "failure_reproduced": true,
+      "minimized_steps": 3,
+      "mode": "record",
+      "original_steps": 6,
+      "outcome": "exact",
+      "phase": "state",
+      "property": "threshold.bound",
+      "shrink_attempts": 15,
+      "steps": 3,
+      "validated_original": true
+    }
+  },
+  "scope": "four native languages",
+  "python_version": "3.13.3 (v3.13.3:6280bb54784, Apr  8 2025, 10:47:54) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "source_files": {
+    "conformance/native-binary-v1.json": "e2ede49b39c14940139cc42e2f8f097931926a635a0d22b8f80313781a06e1ca",
+    "conformance/search-v1-history.json": "2635b14cc9a0d73d2e88050b978257162660b48c01bb4d60179b2b6fddef7c26",
+    "conformance/search-v1.tsv": "4774950bfb5546e50f1fa8e1739ea4ad7b79f3d74479a781a88fd0b31617b951",
+    "conformance/test_native_binary_profile.py": "eebf384af6dabb109a087f4f945c5d452b8dba6caf23e5fe1bcc548f6103c785",
+    "conformance/test_search_profile.py": "7edfebb9b82b70c1b4ce3ec598990aca5ae107dd07097fcc5d1a01c5ed5c61ef",
+    "docs/NATIVE-PARITY-STATUS.md": "5be45665b7f24950e5dcb593d8da1ce902fe6e89f31f989fee8cfdf27045ef22",
+    "docs/native-parity/INVENTORY.md": "7f8da4d8ab97287ac743607779d78a4af02d1da4bff993c54d0b3d2dc81b54b2",
+    "docs/native-parity/SEMANTIC-AUDIT.md": "cd327114847ef6668aeb3d58bc95db97033766a4fe35e6698f77edd5d6274146",
+    "docs/native-parity/capabilities.json": "0bd65fd2e562472f8bbbbeefa263250175c0f119c5c8e67f14eabc5c2899f663",
+    "docs/native-parity/rust-baseline.json": "94a267541f0106c22793737df21ffe9413565dcfaa985adfac5c5dd1708ee2f8",
+    "docs/native-parity/semantic-receipt.json": "650cd2204438c70590bb611364acbcfd350076d5cbe5c089cdcc10b39ef77389",
+    "docs/native-parity/semantic-summary.md": "3f885bd158b016d889a2ab2caea9d1270a4b372cc70b4f0164d3598cfc763af3",
+    "docs/native-parity/semantic-symbols.jsonl": "0008a74d408e275ddda4001a70e706cc38a35c5f646240e2e8ddf582a22d2859",
+    "docs/native-parity/semantic-unresolved.json": "2767c025049e658c0fa54507a43cad4fea6135d0ddd9b0f31c6beeaffd2868de",
+    "examples/native-search/README.md": "58c494a9bef236e2b3dab8ee682687d0ab0b23fcae650d10873659ae836fce6f",
+    "examples/native-search/go/main.go": "7ff1fac6315c5fc0f111b673223f618f10b415f72eb23bde9fe7be22a1930ba3",
+    "examples/native-search/python/consumer.py": "578161184a795321061424d16c211474c845472b1a4c75bc3e2ab04c9f215c1a",
+    "examples/native-search/swift/Package.swift": "f700193f3f5fc88fe9fa85bde3edd8d32c09b9363b3bebb71838d67abe58d0cb",
+    "examples/native-search/swift/Sources/SearchConsumer/main.swift": "5c74aee45ab0ef0986a1823ab1c96ef0311d8f302d69d81cdf57b073d5c44077",
+    "examples/native-search/typescript/consumer.ts": "16ef9cb2129b20739570e71caec7c274d4e0ac13c692fc7d70bf42fb48d7df57",
+    "go/fuzz.go": "df248c346a708a09d26f599641c444d222e618c7a7d9747c7d870ad64806edbc",
+    "go/generate.go": "49f60b652ea69d952cffb504f53c5c0b6b9c6d6c0f7034ba610c94cdcb630661",
+    "go/oracle.go": "a48ba9f9840ca1d270da90f989ab6d52f68b927b359b8b2cef33086e8019589f",
+    "go/oracle_test.go": "f84f4ade9e147036eb7ac74f19d13ca44e91c02b27a3215e85ad923ad73c170c",
+    "go/paired.go": "b3f00dfa66c8746d507bc3f715c24f1a8065f8b2aecc2a7693439bf9ce871a19",
+    "go/search_observer.go": "aa164108a5f10b32cf719d0bd98c226b560cbbad6c7ed65cca5f1802f2b87a0b",
+    "go/search_observer_test.go": "2b05efae665ed490ca568dca7edb219051a289779bb560386af329d41f8d4a54",
+    "go/search_test.go": "7d6e6e5a5179fddfdcc85c02c9d47a9fdc30149840853f290ce21302b45f069d",
+    "go/shrink.go": "8565e58daed8216bcbd3e0bc7ccf6e35616b72c2fd3f2fbc2e994cbda2645fa3",
+    "python/src/statelessness/search.py": "572cc00d455f778edd17cc6a184b7a8e4da0b51e77f4f69abe5b9c06df49725b",
+    "python/tests/test_search.py": "aff3ccf4405af11e29852045f47e0273a37eaa0624da4393fe5562ca9aaf29e3",
+    "scripts/check-native-search-consumers.py": "c7ac13f7b3a3e2acf1841fc7bcab308bc1fc1db058f7fb9a00472122f9ec1f10",
+    "scripts/native_parity_inventory.py": "d71ee76546a238f091a3afc2bea3f03ef3873de6dd43f365111b96e304cca935",
+    "scripts/native_semantic_inventory.py": "0cd3a4b279c12cb93321897db5659908ecdacf63ba03211427f5e841b7356e42",
+    "scripts/test_native_parity_inventory.py": "e18c85ce936f37d26fbc1bdd230bef192f49e957961a4f5105b3df7f3ac8657b",
+    "spec/native-binary-v1.md": "b738ce775d842d23aab25a686ae54f88a53fd5c572f9aa2b2b2c8ba9bf2ae2dd",
+    "spec/search-v1.md": "b62f22b3996adc8253aeaa3ef99e92cc4a37fb76b1acec4466795716abfd84d7",
+    "swift/Sources/Statelessness/Fuzz.swift": "cf77933eae651f0b75b2d232f17b0560656ca3329b22e711279763148d766a91",
+    "swift/Sources/Statelessness/Generate.swift": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb",
+    "swift/Sources/Statelessness/Oracle.swift": "4395320454ec94b349e82dd5dd9ff7e0204534e1c1a301e8103fb1087fb9d8e2",
+    "swift/Sources/Statelessness/Shrink.swift": "39aa1a9b87907b649196e0e9fab46db50d412fb2ad0b10f87e5a31578abfd774",
+    "swift/Tests/StatelessnessTests/OracleTests.swift": "0deeea7dd44d15b11a34a7346535d7842cb048618d35b6581787494f506a4f34",
+    "swift/Tests/StatelessnessTests/SearchTests.swift": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f",
+    "tests/native_search_profile.rs": "2e479c546ee6487cb01602ac659aa6e0507ce42e4a0f39ed563e9ba4502f804e",
+    "typescript/src/search.ts": "31e33cca22f88c0ca34d054d4b9a64db41f7fe112c82517abb0fe39979e96be0",
+    "typescript/test/search-corpus.test.mjs": "016f608934132409df276414f8b5fcc841089fd5429372dc3f9df14a89a49b86",
+    "typescript/test/search.test.mjs": "2b8af1850ccb26d739202f775cce8ff8039c52a54fa9816bd8f0e0eacc67cf93",
+    ".gitattributes": "3efd4c383403d28766a2d1d88dbb6dd381bbc68775a34d4a31f7697f4e31bdc8",
+    ".github/workflows/abi-v2-runtime.yml": "2a6e84417d5258d1694f5ed446ff79ff75f2116ad01d8a8c148eca563743e7f0",
+    ".github/workflows/abi-v2.yml": "99fa26c7da54e3fcd2f70d39dd6d201db36ea37a9aafe779d26c9edb69122ea7",
+    ".github/workflows/native-ports.yml": "c652a5f600c0ecdb3358d8c183ce1b8fc67f7555499161a1ed815267d3bbdc61",
+    ".github/workflows/portable-conformance.yml": "540005c66529f4543ede0ad0a35e1b0f42fb92dea45d1db325a99dc513952d17",
+    ".github/workflows/release.yml": "66a4c50527bfb8c847a24c4c49e29b30bce01bb93c953cc20cbfa493ac61b561",
+    ".github/workflows/verify.yml": "9b330f69014f41d05e41f956be62c98bd899e6d058285d9bf463f298a112bc3a",
+    ".gitignore": "807ff388fcfde752da6aee8f7980de3358e71ded3879b8207de9709d2e27036b",
+    "CHANGELOG.md": "b08a5f8166f371956bcba854b50a65a2ba98c2649584cacf6f2ad41419cb838f",
+    "Cargo.lock": "7a9117b60495ee942c3cea3296bf4960934c5ecff1435a2bab76597f616df8b2",
+    "Cargo.toml": "adabbcff4b29003b76ec881cd95d5753c1e8c89371684c8f08490eee70a54744",
+    "LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "PLAN.md": "8dca5ca93ae9cd2df5c2664a79efff4533fd07962e1d2c7a2a652fc1cb019e35",
+    "PORTABLE.md": "277dba11f67bb504583ea79f5c9459d980de270b810f306ecc0f1d68e8738f88",
+    "Package.swift": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+    "README.md": "547a292d1da2359c9f93bb530381c02f4e0fe1182936af27752d65d72a9b2b9a",
+    "RELEASING.md": "612b29e118f533d681740b24dfd13f14ae6a2bcd47c728edb5eed59eb5d4feba",
+    "SUPPORT.md": "27e4989962174af93bb0ecf041f79e821b94adcdd9b77db19cba3b77691bb6f4",
+    "VALIDATION.md": "30b72011cfaf32a92369c4de155158c244411c7b875ff00a01a90ead9fc0e7ae",
+    "benches/abi_v2.rs": "815dd656c31460a6913d1eddbe695b6827e35fc1501c714665e00eae7bc3d316",
+    "benches/campaign.rs": "ec4b4ec042c7322296e027d2e9216d28d45229c55991edc2ca2522e0530411fc",
+    "benches/engine.rs": "9db6dda59a2c19538a74bf8a6a4eba37de72a6a8d3dd2d05027301360c80838e",
+    "benches/observation.rs": "320e055b0ef9a2de6034c333c70e1208830b6c146facfabc33c23521eacb0fac",
+    "benches/roadmap.rs": "a74d5403c2729dc05a63192876e7899bc7a6a07d1859c9d1f48bfa8206845dff",
+    "benches/scaling.rs": "2034ed0eeaa43b88c2ebe1c3a059d191071bb60e8c66c75780ad2343fb7c658f",
+    "benches/support/allocations.rs": "afb0edbc231a99c35d0c149926f3161a7f77a289db835544b6d39c8f4036a406",
+    "benches/support/mod.rs": "bab63b7b20c05f0859293b5d80566eb87e9756d162ee6486afe2b90346e26f05",
+    "bindings/Package.swift": "c5f4b7cd547fc6e32368f6abec6286cc282abe79a8a47f11d2a98ae0e3f3091a",
+    "bindings/README.md": "aab6a74d6e60df75c069e465a16ae5fb56caf29104d7813826969cc908612280",
+    "bindings/browser/README.md": "962f7d56f09cc2ad18b3b63a6d04824f341cbaf13d74d37088f0601506a0b6f2",
+    "bindings/browser/adapter.mjs": "c3bc21fc0c36bbc7ad714b2bb35e9dab643959dc63face6fd74a172c95693e6d",
+    "bindings/browser/benchmark-v2.mjs": "bc8f475bccf7214dda89f56f0b49b76b2f8ecfe9ef37faaa5b5bfda2e45496b9",
+    "bindings/browser/check.mjs": "747b4c8c5faef77af365fdaa954c941948527c301695905a304071841861807a",
+    "bindings/browser/index.html": "f0afaec37e3f8cca36ee32c717064dc193cd86519b5ef3da66db3f74974af77e",
+    "bindings/browser/package.json": "2105476d7c36f44e1df2187fb5d9964e51e5208ee51fa98ee331e16a941a332b",
+    "bindings/browser/self-test.html": "e9feb77ce766e255b25472f94261a442ff1af2ac1bdcb5c2920d3dfccb4b568d",
+    "bindings/browser/stateless.mjs": "d481aefd21a3ff0cbc0b5ed072888e16030e11cf706ae0c7e25234af67ce1631",
+    "bindings/browser/test-v2.mjs": "242df09b4300504c784813d4b5ed905c06862d5e28e6c5ae76c3530d06f4f3ec",
+    "bindings/browser/test.mjs": "8a025c65a63c9b84109c6f08ff70e55001657416d219258470a888a13dd2e1be",
+    "bindings/browser/v2-conformance.mjs": "923ba79c6e224f6d1466b39ce0013f2e19fd1ff766540ff7d9c9f33efe48ddc0",
+    "bindings/browser/v2-corpus.mjs": "c3536607fbde9f1c39f54af17310f157987db0b506608e98455d8a728e848ab7",
+    "bindings/browser/v2-json.mjs": "3b8ce45e194f68996acc8d7e6f7f2879d34f7429464d626ad44656d3fcdd5d18",
+    "bindings/browser/v2-packet.mjs": "ccc1b4ce41e5b9c108dd4a8a8351a9b826b66ee77c33c6fc8f1c4a0d247e0165",
+    "bindings/browser/v2-types.fixture.ts": "7093bc62bd012df27d16ccb31529079a45f6c61ef71720ec5423a319863267dd",
+    "bindings/browser/v2-values.mjs": "7eef87367502dfc420688946e570fa7bc90e23328e0db2356e6f069e17ed5aaa",
+    "bindings/browser/v2.d.mts": "59d36c3c563cd42654627695dc7308addf546ab58d41406c49c6c2808d082dac",
+    "bindings/browser/v2.d.ts": "02d511af16b3ca17157ce8c1801ff18100402ee89fdc0b0209de009d05c9413e",
+    "bindings/browser/v2.mjs": "9be2b4de5160532795dc0814834633d73aa47518e896c55564c10567fcac1ec2",
+    "bindings/c/README.md": "11d2b7bf09940d18a8d9078851f13268149691b13fa08b3867ef637341e91d09",
+    "bindings/c/module.modulemap": "1b705bfd9d3128fe0d54966eb5b1fda6271eecd141bfec6c9367f749bbb01c6b",
+    "bindings/c/smoke.c": "270115f1adffd929175efaac3f7311e737a8f1585cead9875f477c7aaa9447b8",
+    "bindings/c/stateless.h": "30ca4883051350fb9c8f3ef4d4491e23035e97288853661fa439eef64f858c8b",
+    "bindings/c/stateless_v2.h": "2bf0c5641945afb55c1e0910ef5d56de8b8ad1a32dcfe1859ee396cdc0f947dc",
+    "bindings/c/v2_smoke.c": "0ac2e565fa2067666fec385e7cbe073974920cf3d0103accfceac25f5d319074",
+    "bindings/go/README.md": "afaddf13aa036d3d477a2f18061646c17c32b342e3a98caf35b47175995e02a6",
+    "bindings/go/bridge.c": "d30ba310b1005a8b685caef0ef913de2cb2dd1c721a8dfa721bc7970032af692",
+    "bindings/go/bridge.h": "be1918d5d828bcd22a0de7a4eab377c8565881cc767fa7b3fd88ccb40de5ff94",
+    "bindings/go/cmd/jobs/main.go": "f911455b36d85a492b101e6572e8a5167a88d8cfbf7d6066ca2ceed7004d820e",
+    "bindings/go/codec.go": "e9e9a92ec40d5bfb29a2a29131b1049dad654775bc79eb57d950b0a84d5881d8",
+    "bindings/go/go.mod": "4faaf1bfefb789e34c105d622cba266e71254d3ece06602380bcce36dff90c2e",
+    "bindings/go/jobs/jobs.go": "1cfb6bb31562b4cb55c60907c455bb4b19ced16a56f2dfdfc9da74ef6a165e2c",
+    "bindings/go/jobs/jobs_test.go": "d9ffe3822d2ee1edff0b7bcb44443a3e0972ced8db958e341a4271d9140ae367",
+    "bindings/go/stateless.go": "4347265ee205e46d64adf100142ecbe6a9917865eb094713c8622d7342ed349e",
+    "bindings/go/stateless_test.go": "899791d81e0ef5ac3c1f4076e539d08971d1001d53d7f52f8a7c4fe51ec9bc97",
+    "bindings/go/v2/README.md": "07a6eb06139e30c30764bc7549116ad462675a4346dd59ee925010dc90484b03",
+    "bindings/go/v2/benchmark_test.go": "99dbf9fda79a83f340f210ea736c05c111ac866e395eb707dd761fe197d3f225",
+    "bindings/go/v2/bridge.c": "a11bec99648c35a33ace6087bfe7e8bd018867cf525c4bc23dd65e1a334fc905",
+    "bindings/go/v2/bridge.h": "f28cbda5ded5e687e35eab8952093abefbed98fc378c00c36f8a5b43f17d5ede",
+    "bindings/go/v2/cmd/stateless-corpus/main.go": "22ccc72ca0a32514948bec3adf42e6b678ca5cb0c815fa7d159b4a495fed094e",
+    "bindings/go/v2/conformance/runner.go": "a6c5bfad2e89276c07e10cb2202c5c966b3fadbcf116ffe0c058ad3b2033c326",
+    "bindings/go/v2/conformance/runner_test.go": "9552c3ffc2b023c4c1fe4c7630afaaff0b06ffa05932ba2d130512010a337761",
+    "bindings/go/v2/internal/portablejson/json.go": "fc3b1713255b09c24dd7fb78ff2aebe1c35c8d9d2523b57d6f593b5b9a385d29",
+    "bindings/go/v2/internal/portablejson/json_test.go": "1296dd0e39c4a83a34b07df81120f2801bbf4c3fe20db49901889451d3b9120a",
+    "bindings/go/v2/model.go": "383fd158febb3d15d19801cb4031b0d41278672829c5ff437b095ac0c1fbca2d",
+    "bindings/go/v2/operations.go": "9245f5a9c83dcefba95b7be53f8901245c91b5ca8e905f520aefbf7ee8b49e56",
+    "bindings/go/v2/packet.go": "eb4553f4699f676fc557047e634e34bdf26d3e9fcfdbc992604954534705af84",
+    "bindings/go/v2/packet_test.go": "0081b1700734c6015618c974000bceca1a96e311676bff02fb311ce2958c218d",
+    "bindings/go/v2/portable.go": "806ad1627f04e71395af7b0c6d73d635f7ec9600b6077ae9154d5fcee02f6ca4",
+    "bindings/go/v2/session.go": "d60990b6393e390aa88623d0590e5343783fe4841644850d6995b2113e71a9aa",
+    "bindings/go/v2/session_test.go": "638958c103506c07a531d967383f0748743a952c90333fcf3f0b9a50a509e7bd",
+    "bindings/go/v2/trace_json.go": "3669a6db47e832d0a1c088812be6801cff05c0e95d4e73acb0988edcc16efb10",
+    "bindings/go/v2/trace_types.go": "9f2c2a2f8755795445756734e48d55f12af33dffc487e7d49f3f2eadff5d6805",
+    "bindings/swift-v2/Benchmarks/main.swift": "ee5072e8428fd62e157399d3dcf0e7e0147216a7de57c67b02a9acbba87bdda5",
+    "bindings/swift-v2/Corpus/main.swift": "04ce9c3b5b8aa47e62bbaa16c5ea094e1cde131a070df42ba094273c9783950c",
+    "bindings/swift-v2/Package.swift": "2ad2367749e48fbe074762749b4611d6710d5ebf55a7315b20aaf544a45fbed8",
+    "bindings/swift-v2/README.md": "a990615f2eff24ac7703afa4272e3e653cad1fa24c661b3321369d142e421da2",
+    "bindings/swift-v2/Sources/Native.swift": "39a7bbdb991d3bfbc6a3eb55eefb32aa8741dd4fd2e732f1a0301cb29a0541b6",
+    "bindings/swift-v2/Sources/Packet.swift": "b00ebf8948705e18979c2bbc24df3c91f44f1ad12890ded2b04eba2ef89869b3",
+    "bindings/swift-v2/Tests/NativeV2Tests.swift": "b7717b1022708a8b212090b8c45e91bb094210739fa5d511f7d939a916cf3295",
+    "bindings/swift-v2/c/module.modulemap": "5eb2fb836526c2ad4c665957fae4519cedd5dad5946080a5287d6753fc0a45d8",
+    "bindings/swift-v2/c/shim.h": "1c94aea9e1e15d67518bbe7ecbf9cb2399f1a7416c0be647a693e2fb434cbb27",
+    "bindings/swift/Counter.swift": "24287005a494260a86ab8b4b9eefb543716465bc429860b36fe0a087ad64a2c5",
+    "bindings/swift/README.md": "cb226ff698f8692a526522e09fff15de1956b66593523f70e24877d37109c239",
+    "bindings/swift/Sources/StatelessNative.swift": "0aaf79f4fe5c96233e5d05051666d9502cf98f6cdd2e8a2f3c62742deacf7d05",
+    "bindings/swift/Tests/NativeTests.swift": "20c72b7526d30814af3aa29a18bff225c6aa1c62ea70bc735d4d66d63ed59a56",
+    "build.rs": "7aa837eaa71019a2fc6994d4c5886a0aabd6e0dc523e8cd8e964decde1dcf37b",
+    "conformance/README.md": "76db6605c089ad3c7a835a467156e1663499de7e8e719acf161903861a435775",
+    "conformance/build_corpus.py": "66a479ae2912b1d089f0b126a33642e552834dfad22084c8259f5b62f33493e6",
+    "conformance/corpus.json": "6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11",
+    "conformance/mutations.py": "561d38b319a066ea527028146121ddd5f0e9c16f201505dea2fb908dfc990ba9",
+    "conformance/native_mutations.py": "48800f3319ca4cacbc767dde358a7887948adff1075a8075f4be5306eb019e5e",
+    "conformance/paired-v1.tsv": "6fe066b352b42ca47a609b69ad019cb9462506c77f12a156b50c76bc4e5f2511",
+    "conformance/portability.py": "9f15a637ac1470d149a32ab483ee402422cb9d58fe9c1ea3cadc923a50b1612e",
+    "conformance/run.py": "574d639d96829164bb139f797ea8b1f7aa053d5e4cfaef9337596418a46dc0db",
+    "conformance/test_harness.py": "9c25d07aeb176b77a5f88b75f04a74fd1dc2065752cd1b3d762f5af1e84ba9c4",
+    "conformance/test_paired_profile.py": "89f26fde375a61d23c4af2be8e24352743bbc0d013c254b4446b6bc76ed3b851",
+    "conformance/validate.py": "dd9351981ca33c10d89791d5e6108eb3cdcd65ceee72b10ad72df967c488d998",
+    "crates/macro-qualification/Cargo.toml": "32eedd4c1ab60f5062c8707f94d61322d453660c4a815c17d6a54a783514f7f9",
+    "crates/macro-qualification/examples/measure.rs": "6dcd2c244f5b345c5f73cccc7ea12f4b81531821b86688199aec0211efbad407",
+    "crates/macro-qualification/src/bin/jobs.rs": "aa2203da94034d2be0206fdbb647aa1bd1fc103d6fdf3bb6a25b9baa01e05e99",
+    "crates/macro-qualification/src/jobs.rs": "c77f5e7caf9da45eb5f00d08004b6a36e7c205842821307ace653ecf92d92a13",
+    "crates/macro-qualification/src/lib.rs": "192f91bf147b2433b9424b04d04fd7b0b3b885ec095333ec6d676e9936b12bd8",
+    "crates/macro-qualification/tests/behavior.rs": "faeaa6454ba3dab648e7e6c44e5c157e593c8a7446ebb8f21889e6a0f6ee38da",
+    "crates/macro-qualification/tests/codecs.rs": "fc6a84394d88b0c9989ed0197a19ac2f6a02a71db5353fad3364ecab35a4721f",
+    "crates/macro-qualification/tests/ergonomics.rs": "ad5baa24bd3e00ef615975aa3db2f2f81bea74623036f092b9a61602c190ceca",
+    "crates/macro-qualification/tests/monitor_release.rs": "e18e8fbde77f4aa184a3f504f3e1285b97cc9cd67a26084fc3fba19034874cfe",
+    "crates/macro-qualification/tests/review_regressions.rs": "6dfb51b42f508756d6d05f8ef2e33eb418d0a535ac6579beff5f1291807f30b4",
+    "crates/statelessness-debug/Cargo.toml": "b9ab86c57f6797029e52dc409de40ab16c3d36f2e8617d189a95118d99088b25",
+    "crates/statelessness-debug/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "crates/statelessness-debug/README.md": "b863663c1f71933417fb068b19562020b015c9fbac75c737ea102306bbb941e2",
+    "crates/statelessness-debug/benches/diagnostics.rs": "c024577ea8fc8484b7fb29ad25868f8306ee6d293f637bc5856c7513e571a23b",
+    "crates/statelessness-debug/benches/support/allocations.rs": "afb0edbc231a99c35d0c149926f3161a7f77a289db835544b6d39c8f4036a406",
+    "crates/statelessness-debug/benches/support/mod.rs": "bab63b7b20c05f0859293b5d80566eb87e9756d162ee6486afe2b90346e26f05",
+    "crates/statelessness-debug/examples/debug_composition.rs": "88f8df27e328158a4dce0ee7e1da843d1ada23f28d81c8260d48c488b138d4a3",
+    "crates/statelessness-debug/examples/debug_counter.rs": "8284d282aee13e5464990d00b25c2d26a997d5bc530d51452367db7fd4e1790c",
+    "crates/statelessness-debug/examples/debug_request.rs": "b92101deb8f602009f7849cbcb0390390ad95f03bee74295e8c41c939039f25a",
+    "crates/statelessness-debug/examples/debug_stdio.rs": "1a17e2808814075996ddd466540047a87cd7258ec51d5ac1a3acb3f30b777eca",
+    "crates/statelessness-debug/examples/effect_overhead.rs": "07c67e3e70bacaa63dc500974db65992c81dabee6ac23642c44b3d664ce92fe2",
+    "crates/statelessness-debug/examples/instrumentation_parity.rs": "d75438f72e2b994f19e900096d8a9c20b874ef53f7812bb37ecb669fa8ddd4b4",
+    "crates/statelessness-debug/examples/live_host.rs": "f5f3f92cbb5cdcd04a6f6680858a7026c307f30b7beae60ba0848c991d540a67",
+    "crates/statelessness-debug/examples/measure_watches.rs": "f94964e81a5caa77030164b291a8895f1e4f530ef26f1bffbd155068dc3edc26",
+    "crates/statelessness-debug/src/dashboard.rs": "a0755ab8b58fba853abb6bb5d747ff9c16c97394769d9f605d513146fd17c8a0",
+    "crates/statelessness-debug/src/diagnostic.rs": "af84f58d588efed19580f885f211faea4c47bc14528e24ee0a4f74c287bd8e35",
+    "crates/statelessness-debug/src/effects.rs": "9504964df78c82e0338d7f7592786dfd9dd9428749ecb02d4ae76b3fc635bcae",
+    "crates/statelessness-debug/src/evidence.rs": "e1dfac178820ab7d7a095abf5d2bd72bd5fe553dc027bcb3aeed6d3eb9bcf091",
+    "crates/statelessness-debug/src/inspect.rs": "106cee7faed51e0ba77d02695399faed8c84963538d970428a149766c84ce0c0",
+    "crates/statelessness-debug/src/lib.rs": "31c5ba430bac71785170a78e9f613a9e4c1a61faed87057dfe697e4137b972e2",
+    "crates/statelessness-debug/src/live.rs": "11bd9bde1a052515143fd86ed7c032e5016743f4b7aeaaf2ebfe8a35b2d6866b",
+    "crates/statelessness-debug/src/metrics.rs": "78e69a0f9adba15bc34864109c7e86c57952f1037f32f2753b62383261a94d0f",
+    "crates/statelessness-debug/src/protocol.rs": "3c6e3d38d49b3b3f82f5b1cee3b48ed7da8a20d5373538a05506d054f9c687d5",
+    "crates/statelessness-debug/src/session.rs": "cda89b387534b898d264d47212bd46acf295e45329acfd3af06b561c45ce6a29",
+    "crates/statelessness-debug/src/watches.rs": "323f6b4b5a30cb98351cc375244ce49f063af82cd4a3f13d1166c9026c087960",
+    "crates/statelessness-debug/src/workbench.rs": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d",
+    "crates/statelessness-debug/tests/diagnostic.rs": "1f1fef18e3c9a6b1f6c019d37ec47bbaadadecd7f77534f971f83aa986237b77",
+    "crates/statelessness-debug/tests/diagnostic_controller_model.rs": "8d82d4f730f8dd36a9a975dfd3cb14133dddda597346fe5852cc391b811bc3d7",
+    "crates/statelessness-debug/tests/diagnostic_selectors.rs": "dfeafd7304676e9bd0c21e0782add8726d2fa160b17b4b7c13b142d87da4608c",
+    "crates/statelessness-debug/tests/effect_ledger_model.rs": "b98b4b8dd4f6762bdb73374c997fd4213a7d632ac25ff9783dbf166cac01afd6",
+    "crates/statelessness-debug/tests/effects_metrics.rs": "8b4a0f23c60c17c47edbf52037e552d40f9ac9d3867c2e73980adb769447a9fb",
+    "crates/statelessness-debug/tests/evidence_dashboard.rs": "82ef39b7c1d74fba43c69af71b8c23092de8030d1cdca3b8fc3f5c62742ba606",
+    "crates/statelessness-debug/tests/inspect_derive.rs": "81f7819879dd2fbd33d045daf916f5cc51209ad5b1ec62f6c1c4fced3aab05e7",
+    "crates/statelessness-debug/tests/inspection.rs": "a01c83fa2340f19da02a93f0643d09d9771fdb2bebc1a36479b08886eebc3cb5",
+    "crates/statelessness-debug/tests/live.rs": "1506f772131884ba4815058fcb00963ce4b17da23ae919c663413da81672da2e",
+    "crates/statelessness-debug/tests/oracle_lifecycle.rs": "9a636619599950778dd899a2e2e6cd79b920c98bb0860a6b296e7b11e9cd3af2",
+    "crates/statelessness-debug/tests/pr_review_inspection.rs": "782bd6c2adde8bfa922bbf81cbdb3c4e0aebae4e05f55ee3090159f2eaebec9e",
+    "crates/statelessness-debug/tests/pr_review_live_effects.rs": "47b84a006975f7ec0946f66b12aee2d251f6477e3ba17685f51bc02f31090092",
+    "crates/statelessness-debug/tests/pr_review_protocol.rs": "3fa65f4317aa05c2f364f1c16a34118c2cf66ab1d63361e609d65d560113f2bb",
+    "crates/statelessness-debug/tests/pr_review_sessions.rs": "b689415e58fde9408c11a72c3f169bc7bd0c9f2848042c00382f31ca2a29d963",
+    "crates/statelessness-debug/tests/protocol.rs": "4163fabc5e8579af9179bab3466574cf8985a4863804d1dc135cd695a07d4594",
+    "crates/statelessness-debug/tests/review_debugger.rs": "5375a171f662b9149a72c5adbc71d3e0e12abd8e1e5ca4c2558a7b45b3a7719e",
+    "crates/statelessness-debug/tests/session.rs": "57436eb80ab069bb01cf1038e4fee647fd0398ceca826ca19ffedc75f49b9a5c",
+    "crates/statelessness-debug/tests/watches.rs": "f3c979dc88d3812b98b3b5395516decc7c698366dc34e53afda81d168c8b027c",
+    "crates/statelessness-debug/tests/workbench.rs": "f5caf6cf55992e969d475d730b4e125498888489a7c447b35b7fdeafe2c657a6",
+    "crates/statelessness-macros/Cargo.toml": "fb5f0c25edc7a8211c3cdfaf75c8c373d7f2c758f4e4df518eca9235aae4eac6",
+    "crates/statelessness-macros/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "crates/statelessness-macros/README.md": "9ba96f7c4afb6743be6c321284cf53b21af9a23e9e5998e97acc66b5e60d8891",
+    "crates/statelessness-macros/build.rs": "f8b62ba9564aed8e971a9bdb8941225ed07ce6c32fecb68835671239c3f4df35",
+    "crates/statelessness-macros/src/adapter.rs": "15e317258c409fd48b26bff8c995ed9584681e51a0a8b23c8f16d9d5ff6f92b6",
+    "crates/statelessness-macros/src/codec.rs": "63bf688b114cdd6d86afdc6bc6227c49f027210303c61603c9c044d47f0e0dcd",
+    "crates/statelessness-macros/src/domain.rs": "2c76631b12ee90ea7cce73919b3f4b4fe9a051a79a70b4446eea77def550b5ce",
+    "crates/statelessness-macros/src/inspect.rs": "c9f3990491a8bb045dbab85e60a4de86f9f6f891f30f8a0666541763c76fe856",
+    "crates/statelessness-macros/src/lib.rs": "4e9c4142739699ec35b5143a15024a942cb3659e54dffd94a7cc7660ba8c156c",
+    "crates/statelessness-macros/src/model_codec.rs": "5205bdf3730ad983732744856eae53b14919345080db4fbae9b8e4e9af618825",
+    "crates/statelessness-macros/src/parse.rs": "3825968d1ab4a4f3fbacf1dea2aea4113b3e04dbb3e20a97aa29995dc387de6e",
+    "docs/ABI-V2-BENCHMARKS.md": "c901679ac55565fec4b0e179ce8ab348ae9689e713c6efb78fa3b104ab7eb9eb",
+    "docs/ABI-V2-DISTRIBUTION.md": "37ef1629884b9ce19d29b9f83a1ef141e601a88e6003c510ce7599e17636b611",
+    "docs/ABI-V2-PLAN.md": "d551812e21f50b6fd92da61f550bdc88e8019ba6a6a925e53fcdbfe91af5422f",
+    "docs/ABI-V2-STATUS.md": "a7785b01efc857c8cba35009e1d6928ef13fc6950078d15f3ae5cff2801c2ebc",
+    "docs/ABI-V2.md": "3ed51b03d98a45c2fb4f28c2ef4dac59b5e91bdc8fd5cd8fbb3bc836babcf065",
+    "docs/ASSURANCE.md": "374e25205381e1becb1ab5610c97e9475432461be6c971a297ad239209db56db",
+    "docs/CAPABILITIES.md": "8974f1ae2a99f618e0539975d60c0f135bcb82cd5d71fe1d1830b595413886b8",
+    "docs/DEBUGGER-INSPECTION.md": "368c70cd75b00e1c4de97bde4f2205d6af458c0bd502953458cc17765c23b108",
+    "docs/DEBUGGER-LIVE.md": "8f2024abea118a28816844da3112f1c67ee575991c2ee8dddd8fd1a397f02a68",
+    "docs/DEBUGGER-PROTOCOL.md": "2d62228f3358742ab8c9ab510d15324c5ced88d157fe1e7da3127d13f45e54c5",
+    "docs/DEBUGGER.md": "98eafa8e49f6158790a55c25f7cf9b286b7fd7e0e490639290ac71d8e2919966",
+    "docs/DEBUGGER_EFFECT_METRICS.md": "61ccd454ac7d7701a560c523d2aa9a6021f1918431202000d3b556c88f2bfacb",
+    "docs/DIAGNOSTIC_REPORTS.md": "c35e3c8c44fdcf6524eb65750c6a816b82cd346ee1eda277bc099ef6fb870acc",
+    "docs/EVIDENCE.md": "45c3064531122657275b4fa1a7909baba727548d005f3cbb1901226c3ff12bdb",
+    "docs/GO-CONFORMANCE-VALIDATION.md": "d1a0e1cc4cf09e6d0ec7ee22b9c25c1a5ada7f9c18ecd9db7bc3e1fbcf8e25c9",
+    "docs/INTEGRATION.md": "706b9f1c44c4702f72df1e2712e55095478adc65d53e20deb6c0a8cfe8e4eb2b",
+    "docs/MACRO-EXPERIMENTS.md": "c142667fb6336d7898d2bac53ed25a7b71bb21daa4cca8042ca6dd9e9b55bae3",
+    "docs/MACRO-STATUS.md": "025553d728475db3cc53de34cbcd578573017be96202b81b1bd49afe14fd02ce",
+    "docs/MACROS.md": "ba51ed92fecfac17c722e1c7c63b5ac3cf4b61001011a3f11ae6af9f2d95f98a",
+    "docs/NATIVE-PARITY-PLAN.md": "8d9e0fa19796931a2b85368092120e692e9e0f50788b9f36b2f22aa463ab7301",
+    "docs/REDUCTION_RESEARCH.md": "fbe74188c6b38db1cbb7512c363922b7850bf56e4db0a5cce55f0d4c50d46ff4",
+    "docs/Statelessness-Macro-Roadmap.md": "8e7e4d5590c8854b52c15dd8d2717fa7229bc8bfc3d04ba7ffe6d9996d959efc",
+    "docs/Statelessness-Rust-Debugger-Design-v1.1.md": "4557a92bc9689da26accf22b651cf0ca70f3e508242296c6f99c820a8dad8877",
+    "docs/benchmarks.md": "a600f05e7437c95f1ce4cf00dd7ab9d1e86bc0e29661e55c4093a0e6383acbfa",
+    "docs/debugger/ACCEPTANCE.md": "504b4574e50c13b3e3524a52b8a9f3c85bae225079fab22de6850bf03e738212",
+    "docs/debugger/CONTRACTS.md": "d82c8d28899abf99265c3666b0481739e1d64cfcfac5707a7948b2b978a7665f",
+    "docs/debugger/INSPECTION-BENCHMARK.md": "7e5edcef624ba60ad046077e7883e3cc98e5101f189097daf1f323df75a51e9c",
+    "docs/debugger/REVIEW-CORE.md": "fc8d17ca887c395eb0224f9bcc296754ab5f85ca2dd2ae9529769f4aba0d276d",
+    "docs/debugger/REVIEW-INSPECTION.md": "246bf2003229b2ad1c9ea0008e604dd24d8dbdd1a917e6e17b436cc47cfb4d9a",
+    "docs/debugger/REVIEW-LIVE-EFFECTS.md": "4fdb50e4d02bcb47f8c3947ccc40404fa1219245440761571d4d57addd3f9dd3",
+    "docs/debugger/REVIEW-PROTOCOL.md": "6f986117731e8d4ab7c3407d2a40f0f04e2b97bf51f0bae951b89b68bb37287b",
+    "docs/debugger/REVIEW.md": "9b811fdf4e2eb8172ea400549b62e4b6369bc2c8aaf0fd83845aa9464ef88277",
+    "docs/improvement/LIFECYCLE_AND_NETWORK.md": "2c34898fa36e1a2b2dad9c16bd74b8548513b0f07d13295b07812c2653f4cfdf",
+    "docs/improvement/PLAN.md": "3dad2d872a83a66905dce42592cd625175b2b490c747dfc91b792eb8307e2543",
+    "docs/improvement/STATUS.md": "d65b7d04717748504b875c214daefe79cdd879eea6f5a9af8d1ce1acbbb1a92f",
+    "docs/requirements/controller-properties.txt": "809f254192b3227befda18155d0f3f4897492b317c5d0240e9e591943ea85d66",
+    "docs/requirements/controller-witnesses.txt": "68c8b3ce4230a95bd1f75ff6a55c7cb59630fbad6592c30b12c4e806421d4772",
+    "docs/requirements/controller.json": "dedebec109f296aae00ac06106b403db129af2031ace7339c7ad039161b69765",
+    "docs/requirements/controller.schema.json": "372b80f55784f1ef5a51ffc3e29b208982a227978e88572d71e0bdcc43d1daa2",
+    "examples/README.md": "23ee1ee050ef5b4cd663c14d3c20da3612d79ead862694a3811da875f40d5860",
+    "examples/application.rs": "f9ad8c1cb61d9423a99000c7c766c56223abe91a19c457fec94c1b7056d1afc6",
+    "examples/controller.rs": "1b105a6c51b366164a5259f744bd8dbae499c8a7343c40e8bd23f861327c5edc",
+    "examples/counter.rs": "7c73d15752320b463cb2eedc8a84ece38f0bac04a273541dd46c9007f3e38e7d",
+    "examples/go-jobs/.gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+    "examples/go-jobs/Cargo.lock": "af3d8daac83fc354c4d1273c19cc246a35f918489bb6ee997fef9bed471fec4d",
+    "examples/go-jobs/Cargo.toml": "b4da17decf16c320946acc658aa718a3f60790d123755be4b0e838bf09392723",
+    "examples/go-jobs/build.rs": "ad509f12b81ab14ffe031b0219500fd25bf8df22da67e57b6e801090deeef90f",
+    "examples/go-jobs/src/lib.rs": "006dde0e04c44d42416caf9a7b027bc462053b880e77ba069130db08a611b4fc",
+    "examples/logging.rs": "3cb3d800adf0ab0a27eee50821bd6ad9d915720acae03f4a05b15ffedc5921f6",
+    "go/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "go/README.md": "41ada015aaaa7dcbcf9baad55448d905815dfd870065fb6d8719675e8d4dfe2c",
+    "go/cmd/stateless-corpus/main.go": "c798b7d5e3a3fc4513dd678685c67d9b45b3eb42b95fa448afea7b145395906d",
+    "go/conformance/runner.go": "79ec22b21a4ef5692b44ed19e0a7fe52f0684dbefc2706dd6069762e3ffd08af",
+    "go/examples/counter/main.go": "27b4acb959b3f0978b6ad95ef5514cc68b602e1371d3749be9a9bec76ac3bea6",
+    "go/execution.go": "474c59e9749e7f30ecf880c5404166404d443c852ad62b5bd460adc4f998ec3e",
+    "go/explore.go": "d1cbb977931d8cb87c6c440e370199e1c162704afc533b8d39fa98e4d0980761",
+    "go/go.mod": "b5cc32ecad4413f0f9952bd52388d6925c59b5031da3668aa8aa4467f2e39dff",
+    "go/internal/portablejson/json.go": "fc3b1713255b09c24dd7fb78ff2aebe1c35c8d9d2523b57d6f593b5b9a385d29",
+    "go/internal/portablejson/json_test.go": "1296dd0e39c4a83a34b07df81120f2801bbf4c3fe20db49901889451d3b9120a",
+    "go/model.go": "cbe983c3bbe71326dbdc4b4889088a8874688203ba4e5f9369c856355c1aa90a",
+    "go/native_test.go": "df5233c28ee558fea46775f756cd5979773427f3b52575ee815aa20192e6711a",
+    "go/rng.go": "4b108ded7aab460047329c6ec74bb241fcafae5c14840fdc2d481e08ebe02a46",
+    "go/trace_json.go": "b5760742819f024638a055a757b29c20de4c1f90cba8bd50b3a2cb9ca724c8ed",
+    "python/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "python/README.md": "746560ab8c60d0880f6f633f829c4f178d52ac26c544c22a59dfaee301bfd9fa",
+    "python/benchmarks/abi_v2.py": "60f1cf7e430a0d6815310e679e9be363f16a7e6eabd510cd1e22bb006131ce68",
+    "python/examples/counter.py": "70b6be7d796d191b9ac5a06d38015fbd004e6c68a3b56761d89fa1600516c913",
+    "python/pyproject.toml": "dc4f492512f3f0411a7eef9f39c8905686bd923f7d19dcab51a0fc9a56ed872b",
+    "python/src/statelessness/__init__.py": "2c75182a622d31101618409e1c8c5b0f5fd2a09cfde76f8f32229b563cf2d098",
+    "python/src/statelessness/_native_packet.py": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+    "python/src/statelessness/conformance.py": "39bef31555bac7d974aca8e1d77341832876a80c80a1368d00d4928bd90c3bf0",
+    "python/src/statelessness/core.py": "0ac2ea2aed4eedf85b7f1e85f5a41997d9dcdede625749cc8c4c4cbec497d49a",
+    "python/src/statelessness/native.py": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+    "python/src/statelessness/native_conformance.py": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+    "python/src/statelessness/oracle.py": "db6d3be064f5c813184749b44705392e3d751a4d3cc92484acacca97c65fd6c4",
+    "python/src/statelessness/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python/src/statelessness/trace_json.py": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+    "python/tests/test_abi_v2.py": "d7906916b8be87dfa9ff46f1d675c9645dc6c953beabc7df268fec79e19b1e6b",
+    "python/tests/test_native.py": "46f0194b4433b66b1d50422beee0fcb8930b4b171fabe9718c727dac6a022af4",
+    "python/tests/test_paired.py": "93e14e4dbff7567966d527dce05b27f1374269786c9de39d123df5c887d71258",
+    "scripts/benchmark.py": "3a79344bf4466717890b53926afb6f3f4d41b50e40fc58115eebff71efda72d6",
+    "scripts/binding_evidence.py": "d898a85c2fa2866099dbd832309913ca6b90db77f1ba58eb20f4fd7b6dcf7217",
+    "scripts/build-bindings.py": "567746bbf25e88107bb687bbd049ce1bc0f8a216577030154e9f7b8e44ed4c8d",
+    "scripts/check-abi-v2-gates.py": "a7fe45c31244e0545dc698222dce809b23a6e02fbb5bb158587e95c835582301",
+    "scripts/check-abi-v2-installed.py": "9f3ed5c6d06c03b5dad238139c46505f1721f864f7fa9a092f2a719a255ce789",
+    "scripts/check-abi-v2-package.py": "a086e522e9be22d1231cfc1e92037cfdd04a55bdda115b1897fde4e604126dc2",
+    "scripts/check-capabilities.py": "8c00bea477a5873b14c7567a6819eed9f41112fa65717e82d443100e40cdbe0c",
+    "scripts/check-consumer.py": "3348c036389d7393bfd7cffd67378f112ed56435bbbd10df52433dd79d1f617e",
+    "scripts/check-debugger-stdio.py": "3fa73cf4d851ba75623b243abd272ac844dce88a7a701eeb65be0a67fd652fb9",
+    "scripts/check-debugger-targets.py": "201d0c602efa4828d89551e53f422ccc23425a3de23dd3b5d8bdca1ecac8a1b9",
+    "scripts/check-debugger.py": "9e906f3e3934214ddd1e0d346eafd5f2b0d4725f16f66b752e54f1ca37431f37",
+    "scripts/check-go.sh": "bacb3cb1902bccf23f724460e7d9536e46cba89511933f0f800f1c5d6f5ecb8d",
+    "scripts/check-inspect-derive.py": "b1fead738da2f9dca6252d08e088d15f9778a94745707e5d1e13e31791440c7f",
+    "scripts/check-js-package.mjs": "01e5642c67c4e3bcb3905b3d511b342709332e5d63ea310134d26d235b499d21",
+    "scripts/check-macros.py": "5e067f395b423bc711d89dd82d4061197d8a992799f00e79467607950676558d",
+    "scripts/check-native-ports.py": "809473a7e1f16f2734a7eedcf165352df0e44d7ffd3ae27004e5ef02e8905429",
+    "scripts/check-native.py": "aadef7b5f52b66a1e6690e25777f599d1f0df2019311f542e6d73a52a9676b7b",
+    "scripts/check-playscale.py": "0c5bdf277615e142d65875bf090b4c77c0a4193712544e9a772389fb6cfcc0db",
+    "scripts/check-python-source.py": "3eccc5e6d9b89265ff92d316b03a6ff1f34f0a94bf8b793fe04deb419e57f82a",
+    "scripts/check_reference_mutations.py": "1c7672bba855b7bfd07c32f76d510a015148988b9ef2390703d08c00bd1f83ca",
+    "scripts/check_requirement_changes.py": "a6657c426a5d09267e480475820de69fc53380c0d22f853be2a870d678f8f7dc",
+    "scripts/check_schemas.py": "905f3f9bbfce135a6f62171be58a506d74eab47d02dc97499aba5e67f2d416f8",
+    "scripts/compare-abi-v2-benchmarks.py": "45a83e8dda59e6f1a6e41cc6e639495c557947a8e158e3862378dcbe633252cf",
+    "scripts/generate-v2-json.mjs": "ac23a6e710f1ce0b44dfe068879bf24341dad51fbffbdc5013be1a2c328f178f",
+    "scripts/measure-macros.py": "9639323c10f788835254b2f02bfa785fc16674f66e4f88c2c6b6810938da0fba",
+    "scripts/playscale-measure.rs": "1f02df3f578b910dffe2b564c39f6cf44625acfed96986aff48e72431cd015c2",
+    "scripts/qualification_context.py": "4f48f01290d0aff1ac2f448abb7f10ac1175881acb2f150c7fc5c53532bff54f",
+    "scripts/qualify.py": "bc584fee8af0e5670b98b6c1ae42641a4ec444abc4035154d73d13aab4109f01",
+    "scripts/review_requirements.py": "cedf00bf62ed29664312341356de7ce0d1bdd4068282c9a802970500c60d1024",
+    "scripts/test_benchmark.py": "f87c9facb8584378e463f43572c6077475dfafce7820e932762e8fcc50ca2baf",
+    "scripts/test_binding_evidence.py": "c978fbe8e8a2ffbd321eeb320b946c0e3dd224eefc365fe20ec61a3067449107",
+    "scripts/test_macro_compile_queue.py": "34831bc34bb64b9dc6dd176560fde683cfb744a864eb75c4953a54a8169bb7f0",
+    "scripts/test_python_source.py": "1c9a465679296e9ab21929d8f509c17112b272da81b40337c5dd67c26be07d81",
+    "scripts/test_qualification_context.py": "4d87c2bfea02be819d44eb68da001c733dfb18cc128d21e781ffd3d510de7901",
+    "scripts/test_qualify.py": "72209586152e439ac5744122b86ff76383b12b0c4ccbf03a1c626f7aa6a1cd3e",
+    "scripts/test_readiness.py": "81a2964963c347e6e82e391eeb39a29e12e7e6044e957d190dc83c81e3fef3bc",
+    "scripts/test_reference_requirements.py": "7a6bc4991cf7d771f6f0a28d3b56e9fdc48caaf3b7028121aa5254b3b3e51d3b",
+    "scripts/test_requirement_changes.py": "28cbf5e327581212c92086590e733b6f988b2c6ff6653c8850433998e8568f79",
+    "spec/NATIVE-PORTS-QUALIFICATION.md": "bded100389ca56ff207f9855e8100ef019b0c7acd970f6bfd07074f64a9f6b40",
+    "spec/QUALIFICATION.md": "0d12c3f09b47cd4f5f8e367fa3895dd05ba14aeb408d5eb391f207b21ed18d48",
+    "spec/README.md": "a7cbec5e7591ac7fb0324e0297b86b3f92ccb9865a18acff23bcc7f387360667",
+    "spec/assurance-campaign-v1.schema.json": "f6638cce5e94e82230475eb2b6afdbe374543f58c4ef87c4ef465ed1d268b0b7",
+    "spec/assurance-report-v1.schema.json": "308eeb087f45830ece918a4ed5983c032e7ed202a6e002d3b2c656fa020bffa3",
+    "spec/assurance-v1.schema.json": "8c9d266f78c3872ebd191caefdc2429ad3dfcf79a6de46f70727aa867a6b4c04",
+    "spec/corpus.schema.json": "658ff0e1e3ace5aebf5d90ef2ff4673d06287bdcb24ad2fe83d6430957655031",
+    "spec/diagnostic-export.schema.json": "42cbcc68f56386988456fdfc008b22a583260f07c750dc702a9c576f489a71da",
+    "spec/paired-v1.md": "41e19e569aac0054cbbb4e3367f789951914c83dce7e6d4150b712f3549dead6",
+    "spec/paired-v1.schema.json": "9431cb695979f717eb90ff4da50b3632af6180d6e4bf2b5e4360af070125b646",
+    "spec/request.schema.json": "1b5b8593cf5b993c0047a862371330632af503c5ef2bf4914719e5d176de9b82",
+    "src/assurance.rs": "bca62843eecca4c264a620e13a7ab274115e6d1f8e05ebefd8479d71bdecbbaf",
+    "src/automatic.rs": "c1e2e2cfaade485a0c4a71d24f22368cb6564bdbeb5f7ab2241de9bffadf556f",
+    "src/campaign.rs": "4d4da9479fe3512589df379cba9a1f3e5df989bba6920e3691479e6b3ef19005",
+    "src/campaign/lifecycle.rs": "7931c3ef82bf7f2b806448ef8a65f8f2e4a136d38c58d8e06307ee4b090ef44a",
+    "src/campaign/lifecycle/codec.rs": "a93ee1cf524339743564923dacd6d8aac007e95d9ecd68e00f5f4e08de8b579d",
+    "src/campaign/lifecycle/tests.rs": "3102ec704a8757f339d558e93faf98c82499076ffc94d8177551aba2af582b3a",
+    "src/composition.rs": "dcef4c9ed0f1a64bba8834f2482261c02ea630d9666237d3b08cd5eb1f5b94ec",
+    "src/conformance.rs": "2162d07b340a14a13b04e863f8ac134b0498fa35e3e503b561f6461e7b2bcb54",
+    "src/demo.rs": "0a644f878de5408954ab0b3d621dd869b7fab60dcfe79da0a63c4a00d628c289",
+    "src/evidence.rs": "bac44cf62db1c2c40c9f66fe7ad1d941fa33cda5badc4709374d0b930355391e",
+    "src/execution.rs": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0",
+    "src/execution/replay_kernel.rs": "a7a4c8242408531e10453b0314c11b26c8c469ce2c8eca56e81c2e748d783cd1",
+    "src/explore.rs": "496c19c7181a6bf3f2af97d3e04df1d3c7b22c241351104b4cd66201f6706ecb",
+    "src/ffi.rs": "1762b6e7731bda4722b74d6b7b211ff7213ce4479d193c52473c790560e18575",
+    "src/ffi_v2/adapter.rs": "db6d640519a9c96009d6bbf9424980701f62f81b030acf254ec8ee447e755053",
+    "src/ffi_v2/api.rs": "53c8c96486c1ab9f94b9119d235958ddd5be26674ec52d3241b9066454c3ec2b",
+    "src/ffi_v2/mod.rs": "1ad89ea646449ff93f959371f98910a8e391884b0636a9f291170c68a1641a42",
+    "src/ffi_v2/portable.rs": "d3c711f0a276e64e4ccefbc2fc5a472bc956849d961f2b7908ea43706882de43",
+    "src/guided.rs": "bbc7b214510f862738991074f8f2053389c4cac85caf005ebc129df9b06a18d7",
+    "src/lib.rs": "e11f13805755f9923c00840e9352d235cfbd61d1c66c8b3245d2c59fa91165c7",
+    "src/lifecycle.rs": "e13a66e70a6b29b692e95093b4d7cc722bcc6983c709a9575a9df8ef7907cc6f",
+    "src/lifecycle/indexed.rs": "5a2a774dd4ccff1f5e2ae7db0ea4ab1897b10fe96a5d9e9ccf99ee4d142cfd25",
+    "src/main.rs": "2d0ddf1a470d6f0fe777c40bd9cce8ded4670a37e5170c5ae4d7f25c2333a57e",
+    "src/model.rs": "e69a80ad96826a27871807f848e22fd213a7bee9f95d76be92069e68504f5beb",
+    "src/modeling.rs": "f31eac68547754d3d55647d92427a10e06cbcb30807fe4bd5fb38c6528968635",
+    "src/monitor.rs": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac",
+    "src/network.rs": "5fac0e0934d7e2c9d462ea52fa8fe459b8f45c67041538e4c74a6d2455d6f25d",
+    "src/observation.rs": "c0c288b687dbf03a87be44dab322af47ca8c3472997da337544972f5962fd870",
+    "src/operations.rs": "ec19cf028645dd16f6f389cc7fa0fa3a44a72a02838842a906ca11bb2303649b",
+    "src/operations/production_tests.rs": "8c67250a0778e986fd2fb752a96956eb00f5f05595afe332841bb00081e5af66",
+    "src/operations/tests.rs": "00fca31d97089e898256020a1ed8a1589f576c2c7fc6ff8934630d0dee7015a1",
+    "src/oracle.rs": "8f252af5945c81b236a19caf326ab626d060702791675d918cea2ef9663e2fdf",
+    "src/reference.rs": "b997d55b7df3cad317d36f41bb19f4c42124e59cfe6de940d78961463932de93",
+    "src/reference/codec.rs": "5bec75a145784d7179924537d17a0298e0960e6815145d8becc5f4daac0737a0",
+    "src/reference/coverage.rs": "13123dba59e05445a90257f8d90d43d4484338c80a6d275efa4d4ac6213bb212",
+    "src/reference/evidence.rs": "cd732d43386cbe66e05161bb6d353152f6a3c3bcf0376c75d09d235e2497b0f6",
+    "src/reference/host.rs": "597ea41d8f15e6d46f6d948874db81da15a207dc0495b8c466dbcca4b7b4fe00",
+    "src/research.rs": "c3e436ae05e7b7a08279af9447679b021a893a33196e844f432962bb13648bb7",
+    "src/trace.rs": "157ed1c5e070372220c14a23e6ba9e636e0ab94507160e7197f1419052bfc786",
+    "src/value_codec.rs": "9c8ec3107cc69f6febe24cb2969d66d344fc1f19cee3341484f7b0dda274baa3",
+    "swift/Examples/Counter/Package.swift": "284f892b7185f9e99185f0758be8a945df4b322a2f9fc613f2ee37d2f7320f9c",
+    "swift/Examples/Counter/Sources/Counter/main.swift": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1",
+    "swift/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "swift/README.md": "e36ca0a4b83d48e32888077edbea2d92ebea868785f2f005f01d651faf60a9d3",
+    "swift/Sources/StatelessConformance/Conformance.swift": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "swift/Sources/StatelessCorpus/main.swift": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+    "swift/Sources/Statelessness/Execution.swift": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21",
+    "swift/Sources/Statelessness/Explore.swift": "761bbccd25e1edab8d541407da512cd189a87e79eb76c971b50656fec95e8721",
+    "swift/Sources/Statelessness/JSON.swift": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "swift/Sources/Statelessness/Model.swift": "66fe702f4c31fe6edad6e23fd41b1e55ed47498ecc3b46aa548592913e45c169",
+    "swift/Sources/Statelessness/Rng.swift": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "swift/Sources/Statelessness/TraceJSON.swift": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+    "swift/Tests/StatelessnessTests/NativeTests.swift": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33",
+    "swift/Tests/StatelessnessTests/RecordingErrorTests.swift": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9",
+    "tests/assurance.rs": "eedd7994dac84a443f42ffcd89d4fffab940451a5b184495ea1ae417bd6f1cba",
+    "tests/automatic.rs": "776ca202050f352e8e5274beaec87e867ac297a173b3d220253baf8d585a3bf5",
+    "tests/campaign.rs": "4ef4844eb77de0f120acbeaefdaea372a8e08caf7fc3466d0ccee10452aca449",
+    "tests/checked_replay.rs": "704e559b3d31c660464fb9412f69b0803f1fb41313343e21b9b88ec5adc3ea96",
+    "tests/cli.rs": "8ef864295939c09688d4d0e67d33bb3ca28efb4da5fc1ed77c814fabf9f8dd50",
+    "tests/composition.rs": "2b38348d66ec0f980333ffd9157d912055e48f47e6720e7c0de84c6611955a2c",
+    "tests/conformance.rs": "d9253ed8ac7b516afc44a8ebee2fb868f04ddef8cdc121fea4a10b004b532626",
+    "tests/evidence_v2.rs": "acbb12d1649eb48d657f85841e3f837d4cafe11582ffdaadc6f0defcd5f92c7d",
+    "tests/execution.rs": "b634476c8eae3c5bd13878758f59340b0bd539ce1e777e39b81236448bf2833d",
+    "tests/exploration.rs": "fbff342d620c75c7fb1c5cfb7d1995482d5ce0eb70f2c2f5d0a3826ae76f444e",
+    "tests/ffi.rs": "acd6247f5c5e66120c9a03966f723cc0af7c0cf6ad5c447b9a448153070bb6fc",
+    "tests/ffi_v2.rs": "21b10e3bfc09aa85486ad92320a1909ea17216147a40608fcf6f3c32a3f412f7",
+    "tests/guided.rs": "02624f83c5a6d310817fc69f0d3c9897ed96669dde75ead554fac17066fccd15",
+    "tests/lifecycle_indexed.rs": "2343cd041ea18ff2283fb74459718d47f90bfbbc00891107ed5b6dbec89ce148",
+    "tests/lifecycle_templates.rs": "680128ee7189b8bd92ad13352d7c134741a09094831f8d36d39915a44f68b9f3",
+    "tests/modeling.rs": "42ef981a1720c98730bd5d7b71fa7a0e1b8510de73b5a48e8ea7c911c93894c7",
+    "tests/monitor.rs": "c4d9ad75cc0916eb6bd582cf98e22f3194c54df2be3aa52a6505a81b8dd35c0f",
+    "tests/monitor_limits.rs": "4a79b2f8fe236c27442a016bf748f254164a96da7d10706c01725ba852b10165",
+    "tests/monitor_review.rs": "f21ec4778015ad0ace2e54735dee6a6ed37072db918a00ef975854e1bf3042cc",
+    "tests/network.rs": "afe632c5af876528d4ead4dc8e93064f519ac1cbb6991277254ae728a224b1a1",
+    "tests/observation.rs": "842e4713c39efae912792ab99f72cc5b669c3d077b11dece9e37bd76c4a1af2d",
+    "tests/oracle.rs": "2944c089be2fa2cc3b4963c9901da0e53729cd4fe7ec05cf84af98ca7d95ebb4",
+    "tests/paired_profile.rs": "a451c77993d7be0a189ff2e5920e7da6134759ad8ce30c1b1a54dcf807e4b0f8",
+    "tests/performance_contracts.rs": "08ae3ffee4ef2beb3af94f0408ab01d4ea3d1001399fce52ae4e6b21e3027364",
+    "tests/pr_review_core.rs": "4ae56ac8563de4dd118638cff125e2a013534fb8baa33994bf7d7d970f148cce",
+    "tests/reference_controller.rs": "543723fbf9446a27dc320023fc487b887a02e0b343d34e897954f515807ae2ca",
+    "tests/research.rs": "265ffa49db72889b499f5588dfc5791932978b7a0b331da6b3f9304db169751f",
+    "tests/review_replay_bounds.rs": "cdd10c7b11e883de97ca5483473217f9ad7d22b2f3f48eceb5686a8ed6c546d1",
+    "tests/trace_format.rs": "b1ecd2d6d7bc0ceb3bba7b4b56f00b45b1f31d9f709f59b9a6a753011897b083",
+    "tests/value_codec.rs": "af9559eb1e679eeaf631a2fcdf68bcf5bcf403d637cde8161daa49e4275e4b5a",
+    "typescript/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "typescript/README.md": "d8c1d93a074d61c87aa9db5bc4294651230f9083b93be5407e02d9938f896397",
+    "typescript/bin/corpus.mjs": "41d2e4be5fb23d7a6542b65bc89b5576eb882f91b58f4e26feda71abe68b6647",
+    "typescript/examples/counter.ts": "780ddf1bf6def264286108936b6472a9c3f773b98b1cfd23ab3f917edfb6d4d6",
+    "typescript/package-lock.json": "6e8c6388660eac97e89d71eadd9087ab9f9072c09fe54261b53f5b17305d6915",
+    "typescript/package.json": "c4023d699dcced839d8966e81eb805c790267c5ffefdac4e46e0066b6d251d04",
+    "typescript/src/conformance.ts": "d4d1af31db53d92f8f57c7fddf26a5a09ccba3b891d3d963c693ea35132fb7ed",
+    "typescript/src/core.ts": "6a2fe946b18142de1b8cf40482015124799abe4a2369663681f88a43e863b742",
+    "typescript/src/index.ts": "3affe04db520a4874af46cbe1e7125903fd697fe68ec3eb32181f949dcb85c63",
+    "typescript/src/json.ts": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd",
+    "typescript/src/oracle.ts": "15a7a7869c05561c5a5f1413d3e3b83cfbb0c40f258d8b2319b9aa8eba17370c",
+    "typescript/test/native.test.mjs": "fcef97a39047a43a3be860e600f447a1f3a7ded00df964dfbdab56935609f02a",
+    "typescript/test/paired.test.mjs": "d9a8f169bc78eabb6c0a565bc47e37ec798b37e3d4b3a600a8da2aa2872ba9c5",
+    "typescript/tsconfig.json": "d49ecfd6f8b000fbf1395544bc9b9fe5405f5048a45768af0523cda3891ebe34"
+  },
+  "source_manifest_sha256": "41ec7fd3b45a61f6794fea712f6fe26b7d0a2695774a42b667bb919ab59842c3",
+  "source_commit": "e711bd6694780aba50af0d972fbecccbab30534f",
+  "python_builder_tools": "packaging==26.3\npip==25.0.1\nsetuptools==84.2.1\nwheel==0.48.0",
+  "go_version": "go version go1.24.2 darwin/arm64",
+  "node_version": "v23.5.0",
+  "npm_version": "10.9.2",
+  "typescript_version": "Version 5.8.3",
+  "swift_version": "swift-driver version: 1.148.6 Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)\nTarget: arm64-apple-macosx26.0",
+  "runners": {
+    "python": [
+      "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/venv/bin/python",
+      "-I",
+      "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/python-consumer.py"
+    ],
+    "go": [
+      "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/go-consumer-bin"
+    ],
+    "typescript": [
+      "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+      "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/typescript-consumer/build/consumer.js"
+    ],
+    "swift": [
+      "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-search-ytvejgbi/swift-consumer/.build/arm64-apple-macosx/debug/SearchConsumer"
+    ]
+  },
+  "executable_sha256": {
+    "python": "f5d584368bd127649722baa482517054d3c941ea5fbd29a669a8c5323dd21be5",
+    "go": "421007b76a01d7349ed68a284eb7e02f3ea561e8cb529b622c9134d0dd58fcae",
+    "typescript": "8122b9b4f5056b08992ab748fad243fe9eb94d811d74a4172553438ab5041607",
+    "swift": "7f41b239f1512255ef68a1251546aa572c9ee617d47b3bf737c463817d32e5f9"
+  },
+  "consumer_files_sha256": {
+    "go-consumer/go.mod": "3506bccfef5010c2e62f1ab7bd57e002f5a9f435fc1cbbe04b35698ea30ef49c",
+    "go-consumer/main.go": "7ff1fac6315c5fc0f111b673223f618f10b415f72eb23bde9fe7be22a1930ba3",
+    "typescript-consumer/consumer.ts": "16ef9cb2129b20739570e71caec7c274d4e0ac13c692fc7d70bf42fb48d7df57",
+    "typescript-consumer/package.json": "fdc8a22e047c57a567e47b0497c701ab928be2d92061f2e8c97be705af29e906",
+    "typescript-consumer/tsconfig.json": "b090306e1398b59ae2494bb0624d3251847d14a713c2d320ead5277fdacc01ed",
+    "typescript-consumer/build/consumer.js": "75894eb5f18ef0bbfa71c752c1ad436d3a6540b354289b191be9dfb7792f59e2",
+    "swift-consumer/Package.swift": "f700193f3f5fc88fe9fa85bde3edd8d32c09b9363b3bebb71838d67abe58d0cb",
+    "swift-consumer/Sources/SearchConsumer/main.swift": "5c74aee45ab0ef0986a1823ab1c96ef0311d8f302d69d81cdf57b073d5c44077",
+    "python-consumer.py": "578161184a795321061424d16c211474c845472b1a4c75bc3e2ab04c9f215c1a"
+  },
+  "artifacts": {
+    "packages/statelessness-0.1.0-py3-none-any.whl": "71d42ccc84bbe8e159cd976a91dea97ed7ad60be0fc9c5c8fe2b0ecad19b4bef",
+    "packages/jagalite-statelessness-0.1.0.tgz": "ddf4fdef1d4dc65cc441095222a6a3cc36fd65fb3f41829f0407d055b5abeefc",
+    "traces/swift.json": "29ba089bda1db9983c35dd784b83179b845efc23db14759f19ff190c7cb4c2c7",
+    "traces/go.json.original.json": "0a0872be6e7a869c786a46125f7fedc10bb45dc5b970fe71462f1d61315fcb73",
+    "traces/go.json": "e634b93c3d2c9e33373224ac5461189c073461d13875debea47d2b04ec511f38",
+    "traces/swift.json.original.json": "1f92e22f2b9fabba5d028fb37a185d255e6b81002b939e5c1423857fb743b618",
+    "traces/python.json.original.json": "1f92e22f2b9fabba5d028fb37a185d255e6b81002b939e5c1423857fb743b618",
+    "traces/typescript.json.original.json": "46461b60f50e35829432e42bff82e8c20fbb66eeea0beaede0308aa1b57b740a",
+    "traces/typescript.json": "07f78874611a8960282ee5899e91d4984cda68ac37704e4e92d5e8795d20441d",
+    "traces/python.json": "29ba089bda1db9983c35dd784b83179b845efc23db14759f19ff190c7cb4c2c7"
+  },
+  "staged_sources": {
+    "python-consumer.py": "578161184a795321061424d16c211474c845472b1a4c75bc3e2ab04c9f215c1a",
+    "go-consumer-bin": "421007b76a01d7349ed68a284eb7e02f3ea561e8cb529b622c9134d0dd58fcae",
+    "typescript-consumer/consumer.ts": "16ef9cb2129b20739570e71caec7c274d4e0ac13c692fc7d70bf42fb48d7df57",
+    "typescript-consumer/package.json": "fdc8a22e047c57a567e47b0497c701ab928be2d92061f2e8c97be705af29e906",
+    "typescript-consumer/tsconfig.json": "b090306e1398b59ae2494bb0624d3251847d14a713c2d320ead5277fdacc01ed",
+    "typescript-package/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "typescript-package/README.md": "d8c1d93a074d61c87aa9db5bc4294651230f9083b93be5407e02d9938f896397",
+    "typescript-package/package-lock.json": "6e8c6388660eac97e89d71eadd9087ab9f9072c09fe54261b53f5b17305d6915",
+    "typescript-package/package.json": "c4023d699dcced839d8966e81eb805c790267c5ffefdac4e46e0066b6d251d04",
+    "typescript-package/tsconfig.json": "d49ecfd6f8b000fbf1395544bc9b9fe5405f5048a45768af0523cda3891ebe34",
+    "python-package/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "python-package/pyproject.toml": "dc4f492512f3f0411a7eef9f39c8905686bd923f7d19dcab51a0fc9a56ed872b",
+    "python-package/README.md": "746560ab8c60d0880f6f633f829c4f178d52ac26c544c22a59dfaee301bfd9fa",
+    "swift-consumer/Package.swift": "f700193f3f5fc88fe9fa85bde3edd8d32c09b9363b3bebb71838d67abe58d0cb",
+    "go-consumer/go.mod": "3506bccfef5010c2e62f1ab7bd57e002f5a9f435fc1cbbe04b35698ea30ef49c",
+    "go-consumer/main.go": "7ff1fac6315c5fc0f111b673223f618f10b415f72eb23bde9fe7be22a1930ba3",
+    "swift-package/Package.swift": "a2b61ffbfbe9d9786adc0f54546352bac5908bfd0e8076a0a0df9681ea887af4",
+    "go-package/generate.go": "49f60b652ea69d952cffb504f53c5c0b6b9c6d6c0f7034ba610c94cdcb630661",
+    "go-package/native_test.go": "df5233c28ee558fea46775f756cd5979773427f3b52575ee815aa20192e6711a",
+    "go-package/search_observer.go": "aa164108a5f10b32cf719d0bd98c226b560cbbad6c7ed65cca5f1802f2b87a0b",
+    "go-package/shrink.go": "8565e58daed8216bcbd3e0bc7ccf6e35616b72c2fd3f2fbc2e994cbda2645fa3",
+    "go-package/execution.go": "474c59e9749e7f30ecf880c5404166404d443c852ad62b5bd460adc4f998ec3e",
+    "go-package/go.mod": "b5cc32ecad4413f0f9952bd52388d6925c59b5031da3668aa8aa4467f2e39dff",
+    "go-package/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "go-package/oracle_test.go": "f84f4ade9e147036eb7ac74f19d13ca44e91c02b27a3215e85ad923ad73c170c",
+    "go-package/rng.go": "4b108ded7aab460047329c6ec74bb241fcafae5c14840fdc2d481e08ebe02a46",
+    "go-package/README.md": "41ada015aaaa7dcbcf9baad55448d905815dfd870065fb6d8719675e8d4dfe2c",
+    "go-package/trace_json.go": "b5760742819f024638a055a757b29c20de4c1f90cba8bd50b3a2cb9ca724c8ed",
+    "go-package/explore.go": "d1cbb977931d8cb87c6c440e370199e1c162704afc533b8d39fa98e4d0980761",
+    "go-package/search_test.go": "7d6e6e5a5179fddfdcc85c02c9d47a9fdc30149840853f290ce21302b45f069d",
+    "go-package/search_observer_test.go": "2b05efae665ed490ca568dca7edb219051a289779bb560386af329d41f8d4a54",
+    "go-package/model.go": "cbe983c3bbe71326dbdc4b4889088a8874688203ba4e5f9369c856355c1aa90a",
+    "go-package/paired.go": "b3f00dfa66c8746d507bc3f715c24f1a8065f8b2aecc2a7693439bf9ce871a19",
+    "go-package/fuzz.go": "df248c346a708a09d26f599641c444d222e618c7a7d9747c7d870ad64806edbc",
+    "go-package/oracle.go": "a48ba9f9840ca1d270da90f989ab6d52f68b927b359b8b2cef33086e8019589f",
+    "go-package/conformance/runner.go": "79ec22b21a4ef5692b44ed19e0a7fe52f0684dbefc2706dd6069762e3ffd08af",
+    "go-package/examples/counter/main.go": "27b4acb959b3f0978b6ad95ef5514cc68b602e1371d3749be9a9bec76ac3bea6",
+    "go-package/internal/portablejson/json_test.go": "1296dd0e39c4a83a34b07df81120f2801bbf4c3fe20db49901889451d3b9120a",
+    "go-package/internal/portablejson/json.go": "fc3b1713255b09c24dd7fb78ff2aebe1c35c8d9d2523b57d6f593b5b9a385d29",
+    "go-package/cmd/stateless-corpus/main.go": "c798b7d5e3a3fc4513dd678685c67d9b45b3eb42b95fa448afea7b145395906d",
+    "swift-package/swift/LICENSE": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412",
+    "swift-package/swift/README.md": "e36ca0a4b83d48e32888077edbea2d92ebea868785f2f005f01d651faf60a9d3",
+    "swift-package/swift/Sources/StatelessConformance/Conformance.swift": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5",
+    "swift-package/swift/Sources/Statelessness/Execution.swift": "522f08a6b73bd59b0686cb6f9d6051148c4f340817362f5866ea555d6bceef21",
+    "swift-package/swift/Sources/Statelessness/Model.swift": "66fe702f4c31fe6edad6e23fd41b1e55ed47498ecc3b46aa548592913e45c169",
+    "swift-package/swift/Sources/Statelessness/JSON.swift": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2",
+    "swift-package/swift/Sources/Statelessness/TraceJSON.swift": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf",
+    "swift-package/swift/Sources/Statelessness/Fuzz.swift": "cf77933eae651f0b75b2d232f17b0560656ca3329b22e711279763148d766a91",
+    "swift-package/swift/Sources/Statelessness/Rng.swift": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d",
+    "swift-package/swift/Sources/Statelessness/Generate.swift": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb",
+    "swift-package/swift/Sources/Statelessness/Shrink.swift": "39aa1a9b87907b649196e0e9fab46db50d412fb2ad0b10f87e5a31578abfd774",
+    "swift-package/swift/Sources/Statelessness/Explore.swift": "761bbccd25e1edab8d541407da512cd189a87e79eb76c971b50656fec95e8721",
+    "swift-package/swift/Sources/Statelessness/Oracle.swift": "4395320454ec94b349e82dd5dd9ff7e0204534e1c1a301e8103fb1087fb9d8e2",
+    "swift-package/swift/Sources/StatelessCorpus/main.swift": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8",
+    "swift-package/swift/Examples/Counter/Package.swift": "284f892b7185f9e99185f0758be8a945df4b322a2f9fc613f2ee37d2f7320f9c",
+    "swift-package/swift/Examples/Counter/Sources/Counter/main.swift": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1",
+    "swift-package/swift/Tests/StatelessnessTests/OracleTests.swift": "0deeea7dd44d15b11a34a7346535d7842cb048618d35b6581787494f506a4f34",
+    "swift-package/swift/Tests/StatelessnessTests/SearchTests.swift": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f",
+    "swift-package/swift/Tests/StatelessnessTests/NativeTests.swift": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33",
+    "swift-package/swift/Tests/StatelessnessTests/RecordingErrorTests.swift": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9",
+    "swift-consumer/Sources/SearchConsumer/main.swift": "5c74aee45ab0ef0986a1823ab1c96ef0311d8f302d69d81cdf57b073d5c44077",
+    "python-package/tests/test_search.py": "aff3ccf4405af11e29852045f47e0273a37eaa0624da4393fe5562ca9aaf29e3",
+    "python-package/tests/test_paired.py": "93e14e4dbff7567966d527dce05b27f1374269786c9de39d123df5c887d71258",
+    "python-package/tests/test_abi_v2.py": "d7906916b8be87dfa9ff46f1d675c9645dc6c953beabc7df268fec79e19b1e6b",
+    "python-package/tests/test_native.py": "46f0194b4433b66b1d50422beee0fcb8930b4b171fabe9718c727dac6a022af4",
+    "python-package/examples/counter.py": "70b6be7d796d191b9ac5a06d38015fbd004e6c68a3b56761d89fa1600516c913",
+    "python-package/benchmarks/abi_v2.py": "60f1cf7e430a0d6815310e679e9be363f16a7e6eabd510cd1e22bb006131ce68",
+    "python-package/src/statelessness/_native_packet.py": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+    "python-package/src/statelessness/__init__.py": "2c75182a622d31101618409e1c8c5b0f5fd2a09cfde76f8f32229b563cf2d098",
+    "python-package/src/statelessness/core.py": "0ac2ea2aed4eedf85b7f1e85f5a41997d9dcdede625749cc8c4c4cbec497d49a",
+    "python-package/src/statelessness/native.py": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+    "python-package/src/statelessness/native_conformance.py": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+    "python-package/src/statelessness/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-package/src/statelessness/conformance.py": "39bef31555bac7d974aca8e1d77341832876a80c80a1368d00d4928bd90c3bf0",
+    "python-package/src/statelessness/search.py": "572cc00d455f778edd17cc6a184b7a8e4da0b51e77f4f69abe5b9c06df49725b",
+    "python-package/src/statelessness/trace_json.py": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+    "python-package/src/statelessness/oracle.py": "db6d3be064f5c813184749b44705392e3d751a4d3cc92484acacca97c65fd6c4",
+    "python-package/src/statelessness.egg-info/PKG-INFO": "c5e3354124920d9ff2e4a838b49f421c91a71fba631601f23c508cd0ef2f56cd",
+    "python-package/src/statelessness.egg-info/SOURCES.txt": "98082da0ae82c4b3d5f22ff7c1fe0bc32212018bb1eb24ac87d245713f45c15e",
+    "python-package/src/statelessness.egg-info/entry_points.txt": "41f02f4126f78d50349152d3fc55a09e6f2d788c4eb900cfd4b46d2b54eac2f3",
+    "python-package/src/statelessness.egg-info/top_level.txt": "57ef65f897bd351ab3f710d2d99869b2c302732efbca46ed272aa7ff8ff89209",
+    "python-package/src/statelessness.egg-info/dependency_links.txt": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "python-package/build/lib/statelessness/_native_packet.py": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+    "python-package/build/lib/statelessness/__init__.py": "2c75182a622d31101618409e1c8c5b0f5fd2a09cfde76f8f32229b563cf2d098",
+    "python-package/build/lib/statelessness/core.py": "0ac2ea2aed4eedf85b7f1e85f5a41997d9dcdede625749cc8c4c4cbec497d49a",
+    "python-package/build/lib/statelessness/native.py": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+    "python-package/build/lib/statelessness/native_conformance.py": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+    "python-package/build/lib/statelessness/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python-package/build/lib/statelessness/conformance.py": "39bef31555bac7d974aca8e1d77341832876a80c80a1368d00d4928bd90c3bf0",
+    "python-package/build/lib/statelessness/search.py": "572cc00d455f778edd17cc6a184b7a8e4da0b51e77f4f69abe5b9c06df49725b",
+    "python-package/build/lib/statelessness/trace_json.py": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+    "python-package/build/lib/statelessness/oracle.py": "db6d3be064f5c813184749b44705392e3d751a4d3cc92484acacca97c65fd6c4",
+    "typescript-package/test/search-corpus.test.mjs": "016f608934132409df276414f8b5fcc841089fd5429372dc3f9df14a89a49b86",
+    "typescript-package/test/search.test.mjs": "2b8af1850ccb26d739202f775cce8ff8039c52a54fa9816bd8f0e0eacc67cf93",
+    "typescript-package/test/paired.test.mjs": "d9a8f169bc78eabb6c0a565bc47e37ec798b37e3d4b3a600a8da2aa2872ba9c5",
+    "typescript-package/test/native.test.mjs": "fcef97a39047a43a3be860e600f447a1f3a7ded00df964dfbdab56935609f02a",
+    "typescript-package/bin/corpus.mjs": "41d2e4be5fb23d7a6542b65bc89b5576eb882f91b58f4e26feda71abe68b6647",
+    "typescript-package/dist/conformance.d.ts.map": "5f115146b79f00a3c92f8c3a6005936bfa0ac454e78a46c2a4c8af568392d06e",
+    "typescript-package/dist/search.js.map": "df658cad657ec2967476ec91ea94a8ba2c99cfd718eb19b1ae429b4675f204ff",
+    "typescript-package/dist/oracle.d.ts.map": "2fda9a2bf645ac7609cba074201d54c2818a9ed0755ecaec95f8dd5bbc2877b6",
+    "typescript-package/dist/oracle.js.map": "acfbcec2e214b096d49123ec5d40d6ab0d104987f4ee0d851d0b5e78808ad530",
+    "typescript-package/dist/core.js": "2df5d6b18fbade7162f520c52aa99fa00dcbbac31fa26bf620a4b40f7456da1c",
+    "typescript-package/dist/search.d.ts": "464881ea386c5b1c08a65856ded72b12cc684068efe84a7bd54981eb5eb463d8",
+    "typescript-package/dist/search.d.ts.map": "a34506451dc25e2e7319c8ef5234fb899d9f25ee2ac5f9efb7965f2b836e76e0",
+    "typescript-package/dist/index.js": "36d044d6e1b14447f2b8f850865505cdafe018c1ee1c9e4a119d264c77a01e28",
+    "typescript-package/dist/core.js.map": "c4604cfc3ceececfa7bece05e9b090faab96aafb8d276cc9872f4efd0212822e",
+    "typescript-package/dist/json.d.ts.map": "d5ee6d08486b8c5bba691a766d9a2d908a0d2a6bbbb5d2cf55d944de56a308e2",
+    "typescript-package/dist/oracle.d.ts": "e78a27201223ff0e0906a42318f8c112e36fccb6481d081c5aef104b437acd54",
+    "typescript-package/dist/core.d.ts": "9e66a7935d6a42291f695d9dc338166d2831933a233e373bbdda7b30b23d66d7",
+    "typescript-package/dist/oracle.js": "d69eb0c573477e8c6eb2864c02f6265d4656021a2106c5d7b24567cccdba7651",
+    "typescript-package/dist/conformance.js.map": "5cfcccd172e17364404d8fdd171ce19b339e3d7ded2193c2fc7bcdb3b549d583",
+    "typescript-package/dist/json.js.map": "42ab3a908edc6aa54df887267676102c4f0c2c03f0efc19565ef179ea6f976cb",
+    "typescript-package/dist/index.js.map": "c97a28e45a83514859f1e057f768c52d9a2b23b055a91e3ab7075f0759329f45",
+    "typescript-package/dist/json.d.ts": "ee4f1724bfeddd32bd2de4648c23d1c931546e58dd1bf6837f247fdc8c9ef86c",
+    "typescript-package/dist/json.js": "79ca52358d11f5df4c853078503243ba0153ac9d1238c771f523e486644ae9b8",
+    "typescript-package/dist/core.d.ts.map": "523149711ade30f64532a3f5bebdaa35a918884e7d094908e4a76a75ffd85c34",
+    "typescript-package/dist/conformance.d.ts": "3ac06119be18bea38ddd93070817094fd2843de2a73bda22c1c8772edb42064b",
+    "typescript-package/dist/index.d.ts": "32f36430b9649ecb6bce1aa4f94694f14ac3c396b6bae823fee27ca77e20111d",
+    "typescript-package/dist/search.js": "32890ab6ce6f77f2c68d61d05b6778aaf2d2503cb71f1408f368f6272bf6b7a9",
+    "typescript-package/dist/conformance.js": "f61412a7da5dff2cbd9b9e0604c5bc1e36d7e143332363527d7e9afc17cc2d54",
+    "typescript-package/dist/index.d.ts.map": "e03554016ee93b76ac770eea50ce48db3b928d6cac06c7bdd6763433d3c46ac1",
+    "typescript-package/examples/counter.ts": "780ddf1bf6def264286108936b6472a9c3f773b98b1cfd23ab3f917edfb6d4d6",
+    "typescript-package/src/json.ts": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd",
+    "typescript-package/src/oracle.ts": "15a7a7869c05561c5a5f1413d3e3b83cfbb0c40f258d8b2319b9aa8eba17370c",
+    "typescript-package/src/search.ts": "31e33cca22f88c0ca34d054d4b9a64db41f7fe112c82517abb0fe39979e96be0",
+    "typescript-package/src/conformance.ts": "d4d1af31db53d92f8f57c7fddf26a5a09ccba3b891d3d963c693ea35132fb7ed",
+    "typescript-package/src/core.ts": "6a2fe946b18142de1b8cf40482015124799abe4a2369663681f88a43e863b742",
+    "typescript-package/src/index.ts": "3affe04db520a4874af46cbe1e7125903fd697fe68ec3eb32181f949dcb85c63",
+    "typescript-consumer/build/consumer.js": "75894eb5f18ef0bbfa71c752c1ad436d3a6540b354289b191be9dfb7792f59e2"
+  }
+}

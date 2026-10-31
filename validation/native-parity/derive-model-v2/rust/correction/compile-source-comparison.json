@@ -1,0 +1,5 @@
+{
+  "source_before_after_equal": true,
+  "scope": "source snapshot before compilation through compiler success; receipt tree excluded by unchanged n13-qualify snapshot function",
+  "source_commit": "c26b8a0333c454c681990e4a08e77195ef1fa744"
+}

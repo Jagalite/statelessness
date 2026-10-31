@@ -1,0 +1,235 @@
+{
+  "final_job": "d6b6feb177f0440f85f08b05335aaadc",
+  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.3 (v3.13.3:6280bb54784, Apr  8 2025, 10:47:54) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "python_executable": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+  "architecture": "arm64",
+  "repo_head": "d8ba663a077fae13b9cbaddf913e3d7277767a3c",
+  "source": [
+    {
+      "path": "conformance/causal-evidence-v2.json",
+      "size": 293722,
+      "sha256": "f3e6d9068bf526b47822e355b2fadd2bf4472b305869fbaaba94e0a748a899f7",
+      "mtime": 1792535705.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/README.md",
+      "size": 25020,
+      "sha256": "adc676dfad34f002c87220e2aca31b821db9abe9909a2cf0dbbb0e7644530b9b",
+      "mtime": 1792535658.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/__init__.py",
+      "size": 3832,
+      "sha256": "4ecaec1adc26c92d45ed314299af6214b1820e013a1c66ee992973fc3529d195",
+      "mtime": 1792535277.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/_native_packet.py",
+      "size": 4706,
+      "sha256": "aeeebaa79da35b919b5757d49a119aef90f648368e8aa45f8002a1c6a75f1f98",
+      "mtime": 1792526179.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/audit_record.py",
+      "size": 7105,
+      "sha256": "e8f20bbbc76c58bbbe451193089c4793fba46d5708efaa75e1e24b88b8e4db54",
+      "mtime": 1792533235.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/checked.py",
+      "size": 4813,
+      "sha256": "5a450a24632d2f304d3714cccd1723654d568550d92d47f7ff38d7f8568e0b70",
+      "mtime": 1792534047.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/codec.py",
+      "size": 5200,
+      "sha256": "fe28815f550a7b8cfad39c26d67a4d26f29cebe2042aa34b4692a42ba1f9f946",
+      "mtime": 1792533320.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/conformance.py",
+      "size": 12985,
+      "sha256": "f0939e303f50cbef885ef5ee4770ee1bbe85aa0061dc7766fbbc21601a0403e0",
+      "mtime": 1792530107.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/core.py",
+      "size": 28886,
+      "sha256": "d3f49de2cda63b0b6c4031809b74235b773ee59ad9a65be7fc72029e83edf397",
+      "mtime": 1792533320.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/evidence.py",
+      "size": 27725,
+      "sha256": "2a57bdbf280daa3a9f01efd8235f50c7b1310e4281dec25fdddcbd5997ad75b3",
+      "mtime": 1792536466.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/evidence_recorder.py",
+      "size": 6736,
+      "sha256": "5a5f2d1697c620a6a3f2dc88163901bbf3a52c050cb6505e2a69d8ee06d9142b",
+      "mtime": 1792535971.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/monitor.py",
+      "size": 16547,
+      "sha256": "034e6f479504860d727a5354245ced7230675f04d10592530eba047eb9120493",
+      "mtime": 1792535205.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/native.py",
+      "size": 30366,
+      "sha256": "c2c0a31c87810a71b252dad513f55b0d30dc482006285beec2a44ca233dbce6b",
+      "mtime": 1792526179.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/native_conformance.py",
+      "size": 1611,
+      "sha256": "017c5339db13e6ee91b5deb964420efef664f195ef3d8f06d827dc8aa74a7105",
+      "mtime": 1792526180.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/oracle.py",
+      "size": 13175,
+      "sha256": "50d26c0430ae2bf67c43d9874817a69cc673d655dd835c9218f1fb31eaa3245f",
+      "mtime": 1792532457.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/replay_evidence.py",
+      "size": 14082,
+      "sha256": "3072b0a097cd2d7c1d774eb18388debebaef3086e78dcd6592e7ad19005f1055",
+      "mtime": 1792535940.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/search.py",
+      "size": 22387,
+      "sha256": "5195e85fef070a460d877151dee0c481089f01d7a9e006617ae2299850c75223",
+      "mtime": 1792531505.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/trace_binary.py",
+      "size": 18237,
+      "sha256": "68f7797071346d294ab8077c031c182973787d42371c2b951af46124c1e419d4",
+      "mtime": 1792531914.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/src/statelessness/trace_json.py",
+      "size": 8023,
+      "sha256": "81287c436061c4b2a8ad04f7a1de1f0ebb44c441e6f7385a6dfa6d7043ae0885",
+      "mtime": 1792526180.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_abi_v2.py",
+      "size": 12850,
+      "sha256": "d7906916b8be87dfa9ff46f1d675c9645dc6c953beabc7df268fec79e19b1e6b",
+      "mtime": 1792526180.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_append_checks.py",
+      "size": 25227,
+      "sha256": "a27353fe7fdbc963bf07a75fd401eebc3e955ac30c3bb896b9df44d0d1e1dba9",
+      "mtime": 1792531575.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_bfs_controls.py",
+      "size": 22540,
+      "sha256": "f744c4265a5fc0d9e724daba4f48bb2aa871c9ad61ae6dc01b9858adbb7fb5dc",
+      "mtime": 1792530557.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_checked.py",
+      "size": 12408,
+      "sha256": "2ea577bd6fbac09ab36fcb243291b90f59d8aa803f33a1a18d096c7d24870c2f",
+      "mtime": 1792534084.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_codec_replay.py",
+      "size": 27618,
+      "sha256": "33d5e8a2c122a58fcbf16265b67101e848a32fd18004716d478bfc1beee63148",
+      "mtime": 1792533320.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_evidence.py",
+      "size": 18795,
+      "sha256": "e2c5cafac234b5a1e4df0ec9444bb2f82b6e2e8541b23b7b67fa5bf5c364c355",
+      "mtime": 1792536466.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_evidence_recorder.py",
+      "size": 23816,
+      "sha256": "d7f93eb7f963301e6408e28490fd928c9f0a38b5d31cc72b93e2c05f7565a286",
+      "mtime": 1792535966.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_monitor.py",
+      "size": 19923,
+      "sha256": "767aae9a32a09eb258bcc307758e21614e4fd2fc15277f55a0e0567ac68cfac9",
+      "mtime": 1792534458.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_native.py",
+      "size": 10663,
+      "sha256": "46f0194b4433b66b1d50422beee0fcb8930b4b171fabe9718c727dac6a022af4",
+      "mtime": 1792526180.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_paired.py",
+      "size": 12449,
+      "sha256": "93e14e4dbff7567966d527dce05b27f1374269786c9de39d123df5c887d71258",
+      "mtime": 1792526181.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_replay_evidence_vectors.py",
+      "size": 7969,
+      "sha256": "431738c40061a23a1b39b53b21e4ffa8041c7a85156efdbe549930b894a49f4f",
+      "mtime": 1792533229.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_search.py",
+      "size": 24134,
+      "sha256": "aff3ccf4405af11e29852045f47e0273a37eaa0624da4393fe5562ca9aaf29e3",
+      "mtime": 1792527512.0,
+      "modified_before_final_job_start": true
+    },
+    {
+      "path": "python/tests/test_trace_binary.py",
+      "size": 16380,
+      "sha256": "b1c2dc370c0a54cbd7c725151691a2522a3c47ec2e870fe807f8ca3ebd8ab688",
+      "mtime": 1792531914.0,
+      "modified_before_final_job_start": true
+    }
+  ],
+  "intermediate_source_snapshots_claimed": false
+}

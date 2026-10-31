@@ -1,0 +1,46 @@
+[
+  {
+    "job_id": "2de9640522d24309ab70680538ff1dad",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/2de9640522d24309ab70680538ff1dad.log",
+    "original_size": 595,
+    "original_sha256": "e7a6a9c2ab6c3b9bd2578c4a61d4668013b42c429d325c1eb349d23c61762b85",
+    "stored_path": "logs/2de9640522d24309ab70680538ff1dad.log.gz",
+    "stored_size": 283,
+    "stored_sha256": "5d0e02d1c7195f9fd41c812b733b007fd9f066f08710f161ed9800b05a695d56",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "f60cd611c81248359b222f14a19882c8",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/f60cd611c81248359b222f14a19882c8.log",
+    "original_size": 2121,
+    "original_sha256": "ed8691495472b382a14a2c7c917f4b7ca09e0d4138c266cca0828b88718a1f63",
+    "stored_path": "logs/f60cd611c81248359b222f14a19882c8.log.gz",
+    "stored_size": 415,
+    "stored_sha256": "4d5c16a386d77a0b5027d73e64ee7660f1cabef1ca4a9f907c54feb9327b58da",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "5e59e98de1b44b2baa2445b385d86fc2",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/5e59e98de1b44b2baa2445b385d86fc2.log",
+    "original_size": 344,
+    "original_sha256": "36169e5b0eeefe5ecd712eca752787d64709f1a833638d622b9df532d9e3556c",
+    "stored_path": "logs/5e59e98de1b44b2baa2445b385d86fc2.log.gz",
+    "stored_size": 154,
+    "stored_sha256": "79d79c9b91b63020da932712a56b14fd5504934a9c51a2fe4aeb1474c66f7a82",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "bd5a76feef90466eb538b22633efe290",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/bd5a76feef90466eb538b22633efe290.log",
+    "original_size": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_path": "logs/bd5a76feef90466eb538b22633efe290.log.gz",
+    "stored_size": 20,
+    "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "compression": "gzip, mtime=0; decompressed bytes verified identical",
+    "contains_trailing_whitespace": false
+  }
+]

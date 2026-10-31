@@ -143,6 +143,59 @@ final class NativeTests: XCTestCase {
         l = TraceLimits(); l.maxItems = 1; XCTAssertThrowsError(try parseTrace(bytes, limits: l))
         l = TraceLimits(); l.maxPayloadBytes = 1; XCTAssertThrowsError(try parseTrace(bytes, limits: l))
     }
+    func testEncodeTraceChecksPayloadBeforeJSONExpansion() throws {
+        let trace = try recording(["increment"])
+        var limits = TraceLimits()
+        limits.maxBlobBytes = 0
+        XCTAssertThrowsError(try encodeTrace(trace, limits: limits))
+        limits = TraceLimits(); limits.maxPayloadBytes = 0
+        XCTAssertThrowsError(try encodeTrace(trace, limits: limits))
+        limits = TraceLimits(); limits.maxSteps = 0
+        XCTAssertThrowsError(try encodeTrace(trace, limits: limits))
+        limits = TraceLimits(); limits.maxItems = 0
+        XCTAssertThrowsError(try encodeTrace(trace, limits: limits))
+        XCTAssertEqual(try parseTrace(encodeTrace(trace)), trace)
+    }
+    func testEncodeTracePreflightsJSONTextAndPreservesExactLimit() throws {
+        let huge = String(repeating: "é", count: 100_000)
+        let invalid = Trace(metadata: Metadata(name: huge), initialState: [],
+            initialChecks: [Check("invalid", .passed, "details")], steps: [], termination: .completed)
+        var limits = TraceLimits(); limits.maxJSONBytes = 32
+        // The lower-bound check rejects the oversized metadata before building
+        // and validating the JSON tree (whose check is also invalid).
+        XCTAssertThrowsError(try encodeTrace(invalid, limits: limits)) { error in
+            XCTAssertTrue(String(describing: error).contains("JSON output byte limit"))
+        }
+        let ordinary = try recording(["increment"])
+        let expected = try encodeTrace(ordinary)
+        limits = TraceLimits(); limits.maxJSONBytes = expected.count
+        XCTAssertEqual(try encodeTrace(ordinary, limits: limits), expected)
+        limits.maxJSONBytes = expected.count - 1
+        XCTAssertThrowsError(try encodeTrace(ordinary, limits: limits))
+        let checkHeavy = Trace(metadata: Metadata(name: "x"), initialState: [],
+            initialChecks: [Check.failed("id", huge)], steps: [], termination: .propertyFailed)
+        limits.maxJSONBytes = 64
+        XCTAssertThrowsError(try encodeTrace(checkHeavy, limits: limits))
+    }
+    func testDirectTraceJSONBlobLimits() throws {
+        let metadata = Metadata(name: "bounded", modelVersion: 1, propertiesVersion: 1, codecVersion: 1, build: "test")
+        func document(_ hex: String) -> JSON {
+            .obj(["format": .string("stateless.trace-json"), "version": .int(1),
+                  "metadata": metadataJSON(metadata), "initial_state": .string(hex),
+                  "initial_checks": .array([]), "steps": .array([]),
+                  "termination": .string("completed"), "error": .string("")])
+        }
+        var limits = TraceLimits(); limits.maxBlobBytes = 2; limits.maxPayloadBytes = 2
+        XCTAssertEqual(try traceFromJSON(document("00ff"), limits: limits).initialState, [0, 255])
+        for invalid in ["0", "00ff00", "00FF", "é", String(repeating: "0", count: 1_000_000)] {
+            XCTAssertThrowsError(try traceFromJSON(document(invalid), limits: limits))
+        }
+        limits.maxPayloadBytes = 1
+        XCTAssertThrowsError(try traceFromJSON(document("00ff"), limits: limits))
+        limits.maxBlobBytes = 0
+        XCTAssertEqual(try traceFromJSON(document(""), limits: limits).initialState, [])
+        XCTAssertThrowsError(try traceFromJSON(document("00"), limits: limits))
+    }
     func testMalformedJSONRejected() throws {
         for raw in [#"{"x":1,"x":2}"#, #"{"x":"\ud800"}"#, #"{"x":NaN}"#, #"{"x":1.0}"#, #"{"x":1e0}"#, "{} trailing", "\u{feff}{}"] { XCTAssertThrowsError(try parseJSON(Array(raw.utf8))) }
         XCTAssertThrowsError(try parseJSON([255])); XCTAssertEqual(try parseJSON(Array(#""\ud83d\ude00""#.utf8)), .string("😀"))

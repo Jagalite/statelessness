@@ -1,0 +1,212 @@
+{
+  "shrink-threshold": [
+    {
+      "attempt": 1,
+      "candidate_length": 3,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    },
+    {
+      "attempt": 2,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 2
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 3,
+      "candidate_length": 2,
+      "operation": {
+        "kind": "remove",
+        "start": 2,
+        "end": 3
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 4,
+      "candidate_length": 2,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 1
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 5,
+      "candidate_length": 2,
+      "operation": {
+        "kind": "remove",
+        "start": 1,
+        "end": 2
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 6,
+      "candidate_length": 2,
+      "operation": {
+        "kind": "remove",
+        "start": 2,
+        "end": 3
+      },
+      "outcome": "no_failure"
+    }
+  ],
+  "shrink-attempt-limit": [
+    {
+      "attempt": 1,
+      "candidate_length": 3,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    }
+  ],
+  "shrink-zero-transitions": [
+    {
+      "attempt": 1,
+      "candidate_length": 3,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "resource_limit"
+    }
+  ],
+  "shrink-initial": [
+    {
+      "attempt": 1,
+      "candidate_length": 0,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    }
+  ],
+  "shrink-causal": [
+    {
+      "attempt": 1,
+      "candidate_length": 2,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    },
+    {
+      "attempt": 2,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 1
+      },
+      "outcome": "invalid_causality"
+    },
+    {
+      "attempt": 3,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "remove",
+        "start": 1,
+        "end": 2
+      },
+      "outcome": "no_failure"
+    }
+  ],
+  "shrink-phase-identity": [
+    {
+      "attempt": 1,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    },
+    {
+      "attempt": 2,
+      "candidate_length": 0,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 1
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 3,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "simplify",
+        "index": 0,
+        "alternative": 0
+      },
+      "outcome": "different_failure"
+    }
+  ],
+  "shrink-cycle": [
+    {
+      "attempt": 1,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "retained"
+    },
+    {
+      "attempt": 2,
+      "candidate_length": 0,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 1
+      },
+      "outcome": "no_failure"
+    },
+    {
+      "attempt": 3,
+      "candidate_length": 1,
+      "operation": {
+        "kind": "simplify",
+        "index": 0,
+        "alternative": 0
+      },
+      "outcome": "retained"
+    },
+    {
+      "attempt": 4,
+      "candidate_length": 0,
+      "operation": {
+        "kind": "remove",
+        "start": 0,
+        "end": 1
+      },
+      "outcome": "no_failure"
+    }
+  ],
+  "shrink-cancelled-entry": [
+    {
+      "attempt": 1,
+      "candidate_length": 3,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "resource_limit"
+    }
+  ],
+  "shrink-deadline-entry": [
+    {
+      "attempt": 1,
+      "candidate_length": 3,
+      "operation": {
+        "kind": "validate_original"
+      },
+      "outcome": "resource_limit"
+    }
+  ]
+}

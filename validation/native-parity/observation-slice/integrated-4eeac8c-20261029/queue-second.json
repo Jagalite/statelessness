@@ -1,0 +1,15 @@
+{
+  "id": "43415fbf900d4d38bdbc01a97e8e3d56",
+  "status": "queued",
+  "started": null,
+  "finished": null,
+  "exit_code": null,
+  "admission_reason": "OS memory pressure: warning",
+  "effective_max_running": 0,
+  "planned_order": 23,
+  "estimated_start_in_seconds": null,
+  "planned_start_in_seconds": 1380.0,
+  "captured_utc": "2026-10-29T14:01:19.673217+00:00",
+  "queue_size": 40,
+  "queue_age_seconds": 552.158301115036
+}

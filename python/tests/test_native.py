@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 
 from statelessness import (Check, CheckPolicy, Disposition, Metadata, ModelError,
                           Rng, SearchConfig, TraceLimits, Transition,
@@ -52,6 +53,52 @@ class Counter:
 
 
 class NativeTests(unittest.TestCase):
+    def test_record_retains_checkpoint_and_prefix_on_input_stream_errors(self):
+        class HostError(Exception):
+            def __str__(self): raise RuntimeError('hostile formatting')
+        class BadIterator:
+            def __iter__(self): raise HostError()
+        trace=record(Counter(),BadIterator())
+        self.assertEqual((trace.termination,len(trace.steps)),('model_error',0))
+        self.assertIn('inputs: exception detail unavailable',trace.error)
+        def broken():
+            yield 'increment'
+            raise HostError()
+        trace=record(Counter(),broken())
+        self.assertEqual((trace.termination,len(trace.steps)),('model_error',1))
+        self.assertIn('inputs: exception detail unavailable',trace.error)
+
+    def test_record_model_error_with_unprintable_detail_retains_checkpoint(self):
+        from unittest.mock import patch
+        class HostileModelError(ModelError):
+            def __str__(self): raise RuntimeError('hostile formatting')
+        with patch('statelessness.core._step',side_effect=HostileModelError()):
+            trace=record(Counter(),['increment'])
+        self.assertEqual((trace.termination,len(trace.steps)),('model_error',0))
+        self.assertEqual(trace.error,'exception detail unavailable')
+
+    def test_record_snapshots_limits_before_initial_callback(self):
+        limits = TraceLimits(max_steps=1)
+        class Mutating(Counter):
+            def initial_state(self):
+                object.__setattr__(limits,'max_steps',100)
+                return CounterState()
+        trace = record(Mutating(), ['increment','increment'], limits=limits)
+        self.assertEqual((trace.termination,len(trace.steps)), ('step_limit',1))
+
+    def test_enumeration_owns_budgets_and_cancellation_before_callbacks(self):
+        from statelessness import RunLimits, SearchLimits
+        config = SearchConfig(10, 1, 10)
+        control = RunLimits()
+        limits = SearchLimits(control)
+        class Mutating(Counter):
+            def initial_state(self):
+                object.__setattr__(config, 'max_transitions', 100)
+                object.__setattr__(control, 'cancellation', lambda: True)
+                return CounterState()
+        report = enumerate_states(Mutating(), config, limits=limits)
+        self.assertEqual((report.termination,report.transitions), ('transition_limit',1))
+
     def test_application_owned_dataclass_and_failure_witness(self):
         result = enumerate_states(Counter(), SearchConfig(10, 20, 10))
         self.assertEqual(result.termination, "failure_found")
@@ -228,10 +275,90 @@ class NativeTests(unittest.TestCase):
             with self.subTest(limits=limits), self.assertRaises(ValueError):
                 trace_json.loads(encoded, limits=limits)
 
+    def test_json_dumps_rejects_blob_limits_before_hex_expansion(self):
+        class Unexpanded(bytes):
+            def hex(self):
+                raise AssertionError('hex expansion occurred before limit rejection')
+
+        trace = record(Counter(), ['increment'])
+        oversized = replace(trace, initial_state=Unexpanded(b'x' * 5))
+        with self.assertRaisesRegex(trace_json.FormatError, 'blob byte limit'):
+            trace_json.dumps(oversized, limits=TraceLimits(max_blob_bytes=4))
+        aggregate = replace(trace, initial_state=Unexpanded(b'x' * 4))
+        with self.assertRaisesRegex(trace_json.FormatError, 'aggregate payload'):
+            trace_json.dumps(aggregate, limits=TraceLimits(max_payload_bytes=3))
+        with self.assertRaisesRegex(trace_json.FormatError, 'blob byte limit'):
+            trace_json.dumps(replace(trace, initial_state=bytearray(b'x' * 5)),
+                             limits=TraceLimits(max_blob_bytes=4))
+        with self.assertRaisesRegex(trace_json.FormatError, 'blob byte limit'):
+            trace_json.dumps(replace(trace, initial_state=memoryview(b'x' * 5)),
+                             limits=TraceLimits(max_blob_bytes=4))
+        # A bytes subclass cannot substitute or expand data through .hex.
+        encoded = trace_json.dumps(replace(trace, initial_state=Unexpanded(b'x')))
+        self.assertEqual(trace_json.loads(encoded).initial_state, b'x')
+
+    def test_json_dumps_preflights_text_before_tree_construction(self):
+        trace = record(Counter(), ['increment'])
+        large = replace(trace, metadata=replace(trace.metadata, name='é' * 600))
+        with patch.object(trace_json, 'trace_to_data', side_effect=AssertionError('tree built')):
+            with self.assertRaisesRegex(trace_json.FormatError, 'JSON byte limit'):
+                trace_json.dumps(large, limits=TraceLimits(max_json_bytes=1000))
+        # Escape expansion and JSON structure are still checked exactly: the
+        # lower bound must not reject an envelope at its true encoded size.
+        escaped = replace(trace, metadata=replace(trace.metadata, name='é\n"'))
+        encoded = trace_json.dumps(escaped)
+        self.assertEqual(trace_json.dumps(escaped, limits=TraceLimits(max_json_bytes=len(encoded))), encoded)
+        with self.assertRaisesRegex(trace_json.FormatError, 'JSON byte limit'):
+            trace_json.dumps(escaped, limits=TraceLimits(max_json_bytes=len(encoded)-1))
+
+    def test_json_dumps_rejects_subclass_without_deepcopy(self):
+        class HostileText(str):
+            def __deepcopy__(self, memo):
+                raise AssertionError('application deepcopy was invoked')
+
+        trace = record(Counter(), ['increment'])
+        hostile = replace(trace, metadata=replace(trace.metadata, name=HostileText('name')))
+        with self.assertRaisesRegex(trace_json.FormatError, 'expected string'):
+            trace_json.dumps(hostile)
+        # A malformed non-string field cannot trigger asdict's arbitrary copy
+        # before the ordinary schema validation rejects it either.
+        bad = replace(trace.metadata)
+        object.__setattr__(bad, 'model_version', HostileText('not an integer'))
+        with self.assertRaises(trace_json.FormatError):
+            trace_json.dumps(replace(trace, metadata=bad))
+
     def test_json_rejects_duplicates_unicode_floats_and_trailing(self):
         for raw in ('{"x":1,"x":2}', '{"x":"\\ud800"}', '{"x":NaN}', '{"x":1.0}', '{} trailing'):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 trace_json.strict_loads(raw)
+
+    def test_json_integer_conversion_limit_is_a_format_error(self):
+        get_limit = getattr(sys, 'get_int_max_str_digits', None)
+        limit = get_limit() if get_limit else 0
+        if not limit or limit > 100_000:
+            self.skipTest('Python integer conversion limit is disabled or unusually large')
+        with self.assertRaises(trace_json.FormatError):
+            trace_json.strict_loads('1' * (limit + 1))
+
+    def test_json_oversized_text_rejected_before_encoding(self):
+        class OversizedText(str):
+            def encode(self, *args, **kwargs):
+                raise AssertionError('oversized text was encoded')
+
+        with self.assertRaises(trace_json.FormatError):
+            trace_json.strict_loads(OversizedText('x' * 1025), maximum=1024)
+        self.assertEqual(trace_json.strict_loads('"é"', maximum=4), 'é')
+        with self.assertRaises(trace_json.FormatError):
+            trace_json.strict_loads('"é"', maximum=3)
+
+    def test_json_str_subclass_cannot_replace_input_during_encoding(self):
+        class SubstitutingText(str):
+            def encode(self, *args, **kwargs):
+                return b'"different"'
+
+        self.assertEqual(trace_json.strict_loads(SubstitutingText('"actual"')), 'actual')
+        with self.assertRaises(trace_json.FormatError):
+            trace_json.strict_loads(SubstitutingText('not json'))
 
     def test_trace_false_termination_and_continuation_rejected(self):
         trace = record(Counter(), ["increment"] * 4)

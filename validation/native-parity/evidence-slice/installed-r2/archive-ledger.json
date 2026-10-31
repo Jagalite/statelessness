@@ -1,0 +1,247 @@
+{
+  "job_id": "e324ea2b11cf49939e7254d59880f9f3",
+  "status": "failed",
+  "logs": [
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/swift-bin-path.log",
+      "archive": "logs/swift-bin-path.log.gz",
+      "raw_bytes": 139,
+      "raw_sha256": "81bb26f4c51ea20acf7e17cec63f92adc1c84598e16d9bbbbe9cedb2d880b686",
+      "gzip_bytes": 135,
+      "gzip_sha256": "2aab66784a90731790d45c7940d388ecd40269fc384ee60befa2255b92a31992"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-builder-tools.log",
+      "archive": "logs/python-builder-tools.log.gz",
+      "raw_bytes": 802,
+      "raw_sha256": "afd66f6b7b74622dc729d28e0dcc5358a73b38258acad0f533a612fe16a94707",
+      "gzip_bytes": 387,
+      "gzip_sha256": "bca4e9c6fad4b467639b21a2e4d142cf9690bbda84f98681576bbd7b6a1892de"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-venv.log",
+      "archive": "logs/python-venv.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-record.log",
+      "archive": "logs/python-record.log.gz",
+      "raw_bytes": 4742,
+      "raw_sha256": "27e3b5071e184620d4af096a32294068b3271cd32389f0c14a2064e71934a499",
+      "gzip_bytes": 1235,
+      "gzip_sha256": "b59d5dc7c897bfc6d293c1372b97da8bc5a14d81253d91a1c544403b25693379"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/node-version.log",
+      "archive": "logs/node-version.log.gz",
+      "raw_bytes": 8,
+      "raw_sha256": "c6271162c3d989fa42279b093b75277d4cb45475c97965601ac56c56721f99d6",
+      "gzip_bytes": 28,
+      "gzip_sha256": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/swift-build.log",
+      "archive": "logs/swift-build.log.gz",
+      "raw_bytes": 1447,
+      "raw_sha256": "64a945c755c1b08b0c4e1f1a3f849ab3e03c867c3119e0cecb71ba6d44e267d9",
+      "gzip_bytes": 457,
+      "gzip_sha256": "a60385dddede97d5a0463da2e9dc479776474cfc08637b854361ba91e38c9573"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-builder-freeze.log",
+      "archive": "logs/python-builder-freeze.log.gz",
+      "raw_bytes": 61,
+      "raw_sha256": "0ab3d1305cf3b2031a43ecc3818882ac0bc23c094e0ee519b4c45258fa00ad9e",
+      "gzip_bytes": 78,
+      "gzip_sha256": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/swift-version.log",
+      "archive": "logs/swift-version.log.gz",
+      "raw_bytes": 128,
+      "raw_sha256": "5fa4b669e41b23b9ad0760253d062493487f93cf5d8ad8c44f0d4fd635137499",
+      "gzip_bytes": 124,
+      "gzip_sha256": "2fe24bb8a7ad54aed3bafc06538884f313d9c0379f8f57fadc3bd68d871bd371"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-package-build.log",
+      "archive": "logs/typescript-package-build.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/go-record.log",
+      "archive": "logs/go-record.log.gz",
+      "raw_bytes": 4268,
+      "raw_sha256": "932e1573a2915377cac3a3d3d0db7abf96cd325d11c5fd7771cf1c384b9cfe6f",
+      "gzip_bytes": 1129,
+      "gzip_sha256": "e86fc5abc16f455c1d7ec450bc5f421a6e2c7e11d29433492153be8e0d42aabc"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/npm-version.log",
+      "archive": "logs/npm-version.log.gz",
+      "raw_bytes": 7,
+      "raw_sha256": "b90f6efb804599bb0ba84fec754b8c7807381dabfcdc1ffe3437ff37f18fb0f5",
+      "gzip_bytes": 27,
+      "gzip_sha256": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/swift-record.log",
+      "archive": "logs/swift-record.log.gz",
+      "raw_bytes": 4278,
+      "raw_sha256": "8c18d02c512fe209fa9b09ab1d9319fbc1ca5abb18627709377aff75aaa0967b",
+      "gzip_bytes": 1130,
+      "gzip_sha256": "ad78b36dc2b9a5c9d92a2789322add076cecf10e3fe594b5b6e5f2d9ae0f2ba4"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-version.log",
+      "archive": "logs/typescript-version.log.gz",
+      "raw_bytes": 14,
+      "raw_sha256": "9265ac58ff367868abd52fc852ecff28622facad715e3c3a0fcf92c4ca2d86e2",
+      "gzip_bytes": 34,
+      "gzip_sha256": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-declarations.log",
+      "archive": "logs/typescript-declarations.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-pack.log",
+      "archive": "logs/typescript-pack.log.gz",
+      "raw_bytes": 4175,
+      "raw_sha256": "d1e9172ea9a701bc94802764000eea06cc1ae8822c0fa9b1262161cee2982284",
+      "gzip_bytes": 982,
+      "gzip_sha256": "acf31af42b49848a4035aecc6bcd555448f142f64c1c83dd229adb44b845e1a2"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-wheel.log",
+      "archive": "logs/python-wheel.log.gz",
+      "raw_bytes": 894,
+      "raw_sha256": "f8ebb3178bde7cb8e2fbb120c8e613ffb360947be6fa284b6d8ecd481e6b6291",
+      "gzip_bytes": 515,
+      "gzip_sha256": "1e6f724d63085e8825f46b351994581e240b7f59a33c97d057b173ba6dfa6c7b"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-record.log",
+      "archive": "logs/typescript-record.log.gz",
+      "raw_bytes": 4292,
+      "raw_sha256": "9a906a519a79136217447ac9bc6b920c4dce867236710053f93acf4d1c0a5412",
+      "gzip_bytes": 1126,
+      "gzip_sha256": "3f92399d8d2792c4f52fd0cf475c9dbc03a225894ff1b89a5ad6c6fbc3bf2811"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/go-build.log",
+      "archive": "logs/go-build.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/rust-record.log",
+      "archive": "logs/rust-record.log.gz",
+      "raw_bytes": 4308,
+      "raw_sha256": "4d1a96b009231ea16f7a0502727959523d690cf92d3c1008eb95f2a6bba02d43",
+      "gzip_bytes": 1145,
+      "gzip_sha256": "b65e1ff156d61302de97997185990cf06f81353b6f6be7ee4ca4801c77c20255"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-builder-venv.log",
+      "archive": "logs/python-builder-venv.log.gz",
+      "raw_bytes": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/typescript-install.log",
+      "archive": "logs/typescript-install.log.gz",
+      "raw_bytes": 26,
+      "raw_sha256": "5e73de2afe9cd6be1a934f84387bff8f6f943f5882c301d90da1a62709cdf3b6",
+      "gzip_bytes": 46,
+      "gzip_sha256": "9c98d4b0a5011c9465973c92685cbac7c54fb91209c5b467d0a10c8f040eba2b"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/python-install.log",
+      "archive": "logs/python-install.log.gz",
+      "raw_bytes": 199,
+      "raw_sha256": "4cfd4efa5614670e9eb1c62ad219d3e79913c088070aa2bcd6b40619ac32f87a",
+      "gzip_bytes": 155,
+      "gzip_sha256": "f4ee23f7c249e04ca72dba369c0ba52f63f17bcf862e25bb9f361a47d1968849"
+    },
+    {
+      "source": "/private/tmp/stateless-evidence-consumers-20261020-r2/logs/go-version.log",
+      "archive": "logs/go-version.log.gz",
+      "raw_bytes": 33,
+      "raw_sha256": "b242c28e1db462d3476a452353a500c24f20daef262d8f7f6f597aa8f2671da9",
+      "gzip_bytes": 53,
+      "gzip_sha256": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949"
+    },
+    {
+      "source": "/Users/jagatranvo/.local/state/kyoto/e324ea2b11cf49939e7254d59880f9f3.log",
+      "archive": "logs/kyoto.log.gz",
+      "raw_bytes": 4786,
+      "raw_sha256": "0baf0a451850e1091e2e46417aa3c15976724005b40975ee1520d05469f05dc0",
+      "gzip_bytes": 968,
+      "gzip_sha256": "9e61a5644e52ef94c949f2fa8d8e186f730228288f6e8cbe862e13247aef94d8"
+    }
+  ],
+  "files": {
+    "kyoto-job.json": "fdbd52dfd5061af44a2253236b8ac0f95d86eb5e282595d8af51ed1b5b314aa0",
+    "qualification.json": "06a879478ff4e33430745b23c45b6d46c2b8e2b190203bb7c8b5dff410955612",
+    "logs/go-build.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/go-record.log.gz": "e86fc5abc16f455c1d7ec450bc5f421a6e2c7e11d29433492153be8e0d42aabc",
+    "logs/go-version.log.gz": "f1b9c3c76d8eb5a27253fbbcc027e4b705132db89a84a073759c7c90c502e949",
+    "logs/kyoto.log.gz": "9e61a5644e52ef94c949f2fa8d8e186f730228288f6e8cbe862e13247aef94d8",
+    "logs/node-version.log.gz": "1f5deba51850b55b962e9110a2ed447bdf2de044589d222536eac71d0d65ae01",
+    "logs/npm-version.log.gz": "70891f556f0ee4971202f5d145d7229aca77e614db7a9326eabd4b926a3cbb13",
+    "logs/python-builder-freeze.log.gz": "749b2a11a993e6bc933c55c849c5c8797d9acd5270dcb1ffdda0b81b14d987da",
+    "logs/python-builder-tools.log.gz": "bca4e9c6fad4b467639b21a2e4d142cf9690bbda84f98681576bbd7b6a1892de",
+    "logs/python-builder-venv.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/python-install.log.gz": "f4ee23f7c249e04ca72dba369c0ba52f63f17bcf862e25bb9f361a47d1968849",
+    "logs/python-record.log.gz": "b59d5dc7c897bfc6d293c1372b97da8bc5a14d81253d91a1c544403b25693379",
+    "logs/python-venv.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/python-wheel.log.gz": "1e6f724d63085e8825f46b351994581e240b7f59a33c97d057b173ba6dfa6c7b",
+    "logs/rust-record.log.gz": "b65e1ff156d61302de97997185990cf06f81353b6f6be7ee4ca4801c77c20255",
+    "logs/swift-bin-path.log.gz": "2aab66784a90731790d45c7940d388ecd40269fc384ee60befa2255b92a31992",
+    "logs/swift-build.log.gz": "a60385dddede97d5a0463da2e9dc479776474cfc08637b854361ba91e38c9573",
+    "logs/swift-record.log.gz": "ad78b36dc2b9a5c9d92a2789322add076cecf10e3fe594b5b6e5f2d9ae0f2ba4",
+    "logs/swift-version.log.gz": "2fe24bb8a7ad54aed3bafc06538884f313d9c0379f8f57fadc3bd68d871bd371",
+    "logs/typescript-declarations.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/typescript-install.log.gz": "9c98d4b0a5011c9465973c92685cbac7c54fb91209c5b467d0a10c8f040eba2b",
+    "logs/typescript-pack.log.gz": "acf31af42b49848a4035aecc6bcd555448f142f64c1c83dd229adb44b845e1a2",
+    "logs/typescript-package-build.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "logs/typescript-record.log.gz": "3f92399d8d2792c4f52fd0cf475c9dbc03a225894ff1b89a5ad6c6fbc3bf2811",
+    "logs/typescript-version.log.gz": "c241531128343c8b74df141906332d63314e664d11d3ecd4d0d6f97300e841cc",
+    "packages/jagalite-statelessness-0.1.0.tgz": "bb979b3b21edb18799a4e9a48886146a88907b229bec55276fa7a8054364f6d5",
+    "packages/statelessness-0.1.0-py3-none-any.whl": "4caa114baf78063c383b1330098aedb9871c9c8e5305251e8b24b82d5687895b",
+    "traces/go.diagnostic": "35cf00b9bdccf1423853069285f1fbd591e201687b008e54cf5148ee02d64b76",
+    "traces/go.json": "65ce2c8b4c32e9622a3e08e8de975fef72923028febe9278aca43f4d6756b73d",
+    "traces/go.v1": "78523cad7faf2f744a08d9201ec199d3cd9d72d9e6c093b2ab5932e7bff0e8cf",
+    "traces/go.v2": "7bc1ec96b737a700b4b27a6d9ebecf2d17ee1170255d4f69fbc5eded32843d74",
+    "traces/python.diagnostic": "35cf00b9bdccf1423853069285f1fbd591e201687b008e54cf5148ee02d64b76",
+    "traces/python.json": "ee6887cb95187da8f3312906c6a1bacccd47f4cc6fd3e477738288b0752767f6",
+    "traces/python.v1": "40d514f51d5729e79973050af604c59b06a7ac132161d3476208eb98b7a0ed1f",
+    "traces/python.v2": "0310493e84cc80857ca37d3c936fbe9d1bc7f375eeb137f5cfa78c0b507b6fd5",
+    "traces/rust.json": "ee6887cb95187da8f3312906c6a1bacccd47f4cc6fd3e477738288b0752767f6",
+    "traces/rust.v1": "5025438f064066b6191cee18bf001147c425e65971b3c23179c95fa113651331",
+    "traces/rust.v2": "d5cf48b51c3d99bf3aedbc59d7a56b5615629754ce301175ca3aa3bc13c5e9df",
+    "traces/swift.diagnostic": "35cf00b9bdccf1423853069285f1fbd591e201687b008e54cf5148ee02d64b76",
+    "traces/swift.json": "ee6887cb95187da8f3312906c6a1bacccd47f4cc6fd3e477738288b0752767f6",
+    "traces/swift.v1": "99998cc68dbf2f4ecc471843a933bd90dbc44ae5ade993458a0b8e572a2b315e",
+    "traces/swift.v2": "355ee2b4e5d71a67d01b09bfc525ba8f31543cce501e07ecdd459584182ca4a2",
+    "traces/typescript.diagnostic": "35cf00b9bdccf1423853069285f1fbd591e201687b008e54cf5148ee02d64b76",
+    "traces/typescript.json": "ed81952bbae6af8d499a98f44420fe0288aff20948d2b7c0584333597007376d",
+    "traces/typescript.v1": "73dba7da6663218371379bd1d4205b6ae15e791b00f14be29b8f92b2f49a5520",
+    "traces/typescript.v2": "f7c83b764ef64ffbfa0830c8f2ea6ba117a62690c321a0aae46183c04bd6f3c0"
+  }
+}

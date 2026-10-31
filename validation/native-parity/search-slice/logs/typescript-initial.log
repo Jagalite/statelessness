@@ -1,0 +1,17 @@
+
+> @jagalite/statelessness@0.1.0 test
+> npm run build && node --test test/*.test.mjs
+
+
+> @jagalite/statelessness@0.1.0 build
+> tsc -p tsconfig.json
+
+src/search.ts(87,235): error TS2339: Property 'failure' does not exist on type '{ kind: "failure"; failure: Failure<I>; } | { kind: "invalid" | "pass"; }'.
+  Property 'failure' does not exist on type '{ kind: "invalid" | "pass"; }'.
+src/search.ts(87,308): error TS2339: Property 'failure' does not exist on type '{ kind: "failure"; failure: Failure<I>; } | { kind: "invalid" | "pass"; }'.
+  Property 'failure' does not exist on type '{ kind: "invalid" | "pass"; }'.
+src/search.ts(87,430): error TS2339: Property 'failure' does not exist on type '{ kind: "failure"; failure: Failure<I>; } | { kind: "invalid" | "pass"; }'.
+  Property 'failure' does not exist on type '{ kind: "invalid" | "pass"; }'.
+src/search.ts(87,449): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/search.ts(87,492): error TS2339: Property 'failure' does not exist on type '{ kind: "failure"; failure: Failure<I>; } | { kind: "invalid" | "pass"; }'.
+  Property 'failure' does not exist on type '{ kind: "invalid" | "pass"; }'.

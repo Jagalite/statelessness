@@ -1,0 +1,24 @@
+{
+  "parent": {
+    "root": "/Volumes/seed2/Projects/stateless-native-parity",
+    "head": "ac52c17570522411642b575b243a9fd4636dc8eb",
+    "members": 495,
+    "before_after_equal": true,
+    "added": [],
+    "removed": [],
+    "changed": [],
+    "before_manifest": "parent-protected-before.json",
+    "after_sample_ns": 1792683215758413000
+  },
+  "n13-oldtree": {
+    "root": "/Users/jagatranvo/.t3/worktrees/stateless/t3-dfe68040",
+    "head": "9daee75e4dd93ce746956954120d7d3e2f95d1ec",
+    "members": 506,
+    "before_after_equal": true,
+    "added": [],
+    "removed": [],
+    "changed": [],
+    "before_manifest": "n13-oldtree-protected-before.json",
+    "after_sample_ns": 1792683215986928000
+  }
+}

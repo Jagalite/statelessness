@@ -1,0 +1,726 @@
+{
+  "format": "statelessness.n13-row-dispositions/1",
+  "scope": "python; finite native declaration slice; mixed runtime, builder, compiler and static native exclusions; not 90 runtime passes",
+  "rows": [
+    {
+      "case": "named-ordered",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tuple-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unit-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "empty-named-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "nested-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-string-abc",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length16-utf8",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length32-bom",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-empty-string",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-vector-u16",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-empty-vector",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "custom-big-endian",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-only-field",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-tuple",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum8-named-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum16-sparse-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum32-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "explicit-record-storage-weight",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum16-maximum-tag",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-encode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-decode-only-record",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-encode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "positive-decode-only-enum-unit",
+      "family": "positive_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:259#test_all_positive_draft_rows_exact_wire_and_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "pair-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "pair-depth-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-text-extra-guard-work",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-text-extra-guard-depth",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-work-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-allocation-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "direct-length-field-elements-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "adapter-no-field-value-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-pair-no-record-guard",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-unit-zero-value-budget",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-collection-weight-one-under",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "reader-byte-admission-before-fields",
+      "family": "budget_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:274#test_all_budget_draft_rows",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unknown-tag-before-payload",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:351#test_unknown_tag_and_invalid_fields_never_construct",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "ordinary-bool-invalid",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:351#test_unknown_tag_and_invalid_fields_never_construct",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-field-invalid-utf8",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:351#test_unknown_tag_and_invalid_fields_never_construct",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-field-truncated",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:287#test_field_errors_admission_and_overflow_before_prefix",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-trailing",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:287#test_field_errors_admission_and_overflow_before_prefix",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-adapter-returned-error",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:363#test_raw_draft_prefixes_and_sink_failure",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-adapter-failed-write-sticky",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:363#test_raw_draft_prefixes_and_sink_failure",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-encode-cap-one-under",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:363#test_raw_draft_prefixes_and_sink_failure",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length8-overflow-before-prefix",
+      "family": "runtime_error_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:287#test_field_errors_admission_and_overflow_before_prefix",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "missing-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "duplicate-tag",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tag8-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:120#test_mutation_layout_and_negatives",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tag-negative",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tag32-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "tag-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-tag-width",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "rust-discriminant",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "python/src/statelessness/codec_declarations.py:238",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Explicit descriptor binder has no Rust derive target or discriminant syntax. No same-syntax or runtime rejection claim."
+    },
+    {
+      "case": "skip-field",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "default-field",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "length-and-adapter",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "duplicate-length",
+      "family": "declaration_negative_cases",
+      "disposition": "native-compiler",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Python compile() rejects duplicate keyword syntax; no runtime-wire claim."
+    },
+    {
+      "case": "length-width64",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:120#test_mutation_layout_and_negatives",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "unknown-type-option",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-version-zero",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:197#test_binding_declarations_and_provider",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-version-overflow",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:197#test_binding_declarations_and_provider",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-unknown-option",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-duplicate-option",
+      "family": "declaration_negative_cases",
+      "disposition": "native-compiler",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Python compile() rejects duplicate keyword syntax; no runtime-wire claim."
+    },
+    {
+      "case": "model-enum-target",
+      "family": "declaration_negative_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "python/src/statelessness/codec_declarations.py:238",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Explicit descriptor binder has no Rust derive target or discriminant syntax. No same-syntax or runtime rejection claim."
+    },
+    {
+      "case": "field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-unselected-field-missing-decoder",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "field-length-only-missing-encode",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "adapter-direction-missing",
+      "family": "declaration_negative_cases",
+      "disposition": "builder",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_output",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_state_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_input_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-encode_output_into",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-decode_state",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "version-mismatch-decode_input",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:143#test_all_eight_version_gates_and_fresh_limits",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-decode-exact-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:374#test_binder_exact_fresh_and_malformed_both_directions",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-limits-fresh-each-decode",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:374#test_binder_exact_fresh_and_malformed_both_directions",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-encode-no-decode-limits",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:374#test_binder_exact_fresh_and_malformed_both_directions",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "model-decode-trailing",
+      "family": "model_binding_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:374#test_binder_exact_fresh_and_malformed_both_directions",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "record-no-variant",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-selected-unit-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-selected-named-label",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "enum-label-renamed-same-tag",
+      "family": "diagnostic_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:323#test_diagnostics_and_builder_boundaries",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "rust-derived-schema-token-spelling",
+      "family": "diagnostic_cases",
+      "disposition": "native-static-exclusion",
+      "assertion_reference": "python/src/statelessness/codec_declarations.py:151",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Native diagnostic labels intentionally do not reproduce Rust token spelling."
+    },
+    {
+      "case": "raw-unknown-enum-error-swallowed",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:302#test_complete_reader_scripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "guarded-unknown-enum-error-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:302#test_complete_reader_scripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "raw-failed-tag-read-first-sticky",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:302#test_complete_reader_scripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    },
+    {
+      "case": "guarded-callback-first-structural-error-beats-later",
+      "family": "reader_script_cases",
+      "disposition": "runtime",
+      "assertion_reference": "python/tests/test_codec_declarations.py:302#test_complete_reader_scripts",
+      "qualification": "pending-final-frozen-source-kyoto",
+      "notes": "Assertion authored; final exact-source Kyoto qualification is pending."
+    }
+  ]
+}

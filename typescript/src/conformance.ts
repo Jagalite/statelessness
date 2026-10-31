@@ -79,7 +79,13 @@ export function execute(value: unknown, backend?: ConformanceBackend): unknown {
     const c = fields(o.config, ['max_states', 'max_transitions', 'max_depth']);
     const maxStates = integer(c.max_states, 100_000), maxTransitions = integer(c.max_transitions, 100_000), maxDepth = integer(c.max_depth, 100_000);
     if (!maxStates) return { error: 'invalid_config' };
-    return (backend?.enumerateStates ?? enumerateStates)(model, { maxStates, maxTransitions, maxDepth });
+    const result = (backend?.enumerateStates ?? enumerateStates)(model, { maxStates, maxTransitions, maxDepth });
+    // portable-v1's promoted wire schema predates native retained-state estimates.
+    if (result !== null && typeof result === 'object' && !Array.isArray(result)) {
+      const { estimated_retained_state_bytes: _nativeEstimate, ...portable } = result as Record<string, unknown>;
+      return portable;
+    }
+    return result;
   }
   if (op === 'record') return { trace: traceToData((backend?.record ?? record)(model, array(o.inputs, 100_000).map(string), integer(o.max_steps, 100_000))) };
   if (op === 'observe') {

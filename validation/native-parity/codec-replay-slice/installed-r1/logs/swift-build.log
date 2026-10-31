@@ -1,0 +1,27 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write CodecReplayConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/16] Emitting module Statelessness
+[6/16] Compiling Statelessness AuditRecording.swift
+[7/16] Compiling Statelessness AuditTrace.swift
+[8/16] Compiling Statelessness CheckSink.swift
+[9/16] Compiling Statelessness EncodeBuffer.swift
+[10/16] Compiling Statelessness Execution.swift
+[11/16] Compiling Statelessness ExecutionBudget.swift
+[12/16] Compiling Statelessness Explore.swift
+[13/16] Compiling Statelessness Fuzz.swift
+[14/24] Compiling Statelessness Generate.swift
+[15/24] Compiling Statelessness JSON.swift
+[16/24] Compiling Statelessness Model.swift
+[17/24] Compiling Statelessness Oracle.swift
+[18/24] Compiling Statelessness Replay.swift
+[19/24] Compiling Statelessness Rng.swift
+[20/24] Compiling Statelessness Shrink.swift
+[21/24] Compiling Statelessness TraceJSON.swift
+[22/26] Compiling CodecReplayConsumer main.swift
+[23/26] Emitting module CodecReplayConsumer
+[23/26] Write Objects.LinkFileList
+[24/26] Linking CodecReplayConsumer
+[25/26] Applying CodecReplayConsumer
+Build complete! (7.79s)

@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "scope": "finite macOS/arm64 candidate; broad parity and promotion remain open",
+  "base_commit": "d35a546410a717d61c031c77e0e82c4153786488",
+  "vectors": {
+    "tokens": 27,
+    "recorder": 36
+  },
+  "native_tests": {
+    "python": {
+      "tests": 180,
+      "skipped_abi": 12,
+      "job": "265212793fea4130beeaa98899ff7734"
+    },
+    "go": {
+      "job": "48e197bc1ae2422ca7130774b78e6082",
+      "vet_job": "14e28a37f2eb40228d0647904e4c3100"
+    },
+    "swift": {
+      "methods": 101,
+      "job": "5639f3df8d5846ed9e1f27ae7b964e27"
+    },
+    "typescript": {
+      "tests": 500,
+      "job": "983129342c41443babced6968239e65b"
+    }
+  },
+  "rust": {
+    "build_job": "6dc6e59fce1c44538203f50d8494c130",
+    "corpus_job": "20ce7244c5764f9bb2e38e38fc00630b",
+    "app_smoke_job": "47b40c9e94904f10bff02d41e167de79"
+  },
+  "installed": {
+    "job": "cbf8e4c1426e4f6bb741e6c4a01b42e9",
+    "commands": 79,
+    "producers": 5,
+    "audit_pairs": 25,
+    "portable_pairs": 25,
+    "baseline_cases_per_engine": 717,
+    "baseline_fresh_replays": 550,
+    "runtime_source_mismatches": []
+  },
+  "reviewed_ledger_files": 127,
+  "broad_qualification_cells_pending": 144,
+  "source_input_count": 582
+}

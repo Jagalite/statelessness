@@ -6,6 +6,14 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./node-reference": {
+      "types": "./dist/node_reference.d.ts",
+      "import": "./dist/node_reference.js"
+    },
+    "./node-campaign": {
+      "types": "./dist/node_campaign.d.ts",
+      "import": "./dist/node_campaign.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
@@ -13,22 +21,78 @@
     "./conformance": {
       "types": "./dist/conformance.d.ts",
       "import": "./dist/conformance.js"
+    },
+    "./node-evidence": {
+      "types": "./dist/node_evidence.d.ts",
+      "import": "./dist/node_evidence.js"
+    },
+    "./debug": {
+      "types": "./dist/debug.d.ts",
+      "import": "./dist/debug.js"
+    },
+    "./debug/session": {
+      "types": "./dist/debug_session.d.ts",
+      "import": "./dist/debug_session.js"
+    },
+    "./debug/inspect": {
+      "types": "./dist/debug_inspect.d.ts",
+      "import": "./dist/debug_inspect.js"
+    },
+    "./debug/fork": {
+      "types": "./dist/debug_fork.d.ts",
+      "import": "./dist/debug_fork.js"
+    },
+    "./debug/watches": {
+      "types": "./dist/debug_watches.d.ts",
+      "import": "./dist/debug_watches.js"
+    },
+    "./debug/protocol": {
+      "types": "./dist/debug_protocol.d.ts",
+      "import": "./dist/debug_protocol.js"
+    },
+    "./debug/node-protocol": {
+      "types": "./dist/node_debug_protocol.d.ts",
+      "import": "./dist/node_debug_protocol.js"
+    },
+    "./debug/metrics": {
+      "types": "./dist/debug_metrics.d.ts",
+      "import": "./dist/debug_metrics.js"
+    },
+    "./debug/dashboard": {
+      "types": "./dist/debug_dashboard.d.ts",
+      "import": "./dist/debug_dashboard.js"
+    },
+    "./debug/live": {
+      "types": "./dist/debug_live.d.ts",
+      "import": "./dist/debug_live.js"
+    },
+    "./debug/effects": {
+      "types": "./dist/debug_effects.d.ts",
+      "import": "./dist/debug_effects.js"
+    },
+    "./debug/diagnostic": {
+      "types": "./dist/debug_diagnostic.d.ts",
+      "import": "./dist/debug_diagnostic.js"
     }
   },
   "bin": {
-    "stateless-corpus": "./bin/corpus.mjs"
+    "stateless-corpus": "./bin/corpus.mjs",
+    "stateless-reference-suite": "./bin/reference-suite.mjs",
+    "stateless-demo": "./bin/demo.mjs"
   },
   "files": [
     "dist",
     "bin",
     "README.md",
+    "DEBUGGER.md",
     "LICENSE",
     "src",
     "examples"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test test/*.test.mjs",
+    "build": "node scripts/reference-identity.mjs && node scripts/runtime-identity.mjs && tsc -p tsconfig.json",
+    "test": "npm run build && npm run typecheck:tests && node --test test/*.test.mjs",
+    "typecheck:tests": "tsc -p test/tsconfig.json",
     "prepack": "npm run build"
   },
   "devDependencies": {

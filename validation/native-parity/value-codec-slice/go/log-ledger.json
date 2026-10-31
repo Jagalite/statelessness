@@ -1,0 +1,152 @@
+[
+  {
+    "job_id": "3b6b00d9a10748209004955afcead337",
+    "status": "failed",
+    "source_snapshot": null,
+    "source_note": "No exact compile-time snapshot captured for this initial integration job; edits could occur while queued. No exact intermediate source identity claimed.",
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/3b6b00d9a10748209004955afcead337.log",
+    "original_size": 1027,
+    "original_sha256": "de03f4c9e31df08bb964d2d784df26802c3b03792c150aafbae644cd902b2b3b",
+    "stored_path": "logs/3b6b00d9a10748209004955afcead337.log.gz",
+    "stored_size": 297,
+    "stored_sha256": "db8ece46233f545d6cda51fb1560761d4379599498fd6b73eb0504c27531d4b6",
+    "compression": "gzip mtime0, roundtrip byte-identical",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "6ebb7a9e8d3d44c2bdf6ec0d00c215f6",
+    "status": "failed",
+    "source_snapshot": {
+      "scoped_sha256": "164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/6ebb7a9e8d3d44c2bdf6ec0d00c215f6.log",
+    "original_size": 547,
+    "original_sha256": "31815d788a22d212ce0618b6cbd3c8a73f074c6c5fb57eaa86fbc5412381063b",
+    "stored_path": "logs/6ebb7a9e8d3d44c2bdf6ec0d00c215f6.log.gz",
+    "stored_size": 225,
+    "stored_sha256": "b711b0a633b130005693ba2d5ed298c2f211b3189ecbfed8ac4a270177d1e87c",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "eff77bd001534e038bccc6514519a213",
+    "status": "failed",
+    "source_snapshot": {
+      "scoped_sha256": "164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/164dfc6a085fc7640741cce747b918fd2b9a194c88273c80a5b6a605ec4acf49/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/eff77bd001534e038bccc6514519a213.log",
+    "original_size": 146,
+    "original_sha256": "9bcd98cb941e3bdb7f4d271191d764ae26bcdaf1be3b3d473a6ebd545f306f68",
+    "stored_path": "logs/eff77bd001534e038bccc6514519a213.log.gz",
+    "stored_size": 120,
+    "stored_sha256": "c1b63fe405bbf59c475f91f6b6ac8f2090a8446278d4c9d37ac9f73c30725208",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "42c2a2f2f961408fbd3d51bee08ad271",
+    "status": "failed",
+    "source_snapshot": {
+      "scoped_sha256": "d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/42c2a2f2f961408fbd3d51bee08ad271.log",
+    "original_size": 481,
+    "original_sha256": "9b301f137f6b4b3a70dbf8f5646fe9b0b01874b4c17d5258a8fe06b9015b57ad",
+    "stored_path": "logs/42c2a2f2f961408fbd3d51bee08ad271.log.gz",
+    "stored_size": 250,
+    "stored_sha256": "c29fc394d668e855c2f91c0f2463d2d7bb7809c42aaf277dd80d2596c6955a2a",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "06bb1b7b3e2343cc823277eda6f514dc",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/d1b0282a155e1856e4abd4bf44f3711c276b19fb750300e13717ee999e882bed/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/06bb1b7b3e2343cc823277eda6f514dc.log",
+    "original_size": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_path": "logs/06bb1b7b3e2343cc823277eda6f514dc.log.gz",
+    "stored_size": 20,
+    "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "ecd094331b9d4945ae555c4acb967f53",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/ecd094331b9d4945ae555c4acb967f53.log",
+    "original_size": 344,
+    "original_sha256": "73335dc928d8a9a7211f87b0fa54ad0967cc9753b5cbfcaaff6a4075f5d415b4",
+    "stored_path": "logs/ecd094331b9d4945ae555c4acb967f53.log.gz",
+    "stored_size": 153,
+    "stored_sha256": "b40c3dac5b8cff465829548429ff552d8eaa402b41b22bd62d8c86a4e9c86f32",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "c116ca9aa98c4c75b4d4d13c9f0700e8",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/9d869cc684531df07aec7e96485f8d0e1b85299df29b019c42e25f7228409e56/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/c116ca9aa98c4c75b4d4d13c9f0700e8.log",
+    "original_size": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_path": "logs/c116ca9aa98c4c75b4d4d13c9f0700e8.log.gz",
+    "stored_size": 20,
+    "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "c174d20805dc4e5c9c6b8ad481c813d9",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/c174d20805dc4e5c9c6b8ad481c813d9.log",
+    "original_size": 344,
+    "original_sha256": "cb8549441e38b80071db39376e3a6aa31c8bc5bffaa7ea98a14d0711b7f2a632",
+    "stored_path": "logs/c174d20805dc4e5c9c6b8ad481c813d9.log.gz",
+    "stored_size": 154,
+    "stored_sha256": "21f800373fdd1275047930e619ef1fb0ec7aec11a15d4728b19f6830d3566c45",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  },
+  {
+    "job_id": "6f5fe914a3f6427abcde1299eae3e551",
+    "status": "succeeded",
+    "source_snapshot": {
+      "scoped_sha256": "92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5",
+      "manifest": "validation/native-parity/value-codec-slice/go/source-candidates/92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5/manifest.json",
+      "source_archive": "validation/native-parity/value-codec-slice/go/source-candidates/92cf775e1c26b9f5f95769dfdcae96aea94f5b97223be5a267615f3508e9c9e5/source.tar.gz"
+    },
+    "original_path": "/Users/jagatranvo/.local/state/kyoto/6f5fe914a3f6427abcde1299eae3e551.log",
+    "original_size": 0,
+    "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_path": "logs/6f5fe914a3f6427abcde1299eae3e551.log.gz",
+    "stored_size": 20,
+    "stored_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "compression": "gzip mtime0, byte-identical verified",
+    "contains_trailing_whitespace": false
+  }
+]

@@ -1,0 +1,35 @@
+test_compilation_cannot_be_runtime_qualification (test_qualify.ReportingTests.test_compilation_cannot_be_runtime_qualification) ... ok
+test_compile_only_does_not_invoke_runtime_wrappers (test_qualify.ReportingTests.test_compile_only_does_not_invoke_runtime_wrappers) ... ok
+test_compile_plan_contains_no_rust_execution (test_qualify.ReportingTests.test_compile_plan_contains_no_rust_execution) ... ok
+test_expected_rejection_needs_exit_and_diagnostic (test_qualify.ReportingTests.test_expected_rejection_needs_exit_and_diagnostic) ... ok
+test_explicit_toolchain_wraps_commands_and_compile_replacement (test_qualify.ReportingTests.test_explicit_toolchain_wraps_commands_and_compile_replacement) ... ok
+test_live_cli_writes_partial_evidence_after_failed_stage (test_qualify.ReportingTests.test_live_cli_writes_partial_evidence_after_failed_stage) ... PASSED success
+FAILED failure
+BLOCKED dependent
+FAILED: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/tmpvgiu4tu1/evidence.json
+ok
+test_missing_or_changed_evidence_cannot_pass (test_qualify.ReportingTests.test_missing_or_changed_evidence_cannot_pass) ... ok
+test_policy_rejection_never_falls_back_to_direct_execution (test_qualify.ReportingTests.test_policy_rejection_never_falls_back_to_direct_execution) ... ok
+test_queue_deadline_cancels_with_matching_owner (test_qualify.ReportingTests.test_queue_deadline_cancels_with_matching_owner) ... ok
+test_queue_interrupt_retains_cancellation_error (test_qualify.ReportingTests.test_queue_interrupt_retains_cancellation_error) ... ok
+test_queue_terminal_status_must_confirm_process_completion (test_qualify.ReportingTests.test_queue_terminal_status_must_confirm_process_completion) ... ok
+test_reference_mutations_replay_schema_and_review_are_required (test_qualify.ReportingTests.test_reference_mutations_replay_schema_and_review_are_required) ... ok
+test_relative_cargo_target_belongs_to_source_root (test_qualify.ReportingTests.test_relative_cargo_target_belongs_to_source_root) ... ok
+test_runtime_queue_mode_is_rejected_before_any_command (test_qualify.ReportingTests.test_runtime_queue_mode_is_rejected_before_any_command) ... usage: python3 -m unittest [-h] [--profile {pr,full}] [--evidence EVIDENCE]
+                           [--compile-only] [--toolchain TOOLCHAIN]
+                           [--kyoto KYOTO] [--portable] [--allow-dirty]
+                           [--requirements-review-receipt REQUIREMENTS_REVIEW_RECEIPT]
+                           [--timeout TIMEOUT] [--list]
+python3 -m unittest: error: --kyoto requires --compile-only; runtime qualification must not bypass shared queue policy through scripts
+ok
+test_runtime_skipped_stage_exits_nonzero (test_qualify.ReportingTests.test_runtime_skipped_stage_exits_nonzero) ... NOT_RUN skipped
+INCOMPLETE: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/tmps2iiv3gm/report.json
+ok
+test_selected_toolchain_pins_nested_compiler_and_path (test_qualify.ReportingTests.test_selected_toolchain_pins_nested_compiler_and_path) ... ok
+test_setup_and_deadline_have_distinct_statuses (test_qualify.ReportingTests.test_setup_and_deadline_have_distinct_statuses) ... ok
+test_source_identity_tracks_new_deleted_and_changed_inputs (test_qualify.ReportingTests.test_source_identity_tracks_new_deleted_and_changed_inputs) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 7.507s
+
+OK

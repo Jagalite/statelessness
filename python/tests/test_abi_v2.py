@@ -254,7 +254,7 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(hello["engine_family"], "rust-shared")
         self.assertEqual(hello["artifact_sha256"], self.engine.sha256)
         self.assertEqual(raw_response(b"\xff", backend), {"error": "invalid_request"})
-        corpus = json.loads((Path(__file__).resolve().parents[2] / "conformance/corpus.json").read_text())
+        corpus = json.loads((Path(__file__).resolve().parents[2] / "conformance/corpus.json").read_text(encoding="utf-8"))
         for case in corpus["cases"]:
             if case["request"]["operation"] == "hello": continue
             with self.subTest(case=case["id"]):

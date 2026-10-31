@@ -1,0 +1,21 @@
+{
+  "executed_at": "2026-10-20T20:31:36.150913+00:00",
+  "command": [
+    "target/debug/deps/native_search_profile-ea29fd0b3185e7f4",
+    "--nocapture"
+  ],
+  "execution_mode": "direct produced test executable; no compilation invoked",
+  "build_job": "301ca3d951264bd18f4d5b71639c7446",
+  "build_policy": "compile-only --no-run; separate execution per Kyoto skill",
+  "executable_sha256": "2203342ef4d1ea99a7b7e0ef927450d75f0b38c7e243a67ff21200d970c09b0d",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: aarch64-apple-darwin\nrelease: 1.99.0\nLLVM version: 23.1.2\n",
+  "result": {
+    "chunk_id": "cfecc9",
+    "wall_time_seconds": 0.562359958,
+    "exit_code": 0,
+    "original_token_count": 386,
+    "output": "\nrunning 1 test\nchecking independent search-v1 row: fuzz-singleton\nchecking independent search-v1 row: fuzz-zero-cases\nchecking independent search-v1 row: fuzz-zero-steps\nchecking independent search-v1 row: fuzz-zero-transitions\nchecking independent search-v1 row: fuzz-exact-transitions\nchecking independent search-v1 row: fuzz-empty-domain\nchecking independent search-v1 row: fuzz-binary-seed-zero\nchecking independent search-v1 row: fuzz-initial-failure\nchecking independent search-v1 row: fuzz-cancelled-entry\nchecking independent search-v1 row: fuzz-deadline-entry\nchecking independent search-v1 row: fuzz-mutation-singleton\nchecking independent search-v1 row: shrink-threshold\nchecking independent search-v1 row: shrink-attempt-limit\nchecking independent search-v1 row: shrink-zero-transitions\nchecking independent search-v1 row: shrink-initial\nchecking independent search-v1 row: shrink-causal\nchecking independent search-v1 row: shrink-phase-identity\nchecking independent search-v1 row: shrink-cycle\nchecking independent search-v1 row: shrink-zero-attempts\nchecking independent search-v1 row: shrink-cancelled-entry\nchecking independent search-v1 row: shrink-deadline-entry\nchecking independent search-v1 row: fuzz-mutation-digits\nchecking independent search-v1 row: fuzz-auto-exact-cap\nchecking independent search-v1 row: fuzz-auto-overflow\nchecking independent search-v1 row: fuzz-auto-zero-cap\ntest shared_search_candidate_corpus ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+  },
+  "scope": "actual Rust algorithms against all25 search-v1 golden rows and exact shared shrink histories; no profile promotion"
+}

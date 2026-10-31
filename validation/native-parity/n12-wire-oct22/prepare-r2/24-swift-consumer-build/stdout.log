@@ -1,0 +1,53 @@
+Building for debugging...
+[0/8] Write sources
+[1/8] Write n12-wire-swift-entitlement.plist
+[2/8] Write sources
+[4/8] Write swift-version--58304C5D6DBC2206.txt
+[6/23] Compiling Statelessness AuditRecording.swift
+[7/23] Compiling Statelessness AuditTrace.swift
+[8/23] Compiling Statelessness CheckSink.swift
+[9/23] Compiling Statelessness CheckedResults.swift
+[10/23] Compiling Statelessness EncodeBuffer.swift
+[11/23] Compiling Statelessness Evidence.swift
+[12/23] Compiling Statelessness EvidenceCodec.swift
+[13/23] Compiling Statelessness EvidenceExports.swift
+[14/23] Compiling Statelessness EvidenceRecorder.swift
+[15/23] Compiling Statelessness Execution.swift
+[16/23] Compiling Statelessness ExecutionBudget.swift
+[17/23] Compiling Statelessness Explore.swift
+[18/23] Compiling Statelessness Fuzz.swift
+[19/23] Compiling Statelessness Generate.swift
+[20/23] Emitting module Statelessness
+[21/36] Compiling Statelessness JSON.swift
+[22/36] Compiling Statelessness Model.swift
+[23/36] Compiling Statelessness Oracle.swift
+[24/36] Compiling Statelessness Recorder.swift
+[25/36] Compiling Statelessness Replay.swift
+[26/36] Compiling Statelessness Rng.swift
+[27/36] Compiling Statelessness Shrink.swift
+[28/36] Compiling Statelessness TraceJSON.swift
+[29/36] Compiling Statelessness ValueCodec.swift
+[30/36] Compiling Statelessness ValueCodec128.swift
+[31/36] Compiling Statelessness ValueCodecBuiltins.swift
+[32/36] Compiling Statelessness ValueCodecDecoder.swift
+[33/36] Compiling Statelessness ValueCodecLayouts.swift
+[34/44] Compiling StatelessDebug Branch.swift
+[35/44] Compiling StatelessDebug Dashboard.swift
+[36/44] Compiling StatelessDebug Diagnostics.swift
+[37/44] Compiling StatelessDebug Effects.swift
+[38/44] Compiling StatelessDebug EvidenceViewer.swift
+[39/44] Compiling StatelessDebug Inspection.swift
+[40/44] Compiling StatelessDebug Live.swift
+[41/44] Emitting module StatelessDebug
+[42/50] Compiling StatelessDebug LiveBridge.swift
+[43/50] Compiling StatelessDebug Metrics.swift
+[44/50] Compiling StatelessDebug Protocol.swift
+[45/50] Compiling StatelessDebug Session.swift
+[46/50] Compiling StatelessDebug TraceViewer.swift
+[47/50] Compiling StatelessDebug Watches.swift
+[48/52] Compiling n12_wire_swift main.swift
+[49/52] Emitting module n12_wire_swift
+[49/52] Write Objects.LinkFileList
+[50/52] Linking n12-wire-swift
+[51/52] Applying n12-wire-swift
+Build of product 'n12-wire-swift' complete! (21.59s)

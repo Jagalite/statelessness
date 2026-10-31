@@ -1,0 +1,29 @@
+{
+  "command": [
+    "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb/target/debug/deps/n13_derive_reference-00d76c8a46e5b487"
+  ],
+  "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ea05e2fb",
+  "started_ns": 1792542886162293000,
+  "source_commit": "c26b8a0333c454c681990e4a08e77195ef1fa744",
+  "command_exit_code": 0,
+  "finished_ns": 1792542887287055000,
+  "source_before_after_equal": true,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "files": {
+    "source-before.json": {
+      "sha256": "05cee914aa2d42754bf16188d7f4555820021930aac0268a13e2b9201083aa17",
+      "size_bytes": 1050935
+    },
+    "source-after.json": {
+      "sha256": "05cee914aa2d42754bf16188d7f4555820021930aac0268a13e2b9201083aa17",
+      "size_bytes": 1050935
+    },
+    "raw.log": {
+      "sha256": "722f0851cdd630150ee19e7b622a05b977f5cefefeea08f7ee7f3e474d83240e",
+      "size_bytes": 1058
+    }
+  },
+  "status": "passed"
+}

@@ -1,0 +1,115 @@
+warning: unused import: `TraceDecode as _`
+ --> crates/macro-qualification/src/bin/n13-model-interchange.rs:7:42
+  |
+7 |     value_codec::{DecodeLimits, Decoder, TraceDecode as _, TraceEncode as _},
+  |                                          ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `macro-qualification` (bin "n13-model-interchange") generated 1 warning (run `cargo fix --bin "n13-model-interchange" -p macro-qualification` to apply 1 suggestion)
+warning: `macro-qualification` (bin "n13-model-interchange" test) generated 1 warning (1 duplicate)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/macro_qualification-93ad16b06f1ca369)
+
+running 3 tests
+test tests::golden ... ok
+test tests::adapter ... ok
+test jobs::tests::missing_effect_and_healthy_graph ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/jobs.rs (target/debug/deps/jobs-9c7f38ac7b33b42f)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/n13-interchange.rs (target/debug/deps/n13_interchange-c4f8e8adb94a284e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/n13-model-interchange.rs (target/debug/deps/n13_model_interchange-891bf3a8c17e00a2)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/behavior.rs (target/debug/deps/behavior-63245b79bd72bff4)
+
+running 5 tests
+test observing_generated_model_does_not_execute_reducer_again ... ok
+test exactly_once_partial_error_and_lazy_details ... ok
+test every_request_state_matches_handwritten_and_preserves_stale_delivery ... ok
+test macro_search_fuzz_shrink_guidance_and_replay ... ok
+test campaigns_use_generated_adapter ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/codecs.rs (target/debug/deps/codecs-eb79b79c919d001f)
+
+running 2 tests
+test custom_adapter_and_limits ... ok
+test legacy_request_bytes_and_property_failing_snapshots ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ergonomics.rs (target/debug/deps/ergonomics-99ae5db3d152b909)
+
+running 3 tests
+test shared_sampling_helpers_preserve_rng_on_domain_failure ... ok
+test handwritten_generic_model_gets_canonical_codec_without_adapter_macro ... ok
+test generated_generator_matches_existing_auto_seed_and_causality_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/monitor_release.rs (target/debug/deps/monitor_release-4740be76347dbcb1)
+
+running 2 tests
+test attached_history_and_serialized_monitor_trace_replay ... ok
+test composed_monitor_histories_affect_equality_and_serialized_replay ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/n13_derive_reference.rs (target/debug/deps/n13_derive_reference-00d76c8a46e5b487)
+
+running 14 tests
+test callback_order::admission_and_unknown_tag_precede_field_callbacks ... ok
+test literal_binding::literal_bound_enum_trailing ... ok
+test exact_guard_and_direct_field_budgets ... ok
+test literal_binding::literal_model_exact_fresh_limits_and_encode_only_big_endian_output ... ok
+test independent_length::length_only_field_needs_no_ordinary_direction ... ok
+test exact_and_one_under_all_quotas_and_error_routes ... ok
+test binding::all_eight_hooks_gate_version_and_limits_are_fresh_decode_only ... ok
+test finite_independent_wire_goldens ... ok
+test raw_failure::raw_callback_error_priority_and_sticky_actual_write_failure ... ok
+test raw_unknown_tag_can_be_swallowed_but_guarded_and_structural_errors_stick ... ok
+test script_callbacks::all_sticky_script_callback_counts ... ok
+test literal_positive_row_budgets ... ok
+test literal_draft_routes_and_diagnostics ... FAILED
+test literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write ... FAILED
+
+failures:
+
+---- literal_draft_routes_and_diagnostics stdout ----
+
+thread 'literal_draft_routes_and_diagnostics' (58130) panicked at crates/macro-qualification/tests/n13_derive_reference.rs:428:69:
+called `Result::unwrap()` on an `Err` value: ModelError("decode work limit")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write stdout ----
+
+thread 'literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write' (58132) panicked at crates/macro-qualification/tests/n13_derive_reference.rs:546:11:
+assertion `left == right` failed
+  left: "encoded blob exceeds byte limit"
+ right: "encoded blob exceeds byte or allocation limit"
+
+
+failures:
+    literal_draft_routes_and_diagnostics
+    literal_raw_sink::raw_adapter_literal_prefix_and_sticky_write
+
+test result: FAILED. 12 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p macro-qualification --test n13_derive_reference`

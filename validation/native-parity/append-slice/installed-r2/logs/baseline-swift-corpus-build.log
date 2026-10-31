@@ -1,0 +1,25 @@
+Building for debugging...
+[0/8] Write stateless-corpus-entitlement.plist
+[1/8] Write sources
+[4/8] Write swift-version--58304C5D6DBC2206.txt
+[6/15] Compiling Statelessness AuditTrace.swift
+[7/15] Compiling Statelessness CheckSink.swift
+[8/15] Compiling Statelessness Execution.swift
+[9/15] Compiling Statelessness Explore.swift
+[10/15] Compiling Statelessness Fuzz.swift
+[11/15] Compiling Statelessness Generate.swift
+[12/15] Emitting module Statelessness
+[13/21] Compiling Statelessness JSON.swift
+[14/21] Compiling Statelessness Model.swift
+[15/21] Compiling Statelessness Oracle.swift
+[16/21] Compiling Statelessness Rng.swift
+[17/21] Compiling Statelessness Shrink.swift
+[18/21] Compiling Statelessness TraceJSON.swift
+[19/23] Compiling StatelessConformance Conformance.swift
+[20/23] Emitting module StatelessConformance
+[21/25] Emitting module StatelessCorpus
+[22/25] Compiling StatelessCorpus main.swift
+[22/25] Write Objects.LinkFileList
+[23/25] Linking stateless-corpus
+[24/25] Applying stateless-corpus
+Build of product 'stateless-corpus' complete! (6.20s)

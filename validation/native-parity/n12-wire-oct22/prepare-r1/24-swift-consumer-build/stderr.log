@@ -1,0 +1,1 @@
+error: 'swift': product 'Statelessness' required by package 'swift' target 'n12-wire-swift' not found in package 'Statelessness'.

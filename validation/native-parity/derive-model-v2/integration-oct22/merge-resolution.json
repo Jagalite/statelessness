@@ -1,0 +1,40 @@
+{
+  "merge": "0fb93be273b2c257536c084d519d2882e0e288d9",
+  "parents": [
+    "ac52c17570522411642b575b243a9fd4636dc8eb",
+    "9daee75e4dd93ce746956954120d7d3e2f95d1ec"
+  ],
+  "conflicts": [
+    {
+      "path": "go/README.md",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "31d42914cf910dc49bf78e707184c05e07fed9bff657ae3699790ae4e2691fa6"
+    },
+    {
+      "path": "python/README.md",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "503af595a8bbacd993d8b55f31d6b67d87f765f14e6abf0ca0c342671f39b3a1"
+    },
+    {
+      "path": "python/src/statelessness/__init__.py",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "129a6d5c22826dfc2fd388621118cda398173f6bd7211f5250712d6b753c733f"
+    },
+    {
+      "path": "swift/README.md",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "635f7307b5112f626312bc688770d47fbf88e21e0db5261e2356ef2241a0f1a9"
+    },
+    {
+      "path": "typescript/README.md",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "121a812654fa83a3fabb753bbb8db02ae64e1029695a93d33573c5fbe6f85e79"
+    },
+    {
+      "path": "typescript/src/index.ts",
+      "resolution": "retain both additive parent research and N13 declaration/binder sections",
+      "sha256": "ff4b0974c6a1d0d0fc70bd612a65a9ca01458baecc14fb44350284abcb728acc"
+    }
+  ],
+  "historical_receipts": "preserved unchanged, including raw whitespace in logs and patch files"
+}

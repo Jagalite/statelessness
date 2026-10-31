@@ -1,0 +1,8 @@
+Starting resolve-cargo
+Starting resolve-rustc
+Starting resolve-rustdoc
+Starting cargo-version
+Starting rustc-version
+Starting rust-tests-compile
+Starting rust-public-consumer-compile
+{"status": "passed", "receipt": "/Users/jagatranvo/.t3/worktrees/stateless/t3-17ecaeca/validation/native-parity/observation-slice/rust-compile-a1/receipt.json"}

@@ -1,0 +1,34 @@
+[
+  {
+    "label": "first correction",
+    "job_id": "d29713d7065743ce8855831b08ca8c50",
+    "status": "failed",
+    "error": "expected exactly one retained Rust compiler build identity",
+    "qualifying_producers": 0,
+    "qualifying_pairs": 0,
+    "command_count": 15,
+    "all_completed_commands_succeeded": true,
+    "source_equal": true,
+    "raw_log": {
+      "path": "validation/native-parity/derive-model-v2/resume-oct22/installed-wrapper/raw.log",
+      "sha256": "76f07e1befc7b7e74c99a8611e9e4f220649e186251b60c205e0b3ae9433102d",
+      "size_bytes": 3453
+    }
+  },
+  {
+    "label": "reviewed application candidate",
+    "job_id": "84ecf249b95e4c1f8c1f5729445eb193",
+    "status": "failed",
+    "error": "compiler build identity differs from independent source/compiler-input hash",
+    "qualifying_producers": 0,
+    "qualifying_pairs": 0,
+    "command_count": 15,
+    "all_completed_commands_succeeded": true,
+    "source_equal": true,
+    "raw_log": {
+      "path": "validation/native-parity/derive-model-v2/resume-oct22/final-installed-wrapper/raw.log",
+      "sha256": "982089c34b12a2198ed95514df415e358a1eca48a3ac860618cd3639c957d204",
+      "size_bytes": 3577
+    }
+  }
+]

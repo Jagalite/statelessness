@@ -1,0 +1,14 @@
+{
+  "scripts/check-native-model-consumers.py": {
+    "sha256": "fed9ac1d903e8ad5c4b73cea0a435a34f05d3d58344ba4cda71bda56171cae5c",
+    "size_bytes": 13863
+  },
+  "scripts/test_native_model_receipts.py": {
+    "sha256": "50bdda04d181dabfa968c6e1630082c73b4fdaefecfae635128ea8208ab592e9",
+    "size_bytes": 10219
+  },
+  "examples/native-model/expected.py": {
+    "sha256": "1f44fb31124837890936ce9eb365de189bae064bbabac3f073fe40ccd2abc0f9",
+    "size_bytes": 6238
+  }
+}

@@ -1,0 +1,18 @@
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-native-parity)
+    Building [                             ] 0/5: statelessness(build.rs)     
+[Kyoto: stopping for sustained memory/swap pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-native-parity)
+    Building [                             ] 0/5: statelessness(build.rs)         Building [====>                        ] 1/5: statelessness(build)            Building [==========>                  ] 2/5: statelessness               
+[Kyoto: stopping for sustained memory/swap/disk pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-native-parity)
+    Building [==========>                  ] 2/5: statelessness               
+[Kyoto: stopping for sustained memory/swap pressure; will retry]
+
+[Kyoto: retry starting]
+   Compiling statelessness v0.2.0 (/Volumes/seed2/Projects/stateless-native-parity)
+    Building [==========>                  ] 2/5: statelessness                   Building [================>            ] 3/5: paired_profile(test)            Building [================>            ] 3/5: paired_profile(test), state…    Building [======================>      ] 4/5: stateless(bin)                  Finished `test` profile [unoptimized + debuginfo] target(s) in 6.93s
+  Executable tests/paired_profile.rs (target/debug/deps/paired_profile-a96d02eff8c291d7)

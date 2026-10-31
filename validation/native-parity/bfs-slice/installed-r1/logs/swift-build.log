@@ -1,0 +1,22 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write BFSConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/14] Compiling Statelessness AuditTrace.swift
+[6/14] Compiling Statelessness Execution.swift
+[7/14] Compiling Statelessness Explore.swift
+[8/14] Compiling Statelessness Fuzz.swift
+[9/14] Compiling Statelessness Generate.swift
+[10/14] Compiling Statelessness JSON.swift
+[11/14] Emitting module Statelessness
+[12/19] Compiling Statelessness Model.swift
+[13/19] Compiling Statelessness Oracle.swift
+[14/19] Compiling Statelessness Rng.swift
+[15/19] Compiling Statelessness Shrink.swift
+[16/19] Compiling Statelessness TraceJSON.swift
+[17/21] Compiling BFSConsumer main.swift
+[18/21] Emitting module BFSConsumer
+[18/21] Write Objects.LinkFileList
+[19/21] Linking BFSConsumer
+[20/21] Applying BFSConsumer
+Build complete! (7.58s)

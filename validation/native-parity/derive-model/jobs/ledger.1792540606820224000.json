@@ -1,0 +1,52 @@
+[
+  {
+    "job_id": "6ecc74453a264666859b523df47bd811",
+    "status": "failed",
+    "receipt": {
+      "path": "jobs/6ecc74453a264666859b523df47bd811.failed.1792540606481203000.json",
+      "size_bytes": 1753,
+      "sha256": "1371b32259625d721780850d5e7b6941701735f3beb424d4f504fcfaf4a7fb56"
+    },
+    "attempts": {
+      "path": "jobs/6ecc74453a264666859b523df47bd811.attempts.1792540606597154000.json",
+      "size_bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "log": {
+      "original_path": "/Users/jagatranvo/.local/state/kyoto/6ecc74453a264666859b523df47bd811.log",
+      "original_size_bytes": 176,
+      "original_sha256": "def214e78ec0d77bdfa35a65fd6afa5521ecb3a050d8d28d8e2052f1273442ce",
+      "stored": {
+        "path": "jobs/6ecc74453a264666859b523df47bd811.log.gz",
+        "size_bytes": 136,
+        "sha256": "338229164f41d2ef18ad61d76df3f1e8be6cec5141b5a87088264653610a27e9"
+      },
+      "compression": "gzip, mtime=0, lossless verified"
+    }
+  },
+  {
+    "job_id": "05200f51585245d2b01874b7a0f2877c",
+    "status": "succeeded",
+    "receipt": {
+      "path": "jobs/05200f51585245d2b01874b7a0f2877c.succeeded.1792540606707416000.json",
+      "size_bytes": 1932,
+      "sha256": "42451a68501495d2c8c0a6dbc6021ac9fb830f1ca4527b6a6aa356eea0f96f70"
+    },
+    "attempts": {
+      "path": "jobs/05200f51585245d2b01874b7a0f2877c.attempts.1792540606819414000.json",
+      "size_bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "log": {
+      "original_path": "/Users/jagatranvo/.local/state/kyoto/05200f51585245d2b01874b7a0f2877c.log",
+      "original_size_bytes": 1553,
+      "original_sha256": "b1835d7492a918a9a81ec246516c45eb2e5e4b1cb56067553f6b8123211e2729",
+      "stored": {
+        "path": "jobs/05200f51585245d2b01874b7a0f2877c.log.gz",
+        "size_bytes": 164,
+        "sha256": "6b8e9ea610cd13840a10a2b372fa33c6e20722c725f0c7de8b22cc40810e1b62"
+      },
+      "compression": "gzip, mtime=0, lossless verified"
+    }
+  }
+]

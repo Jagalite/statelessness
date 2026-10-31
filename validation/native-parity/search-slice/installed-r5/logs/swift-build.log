@@ -1,0 +1,21 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write SearchConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/13] Compiling Statelessness Execution.swift
+[6/13] Compiling Statelessness Explore.swift
+[7/13] Compiling Statelessness Fuzz.swift
+[8/13] Compiling Statelessness Generate.swift
+[9/13] Compiling Statelessness JSON.swift
+[10/13] Emitting module Statelessness
+[11/18] Compiling Statelessness Model.swift
+[12/18] Compiling Statelessness Oracle.swift
+[13/18] Compiling Statelessness Rng.swift
+[14/18] Compiling Statelessness Shrink.swift
+[15/18] Compiling Statelessness TraceJSON.swift
+[16/20] Emitting module SearchConsumer
+[17/20] Compiling SearchConsumer main.swift
+[17/20] Write Objects.LinkFileList
+[18/20] Linking SearchConsumer
+[19/20] Applying SearchConsumer
+Build complete! (8.42s)

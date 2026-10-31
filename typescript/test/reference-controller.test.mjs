@@ -1,0 +1,126 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync,unlinkSync,symlinkSync,mkdtempSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {referenceInitialState,reduceReference,ReferenceController,ReferenceHost,DEFAULT_REFERENCE_BOUNDS,REFERENCE_MUTATIONS,REFERENCE_MUTATION_TARGETS,evaluateReferenceMutation,REFERENCE_REQUIREMENT_FINGERPRINTS,encodeReferenceState,decodeReferenceState,encodeReferenceInput,decodeReferenceInput,encodeReferenceOutput,referenceAssuranceManifest,referenceCoverage,validateReferenceRequirementCatalog,parseReferenceCorpus,checkReferenceRegressions,prepareReferenceMutationSuite,verifyReferenceSuiteArtifacts,assessReferenceSuiteArtifacts,readAuditTrace,writeAuditTrace,Rng,assuredEnumerate,fuzz,record,replay} from '../dist/index.js';
+import {writeReferenceMutationSuiteNew,readReferenceMutationSuite} from '../dist/node_reference.js';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+test('reference suite CLI creates and replays witnesses in fresh processes',()=>{
+ const root=mkdtempSync(join(tmpdir(),'reference-suite-cli-')),suite=join(root,'suite');
+ const script=new URL('../bin/reference-suite.mjs',import.meta.url);
+ const run=(...args)=>spawnSync(process.execPath,[fileURLToPath(script),...args],{encoding:'utf8',timeout:30000});
+ try{
+  const created=run('create',suite);assert.equal(created.status,0,created.stderr);const report=JSON.parse(created.stdout);assert.equal(report.adequate,true);assert.equal(report.artifacts,19);assert.equal(report.review_status,'awaiting_independent_review');
+  const verified=run('verify',suite);assert.equal(verified.status,0,verified.stderr);assert.equal(JSON.parse(verified.stdout).adequate,true);
+  assert.equal(run('create',suite).status,1);unlinkSync(join(suite,'missing-cleanup-original.sttrace'));
+  assert.equal(run('verify',suite).status,1);assert.equal(run('unknown',suite).status,2);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+test('reference suite reader rejects excess directory entries',()=>{
+ const root=mkdtempSync(join(tmpdir(),'reference-suite-entries-'));
+ try{for(let i=1;i<=20;i++)writeFileSync(join(root,`${'a'.repeat(i)}-original.sttrace`),'');assert.throws(()=>readReferenceMutationSuite(root),/unexpected mutation evidence artifact/);}
+ finally{rmSync(root,{recursive:true,force:true});}
+});
+test('reference suite reader rejects a FIFO without blocking', {skip: process.platform === 'win32'},()=>{
+ const root=mkdtempSync(join(tmpdir(),'reference-fifo-'));try{
+  const made=spawnSync('mkfifo',[join(root,'mutations.json')]);assert.equal(made.status,0);
+  const script="import {readReferenceMutationSuite} from " + JSON.stringify(new URL('../dist/node_reference.js',import.meta.url).href) + "; try { readReferenceMutationSuite(process.argv[1]); process.exit(2); } catch (e) { if (!String(e).includes('invalid or oversized evidence file')) process.exit(3); }";
+  const child=spawnSync(process.execPath,['--input-type=module','-e',script,root],{timeout:3000});assert.equal(child.error,undefined);assert.equal(child.status,0);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});
+test('reference controller fences obsolete completions and settles before release',()=>{
+ const initial=referenceInitialState(),first=reduceReference(initial,{kind:'Submit'}),second=reduceReference(first.state,{kind:'Submit'});
+ assert.deepEqual(second.outputs,[{kind:'Cancel',generation:1n,attempt:1},{kind:'Start',generation:2n,attempt:1}]);assert.deepEqual(initial.jobs,[]);
+ const old=reduceReference(second.state,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'});assert.deepEqual(old.outputs,[{kind:'Settle',generation:1n,result:'Cancelled'},{kind:'Release',generation:1n}]);
+ const duplicate=reduceReference(old.state,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'});assert.equal(duplicate.disposition.kind,'ignored');assert.deepEqual(duplicate.outputs,[]);
+ const done=reduceReference(duplicate.state,{kind:'Complete',generation:2n,attempt:1,outcome:'Success'});assert.deepEqual(done.outputs,[{kind:'Publish',generation:2n},{kind:'Settle',generation:2n,result:'Succeeded'},{kind:'Release',generation:2n}]);
+});
+test('named fault controls trip their independent transition obligations',()=>{
+ const base=new ReferenceController(),initial=base.initialState(),one=base.step(initial,{kind:'Submit'}).state,two=base.step(one,{kind:'Submit'}).state;
+ const done=base.step(one,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}).state,waiting=base.step(one,{kind:'Complete',generation:1n,attempt:1,outcome:'RetryableFailure'}).state;
+ const cases=[['obsolete-publication','publication_current',two,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}],['missing-cleanup','cleanup_required',one,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}],['double-settlement','settlement_once',one,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}],['dropped-cancellation-ack','cancellation_ack',two,{kind:'Cancelled',generation:1n,attempt:1}],['duplicate-completion','duplicate_inert',done,{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}],['early-release','release_after_settlement',one,{kind:'Submit'}],['skipped-retry-deadline','retry_deadline',waiting,{kind:'Tick',now:1n}],['ignored-mutation','ignored_inert',initial,{kind:'Cancel',generation:0n}],['reordered-effects','effect_order',one,{kind:'Submit'}]];
+ assert.equal(cases.length,REFERENCE_MUTATIONS.length);for(const [mutation,id,state,input] of cases){const controller=new ReferenceController(undefined,mutation),actual=controller.step(state,input),checks=controller.checkTransition(state,input,actual);assert.equal(checks.find(c=>c.id===`controller.${id}`).status,'failed',mutation);assert.ok(base.checkTransition(state,input,base.step(state,input)).every(c=>c.status==='passed'),mutation);}
+ const actions=[...base.inputs(initial)];assert.deepEqual(actions.map(a=>a.kind),['Submit','Cancel','Cancelled','Complete','Complete','Cancelled','Complete','Complete','Tick','Tick','Tick']);
+});
+test('mutation evaluation preserves target witnesses and reports cutoff honestly',()=>{
+ const limits={maxStates:10000,maxTransitions:100000n,maxDepth:50};for(const mutation of REFERENCE_MUTATIONS){const result=evaluateReferenceMutation(mutation,limits);assert.equal(result.status.kind,'Killed',`${mutation}: ${JSON.stringify(result.status)}`);assert.ok(result.original);assert.ok(result.minimized);assert.ok(result.minimized.violations.some(v=>v.phase==='transition'&&v.check.id===REFERENCE_MUTATION_TARGETS[mutation]));assert.equal(result.shrinkComplete,true);}
+ const cut=evaluateReferenceMutation('double-settlement',{...limits,maxTransitions:0n});assert.equal(cut.status.kind,'NotEvaluated');assert.equal(cut.minimized,null);
+ const cancelled=evaluateReferenceMutation('double-settlement',limits,undefined,{search:{control:{cancellation:()=>true}}});assert.equal(cancelled.status.kind,'NotEvaluated');assert.equal(cancelled.search,'cancelled');assert.equal(cancelled.original,null);
+ const replayCut=evaluateReferenceMutation('double-settlement',limits,undefined,{shrink:{maxReplayedTransitions:0n}});assert.equal(replayCut.status.kind,'NotEvaluated');assert.ok(replayCut.original);assert.equal(replayCut.minimized,null);
+});
+test('retained independent corpus and binary suite replay every mutation',()=>{
+ const text=readFileSync(new URL('../../docs/requirements/controller-witnesses.txt',import.meta.url),'utf8');assert.equal(parseReferenceCorpus(text).length,9);checkReferenceRegressions(text);assert.throws(()=>parseReferenceCorpus(text+'\n[missing-cleanup]\nsubmit\n'),/duplicate/);assert.throws(()=>parseReferenceCorpus(text,{value:1}));
+ const config={maxStates:10000,maxTransitions:100000n,maxDepth:50},suite=prepareReferenceMutationSuite(config);assert.equal(suite.results.filter(r=>r.status.kind==='Killed').length,9);assert.equal(suite.files.size,19);
+ verifyReferenceSuiteArtifacts(suite.files);const missing=new Map(suite.files);missing.delete('missing-cleanup-original.sttrace');assert.throws(()=>verifyReferenceSuiteArtifacts(missing),/missing mutation witness/);const corrupted=new Map(suite.files),bad=corrupted.get('missing-cleanup-original.sttrace').slice();bad[bad.length-1]^=1;corrupted.set('missing-cleanup-original.sttrace',bad);assert.throws(()=>verifyReferenceSuiteArtifacts(corrupted));assert.throws(()=>verifyReferenceSuiteArtifacts(suite.files,10),/byte limit/);
+ const conflicting=new Map(suite.files),witness=readAuditTrace(conflicting.get('missing-cleanup-original.sttrace'));conflicting.set('missing-cleanup-original.sttrace',writeAuditTrace({...witness,config:{...witness.config,parameters:[...witness.config.parameters,['mutation','wrong']]}}));assert.throws(()=>verifyReferenceSuiteArtifacts(conflicting),/identity mismatch/);const invalidSearch=new Map(suite.files),searchReport=JSON.parse(new TextDecoder().decode(invalidSearch.get('mutations.json')));searchReport.results[0].search='graph_exhausted';invalidSearch.set('mutations.json',new TextEncoder().encode(JSON.stringify(searchReport)));assert.throws(()=>verifyReferenceSuiteArtifacts(invalidSearch),/invalid killed mutation/);
+ const changing=new Map(suite.files);changing.get=()=>{throw Error('caller map reread');};assert.equal(assessReferenceSuiteArtifacts(changing).adequate,true);const repeated={*[Symbol.iterator](){yield ['mutations.json',suite.files.get('mutations.json')];yield ['mutations.json',suite.files.get('mutations.json')];}};assert.throws(()=>verifyReferenceSuiteArtifacts(repeated),/invalid evidence artifact/);
+ const foreign=new Map(suite.files),foreignReport=JSON.parse(new TextDecoder().decode(foreign.get('mutations.json')));foreignReport.build='independent-build';foreign.set('mutations.json',new TextEncoder().encode(JSON.stringify(foreignReport)));for(const [name,bytes] of foreign)if(name.endsWith('.sttrace')){const trace=readAuditTrace(bytes);foreign.set(name,writeAuditTrace({...trace,metadata:{...trace.metadata,build:'independent-build'}}));}assert.throws(()=>verifyReferenceSuiteArtifacts(foreign),/identity/);assert.throws(()=>verifyReferenceSuiteArtifacts(foreign,64*1024*1024,{allowBuildMismatch:true}),/policy/);const cross=assessReferenceSuiteArtifacts(foreign,64*1024*1024,{allowBuildMismatch:true,expectedBuild:'independent-build'});assert.equal(cross.adequate,true);assert.equal(cross.buildMatches,false);assert.throws(()=>verifyReferenceSuiteArtifacts(foreign,64*1024*1024,{allowBuildMismatch:true,expectedBuild:'wrong'}),/identity/);
+ const incompatible=new Map(foreign),trace=readAuditTrace(incompatible.get('missing-cleanup-original.sttrace'));incompatible.set('missing-cleanup-original.sttrace',writeAuditTrace({...trace,metadata:{...trace.metadata,codec_version:2}}));assert.throws(()=>verifyReferenceSuiteArtifacts(incompatible,64*1024*1024,{allowBuildMismatch:true,expectedBuild:'independent-build'}),/exactly replay/);
+ assert.equal(assessReferenceSuiteArtifacts(suite.files).adequate,true);assert.equal(assessReferenceSuiteArtifacts(suite.files).reviewStatus,'awaiting_independent_review');assert.equal(assessReferenceSuiteArtifacts(missing).adequate,false);const partial=prepareReferenceMutationSuite({...config,maxTransitions:0n});verifyReferenceSuiteArtifacts(partial.files);assert.equal(assessReferenceSuiteArtifacts(partial.files).adequate,false);
+ const cancelled=prepareReferenceMutationSuite(config,{evaluationLimits:{search:{control:{cancellation:()=>true}}}});assert.equal(cancelled.files.size,1);assert.ok(cancelled.results.every(r=>r.status.kind==='NotEvaluated'&&r.search==='cancelled'));assert.equal(assessReferenceSuiteArtifacts(cancelled.files).adequate,false);assert.throws(()=>prepareReferenceMutationSuite(config,{maxBytes:0}),/suite byte limit/);
+ for(const mutation of REFERENCE_MUTATIONS)for(const label of ['original','minimized']){const trace=readAuditTrace(suite.files.get(`${mutation}-${label}.sttrace`));const verified=replay(new ReferenceController(undefined,mutation),trace);assert.equal(verified.outcome,'exact');assert.equal(verified.failure_reproduced,true);}
+ const root=mkdtempSync(join(tmpdir(),'reference-suite-')),path=join(root,'suite');try{const written=writeReferenceMutationSuiteNew(path,config);assert.equal(written.files.size,19);assert.equal(JSON.parse(readFileSync(join(path,'mutations.json'),'utf8')).results.length,9);assert.equal(readReferenceMutationSuite(path).size,19);assert.throws(()=>readReferenceMutationSuite(path,10),/oversized/);assert.throws(()=>writeReferenceMutationSuiteNew(path,config));const file=join(path,'missing-cleanup-original.sttrace');unlinkSync(file);symlinkSync(join(path,'mutations.json'),file);assert.throws(()=>readReferenceMutationSuite(path));unlinkSync(file);writeFileSync(file,Uint8Array.of(1,2,3));assert.throws(()=>readReferenceMutationSuite(path));}finally{rmSync(root,{recursive:true,force:true});}
+});
+test('reference retries wait for deadline and stop at attempt bound',()=>{
+ let state=reduceReference(referenceInitialState(),{kind:'Submit'}).state;state=reduceReference(state,{kind:'Complete',generation:1n,attempt:1,outcome:'RetryableFailure'}).state;
+ assert.equal(reduceReference(state,{kind:'Tick',now:0n}).disposition.kind,'ignored');const retry=reduceReference(state,{kind:'Tick',now:1n});assert.deepEqual(retry.outputs,[{kind:'Start',generation:1n,attempt:2}]);
+ const failed=reduceReference(retry.state,{kind:'Complete',generation:1n,attempt:2,outcome:'RetryableFailure'});assert.deepEqual(failed.outputs,[{kind:'Settle',generation:1n,result:'Failed'},{kind:'Release',generation:1n}]);
+});
+test('reference codec uses canonical tuple bytes and bounded structural decode',()=>{
+ const input={kind:'Complete',generation:2n,attempt:1,outcome:'RetryableFailure'},bytes=encodeReferenceInput(input);assert.deepEqual([...bytes],[2,2,0,0,0,0,0,0,0,1,1]);assert.deepEqual(decodeReferenceInput(bytes),input);assert.throws(()=>decodeReferenceInput(Uint8Array.of(0,1,0,0,0,0,0,0,0,0,0)),/noncanonical/);
+ const state=reduceReference(referenceInitialState(),{kind:'Submit'}).state;assert.deepEqual(decodeReferenceState(encodeReferenceState(state)),state);assert.deepEqual([...encodeReferenceOutput({kind:'Settle',generation:1n,result:'Cancelled'})],[3,1,0,0,0,0,0,0,0,0,1]);assert.throws(()=>decodeReferenceState(encodeReferenceState(state),{generations:0n,attempts:1,time:0n}),/domain/);
+ for(const invalid of [{kind:'garbage'},{kind:'Complete',generation:1n,attempt:1,outcome:'unknown'},{kind:'Cancel'},{kind:'Submit',extra:1}]){assert.throws(()=>encodeReferenceInput(invalid));assert.throws(()=>reduceReference(state,invalid));}assert.throws(()=>encodeReferenceOutput({kind:'Settle',generation:1n,result:'unknown'}));assert.throws(()=>encodeReferenceState({...state,jobs:[{...state.jobs[0],phase:{kind:'unknown'}}]}));
+});
+test('reference coverage classifies transitions and independent goal catalog',()=>{
+ const model=new ReferenceController(),manifest=referenceAssuranceManifest(model,{manifest:'m',model:'b',properties:'p'});assert.equal(manifest.requiredProperties.length,14);assert.equal(manifest.coverGoals.length,6);
+ const before=model.step(model.initialState(),{kind:'Submit'}).state,input={kind:'Submit'},after=model.step(before,input),families=[],goals=[];referenceCoverage(before,input,after,[],{family:x=>families.push(x),goal:x=>goals.push(x)});assert.deepEqual(families,['submit']);assert.deepEqual(goals,['supersede_running']);
+});
+test('controller generation matches bounded enumeration and binds codec to search',()=>{
+ const model=new ReferenceController(),state=model.step(model.initialState(),{kind:'Submit'}).state,inputs=[...model.inputs(state)],rng=new Rng(123n),expected=rng.clone();for(let i=0;i<50;i++){const wanted=inputs[Number(expected.index(BigInt(inputs.length)))],actual=model.generate(state,rng);assert.deepEqual(actual,wanted);assert.equal(model.isEnabled(state,actual),true);}
+ assert.deepEqual(model.decodeState(model.encodeState(state)),state);assert.deepEqual(model.decodeInput(model.encodeInput(inputs[0])),inputs[0]);
+ assert.throws(()=>{model.mutation='missing-cleanup';});assert.throws(()=>{model.bounds.time=99n;});for(const bad of [{...state,now:-1n},{...state,jobs:[{...state.jobs[0],attempt:1.5}]},{...state,jobs:[{...state.jobs[0],resourceOwned:1}]},{...state,jobs:[{...state.jobs[0],phase:{kind:'unknown'}}]}])assert.equal(model.checkState(bad)[0].status,'failed');
+ const m=referenceAssuranceManifest(model);assert.equal(m.provenance.model,model.metadata().build);const run=assuredEnumerate(model,m,referenceCoverage,{maxStates:10000,maxTransitions:100000n,maxDepth:50});assert.equal(run.search.ok,true);assert.equal(run.search.value.termination,'graph_exhausted');assert.equal(run.assessment.adequate,true);
+ const sampled=fuzz(model,{seed:7n,cases:3,maxSteps:8,maxTransitions:24n,mutationPercent:0});assert.equal(sampled.termination,'cases_completed');const trace=record(model,[{kind:'Submit'},{kind:'Complete',generation:1n,attempt:1,outcome:'Success'}]);assert.equal(replay(model,trace).outcome,'exact');assert.notEqual(new ReferenceController({generations:3n,attempts:2,time:2n}).metadata().build,model.metadata().build);
+});
+test('missing release does not falsely fail cancellation acknowledgement',()=>{const normal=new ReferenceController(),broken=new ReferenceController(undefined,'missing-cleanup'),one=normal.step(normal.initialState(),{kind:'Submit'}).state,two=normal.step(one,{kind:'Submit'}).state,input={kind:'Cancelled',generation:1n,attempt:1},checks=broken.checkTransition(two,input,broken.step(two,input));assert.equal(checks.find(c=>c.id==='controller.cancellation_ack').status,'passed');assert.equal(checks.find(c=>c.id==='controller.cleanup_required').status,'failed');});
+test('reference requirement fingerprints match independent repository catalogs',()=>{
+ const hash=data=>{let h=0xcbf29ce484222325n;for(const b of data)h=((h^BigInt(b))*0x100000001b3n)&0xffffffffffffffffn;return `fnv1a64:${h.toString(16).padStart(16,'0')}`;};
+ assert.equal(hash(readFileSync(new URL('../../docs/requirements/controller.json',import.meta.url))),REFERENCE_REQUIREMENT_FINGERPRINTS.manifest);assert.equal(hash(readFileSync(new URL('../../docs/requirements/controller-properties.txt',import.meta.url))),REFERENCE_REQUIREMENT_FINGERPRINTS.properties);
+ const expected=readFileSync(new URL('../../docs/requirements/controller-properties.txt',import.meta.url),'utf8').trim().split('\n').map(line=>{const [phase,id]=line.trim().split(/\s+/);return {id,phase:phase==='state'?'State':'Transition'};});assert.deepEqual(referenceAssuranceManifest(new ReferenceController()).requiredProperties,expected);
+ // Same framing as scripts/reference-identity.mjs: u64be(name length), u64be(content length), name, content.
+ const source=Buffer.concat(['src/reference_controller.ts','src/reference_host.ts','../docs/requirements/controller-properties.txt','../docs/requirements/controller.json'].flatMap(name=>{const n=Buffer.from(name,'utf8'),c=readFileSync(new URL('../'+name,import.meta.url)),sizes=Buffer.alloc(16);sizes.writeBigUInt64BE(BigInt(n.length),0);sizes.writeBigUInt64BE(BigInt(c.length),8);return [sizes,n,c];}));assert.ok(new ReferenceController().metadata().build.includes(`source=${hash(source)}`));
+});
+test('independent catalog gates property, mutation, bound and goal drift',()=>{const source=readFileSync(new URL('../../docs/requirements/controller.json',import.meta.url),'utf8');validateReferenceRequirementCatalog(source);for(const mutate of [v=>{delete v.properties['controller.state_valid'];},v=>{v.mutations['missing-cleanup']='controller.state_valid';},v=>{v.bounds.max_time=9;},v=>{v.coverage_targets.pop();}]){const value=JSON.parse(source);mutate(value);assert.throws(()=>validateReferenceRequirementCatalog(JSON.stringify(value)));}});
+test('independent assurance catalog detects omitted checks',()=>{const model=new ReferenceController(),wrapper={initialState:()=>model.initialState(),step:(s,i)=>model.step(s,i),inputs:s=>model.inputs(s),cloneState:s=>model.cloneState(s),cloneInput:i=>model.cloneInput(i),cloneOutput:o=>model.cloneOutput(o),equalStates:(a,b)=>model.equalStates(a,b),metadata:()=>model.metadata(),checkState:()=>[],checkTransition:(s,i,t)=>model.checkTransition(s,i,t)};const run=assuredEnumerate(wrapper,referenceAssuranceManifest(model),referenceCoverage,{maxStates:10000,maxTransitions:100000n,maxDepth:50});assert.equal(run.search.value.termination,'graph_exhausted');assert.equal(run.assessment.adequate,false);assert.equal(run.assurance.properties.find(p=>p.property.id==='controller.state_valid').status,'Missing');});
+test('cooperative host executes effects once and records callback failures without suppressing work',async()=>{
+ const pending=new Map(),host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,(generation)=>new Promise(resolve=>pending.set(generation,resolve)),()=>{throw Error('recorder failed');});
+ await host.deliver({kind:'Submit'});await host.deliver({kind:'Submit'});assert.equal(host.pendingWorkers,2);pending.get(1n)('Success');assert.equal(await host.receive(1000),true);assert.equal(host.settled.get(1n),'Cancelled');assert.deepEqual(host.published,[]);
+ pending.get(2n)('Success');assert.equal(await host.receive(1000),true);assert.equal(host.settled.get(2n),'Succeeded');assert.deepEqual(host.published,[2n]);assert.equal(host.pendingWorkers,0);assert.equal(host.executedEffects,8);assert.ok(host.diagnostics.every(x=>x.includes('recorder failed')));await host.close();
+});
+test('host close requests cancellation without waiting for uncooperative work or accepting late completion',async()=>{
+ let release,signal;const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,(_generation,_attempt,s)=>{signal=s;return new Promise(resolve=>{release=resolve;});});await host.deliver({kind:'Submit'});await Promise.resolve();await Promise.race([host.close(),new Promise((_,reject)=>setTimeout(()=>reject(Error('close blocked')),100))]);assert.equal(signal.aborted,true);assert.equal(host.pendingWorkers,0);release('Success');await Promise.resolve();assert.equal(await host.receive(0),false);assert.equal(host.settled.size,0);assert.deepEqual(host.published,[]);
+});
+test('pending receive owns host until it delivers the completion',async()=>{let release;const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,()=>new Promise(resolve=>{release=resolve;}));await host.deliver({kind:'Submit'});await Promise.resolve();const receiving=host.receive(1000);await assert.rejects(()=>host.deliver({kind:'Submit'}),/busy/);release('Success');assert.equal(await receiving,true);assert.equal(host.settled.get(1n),'Succeeded');assert.deepEqual(host.published,[1n]);await host.close();});
+test('host isolates authority and hostile observer errors',async()=>{const hostile=new Error();Object.defineProperty(hostile,'message',{get(){throw Error('hostile getter');}});const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,()=>Promise.resolve('Success'),()=>{throw hostile;});await host.deliver({kind:'Submit'});host.settled.set(1n,'Failed');host.published.push(99n);host.diagnostics.length=0;assert.equal(await host.receive(1000),true);assert.equal(host.settled.get(1n),'Succeeded');assert.deepEqual(host.published,[1n]);assert.match(host.diagnostics[0],/unknown observer error/);await host.close();});
+test('close wakes a pending receive like Rust Host drop, which then reports no delivery',async()=>{
+ let signal;const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,(_g,_a,s)=>{signal=s;return new Promise(()=>{});});
+ await host.deliver({kind:'Submit'});await Promise.resolve();
+ const started=Date.now(),receiving=host.receive(10000);await Promise.resolve();
+ await host.close();assert.equal(await receiving,false);assert.ok(Date.now()-started<5000);
+ assert.equal(signal.aborted,true);assert.equal(host.pendingWorkers,0);
+ await assert.rejects(()=>host.deliver({kind:'Submit'}),/closed/);
+});
+test('host tick and recording follow Rust src/reference/host.rs',async()=>{
+ const unrecorded=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,()=>Promise.resolve('Success'));assert.equal(unrecorded.recording(),null);await unrecorded.close();
+ const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,()=>Promise.resolve('Success'),undefined,{record:true});
+ await host.tick(1n);assert.equal(host.state.now,1n);
+ await host.deliver({kind:'Submit'});assert.equal(await host.receive(1000),true);assert.equal(host.settled.get(1n),'Succeeded');
+ const trace=host.recording();assert.equal(trace.config.strategy,'reference-live-host');assert.equal(trace.steps.length,3);
+ assert.deepEqual(host.diagnostics,[]);await host.close();
+});
+test('recorded host delivery reports property failures without suppressing effects',async()=>{
+ const host=new ReferenceHost(DEFAULT_REFERENCE_BOUNDS,()=>Promise.resolve('Success'),undefined,{record:true,mutation:'missing-cleanup'});
+ await host.deliver({kind:'Submit'});assert.equal(await host.receive(1000),true);
+ assert.equal(host.settled.get(1n),'Succeeded');assert.deepEqual(host.published,[1n]);
+ assert.ok(host.diagnostics.some(d=>/^property failure: /.test(d)),host.diagnostics.join('; '));
+ await host.close();
+});

@@ -1,0 +1,10 @@
+test_all_engines_and_actual_extra_replays (__main__.InstalledCallbackReceipts.test_all_engines_and_actual_extra_replays) ... ok
+test_engine_build_identity_excludes_macro_crate (__main__.InstalledCallbackReceipts.test_engine_build_identity_excludes_macro_crate) ... ok
+test_missing_controls_engine_replay_or_extra_counts_are_rejected (__main__.InstalledCallbackReceipts.test_missing_controls_engine_replay_or_extra_counts_are_rejected) ... ok
+test_missing_or_wrong_measured_counter_fails_closed (__main__.InstalledCallbackReceipts.test_missing_or_wrong_measured_counter_fails_closed) ... ok
+test_old_typescript_zero_provider_count_is_rejected (__main__.InstalledCallbackReceipts.test_old_typescript_zero_provider_count_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK

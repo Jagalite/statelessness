@@ -1,0 +1,7 @@
+{
+  "job": "3cf06228faec49408e9d411e7c46fda5",
+  "status": "queued deferred attempt3; not terminal; compile stopped for memory pressure",
+  "attempt_token": "a1991382043647f2a2b18eb57ab97600",
+  "bytes": 1364,
+  "sha256": "cf28357382a9f611a761616c6fe6391e628443b0b3fc961916f9d045e8901874"
+}

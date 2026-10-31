@@ -1,0 +1,59 @@
+npm notice
+npm notice 📦  @jagalite/statelessness@0.1.0
+npm notice Tarball Contents
+npm notice 1.1kB LICENSE
+npm notice 10.6kB README.md
+npm notice 1.0kB bin/corpus.mjs
+npm notice 2.5kB dist/binary.d.ts
+npm notice 1.9kB dist/binary.d.ts.map
+npm notice 20.3kB dist/binary.js
+npm notice 27.0kB dist/binary.js.map
+npm notice 2.1kB dist/conformance.d.ts
+npm notice 2.2kB dist/conformance.d.ts.map
+npm notice 8.4kB dist/conformance.js
+npm notice 10.4kB dist/conformance.js.map
+npm notice 7.7kB dist/core.d.ts
+npm notice 7.1kB dist/core.d.ts.map
+npm notice 21.6kB dist/core.js
+npm notice 24.2kB dist/core.js.map
+npm notice 246B dist/index.d.ts
+npm notice 267B dist/index.d.ts.map
+npm notice 244B dist/index.js
+npm notice 265B dist/index.js.map
+npm notice 1.5kB dist/json.d.ts
+npm notice 1.4kB dist/json.d.ts.map
+npm notice 9.7kB dist/json.js
+npm notice 11.2kB dist/json.js.map
+npm notice 4.5kB dist/oracle.d.ts
+npm notice 5.7kB dist/oracle.d.ts.map
+npm notice 11.8kB dist/oracle.js
+npm notice 14.4kB dist/oracle.js.map
+npm notice 1.5kB dist/search_support.d.ts
+npm notice 1.5kB dist/search_support.d.ts.map
+npm notice 4.3kB dist/search_support.js
+npm notice 5.4kB dist/search_support.js.map
+npm notice 3.7kB dist/search.d.ts
+npm notice 3.9kB dist/search.d.ts.map
+npm notice 16.8kB dist/search.js
+npm notice 18.8kB dist/search.js.map
+npm notice 1.8kB examples/counter.ts
+npm notice 1.0kB package.json
+npm notice 22.7kB src/binary.ts
+npm notice 9.6kB src/conformance.ts
+npm notice 26.1kB src/core.ts
+npm notice 212B src/index.ts
+npm notice 9.0kB src/json.ts
+npm notice 13.2kB src/oracle.ts
+npm notice 5.6kB src/search_support.ts
+npm notice 20.5kB src/search.ts
+npm notice Tarball Details
+npm notice name: @jagalite/statelessness
+npm notice version: 0.1.0
+npm notice filename: jagalite-statelessness-0.1.0.tgz
+npm notice package size: 78.7 kB
+npm notice unpacked size: 374.6 kB
+npm notice shasum: 7bfc886b112c57410727bb5910330b354e9207f1
+npm notice integrity: sha512-AptVT8KFf2YUj[...]1XFB1sF2PhLQg==
+npm notice total files: 45
+npm notice
+jagalite-statelessness-0.1.0.tgz

@@ -1,0 +1,20 @@
+{
+  "build": {
+    "job": "c2def9cef475478e82fa2844cc78626a",
+    "raw_log_path": "/Users/jagatranvo/.local/state/kyoto/c2def9cef475478e82fa2844cc78626a.log",
+    "raw_bytes": 256,
+    "raw_sha256": "19ed258b07a70fdc94c2bab9554c5b85f70a8ddd23aa38fa8dd9029d9104df6c",
+    "gzip": "build.log.gz",
+    "gzip_bytes": 202,
+    "gzip_sha256": "8e5ab60a80efc095b2a735c05d26b39ad5c89ed30851914c8eceaef59ae20058"
+  },
+  "qualification": {
+    "job": "cdc81e17fe894f6084979e244f84823e",
+    "raw_log_path": "/Users/jagatranvo/.local/state/kyoto/cdc81e17fe894f6084979e244f84823e.log",
+    "raw_bytes": 3037,
+    "raw_sha256": "0e193332c1c81d346b1e0989c3a6bff2b5504b47a83f7b92c78b4bc7f92d42ec",
+    "gzip": "qualification.log.gz",
+    "gzip_bytes": 450,
+    "gzip_sha256": "f2fb3dddd585030b6dc1b248791ee6bc2b6ecc188cf343aa0f9af23d7c3f3b24"
+  }
+}

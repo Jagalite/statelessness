@@ -3,6 +3,51 @@ import assert from 'node:assert/strict';
 import { ModelError, ConfigError, Rng, metadata, accepted, check, disposition, checkObserved, enumerateStates, record, replay, parseTrace, stringifyTrace, DEFAULT_TRACE_LIMITS } from '../dist/index.js';
 import { strictParse, traceFromData, traceToData } from '../dist/json.js';
 
+test('traceFromData validates indexed entries without invoking array map overrides', () => {
+  class HostileArray extends Array {
+    map() { return []; }
+  }
+  const data = traceToData(record(new Counter(), ['increment']));
+  data.initial_checks = HostileArray.from([{ id: 'bad', status: 'not-a-status' }]);
+  assert.throws(() => traceFromData(data));
+  const valid = traceToData(record(new Counter(), ['increment']));
+  valid.steps = HostileArray.from(valid.steps);
+  assert.equal(traceFromData(valid).steps.length, 1);
+  valid.steps[0].outputs = HostileArray.from(['not-hex']);
+  assert.throws(() => traceFromData(valid));
+});
+
+test('traceFromData validates and uses one captured array length', () => {
+  const changingLength = (array, first, later) => {
+    let reads = 0;
+    return [new Proxy(array, { get(target, key, receiver) {
+      return key === 'length' ? (reads++ === 0 ? first : later) : Reflect.get(target, key, receiver);
+    } }), () => reads];
+  };
+  const data = traceToData(record(new Counter(), ['increment']));
+  const [steps, stepReads] = changingLength(data.steps, 0, 1);
+  data.steps = steps;
+  assert.equal(traceFromData(data, { ...DEFAULT_TRACE_LIMITS, maxSteps: 0 }).steps.length, 0);
+  assert.equal(stepReads(), 1);
+
+  const valid = traceToData(record(new Counter(), ['increment']));
+  const [checks, checkReads] = changingLength(valid.initial_checks, 0, 1);
+  const [outputs, outputReads] = changingLength(valid.steps[0].outputs, 0, 1);
+  valid.initial_checks = checks;
+  valid.steps[0].outputs = outputs;
+  const decoded = traceFromData(valid);
+  assert.equal(decoded.initialChecks.length, 0);
+  assert.equal(decoded.steps[0].outputs.length, 0);
+  assert.equal(checkReads(), 1);
+  assert.equal(outputReads(), 1);
+
+  for (const length of [-1, 0.5, NaN, '1']) {
+    const malformed = traceToData(record(new Counter(), []));
+    [malformed.steps] = changingLength(malformed.steps, length, 0);
+    assert.throws(() => traceFromData(malformed), /bounded array/);
+  }
+});
+
 class CounterState { constructor(value = 0) { this.value = value; } }
 class Counter {
   initialState() { return new CounterState(); }
@@ -129,6 +174,21 @@ test('JSON byte and aggregate limits', () => {
   const t = record(new Counter(), ['increment']); const raw = stringifyTrace(t);
   for (const limits of [{ maxJSONBytes: 1 }, { maxBlobBytes: 0 }, { maxItems: 1 }, { maxPayloadBytes: 1 }]) assert.throws(() => parseTrace(raw, { ...DEFAULT_TRACE_LIMITS, ...limits }));
 });
+test('oversized JSON strings are rejected before UTF-8 allocation', () => {
+  const OriginalEncoder = globalThis.TextEncoder;
+  let calls = 0;
+  globalThis.TextEncoder = class extends OriginalEncoder {
+    encode(...args) { calls++; return super.encode(...args); }
+  };
+  try {
+    assert.throws(() => strictParse('"123456"', 4));
+    assert.equal(calls, 0);
+  } finally {
+    globalThis.TextEncoder = OriginalEncoder;
+  }
+  assert.equal(strictParse('"é"', 4), 'é');
+  assert.throws(() => strictParse('"é"', 3));
+});
 test('malformed JSON and scalars are not silently normalized', () => {
   for (const s of ['{"x":1,"x":2}', '{"x":"\\ud800"}', '{"x":NaN}', '{"x":1.0}', '{} trailing', '\ufeff{}']) assert.throws(() => strictParse(s));
   assert.equal(strictParse('"\\ud83d\\ude00"'), '😀'); assert.throws(() => strictParse(new Uint8Array([255])));
@@ -168,4 +228,62 @@ test('zero and exact custom trace limits remain valid', () => {
   const limits = { maxSteps: 0, maxBlobBytes: 1, maxItems: 1, maxPayloadBytes: 1, maxJSONBytes: new TextEncoder().encode(raw).length };
   assert.deepEqual(parseTrace(raw, limits), trace);
   assert.equal(stringifyTrace(trace, limits), raw);
+});
+test('trace encoding rejects oversized payload and text before hex expansion', () => {
+  const trace = record(new Counter(), []);
+  let iterations = 0;
+  class ObservedBytes extends Uint8Array {
+    [Symbol.iterator]() { iterations++; throw new Error('hex expansion ran'); }
+  }
+  const oversized = new ObservedBytes(32);
+  assert.throws(() => stringifyTrace({ ...trace, initialState: oversized }, { ...DEFAULT_TRACE_LIMITS, maxBlobBytes: 4 }), /invalid hexadecimal bytes/);
+  assert.equal(iterations, 0);
+  assert.throws(() => stringifyTrace({ ...trace, metadata: { ...trace.metadata, name: 'é'.repeat(100) }, initialState: oversized }, { ...DEFAULT_TRACE_LIMITS, maxJSONBytes: 50 }), /trace JSON limit/);
+  assert.equal(iterations, 0);
+  const accepted = stringifyTrace({ ...trace, initialState: new ObservedBytes([7]) });
+  assert.equal(parseTrace(accepted).initialState[0], 7);
+  assert.equal(iterations, 0);
+  const raw = stringifyTrace(trace);
+  const exact = new TextEncoder().encode(raw).length;
+  assert.equal(stringifyTrace(trace, { ...DEFAULT_TRACE_LIMITS, maxJSONBytes: exact }), raw);
+  assert.throws(() => stringifyTrace(trace, { ...DEFAULT_TRACE_LIMITS, maxJSONBytes: exact - 1 }), /trace JSON limit/);
+});
+test('trace encoding ignores collection overrides and object toJSON hooks', () => {
+  const trace = record(new Counter(), ['increment']);
+  let called = 0;
+  class HostileArray extends Array {
+    map() { throw new Error('map override'); }
+    [Symbol.iterator]() { throw new Error('iterator override'); }
+    static get [Symbol.species]() { throw new Error('species override'); }
+  }
+  const metadata = { ...trace.metadata };
+  Object.defineProperty(metadata, 'toJSON', { value() { called++; return 'x'.repeat(100_000); } });
+  const checks = new HostileArray(...trace.initialChecks.map(c => {
+    const copy = { ...c };
+    Object.defineProperty(copy, 'toJSON', { value() { called++; return 'x'.repeat(100_000); } });
+    return copy;
+  }));
+  const step = { ...trace.steps[0], outputs: new HostileArray(...trace.steps[0].outputs), checks: new HostileArray(...trace.steps[0].checks) };
+  const disposition = { ...step.disposition };
+  Object.defineProperty(disposition, 'toJSON', { value() { called++; return 'x'.repeat(100_000); } });
+  step.disposition = disposition;
+  const raw = stringifyTrace({ ...trace, metadata, initialChecks: checks, steps: new HostileArray(step) });
+  assert.deepEqual(parseTrace(raw), trace);
+  assert.equal(called, 0);
+});
+test('trace encoding retains accepted omitted optional record fields', () => {
+  const trace = record(new Counter(), ['increment']);
+  const initialChecks = trace.initialChecks.map(({ id, status }) => ({ status, id }));
+  const steps = trace.steps.map(s => ({ ...s, disposition: { kind: s.disposition.kind }, checks: s.checks.map(({ id, status }) => ({ id, status })) }));
+  const metadata = { build: trace.metadata.build, codec_version: trace.metadata.codec_version, properties_version: trace.metadata.properties_version, model_version: trace.metadata.model_version, name: trace.metadata.name };
+  const input = { ...trace, metadata, initialChecks, steps };
+  const encoded = stringifyTrace(input);
+  assert.equal(encoded, JSON.stringify(traceToData(input)));
+  const data = JSON.parse(encoded);
+  assert.equal(Object.hasOwn(data.initial_checks[0], 'details'), false);
+  assert.equal(Object.hasOwn(data.steps[0].disposition, 'reason'), false);
+});
+test('trace encoding rejects malformed root before expanding its payload', () => {
+  const trace = record(new Counter(), []);
+  assert.throws(() => stringifyTrace({ ...trace, initialChecks: {}, initialState: new Uint8Array(128) }, { ...DEFAULT_TRACE_LIMITS, maxBlobBytes: 1 }), /expected bounded array/);
 });

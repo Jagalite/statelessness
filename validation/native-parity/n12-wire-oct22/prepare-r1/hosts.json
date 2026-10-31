@@ -1,0 +1,77 @@
+{
+  "go": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r1/builds/n12-wire-go"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r1/builds/n12-wire-go",
+      "/private/tmp/n12-wire-oct22-r1/consumers/go",
+      "/private/tmp/n12-wire-oct22-r1/packages/go"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r1/consumers/go",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "python": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r1/consumers/python/venv/bin/python",
+      "-I",
+      "-B",
+      "/private/tmp/n12-wire-oct22-r1/consumers/python/host.py"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r1/consumers/python",
+      "/private/tmp/n12-wire-oct22-r1/wheels/statelessness-0.1.0-py3-none-any.whl"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r1/consumers/python",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "rust": {
+    "argv": [
+      "/private/tmp/n12-wire-oct22-r1/builds/rust/debug/n12-wire-rust"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r1/builds/rust/debug/n12-wire-rust",
+      "/private/tmp/n12-wire-oct22-r1/consumers/rust",
+      "/private/tmp/n12-wire-oct22-r1/source/src",
+      "/private/tmp/n12-wire-oct22-r1/source/crates/statelessness-debug/src"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r1/consumers/rust",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  },
+  "typescript": {
+    "argv": [
+      "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+      "/private/tmp/n12-wire-oct22-r1/consumers/typescript/host.mjs"
+    ],
+    "artifacts": [
+      "/private/tmp/n12-wire-oct22-r1/consumers/typescript",
+      "/private/tmp/n12-wire-oct22-r1/tarballs/jagalite-statelessness-0.1.0.tgz"
+    ],
+    "cwd": "/private/tmp/n12-wire-oct22-r1/consumers/typescript",
+    "env": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "PATH": "/bin:/usr/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TZ": "UTC"
+    }
+  }
+}

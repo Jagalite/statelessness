@@ -1,0 +1,64 @@
+{
+  "job": "c25cb2f8b92a401e8419c9c62dc0c523",
+  "status": "succeeded",
+  "exit_code": 0,
+  "started": 1792538178.469171,
+  "finished": 1792538180.3951948,
+  "test_count": 241,
+  "skipped": 12,
+  "corpus_rows": 186,
+  "public_python_runtime_rows": 179,
+  "arithmetic_only_rows": 6,
+  "language_inapplicable_rows": 1,
+  "files": {
+    "python/src/statelessness/value_codec.py": {
+      "sha256": "462d6cc2bb21a2b3043ca9d7f8a55dbc70d6cad07fed8377588ceb3d38dcda21",
+      "size": 14622,
+      "mtime": 1792537896.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "python/src/statelessness/codec.py": {
+      "sha256": "d2763cf6b78423d8abfcab6efe84c68ebced60cacc22a92f5c3556b8fa75a02a",
+      "size": 5746,
+      "mtime": 1792537783.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "python/src/statelessness/__init__.py": {
+      "sha256": "159f37617b5c619c5350faaa4cf17644a373e98d61018c4d135db5b0d4e95380",
+      "size": 4578,
+      "mtime": 1792537693.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "python/tests/test_value_codec.py": {
+      "sha256": "ccb13fee3542fa68e6ed64d0e6d46975f64ff821a8f367226581ad696992f330",
+      "size": 28805,
+      "mtime": 1792538019.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "python/README.md": {
+      "sha256": "3238a4c99e1b2712209e78de5eddd9514b87a576800381225a29fd59e0c47344",
+      "size": 27102,
+      "mtime": 1792537703.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "conformance/canonical-value-codec-v1.json": {
+      "sha256": "bf95caefe17b0920931a72cd232340c8eae03b23c0fee19183caee0b53b33a6c",
+      "size": 83638,
+      "mtime": 1792537769.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    },
+    "spec/canonical-value-codec-v1.md": {
+      "sha256": "0c4bef260becfc5872056855b1d981944f29fd7da7af982938251d78a0c02fdb",
+      "size": 17793,
+      "mtime": 1792537769.0,
+      "matches_candidate": true,
+      "mtime_before_start": true
+    }
+  }
+}

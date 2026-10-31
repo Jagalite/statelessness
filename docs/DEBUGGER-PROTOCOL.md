@@ -118,6 +118,11 @@ wire projection because they may contain application secrets. `checks` returns
 between phases. Truncation cannot hide a later first failing property. With no failed check,
 `checks.first_failure` is `none`; this does not override `checks.complete`.
 
+`watch_status` fields are ordered `watches.total`, `watches.truncated`,
+`watches.dropped_events`, `watches.observation_gaps`, `watches.inspection_errors`,
+then one `watches.<i>.{id,generation,enabled,has_baseline,effective_sequence}`
+row per returned watch. Every binding emits exactly this order.
+
 ## Admission, authority, handles and retries
 
 Every call is serialized by exclusive mutable access. Envelope identity, protocol
@@ -216,6 +221,23 @@ therefore does not automatically attach or populate this adapter.
 | `effect_details` | run N, host epoch N, effect serial N | Host request/admission/resolution/delivery/settlement facts |
 | `effect_timeline` | run N, host epoch N, effect serial N, limit N | Bounded lifecycle events and measurements with truncation metadata |
 | `telemetry_health` | none | Loss, unknown/invalid data, memory accounting and available window revisions |
+
+`telemetry_health` fields follow the Rust `append_telemetry_health` order exactly,
+and bindings add no other `telemetry.*` fields. Runtimes that release effect
+handles only by explicit disposal (Go and TypeScript) cannot observe a handle
+dropped without a terminal lifecycle call. They report
+`telemetry.destructor_hook_losses` and `telemetry.active_effect_handles` as
+`unknown:explicit_disposal_only` rather than a number; consumers must treat this
+as unknown, not zero. Handle byte counts are each runtime's own logical sizes and
+are not comparable across engines.
+
+Effect detail and timeline responses distinguish the request's original metric
+label, `effect.labels.debugger_affected`, from the current aggregate effect
+state, `effect.debugger_affected`. An effect can become debugger-affected after
+its request was recorded, so these values can differ. Earlier responses emitted
+both values under `effect.debugger_affected`; consumers that assumed a unique
+key could reject or misinterpret those responses. This correction changes the
+label key; metric-series label keys are unchanged.
 
 A new metric snapshot requires `none` and offset zero. Its returned `metrics.handle`
 is used to page without mixing different captures while host activity continues.
@@ -316,6 +338,13 @@ selection still passes the hub's authorization and bounds checks.
 | `probe_status` | offset N, limit N | Paged profile catalog, producer acknowledgements and exposed-sink health |
 | `probe_configure` | expected capture revision N, zero or more profile IDs N | Replace selected profiles under independent capture CAS |
 | `probe_events` | sink ID N, limit N, `bool:<include payload>` | Read one explicitly exposed bounded diagnostic queue |
+
+`probe_events` delivers only scoped (or explicitly turn-complete) probe and marker
+records. Host-only lifecycle notifications, such as capture configuration and
+incomplete-scope notices, are never part of the probe stream. Per-sink health in
+`probe_status` has ten fields in this order: captured, filtered, sampled, dropped,
+truncated, exporter_failed, abandoned, inspection_failed, baseline_evicted,
+observation_gaps.
 
 `configure_diagnostics` is separate from input delivery, state-watch configuration
 and raw artifact export. Read access comes only from the host attaching approved

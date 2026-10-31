@@ -1,0 +1,70 @@
+{
+  "go": {
+    "sha256": "67d7d94a4f9b8c649847cc5b0aa38d1d00b09e3c27be6ef27ca318c0f25beed6",
+    "files": {
+      "go/campaign.go": "f9bda8f142a53effb089572e068fa9bb759de760bae3895d2cd9e82ef66686fb",
+      "go/campaign_lifecycle.go": "d708c41d0faf56a626b15373c2354a3bb42671cc4336dadc25d9787d0753a645",
+      "go/campaign_lifecycle_codec_test.go": "8f3a7a4fce2e0de2bbfe9cdf89f16dcbb9b2f128fdefa7127add09f46002ab54",
+      "go/campaign_lifecycle_model_test.go": "d5db7941e41a3386392e63fa51a521e90ad584dd6879e054d5e122921599c0c9",
+      "go/campaign_lifecycle_test.go": "9a13ee17c05d42f7fd4a1e425f7c0b8bdedfd3a6d42b38146419482383c1ac9a",
+      "go/counts_compat.go": "61da8abd9417cf623d90c52b495aa7533f1dd882d9bc8097a6aeaaddbc07c50c",
+      "go/counts_materialization.go": "a07069e46c1ffafb943c789d08a6237f0c841c54496398e329925a76e4859c49",
+      "go/counts_u64_test.go": "6cba72631532dff33feeec1fcf8814b73cba6b833bd21fdce784b3d4cc7b80c6",
+      "go/fuzz.go": "0df4f1b6b1a89d67a1eb0bc4060e7b56c8f1a4d9da990c72d0992bc45e83843d",
+      "go/fuzz_driver.go": "357f2133bae9d72b855ac457bbdf88e83f93e8f97d32cacff5e7032d5b9eed5e",
+      "go/fuzz_kernel.go": "cede8879926ef06c279366ab7bd3cadf9b5c814df798142050f512fac61d34b6",
+      "go/generate.go": "917b4febe23c52dbf2d26320f0d8c92fe972efd4175497a66428164000d39ed0",
+      "go/guided.go": "91de967a3c037f894e0a274c4da8a3df68ed7d6ff2bfa0de1a528e9d1be530ea",
+      "go/guided_control_internal_test.go": "fd61d879687929fb321866972b6f2e8798c2b7e401122ff152a8c90f15d9695a",
+      "go/shrink.go": "9882d2e689fd647c99938b41d369798b2c002dee79ffba6b38a6e4bdc117f481"
+    }
+  },
+  "swift": {
+    "sha256": "003d61fe537c4e8c92f20035eea10b943b6a5598c88fd47009934687cef6190a",
+    "files": {
+      "swift/Sources/Statelessness/Campaign.swift": "88a4e6c7b18c4ebf4768ece84891c7a68099c7adf47193d3e5355740c7d176e0",
+      "swift/Sources/Statelessness/CampaignLifecycle.swift": "4eda3f69863fab1443527cf64ab5d3b1b02369f5ee6778f5aaf95baeef335f2d",
+      "swift/Sources/Statelessness/CampaignRuntime.swift": "5b202308a64c3eaa09d3ebb369e1c0b7be347b6a2a7b8b4833cafd366ead34e1",
+      "swift/Sources/Statelessness/CountCompatibility.swift": "c918774ef9b721fa6cbd9b97d682edb609fc6575a800fedb99faa2c93c602ac9",
+      "swift/Sources/Statelessness/Fuzz.swift": "e2aedc7db7bd3de90491810a52ff8f0505b3c122d987e08acb787f7f258e6496",
+      "swift/Sources/Statelessness/Generate.swift": "c49f7e493a41359b32a1113badb3cb51c06e7f729435bfa922ec19b28df86ac9",
+      "swift/Sources/Statelessness/Guided.swift": "67c78aa5758ba487e67d702060b8fdfc6b8ffe68b4167049a86bec74ac1bb688",
+      "swift/Sources/Statelessness/Shrink.swift": "0bb084779be50f4a7706402483fbf6d45395f43e9f5cefb53fdc34b011533b02",
+      "swift/Tests/StatelessnessTests/CampaignLifecycleCodec.swift": "c1dcc24b942ea385dcca383fb571fc9e0c5b75ddfa10dbfed5f63f7fcf010660",
+      "swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift": "1fc0216d8ef9331b181e68019b3890eece2c277c84a0be50a09960ec3aac653b",
+      "swift/Tests/StatelessnessTests/Count64Tests.swift": "b955ff6dec5f4cae2786431c220d9be971083876eef75b38c83fdc5986a5474f"
+    }
+  },
+  "typescript": {
+    "sha256": "d6c54eb63e01e23e4d99159f3f211d2b1bcd96e4f5d080af08cfbcfd1ac72396",
+    "files": {
+      "typescript/src/campaign.ts": "68ab2518b1272f6fbb3e7d5a9e1bef00c31f120ced8cdc55f57e04466d43e398",
+      "typescript/src/campaign_lifecycle.ts": "01e3ce56df16c7d6cf14d34ac40188555e4251365c0a96b87b5dbf5c78040ce1",
+      "typescript/src/campaign_wire.ts": "0257ba061435c09d61bfdeb1d0beb536925816933867867b3ba11ac6dc77f3c2",
+      "typescript/src/counts.ts": "23d23aa74beb0ad6fae6016fdd822106e998eb0adc69bae690ea4472fc411fad",
+      "typescript/src/fuzz_kernel.ts": "6e44946d4aae2dd1b2a34c9d9663e51cca6fc2ac1d5581581ec5ef942ea92d7e",
+      "typescript/src/guided.ts": "be6a579ba6e6d38ef8e324b76cb096ed5593d313c55770a84a7a9dea8c3ee2f4",
+      "typescript/src/index.ts": "8cd9a5851ba4102ecb85464867e72f598f171db1201c2a6f421f5b64be582f4b",
+      "typescript/src/node_campaign.ts": "9197b02a8220a172feceafb6619f58b9ac1f1600b5661272102c3d722fff5d23",
+      "typescript/src/node_campaign_worker.ts": "b3c80812008ded748b7ce8126cce5d8301d20ddbbae71d899c4593029fdcf2d5",
+      "typescript/src/search.ts": "17f26acb0561fdbbb09f0479d2c1a96013a28e92ce31281e2f9357cd6b29adc7",
+      "typescript/test/fixtures/campaign-lifecycle.mjs": "b28cb82df8a09fdffc2add25912d2a86787a727ced1c7069e157f832f237a52f",
+      "typescript/test/fixtures/u64-worker.mjs": "09dd2fce6b27e214b9044b229d2324acdc224a9c3fd8991492d3971cd48ffd58",
+      "typescript/test/search.test.mjs": "9e32a23477dcbefb657b11652d8b3e5f1c7706b91d05e19ae59120482c7e0efc",
+      "typescript/test/u64-counts.test.mjs": "1cfb2ede52ef09a75995f6cb232e242bb97d50fbd6d4365b8098abedbafe6af9",
+      "typescript/test/u64-types.ts": "d8dd6374dbc9d75789938980c0070b06d0e6b8c306dea99781ac439fe27883eb"
+    }
+  },
+  "python": {
+    "sha256": "ec7bc75e71c3ea9b6c14e90951bcbb6f69232657f669cc25aa4d22477e26bfad",
+    "files": {
+      "python/tests/test_guided.py": "3d91faae17e4b5bf117c006edea7517f61782cc8448ce2626d2d3ff86bc7e713",
+      "python/tests/test_rust64_counts.py": "e884765e228b55e8cbdd402a6115855f3722805c168fe4d1921d3f11374cdb60",
+      "python/tests/test_search.py": "c368bcbf272a37c8314fecc1b0a9df35a8809f43e13461bdd9b52ed8c5852132"
+    }
+  },
+  "contract": {
+    "path": "docs/native-parity/N03-N06-U64-CONTRACT.md",
+    "sha256": "3c9e340c735a0c09a2820381c9fca61ff6e4cacbc82666c964209aca3bd64188"
+  }
+}

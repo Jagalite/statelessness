@@ -265,7 +265,13 @@ func Execute(value any) (any, error) {
 		if maxStates == 0 {
 			return map[string]any{"error": "invalid_config"}, nil
 		}
-		return s.Enumerate(model, s.SearchConfig{MaxStates: int(maxStates), MaxTransitions: maxTransitions, MaxDepth: int(maxDepth)})
+		report, err := s.Enumerate(model, s.SearchConfig{MaxStates: int(maxStates), MaxTransitions: maxTransitions, MaxDepth: int(maxDepth)})
+		if err != nil {
+			return nil, err
+		}
+		// The qualified portable-v1 wire schema remains unchanged when the
+		// public native search report gains experimental estimate evidence.
+		return map[string]any{"termination": report.Termination, "states": report.States, "transitions": report.Transitions, "max_depth_reached": report.MaxDepthReached, "skipped_checks": report.SkippedChecks, "failure": report.Failure}, nil
 	case "record":
 		inputs := r.Strings(o["inputs"], maxWork)
 		limit := r.Integer(o["max_steps"], maxWork)

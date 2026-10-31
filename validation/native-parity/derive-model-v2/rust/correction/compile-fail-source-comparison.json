@@ -1,0 +1,8 @@
+{
+  "inherited_job": "cfe860eae13e4c88942e4f7b8079f5a2",
+  "changed_regular_files": [
+    "crates/macro-qualification/tests/n13_derive_reference.rs",
+    "docs/native-parity/derive-model-draft/rust-dispositions.json"
+  ],
+  "scope": "25 compile-fail cases only; compiler/runtime sources unchanged; focused runtime test file deliberately corrected"
+}

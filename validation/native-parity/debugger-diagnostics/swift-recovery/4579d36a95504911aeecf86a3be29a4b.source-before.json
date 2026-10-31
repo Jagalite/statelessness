@@ -1,0 +1,417 @@
+{
+  "Package.swift": {
+    "type": "regular",
+    "bytes": 1328,
+    "sha256": "575ada604c7722a80659ba42be5b4894d834b71e125c9e17693455f5a8bb6d72"
+  },
+  "scripts/qualify-swift-debug-installed.py": {
+    "type": "regular",
+    "bytes": 3459,
+    "sha256": "512c0611f19a03f03b57f9327b88502b4f519e4ed7e3de6fe74b6d3b25437124"
+  },
+  "swift/DEBUGGER.md": {
+    "type": "regular",
+    "bytes": 5982,
+    "sha256": "522df8f4be573f954dc24ac51fe301df4f132fc31fa959cfc437663ad8933505"
+  },
+  "swift/Examples/Counter/Package.swift": {
+    "type": "regular",
+    "bytes": 331,
+    "sha256": "284f892b7185f9e99185f0758be8a945df4b322a2f9fc613f2ee37d2f7320f9c"
+  },
+  "swift/Examples/Counter/Sources/Counter/main.swift": {
+    "type": "regular",
+    "bytes": 1665,
+    "sha256": "b7092ead2a7fdb4702d732ad2072e345b0c2dc11f1f4b51f8039adf92ff356e1"
+  },
+  "swift/LICENSE": {
+    "type": "regular",
+    "bytes": 1068,
+    "sha256": "62dc8e9af446699fbf6fa07ecea9ed864aeca2cf6b9376b8027ad0f999f22412"
+  },
+  "swift/README.md": {
+    "type": "regular",
+    "bytes": 30998,
+    "sha256": "b7fb93491fe454756145c1298977655f347ba29af9116c3c86869fe74557bf3c"
+  },
+  "swift/Sources/StatelessConformance/Conformance.swift": {
+    "type": "regular",
+    "bytes": 14229,
+    "sha256": "ee5a540b87d722bb2964cb100fe37a7ab3c38e9b96b6176c45f256ae423b6bd5"
+  },
+  "swift/Sources/StatelessCorpus/main.swift": {
+    "type": "regular",
+    "bytes": 156,
+    "sha256": "6c6d104c03712db1ff363f0ee09c089f36956f897651af3e8430b9396dc615c8"
+  },
+  "swift/Sources/StatelessDebug/Branch.swift": {
+    "type": "regular",
+    "bytes": 5991,
+    "sha256": "86d86ce750efd94548733d02e945f699cceb2d905af3fcfc88606adfa7c7f6f6"
+  },
+  "swift/Sources/StatelessDebug/Dashboard.swift": {
+    "type": "regular",
+    "bytes": 9628,
+    "sha256": "c9abae658578fda9fa46dd151be05977d7b5b26ed226989b7c3c036d8f0a128b"
+  },
+  "swift/Sources/StatelessDebug/Diagnostics.swift": {
+    "type": "regular",
+    "bytes": 42836,
+    "sha256": "0d377899afead54e5bc86f8bf8ff9f7e5c8928fe8b539808c85c46fe2c397694"
+  },
+  "swift/Sources/StatelessDebug/Effects.swift": {
+    "type": "regular",
+    "bytes": 36711,
+    "sha256": "1465d80c284bdfbd759dac2f5cbde036b23a582d14bf4c17e8ecd8426740324b"
+  },
+  "swift/Sources/StatelessDebug/EvidenceViewer.swift": {
+    "type": "regular",
+    "bytes": 12364,
+    "sha256": "a2e175b90dfef25c5baec48918b5b351a54ff4be579717eaf27feb04f8f7184a"
+  },
+  "swift/Sources/StatelessDebug/Inspection.swift": {
+    "type": "regular",
+    "bytes": 26140,
+    "sha256": "4fc0a23b095893dff708e3e61bd72216250e59cfaefb880c6c6a24614018e4de"
+  },
+  "swift/Sources/StatelessDebug/Live.swift": {
+    "type": "regular",
+    "bytes": 9891,
+    "sha256": "3841e0f43828222d35a49fd56cd34547987ac0e94bebd776b8a6ed67acf35b85"
+  },
+  "swift/Sources/StatelessDebug/LiveBridge.swift": {
+    "type": "regular",
+    "bytes": 7416,
+    "sha256": "5bb822aa268bb18f728bad801df34d53dcf46f7a58e0e52e61d30e8677c60d5a"
+  },
+  "swift/Sources/StatelessDebug/Metrics.swift": {
+    "type": "regular",
+    "bytes": 29871,
+    "sha256": "ddfa0d403cbdebf99b1a2823d7ff15edeaad77fb44a720fb3dfdf8afa26ed5e2"
+  },
+  "swift/Sources/StatelessDebug/Protocol.swift": {
+    "type": "regular",
+    "bytes": 33689,
+    "sha256": "e7d48f6bc7614580b44c06137065383d46f4dbd8d432a0230c9f255abcf6bd34"
+  },
+  "swift/Sources/StatelessDebug/Session.swift": {
+    "type": "regular",
+    "bytes": 15018,
+    "sha256": "ce3b18507a996e18d83ce747766aecf02f490dbb56c941c8ad782b6683482ad5"
+  },
+  "swift/Sources/StatelessDebug/TraceViewer.swift": {
+    "type": "regular",
+    "bytes": 3784,
+    "sha256": "6e46f19afa30fb43d3ead53e3c51a48cd825fce0533113621c3fb57dea6515d6"
+  },
+  "swift/Sources/StatelessDebug/Watches.swift": {
+    "type": "regular",
+    "bytes": 19943,
+    "sha256": "fc056ccdfacfd6ca3efda33172fbdb5e11e33b6e512fc56b960b251d8876d872"
+  },
+  "swift/Sources/Statelessness/AuditRecording.swift": {
+    "type": "regular",
+    "bytes": 5622,
+    "sha256": "0c59aa7540cadfa788e13eb5cc04c049667a1b631213bc51711f4a01231a1431"
+  },
+  "swift/Sources/Statelessness/AuditTrace.swift": {
+    "type": "regular",
+    "bytes": 22959,
+    "sha256": "de880b933f6a0079e452c9502e5a5226b459598a6275ccb0d6df8976c752c920"
+  },
+  "swift/Sources/Statelessness/CheckSink.swift": {
+    "type": "regular",
+    "bytes": 5256,
+    "sha256": "1e758da07c07a1b8dfb6600b2207fd09d0295cd5b15368ad891840d422b17f74"
+  },
+  "swift/Sources/Statelessness/CheckedResults.swift": {
+    "type": "regular",
+    "bytes": 5860,
+    "sha256": "d2f92206250ddbc1368364c8c6cce4100074ce599e26bb722125e1d8c7dc2ccb"
+  },
+  "swift/Sources/Statelessness/EncodeBuffer.swift": {
+    "type": "regular",
+    "bytes": 5222,
+    "sha256": "82fbf8cc7383046bfc3bee342415b203256b7ab009149cd264e0355ebc900686"
+  },
+  "swift/Sources/Statelessness/Evidence.swift": {
+    "type": "regular",
+    "bytes": 12778,
+    "sha256": "98c5f966b49c6989098d406123516de3b8e4c4ffcffa81c251cec118d2bbfa04"
+  },
+  "swift/Sources/Statelessness/EvidenceCodec.swift": {
+    "type": "regular",
+    "bytes": 10781,
+    "sha256": "a1c391661e35362580d2b52f7368b93adea98c963e0181250727bf2d5564ef83"
+  },
+  "swift/Sources/Statelessness/EvidenceExports.swift": {
+    "type": "regular",
+    "bytes": 5230,
+    "sha256": "4916bf5adfa108dc3e294dd0b9d4c6786d0b456a1e643bd5afaebe3bb4a25fff"
+  },
+  "swift/Sources/Statelessness/EvidenceRecorder.swift": {
+    "type": "regular",
+    "bytes": 5375,
+    "sha256": "4d9cb07e8af56f04202cffde9de0e2bff363366aaf011f59b1d65d2d9fdc723f"
+  },
+  "swift/Sources/Statelessness/Execution.swift": {
+    "type": "regular",
+    "bytes": 7120,
+    "sha256": "34f6a0a74ff48afed2c2004a2e73fbc5491c82059d223c82031c354bd2db2d64"
+  },
+  "swift/Sources/Statelessness/ExecutionBudget.swift": {
+    "type": "regular",
+    "bytes": 3597,
+    "sha256": "cf75a82573b229491ce58103d4c61574fe508e2fe4ffbc13e675444f56f64fd9"
+  },
+  "swift/Sources/Statelessness/Explore.swift": {
+    "type": "regular",
+    "bytes": 8239,
+    "sha256": "fffc09255cb098b89b43eb3967f0deea6535ba42c8c20035bf28a3d744ed4b84"
+  },
+  "swift/Sources/Statelessness/Fuzz.swift": {
+    "type": "regular",
+    "bytes": 10548,
+    "sha256": "acfd01988b28eca0789f3293c32add76dc381ef7029e4631f155befa35d00a37"
+  },
+  "swift/Sources/Statelessness/Generate.swift": {
+    "type": "regular",
+    "bytes": 4811,
+    "sha256": "92c909948feac8480013cdafbfe17e2a448e07dd619d6fd67c0d4ad4a08c38cb"
+  },
+  "swift/Sources/Statelessness/JSON.swift": {
+    "type": "regular",
+    "bytes": 10280,
+    "sha256": "5c52bd4ddaa191c7bd2f69508ad0c11cfee90b9eacf03f2eb53bdd4874bb31c2"
+  },
+  "swift/Sources/Statelessness/Model.swift": {
+    "type": "regular",
+    "bytes": 12419,
+    "sha256": "3c00084776a8d530b3edca6d90dcac839d422880b8ba996cda7ebc7d9db6270c"
+  },
+  "swift/Sources/Statelessness/Oracle.swift": {
+    "type": "regular",
+    "bytes": 16508,
+    "sha256": "5f291c7117f1f5e479ee72ceeb77f656bf5c69c2f0f7d953060e33dd7298eb28"
+  },
+  "swift/Sources/Statelessness/Recorder.swift": {
+    "type": "regular",
+    "bytes": 18911,
+    "sha256": "459c44a770785540e60b0280e3a3f212a683fcbfccd41f6193b8bad790602ec9"
+  },
+  "swift/Sources/Statelessness/Replay.swift": {
+    "type": "regular",
+    "bytes": 13333,
+    "sha256": "759ed796c1614294f4a46ac42a3a9532882297325c91cd4e5469136f0cf59692"
+  },
+  "swift/Sources/Statelessness/Rng.swift": {
+    "type": "regular",
+    "bytes": 816,
+    "sha256": "59c3ed97d876df679036a50c81dfe49e1dd6d1c8c514e2385670b52b687ccb3d"
+  },
+  "swift/Sources/Statelessness/Shrink.swift": {
+    "type": "regular",
+    "bytes": 11187,
+    "sha256": "3a5fdfc8f45d4d3a74471ad86ac832855574853abcee78987e4ae0d11ae515c8"
+  },
+  "swift/Sources/Statelessness/TraceJSON.swift": {
+    "type": "regular",
+    "bytes": 6270,
+    "sha256": "a0fd50c06e0d09564e2f64b4ce0771d9b5c7df43a0f1c16c68dd505a4da865bf"
+  },
+  "swift/Sources/Statelessness/ValueCodec.swift": {
+    "type": "regular",
+    "bytes": 10675,
+    "sha256": "ee822a34fa231667e4899fb5f0c529698f46fd20ab0c62bd28a0b29c8ca4fb09"
+  },
+  "swift/Sources/Statelessness/ValueCodec128.swift": {
+    "type": "regular",
+    "bytes": 2748,
+    "sha256": "7b5baafc2af0cd39d2065129747e960b926ee3b7b7adb48a5d4e13770d664e8e"
+  },
+  "swift/Sources/Statelessness/ValueCodecBuiltins.swift": {
+    "type": "regular",
+    "bytes": 10860,
+    "sha256": "72d3ed6b50d928c663df8e15fb3342dc09bdaa6ebe7d522aaf4389932b6a081b"
+  },
+  "swift/Sources/Statelessness/ValueCodecDecoder.swift": {
+    "type": "regular",
+    "bytes": 4309,
+    "sha256": "afe240b9b9b0ef714b252851287caf8d52f5ffbb52a1d8b607f5af63ddd483f4"
+  },
+  "swift/Sources/Statelessness/ValueCodecLayouts.swift": {
+    "type": "regular",
+    "bytes": 4024,
+    "sha256": "7d6f502cffad7c962118309db01523716719d26b469417ba456bdff55f90b219"
+  },
+  "swift/Tests/StatelessDebugTests/BranchTests.swift": {
+    "type": "regular",
+    "bytes": 3298,
+    "sha256": "5c06027f16a7b78594b6493a708a5ec9ef3d36dcc6512507ec30dbbb1bbfad95"
+  },
+  "swift/Tests/StatelessDebugTests/DashboardTests.swift": {
+    "type": "regular",
+    "bytes": 5557,
+    "sha256": "326bc5b0cd299a1eb0dec4c7f89f88f88883098326889c6d7215717f050960a0"
+  },
+  "swift/Tests/StatelessDebugTests/DiagnosticLiveTests.swift": {
+    "type": "regular",
+    "bytes": 4174,
+    "sha256": "1a857b7bf6d784ab9d76e2f5b29db9dab2143e9aee501cbaadc117accc2c0cfb"
+  },
+  "swift/Tests/StatelessDebugTests/DiagnosticsTests.swift": {
+    "type": "regular",
+    "bytes": 14231,
+    "sha256": "05dad2174af5bcd693b15b08bddd69a3eb0f0cc381a3a96e53ce237a75c1eafb"
+  },
+  "swift/Tests/StatelessDebugTests/EffectDashboardTests.swift": {
+    "type": "regular",
+    "bytes": 3800,
+    "sha256": "3b56c2bbc24fc394a5754d7c89fda49de0a968d924562cc8225e8c28d81bddb4"
+  },
+  "swift/Tests/StatelessDebugTests/EffectsTests.swift": {
+    "type": "regular",
+    "bytes": 13729,
+    "sha256": "1f7d51a0fe55affbb717586c18c6f5438a0e02b20b04734fe104ed334771a955"
+  },
+  "swift/Tests/StatelessDebugTests/EvidenceViewerTests.swift": {
+    "type": "regular",
+    "bytes": 6351,
+    "sha256": "4ec85c434d66b982bc42056ee6c629ee5107f76a542a3218eedc7e8d099501b6"
+  },
+  "swift/Tests/StatelessDebugTests/InspectionTests.swift": {
+    "type": "regular",
+    "bytes": 5179,
+    "sha256": "4e2f3525b295cbb9b93a71c9ac5adf54386931f7ab83b28e3e088072464dd55b"
+  },
+  "swift/Tests/StatelessDebugTests/LiveBridgeTests.swift": {
+    "type": "regular",
+    "bytes": 3279,
+    "sha256": "e8d9680bf608d7f5cec19ac5a39909cc351c66341804fbda9d52a0dd5f1d973e"
+  },
+  "swift/Tests/StatelessDebugTests/MetricsTests.swift": {
+    "type": "regular",
+    "bytes": 8799,
+    "sha256": "1df690950101436d2793a74c75f9869842af7edc86b973ada7cf0f0c0a634497"
+  },
+  "swift/Tests/StatelessDebugTests/ProtocolTests.swift": {
+    "type": "regular",
+    "bytes": 13154,
+    "sha256": "d8e97abb6fc08b058936b6877099c0ac5ba690e4feace92284ae6a56e4b60d3e"
+  },
+  "swift/Tests/StatelessDebugTests/SessionTests.swift": {
+    "type": "regular",
+    "bytes": 3966,
+    "sha256": "ff22dbb2d4046c05ab0722102df4fc4b640646f17503959d966cb582cea06a24"
+  },
+  "swift/Tests/StatelessDebugTests/WatchTests.swift": {
+    "type": "regular",
+    "bytes": 6273,
+    "sha256": "058e930ea922bf24412f5bea486cef97ceaf302e3b1ff0db3cdb20baa0106651"
+  },
+  "swift/Tests/StatelessnessTests/AppendChecksTests.swift": {
+    "type": "regular",
+    "bytes": 18961,
+    "sha256": "3cc9b278d49352d715a41b450e1b506fae91752a7a245e806051a51a7c6649f6"
+  },
+  "swift/Tests/StatelessnessTests/AuditTraceTests.swift": {
+    "type": "regular",
+    "bytes": 11111,
+    "sha256": "00ce0bd6aed64cf7a9982a453611ee88dd1512b40378704f35848ac6b4e2103a"
+  },
+  "swift/Tests/StatelessnessTests/BFSControlsTests.swift": {
+    "type": "regular",
+    "bytes": 12934,
+    "sha256": "49216057493f3844d60294a33c62d0935d3fdae1733bebe41a3d4fc0f1f41395"
+  },
+  "swift/Tests/StatelessnessTests/CheckedResultsTests.swift": {
+    "type": "regular",
+    "bytes": 10735,
+    "sha256": "7b75ba57141bd9a807ea82d3429a03a47031d8c7ca419b38b739acb7b6c990fd"
+  },
+  "swift/Tests/StatelessnessTests/EncodeReplayTests.swift": {
+    "type": "regular",
+    "bytes": 26376,
+    "sha256": "36b8e48f9042bbc0ba869cda92450ec62ba873db0bdd39acae7df3f74492e4d3"
+  },
+  "swift/Tests/StatelessnessTests/EvidenceExportsTests.swift": {
+    "type": "regular",
+    "bytes": 5031,
+    "sha256": "7029c1776a22a11ab3fbd59c3a6cdb9149a32dbc3f1aed25a05673db9a75de11"
+  },
+  "swift/Tests/StatelessnessTests/EvidenceRecorderTests.swift": {
+    "type": "regular",
+    "bytes": 14325,
+    "sha256": "2c10383a3ff8f671d0f00146aafd205338ea5ddfb6c8f4acbb44afd3e14babe5"
+  },
+  "swift/Tests/StatelessnessTests/EvidenceTests.swift": {
+    "type": "regular",
+    "bytes": 14885,
+    "sha256": "2d167fe1deca095fc5a5ec98ba5c452067e696043691de79060b339e1cd41739"
+  },
+  "swift/Tests/StatelessnessTests/NativeTests.swift": {
+    "type": "regular",
+    "bytes": 14437,
+    "sha256": "08954d449b37c4239e0bdb3081a16258132e6950eb28c5ed786a17d7ec893d33"
+  },
+  "swift/Tests/StatelessnessTests/OracleTests.swift": {
+    "type": "regular",
+    "bytes": 15474,
+    "sha256": "07a7e80583c5fd598fc846223ec5305117e9fb972ea26137c8b264ba886a08aa"
+  },
+  "swift/Tests/StatelessnessTests/RecorderTests.swift": {
+    "type": "regular",
+    "bytes": 29811,
+    "sha256": "1d90149531f85c103e2b35021d05b03ff7e9277c6446d1f0bf2b0bd4b8aac338"
+  },
+  "swift/Tests/StatelessnessTests/RecordingErrorTests.swift": {
+    "type": "regular",
+    "bytes": 1502,
+    "sha256": "e655e8012d8f6bf0d086cec5a2df0e6a0bcf2ede75590e1d0bc7e753838dffc9"
+  },
+  "swift/Tests/StatelessnessTests/ReplayCorpusTests.swift": {
+    "type": "regular",
+    "bytes": 14134,
+    "sha256": "398e0f1d9e6eaceca893d25008b122560998b061912a21a765c4ffd889584928"
+  },
+  "swift/Tests/StatelessnessTests/SearchTests.swift": {
+    "type": "regular",
+    "bytes": 18884,
+    "sha256": "3e948b5975132fc850b2ef7fb1a80654f462250f685f59cff7b836971338b47f"
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift": {
+    "type": "regular",
+    "bytes": 6474,
+    "sha256": "2e2d2a7d0257edf3e571337f6b8ea8fcfb144632c4a006f2d8b38f7099d86323"
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecDirectionsTests.swift": {
+    "type": "regular",
+    "bytes": 10550,
+    "sha256": "fbf9294b7daac23598e257a40a50e0351472712e4c2448187de13ce45e683211"
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecEncoderCorpusTests.swift": {
+    "type": "regular",
+    "bytes": 5023,
+    "sha256": "42d31eb8c38819099f4229370745e78c611d2c0a1629aa21d99c648bc040ef47"
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecReaderCorpusTests.swift": {
+    "type": "regular",
+    "bytes": 5821,
+    "sha256": "c556dcd659e34fd5b8c98d41e6e89f1a19b961d74f98dacc85715e0a65d36996"
+  },
+  "swift/Tests/StatelessnessTests/ValueCodecTests.swift": {
+    "type": "regular",
+    "bytes": 16064,
+    "sha256": "b72301bc83ffbf081d5f7f5f56bc928383521ecddbd3e29efa138b53e1f7147b"
+  },
+  "examples/native-debug/swift/Package.swift": {
+    "type": "regular",
+    "bytes": 386,
+    "sha256": "ae52257b06f51d8ae9e8ae4e9052fc1b66550c263be6540f5312b4e726f6a653"
+  },
+  "examples/native-debug/swift/Sources/DebugConsumer/main.swift": {
+    "type": "regular",
+    "bytes": 2688,
+    "sha256": "8faea920d4863b160fc598e9e422f95f9e1e24d4f64774ede105611dd440e72d"
+  }
+}

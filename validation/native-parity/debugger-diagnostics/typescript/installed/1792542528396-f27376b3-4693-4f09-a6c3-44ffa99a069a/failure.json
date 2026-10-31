@@ -1,0 +1,375 @@
+{
+  "error": "Error: Command failed: /Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node --test /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/append-checks.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/append-corpus.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/bfs-controls.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/bfs-corpus.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/binary.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/checked-results.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-bindings.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-diagnostic.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-effects.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-fork.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-inspect.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-live.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-metrics.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-protocol.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-session.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-watches.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/encode-buffers.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/evidence-recorder.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/evidence.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/native.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/paired.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/replay-corpus.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/replay-rich.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/runtime-recorder.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/search-corpus.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/search.test.mjs /Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/value-codec.test.mjs",
+  "sourceBefore": [
+    {
+      "path": "src/audit_budget.ts",
+      "bytes": 7841,
+      "sha256": "c8ee8e8244ea9407842e99c9a00a977378a362e08e6389ead65a486bb8a92d24"
+    },
+    {
+      "path": "src/audit_record.ts",
+      "bytes": 5342,
+      "sha256": "0cf79df2f0b3170338e925a12fcc8059b16c28d0873df6e8a887ec4efb1c2bf8"
+    },
+    {
+      "path": "src/binary.ts",
+      "bytes": 27234,
+      "sha256": "9da3c179525b336a779cd88afe396b90bf3ab06e16c9184c117d0b1d2cdb2747"
+    },
+    {
+      "path": "src/checked.ts",
+      "bytes": 9183,
+      "sha256": "ee3df47d3b03c09489343184aa2ce2917f29348119dd605b55003aee727ce45d"
+    },
+    {
+      "path": "src/checks.ts",
+      "bytes": 6314,
+      "sha256": "29a2d57640cae0534626d3e3768e7ea8c1cef5c4536176a6f11fb6b35abf4859"
+    },
+    {
+      "path": "src/conformance.ts",
+      "bytes": 9588,
+      "sha256": "f10b8a0d2c1541b7149040b26098ba495fe4b8835df06ef86d209739e429a49e"
+    },
+    {
+      "path": "src/core.ts",
+      "bytes": 25277,
+      "sha256": "31af1c80e8431322300d392c54e1d2448f1201551bedd036395d5091e678abcd"
+    },
+    {
+      "path": "src/debug_dashboard.ts",
+      "bytes": 9358,
+      "sha256": "42a784b3e29cc426c5d53a45e5c749bd215b9ad420c56bda0c674ed1f5de0512"
+    },
+    {
+      "path": "src/debug_diagnostic.ts",
+      "bytes": 18543,
+      "sha256": "bc753df5fd0595821d28153757dfd071ce550c30c67860b3a48431a8cc75160e"
+    },
+    {
+      "path": "src/debug_effects.ts",
+      "bytes": 30581,
+      "sha256": "8dd3ca7e3646960272e14f0ba95e1635998cd10de9b556375c9274858e925788"
+    },
+    {
+      "path": "src/debug_fork.ts",
+      "bytes": 5122,
+      "sha256": "c919a5e4ae57e0b2e76cb8a94a1ce2fc9db3eab8df8c14d0d6dda2cf786af0a3"
+    },
+    {
+      "path": "src/debug_inspect.ts",
+      "bytes": 20680,
+      "sha256": "73bc0ef4791ccc62908c31213dff087232198048ed69e1ce3648928abea58449"
+    },
+    {
+      "path": "src/debug_internal.ts",
+      "bytes": 168,
+      "sha256": "109bc9dab123b018649cccf31b8703ddaa14d7ded2efb2dbb60c2fe5f47ff3a8"
+    },
+    {
+      "path": "src/debug_live.ts",
+      "bytes": 16584,
+      "sha256": "5f3af761adea83b966abed8292ceaad51ac5db26419330802e4bec2f3c8f9cad"
+    },
+    {
+      "path": "src/debug_metrics.ts",
+      "bytes": 26921,
+      "sha256": "16eee4c479d4ca1ee52c0b51259fbd76ea466f580c6685b44b22c22b315a9270"
+    },
+    {
+      "path": "src/debug_protocol.ts",
+      "bytes": 19951,
+      "sha256": "4dbfba0d3111f0ae67459a70b1a9ea112559631eb01820c5b4576415fabee258"
+    },
+    {
+      "path": "src/debug_session.ts",
+      "bytes": 16477,
+      "sha256": "5d4cb472cfa8d117e7460f2c62d2245b61e87b33277796d12404b706bb4e3c9b"
+    },
+    {
+      "path": "src/debug_watches.ts",
+      "bytes": 23307,
+      "sha256": "531f655f2a7c5a169a17050682b7a51212e3bdb7df3afbb573f6a8810c13dcf2"
+    },
+    {
+      "path": "src/debug.ts",
+      "bytes": 10534,
+      "sha256": "3ec1cb3a1f9d310525f0ee3adf57b2f82e4898e4a718830ed2b04e52e5f4f84b"
+    },
+    {
+      "path": "src/encoding.ts",
+      "bytes": 9746,
+      "sha256": "cdf3f58810813dcb555a9479c2a65962f12ca5a6290659e50a41b6b7b9e7f93b"
+    },
+    {
+      "path": "src/errors.ts",
+      "bytes": 240,
+      "sha256": "1d50ab177ce083dae51ed5a0f76107e632df9e35ef386646be766d79b2bee85a"
+    },
+    {
+      "path": "src/evidence_recorder.ts",
+      "bytes": 7690,
+      "sha256": "10148303f4f88cb4d7433aacfdbbeff2d53c75a31153569fde29cc57da23e566"
+    },
+    {
+      "path": "src/evidence.ts",
+      "bytes": 40920,
+      "sha256": "b4db937ad59a667fbaca66a2b9473461d72a7373b7fc7124637dfafcfd0f1a33"
+    },
+    {
+      "path": "src/index.ts",
+      "bytes": 1901,
+      "sha256": "0e1f9b9d5d31b9935ec510ffb604fc427aae3dbe56aeb441b214886fe3157264"
+    },
+    {
+      "path": "src/json.ts",
+      "bytes": 8969,
+      "sha256": "fcac9d3bb26d2bc034c81ea2c522c3262cc0bdcc077efd2f7a7a7f5d65fff3bd"
+    },
+    {
+      "path": "src/node_evidence.ts",
+      "bytes": 1742,
+      "sha256": "c659fa34979b129591ec6b9789fdf9383867c931572226c59e26fe914ad7c846"
+    },
+    {
+      "path": "src/oracle.ts",
+      "bytes": 15665,
+      "sha256": "5f68186929079747cb44f84c9e94358904bf4370ae3a806483e520960530d533"
+    },
+    {
+      "path": "src/replay.ts",
+      "bytes": 12623,
+      "sha256": "207923eb14891e6e99e8199530ec4cf0fb9282e7c12a704545f0ba76dbfd588e"
+    },
+    {
+      "path": "src/runtime_recorder.ts",
+      "bytes": 23674,
+      "sha256": "5aeda96d9d961d04632361b017d1ab841a1a3f260cf63c36c1a8be88bab7e732"
+    },
+    {
+      "path": "src/search_support.ts",
+      "bytes": 5749,
+      "sha256": "f0ad6fbd97f3e5730327b2d43bfbee26fa5348dc306bb1028aed4bb962f91403"
+    },
+    {
+      "path": "src/search.ts",
+      "bytes": 20647,
+      "sha256": "51c9e22970e93c8943ff959002e09f7ec7802a105e97fb3268766190d4e7bf4c"
+    },
+    {
+      "path": "src/value_codec.ts",
+      "bytes": 27160,
+      "sha256": "5735f0def5d622d94eddcb5206668900d9396a2bb4ab4f506741386b7ab682a5"
+    },
+    {
+      "path": "test/append-checks.test.mjs",
+      "bytes": 12338,
+      "sha256": "23ea5cf2d59f77dce3a4d1c1439702429545c3d86dc176624f566f56ad1da1db"
+    },
+    {
+      "path": "test/append-corpus.test.mjs",
+      "bytes": 6205,
+      "sha256": "9f131fb61fb0808057bfaeac3c276fde2eaec425fbf862ed37839e3111303afd"
+    },
+    {
+      "path": "test/bfs-controls.test.mjs",
+      "bytes": 13906,
+      "sha256": "c5d50b8582ecd33e07d2379c41ff0cacdff05f1dd9c1f5b3effaa64fca260ad5"
+    },
+    {
+      "path": "test/bfs-corpus.test.mjs",
+      "bytes": 3052,
+      "sha256": "07099f4d4be78d109462ea3050cbeb2919703e6b8abe411dec891dc6e676e3e1"
+    },
+    {
+      "path": "test/binary.test.mjs",
+      "bytes": 7427,
+      "sha256": "d8ce82d7cf94c72f771737dc085c3edf455265e70563bdadd1986e620a3cd27c"
+    },
+    {
+      "path": "test/checked-results.test.mjs",
+      "bytes": 5777,
+      "sha256": "a5ecb1fa347065be80b6840dce3ba736da7cdfd44ecf938ebef207eca4f30c27"
+    },
+    {
+      "path": "test/debug-bindings.test.mjs",
+      "bytes": 2513,
+      "sha256": "9cfcad9df58744d8cb95bed7268ac1f0ba45433d8b203ac28120bdcc298d0020"
+    },
+    {
+      "path": "test/debug-diagnostic.test.mjs",
+      "bytes": 8194,
+      "sha256": "887c5d15d2a9152c979ce9727424d6b9d0da68e4b2a4c099d542e371eff449e3"
+    },
+    {
+      "path": "test/debug-effects.test.mjs",
+      "bytes": 10495,
+      "sha256": "85cb6bc4447b31569fc7bc94f9631410106980d68d515edcef5c5d50ef433840"
+    },
+    {
+      "path": "test/debug-fork.test.mjs",
+      "bytes": 3390,
+      "sha256": "3ecf0a5c2a54706a1c5b9a62cb35976ddccec73e76d0b4309127fc8c3f207028"
+    },
+    {
+      "path": "test/debug-inspect.test.mjs",
+      "bytes": 5702,
+      "sha256": "9fcc5ac4b48019e136053c34abbc5217e7465aaa7329a44e04ee3f51bc314ccc"
+    },
+    {
+      "path": "test/debug-installed.mjs",
+      "bytes": 7119,
+      "sha256": "1af509f79650afece7498ee58ce1a361853751c46d9aec9956394d752f753b63"
+    },
+    {
+      "path": "test/debug-live.test.mjs",
+      "bytes": 6640,
+      "sha256": "e3d6a8b30af3cc9c6125cb24ae7705df00acd100902cb65abaa8898d7a0b0103"
+    },
+    {
+      "path": "test/debug-metrics.test.mjs",
+      "bytes": 7276,
+      "sha256": "78260317272bdd375f8bd60db7800aa403b76a2fa87397c1028f22dea17774d9"
+    },
+    {
+      "path": "test/debug-protocol.test.mjs",
+      "bytes": 10341,
+      "sha256": "650261ce3261c9c713ed6fbc3602457f511c1146182dd27a0ac1cc29e1c76a2b"
+    },
+    {
+      "path": "test/debug-session.test.mjs",
+      "bytes": 7395,
+      "sha256": "83d35bd7b3d4d5aa761c193e77a0a6b19c2c1652b9698b40a372c8a4e6485b27"
+    },
+    {
+      "path": "test/debug-watches.test.mjs",
+      "bytes": 5738,
+      "sha256": "e8a8d63f996b300a6672eae2e3abd5950f3860befc3c0c662fa2ef1fdecbf83f"
+    },
+    {
+      "path": "test/debug.test.mjs",
+      "bytes": 5724,
+      "sha256": "5c71b8632ee879a57bfe66190e3b4a91ee51763a61548bbab4d84cdd5c7381e5"
+    },
+    {
+      "path": "test/encode-buffers.test.mjs",
+      "bytes": 15310,
+      "sha256": "f991cbe74c9e171cb4da1721f39023badd853de10916e983fb6fe88d13c7de7a"
+    },
+    {
+      "path": "test/evidence-recorder.test.mjs",
+      "bytes": 14270,
+      "sha256": "88bd6d6d79bc167e14705d52125ca97f05fe0dbdd81d43c3102f97d77aef16f5"
+    },
+    {
+      "path": "test/evidence.test.mjs",
+      "bytes": 14111,
+      "sha256": "03f34c099c8203ae9cf47f3d3ba8d857324e1d3fbf082cb85862a7ee7e105e1f"
+    },
+    {
+      "path": "test/native.test.mjs",
+      "bytes": 11647,
+      "sha256": "fcef97a39047a43a3be860e600f447a1f3a7ded00df964dfbdab56935609f02a"
+    },
+    {
+      "path": "test/paired.test.mjs",
+      "bytes": 14284,
+      "sha256": "d9a8f169bc78eabb6c0a565bc47e37ec798b37e3d4b3a600a8da2aa2872ba9c5"
+    },
+    {
+      "path": "test/qualify-debugger-recovered.mjs",
+      "bytes": 1370,
+      "sha256": "858cabc9070fd883976decd03560f6f4c02aef4e3b09680f5283e5bbe9f7a57c"
+    },
+    {
+      "path": "test/replay-corpus.test.mjs",
+      "bytes": 4460,
+      "sha256": "6d88b9ffe9a7a29361ce9c51d9b1ac6dd8c36fd1c04553b323a5810c91188a27"
+    },
+    {
+      "path": "test/replay-rich.test.mjs",
+      "bytes": 7840,
+      "sha256": "283aaad981472e4b022793c681d88319adf78a107ced17a9d6e2ed0866dc4b35"
+    },
+    {
+      "path": "test/runtime-recorder.test.mjs",
+      "bytes": 12677,
+      "sha256": "4c42b6e1c71d71039d0ff2e899551ef828c60e112573a402d2440e5cf9a225cf"
+    },
+    {
+      "path": "test/search-corpus.test.mjs",
+      "bytes": 3303,
+      "sha256": "016f608934132409df276414f8b5fcc841089fd5429372dc3f9df14a89a49b86"
+    },
+    {
+      "path": "test/search.test.mjs",
+      "bytes": 15122,
+      "sha256": "88c9afd3f0b31137a9d29c2f5899d1687869bf5a352f4f24980cfda5e307b9bf"
+    },
+    {
+      "path": "test/value-codec.test.mjs",
+      "bytes": 23545,
+      "sha256": "0fa55eb47f42badf5409ce3b34426564e23f3a3fa8a66ab3aa90180798532038"
+    },
+    {
+      "path": "package.json",
+      "bytes": 2416,
+      "sha256": "93ff29aac7aefa0f046f3f34f6c5d2e1af005cad2fd07e81070698e96675f9bb"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 875,
+      "sha256": "6e8c6388660eac97e89d71eadd9087ab9f9072c09fe54261b53f5b17305d6915"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 357,
+      "sha256": "d49ecfd6f8b000fbf1395544bc9b9fe5405f5048a45768af0523cda3891ebe34"
+    }
+  ],
+  "commands": [
+    {
+      "cmd": "npm",
+      "args": [
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript"
+    },
+    {
+      "cmd": "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+      "args": [
+        "--test",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/append-checks.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/append-corpus.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/bfs-controls.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/bfs-corpus.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/binary.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/checked-results.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-bindings.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-diagnostic.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-effects.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-fork.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-inspect.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-live.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-metrics.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-protocol.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-session.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug-watches.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/debug.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/encode-buffers.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/evidence-recorder.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/evidence.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/native.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/paired.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/replay-corpus.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/replay-rich.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/runtime-recorder.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/search-corpus.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/search.test.mjs",
+        "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript/test/value-codec.test.mjs"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-ccd33c8a/typescript"
+    }
+  ]
+}

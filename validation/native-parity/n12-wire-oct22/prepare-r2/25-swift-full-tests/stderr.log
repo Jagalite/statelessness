@@ -1,0 +1,150 @@
+Building for debugging...
+[0/15] /private/tmp/n12-wire-oct22-r2/builds/swift-tests/arm64-apple-macosx/debug/StatelessnessPackageTests.derived/runner.swift
+[1/15] Write stateless-corpus-entitlement.plist
+[2/15] Write sources
+[9/15] Write swift-version--58304C5D6DBC2206.txt
+[11/30] Emitting module Statelessness
+[12/30] Compiling Statelessness AuditRecording.swift
+[13/30] Compiling Statelessness AuditTrace.swift
+[14/30] Compiling Statelessness CheckSink.swift
+[15/30] Compiling Statelessness CheckedResults.swift
+[16/30] Compiling Statelessness EncodeBuffer.swift
+[17/30] Compiling Statelessness Evidence.swift
+[18/30] Compiling Statelessness EvidenceCodec.swift
+[19/30] Compiling Statelessness EvidenceExports.swift
+[20/30] Compiling Statelessness EvidenceRecorder.swift
+[21/30] Compiling Statelessness Execution.swift
+[22/30] Compiling Statelessness ExecutionBudget.swift
+[23/30] Compiling Statelessness Explore.swift
+[24/30] Compiling Statelessness Fuzz.swift
+[25/30] Compiling Statelessness Generate.swift
+[26/43] Compiling Statelessness JSON.swift
+[27/43] Compiling Statelessness Model.swift
+[28/43] Compiling Statelessness Oracle.swift
+[29/43] Compiling Statelessness Recorder.swift
+[30/43] Compiling Statelessness Replay.swift
+[31/43] Compiling Statelessness Rng.swift
+[32/43] Compiling Statelessness Shrink.swift
+[33/43] Compiling Statelessness TraceJSON.swift
+[34/43] Compiling Statelessness ValueCodec.swift
+[35/43] Compiling Statelessness ValueCodec128.swift
+[36/43] Compiling Statelessness ValueCodecBuiltins.swift
+[37/43] Compiling Statelessness ValueCodecDecoder.swift
+[38/43] Compiling Statelessness ValueCodecLayouts.swift
+[39/53] Compiling StatelessConformance Conformance.swift
+[40/53] Emitting module StatelessConformance
+[41/64] Compiling StatelessnessTests AppendChecksTests.swift
+[42/64] Compiling StatelessnessTests AuditTraceTests.swift
+[43/64] Compiling StatelessnessTests BFSControlsTests.swift
+[44/64] Compiling StatelessnessTests CheckedResultsTests.swift
+[45/64] Compiling StatelessnessTests EncodeReplayTests.swift
+[46/64] Compiling StatelessnessTests EvidenceExportsTests.swift
+[47/64] Compiling StatelessnessTests EvidenceRecorderTests.swift
+[48/64] Emitting module StatelessDebug
+[49/70] Compiling StatelessDebug LiveBridge.swift
+[50/70] Compiling StatelessDebug Metrics.swift
+[51/70] Compiling StatelessDebug Protocol.swift
+[52/70] Compiling StatelessDebug Session.swift
+[53/70] Compiling StatelessDebug TraceViewer.swift
+[54/70] Compiling StatelessDebug Watches.swift
+[55/72] Emitting module StatelessCorpus
+[56/72] Compiling StatelessCorpus main.swift
+[57/80] Emitting module StatelessnessTests
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[58/89] Emitting module StatelessDebugTests
+[59/96] Compiling StatelessDebugTests BranchTests.swift
+[60/96] Compiling StatelessDebugTests DashboardTests.swift
+[61/96] Compiling StatelessDebugTests DiagnosticLiveTests.swift
+[62/96] Compiling StatelessDebugTests DiagnosticsTests.swift
+[63/96] Compiling StatelessDebugTests EffectDashboardTests.swift
+[64/96] Compiling StatelessDebugTests EffectsTests.swift
+[65/96] Compiling StatelessDebugTests EvidenceViewerTests.swift
+[66/96] Compiling StatelessDebugTests InspectionTests.swift
+[67/96] Compiling StatelessDebugTests LiveBridgeTests.swift
+[68/96] Compiling StatelessDebugTests MetricsTests.swift
+[69/96] Compiling StatelessDebugTests ProtocolTests.swift
+[70/96] Compiling StatelessDebugTests SessionTests.swift
+[71/96] Compiling StatelessDebugTests WatchTests.swift
+[72/96] Compiling StatelessDebugTests WireParityTests.swift
+[72/96] Write Objects.LinkFileList
+[73/96] Linking stateless-corpus
+[74/96] Applying stateless-corpus
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[80/96] Compiling StatelessnessTests ValueCodecDecoderTests.swift
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[81/96] Compiling StatelessnessTests ValueCodecDirectionsTests.swift
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[82/96] Compiling StatelessnessTests ValueCodecEncoderCorpusTests.swift
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[83/96] Compiling StatelessnessTests ValueCodecReaderCorpusTests.swift
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[84/96] Compiling StatelessnessTests ValueCodecTests.swift
+/private/tmp/n12-wire-oct22-r2/packages/statelessness-swift/swift/Tests/StatelessnessTests/ValueCodecDecoderTests.swift:59:17: warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 57 |     func testCallbackErrorIsStoredWithoutFormattingAndCannotBeReplaced() throws {
+ 58 |         final class CallbackError: Error, CustomStringConvertible {
+ 59 |             var formatted = 0
+    |                 `- warning: stored property 'formatted' of 'Sendable'-conforming class 'CallbackError' is mutable
+ 60 |             var description: String { formatted += 1; return "callback failure" }
+ 61 |         }
+[95/98] Emitting module StatelessnessPackageTests
+[96/98] Compiling StatelessnessPackageTests runner.swift
+[96/98] Write Objects.LinkFileList
+[97/98] Linking StatelessnessPackageTests
+Build complete! (44.51s)

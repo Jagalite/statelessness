@@ -420,6 +420,35 @@ fn underlying_io_errors_are_preserved() {
     assert!(matches!(result, Err(TraceError::Io(e)) if e.to_string() == "read unavailable"));
 }
 
+struct OverreportingReader {
+    bytes: Cursor<Vec<u8>>,
+}
+impl Read for OverreportingReader {
+    fn read(&mut self, buffer: &mut [u8]) -> io::Result<usize> {
+        let count = self.bytes.read(buffer)?;
+        if count == 0 {
+            Ok(buffer.len() + 1)
+        } else {
+            Ok(count)
+        }
+    }
+}
+
+#[test]
+fn readers_cannot_overreport_bytes_at_header_or_footer() {
+    for bytes in [Vec::new(), encoded(&fixture())] {
+        let result = Trace::read_from(
+            OverreportingReader {
+                bytes: Cursor::new(bytes),
+            },
+            &ReadLimits::default(),
+        );
+        assert!(
+            matches!(result, Err(TraceError::Io(error)) if error.kind() == io::ErrorKind::InvalidData)
+        );
+    }
+}
+
 struct ByteReader<R> {
     source: R,
     interrupt: bool,

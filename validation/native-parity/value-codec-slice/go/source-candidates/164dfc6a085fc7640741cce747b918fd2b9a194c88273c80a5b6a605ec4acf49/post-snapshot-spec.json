@@ -1,0 +1,19 @@
+{
+  "captured_utc": "2026-10-20T23:19:50.602862+00:00",
+  "note": "Root-authorized prose-only clarification of independent trait directions after source snapshot; Go source and 186-row corpus unchanged. Original archived inputs preserved. No code rerun requested for prose alone.",
+  "path": "spec/canonical-value-codec-v1.md",
+  "sha256": "2f63f817bca1e20b88ff813ddbda32502a7347679fd2c06a6bffc6a3ceed06c8",
+  "size": 18687,
+  "job_states": {
+    "6ebb7a9e8d3d44c2bdf6ec0d00c215f6": {
+      "status": "queued",
+      "started": null,
+      "finished": null
+    },
+    "eff77bd001534e038bccc6514519a213": {
+      "status": "queued",
+      "started": null,
+      "finished": null
+    }
+  }
+}

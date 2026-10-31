@@ -1,0 +1,47 @@
+[
+  {
+    "path": "go/value_derive.go",
+    "size": 6419,
+    "sha256": "6d69ab76a6abecddabf4be455ec8e8e279e7ae09379fa30a82eaaa158bb531c3"
+  },
+  {
+    "path": "go/model_codec_bind.go",
+    "size": 2266,
+    "sha256": "07f6571cf2260f7f4d5acdccc4aaa33960a5b781c38bee1b279f6ca7b73ef921"
+  },
+  {
+    "path": "go/value_codec.go",
+    "size": 16096,
+    "sha256": "91c7fe2ec9827a0b0cd9274f2f336bb17a2c223951acbcf737a0e473ac1baea3"
+  },
+  {
+    "path": "go/value_derive_test.go",
+    "size": 13448,
+    "sha256": "bdebbae2520b0ede128b94bbea3116acc541edd793031999d2ae3e8549ba299a"
+  },
+  {
+    "path": "go/README.md",
+    "size": 30973,
+    "sha256": "04a2cbab49183c669c0ce77ee6f34aca263aad6260cb121126dbaed287055c91"
+  },
+  {
+    "path": "examples/native-derive/go/main.go",
+    "size": 2789,
+    "sha256": "e9897ee7cb2f3de7521fea4eded7345c70a078e8c26a79bbf30b3980e492e284"
+  },
+  {
+    "path": "validation/native-parity/derive-model/go/2b22ed7ec9684c29833651cabaec374c.queued.json",
+    "size": 1712,
+    "sha256": "0dfd139c6e01ba56ca4dcdedc6004dd6d6058dee2e2a8a7f8025d4a9f3380f86"
+  },
+  {
+    "path": "validation/native-parity/derive-model/go/fff3326629e441cd9e8bd47d41445961.handoff.json",
+    "size": 1711,
+    "sha256": "beb30c05ab9696390bc6d0bbc5b408f6cf8e94f38c4ffe5395ceb72de6ba3ed5"
+  },
+  {
+    "path": "validation/native-parity/derive-model/go/2b22ed7ec9684c29833651cabaec374c.handoff.json",
+    "size": 1713,
+    "sha256": "8a9186311416e7d4cf6c2036837fb283752d8d0c3eb8fbe753651583ccd86579"
+  }
+]

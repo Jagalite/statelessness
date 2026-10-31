@@ -1,0 +1,90 @@
+{
+  "reviewed_correction_commit": "79f7fe5f8428172924a34280a59f5a725ebe586e",
+  "source_manifest_sha256": "6cd429fe85e04d4c67d097216e1e15410a3c6cbe74f46fd91110fb16a60aae62",
+  "scope": "first corrected candidate; installed scenario failed before producers; subsequent app/driver changes require new qualification",
+  "results": {
+    "dependencies": {
+      "job_id": "d478ec91e441494091040d76e0f4c85a",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "accounting": {
+      "job_id": "0d15dfbad5d942c5b55076616dae9ab3",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "python-full": {
+      "job_id": "2fd7c680a62f48109f923e538c4e69f9",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "go-full": {
+      "job_id": "41393d130ebd402a952f36e6dc597eb3",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "go-vet": {
+      "job_id": "63ce04fc24d14a26a2b7179e78f700c1",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "swift-full": {
+      "job_id": "f978d86c31994f45be0b8da27d32fb83",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "typescript-full": {
+      "job_id": "c5b78afc7dac4087b89cfccebd1a4883",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "rust-workspace-runtime": {
+      "job_id": "af5f71bc47df451b895aa7d907e653bd",
+      "status": "passed",
+      "exit_code": 0,
+      "source_equal": true
+    },
+    "installed-wrapper": {
+      "job_id": "d29713d7065743ce8855831b08ca8c50",
+      "status": "failed",
+      "exit_code": 1,
+      "source_equal": true
+    }
+  },
+  "counts": {
+    "python": {
+      "discovered": 267,
+      "passed": 255,
+      "skipped": 12
+    },
+    "go": {
+      "top_level_passed": 171,
+      "named_test_pass_events_including_subtests": 929,
+      "named_test_skip_events": 30
+    },
+    "swift": {
+      "passed": 149
+    },
+    "typescript": {
+      "passed": 848
+    },
+    "rust_workspace": {
+      "passed": 644,
+      "failed": 0,
+      "ignored": 0,
+      "measured": 0,
+      "filtered": 0
+    },
+    "installed": {
+      "producers": 0,
+      "ordered_pairs": 0
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "model": {
+    "name": "native-codec-replay-threshold",
+    "model_version": 1,
+    "properties_version": 1,
+    "codec_version": 1,
+    "build": "application-v1"
+  },
+  "limits": {
+    "max_total_bytes": 4096,
+    "max_frame_bytes": 1024,
+    "max_blob_bytes": 64,
+    "max_string_bytes": 128,
+    "max_steps": 16,
+    "max_checks_per_step": 16,
+    "max_outputs_per_step": 16,
+    "max_parameters": 16,
+    "max_items": 128
+  },
+  "witness": [
+    1,
+    1,
+    1
+  ],
+  "normal_report": {
+    "outcome": "exact",
+    "steps_verified": 3,
+    "failure_reproduced": true,
+    "build_matches": true,
+    "divergence_step": null,
+    "divergence_field": null
+  },
+  "initial_event": {
+    "kind": "initial",
+    "sequence": 0,
+    "state": 0,
+    "checks": [
+      {
+        "id": "threshold.bound",
+        "status": "passed",
+        "details": ""
+      }
+    ],
+    "expected_state": "30",
+    "actual_state": "30",
+    "expected_checks": [
+      {
+        "id": "threshold.bound",
+        "status": "passed",
+        "details": ""
+      }
+    ],
+    "differences": {
+      "disposition": false,
+      "outputs": false,
+      "state": false,
+      "checks": false
+    },
+    "report": {
+      "outcome": "exact",
+      "steps_verified": 0,
+      "failure_reproduced": false,
+      "build_matches": true,
+      "divergence_step": null,
+      "divergence_field": null
+    }
+  },
+  "events_note": "Sessions use {report,observations}; reports contain outcome,divergence_step,divergence_field,steps_verified,failure_reproduced,build_matches. Initial observations contain kind,sequence,state,checks,expected_state hex,actual_state hex,expected_checks,differences bool object,report. Turn observations contain kind,sequence,before,input,transition{state,outputs,disposition{kind,reason}},checks,state_check_count,expected{input hex,disposition,outputs hex list,post_state hex,checks},actual_input hex,actual_outputs hex list,actual_state hex,differences bool object,report. Checks contain id,status,details.",
+  "protocol": {
+    "record": "record PREFIX writes PREFIX.bin and PREFIX.json",
+    "replay": "replay AUDIT_BIN returns rich,bounded,retained_config",
+    "replay_json": "replay-json PORTABLE_JSON returns ordinary report"
+  },
+  "record_receipt": [
+    "controls",
+    "rich",
+    "bounded",
+    "legacy_encoder_calls",
+    "codec_into_calls",
+    "retained_config"
+  ],
+  "replay_receipt": [
+    "rich",
+    "bounded",
+    "retained_config",
+    "legacy_encoder_calls",
+    "codec_into_calls"
+  ],
+  "buffer_controls": [
+    "clear_entry",
+    "sticky_finish",
+    "framed_shared_budget",
+    "nested_framing",
+    "preflight_decode_calls",
+    "oversize_reducer_calls",
+    "oversize_actual_retained",
+    "legacy_encoder_calls",
+    "codec_into_calls",
+    "rich_divergence"
+  ],
+  "native_buffer_controls": [
+    "escaped_sink_expired",
+    "nested_child_expired",
+    "outer_active_after_nested"
+  ],
+  "preflight_note": "Normal audit with max_steps2 must fail bounded replay before any decode; controls.preflight_decode_calls is0.",
+  "actual_budget_note": "Normal audit under same nine limits; model first actual output is lowercase x repeated65. Preferred encoder exceeds max_blob_bytes64 after one reducer/check execution. ReplayError actualTurn must retain before0,input1,state1,outputs[x*65],completedchecks and state_check_count1; controls oversize_reducer_calls1/oversize_actual_retainedtrue. No terminal model_error reproduction claim.",
+  "divergent_note": "Clone audit and change last expected failed-check details only. Actual same failed threshold.bound ID reproduces, but rich comparison diverges on checks at sequence3 with steps_verified2/failure_reproducedtrue. controls.rich_divergencetrue. No artifact is rewritten in-place.",
+  "normal_session": {
+    "report": "normal_report",
+    "observations": "one initial plus three turns"
+  },
+  "config_note": "Normalized strategy string, seed unsigned decimal string or null, ordered parameter pairs. Rust recorder stamps remain real; native explicit manual parameters empty. Never strip producer config."
+}

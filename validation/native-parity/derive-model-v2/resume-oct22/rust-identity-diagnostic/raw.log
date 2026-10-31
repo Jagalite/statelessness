@@ -1,0 +1,9 @@
+{
+  "actual": [
+    "source-fnv1a64:8aa7d4daeb850d74"
+  ],
+  "bytewise": "source-fnv1a64:35b90b4ed728040a",
+  "components": "source-fnv1a64:8aa7d4daeb850d74",
+  "rustc_stdout": "rustc 1.99.0 (b940084d7 2026-09-28) (Homebrew)\n",
+  "target": "aarch64-apple-darwin"
+}

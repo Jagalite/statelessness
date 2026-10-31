@@ -1,0 +1,30 @@
+{
+  "taskId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Athread-send%3An12-wire-go-disconnect-implementation-r2",
+  "childThreadId": "thread:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Adelegate-task%3An12-wire-oct22-go-r1",
+  "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-go-r1:ordinal:4",
+  "childNodeId": "node:delegated-task:command%3Amcp%3Aff6c8814-086b-420c-8f6d-bc01227dc768%3Athread-send%3An12-wire-go-disconnect-implementation-r2",
+  "status": "completed",
+  "workState": "result_available",
+  "hasPendingChildRuns": true,
+  "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-go-r1:ordinal:4",
+  "latestTerminalStatus": "completed",
+  "latestTerminalSummary": null,
+  "latestTerminalResultContextTransferId": null,
+  "providerInstanceId": "codex",
+  "model": "gpt-6-astra",
+  "options": [
+    {
+      "id": "reasoningEffort",
+      "value": "ultra"
+    },
+    {
+      "id": "serviceTier",
+      "value": "default"
+    }
+  ],
+  "summary": "Go source is ready for root’s frozen qualification.\n\n- [protocol.go](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/go/debug/protocol.go): public `Disconnect`, active-reconnect rejection, guaranteed `Serve` teardown, Rust’s disconnected-admission precedence, and monotonic snapshot IDs.\n- [protocol_test.go](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/go/debug/protocol_test.go): legitimate reconnect explicitly disconnects first.\n- [protocol_connection_test.go](/Users/jagatranvo/.t3/worktrees/stateless/n12-wire-resume-oct22/go/debug/protocol_connection_test.go): focused EOF, read-failure, real broken-pipe, admission, reconnect, and state-preservation regressions.\n\nImplementation and static review are complete; no child work remains active. Tests were authored but not run. No builds, commits, fixture changes, or comparator changes.\n\n",
+  "resultContextTransferId": "context-transfer:type:subagent_result:source-thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aff6c8814-086b-420c-8f6d-bc01227dc768%253Adelegate-task%253An12-wire-oct22-go-r1:target-thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2469003e-da30-4c9a-8872-ca7e074c3724%253Adelegate-task%253Astateless-n12-wire-comparison-resume-r4-20261022:88520e04-b904-41d3-87c2-99065677a8dd",
+  "hasPendingQuestion": false,
+  "pendingApproval": null,
+  "waitTimedOut": false
+}

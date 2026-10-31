@@ -1,0 +1,1 @@
+{"outcome": "exact", "failure_reproduced": true, "steps": 3, "legacy_calls": 0, "append_state_calls": 4, "append_transition_calls": 3, "package": "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-xuc0z4zp/venv/lib/python3.13/site-packages/statelessness/__init__.py"}

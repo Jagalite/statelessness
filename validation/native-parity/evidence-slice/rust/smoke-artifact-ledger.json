@@ -1,0 +1,86 @@
+[
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/diagnostic.json",
+    "stored_path": "smoke-artifacts/diagnostic.json",
+    "size": 755,
+    "sha256": "35cf00b9bdccf1423853069285f1fbd591e201687b008e54cf5148ee02d64b76",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/diagnostic.receipt.json",
+    "stored_path": "smoke-artifacts/diagnostic.receipt.json",
+    "size": 998,
+    "sha256": "29f54a8f4b44b631cfd72c78a54a364e466d6503b0792527e6827fbbbd93daed",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/read-v1.receipt.json",
+    "stored_path": "smoke-artifacts/read-v1.receipt.json",
+    "size": 850,
+    "sha256": "066c33e3d8b95afad7d086aa470b9be57089be4113b0b46866afbfc369e6ac51",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/record.receipt.json",
+    "stored_path": "smoke-artifacts/record.receipt.json",
+    "size": 7223,
+    "sha256": "3b3d1c3132b980d4780a304369ce886b7830e4eb8e80f43e21508df4d2fb7e75",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/replay.receipt.json",
+    "stored_path": "smoke-artifacts/replay.receipt.json",
+    "size": 5752,
+    "sha256": "11a7a86e820f7a692d5a377be5a5644487bfc609070bb4db4d2a4e73e5d08ea1",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/roundtrip.v2",
+    "stored_path": "smoke-artifacts/roundtrip.v2",
+    "size": 1199,
+    "sha256": "d5cf48b51c3d99bf3aedbc59d7a56b5615629754ce301175ca3aa3bc13c5e9df",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/upgrade.receipt.json",
+    "stored_path": "smoke-artifacts/upgrade.receipt.json",
+    "size": 5525,
+    "sha256": "c8727b1302abac848336d9e49e7f5844a5c865130cd7a7c12d4fb9947137d57a",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/upgrade.v2",
+    "stored_path": "smoke-artifacts/upgrade.v2",
+    "size": 1052,
+    "sha256": "ce9edefb7ea923539ec05292c628f47e8ba75658f094f222a6b09949c656620e",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/witness.json",
+    "stored_path": "smoke-artifacts/witness.json",
+    "size": 1244,
+    "sha256": "ee6887cb95187da8f3312906c6a1bacccd47f4cc6fd3e477738288b0752767f6",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/witness.v1",
+    "stored_path": "smoke-artifacts/witness.v1",
+    "size": 842,
+    "sha256": "5025438f064066b6191cee18bf001147c425e65971b3c23179c95fa113651331",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-rust-evidence-smoke-s5pw4zw1/witness.v2",
+    "stored_path": "smoke-artifacts/witness.v2",
+    "size": 1199,
+    "sha256": "d5cf48b51c3d99bf3aedbc59d7a56b5615629754ce301175ca3aa3bc13c5e9df",
+    "original_mode": "0o600"
+  },
+  {
+    "original_path": "/tmp/stateless-rust-evidence-smoke.py",
+    "stored_path": "installed-smoke.py",
+    "size": 1953,
+    "sha256": "902f2ff833c683380c4ed5d44bdda53cbec7638d7dea19ea7e694b662407cbbc",
+    "original_mode": "0o644"
+  }
+]

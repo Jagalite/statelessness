@@ -1,0 +1,135 @@
+{
+  "spec_version": "1.0.0",
+  "corpus_sha256": "6c9e4de68bad0b1188f7303ae9fd820bf75a3f6a2cdeeb292f3742aa9f8fbf11",
+  "portability_sha256": "9f15a637ac1470d149a32ab483ee402422cb9d58fe9c1ea3cadc923a50b1612e",
+  "source_commit": null,
+  "implementations": [
+    {
+      "implementation": "python",
+      "package_version": "0.1.0",
+      "spec_version": "1.0.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "engine_family": "python-independent",
+      "command": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-vw7eqo07/venv/bin/python",
+        "-I",
+        "-m",
+        "statelessness.conformance",
+        "--runner"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "implementation": "go",
+      "package_version": "0.1.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "spec_version": "1.0.0",
+      "engine_family": "go-independent",
+      "command": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-vw7eqo07/go-corpus"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "implementation": "typescript",
+      "package_version": "0.1.0",
+      "spec_version": "1.0.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "engine_family": "typescript-independent",
+      "command": [
+        "/Users/jagatranvo/.nvm/versions/node/v23.5.0/bin/node",
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-vw7eqo07/typescript-consumer/node_modules/@jagalite/statelessness/bin/corpus.mjs"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "engine_family": "swift-independent",
+      "implementation": "swift",
+      "package_version": "0.1.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "spec_version": "1.0.0",
+      "command": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-vw7eqo07/swift-package/.build/arm64-apple-macosx/debug/stateless-corpus"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    },
+    {
+      "implementation": "rust",
+      "package_version": "0.1.0",
+      "profiles": [
+        "core-v1",
+        "bfs-v1",
+        "rng-splitmix64-v1",
+        "trace-json-v1"
+      ],
+      "protocol_version": 1,
+      "spec_version": "1.0.0",
+      "engine_family": "rust-shared",
+      "command": [
+        "/private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-native-append-vw7eqo07/rust-portable"
+      ],
+      "golden_cases": 94,
+      "generated_graphs": 530,
+      "metamorphic_cases": 32,
+      "portability_cases": 38,
+      "transport_cases": 23,
+      "failures": 0
+    }
+  ],
+  "engine_families": [
+    "go-independent",
+    "python-independent",
+    "rust-shared",
+    "swift-independent",
+    "typescript-independent"
+  ],
+  "independent_engine_count": 5,
+  "engine_attribution": "runner-declared; unknown runners are not counted as independent",
+  "fresh_process_replays": 550,
+  "elapsed_seconds": 4.946,
+  "failures": []
+}

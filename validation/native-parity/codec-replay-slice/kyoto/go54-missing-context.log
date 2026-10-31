@@ -1,0 +1,8 @@
+--- FAIL: TestReplayEvidenceSharedCorpus (0.01s)
+    --- FAIL: TestReplayEvidenceSharedCorpus/actual-current-metadata-run-quota (0.00s)
+        replay_corpus_test.go:240: error audit limit_exceeded: frame bytes must contain "bounded replay initial"
+    --- FAIL: TestReplayEvidenceSharedCorpus/initial-complete-checks-quota-before-failure-flag (0.00s)
+        replay_corpus_test.go:240: error audit limit_exceeded: frame bytes must contain "bounded replay initial"
+FAIL
+FAIL	github.com/Jagalite/statelessness/go	0.232s
+FAIL

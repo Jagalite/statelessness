@@ -1,0 +1,12 @@
+Processing /var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-6tevuyxu/package
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: statelessness
+  Building wheel for statelessness (pyproject.toml): started
+  Building wheel for statelessness (pyproject.toml): finished with status 'done'
+  Created wheel for statelessness: filename=statelessness-0.1.0-py3-none-any.whl size=139708 sha256=227a2165b2739bf2b052208415f6b2f360784aeff9b8325b70673407914a64d1
+  Stored in directory: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/pip-ephem-wheel-cache-28twu529/wheels/13/99/a8/32454853a0f52208ad0a037a235eede33f532eeed58a1a27ee
+Successfully built statelessness
+
+[notice] A new release of pip is available: 26.1.2 -> 26.2.2
+[notice] To update, run: /private/var/folders/p2/hs2582qs5672qbvtm4z5_9840000gn/T/stateless-debugger-installed-6tevuyxu/builder/bin/python -m pip install --upgrade pip

@@ -1,0 +1,17 @@
+{
+  "base_commit": "732578595b16052a8f922f122b41d7091258b476",
+  "compile_job": "47fbcc6ce3c941bf8d74727338f51e08",
+  "execution": "pending",
+  "files": {
+    "crates/statelessness-debug/tests/n12_reference.rs": "c869211cb185a8fb0e4a367a28e7a6fbe6aa9124ce59912d10f8a5331526f3ad",
+    "crates/statelessness-debug/src/evidence.rs": "e1dfac178820ab7d7a095abf5d2bd72bd5fe553dc027bcb3aeed6d3eb9bcf091",
+    "crates/statelessness-debug/src/workbench.rs": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d",
+    "crates/statelessness-debug/src/protocol.rs": "3c6e3d38d49b3b3f82f5b1cee3b48ed7da8a20d5373538a05506d054f9c687d5",
+    "crates/statelessness-debug/src/session.rs": "cda89b387534b898d264d47212bd46acf295e45329acfd3af06b561c45ce6a29",
+    "crates/statelessness-debug/src/effects.rs": "9504964df78c82e0338d7f7592786dfd9dd9428749ecb02d4ae76b3fc635bcae",
+    "crates/statelessness-debug/src/metrics.rs": "78e69a0f9adba15bc34864109c7e86c57952f1037f32f2753b62383261a94d0f",
+    "crates/statelessness-debug/src/inspect.rs": "106cee7faed51e0ba77d02695399faed8c84963538d970428a149766c84ce0c0",
+    "validation/native-parity/debugger-diagnostics/reference/manual-goldens.json": "5418946a4fa69050695c5fd12ea61ab14762048746700f63bc93ef6bae471d4a",
+    "validation/native-parity/debugger-diagnostics/reference/protocol-manual-goldens.json": "09ad61c91b44709cdd3a0dfaa89c233d700860aee8da4ec1c22a491de1e429a4"
+  }
+}

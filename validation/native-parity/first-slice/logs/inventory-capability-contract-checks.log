@@ -1,0 +1,9 @@
+3327 lexical candidates in 59 pinned files; semantic export audit pending
+capability matrix matches source declarations (no runtime qualification)
+test_independent_counts_and_required_negative_cases (test_paired_profile.PairedProfileTests.test_independent_counts_and_required_negative_cases) ... ok
+test_normalized_schema_when_validator_is_available (test_paired_profile.PairedProfileTests.test_normalized_schema_when_validator_is_available) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.917s
+
+OK
