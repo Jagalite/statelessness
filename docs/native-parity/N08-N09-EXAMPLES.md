@@ -32,26 +32,49 @@ The network consumer records a three-machine ring whose global sum fails after
 three observed transitions. Each child describes one outgoing effect; routing
 retains one message and only an explicit deliver input executes the next child.
 The unchanged native trace recorder captures the failure. Separate fresh-process
-replayers assert `outcome=exact` and `failure_reproduced=true`. The qualification
-runner attempts all 16 directed native producer/consumer combinations. This is
-one compatible application identity, not a claim about arbitrary application
-serialization or pinned Rust binary-format interchange.
+replayers assert `outcome=exact` and `failure_reproduced=true`. The runner
+checks all 25 Rust/native ordered pairs: matching reported builds use strict
+replay; differing builds must first reject strict replay and then pass a separately
+labeled explicit cross-build observation comparison. Matching reported build
+strings do not establish identical artifact provenance. This is one compatible
+application identity, not a claim about arbitrary application serialization.
 
 Run the source-bound runner only through the shared Kyoto queue, against an
-immutable source copy, with output outside that copy:
+immutable source copy, with output outside that copy. First submit the Rust
+build-mismatch spy for compilation from that copy and wait for its successful
+terminal result. The runner requires the compile-only form: the job's effective
+command must be the requested command with `--no-run` appended, and any other
+form is rejected as unverified provenance:
+
+```sh
+cd /absolute/frozen/source
+python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit -- \
+  cargo test --test execution strict_build_mismatch_rejects_before_model_or_observer_callbacks \
+  --target-dir /absolute/new/spy-target
+```
+
+Use `kyoto.py show JOB_ID` and `kyoto.py logs JOB_ID` to obtain the compiled
+`execution-*` test executable. Then submit the runner, which verifies the job
+and executes exactly one spy test (a missing test is a failure):
 
 ```sh
 python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit -- \
   python3 /absolute/frozen/source/scripts/qualify-native-stateful.py \
-  --source /absolute/frozen/source --output /absolute/new/receipt-directory
+  --source /absolute/frozen/source --output /absolute/new/receipt-directory \
+  --rust-spy-executable /absolute/new/spy-target/debug/deps/execution-HASH \
+  --rust-spy-kyoto-job JOB_ID
 ```
 
-The runner records every command, exit status, elapsed wall time, log hash, source
+The compile-time source and executable linkage remains caller-attested; the runner
+records the source manifest, Kyoto job and executable hash but cannot prove the
+source or executable was not replaced between compilation and verification. The
+runner records every command, exit status, elapsed wall time, log hash, source
 manifest and package/executable hashes. It builds ordinary wheel, Go module, npm
 package and SwiftPM consumers. A rejected compiler invocation is never counted as
 a detected semantic mutant. The explicit Python mutation removes stale-reference
 rejection in a separate source copy and must produce the independently expected
-assertion failure. That single control does not qualify mutations in other engines.
+assertion failure. The runner also executes separate native lifecycle mutants;
+passing those controls does not establish general mutation coverage.
 
 Current qualification state and unresolved scope belong in the lane handoff,
 not in an inferred pass based on these commands merely existing.

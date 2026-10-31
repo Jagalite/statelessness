@@ -73,6 +73,12 @@ acceptance. Parent acceptance review remains required.
 
 ## Remaining blockers and required continuation
 
+> **Update 2026-10-31.** The Rust producer/consumer leg now exists
+> (`examples/native-stateful/rust/`, wired into `scripts/qualify-native-stateful.py`),
+> and the opt-in `rust-debug-v1` indexed diagnostics are implemented in all four
+> ports (see [contract](N08-N09-CONTRACT.md)). Items 1, 2, 4 and 5 remain
+> qualification work on a new frozen source; the queued job below is stale.
+
 1. Current source has **not compiled or executed**. Wait for the existing queued
    job; do not duplicate its frozen source job. Read every command result and fix
    failures in a new source snapshot. Never edit `/tmp/stateless-n0809-r6`.

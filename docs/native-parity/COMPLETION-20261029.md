@@ -121,8 +121,9 @@ does not itself merge the PR, publish a package, or authorize a release.
 - Modeling checkpoint `ffcc1c57e3e2ce3a22b108937aaea07f9b1ea177` is retained
   with additive domain/model helpers and all earlier root exports. Its existing
   Kyoto job `3daccd1f7b9641dba02d96840cadd780` remains source-specific and queued.
-  Pinned RequestModel interchange, combined CLI routing, installed runtime and
-  platform/resource evidence remain open. Original lane worktrees and copied
+  Pinned RequestModel interchange, installed runtime and platform/resource
+  evidence remain open. (Combined CLI routing was later dropped: the Rust binary
+  is a documented Rust-only mechanism.) Original lane worktrees and copied
   snapshots are preserved for their jobs.
 - Stateful checkpoint `951b2c414cf5ae5172598a2a6ac20b17367346b5` adds independent
   composition, networks, and legacy/indexed lifecycle candidates. The combined
@@ -145,3 +146,13 @@ does not itself merge the PR, publish a package, or authorize a release.
 
 No final checklist item or broad language-parity cell closes from these source
 integrations. PR #12 remains unmerged and unchanged remotely.
+
+## 2026-10-31 checkpoint (not acceptance)
+
+A code-checked audit found most lane handoff gaps already implemented in the
+uncommitted tree. The remaining source gaps and all independent review findings
+are now implemented, and local live-tree suites pass in all five languages; see
+[the status summary](../NATIVE-PARITY-STATUS.md#current-state-2026-10-31). No
+checklist item above closes from this: every gate still needs frozen-source
+qualification. The five-engine debugger wire corpus is deferred to the
+verification pass ([plan](https://claude.ai/artifact/N4qigTcK8bzDn4i7d9RsGs)). Native command-line parity is not required.

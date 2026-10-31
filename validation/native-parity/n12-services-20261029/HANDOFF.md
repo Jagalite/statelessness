@@ -68,6 +68,12 @@ This maps source, not behavioral equivalence. Parent owns the global ledger.
 
 ## Remaining work — implementation, not external blockers
 
+> **Update 2026-10-31.** Items 1 and 2 are implemented in the working tree:
+> Swift `enableWatches`, Go/TypeScript/Swift probe attachment, and Go/Swift
+> observer-backed telemetry, plus Go sink health (`abandoned`) and Rust-order
+> telemetry fields. Item 3 is deferred to the verification pass
+> ([wire corpus plan](https://claude.ai/artifact/N4qigTcK8bzDn4i7d9RsGs)). Items 4 and 5 remain qualification work.
+
 1. Swift watch registry attachment; Go/TypeScript/Swift probe hub attachment.
 2. Go/Swift observer-backed metric/effect/telemetry protocol attachment.
 3. Successful attached-service installed five-engine direct wire corpus with all

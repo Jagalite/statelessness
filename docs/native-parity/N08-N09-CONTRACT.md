@@ -102,6 +102,62 @@ are not claimed to be identical. This is an explicit remaining parity gap, not
 an accepted exception or a reason to mark N09 complete. Identical indexed history
 bytes across consumers are a separate claim from exact failure-trace replay.
 
+## Indexed Rust Debug diagnostics candidate (opt-in)
+
+This candidate adds a separate indexed-monitor diagnostic policy; it does not
+change legacy monitors or the default `native-codes-v1` policy. It targets the
+pinned Rust monitor's check *details*, not automatic equality of monitor metadata
+or unconditional compatibility of arbitrary application key types.
+
+The caller supplies both (1) a formatter for the inner application key `K` and
+(2) a formatter for `code` and `event` strings. Each returns the complete text
+that the pinned Rust toolchain would produce for `Debug`, including any quotes
+and escapes. Both are necessary: `K` is application-defined, and Rust string
+Debug escaping depends on the Rust toolchain's Unicode tables. Each callback must
+return a valid string synchronously; other values are model errors. Native languages
+must not silently substitute JSON, their own `repr`, or an approximate Unicode
+classification. Callbacks are synchronous, stable for the lifetime of the
+monitor, and must not mutate retained history. Failure is a model error, never a
+passing check. Compute and validate the diagnostic output before publishing a
+partial check batch. Application callback work and returned text allocations are
+not covered by the history retention limits.
+
+A nonempty, valid UTF-8 stable formatter identity declares the caller's compatibility promise
+for **both** callbacks. The indexed semantic name appends exactly
+`;diagnostics=rust-debug-v1;formatter=<N>:<identity>`, where N is the UTF-8 byte
+length of the identity written as decimal digits. This disambiguates identities
+containing separators; it does not prove the callback is correct and does not
+claim byte equality with pinned Rust's own metadata name. Existing native mode
+retains its prior identity and behavior. Applications must arrange compatible
+model and formatter identities when replaying evidence across engines.
+
+The monitor owns the outer templates, field order, punctuation, and spacing.
+`ScopedKey` is `ScopedKey { epoch: E, generation: G, key: KDEBUG }`; u64 and
+counts are unsigned decimal and booleans are lowercase. `Obligation` is
+`Obligation { deadline: D, cancelled: C, settled: S, published: P }`.
+`Violation` is `Violation { key: KEY, code: CODE, event: EVENT, observed_at: T,
+prior: PRIOR }`, where optional values use `None` or `Some(VALUE)` and CODE and
+EVENT are callback results. Violations retain insertion order, joined by `, ` in
+square brackets. Retention is `RetentionStatus { active_obligations: A,
+historical_obligations: H, acquired_resources: R, historical_resources: S,
+oldest_unresolved: OLD, retired_before: F }`; OLD is `None` or
+`Some((SCOPED_KEY, DEADLINE))`. Ties for oldest pending deadline use the first
+key in canonical order, matching Rust's BTreeMap traversal.
+
+The failing safety detail is `violations=VECTOR; retention=RETENTION`; this also
+applies when the violations vector is empty but an obligation is overdue. A
+pending obligations check is skipped with detail `finite history: RETENTION`.
+The passing conditions and property IDs remain unchanged. Exact whitespace and
+field order are part of this candidate, but callback correctness and toolchain
+compatibility are caller responsibilities. The Rust executable reference
+`tests/n09_debug_reference.rs` covers empty and populated structures, options,
+booleans, escaping, and Unicode. `tests/n09_monitor_debug_reference.rs` asserts exact failure and
+skip details from the actual Rust monitor for a duplicate Begin. These reference
+cases do not establish cross-engine parity or cover all Unicode code points.
+Cross-engine acceptance still requires independently specified positive and
+negative fixtures, restored arbitrary strings, callback failure behavior, identity
+mismatch controls, and actual monitor execution in every engine.
+
 ## Pinned-surface correspondence
 
 The source inventory entries `composition`, `network`, and lifecycle entries in
