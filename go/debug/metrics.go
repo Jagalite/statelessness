@@ -119,7 +119,7 @@ func metricKind(f MetricFamily) MetricKind {
 type LabelCatalog struct{ Operations, Components, WorkerPools []string }
 
 func DefaultLabelCatalog() LabelCatalog {
-	return LabelCatalog{[]string{"default"}, []string{"default"}, []string{"default"}}
+	return LabelCatalog{[]string{"unspecified"}, []string{"host"}, []string{"default"}}
 }
 func (c LabelCatalog) valid() bool {
 	for _, xs := range [][]string{c.Operations, c.Components, c.WorkerPools} {
@@ -238,6 +238,27 @@ type MetricSnapshot struct {
 	Temporality     string
 }
 
+// Get returns a detached value for a series. Histogram storage, including its
+// arbitrary-precision sum, does not alias the snapshot.
+func (s MetricSnapshot) Get(family MetricFamily, labels Labels) (MetricValue, bool) {
+	v, ok := s.Series[SeriesKey{Family: family, Labels: labels}]
+	if ok && v.Histogram != nil {
+		h := *v.Histogram
+		h.SumNS = *new(big.Int).Set(&v.Histogram.SumNS)
+		v.Histogram = &h
+	}
+	return v, ok
+}
+
+// Histogram returns a detached histogram only when the series has that kind.
+func (s MetricSnapshot) Histogram(family MetricFamily, labels Labels) (*Histogram, bool) {
+	v, ok := s.Get(family, labels)
+	if !ok || v.Kind != HistogramMetric || v.Histogram == nil {
+		return nil, false
+	}
+	return v.Histogram, true
+}
+
 func cloneSnapshot(s MetricSnapshot) MetricSnapshot {
 	r := s
 	r.GaugeScopes = map[SeriesKey]GaugeScope{}
@@ -323,6 +344,8 @@ type MetricsStore struct {
 	s                 MetricSnapshot
 	limits            MetricLimits
 	history           []MetricSnapshot
+	historyCosts      []int
+	historyBytes      int
 	bytes             int
 	lastValidEnd      *LocalInstant
 	defaultGaugeScope GaugeScope
@@ -476,10 +499,9 @@ func (m *MetricsStore) Observe(f MetricFamily, l Labels, n uint64) {
 func (m *MetricsStore) MarkIncomplete()         { m.s.Complete = false }
 func (m *MetricsStore) Current() MetricSnapshot { return cloneSnapshot(m.s) }
 func (m *MetricsStore) Snapshot(end *LocalInstant) (MetricSnapshot, error) {
-	if m.s.Revision == math.MaxUint64 {
-		return MetricSnapshot{}, ErrMetric
+	if m.s.Revision < math.MaxUint64 {
+		m.s.Revision++
 	}
-	m.s.Revision++
 	m.s.End = nil
 	if end != nil {
 		valid := true
@@ -505,12 +527,16 @@ func (m *MetricsStore) Snapshot(end *LocalInstant) (MetricSnapshot, error) {
 		satInc(&m.s.Health.SnapshotRejections)
 		return m.Current(), nil
 	}
-	for len(m.history) > 0 && (len(m.history) >= m.limits.MaxSnapshots || cost*(len(m.history)+1) > m.limits.MaxSnapshotBytes) {
+	for len(m.history) > 0 && (len(m.history) >= m.limits.MaxSnapshots || cost > m.limits.MaxSnapshotBytes-m.historyBytes) {
 		m.history = m.history[1:]
+		m.historyBytes -= m.historyCosts[0]
+		m.historyCosts = m.historyCosts[1:]
 		satInc(&m.s.Health.SnapshotsEvicted)
 	}
 	s := m.Current()
 	m.history = append(m.history, s)
+	m.historyCosts = append(m.historyCosts, cost)
+	m.historyBytes += cost
 	return cloneSnapshot(s), nil
 }
 func (m *MetricsStore) AvailableWindows() []uint64 {
@@ -523,10 +549,10 @@ func (m *MetricsStore) AvailableWindows() []uint64 {
 func (m *MetricsStore) Window(from, to uint64) (MetricSnapshot, error) {
 	var a, b *MetricSnapshot
 	for i := range m.history {
-		if m.history[i].Revision == from {
+		if a == nil && m.history[i].Revision == from {
 			a = &m.history[i]
 		}
-		if m.history[i].Revision == to {
+		if b == nil && m.history[i].Revision == to {
 			b = &m.history[i]
 		}
 	}
@@ -540,6 +566,11 @@ func (s MetricSnapshot) Production() MetricSnapshot {
 	for k := range r.Series {
 		if k.Labels.Origin != OriginLive || k.Labels.DebuggerAffected {
 			delete(r.Series, k)
+		}
+	}
+	for k := range r.GaugeScopes {
+		if k.Labels.Origin != OriginLive || k.Labels.DebuggerAffected {
+			delete(r.GaugeScopes, k)
 		}
 	}
 	return r
@@ -612,15 +643,31 @@ func (s *MetricSnapshot) MergeDisjoint(other MetricSnapshot) error {
 		r.Series[k] = a
 	}
 	families := map[MetricFamily]bool{}
-	cost := 512
-	for k, v := range r.Series {
-		families[k.Family] = true
-		cost += 128
-		if v.Histogram != nil {
-			cost += 640
+	cost := 0
+	charge := func(n int) bool {
+		if n < 0 || cost > s.Limits.MaxBytes || n > s.Limits.MaxBytes-cost {
+			return false
+		}
+		cost += n
+		return true
+	}
+	if !charge(512) || len(r.Schema.FiniteBoundsNS) > (s.Limits.MaxBytes-cost)/8 || !charge(len(r.Schema.FiniteBoundsNS)*8) {
+		return ErrMetric
+	}
+	for _, names := range [][]string{r.Labels.Operations, r.Labels.Components, r.Labels.WorkerPools} {
+		for _, name := range names {
+			if !charge(24) || !charge(len(name)) {
+				return ErrMetric
+			}
 		}
 	}
-	if len(r.Series) > s.Limits.MaxSeries || len(families) > s.Limits.MaxFamilies || cost > s.Limits.MaxBytes {
+	for k, v := range r.Series {
+		families[k.Family] = true
+		if !charge(128) || (v.Histogram != nil && !charge(640)) {
+			return ErrMetric
+		}
+	}
+	if len(r.Series) > s.Limits.MaxSeries || len(families) > s.Limits.MaxFamilies {
 		return ErrMetric
 	}
 	dst := []*uint64{&r.Health.RejectedSeries, &r.Health.InvalidLabels, &r.Health.ArithmeticErrors, &r.Health.OmittedMeasurements, &r.Health.InvalidMeasurements, &r.Health.ImportedIgnored, &r.Health.SnapshotsEvicted, &r.Health.SnapshotRejections}

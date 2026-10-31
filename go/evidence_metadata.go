@@ -380,20 +380,22 @@ func (d *evidenceMetadataDecoder) provenance() (p Provenance) {
 	}
 	defer func() { d.depth-- }()
 	n := uint64(d.u32())
-	if !d.collection(n, evidenceEnvironmentWeight, 8) {
+	if !d.collection(n, evidenceEnvironmentWeight, 0) {
 		return
 	}
-	p.Environment = make([][2]string, int(n))
-	for i := range p.Environment {
+	// Grow only after decoding each element; a forged count must not reserve
+	// memory before its first malformed or missing element is inspected.
+	p.Environment = make([][2]string, 0)
+	for i := uint64(0); i < n; i++ {
 		if !d.enter() {
 			return
 		}
-		p.Environment[i][0] = d.str()
-		p.Environment[i][1] = d.str()
+		pair := [2]string{d.str(), d.str()}
 		d.depth--
 		if d.err != nil {
 			return
 		}
+		p.Environment = append(p.Environment, pair)
 	}
 	return
 }
@@ -411,20 +413,20 @@ func (d *evidenceMetadataDecoder) causal() (c CausalContext) {
 	}
 	defer func() { d.depth-- }()
 	n := uint64(d.u32())
-	if !d.collection(n, evidenceOriginWeight, 12) {
+	if !d.collection(n, evidenceOriginWeight, 0) {
 		return
 	}
-	c.Causes = make([]OutputOrigin, int(n))
-	for i := range c.Causes {
+	c.Causes = make([]OutputOrigin, 0)
+	for i := uint64(0); i < n; i++ {
 		if !d.enter() {
 			return
 		}
-		c.Causes[i].Sequence = d.u64()
-		c.Causes[i].Output = d.u32()
+		origin := OutputOrigin{Sequence: d.u64(), Output: d.u32()}
 		d.depth--
 		if d.err != nil {
 			return
 		}
+		c.Causes = append(c.Causes, origin)
 	}
 	return
 }
@@ -447,13 +449,14 @@ func decodeEvidenceMetadata(data []byte, max uint64) (checkpoint uint64, provena
 	provenance = d.provenance()
 	if d.enter() {
 		n := uint64(d.u32())
-		if d.collection(n, evidenceStepWeight, 20) {
-			steps = make([]StepEvidence, int(n))
-			for i := range steps {
-				steps[i] = d.step()
+		if d.collection(n, evidenceStepWeight, 0) {
+			steps = make([]StepEvidence, 0)
+			for i := uint64(0); i < n; i++ {
+				step := d.step()
 				if d.err != nil {
 					break
 				}
+				steps = append(steps, step)
 			}
 		}
 		d.depth--

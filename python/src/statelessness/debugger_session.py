@@ -4,7 +4,7 @@ No delivery effects are dispatched. Python guards reentrant mutations explicitly
 callbacks remain cooperative and are not sandboxed against reflection.
 """
 from dataclasses import dataclass
-from .core import ModelError, CheckPolicy, U64_MAX, _call, _copy, _natural, _step
+from .core import ModelError, CheckPolicy, U64_MAX, _call, _copy, _error_detail, _natural, _step
 from .checked import check_initial, check_turn, TurnObservation
 from .debugger import InputPolicy
 
@@ -68,7 +68,7 @@ class DebugSession:
                 if any(c.status == 'failed' for c in self._initial_checks): self._stop = StopReason('property_failure')
             except Exception as error:
                 self._initial_checks, self._checks_complete = (), False
-                self._stop = StopReason('initial_check_error', str(error))
+                self._stop = StopReason('initial_check_error', _error_detail(error))
             if recorder_options is not None and self._checks_complete:
                 from .monitor import Recorder
                 from .trace_binary import RunConfig
@@ -82,13 +82,14 @@ class DebugSession:
                         ('stateless.debug.origin', 'out-of-domain-injection' if policy.unrestricted else 'simulation'))
                     self._recorder = Recorder.with_checked_initial(checked, RunConfig(base.strategy, base.seed, parameters), recorder_options)
                 except Exception as error:
-                    self._issues.append('exact recording: ' + str(error))
-                    if self._stop is None: self._stop = StopReason('recording_error', str(error))
+                    detail = _error_detail(error)
+                    self._issues.append('exact recording: ' + detail)
+                    if self._stop is None: self._stop = StopReason('recording_error', detail)
             if self._stop: self._phase = 'ended'
         finally: self._busy = False
 
     @property
-    def state(self): return _copy(self._state)
+    def state(self): return self._read_copy(self._state)
     @property
     def id(self): return self._id
     @property
@@ -108,9 +109,9 @@ class DebugSession:
     @property
     def check_policy(self): return self._check_policy
     @property
-    def initial_checks(self): return _copy(self._initial_checks)
+    def initial_checks(self): return self._read_copy(self._initial_checks)
     @property
-    def observation(self): return _copy(self._last)
+    def observation(self): return self._read_copy(self._last)
     @property
     def diagnostic_errors(self): return tuple(self._issues)
     @property
@@ -119,6 +120,13 @@ class DebugSession:
     def capabilities(self):
         return {'mode': 'simulation', 'typed_input': True, 'exact_recording': self._recorder is not None,
                 'enumerate_inputs': False, 'effects_dispatched': False, 'live_restore': False}
+
+    def _read_copy(self, value):
+        # Reads may nest inside callbacks, but clone hooks cannot mutate the
+        # session while the snapshot is being constructed.
+        was_busy, self._busy = self._busy, True
+        try: return _copy(value)
+        finally: self._busy = was_busy
 
     def export_trace(self):
         self._guard()
@@ -178,7 +186,7 @@ class DebugSession:
             before = self.state
             try: transition = _step(self._model, before, input)
             except Exception as error:
-                self._stop = StopReason('model_error', str(error))
+                self._stop = StopReason('model_error', _error_detail(error))
                 if self._recorder is not None: self._recorder.stop_with_error(error)
                 return StepResult(self._sequence, False, self._stop)
             self._sequence += 1; self._revision += 1
@@ -190,10 +198,11 @@ class DebugSession:
                 if self._recorder is not None:
                     try: self._recorder.observe_checked(checked)
                     except Exception as error:
-                        self._issues.append('exact recording: ' + str(error))
-                        if self._stop is None: self._stop = StopReason('recording_error', str(error))
+                        detail = _error_detail(error)
+                        self._issues.append('exact recording: ' + detail)
+                        if self._stop is None: self._stop = StopReason('recording_error', detail)
             except Exception as error:
-                self._checks_complete, self._stop = False, StopReason('checker_error', str(error))
+                self._checks_complete, self._stop = False, StopReason('checker_error', _error_detail(error))
                 if self._recorder is not None: self._recorder.stop_with_error(error)
             actual = TurnObservation(self._sequence, before, _copy(input), _copy(transition), checks, boundary)
             # Prepare publication before invoking fallible diagnostic callbacks.
@@ -207,8 +216,9 @@ class DebugSession:
                         if value:
                             self._stop = StopReason('post_breakpoint', id); break
             except Exception as error:
-                self._issues.append(str(error))
-                self._stop = StopReason('observer_error', str(error))
+                detail = _error_detail(error)
+                self._issues.append(detail)
+                self._stop = StopReason('observer_error', detail)
                 raise
             finally:
                 # A diagnostic fault cannot rewind a completed, recorded turn.
@@ -219,8 +229,9 @@ class DebugSession:
                     value = _call('debug observer', observer, self.observation)
                     if value is not None: raise ModelError('observer must return None synchronously')
                 except Exception as error:
-                    self._issues.append(str(error))
-                    if self._stop is None: self._stop = StopReason('observer_error', str(error))
+                    detail = _error_detail(error)
+                    self._issues.append(detail)
+                    if self._stop is None: self._stop = StopReason('observer_error', detail)
                     terminal = True
             self._phase = 'ended' if terminal else 'paused'
             return StepResult(self._sequence, True, self._stop)

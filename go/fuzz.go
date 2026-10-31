@@ -1,6 +1,8 @@
 package statelessness
 
 import (
+	"math/bits"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -8,15 +10,41 @@ import (
 // RunLimits interrupt between callbacks, never preempt arbitrary callback work.
 // Cancellation takes priority over deadline. Nil duration means no wall clock.
 type RunLimits struct {
-	MaxDuration  *time.Duration
-	Cancellation *atomic.Bool
+	MaxDuration *time.Duration
+	// MaxDurationNS supports an exact unsigned 128-bit nanosecond budget. It is
+	// mutually exclusive with MaxDuration. The monotonic clock must be polled
+	// at least once per maximum time.Duration interval (about 292 years).
+	MaxDurationNS *Uint128
+	Cancellation  *atomic.Bool
+}
+type exactDeadlineClock struct {
+	mu      sync.Mutex
+	last    time.Time
+	elapsed Uint128
 }
 type runControl struct {
 	limits  RunLimits
 	started time.Time
+	exact   *exactDeadlineClock
+}
+
+func snapshotRunLimits(limits RunLimits) RunLimits {
+	if limits.MaxDuration != nil {
+		v := *limits.MaxDuration
+		limits.MaxDuration = &v
+	}
+	if limits.MaxDurationNS != nil {
+		v := *limits.MaxDurationNS
+		limits.MaxDurationNS = &v
+	}
+	return limits
 }
 
 func newRunControl(limits RunLimits) (runControl, error) {
+	limits = snapshotRunLimits(limits)
+	if limits.MaxDuration != nil && limits.MaxDurationNS != nil {
+		return runControl{}, &ConfigError{"duration forms are mutually exclusive"}
+	}
 	if limits.MaxDuration != nil && *limits.MaxDuration < 0 {
 		return runControl{}, &ConfigError{"negative duration"}
 	}
@@ -27,6 +55,9 @@ func newRunControl(limits RunLimits) (runControl, error) {
 		c.limits.MaxDuration = &duration
 		c.started = time.Now()
 	}
+	if limits.MaxDurationNS != nil {
+		c.exact = &exactDeadlineClock{last: time.Now()}
+	}
 	return c, nil
 }
 func (c runControl) stop() string {
@@ -36,203 +67,108 @@ func (c runControl) stop() string {
 	if c.limits.MaxDuration != nil && time.Since(c.started) >= *c.limits.MaxDuration {
 		return "deadline"
 	}
+	if c.exact != nil {
+		remaining := c.remainingExact()
+		if remaining.Hi == 0 && remaining.Lo == 0 {
+			return "deadline"
+		}
+	}
 	return ""
 }
 
-type FuzzConfig struct {
+// remainingExact advances the shared monotonic checkpoint and saturates at
+// zero. Copies of a runControl share this clock for concurrent campaign polls.
+func (c runControl) remainingExact() Uint128 {
+	c.exact.mu.Lock()
+	now := time.Now()
+	elapsed := now.Sub(c.exact.last)
+	c.exact.last = now
+	if elapsed > 0 {
+		lo, carry := bits.Add64(c.exact.elapsed.Lo, uint64(elapsed), 0)
+		hi, overflow := bits.Add64(c.exact.elapsed.Hi, 0, carry)
+		if overflow != 0 {
+			lo, hi = ^uint64(0), ^uint64(0)
+		}
+		c.exact.elapsed = Uint128{Lo: lo, Hi: hi}
+	}
+	used := c.exact.elapsed
+	c.exact.mu.Unlock()
+	max := *c.limits.MaxDurationNS
+	if used.Hi > max.Hi || used.Hi == max.Hi && used.Lo >= max.Lo {
+		return Uint128{}
+	}
+	lo, borrow := bits.Sub64(max.Lo, used.Lo, 0)
+	hi, _ := bits.Sub64(max.Hi, used.Hi, borrow)
+	return Uint128{Hi: hi, Lo: lo}
+}
+
+// RunDeadline preserves one cooperative deadline across independently invoked
+// engine phases. Cancellation remains live; Remaining returns owned budgets.
+type RunDeadline struct{ control runControl }
+
+func NewRunDeadline(limits RunLimits) (*RunDeadline, error) {
+	control, err := newRunControl(limits)
+	if err != nil {
+		return nil, err
+	}
+	return &RunDeadline{control: control}, nil
+}
+func (d *RunDeadline) Stop() string         { return d.control.stop() }
+func (d *RunDeadline) Remaining() RunLimits { return d.control.remaining() }
+
+func (c runControl) remaining() RunLimits {
+	limits := c.limits
+	if limits.MaxDuration != nil {
+		duration := *limits.MaxDuration - time.Since(c.started)
+		if duration < 0 {
+			duration = 0
+		}
+		limits.MaxDuration = &duration
+	}
+	if limits.MaxDurationNS != nil {
+		remaining := c.remainingExact()
+		limits.MaxDurationNS = &remaining
+	}
+	return limits
+}
+
+type FuzzConfig64 struct {
 	Seed            uint64
-	Cases, MaxSteps int
+	Cases, MaxSteps uint64
 	MaxTransitions  uint64
 	MutationPercent int
 }
 
-func DefaultFuzzConfig() FuzzConfig { return FuzzConfig{0, 1000, 100, 100000, 50} }
+func DefaultFuzzConfig64() FuzzConfig64 { return FuzzConfig64{0, 1000, 100, 100000, 50} }
 
-type FuzzReport[I any] struct {
+type FuzzReport64[I any] struct {
 	Termination                string
 	Seed                       uint64
-	Cases                      int
+	Cases                      uint64
 	Transitions, SkippedChecks uint64
 	Failure                    *Failure[I]
+	// Guidance is nil for ordinary fuzz and owned by a successful guided report.
+	Guidance *GuidanceReport64[I]
 }
 
-func Fuzz[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig) (*FuzzReport[I], error) {
-	return FuzzWithLimits(g, config, RunLimits{})
+func Fuzz64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64) (*FuzzReport64[I], error) {
+	return FuzzWithLimits64(g, config, RunLimits{})
 }
-func FuzzWithLimits[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limits RunLimits) (*FuzzReport[I], error) {
-	return fuzzObserved(g, config, limits, nil)
+func FuzzWithLimits64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits) (*FuzzReport64[I], error) {
+	return fuzzObserved64(g, config, limits, nil)
 }
-func fuzzObserved[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig, limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport[I], error) {
-	if e := g.validate(); e != nil {
+func fuzzObserved64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, limits RunLimits, observer *SearchObserver[S, I, O]) (*FuzzReport64[I], error) {
+	if e := validateFuzzModel(g); e != nil {
 		return nil, e
 	}
-	if g.InitialState == nil || g.Step == nil || g.Generate == nil {
-		return nil, &ModelError{"fuzz requires initial, step and generate callbacks"}
-	}
-	if config.Cases < 0 || config.MaxSteps < 0 || config.MutationPercent < 0 || config.MutationPercent > 100 {
-		return nil, &ConfigError{"invalid fuzz configuration"}
+	if e := validateFuzzConfig64(config); e != nil {
+		return nil, e
 	}
 	control, e := newRunControl(limits)
 	if e != nil {
 		return nil, e
 	}
-	report := &FuzzReport[I]{Termination: "cases_completed", Seed: config.Seed}
-	stop := func() bool {
-		if reason := control.stop(); reason != "" {
-			report.Termination = reason
-			return true
-		}
-		return false
-	}
-	if stop() {
-		return report, nil
-	}
-	rng := NewRng(config.Seed)
-	var checkStorage []Check
-	var previous []I
-	for c := 0; c < config.Cases; c++ {
-		if stop() {
-			return report, nil
-		}
-		state, e := call("initial state", g.InitialState)
-		if e != nil {
-			return nil, e
-		}
-		state, e = copied(g.CloneState, state)
-		if e != nil {
-			return nil, e
-		}
-		report.Cases++
-		checks, e := searchInitialObservedInto(g.Model, state, observer, &checkStorage)
-		if e != nil {
-			return nil, e
-		}
-		violations := findings("initial_state", checks, &report.SkippedChecks)
-		if len(violations) > 0 {
-			report.Failure = &Failure[I]{Inputs: []I{}, Violations: violations}
-			report.Termination = "failure_found"
-			return report, nil
-		}
-		if stop() {
-			return report, nil
-		}
-		var mutated []I
-		replacement := -1
-		if len(previous) > 0 {
-			draw, _ := rng.Index(100)
-			if draw < uint64(config.MutationPercent) {
-				mutated, e = cloneInputs(g, previous)
-				if e != nil {
-					return nil, e
-				}
-				start, _ := rng.Index(uint64(len(mutated)))
-				span, _ := rng.Index(uint64(len(mutated)) - start)
-				end := int(start + span + 1)
-				mutated = append(mutated[:int(start)], mutated[end:]...)
-				r, _ := rng.Index(uint64(len(mutated) + 1))
-				replacement = int(r)
-			}
-		}
-		inputs := []I{}
-		for step := 0; step < config.MaxSteps; step++ {
-			if report.Transitions == config.MaxTransitions {
-				report.Termination = "transition_limit"
-				return report, nil
-			}
-			if stop() {
-				return report, nil
-			}
-			var input I
-			reused := false
-			if replacement != step && step < len(mutated) {
-				enabled, e := g.enabled(state, mutated[step])
-				if e != nil {
-					return nil, e
-				}
-				if enabled {
-					input, e = copied(g.CloneInput, mutated[step])
-					if e != nil {
-						return nil, e
-					}
-					reused = true
-				}
-			}
-			if stop() {
-				return report, nil
-			}
-			ok := true
-			if !reused {
-				type generated struct {
-					value I
-					ok    bool
-				}
-				v, e := call("generate", func() (generated, error) {
-					value, ok, e := g.Generate(g.CloneState(state), rng)
-					return generated{value, ok}, e
-				})
-				if e != nil {
-					return nil, e
-				}
-				ok = v.ok
-				if ok {
-					input, e = copied(g.CloneInput, v.value)
-					if e != nil {
-						return nil, e
-					}
-				}
-			}
-			if stop() {
-				return report, nil
-			}
-			if !ok {
-				break
-			}
-			if !reused {
-				enabled, e := g.enabled(state, input)
-				if e != nil {
-					return nil, e
-				}
-				if stop() {
-					return report, nil
-				}
-				if !enabled {
-					return nil, &ModelError{"generate returned a causally disabled input"}
-				}
-			}
-			transition, e := perform(g.Model, state, input)
-			if e != nil {
-				return nil, e
-			}
-			report.Transitions++
-			saved, e := copied(g.CloneInput, input)
-			if e != nil {
-				return nil, e
-			}
-			inputs = append(inputs, saved)
-			violations, e := searchEdgeObservedInto(g, state, input, transition, inputs, &report.SkippedChecks, observer, &checkStorage)
-			if e != nil {
-				return nil, e
-			}
-			if len(violations) > 0 {
-				owned, e := cloneInputs(g, inputs)
-				if e != nil {
-					return nil, e
-				}
-				report.Failure = &Failure[I]{owned, violations}
-				report.Termination = "failure_found"
-				return report, nil
-			}
-			if stop() {
-				return report, nil
-			}
-			state = transition.State
-		}
-		previous, e = cloneInputs(g, inputs)
-		if e != nil {
-			return nil, e
-		}
-	}
-	return report, nil
+	return fuzzKernel64(g, config, control, observer, nil)
 }
 func searchEdge[S, I, O any](m Model[S, I, O], state S, input I, t Transition[S, O], skipped *uint64) ([]Violation, error) {
 	checks := []Check{}

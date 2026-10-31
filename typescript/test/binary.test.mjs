@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {runInNewContext} from 'node:vm';
+import {spawnSync} from 'node:child_process';
 import {readAuditTrace,writeAuditTrace,writeAuditTraceTo,auditCRC32,BinaryError,DEFAULT_BINARY_LIMITS,auditTraceFromPortable,auditTraceToPortable} from '../dist/index.js';
 const corpus=JSON.parse(readFileSync(new URL('../../conformance/native-binary-v1.json',import.meta.url),'utf8'));
 const bytes=hex=>Uint8Array.from(Buffer.from(hex,'hex'));
@@ -8,6 +10,18 @@ function native(t){return {metadata:{...t.metadata},config:{strategy:t.config.st
 const check=c=>({id:c.id,status:c.status,details:c.reason??''});
 const valid=corpus.fixtures.filter(f=>f.valid),fixture=id=>corpus.fixtures.find(f=>f.case===id);
 const error=(kind,detail)=>e=>e instanceof BinaryError&&e.kind===kind&&(detail===undefined||e.detail===detail);
+test('hostile native promise species remains an isolated unhandled rejection',()=>{
+ const moduleURL=new URL('../dist/index.js',import.meta.url).href;
+ const program=`import {writeAuditTraceTo,writeTraceV2To} from ${JSON.stringify(moduleURL)};
+ let seen=0; process.on('unhandledRejection', e=>{ if(e.message==='hostile rejection') seen++; });
+ class Hostile extends Promise { static get [Symbol.species]() { throw Error('species'); } }
+ const trace={metadata:{name:'x',model_version:1,properties_version:1,codec_version:1,build:'x'},config:{strategy:'x',seed:null,parameters:[]},initialState:new Uint8Array(),initialChecks:[],steps:[],termination:'completed',error:''};
+ const evidence={trace,checkpointAfter:0n,provenance:{run:'x',epoch:0n,manifest:null,source:null,environment:[]},steps:[]};
+ let rejected=0; for(const operation of [()=>writeAuditTraceTo(trace,{write(){return Hostile.reject(Error('hostile rejection'));}}),()=>writeTraceV2To(evidence,{write(){return Hostile.reject(Error('hostile rejection'));}})]) {try {operation();} catch(e){if(String(e).includes('synchronously')) rejected++;}}
+ setTimeout(()=>{ if(seen!==2 || rejected!==2) process.exitCode=1; },20);`;
+ const run=spawnSync(process.execPath,['--input-type=module','-e',program],{encoding:'utf8',timeout:5000});
+ assert.equal(run.error,undefined);assert.equal(run.status,0,run.stderr);
+});
 test('binary defaults and independent CRC check vector',()=>{assert.deepEqual(DEFAULT_BINARY_LIMITS,corpus.defaults);assert.equal(auditCRC32(new TextEncoder().encode('123456789')),0xcbf43926);});
 for(const f of corpus.fixtures)test(`binary-v1 ${f.case}`,()=>{
  const data=bytes(f.bytes_hex);
@@ -25,6 +39,21 @@ test('chunked readers preserve all bytes and detect I/O/short EOF, including foo
  let p=0;assert.throws(()=>readAuditTrace({read(out){if(p===b.length)throw Error('EOF probe failed');const n=Math.min(out.length,b.length-p);out.set(b.subarray(p,p+n));p+=n;return n;}}),error('io','EOF probe failed'));
  assert.throws(()=>readAuditTrace({read(out){return out.length+1;}}),error('invalid_data','reader byte count'));
 });
+test('hostile thrown values cannot escape binary error classification',()=>{
+ const t=native(fixture('empty').trace);
+ const failures=[{toString(){throw Error('coercion');}},new Proxy({}, {getPrototypeOf(){throw Error('prototype');}}),Object.defineProperty(new Error(), 'message', {get(){throw Error('message');}}),new BinaryError('limit_exceeded','external')];
+ for(const failure of failures){
+  assert.throws(()=>readAuditTrace({read(){throw failure;}}),error('io'));
+  assert.throws(()=>writeAuditTraceTo(t,{write(){throw failure;}}),error('io'));
+  const malformed=native(fixture('empty').trace);Object.defineProperty(malformed.metadata,'name',{get(){throw failure;}});
+  assert.throws(()=>writeAuditTrace(malformed),error('invalid_data'));
+ }
+ assert.throws(()=>readAuditTrace({read(){throw new BinaryError('limit_exceeded','from reader');}}),error('io','limit_exceeded: from reader'));
+ let prior;try{const oversized=native(fixture('single-step').trace);writeAuditTrace(oversized,{max_blob_bytes:0});}catch(e){prior=e;}
+ assert.equal(prior.kind,'limit_exceeded');
+ const later=native(fixture('empty').trace);Object.defineProperty(later.metadata,'name',{get(){throw prior;}});
+ assert.throws(()=>writeAuditTrace(later),error('invalid_data'));
+});
 test('writer validates late fields and every quota before publishing any byte',()=>{
  const rich=native(fixture('unicode-config-full-u64').trace),single=native(fixture('single-step').trace);
  const cases=[ [rich,{max_total_bytes:0}],[rich,{max_frame_bytes:0}],[single,{max_blob_bytes:0}],[rich,{max_string_bytes:0}],[single,{max_steps:0}],[single,{max_checks_per_step:0}],[single,{max_outputs_per_step:0}],[rich,{max_parameters:0}],[single,{max_items:0}] ];
@@ -34,6 +63,12 @@ test('writer validates late fields and every quota before publishing any byte',(
  }
  assert.throws(()=>writeAuditTrace(single,{max_items:Number.MAX_SAFE_INTEGER+1}),BinaryError);
  let called=false;assert.throws(()=>writeAuditTraceTo(single,{write(){called=true;throw Error('writer failed');}}),error('io','writer failed'));assert.equal(called,true);
+ for(const result of [0, false, Promise.reject(Error('async writer'))])
+  assert.throws(()=>writeAuditTraceTo(single,{write(){return result;}}),error('io','audit writer must return undefined synchronously'));
+ let touched=false;
+ for(const result of [runInNewContext("Promise.reject(new Error('foreign writer'))"), {get then(){touched=true;throw Error('must not inspect then');}}])
+  assert.throws(()=>writeAuditTraceTo(single,{write(){return result;}}),error('io','audit writer must return undefined synchronously'));
+ assert.equal(touched,false);
 });
 test('lossless explicit conversions retain run config, duplicate pairs, seed and error reason',()=>{
  for(const f of valid){const t=native(f.trace),{trace,config}=auditTraceToPortable(t);assert.deepEqual(auditTraceFromPortable(trace,config),t);assert.equal(Object.hasOwn(trace,'config'),false);if(t.config.parameters.length){config.parameters[0][0]='changed';assert.notEqual(t.config.parameters[0][0],'changed');}}

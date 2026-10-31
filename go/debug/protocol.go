@@ -19,18 +19,52 @@ func (e ProtocolError) Error() string { return string(e) }
 
 type ProtocolLimits struct {
 	MaxFrame, MaxField, MaxFields, MaxInput, MaxCache, MaxCacheBytes, MaxHandles int
+	MaxCandidates, MaxCandidateBytes                                             int
 	MaxPage, MaxTelemetrySnapshot                                                int
+	MaxEventEntries, MaxEventBytes                                               int
 }
 
 func DefaultProtocolLimits() ProtocolLimits {
-	return ProtocolLimits{MaxFrame: 65536, MaxField: 8192, MaxFields: 4096, MaxInput: 8192, MaxCache: 64, MaxCacheBytes: 4 << 20, MaxHandles: 64, MaxPage: 100, MaxTelemetrySnapshot: 8 << 20}
+	return ProtocolLimits{MaxFrame: 65536, MaxField: 8192, MaxFields: 4096, MaxInput: 8192, MaxCache: 64, MaxCacheBytes: 4 << 20, MaxHandles: 64, MaxCandidates: 256, MaxCandidateBytes: 256 << 10, MaxPage: 100, MaxTelemetrySnapshot: 8 << 20, MaxEventEntries: 1024, MaxEventBytes: 256 << 10}
 }
 func (l ProtocolLimits) valid() bool {
-	return l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0 && l.MaxPage > 0 && l.MaxTelemetrySnapshot > 0
+	return l.MaxCandidates > 0 && l.MaxCandidateBytes > 0 && l.MaxFrame >= 2048 && l.MaxField >= 64 && l.MaxFields >= 64 && l.MaxInput > 0 && l.MaxCache > 0 && l.MaxCacheBytes > 0 && l.MaxHandles > 0 && l.MaxPage > 0 && l.MaxTelemetrySnapshot > 0 && l.MaxEventEntries > 0 && l.MaxEventBytes >= 512
+}
+
+// readFrameFull follows io.ReadFull's partial-read and EOF behavior while
+// rejecting invalid reader counts and bounding consecutive empty reads.
+// This cannot interrupt a Read callback that itself does not return.
+func readFrameFull(r io.Reader, p []byte) (int, error) {
+	total, empty := 0, 0
+	for total < len(p) {
+		n, err := r.Read(p[total:])
+		if n < 0 || n > len(p)-total {
+			return total, fmt.Errorf("invalid reader count %d", n)
+		}
+		total += n
+		if total == len(p) {
+			return total, nil
+		}
+		if err != nil {
+			if err == io.EOF && total != 0 {
+				return total, io.ErrUnexpectedEOF
+			}
+			return total, err
+		}
+		if n == 0 {
+			empty++
+			if empty >= 100 {
+				return total, io.ErrNoProgress
+			}
+		} else {
+			empty = 0
+		}
+	}
+	return total, nil
 }
 func ReadFrame(r io.Reader, max int) ([]byte, error) {
 	var h [4]byte
-	n, e := io.ReadFull(r, h[:])
+	n, e := readFrameFull(r, h[:])
 	if e != nil {
 		if n == 0 && e == io.EOF {
 			return nil, io.EOF
@@ -42,7 +76,7 @@ func ReadFrame(r io.Reader, max int) ([]byte, error) {
 		return nil, ProtocolError("limit")
 	}
 	b := make([]byte, int(size))
-	_, e = io.ReadFull(r, b)
+	_, e = readFrameFull(r, b)
 	if e == io.EOF {
 		e = io.ErrUnexpectedEOF
 	}
@@ -90,19 +124,39 @@ func encodeFields(f []string, l ProtocolLimits) ([]byte, error) {
 	if !l.valid() || len(f) > l.MaxFields {
 		return nil, ProtocolError("limit")
 	}
-	out := make([]string, len(f))
+	// Admit the complete escaped frame before constructing any escaped fields.
 	total := 0
 	for i, s := range f {
 		if len(s) > l.MaxField || !utf8.ValidString(s) {
 			return nil, ProtocolError("limit")
 		}
-		out[i] = escapeField(s)
-		total += len(out[i]) + 1
-		if total-1 > l.MaxFrame {
-			return nil, ProtocolError("limit")
+		if i > 0 {
+			if total == l.MaxFrame {
+				return nil, ProtocolError("limit")
+			}
+			total++
+		}
+		for j := 0; j < len(s); j++ {
+			c := s[j]
+			n := 3
+			if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || strings.ContainsRune("-_.:", rune(c)) {
+				n = 1
+			}
+			if n > l.MaxFrame-total {
+				return nil, ProtocolError("limit")
+			}
+			total += n
 		}
 	}
-	return []byte(strings.Join(out, "\t")), nil
+	var out strings.Builder
+	out.Grow(total)
+	for i, s := range f {
+		if i > 0 {
+			out.WriteByte('\t')
+		}
+		out.WriteString(escapeField(s))
+	}
+	return []byte(out.String()), nil
 }
 func decodeFields(b []byte, l ProtocolLimits) ([]string, error) {
 	if !l.valid() || len(b) > l.MaxFrame {
@@ -111,12 +165,26 @@ func decodeFields(b []byte, l ProtocolLimits) ([]string, error) {
 	if !utf8.Valid(b) {
 		return nil, ProtocolError("malformed")
 	}
+	// Count delimiters before Split so rejected input cannot allocate a field per tab.
+	count, fieldStart := 1, 0
+	for i, c := range b {
+		if c == '\t' {
+			if count == l.MaxFields {
+				return nil, ProtocolError("limit")
+			}
+			if l.MaxField <= math.MaxInt/3 && i-fieldStart > l.MaxField*3 {
+				return nil, ProtocolError("limit")
+			}
+			count++
+			fieldStart = i + 1
+		}
+	}
+	if l.MaxField <= math.MaxInt/3 && len(b)-fieldStart > l.MaxField*3 {
+		return nil, ProtocolError("limit")
+	}
 	f := strings.Split(string(b), "\t")
 	for i, s := range f {
-		if i == l.MaxFields {
-			return nil, ProtocolError("limit")
-		}
-		if len(s) > l.MaxField*3 {
+		if l.MaxField <= math.MaxInt/3 && len(s) > l.MaxField*3 {
 			return nil, ProtocolError("limit")
 		}
 		var v []byte
@@ -148,6 +216,14 @@ func decodeFields(b []byte, l ProtocolLimits) ([]string, error) {
 		f[i] = string(v)
 	}
 	return f, nil
+}
+
+// responseFieldLimit avoids overflow for valid very large caller limits.
+func responseFieldLimit(n int) int {
+	if n > (math.MaxInt-11)/2 {
+		return math.MaxInt
+	}
+	return n*2 + 11
 }
 func number(v uint64) string { return "u64:" + strconv.FormatUint(v, 10) }
 func parseNumber(s string) (uint64, error) {
@@ -181,6 +257,9 @@ type ProtocolResponse struct {
 }
 
 func EncodeRequest(r ProtocolRequest, l ProtocolLimits) ([]byte, error) {
+	if !l.valid() || len(r.Args) > min(l.MaxFields, 64)-9 || len(r.Session) > l.MaxField-7 {
+		return nil, ProtocolError("limit")
+	}
 	f := []string{"DDBG", "u32:1", "request", "string:" + r.Session, number(r.Epoch), number(r.ID), number(r.Revision), number(r.Configuration), r.Command}
 	l.MaxFields = min(l.MaxFields, 64)
 	return encodeFields(append(f, r.Args...), l)
@@ -224,10 +303,10 @@ func DecodeRequest(b []byte, l ProtocolLimits) (ProtocolRequest, error) {
 	return r, nil
 }
 func EncodeResponse(r ProtocolResponse, l ProtocolLimits) ([]byte, error) {
-	if len(r.Fields) > l.MaxFields {
+	if !l.valid() || len(r.Fields) > l.MaxFields || len(r.Session) > l.MaxField-7 || len(r.Fields) > (l.MaxFrame-10)/2 {
 		return nil, ProtocolError("limit")
 	}
-	l.MaxFields = l.MaxFields*2 + 11
+	l.MaxFields = responseFieldLimit(l.MaxFields)
 	status, category := "ok", "none"
 	if r.Error != "" {
 		status, category = "error", r.Error
@@ -240,7 +319,10 @@ func EncodeResponse(r ProtocolResponse, l ProtocolLimits) ([]byte, error) {
 }
 func DecodeResponse(b []byte, l ProtocolLimits) (ProtocolResponse, error) {
 	var r ProtocolResponse
-	l.MaxFields = l.MaxFields*2 + 11
+	if !l.valid() {
+		return r, ProtocolError("limit")
+	}
+	l.MaxFields = responseFieldLimit(l.MaxFields)
 	f, e := decodeFields(b, l)
 	if e != nil {
 		return r, e
@@ -276,21 +358,46 @@ type protocolCache struct {
 	response ProtocolResponse
 	size     int
 }
+type protocolEvent struct {
+	session, kind                            string
+	epoch, sequence, revision, configuration uint64
+}
+
+// protocolEventHeader is Rust's size_of::<ProtocolEvent>() on 64-bit targets
+// (u32 version, two Strings, four u64 counters, padded to 8). The event byte
+// budget follows Rust protocol.rs event_size rather than Go's own layout, so
+// the same MaxEventBytes admits the same number of events in both runtimes.
+const protocolEventHeader = 88
+
+// Mirrors Rust protocol.rs event_size.
+func protocolEventSize(e protocolEvent) int {
+	return protocolEventHeader + len(e.session) + len(e.kind)
+}
+
 type ProtocolSession[S, I, O any] struct {
-	busy                    bool
-	connected               bool
-	configuration           uint64
-	adapters                map[string]ProtocolAdapter
-	session                 *Session[S, I, O]
-	decode                  func([]byte) (I, error)
-	authority               ProtocolAuthority
-	limits                  ProtocolLimits
-	epoch, high, nextHandle uint64
-	cache                   map[uint64]protocolCache
-	order                   []uint64
-	cacheBytes              int
-	handles                 map[uint64]uint64
-	handleOrder             []uint64
+	busy                      bool
+	connected                 bool
+	configuration             uint64
+	adapters                  map[string]ProtocolAdapter
+	session                   *Session[S, I, O]
+	decode                    func([]byte) (I, error)
+	authority                 ProtocolAuthority
+	limits                    ProtocolLimits
+	epoch, high, nextHandle   uint64
+	cache                     map[uint64]protocolCache
+	order                     []uint64
+	cacheBytes                int
+	handles                   map[uint64]uint64
+	handleOrder               []uint64
+	candidates                []protocolCandidate[I]
+	nextCandidate             uint64
+	candidateBytes            int
+	watches                   *protocolWatches[S]
+	probes                    *protocolProbeProfiles
+	telemetry                 *protocolTelemetry
+	events                    []protocolEvent
+	eventBytes                int
+	eventSequence, eventDrops uint64
 }
 
 func NewProtocolSession[S, I, O any](s *Session[S, I, O], decode func([]byte) (I, error), a ProtocolAuthority, l ProtocolLimits) (*ProtocolSession[S, I, O], error) {
@@ -319,6 +426,7 @@ func (p *ProtocolSession[S, I, O]) Reconnect() error {
 	if p.connected {
 		return ProtocolError("invalid_input")
 	}
+	initial := p.epoch == 0
 	for {
 		old := epochs.Load()
 		if old == math.MaxUint64 {
@@ -335,8 +443,41 @@ func (p *ProtocolSession[S, I, O]) Reconnect() error {
 	p.cacheBytes = 0
 	p.handles = map[uint64]uint64{}
 	p.handleOrder = nil
+	p.candidates = nil
+	p.candidateBytes = 0
+	if p.telemetry != nil {
+		p.telemetry.capture = nil
+		p.telemetry.handle, p.telemetry.epoch = 0, 0
+	}
+	p.events = nil
+	p.eventBytes = 0
+	p.eventSequence = 0
 	p.connected = true
+	if !initial {
+		p.publishEvent("reconnected")
+	}
 	return nil
+}
+
+func (p *ProtocolSession[S, I, O]) publishEvent(kind string) {
+	if p.eventSequence == math.MaxUint64 {
+		if p.eventDrops < math.MaxUint64 {
+			p.eventDrops++
+		}
+		return
+	}
+	p.eventSequence++
+	event := protocolEvent{session: p.session.ID(), kind: kind, epoch: p.epoch, sequence: p.eventSequence, revision: p.session.Revision(), configuration: p.configuration}
+	size := protocolEventSize(event)
+	if len(p.events) >= p.limits.MaxEventEntries || size > p.limits.MaxEventBytes-p.eventBytes {
+		if p.eventDrops < math.MaxUint64 {
+			p.eventDrops++
+		}
+		return
+	}
+	event.session, event.kind = strings.Clone(event.session), strings.Clone(event.kind)
+	p.events = append(p.events, event)
+	p.eventBytes += size
 }
 func cloneResponse(r ProtocolResponse) ProtocolResponse {
 	r.Fields = append([]ProtocolField{}, r.Fields...)
@@ -385,7 +526,21 @@ func (p *ProtocolSession[S, I, O]) Handle(r ProtocolRequest) ProtocolResponse {
 		return fail("retired_request")
 	}
 	p.high = r.ID
+	beforeSequence := p.session.Sequence()
 	out = p.execute(r, out)
+	if p.session.Sequence() != beforeSequence {
+		p.observeWatches()
+		p.publishEvent("transition")
+	} else if out.Error == "" {
+		switch r.Command {
+		case "cancel":
+			p.publishEvent("cancelled")
+		case "watch":
+			p.publishEvent("watch_configured")
+		case "unwatch":
+			p.publishEvent("watch_removed")
+		}
+	}
 	out.Revision = p.session.Revision()
 	out.Configuration = p.configuration
 	wire, err := EncodeResponse(out, p.limits)
@@ -463,6 +618,34 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 			return p.adapter(r, out)
 		}
 		return p.observationFields(r.Command, out)
+	case "events":
+		limit, _ := parseNumber(r.Args[0])
+		if limit == 0 || limit > uint64(p.limits.MaxPage) {
+			return fail("limit")
+		}
+		count := min(len(p.events), int(limit))
+		field("events.dropped", number(p.eventDrops))
+		for i, event := range p.events[:count] {
+			key := "events." + strconv.Itoa(i)
+			field(key+".version", number(1))
+			field(key+".session", "string:"+event.session)
+			field(key+".epoch", number(event.epoch))
+			field(key+".sequence", number(event.sequence))
+			field(key+".revision", number(event.revision))
+			field(key+".configuration", number(event.configuration))
+			field(key+".kind", "enum:"+event.kind)
+		}
+		field("events.returned", number(uint64(count)))
+		candidate := out
+		candidate.Revision, candidate.Configuration = math.MaxUint64, math.MaxUint64
+		if _, err := EncodeResponse(candidate, p.limits); err != nil {
+			return fail("limit")
+		}
+		for i := 0; i < count; i++ {
+			p.eventBytes -= protocolEventSize(p.events[i])
+			p.events[i] = protocolEvent{}
+		}
+		p.events = p.events[count:]
 	case "step":
 		if !p.authority.DeliverInputs {
 			return fail("unauthorized")
@@ -476,7 +659,7 @@ func (p *ProtocolSession[S, I, O]) execute(r ProtocolRequest, out ProtocolRespon
 		if p.decode == nil {
 			return fail("unsupported")
 		}
-		if len(r.Args[0])-6 > 2*p.limits.MaxInput {
+		if p.limits.MaxInput <= math.MaxInt/2 && len(r.Args[0])-6 > 2*p.limits.MaxInput {
 			return fail("limit")
 		}
 		if !reserve([]ProtocolField{{"delivered", "bool:false"}, {"sequence", number(math.MaxUint64)}}) {
@@ -663,6 +846,15 @@ func (p *ProtocolSession[S, I, O]) adapter(r ProtocolRequest, out ProtocolRespon
 		if baseline != p.session.Revision() {
 			return fail("stale_revision")
 		}
+	}
+	if p.watches != nil && (r.Command == "watch" || r.Command == "unwatch" || r.Command == "watch_status" || r.Command == "watch_current") {
+		return p.watchCommand(r, out)
+	}
+	if p.probes != nil && (r.Command == "probe_status" || r.Command == "probe_configure" || r.Command == "probe_events") {
+		return p.probeProfileCommand(r, out)
+	}
+	if p.adapters[r.Command] == nil && (r.Command == "inputs" || r.Command == "select" || r.Command == "export_trace") {
+		return p.concrete(r, out)
 	}
 	host := p.adapters[r.Command]
 	if host == nil {

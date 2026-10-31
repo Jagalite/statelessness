@@ -12,6 +12,13 @@ integration tests, examples, build scripts and other crates are outside this sou
 inventory and remain N14 tooling audit work. File-set and content drift fail the
 checker rather than silently expanding the baseline.
 
+Reviewed Rust reference changes made after the baseline are listed in
+[`rust-baseline-amendments.json`](rust-baseline-amendments.json): each entry names
+one file, its baseline and working SHA-256, the reason, the gap and the native
+ports that mirror it. The checker accepts drift only for exactly those hashes;
+unlisted drift, stale entries and declaration changes in unamended files fail.
+The baseline commit and its inventory are unchanged.
+
 Each entry contains a source locator, declaration kind, lexical visibility, gap
 mapping, mapping-review state and explicit Python/Go/TypeScript/Swift states.
 `not_started` means the **parity audit of this candidate** has not started; it does

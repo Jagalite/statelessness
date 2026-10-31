@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:stateless:native-campaign-v1",
+  "title": "N06 source-authored finite reference projection",
+  "oneOf": [
+    {"$ref": "#/$defs/seedRow"}, {"$ref": "#/$defs/validationRow"},
+    {"$ref": "#/$defs/campaignRow"}, {"$ref": "#/$defs/lifecycleRow"}
+  ],
+  "$defs": {
+    "decimal": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$", "maxLength": 20},
+    "nullableText": {"type": ["string", "null"]},
+    "nullableId": {"oneOf": [{"$ref": "#/$defs/decimal"}, {"type": "null"}]},
+    "hex": {"type": "string", "pattern": "^([0-9a-f]{2})*$"},
+    "fuzzConfig": {
+      "type": "object", "additionalProperties": false,
+      "required": ["seed", "cases", "max_steps", "max_transitions", "mutation_percent"],
+      "properties": {
+        "seed": {"$ref": "#/$defs/decimal"}, "cases": {"$ref": "#/$defs/decimal"},
+        "max_steps": {"$ref": "#/$defs/decimal"}, "max_transitions": {"$ref": "#/$defs/decimal"},
+        "mutation_percent": {"$ref": "#/$defs/decimal"}
+      }
+    },
+    "config": {
+      "type": "object", "additionalProperties": false,
+      "required": ["master_seed", "first_job", "jobs", "workers", "result_buffer", "fuzz", "stop_on_failure"],
+      "properties": {
+        "master_seed": {"$ref": "#/$defs/decimal"}, "first_job": {"$ref": "#/$defs/decimal"},
+        "jobs": {"$ref": "#/$defs/decimal"}, "workers": {"$ref": "#/$defs/decimal"},
+        "result_buffer": {"$ref": "#/$defs/decimal"}, "fuzz": {"$ref": "#/$defs/fuzzConfig"},
+        "stop_on_failure": {"type": "boolean"}
+      }
+    },
+    "metadata": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "model_version", "properties_version", "codec_version", "build"],
+      "properties": {
+        "name": {"type": "string"}, "model_version": {"$ref": "#/$defs/decimal"},
+        "properties_version": {"$ref": "#/$defs/decimal"}, "codec_version": {"$ref": "#/$defs/decimal"},
+        "build": {"type": "string"}
+      }
+    },
+    "feedback": {
+      "type": "object", "additionalProperties": false, "required": ["name", "version", "build"],
+      "properties": {"name": {"type": "string"}, "version": {"$ref": "#/$defs/decimal"}, "build": {"type": "string"}}
+    },
+    "guidanceConfig": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_corpus_entries", "max_corpus_inputs", "max_features", "max_features_per_observation"],
+      "properties": {
+        "max_corpus_entries": {"$ref": "#/$defs/decimal"}, "max_corpus_inputs": {"$ref": "#/$defs/decimal"},
+        "max_features": {"$ref": "#/$defs/decimal"}, "max_features_per_observation": {"$ref": "#/$defs/decimal"}
+      }
+    },
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/decimal"}},
+    "corpusEntry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inputs", "new_features", "discovered_case", "discovered_transition"],
+      "properties": {
+        "inputs": {"$ref": "#/$defs/inputs"}, "new_features": {"$ref": "#/$defs/decimal"},
+        "discovered_case": {"$ref": "#/$defs/decimal"}, "discovered_transition": {"$ref": "#/$defs/decimal"}
+      }
+    },
+    "guidanceReport": {
+      "type": "object", "additionalProperties": false,
+      "required": ["algorithm", "config", "feedback", "unique_features", "corpus_inputs", "corpus", "mutation_cases", "dropped_prefixes", "evicted_prefixes", "feature_limit_reached", "corpus_limit_reached"],
+      "properties": {
+        "algorithm": {"const": "feature-corpus-v2"}, "config": {"$ref": "#/$defs/guidanceConfig"},
+        "feedback": {"$ref": "#/$defs/feedback"}, "unique_features": {"$ref": "#/$defs/decimal"},
+        "corpus_inputs": {"$ref": "#/$defs/decimal"}, "corpus": {"type": "array", "items": {"$ref": "#/$defs/corpusEntry"}},
+        "mutation_cases": {"$ref": "#/$defs/decimal"}, "dropped_prefixes": {"$ref": "#/$defs/decimal"},
+        "evicted_prefixes": {"$ref": "#/$defs/decimal"}, "feature_limit_reached": {"type": "boolean"},
+        "corpus_limit_reached": {"type": "boolean"}
+      }
+    },
+    "violation": {
+      "description": "Finite counter fixture projection. status preserves the exact Rust Debug check status; it is not a nested check object.",
+      "type": "object", "additionalProperties": false, "required": ["phase", "id", "status"],
+      "properties": {
+        "phase": {"enum": ["InitialState", "State", "Transition"]}, "id": {"type": "string"},
+        "status": {"const": "Failed(\"second transition\")"}
+      }
+    },
+    "failure": {
+      "type": "object", "additionalProperties": false, "required": ["inputs", "violations"],
+      "properties": {"inputs": {"$ref": "#/$defs/inputs"}, "violations": {"type": "array", "items": {"$ref": "#/$defs/violation"}}}
+    },
+    "fuzzReport": {
+      "type": "object", "additionalProperties": false,
+      "required": ["termination", "seed", "cases", "transitions", "skipped_checks", "failure", "guidance"],
+      "properties": {
+        "termination": {"enum": ["CasesCompleted", "TransitionLimit", "FailureFound", "Deadline", "Cancelled"]},
+        "seed": {"$ref": "#/$defs/decimal"}, "cases": {"$ref": "#/$defs/decimal"},
+        "transitions": {"$ref": "#/$defs/decimal"}, "skipped_checks": {"$ref": "#/$defs/decimal"},
+        "failure": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/failure"}]},
+        "guidance": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/guidanceReport"}]}
+      }
+    },
+    "job": {
+      "type": "object", "additionalProperties": false,
+      "required": ["job_id", "seed", "config", "metadata", "outcome", "error", "fuzz"],
+      "properties": {
+        "job_id": {"$ref": "#/$defs/decimal"}, "seed": {"$ref": "#/$defs/decimal"},
+        "config": {"$ref": "#/$defs/fuzzConfig"},
+        "metadata": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/metadata"}]},
+        "outcome": {"enum": ["Completed", "FactoryError", "ModelError", "Panicked"]},
+        "error": {"$ref": "#/$defs/nullableText"}, "fuzz": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/fuzzReport"}]}
+      }
+    },
+    "report": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requested", "started", "finished", "not_started", "delivered", "failures", "errors", "reported_transitions", "reported_cases", "reported_skipped_checks", "accounting_complete", "termination", "error"],
+      "properties": {
+        "requested": {"$ref": "#/$defs/decimal"}, "started": {"$ref": "#/$defs/decimal"},
+        "finished": {"$ref": "#/$defs/decimal"}, "not_started": {"$ref": "#/$defs/decimal"},
+        "delivered": {"$ref": "#/$defs/decimal"}, "failures": {"$ref": "#/$defs/decimal"}, "errors": {"$ref": "#/$defs/decimal"},
+        "reported_transitions": {"$ref": "#/$defs/decimal"}, "reported_cases": {"$ref": "#/$defs/decimal"},
+        "reported_skipped_checks": {"$ref": "#/$defs/decimal"}, "accounting_complete": {"type": "boolean"},
+        "termination": {"enum": ["JobsCompleted", "FailureFound", "Cancelled", "Deadline", "CallbackError", "WorkerError"]},
+        "error": {"$ref": "#/$defs/nullableText"}
+      }
+    },
+    "seedRow": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "kind", "case", "master_seed", "job_id", "seed"],
+      "properties": {"schema": {"const": "native-campaign-v1"}, "kind": {"const": "seed"}, "case": {"type": "string"}, "master_seed": {"$ref": "#/$defs/decimal"}, "job_id": {"$ref": "#/$defs/decimal"}, "seed": {"$ref": "#/$defs/decimal"}}
+    },
+    "validationRow": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "kind", "case", "config", "error"],
+      "properties": {"schema": {"const": "native-campaign-v1"}, "kind": {"const": "validation"}, "case": {"type": "string"}, "config": {"$ref": "#/$defs/config"}, "error": {"$ref": "#/$defs/nullableText"}}
+    },
+    "campaignRow": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "kind", "case", "config", "guided", "jobs", "callbacks", "report"],
+      "properties": {
+        "schema": {"const": "native-campaign-v1"}, "kind": {"const": "campaign"}, "case": {"type": "string"}, "config": {"$ref": "#/$defs/config"}, "guided": {"type": "boolean"},
+        "jobs": {"type": "array", "items": {"$ref": "#/$defs/job"}}, "callbacks": {"type": "array", "items": {"type": "string"}}, "report": {"$ref": "#/$defs/report"}
+      }
+    },
+    "summary": {
+      "type": "object", "additionalProperties": false, "required": ["outcome", "failure", "transitions", "cases", "skipped_checks"],
+      "properties": {"outcome": {"enum": ["Completed", "Failure", "Cancelled", "Deadline", "FactoryError", "ModelError", "Panicked"]}, "failure": {"type": "boolean"}, "transitions": {"$ref": "#/$defs/decimal"}, "cases": {"$ref": "#/$defs/decimal"}, "skipped_checks": {"$ref": "#/$defs/decimal"}}
+    },
+    "event": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["Claim"], "properties": {"Claim": {"type": "object", "additionalProperties": false, "required": ["stop"], "properties": {"stop": {"enum": [null, "Cancelled", "Deadline"]}}}}},
+        {"type": "object", "additionalProperties": false, "required": ["Complete"], "properties": {"Complete": {"type": "object", "additionalProperties": false, "required": ["job_id", "summary"], "properties": {"job_id": {"$ref": "#/$defs/decimal"}, "summary": {"$ref": "#/$defs/summary"}}}}},
+        {"type": "object", "additionalProperties": false, "required": ["Receive"], "properties": {"Receive": {"type": "object", "additionalProperties": false, "required": ["job_id"], "properties": {"job_id": {"$ref": "#/$defs/decimal"}}}}},
+        {"type": "object", "additionalProperties": false, "required": ["SinkReturned"], "properties": {"SinkReturned": {"type": "object", "additionalProperties": false, "required": ["job_id", "error"], "properties": {"job_id": {"$ref": "#/$defs/decimal"}, "error": {"$ref": "#/$defs/nullableText"}}}}},
+        {"type": "object", "additionalProperties": false, "required": ["WorkerFailed"], "properties": {"WorkerFailed": {"type": "object", "additionalProperties": false, "required": ["error", "lost_work"], "properties": {"error": {"type": "string"}, "lost_work": {"type": "boolean"}}}}},
+        {"type": "object", "additionalProperties": false, "required": ["Finish"], "properties": {"Finish": {"type": "object", "additionalProperties": false, "maxProperties": 0}}}
+      ]
+    },
+    "effect": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["RunJob"], "properties": {"RunJob": {"$ref": "#/$defs/decimal"}}},
+        {"type": "object", "additionalProperties": false, "required": ["Deliver"], "properties": {"Deliver": {"$ref": "#/$defs/decimal"}}},
+        {"type": "object", "additionalProperties": false, "required": ["Discard"], "properties": {"Discard": {"$ref": "#/$defs/decimal"}}}
+      ]
+    },
+    "state": {
+      "type": "object", "additionalProperties": false, "required": ["report", "stop", "pending", "delivering", "lost_worker", "finalized"],
+      "properties": {
+        "report": {"$ref": "#/$defs/report"}, "stop": {"enum": [null, "Failure", "Cancelled", "Deadline", "Sink", "Worker"]},
+        "pending": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["job_id", "status", "summary"], "properties": {"job_id": {"$ref": "#/$defs/decimal"}, "status": {"enum": ["Running", "Ready"]}, "summary": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/summary"}]}}}},
+        "delivering": {"$ref": "#/$defs/nullableId"}, "lost_worker": {"type": "boolean"}, "finalized": {"type": "boolean"}
+      }
+    },
+    "step": {
+      "type": "object", "additionalProperties": false, "required": ["accepted", "reason", "effects", "state", "input_hex", "state_hex", "output_hex"],
+      "properties": {"accepted": {"type": "boolean"}, "reason": {"$ref": "#/$defs/nullableText"}, "effects": {"type": "array", "items": {"$ref": "#/$defs/effect"}}, "state": {"$ref": "#/$defs/state"}, "input_hex": {"$ref": "#/$defs/hex"}, "state_hex": {"$ref": "#/$defs/hex"}, "output_hex": {"type": "array", "items": {"$ref": "#/$defs/hex"}}}
+    },
+    "lifecycleRow": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "kind", "case", "config", "initial", "events", "steps"],
+      "properties": {
+        "schema": {"const": "native-campaign-v1"}, "kind": {"const": "lifecycle"}, "case": {"type": "string"},
+        "config": {"type": "object", "additionalProperties": false, "required": ["first_job", "jobs", "stop_on_failure"], "properties": {"first_job": {"$ref": "#/$defs/decimal"}, "jobs": {"$ref": "#/$defs/decimal"}, "stop_on_failure": {"type": "boolean"}}},
+        "initial": {"$ref": "#/$defs/state"}, "events": {"type": "array", "items": {"$ref": "#/$defs/event"}}, "steps": {"type": "array", "items": {"$ref": "#/$defs/step"}}
+      }
+    }
+  }
+}

@@ -27,6 +27,58 @@ func compositeRoundtrip[T any](t *testing.T, c ValueCodec[T], value T, want []by
 		t.Fatalf("got%#v want%#v: %v", got, value, e)
 	}
 }
+
+// A declared logical layout is not necessarily the Go heap size of T. A large
+// requested collection must report allocation failure rather than misclassify
+// the runtime makeslice panic as a user decoder panic.
+func TestCompositeDecodeAllocationFailureIsNotCallbackPanic(t *testing.T) {
+	type huge [1 << 20]byte
+	layout, err := NewValueLayout(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	element := compositeMust(NewValueCodec("huge", nil, func(*Decoder) (huge, error) { return huge{}, nil }, &layout))
+	limits := DecodeLimits{Bytes: 4, Allocation: 0, Elements: 1 << 32, Depth: 8, Work: 1<<32 + 1}
+	vector := compositeMust(VectorOf(element))
+	if _, err := FromValueBytes(vector, []byte{0xff, 0xff, 0xff, 0xff}, limits); err == nil || err.Error() != "decode allocation failed" {
+		t.Fatalf("vector error = %v", err)
+	}
+	array := compositeMust(ArrayOf(1<<32-1, element))
+	if _, err := FromValueBytes(array, nil, limits); err == nil || err.Error() != "decode allocation failed" {
+		t.Fatalf("array error = %v", err)
+	}
+}
+
+func TestCompositeEncodingPinsSliceSlots(t *testing.T) {
+	for _, fixed := range []bool{false, true} {
+		t.Run(map[bool]string{false: "vector", true: "array"}[fixed], func(t *testing.T) {
+			values := []uint8{1, 2}
+			element := compositeMust(NewValueCodec("mutating", func(v uint8, out *EncodeBuffer) error {
+				if v == 1 {
+					values[1] = 9
+					values = append(values, 7)
+				}
+				return Uint8Codec().EncodeRaw(v, out)
+			}, nil, nil))
+			var codec ValueCodec[[]uint8]
+			var err error
+			want := []byte{2, 0, 0, 0, 1, 2}
+			if fixed {
+				codec, err = ArrayOf(2, element)
+				want = []byte{1, 2}
+			} else {
+				codec, err = VectorOf(element)
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := EncodeValue(codec, values, 32)
+			if err != nil || !bytes.Equal(got, want) {
+				t.Fatalf("got %x want %x: %v", got, want, err)
+			}
+		})
+	}
+}
 func TestValueCompositeIndependentGoldens(t *testing.T) {
 	option := compositeMust(OptionOf(Uint8Codec()))
 	compositeRoundtrip(t, option, Option[uint8]{Value: 9, Present: true}, []byte{1, 9})

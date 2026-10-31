@@ -66,8 +66,11 @@ not allocator overhead or RSS. Capture ack applies to one local ordered producer
 `debugger_dashboard` exposes `Dashboard` and `correlate` for passive metric reports
 and causal correlation. Quantiles are histogram upper bounds, including a
 present overflow estimate whose upper bound is unknown. Full-width quantities
-are Python integers; JSON consumers must use lossless integer parsing. Metrics
-do not read a clock implicitly. Explicit clocks are supplied by
+are Python integers; JSON consumers must use lossless integer parsing. Snapshot
+validation may read the store, but reentrant store mutations and
+prepared capture commits raise `MetricError` until the transaction ends. The
+store requires serialized access; this guard is not a thread-safety mechanism.
+Metrics do not read a clock implicitly. Explicit clocks are supplied by
 `debugger_effects`; host lifecycle hooks never dispatch work or reducer inputs.
 `debugger_live` provides cooperative safe-point/permit coordination. Pause
 cannot preempt callbacks or confirm actual host dispatch. `debugger_protocol`
@@ -92,3 +95,12 @@ counts, path indexes, source coordinates and float bits are decimal strings
 (booleans remain booleans). Byte node values use `{hex, total_bytes}`; float node
 values use `{type, decimal, bits}`. These display representations preserve raw
 float bits, including NaNs and signed zero, and are not canonical value codecs.
+
+Accepted protocol divergence: an unsized Python `int` scalar (the default
+`python-int` display kind) is sent as `python-int:<decimal>` with
+`kind=enum:integer`. Rust scalars always carry a fixed width (`u64:`, `i32:`,
+...); Python cannot infer one without misrepresenting range, so projections that
+need exact Rust wire parity must report an explicit width tag (for example
+`('u64', '5')`). `watch_status` fields follow Rust order: `watches.total`,
+`watches.truncated`, `watches.dropped_events`, `watches.observation_gaps`,
+`watches.inspection_errors`, then the per-watch rows.

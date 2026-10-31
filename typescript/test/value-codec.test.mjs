@@ -5,6 +5,14 @@ import {valueCodecs as vc,UNIT,NONE,some,Decoder,encodeValue,decodeValue,customV
 const corpus=JSON.parse(readFileSync(new URL('../../conformance/canonical-value-codec-v1.json',import.meta.url),'utf8'));
 const bytes=hex=>Uint8Array.from(Buffer.from(hex,'hex')),hex=value=>Buffer.from(value).toString('hex');
 const limits=value=>Object.fromEntries(Object.entries(value??{}).map(([k,v])=>[k,BigInt(v)]));
+test('composite encoders pin sequence slots before element callbacks',()=>{
+ for(const kind of ['vector','array','tuple']){
+  const input=[1,2];let calls=0;
+  const element=customValueSchema({name:'mutating byte',layout:logicalLayout(1,'byte'),encodeInto(v,out){if(calls++===0){input[1]=9;input.push(7);}vc.u8.encodeRaw(v,out);}});
+  const selected=kind==='vector'?vc.vector(element):kind==='array'?vc.array(element,2):vc.tuple([element,element]);
+  assert.equal(hex(encodeValue(selected,input,32)),kind==='vector'?'020000000102':'0102',kind);
+ }
+});
 function schema(desc,applyWidth=true){
  let value;
  switch(desc.kind){

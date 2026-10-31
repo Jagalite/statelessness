@@ -25,9 +25,23 @@ test('candidate codec failure freezes coherent prefix without eviction',()=>{
 test('snapshot and returned check mutation cannot alter retained evidence; transfer consumes owner',()=>{
  const m=model(),r=new Recorder(m,0,config),cs=r.observe(m,0,1,accepted(1,[9]));assert.throws(()=>{cs[0].id='bad';});const snapshot=r.snapshot();snapshot.steps[0].input[0]=255;snapshot.initialChecks[0].id='bad';snapshot.config.parameters[0][1]='bad';assert.notEqual(r.snapshot().steps[0].input[0],255);const transferred=r.intoTrace();assert.equal(transferred.steps.length,1);assert.throws(()=>r.snapshot(),/transferred/);
 });
+test('runtime recorder snapshots the executed observation before host codecs and checks run',()=>{
+ const actual=accepted(1,[7]);let checks=0;
+ const m=model({encodeInput(input){actual.state=99;actual.outputs[0]=42;return new TextEncoder().encode(String(input));},checkState(state){if(state!==0){assert.equal(state,1);checks++;}return [check('s')];},checkTransition(_before,_input,transition){assert.equal(transition.state,1);assert.deepEqual(transition.outputs,[7]);checks++;return [check('t')];}});
+ const recorder=new Recorder(m,0,config);recorder.observe(m,0,1,actual);const trace=recorder.snapshot(),decoder=new TextDecoder();
+ assert.equal(checks,2);assert.equal(actual.state,99);assert.equal(actual.outputs[0],42);assert.equal(decoder.decode(trace.steps[0].postState),'1');assert.equal(decoder.decode(trace.steps[0].outputs[0]),'7');
+});
 test('origin and exact u64 boundaries have no rounding and property failure beats later errors',()=>{
  const m=model(),initial=checkInitial(m,0),r=Recorder.withCheckedInitialAt(initial,(1n<<64n)-2n,config);r.observeChecked(checkTurnExact(m,0,1,accepted(1),(1n<<64n)-1n));assert.equal(r.observedSteps(),1n);assert.throws(()=>r.observeChecked(checkTurnExact(m,1,1,accepted(2),1n)),/missing or reordered/);
  const failing=model({checkState:()=>[check('bad','failed','why')]}),f=Recorder.withCheckedInitial(checkInitial(failing,0),config);f.stopWithError(new ModelError('later'));assert.equal(f.snapshot().termination,'property_failed');
+});
+test('raw observation rejects absolute sequence overflow before host callbacks',()=>{
+ const m=model(),initial=checkInitial(m,0),max=(1n<<64n)-1n,r=Recorder.withCheckedInitialAt(initial,max,config);
+ let calls=0;const other=model({cloneState:s=>{calls++;return s;}});
+ assert.throws(()=>r.observe(other,0,1,accepted(1)),/sequence overflow/);
+ assert.equal(calls,0);assert.equal(r.observedSteps(),0n);assert.equal(r.isFrozen(),true);assert.equal(r.snapshot().steps.length,0);
+ const atEnd=Recorder.withCheckedInitialAt(initial,max-1n,config);atEnd.observe(m,0,1,accepted(1));
+ assert.equal(atEnd.observedSteps(),1n);assert.throws(()=>atEnd.observe(m,1,1,accepted(2)),/sequence overflow/);assert.equal(atEnd.snapshot().steps.length,1);
 });
 test('independently typed model representations hand off by metadata and canonical continuity',()=>{
  const numeric=model(),r=new Recorder(numeric,0,config),text=model({cloneState:s=>s,cloneInput:i=>i,cloneOutput:o=>o});

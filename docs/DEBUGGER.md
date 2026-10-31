@@ -164,6 +164,12 @@ Provenance includes parent artifact binding, checkpoint, fork sequence, identiti
 environment and verified-prefix status. FNV-1a plus byte count detects accidental
 sidecar mismatch; it is not cryptographic authentication.
 
+A branch from a trace with recorded policy provenance must either select explicit
+unrestricted injection or use a declared policy with the parent's label. A
+declared policy cannot branch from a parent recorded with unrestricted injection,
+even under the same label, and a parent whose environment and origin are only
+partially recorded cannot be branched. Earlier builds accepted these cases.
+
 `workbench::minimize_with_policy` uses the trace's saved checkpoint for every
 candidate, the original `InputPolicy` and a positive admission-candidate budget,
 application `Generate::is_enabled` causality, a stable failing property/phase and

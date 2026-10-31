@@ -1,0 +1,5 @@
+import {accepted,check} from '../../dist/index.js';
+export function createModel(_id,data){return {metadata:()=>({name:'m',model_version:1,properties_version:1,codec_version:1,build:'test'}),initialState:()=>0,step:()=>accepted(data?.failEncode?1:0),checkState:s=>[check('safe',s?'failed':'passed')],checkTransition:()=>[check('safe','passed')],cloneState:s=>s,cloneInput:i=>i,cloneOutput:o=>o,generate:()=>data?.failEncode?9:1,isEnabled:()=>true};}
+export function createCoverage(_id,_model,data){return (_s,_i,_t,_history,hits)=>{if(data?.barrier){const v=new Int32Array(data.barrier);Atomics.add(v,0,1);Atomics.notify(v,0);while(Atomics.load(v,0)<2)Atomics.wait(v,0,1,1000);}hits.family('input');hits.goal('reached');};}
+export function createFeedback(){return {metadata:()=>({name:'guided',version:1,build:'test'}),cloneFeature:x=>x,equalFeatures:(a,b)=>a===b,transitionFeatures:(_b,_i,_t,out)=>out.push('seen')};}
+export function encodeInput(value){if(value===9)throw Error('input encoding failed');return value;}

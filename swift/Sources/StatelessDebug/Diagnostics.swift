@@ -132,6 +132,13 @@ private struct DiagnosticSink {
     var health = DiagnosticHealth()
 }
 private func diagnosticIncrement(_ n: inout UInt64) { if n < .max { n += 1 } }
+private func diagnosticSameSchema(_ left: DisplaySchema?,_ right: DisplaySchema?) -> Bool {
+    switch (left,right) {
+    case (nil,nil): return true
+    case let (left?,right?): return exactText(left.name,right.name) && left.version == right.version
+    default: return false
+    }
+}
 private func diagnosticSum(_ values: [Int]) -> Int { values.reduce(0) { a,b in b > Int.max-a ? Int.max : a+b } }
 private func diagnosticPathBytes(_ path: [PathSegment]) -> Int {
     diagnosticSum(path.map { p in
@@ -169,6 +176,7 @@ public final class DiagnosticHub {
     public private(set) var captureRevision: UInt64 = 0
     private var config: [ProbeSubscription] = []
     private var producers: [UInt64:DiagnosticProducer] = [:]
+    private var orderedProducerIDs: [UInt64] = []
     private var sinks: [UInt64:DiagnosticSink] = [:]
     private var scoped = false
     public var health: DiagnosticHealth {
@@ -186,6 +194,7 @@ public final class DiagnosticHub {
         var limits = DiagnosticLimits(); limits.subscriptions = maxSubscriptions; limits.eventBytes = maxEventBytes; try self.init(limits:limits)
     }
     private func idle() throws { guard !scoped else { throw DebugError.reentrant } }
+    public func assertAvailable() throws { try idle() }
     public func addSink(id: UInt64,permissions: SinkPermissions,limits: DiagnosticSinkLimits) throws {
         try idle()
         let bytes = diagnosticSum([64,diagnosticSum(permissions.sites.map {$0.value.utf8.count+32}),diagnosticSum(permissions.paths.map {diagnosticSum([32,diagnosticPathBytes($0)])})])
@@ -198,11 +207,20 @@ public final class DiagnosticHub {
         var limits = DiagnosticSinkLimits(); limits.records = maxRecords; limits.bytes = maxBytes; limits.policy = .oldest; try addSink(id:id,permissions:permissions,limits:limits)
     }
     public func registerProducer(id: UInt64,epoch: UInt64) throws {
-        try idle(); guard epoch > 0,producers[id] == nil,producers.count < limits.producers else { throw DiagnosticError.capacity }; producers[id] = DiagnosticProducer(epoch:epoch)
+        try idle(); guard epoch > 0,producers[id] == nil,producers.count < limits.producers else { throw DiagnosticError.capacity }
+        var low = 0,high = orderedProducerIDs.count
+        while low < high { let middle = low+(high-low)/2; if orderedProducerIDs[middle] < id { low = middle+1 } else { high = middle } }
+        producers[id] = DiagnosticProducer(epoch:epoch); orderedProducerIDs.insert(id,at:low)
     }
-    public var pendingProducers: [UInt64] { producers.keys.sorted().filter {producers[$0]!.revision != captureRevision} }
-    public var producerStatus: [ProducerAck] { producers.keys.sorted().map { let p = producers[$0]!; return ProducerAck(producer:$0,epoch:p.epoch,captureRevision:p.revision,effectiveTransition:p.effective) } }
-    public func configureSelected(expectedRevision: UInt64,subscriptions: [ProbeSubscription]) throws -> ConfigurationAck {
+    public var pendingProducers: [UInt64] { orderedProducerIDs.filter { producers[$0]!.revision != captureRevision } }
+    public var producerStatus: [ProducerAck] { producerStatusPage(offset:0,limit:orderedProducerIDs.count) }
+    var producerCount: Int { orderedProducerIDs.count }
+    var pendingProducerCount: Int { orderedProducerIDs.reduce(0) { $0 + (producers[$1]!.revision != captureRevision ? 1 : 0) } }
+    func producerIDs(limit: Int) -> [UInt64] { Array(orderedProducerIDs.prefix(limit)) }
+    func producerStatusPage(offset: Int,limit: Int) -> [ProducerAck] {
+        orderedProducerIDs.dropFirst(offset).prefix(limit).map { id in let p = producers[id]!; return ProducerAck(producer:id,epoch:p.epoch,captureRevision:p.revision,effectiveTransition:p.effective) }
+    }
+    public func validateSelected(expectedRevision: UInt64,subscriptions: [ProbeSubscription]) throws {
         try idle(); guard expectedRevision == captureRevision else { throw DiagnosticError.staleRevision }; guard subscriptions.count <= limits.subscriptions else { throw DiagnosticError.capacity }
         var bytes = 0
         for sub in subscriptions {
@@ -215,8 +233,12 @@ public final class DiagnosticHub {
             bytes = diagnosticSum([bytes,256,sub.site.utf8.count,diagnosticPathBytes(sub.path),triggerBytes,diagnosticSum(selector.namedLabels.compactMap {$0?.utf8.count}),diagnosticSum(selector.labels.map {diagnosticSum([$0.key.value.utf8.count,$0.value.value.utf8.count,64])})])
             guard bytes <= limits.configBytes else { throw DiagnosticError.capacity }
         }
-        guard captureRevision < .max else { throw DiagnosticError.revisionExhausted }; captureRevision += 1; config = subscriptions
-        return ConfigurationAck(captureRevision:captureRevision,pendingProducers:producers.keys.sorted())
+        guard captureRevision < .max else { throw DiagnosticError.revisionExhausted }
+    }
+    public func configureSelected(expectedRevision: UInt64,subscriptions: [ProbeSubscription]) throws -> ConfigurationAck {
+        try validateSelected(expectedRevision:expectedRevision,subscriptions:subscriptions)
+        captureRevision += 1; config = subscriptions
+        return ConfigurationAck(captureRevision:captureRevision,pendingProducers:orderedProducerIDs)
     }
     public func configure(expectedRevision: UInt64,subscriptions: [ProbeSubscription]) throws -> UInt64 { try configureSelected(expectedRevision:expectedRevision,subscriptions:subscriptions).captureRevision }
     public func acknowledge(producer: UInt64,revision: UInt64,effectiveTransition: UInt64) throws -> ProducerAck {
@@ -303,7 +325,7 @@ public final class DiagnosticHub {
                 projections.append((c.path,node))
             }
             if kind == .probe && node == nil { diagnosticIncrement(&sinks[c.sink]!.health.inspectionErrors) }
-            if s.schema != value?.schema { if s.schema != nil {s.baselineReason = .schemaChanged}; s.baseline = nil; s.high = false; s.lastAlert = nil; s.schema = value?.schema }
+            if !diagnosticSameSchema(s.schema,value?.schema) { if s.schema != nil {s.baselineReason = .schemaChanged}; s.baseline = nil; s.high = false; s.lastAlert = nil; s.schema = value.map {DisplaySchema(name:$0.schema.name,version:$0.schema.version)} }
             let complete = node?.isComplete == true
             let numeric = unsignedQuantity(node)
             let thresholdUnavailable: Bool

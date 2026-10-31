@@ -1,0 +1,3 @@
+# Local immutable inputs and full build products are bound by compact receipts.
+/inputs/
+/outputs/

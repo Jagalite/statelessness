@@ -1,0 +1,12 @@
+{
+  "base_commit": "ef5c46b5646eec78599c0ed69756df889a8126ce",
+  "files": 83,
+  "revision": "r1",
+  "schema": "n06-swift-snapshot-receipt-v1",
+  "scope": "source packaging only; no executable qualification",
+  "snapshot": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/swift/inputs/r1",
+  "snapshot_entries": 96,
+  "source_identity_sha256": "94381466b7d64f313221d5f44c10189770fcaa3e16ec61427b274a4a6b1aab97",
+  "stage": "complete",
+  "status": "sealed"
+}

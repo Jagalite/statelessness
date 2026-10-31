@@ -236,7 +236,16 @@ def main():
     try:
         spec = json.loads(spec_raw)
         baseline_path = (ROOT / spec['source_baseline']).resolve() if 'source_baseline' in spec else None
-        pinned = [args.spec] + ([baseline_path] if baseline_path else [])
+        sealed_inputs = []
+        for name in spec.get('sealed_inputs', []):
+            path = ROOT / name
+            if Path(name).is_absolute() or '..' in Path(name).parts or not path.is_file():
+                raise ValueError(f'invalid sealed input: {name}')
+            if path.is_symlink() or any(p.is_symlink() for p in path.parents if p != ROOT):
+                raise ValueError(f'symlink sealed input: {name}')
+            sealed_inputs.append(path)
+        report['sealed_inputs'] = {str(p.relative_to(ROOT)): identity(p.read_bytes()) for p in sealed_inputs}
+        pinned = [args.spec] + ([baseline_path] if baseline_path else []) + sealed_inputs
         before = snapshot(pinned)
         save_json(output / 'source-before.json', before)
         if baseline_path:

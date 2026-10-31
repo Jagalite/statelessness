@@ -136,8 +136,53 @@ class EffectTests(unittest.TestCase):
         from statelessness.debugger_effects import effect_protocol_adapters
         o,e,c=self.setup_effect(); a=o.attempt_created(e); o.attempt_started(a); o.attempt_finished(a,'Success'); o.resolved(e,'Success',a)
         adapters=effect_protocol_adapters(o); calls=c.calls
-        fields=dict(adapters['effect_details']((e.id.run,e.id.epoch,e.id.serial)))
+        raw=adapters['effect_details']((e.id.run,e.id.epoch,e.id.serial))
+        fields=dict(raw)
+        self.assertEqual([key for key,_ in raw].count('effect.debugger_affected'),1)
+        self.assertEqual(fields['effect.labels.debugger_affected'],'bool:false')
         self.assertEqual(fields['effect.origin.transition'],'u64:'+str(2**63+5))
         timeline=dict(adapters['effect_timeline']((e.id.run,e.id.epoch,e.id.serial,1)))
         self.assertEqual(timeline['timeline.truncated'],'bool:true')
         self.assertTrue(adapters['telemetry_health'](())); self.assertEqual(c.calls,calls)
+
+    def test_effect_wire_distinguishes_original_label_from_aggregate(self):
+        from statelessness.debugger_effects import effect_protocol_adapters
+        o,e,_=self.setup_effect(); a=o.attempt_created(e); o.attempt_started(a)
+        o.debugger_pause(True); o.debugger_pause(False); o.attempt_finished(a,'Success')
+        adapters=effect_protocol_adapters(o); args=(e.id.run,e.id.epoch,e.id.serial)
+        for result in (adapters['effect_details'](args),adapters['effect_timeline']((*args,10))):
+            fields=dict(result); keys=[key for key,_ in result]
+            self.assertEqual(fields['effect.labels.debugger_affected'],'bool:false')
+            self.assertEqual(fields['effect.debugger_affected'],'bool:true')
+            self.assertEqual(len(keys),len(set(keys)))
+            self.assertLess(keys.index('effect.labels.debugger_affected'),keys.index('effect.complete'))
+            self.assertGreater(keys.index('effect.debugger_affected'),keys.index('effect.cancellation_acknowledged'))
+
+    def test_effect_timeline_wire_orders_kind_after_event_payload(self):
+        from statelessness.debugger_effects import effect_protocol_adapters
+        o,e,c=self.setup_effect(); o.attempt_created(e)
+        result=effect_protocol_adapters(o)['effect_timeline']((e.id.run,e.id.epoch,e.id.serial,10))
+        keys=[key for key,_ in result]
+        for key in keys:
+            if key.startswith('timeline.events.') and key.endswith('.attempt'):
+                self.assertLess(keys.index(key),keys.index(key.rsplit('.',1)[0]+'.kind'))
+                break
+        else: self.fail('expected attempt event')
+
+    def test_telemetry_health_wire_order_and_unknown_pause_boundaries(self):
+        from statelessness.debugger_effects import effect_protocol_adapters
+        o,e,c=self.setup_effect()
+        o.pause_intervals=lambda: [{'generation':3,'start':None,'end':None}]
+        result=effect_protocol_adapters(o)['telemetry_health'](())
+        expected=('destructor_hook_losses','callback_faults','pause_interval_evictions',
+            'detail_evictions','detail_rejections','detail_event_drops','duplicate_observations',
+            'duplicate_deliveries','invalid_lifecycle','abandoned','clock_failures',
+            'debugger_affected_measurements','active_effect_handles','retained_detail_records',
+            'retained_detail_bytes','metric.rejected_series','metric.invalid_labels',
+            'metric.arithmetic_errors','metric.omitted_measurements','metric.invalid_measurements',
+            'metric.imported_ignored','metric.snapshots_evicted','metric.snapshot_rejections',
+            'unobserved_native_debugger_interference_possible')
+        self.assertEqual([key for key,_ in result[:len(expected)]],['telemetry.'+key for key in expected])
+        fields=dict(result)
+        self.assertEqual(fields['pauses.0.start'],'unknown:clock_or_open_interval')
+        self.assertEqual(fields['pauses.0.end'],'unknown:clock_or_open_interval')

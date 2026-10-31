@@ -153,17 +153,31 @@ func (m Model[S, I, O]) validateCodec() error {
 
 // call contains callback panics at the public engine boundary; a panic is never
 // converted into a passing check or a property violation.
+// callbackPanic retains unwind provenance across composed native adapters.
+// Its public ModelError view remains available through errors.As.
+type callbackPanic struct {
+	diagnostic *ModelError
+	message    string
+}
+
+func (e *callbackPanic) Error() string { return e.diagnostic.Error() }
+func (e *callbackPanic) Unwrap() error { return e.diagnostic }
+
 func call[T any](stage string, f func() (T, error)) (value T, err error) {
 	defer func() {
 		if p := recover(); p != nil {
 			var zero T
 			value = zero
-			err = &ModelError{fmt.Sprintf("%s: panic: %v", stage, p)}
+			message := campaignPanicMessage(p)
+			err = &callbackPanic{&ModelError{fmt.Sprintf("%s: panic: %v", stage, p)}, message}
 		}
 	}()
 	value, err = f()
 	if err != nil {
 		var zero T
+		if provenance, ok := err.(*callbackPanic); ok {
+			return zero, &callbackPanic{&ModelError{fmt.Sprintf("%s: %v", stage, err)}, provenance.message}
+		}
 		return zero, &ModelError{fmt.Sprintf("%s: %v", stage, err)}
 	}
 	return
@@ -185,8 +199,11 @@ func cloneTransition[S, I, O any](m Model[S, I, O], t Transition[S, O]) (Transit
 		if err := t.Disposition.Validate(); err != nil {
 			return Transition[S, O]{}, err
 		}
-		result := Transition[S, O]{State: m.CloneState(t.State), Outputs: make([]O, len(t.Outputs)), Disposition: t.Disposition}
-		for i, o := range t.Outputs {
+		// Capture the output elements before invoking the independent state
+		// clone hook, which may hold an alias to the caller's output slice.
+		outputs := append([]O(nil), t.Outputs...)
+		result := Transition[S, O]{State: m.CloneState(t.State), Outputs: make([]O, len(outputs)), Disposition: t.Disposition}
+		for i, o := range outputs {
 			result.Outputs[i] = m.CloneOutput(o)
 		}
 		return result, nil
@@ -201,6 +218,9 @@ func edgeChecks[S, I, O any](m Model[S, I, O], before S, input I, t Transition[S
 }
 
 func perform[S, I, O any](m Model[S, I, O], before S, input I) (Transition[S, O], error) {
+	return performStage(m, before, input, "transition")
+}
+func performStage[S, I, O any](m Model[S, I, O], before S, input I, stage string) (Transition[S, O], error) {
 	var zero Transition[S, O]
 	b, err := copied(m.CloneState, before)
 	if err != nil {
@@ -210,7 +230,7 @@ func perform[S, I, O any](m Model[S, I, O], before S, input I) (Transition[S, O]
 	if err != nil {
 		return zero, err
 	}
-	t, err := call("transition", func() (Transition[S, O], error) { return m.Step(b, i) })
+	t, err := call(stage, func() (Transition[S, O], error) { return m.Step(b, i) })
 	if err != nil {
 		return zero, err
 	}

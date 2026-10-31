@@ -3,7 +3,6 @@ package debug
 import (
 	"fmt"
 	s "github.com/Jagalite/statelessness/go"
-	"time"
 )
 
 // InputPolicy declares environmental admission separately from Generate causality.
@@ -18,41 +17,70 @@ type InputPolicy[S, I any] struct {
 func Unrestricted[S, I any]() InputPolicy[S, I] {
 	return InputPolicy[S, I]{Label: "out-of-domain-injection", Unrestricted: true}
 }
-func policyProvenance[S, I any](t *s.AuditTrace, p *InputPolicy[S, I]) error {
+
+// branchParentPolicy treats a live capture, which records its origin without
+// a simulation input policy, as constraining no branch. Minimization still
+// requires full policy provenance.
+func branchParentPolicy(t *s.AuditTrace) (string, bool, bool, error) {
+	origins, environment := 0, false
+	live := false
+	for _, p := range t.Config.Parameters {
+		switch p[0] {
+		case "stateless.debug.environment":
+			environment = true
+		case "stateless.debug.origin":
+			origins++
+			live = p[1] == "recorded-live-observation"
+		}
+	}
+	if !environment && origins == 1 && live {
+		return "", false, false, nil
+	}
+	return recordedEnvironment(t)
+}
+
+func recordedEnvironment(t *s.AuditTrace) (string, bool, bool, error) {
 	var env, origin *string
 	for _, entry := range t.Config.Parameters {
 		switch entry[0] {
 		case "stateless.debug.environment":
 			if env != nil {
-				return fmt.Errorf("ambiguous recorded environmental policy")
+				return "", false, false, fmt.Errorf("ambiguous recorded environmental policy")
 			}
 			x := entry[1]
 			env = &x
 		case "stateless.debug.origin":
 			if origin != nil {
-				return fmt.Errorf("ambiguous recorded environmental policy")
+				return "", false, false, fmt.Errorf("ambiguous recorded environmental policy")
 			}
 			x := entry[1]
 			origin = &x
 		}
 	}
 	if env == nil && origin == nil {
-		return nil
+		return "", false, false, nil
 	}
 	if env == nil || origin == nil {
-		return fmt.Errorf("incomplete recorded environmental policy provenance")
+		return "", false, false, fmt.Errorf("incomplete recorded environmental policy provenance")
 	}
 	unrestricted := *origin == "out-of-domain-injection"
 	if !unrestricted && *origin != "simulation" {
-		return fmt.Errorf("unknown recorded environmental policy origin")
+		return "", false, false, fmt.Errorf("unknown recorded environmental policy origin")
+	}
+	return *env, unrestricted, true, nil
+}
+func policyProvenance[S, I any](t *s.AuditTrace, p *InputPolicy[S, I]) error {
+	env, unrestricted, present, err := recordedEnvironment(t)
+	if err != nil || !present {
+		return err
 	}
 	if p == nil {
-		if unrestricted && *env == "out-of-domain-injection" {
+		if unrestricted && env == "out-of-domain-injection" {
 			return nil
 		}
 		return fmt.Errorf("recorded environmental policy requires MinimizeWithPolicy")
 	}
-	if p.Label != *env || p.Unrestricted != unrestricted {
+	if p.Label != env || p.Unrestricted != unrestricted {
 		return fmt.Errorf("minimization environment differs from recorded policy")
 	}
 	return nil
@@ -68,6 +96,10 @@ func MinimizeWithPolicy[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, 
 }
 func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequence, check uint64, p *InputPolicy[S, I], maximum uint64, config s.ShrinkConfig, limits s.ShrinkLimits, explicitPhase *s.CheckPhase) (*s.ShrinkReport[I], error) {
 	limits = snapshotLimits(limits)
+	deadline, err := s.NewRunDeadline(limits.Control)
+	if err != nil {
+		return nil, err
+	}
 	if g.Codec != nil {
 		codec := *g.Codec
 		g.Codec = &codec
@@ -100,17 +132,11 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 	}
 	// Verification and candidate shrinking share a single overall wall-time and
 	// transition budget, including persisted v2 phase validation on every turn.
-	started := time.Now()
-	var duration *time.Duration
-	if limits.Control.MaxDuration != nil {
-		x := *limits.Control.MaxDuration
-		duration = &x
-	}
 	stop := func() error {
-		if limits.Control.Cancellation != nil && limits.Control.Cancellation.Load() {
+		switch deadline.Stop() {
+		case "cancelled":
 			return fmt.Errorf("minimization cancelled")
-		}
-		if duration != nil && time.Since(started) >= *duration {
+		case "deadline":
 			return fmt.Errorf("minimization deadline")
 		}
 		return nil
@@ -121,6 +147,7 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 	if v.artifact.V2 == nil && limits.MaxReplayedTransitions != nil && len(t.Steps) > 0 && uint64(len(t.Steps)) >= *limits.MaxReplayedTransitions {
 		return nil, fmt.Errorf("budget cannot cover verification and original validation")
 	}
+	limits.Control = deadline.Remaining()
 	verified, e := Verify(v, g.Model, limits)
 	if e != nil {
 		return nil, e
@@ -132,13 +159,10 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 		remaining := *limits.MaxReplayedTransitions - verified.Transitions
 		limits.MaxReplayedTransitions = &remaining
 	}
-	if limits.Control.MaxDuration != nil {
-		remaining := *duration - time.Since(started)
-		if remaining <= 0 {
-			return nil, fmt.Errorf("minimization deadline exhausted during verification")
-		}
-		limits.Control.MaxDuration = &remaining
+	if err := stop(); err != nil {
+		return nil, err
 	}
+	limits.Control = deadline.Remaining()
 	// The Rust v2 viewer performs a separate phase pass before the workbench's
 	// exact verification. Preserve its extra work and charge both passes.
 	if v.artifact.V2 != nil {
@@ -160,13 +184,10 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 			remaining := *limits.MaxReplayedTransitions - second.Transitions
 			limits.MaxReplayedTransitions = &remaining
 		}
-		if limits.Control.MaxDuration != nil {
-			remaining := *duration - time.Since(started)
-			if remaining <= 0 {
-				return nil, fmt.Errorf("minimization deadline exhausted during verification")
-			}
-			limits.Control.MaxDuration = &remaining
+		if err := stop(); err != nil {
+			return nil, err
 		}
+		limits.Control = deadline.Remaining()
 	}
 	if limits.MaxReplayedTransitions != nil && sequence > 0 && *limits.MaxReplayedTransitions == 0 {
 		return nil, fmt.Errorf("budget cannot cover verification and original validation")
@@ -189,12 +210,12 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 		return state, nil
 	}
 	enabled := g.IsEnabled
-	policyAllowed := func(state S, input I) (bool, error) {
+	policyAllowed := func(state S, query inputSnapshot[I]) (bool, error) {
 		if p == nil || p.Unrestricted {
 			return true, nil
 		}
 		if p.Validate != nil {
-			return p.Validate(original.CloneState(state), original.CloneInput(input))
+			return p.Validate(original.CloneState(state), original.CloneInput(query.get()))
 		}
 		it, e := p.Candidates(original.CloneState(state))
 		if e != nil {
@@ -217,7 +238,7 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 			if n == maximum {
 				return false, fmt.Errorf("policy admission candidate limit")
 			}
-			same, e := g.InputEqual(original.CloneInput(candidate), original.CloneInput(input))
+			same, e := g.InputEqual(original.CloneInput(candidate), original.CloneInput(query.get()))
 			if e != nil {
 				return false, e
 			}
@@ -230,12 +251,19 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 		if e := stop(); e != nil {
 			return false, e
 		}
-		ok, e := policyAllowed(state, input)
+		if (p == nil || p.Unrestricted) && enabled == nil {
+			return true, nil
+		}
+		// Both policy callbacks and the enabled callback observe the same input,
+		// even if one changes an externally aliased caller value.
+		query := captureInput(original.CloneInput, input)
+		ok, e := policyAllowed(state, query)
 		if e != nil || !ok {
 			return ok, e
 		}
 		if enabled != nil {
-			return enabled(original.CloneState(state), original.CloneInput(input))
+			enabledInput := original.CloneInput(query.get())
+			return enabled(original.CloneState(state), enabledInput)
 		}
 		return true, nil
 	}
@@ -251,13 +279,10 @@ func minimize[S, I, O any](v *EvidenceViewer, g s.GenerateModel[S, I, O], sequen
 		inputs = append(inputs, g.CloneInput(input))
 	}
 
-	if duration != nil {
-		remaining := *duration - time.Since(started)
-		if remaining <= 0 {
-			return nil, fmt.Errorf("minimization deadline exhausted decoding inputs")
-		}
-		limits.Control.MaxDuration = &remaining
+	if err := stop(); err != nil {
+		return nil, err
 	}
+	limits.Control = deadline.Remaining()
 	report, e := s.ShrinkWithLimits(g, s.Failure[I]{Inputs: inputs, Violations: []s.Violation{{Phase: string(target.Phase), Check: target.Check}}}, config, limits)
 	if report != nil {
 		report.ReplayedTransitions += verified.Transitions

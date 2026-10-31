@@ -145,6 +145,9 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 	if e != nil {
 		return nil, e
 	}
+	// Retain the search node before checks or observers can mutate an alias.
+	// Copy failure is consumed only if search continues past checks and stop.
+	initialNode, initialNodeErr := copied(m.CloneState, initial)
 	report.States = 1
 	checks, e := searchInitialObservedInto(m, initial, observer, &checkStorage)
 	if e != nil {
@@ -159,6 +162,10 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 	if stop() {
 		return report, nil
 	}
+	if initialNodeErr != nil {
+		return nil, initialNodeErr
+	}
+	initial = initialNode
 	initialBytes, e := estimateState(m, initial)
 	if e != nil {
 		return nil, e
@@ -238,10 +245,28 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 				report.Termination = "transition_limit"
 				return report, nil
 			}
+			// Retain the enumerated input before reducer callbacks can mutate an
+			// external alias. Clone hooks must return detached values; this copy is
+			// observable and may fail before the transition runs.
+			input, e = copied(m.CloneInput, input)
+			if e != nil {
+				return nil, e
+			}
+			var transitionObserver func(S, I, Transition[S, O], []Check, []Check, []I) error
+			if observer != nil {
+				transitionObserver = observer.Transition
+			}
 			transition, e := perform(m, current.state, input)
 			if e != nil {
 				return nil, e
 			}
+			// Preserve the successor across callbacks; an unused failed snapshot
+			// does not preempt a finding or a stop.
+			// Retain the check observation before history callbacks can mutate aliases.
+			// This additional check-state clone is required even without an edge
+			// callback and can fail before the mandatory state check runs.
+			edge := captureFuzzEdge(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, transitionObserver)
+			successor, successorErr := copied(m.CloneState, transition.State)
 			report.Transitions++
 			report.MaxDepthReached = max(report.MaxDepthReached, current.depth+1)
 			var history []I
@@ -258,7 +283,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 					return nil, e
 				}
 			}
-			bad, e := searchEdgeObservedInto(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, history, &report.SkippedChecks, observer, &checkStorage)
+			bad, e := searchEdgeObservedPrepared(GenerateModel[S, I, O]{Model: m}, current.state, input, transition, history, &report.SkippedChecks, observer, &checkStorage, edge)
 			if e != nil {
 				return nil, e
 			}
@@ -274,7 +299,10 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 			if stop() {
 				return report, nil
 			}
-			h, e := hash(transition.State)
+			if successorErr != nil {
+				return nil, successorErr
+			}
+			h, e := hash(successor)
 			if e != nil {
 				return nil, e
 			}
@@ -289,7 +317,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 				}
 				index := visited[h][position]
 				equal, e := call("state equality", func() (bool, error) {
-					return m.EqualStates(m.CloneState(nodes[index].state), m.CloneState(transition.State)), nil
+					return m.EqualStates(m.CloneState(nodes[index].state), m.CloneState(successor)), nil
 				})
 				if e != nil {
 					return nil, e
@@ -309,7 +337,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 				report.Termination = "state_limit"
 				return report, nil
 			}
-			estimate, e := estimateState(m, transition.State)
+			estimate, e := estimateState(m, successor)
 			if e != nil {
 				return nil, e
 			}
@@ -335,7 +363,7 @@ func enumerateObserved[S, I, O any](m Model[S, I, O], config SearchConfig, limit
 				return nil, e
 			}
 			visited[h] = append(visited[h], len(nodes))
-			nodes = append(nodes, node[S, I]{transition.State, cursor, saved, current.depth + 1})
+			nodes = append(nodes, node[S, I]{successor, cursor, saved, current.depth + 1})
 			report.States = len(nodes)
 			report.EstimatedRetainedStateBytes = total
 		}

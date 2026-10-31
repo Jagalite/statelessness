@@ -3,6 +3,7 @@
 Structural quotas bound encoded bytes and logical decoder requests, not RSS.
 """
 from dataclasses import dataclass, replace
+from itertools import islice
 import os
 import zlib
 from .core import Check, Disposition, Metadata, TraceStep, ModelError, U64_MAX, _natural
@@ -319,7 +320,7 @@ class TraceV2:
             return any(_variant(c.status, ('passed', 'failed', 'skipped'), 'check status') == 'failed' for c in checks)
         initial_failed = failed(self.trace.initial_checks)
         _need(not initial_failed or not self.trace.steps, 'trace continues after initial property failure')
-        _need(not any(failed(s.checks) for s in self.trace.steps[:-1]), 'trace continues after property failure')
+        _need(not any(failed(s.checks) for s in islice(self.trace.steps, max(0, len(self.trace.steps) - 1))), 'trace continues after property failure')
         _need((initial_failed or bool(self.trace.steps and failed(self.trace.steps[-1].checks))) == (kind == 'property_failed'), 'trace termination disagrees with recorded checks')
         try: measured, _ = _audit_preflight(self.trace, limits.trace)
         except BinaryTraceError as error: raise _binary_error(error) from error
@@ -409,9 +410,11 @@ class Artifact:
         data = bytearray()
         maximum = limits.trace.max_total_bytes
         while True:
-            try: chunk = reader.read(min(8192, maximum - len(data) + 1))
+            requested = min(8192, maximum - len(data) + 1)
+            try: chunk = reader.read(requested)
             except Exception as error: raise ModelError('evidence read: ' + str(error)) from error
             _need(type(chunk) is bytes, 'evidence reader must return bytes')
+            _need(len(chunk) <= requested, 'evidence reader returned more bytes than requested')
             if not chunk: break
             _need(len(chunk) <= maximum - len(data), 'evidence byte limit')
             data.extend(chunk)

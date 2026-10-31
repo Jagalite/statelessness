@@ -33,12 +33,31 @@ export class BinaryError extends Error {
 export interface AuditReader {
     read(target: Uint8Array): number;
 }
-/** write consumes the supplied bytes synchronously; no flush/close/fsync is implied. */
+/** write consumes bytes synchronously; a bad return is detected after it is called,
+ * so bytes may already have been published. A returned native Promise with a
+ * throwing species can leave its rejection unhandled. No flush/close/fsync is implied. */
 export interface AuditWriter {
     write(bytes: Uint8Array): void;
 }
+// Probe the native Promise internal slot without reading a caller's `then`.
+// This accepts promises from another realm while leaving arbitrary thenables inert.
+export function consumeWriterPromiseRejection(value: unknown): void {
+    try { Promise.prototype.then.call(value, undefined, () => { }); }
+    catch { /* Non-promise or a promise with a throwing species. */ }
+}
 const HEADER = Uint8Array.of(83, 84, 76, 69, 83, 83, 26, 10, 1, 0, 0, 0), U32 = 0xffffffff, U64 = (1n << 64n) - 1n;
 const fail = (kind: BinaryErrorKind, detail: string | null = null): never => { throw new BinaryError(kind, detail); };
+// A thrown JavaScript value can itself have throwing prototype or message traps.
+// Error reporting must not replace the binary error with a second exception.
+function errorDetail(value: unknown): string {
+    try {
+        if (value instanceof Error) {
+            const message = value.message;
+            return typeof message === 'string' ? message : 'unknown error';
+        }
+        return String(value);
+    } catch { return 'unknown error'; }
+}
 function integer(n: number, label: string, max = Number.MAX_SAFE_INTEGER): number {
     if (typeof n !== 'number' || !Number.isSafeInteger(n) || n < 0 || n > max)
         fail('invalid_data', label);
@@ -86,6 +105,14 @@ export function auditCRC32(bytes: Uint8Array): number {
  * Blob storage is read synchronously; conversions separately copy every byte, including Node Buffers.
  * Collection quotas are applied before allocating the captured arrays. */
 function capture(t: AuditTrace, l: BinaryLimits): AuditTrace {
+    const internalErrors = new WeakSet<BinaryError>();
+    const fail = (kind: BinaryErrorKind, detail: string | null = null): never => { const error = new BinaryError(kind, detail); internalErrors.add(error); throw error; };
+    const integer = (n: number, label: string, max = Number.MAX_SAFE_INTEGER): number => {
+        if (typeof n !== 'number' || !Number.isSafeInteger(n) || n < 0 || n > max) return fail('invalid_data', label);
+        return n;
+    };
+    const bound = (n: number, maximum: number, label: string): number => n > maximum ? fail('limit_exceeded', label) : n;
+    const add = (a: number, b: number): number => integer(a + b, 'length overflow');
     let items = 0;
     const object = (x: unknown): Record<string, any> => {
         if (x === null || typeof x !== 'object')
@@ -129,9 +156,9 @@ function capture(t: AuditTrace, l: BinaryLimits): AuditTrace {
         return { metadata, config, initialState, initialChecks, steps, termination: a.termination, error: a.error };
     }
     catch (e) {
-        if (e instanceof BinaryError)
+        if (internalErrors.has(e as BinaryError))
             throw e;
-        return fail('invalid_data', e instanceof Error ? e.message : String(e));
+        return fail('invalid_data', errorDetail(e));
     }
 }
 function copyConfig(c: RunConfig): RunConfig { return { strategy: c.strategy, seed: c.seed, parameters: c.parameters.map(p => [p[0], p[1]] as const) }; }
@@ -322,10 +349,14 @@ export function writeAuditTrace(t: AuditTrace, overrides: Partial<BinaryLimits> 
 export function writeAuditTraceTo(t: AuditTrace, writer: AuditWriter, overrides: Partial<BinaryLimits> = {}): void {
     const bytes = writeAuditTrace(t, overrides);
     try {
-        writer.write(bytes);
+        const result: unknown = writer.write(bytes);
+        if (result !== undefined) {
+            consumeWriterPromiseRejection(result);
+            throw new Error('audit writer must return undefined synchronously');
+        }
     }
     catch (e) {
-        fail('io', e instanceof Error ? e.message : String(e));
+        fail('io', errorDetail(e));
     }
 }
 class Stream {
@@ -339,17 +370,12 @@ class Stream {
             this.offset += n;
             return n;
         }
-        try {
-            const n = this.source.read(target);
-            if (!Number.isSafeInteger(n) || n < 0 || n > target.length)
-                fail('invalid_data', 'reader byte count');
-            return n;
-        }
-        catch (e) {
-            if (e instanceof BinaryError)
-                throw e;
-            return fail('io', e instanceof Error ? e.message : String(e));
-        }
+        let n: number;
+        try { n = this.source.read(target); }
+        catch (e) { return fail('io', errorDetail(e)); }
+        if (!Number.isSafeInteger(n) || n < 0 || n > target.length)
+            fail('invalid_data', 'reader byte count');
+        return n;
     }
     exact(n: number): Uint8Array {
         bound(add(this.total, n), this.l.max_total_bytes, 'total bytes');

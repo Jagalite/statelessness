@@ -62,6 +62,7 @@ public struct EffectDetails {
     public let requested: LocalInstant?
     public let resolvedAt: LocalInstant?
     public let admission: Bool?
+    public let resolution: RuntimeOutcome?
     public let runningAttempts: UInt64
     public let deliveriesObserved: UInt64
     public let cancellationRequested: Bool
@@ -129,10 +130,10 @@ public struct DeliveryHandle { fileprivate let token: DeliveryToken; public var 
 private struct RetainedEffect {
     let id: EffectID; let origin: RequestOrigin?; let labels: MetricLabels; let requested: LocalInstant?
     var events: [EffectLifecycleEvent] = []; var timings: [EffectTimingObservation] = []; var complete = true
-    var resolved = false; var settled = false; var resolvedAt: LocalInstant?; var admission: Bool?; var running: UInt64 = 0; var observed: UInt64 = 0
+    var resolved = false; var settled = false; var resolvedAt: LocalInstant?; var admission: Bool?; var resolution: RuntimeOutcome?; var running: UInt64 = 0; var observed: UInt64 = 0
     var cancellationRequested = false; var cancellationAcknowledged = false; var debuggerAffected = false; var abandoned = false
     var bytes: Int { 512+events.count*192+timings.count*256 }
-    func projection() -> EffectDetails { EffectDetails(id: id,origin: origin,labels: labels,events: events,timings: timings,complete: complete,resolved: resolved,settled: settled,requested: requested,resolvedAt: resolvedAt,admission: admission,runningAttempts: running,deliveriesObserved: observed,cancellationRequested: cancellationRequested,cancellationAcknowledged: cancellationAcknowledged,debuggerAffected: debuggerAffected,abandoned: abandoned) }
+    func projection() -> EffectDetails { EffectDetails(id: id,origin: origin,labels: labels,events: events,timings: timings,complete: complete,resolved: resolved,settled: settled,requested: requested,resolvedAt: resolvedAt,admission: admission,resolution:resolution,runningAttempts: running,deliveriesObserved: observed,cancellationRequested: cancellationRequested,cancellationAcknowledged: cancellationAcknowledged,debuggerAffected: debuggerAffected,abandoned: abandoned) }
 }
 /// Host lifecycle accounting, never a reducer, effect scheduler or remote endpoint.
 /// Mutation hooks and ARC cleanup are synchronized. The type deliberately has no
@@ -164,7 +165,7 @@ public final class EffectObserver {
     private func now() -> LocalInstant? { guard options.timings else { return nil }; do { return try clock.now() } catch { increment(&storedHealth.clockFailures); return nil } }
     private func invalid(_ error: LifecycleError = .wrongPhase) -> LifecycleError { increment(&storedHealth.invalidLifecycle); return error }
     private func duplicate(_ effect: EffectToken) -> LifecycleError { increment(&storedHealth.duplicateObservations); count(.duplicateObservations,effect.labels); return .duplicateObservation }
-    private func validate(_ effect: EffectToken) throws { guard effect.owner === owner else { throw LifecycleError.foreignToken }; effect.affected = effect.affected || paused || effect.pauseGeneration != pauseGeneration }
+    private func validate(_ effect: EffectToken,markAffected: Bool = true) throws { guard effect.owner === owner else { throw LifecycleError.foreignToken }; if markAffected { effect.affected = effect.affected || paused || effect.pauseGeneration != pauseGeneration } }
     private func labels(_ effect: EffectToken,outcome: MetricOutcome = .none,measurement: Bool = false) -> MetricLabels { var value = effect.labels; value.outcome = outcome; value.debuggerAffected = measurement && effect.affected; return value }
     private func count(_ family: MetricFamily,_ labels: MetricLabels) { guard options.counters else { return }; do { try metrics.increment(family,labels: labels) } catch { metrics.markIncomplete() } }
     private func gauge(_ family: MetricFamily,_ delta: Int64,_ labels: MetricLabels) { guard options.counters else { return }; do { try metrics.gaugeDelta(family,delta: delta,labels: labels) } catch { metrics.markIncomplete() } }
@@ -172,6 +173,7 @@ public final class EffectObserver {
         guard options.details else { return }; increment(&eventSequence)
         guard var value = records[effect.id] else { return }
         value.admission = effect.admitted; value.resolved = effect.resolved; value.resolvedAt = effect.resolvedAt; value.settled = effect.settled; value.running = effect.running; value.observed = effect.observed
+        if case let .resolved(outcome) = kind { value.resolution = outcome }
         value.cancellationRequested = effect.cancellationRequested; value.cancellationAcknowledged = effect.cancellationAcknowledged; value.debuggerAffected = effect.affected; value.abandoned = effect.abandoned; value.complete = value.complete && !effect.abandoned
         if value.events.count >= options.maxEventsPerEffect || 192 > options.maxDetailBytes-detailBytes { value.complete = false; increment(&storedHealth.detailEventDrops) }
         else { value.events.append(EffectLifecycleEvent(sequence: eventSequence,kind: kind.name,detail: kind,time: time,debuggerAffected: effect.affected)); detailBytes += 192 }
@@ -193,7 +195,7 @@ public final class EffectObserver {
         records[effect.id] = value
     }
     public func requested(origin: RequestOrigin? = nil,labels: MetricLabels = MetricLabels()) throws -> EffectHandle { try mutate {
-        if let origin { guard origin.run == options.run,origin.epoch == options.epoch else { throw invalid(.wrongEpoch) }; guard origin.transitionSequence > 0 else { throw invalid() } }
+        if let origin { guard origin.run == options.run,origin.epoch == options.epoch else { throw invalid(.wrongEpoch) } }
         var dimensions = labels; dimensions.origin = options.origin; dimensions.outcome = .none; dimensions.debuggerAffected = false
         guard metrics.labels.allows(dimensions) else { throw invalid(.invalidLabels) }; guard serial < UInt64.max else { throw invalid(.exhausted) }; serial += 1
         let id = EffectID(run: options.run,epoch: options.epoch,serial: serial),time = now()
@@ -204,8 +206,8 @@ public final class EffectObserver {
         }
         count(.requests,dimensions); event(.requested,effect,time); return EffectHandle(token: effect)
     } }
-    public func admission(_ handle: EffectHandle,accepted: Bool) throws { try mutate { let effect = handle.token; try validate(effect); guard effect.admitted == nil else { throw duplicate(effect) }; guard !effect.resolved else { throw invalid() }; effect.admitted = accepted; let time = now(); count(.admissions,labels(effect,outcome: accepted ? .accepted : .rejected)); if accepted { gauge(.unresolved,1,effect.labels) }; event(.admission(accepted),effect,time) } }
-    public func attemptCreated(_ handle: EffectHandle) throws -> AttemptHandle { try mutate { let effect = handle.token; try validate(effect); guard effect.admitted == true,!effect.resolved else { throw invalid() }; guard effect.nextAttempt < options.maxAttemptsPerEffect else { throw invalid(.limit) }; effect.nextAttempt += 1; let attempt = AttemptToken(effect: effect,id: AttemptID(effect: effect.id,serial: effect.nextAttempt)); event(.attemptCreated(attempt.id),effect,nil); return AttemptHandle(token: attempt) } }
+    public func admission(_ handle: EffectHandle,accepted: Bool) throws { try mutate { let effect = handle.token; try validate(effect,markAffected:false); guard effect.admitted == nil else { throw duplicate(effect) }; guard !effect.resolved else { throw invalid() }; effect.admitted = accepted; let time = now(); count(.admissions,labels(effect,outcome: accepted ? .accepted : .rejected)); if accepted { gauge(.unresolved,1,effect.labels) }; event(.admission(accepted),effect,time) } }
+    public func attemptCreated(_ handle: EffectHandle) throws -> AttemptHandle { try mutate { let effect = handle.token; try validate(effect,markAffected:false); guard effect.admitted == true,!effect.resolved else { throw invalid() }; guard effect.nextAttempt < options.maxAttemptsPerEffect else { throw invalid(.limit) }; effect.nextAttempt += 1; let attempt = AttemptToken(effect: effect,id: AttemptID(effect: effect.id,serial: effect.nextAttempt)); event(.attemptCreated(attempt.id),effect,nil); return AttemptHandle(token: attempt) } }
     public func retryScheduled(_ handle: AttemptHandle,delayNS: UInt64) throws { try mutate { let a = handle.token,e = a.effect; try validate(e); guard !a.started,!a.queued,!a.hasSchedule,!a.abandoned,!e.resolved else { throw invalid() }; a.hasSchedule = true; a.scheduled = now(); if options.timings { do { try metrics.observe(.scheduledBackoff,quantity: delayNS,labels: labels(e,measurement: true)) } catch { metrics.markIncomplete() }; if e.affected { increment(&storedHealth.debuggerAffectedMeasurements) } }; event(.retryScheduled(a.id,delayNS: delayNS),e,a.scheduled) } }
     public func readyQueued(_ handle: AttemptHandle) throws { try mutate { let a = handle.token,e = a.effect; try validate(e); guard !a.queued else { throw duplicate(e) }; guard !a.started,!a.finished,!a.abandoned,!e.resolved else { throw invalid() }; a.queued = true; a.ready = now(); gauge(.readyDepth,1,e.labels); if !e.firstReady { measurement(.admissionDelay,e,e.requested,a.ready,attempt: a.id); e.firstReady = true }; if a.hasSchedule { measurement(.eligibilityWait,e,a.scheduled,a.ready,attempt: a.id) }; event(.ready(a.id),e,a.ready) } }
     public func readyRemoved(_ handle: AttemptHandle) throws { try mutate { let a = handle.token,e = a.effect; try validate(e); guard a.queued,!a.started else { throw invalid() }; a.queued = false; gauge(.readyDepth,-1,e.labels) } }
@@ -231,6 +233,25 @@ public final class EffectObserver {
     /// Explicit endpoint overload is passive and reads no supplied runtime clock.
     public func metricSnapshot(at: LocalInstant) -> MetricSnapshot { read { metrics.snapshot(at: at) } }
     public func metricSnapshot() -> MetricSnapshot { read { let revision = metrics.current().revision; var at = now(); if at != nil && revision != metrics.current().revision { at = nil; metrics.noteOmittedMeasurement() }; return metrics.snapshot(at: at) } }
+    func prepareProtocolSnapshot() throws -> (MetricSnapshot,() throws -> Void) {
+        lock.lock(); defer { lock.unlock() }
+        guard !busy else { throw DebugError.reentrant }
+        guard metrics.revision < UInt64.max else { throw ProtocolError.exhausted }
+        busy = true; defer { busy = false }
+        let prior = metrics.current()
+        let timestamp: LocalInstant?, clockFailed: Bool
+        if options.timings { do { timestamp = try clock.now(); clockFailed = false } catch { timestamp = nil; clockFailed = true } }
+        else { timestamp = nil; clockFailed = false }
+        let after = metrics.current()
+        guard after.revision == prior.revision,after.health == prior.health,after.complete == prior.complete,after.series == prior.series,after.gaugeScope == prior.gaugeScope,after.gaugeScopes == prior.gaugeScopes,after.end == prior.end else { throw DebugError.reentrant }
+        let (snapshot,commit) = try metrics.prepareSnapshot(at:timestamp)
+        return (snapshot,{ [self] in
+            try mutate {
+                try commit()
+                if clockFailed { increment(&storedHealth.clockFailures) }
+            }
+        })
+    }
     public var availableWindows: [UInt64] { read { metrics.availableWindows } }
     public func metricWindow(from: UInt64,to: UInt64) throws -> MetricSnapshot { lock.lock(); defer { lock.unlock() }; return try metrics.window(from: from,to: to) }
     public var metricCatalog: [MetricDescriptor] { MetricFamily.allCases.map { $0.descriptor } }

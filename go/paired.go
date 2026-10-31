@@ -33,12 +33,22 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 		return Failed(id, fmt.Sprintf("actual=%v; reference=%v", a, b))
 	}
 	o.CheckStateInto = func(history H, actual S, sink *CheckSink) error {
+		// Preserve the reference observation before invoking application checks,
+		// which may still hold aliases to the caller's history.
+		observedHistory, e := copied(r.CloneState, history)
 		if e := appendStateChecks(r, history, sink); e != nil {
 			return e
 		}
+		projectedActual, actualErr := call("state projection", func() (V, error) { return p.ActualState(actual), nil })
+		if actualErr != nil {
+			return actualErr
+		}
+		if e != nil {
+			return e
+		}
 		comparison, e := call("state projection", func() (Check, error) {
-			a, b := p.ActualState(actual), p.ReferenceState(r.CloneState(history))
-			return compare("pair.state", a, b, p.EqualStates(a, b)), nil
+			b := p.ReferenceState(observedHistory)
+			return compare("pair.state", projectedActual, b, p.EqualStates(projectedActual, b)), nil
 		})
 		if e != nil {
 			return e
@@ -50,17 +60,35 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 		if e != nil {
 			return e
 		}
+		type capturedOutput struct {
+			value R
+			err   error
+		}
+		observedOutputs := make([]capturedOutput, len(reference.Outputs))
+		for i, output := range reference.Outputs {
+			observedOutputs[i].value, observedOutputs[i].err = call("snapshot", func() (R, error) { return r.CloneOutput(output), nil })
+		}
+		observedDisposition := reference.Disposition
 		if e := appendEdgeChecks(r, state.Oracle, input, reference, sink); e != nil {
 			return e
 		}
-		comparison, e := call("effect projection", func() (Check, error) {
+		actual, actualErr := call("effect projection", func() ([]E, error) {
 			actual := make([]E, len(t.Outputs))
-			expected := make([]E, len(reference.Outputs))
 			for k, v := range t.Outputs {
 				actual[k] = p.ActualEffect(v)
 			}
-			for k, v := range reference.Outputs {
-				expected[k] = p.ReferenceEffect(r.CloneOutput(v))
+			return actual, nil
+		})
+		if actualErr != nil {
+			return actualErr
+		}
+		comparison, e := call("effect projection", func() (Check, error) {
+			expected := make([]E, len(observedOutputs))
+			for k, v := range observedOutputs {
+				if v.err != nil {
+					return Check{}, v.err
+				}
+				expected[k] = p.ReferenceEffect(r.CloneOutput(v.value))
 			}
 			equal := len(actual) == len(expected)
 			if equal {
@@ -79,7 +107,7 @@ func Paired[S, H, I, O, R, V, E any](r Model[H, I, R], p Projection[S, H, O, R, 
 		if e := sink.Push(comparison); e != nil {
 			return e
 		}
-		return sink.Push(compare("pair.outcome", t.Disposition, reference.Disposition, t.Disposition == reference.Disposition))
+		return sink.Push(compare("pair.outcome", t.Disposition, observedDisposition, t.Disposition == observedDisposition))
 	}
 	o.CheckState = func(history H, actual S) ([]Check, error) {
 		checks := []Check{}

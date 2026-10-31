@@ -579,7 +579,7 @@ def effect_protocol_adapters(observer,*,max_page_size=100):
             ('effect.origin.run',n(d.origin.run)),('effect.origin.epoch',n(d.origin.epoch)),('effect.origin.machine',n(d.origin.machine)),
             ('effect.origin.transition',n(d.origin.transition_sequence)),('effect.origin.output_index',n(d.origin.output_index)),
             ('effect.operation.id',n(d.labels.operation)),('effect.component.id',n(d.labels.component)),('effect.worker_pool.id',n(d.labels.worker_pool)),
-            ('effect.outcome','enum:'+d.labels.outcome),('effect.measurement_origin','enum:'+d.labels.origin),('effect.complete',b(d.complete)),
+            ('effect.outcome','enum:'+d.labels.outcome),('effect.measurement_origin','enum:'+d.labels.origin),('effect.labels.debugger_affected',b(d.labels.debugger_affected)),('effect.complete',b(d.complete)),
             ('effect.admission','unknown' if d.admission is None else 'enum:'+d.admission),('effect.resolution','unknown' if d.resolution is None else 'enum:'+d.resolution),
             ('effect.settled',b(d.settled)),('effect.running_attempts',n(d.running_attempts)),('effect.deliveries_observed',n(d.deliveries_observed)),
             ('effect.cancellation_requested',b(d.cancellation_requested)),('effect.cancellation_acknowledged',b(d.cancellation_acknowledged)),
@@ -596,7 +596,7 @@ def effect_protocol_adapters(observer,*,max_page_size=100):
         fields.extend((('timeline.events.total',n(len(d.events))),('timeline.timings.total',n(len(d.timings))),('timeline.truncated',b(len(d.events)>limit or len(d.timings)>limit))))
         for i,event in enumerate(d.events[:limit]):
             prefix=f'timeline.events.{i}'
-            fields.extend(((prefix+'.sequence',n(event.sequence)),(prefix+'.debugger_affected',b(event.debugger_affected)),(prefix+'.kind','enum:'+snake(event.kind))))
+            fields.extend(((prefix+'.sequence',n(event.sequence)),(prefix+'.debugger_affected',b(event.debugger_affected))))
             if event.at is not None: fields.extend(instant(prefix,event.at))
             value=event.detail
             if event.kind in ('AttemptCreated','Ready','AttemptStarted','Abandoned'):
@@ -607,6 +607,7 @@ def effect_protocol_adapters(observer,*,max_page_size=100):
             elif event.kind=='DeliveryObserved': fields.extend(((prefix+'.delivery',n(value[0].serial)),(prefix+'.disposition','enum:'+value[1])))
             elif event.kind=='Admission': fields.append((prefix+'.admission','enum:'+value))
             elif event.kind=='Resolved': fields.append((prefix+'.outcome','enum:'+value))
+            fields.append((prefix+'.kind','enum:'+snake(event.kind)))
         for i,timing in enumerate(d.timings[:limit]):
             prefix=f'timeline.timings.{i}'
             fields.extend(((prefix+'.family','enum:'+timing.family.value),(prefix+'.outcome','enum:'+timing.outcome),
@@ -616,15 +617,22 @@ def effect_protocol_adapters(observer,*,max_page_size=100):
         return tuple(fields)
     def health(args):
         if args: raise ProtocolError('malformed')
-        fields=[]
-        for key,value in observer.telemetry_health().items():
-            if key=='metric': fields.extend(('telemetry.metric.'+name,n(value)) for name,value in vars(value).items())
-            elif type(value) is bool: fields.append(('telemetry.'+key,b(value)))
-            elif type(value) is int: fields.append(('telemetry.'+key,n(value)))
+        snapshot=observer.telemetry_health()
+        fields=[('telemetry.'+key,n(snapshot[key])) for key in (
+            'destructor_hook_losses','callback_faults','pause_interval_evictions',
+            'detail_evictions','detail_rejections','detail_event_drops',
+            'duplicate_observations','duplicate_deliveries','invalid_lifecycle',
+            'abandoned','clock_failures','debugger_affected_measurements',
+            'active_effect_handles','retained_detail_records','retained_detail_bytes')]
+        metric=snapshot['metric']
+        fields.extend(('telemetry.metric.'+key,n(getattr(metric,key))) for key in (
+            'rejected_series','invalid_labels','arithmetic_errors','omitted_measurements',
+            'invalid_measurements','imported_ignored','snapshots_evicted','snapshot_rejections'))
+        fields.append(('telemetry.unobserved_native_debugger_interference_possible',b(snapshot['unobserved_native_debugger_interference_possible'])))
         pauses=observer.pause_intervals(); fields.extend((('pauses.total',n(len(pauses))),('pauses.truncated',b(len(pauses)>max_page_size))))
         for i,pause in enumerate(pauses[:max_page_size]):
             prefix=f'pauses.{i}'; fields.append((prefix+'.generation',n(pause['generation'])))
-            fields.extend(instant(prefix+'.start',pause['start'])); fields.extend(instant(prefix+'.end',pause['end'],'clock_or_open_interval'))
+            fields.extend(instant(prefix+'.start',pause['start'],'clock_or_open_interval')); fields.extend(instant(prefix+'.end',pause['end'],'clock_or_open_interval'))
         windows=observer.available_windows(); fields.append(('metric_windows.total',n(len(windows))))
         fields.extend((f'metric_windows.{i}',n(revision)) for i,revision in enumerate(windows[:max_page_size]))
         return tuple(fields)

@@ -230,24 +230,21 @@ func TestLegacyCheckpointPlusAndLeadingZeroes(t *testing.T) {
 		t.Fatal(boundary)
 	}
 }
-func TestLegacyCheckpointFirstMarkerAndV2AuthoritativeCheckpoint(t *testing.T) {
+func TestLegacyCheckpointDuplicateAndV2AuthoritativeCheckpoint(t *testing.T) {
 	a := fixture()
 	legacy := a.V2.Trace
-	legacy.Config.Parameters = [][2]string{{"stateless.monitor.checkpoint_after_sequence", "+0005"}, {"stateless.monitor.checkpoint_after_sequence", "invalid second ignored"}}
-	viewer, e := d.NewEvidenceViewer(s.Artifact{V1: &legacy}, s.DefaultEvidenceLimits())
+	for _, second := range []string{"5", "6", "invalid"} {
+		legacy.Config.Parameters = [][2]string{{"stateless.monitor.checkpoint_after_sequence", "+0005"}, {"stateless.monitor.checkpoint_after_sequence", second}}
+		if _, e := d.NewEvidenceViewer(s.Artifact{V1: &legacy}, s.DefaultEvidenceLimits()); e == nil {
+			t.Fatalf("duplicate legacy checkpoint accepted: %s", second)
+		}
+	}
+	a.V2.Trace.Config.Parameters = [][2]string{{"stateless.monitor.checkpoint_after_sequence", "invalid non-authoritative legacy marker"}}
+	viewer, e := d.NewEvidenceViewer(a, s.DefaultEvidenceLimits())
 	if e != nil {
 		t.Fatal(e)
 	}
 	boundary, _ := viewer.Boundary(1)
-	if boundary.HostSequence != 6 {
-		t.Fatal(boundary)
-	}
-	a.V2.Trace.Config.Parameters = [][2]string{{"stateless.monitor.checkpoint_after_sequence", "invalid non-authoritative legacy marker"}}
-	viewer, e = d.NewEvidenceViewer(a, s.DefaultEvidenceLimits())
-	if e != nil {
-		t.Fatal(e)
-	}
-	boundary, _ = viewer.Boundary(1)
 	if boundary.HostSequence != 9007199254740994 {
 		t.Fatal(boundary)
 	}
@@ -270,5 +267,33 @@ func TestMinimizeZeroAttemptsMatchesPhasePassOrder(t *testing.T) {
 	}
 	if _, e = d.MinimizeWithPhase(legacy, g, 1, 0, s.PhaseState, s.ShrinkConfig{MaxAttempts: 0}, s.ShrinkLimits{}); e == nil || count != 0 {
 		t.Fatal("v1 zero attempts ran model", e, count)
+	}
+}
+
+func TestLegacyCheckpointIncludesOriginAndRejectsInvalidProvenance(t *testing.T) {
+	origin := "stateless.monitor.sequence_origin"
+	checkpoint := "stateless.monitor.checkpoint_after_sequence"
+	a := fixture()
+	legacy := a.V2.Trace
+	legacy.Config.Parameters = [][2]string{{origin, "20"}, {checkpoint, "5"}}
+	viewer, err := d.NewEvidenceViewer(s.Artifact{V1: &legacy}, s.DefaultEvidenceLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, ok := viewer.Boundary(1)
+	if !ok || b.HostSequence != 26 {
+		t.Fatal(b)
+	}
+	for _, params := range [][][2]string{
+		{{origin, "20"}, {origin, "20"}},
+		{{origin, "20"}, {origin, "21"}},
+		{{origin, "invalid"}},
+		{{origin, "18446744073709551615"}, {checkpoint, "1"}},
+		{{origin, "18446744073709551615"}},
+	} {
+		legacy.Config.Parameters = params
+		if _, err = d.NewEvidenceViewer(s.Artifact{V1: &legacy}, s.DefaultEvidenceLimits()); err == nil {
+			t.Fatal("accepted", params)
+		}
 	}
 }

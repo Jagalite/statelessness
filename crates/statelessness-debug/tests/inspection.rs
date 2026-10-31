@@ -2,6 +2,45 @@ use statelessness_debug::inspect::*;
 use std::cell::Cell;
 use std::collections::BTreeMap;
 
+#[test]
+fn export_python_inspection_budget_fixture() {
+    let Some(path) = std::env::var_os("STATELESS_PYTHON_INSPECTION_BUDGET_OUT") else {
+        return;
+    };
+    let mut output = String::new();
+    for (name, nodes, depth) in [
+        ("nodes1", 1, 32),
+        ("nodes2", 2, 32),
+        ("nodes3", 3, 32),
+        ("depth0", 10, 0),
+        ("depth1", 10, 1),
+    ] {
+        let query = InspectQuery {
+            limits: InspectLimits {
+                max_nodes: nodes,
+                max_depth: depth,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let result = if name == "depth1" {
+            inspect(&vec![vec![1u8, 2u8]], &query)
+        } else {
+            inspect(&vec![1u8, 2u8], &query)
+        }
+        .unwrap();
+        let page = result.node.page.as_ref().unwrap();
+        output.push_str(&format!(
+            "{name}\t{:?}\t{}\t{}\t{}\n",
+            result.node.completeness,
+            page.returned,
+            page.total,
+            page.next_offset.map_or("none".into(), |n| n.to_string())
+        ));
+    }
+    std::fs::write(path, output).unwrap();
+}
+
 struct Counted<'a>(&'a Cell<usize>, u128);
 impl Inspect for Counted<'_> {
     fn inspect(
@@ -332,4 +371,66 @@ fn missing_map_keys_and_far_pages_have_explicit_work_bounds() {
         Completeness::Partial(IncompleteReason::Work)
     );
     assert_eq!(view.node.children.len(), 0);
+}
+
+#[test]
+fn duplicate_child_segments_are_not_complete_or_equal() {
+    let leaf = InspectNode {
+        kind: NodeKind::Scalar(Scalar::Bool(true)),
+        children: vec![],
+        child_count: None,
+        page: None,
+        completeness: Completeness::Complete,
+    };
+    let child = |segment| ChildNode {
+        segment,
+        label: "display".into(),
+        source: None,
+        node: leaf.clone(),
+    };
+    let mut node = InspectNode {
+        kind: NodeKind::Object { name: "x".into() },
+        children: vec![
+            child(PathSegment::Field("x".into())),
+            child(PathSegment::Field("x".into())),
+        ],
+        child_count: Some(2),
+        page: None,
+        completeness: Completeness::Complete,
+    };
+    assert!(!node.is_complete());
+    assert_eq!(compare_nodes(Some(&node), Some(&node)), DiffKind::Unknown);
+    node.children[1].segment = PathSegment::Field("y".into());
+    assert!(node.is_complete());
+    assert_eq!(compare_nodes(Some(&node), Some(&node)), DiffKind::Unchanged);
+}
+
+struct AmbiguousFields<'a>(&'a Cell<usize>);
+impl Inspect for AmbiguousFields<'_> {
+    fn inspect(
+        &self,
+        path: &[PathSegment],
+        cx: &mut InspectContext,
+    ) -> Result<InspectNode, InspectError> {
+        let a = Counted(self.0, 1);
+        let b = Counted(self.0, 2);
+        cx.object(
+            path,
+            "ambiguous",
+            &[
+                FieldView::new("x", "first", &a),
+                FieldView::new("x", "second", &b),
+            ],
+        )
+    }
+}
+#[test]
+fn ambiguous_selected_field_does_not_invoke_either_value() {
+    let calls = Cell::new(0);
+    let result = inspect(
+        &AmbiguousFields(&calls),
+        &query(vec![PathSegment::Field("x".into())]),
+    );
+    assert!(matches!(result, Err(InspectError::InvalidMetadata)));
+    assert_eq!(calls.get(), 0);
 }

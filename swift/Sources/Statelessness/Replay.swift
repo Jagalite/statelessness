@@ -143,7 +143,7 @@ private func replayKernel<S,I,O>(_ m: Model<S,I,O>, trace: Trace, config: RunCon
             count = try checkObservedCountInto(m, before: state, input: input, transition: turn, sequence: sequence, checks: &checks)
             var remaining: UInt64?
             if let limits {
-                let fixed = try executionStepFixed(inputBytes, turn.disposition, turn.outputs.count, checks, limits)
+                let fixed = try executionReplayStepFixed(inputBytes, turn.disposition, turn.outputs.count, checks, limits)
                 boundedItems = try auditAdd(boundedItems, fixed.items, "aggregate items")
                 try auditBound(boundedItems, limits.maxItems, "aggregate items")
                 remaining = try executionRemaining(fixed.bytes, boundedBytes, footer: 18, limits: limits)

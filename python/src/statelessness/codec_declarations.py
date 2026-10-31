@@ -74,7 +74,8 @@ class Field:
         if self.adapted: return getattr(self.schema, direction) is not None
         return _available(self.schema, direction + ('_length' if self.length is not None else ''))
     def write(self, value, sink):
-        value = _sync(self.get(value))
+        self.write_captured(_sync(self.get(value)), sink)
+    def write_captured(self, value, sink):
         if self.adapted:
             child = EncodeBuffer._raw_child(sink)
             try:
@@ -135,7 +136,11 @@ class Record(Schema):
     def encode_into(self, value, sink):
         _require_direction(self, 'encode')
         if type(value) is not self.value_type: raise ModelError('record value has wrong exact type')
-        for f in self.fields: f.write(value, sink)
+        # Capture shallow field references before an encoder can mutate later
+        # fields through an alias. Getters execute eagerly; their effects or
+        # failures can precede an earlier encoder's effects or failure.
+        values = tuple(_sync(f.get(value)) for f in self.fields)
+        for f, field_value in zip(self.fields, values): f.write_captured(field_value, sink)
     def decode(self, reader):
         _require_direction(self, 'decode')
         values = tuple(f.read(reader) for f in self.fields)
@@ -202,7 +207,9 @@ class TaggedEnum(Schema):
         label = self.trace_variant(value)
         selected = next(c for c in self.cases if c.name == label)
         encode_raw(self.tag_type, selected.tag, sink)
-        for f in selected.fields: f.write(value, sink)
+        # Raw callers may retain the emitted tag if a getter fails.
+        values = tuple(_sync(f.get(value)) for f in selected.fields)
+        for f, field_value in zip(selected.fields, values): f.write_captured(field_value, sink)
     def decode(self, reader):
         _require_direction(self, 'decode')
         tag = reader.value(self.tag_type)

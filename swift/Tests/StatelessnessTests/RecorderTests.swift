@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import Statelessness
+@testable import Statelessness
 
 private final class RecorderFormattingError: Error, CustomStringConvertible, @unchecked Sendable {
     let render: () -> String
@@ -10,6 +10,17 @@ private final class RecorderFormattingError: Error, CustomStringConvertible, @un
 final class RecorderTests: XCTestCase {
     private func model() -> Model<Int,Int,Int> {
         Model(initialState: { throw ModelError("initial must not run") }, step: { _,_ in throw ModelError("reducer must not run") }, checkState: { [.passed("state-\($0)")] }, cloneState: { $0 }, cloneInput: { $0 }, cloneOutput: { $0 }, checkTransition: { _,_,_ in [.passed("edge")] }, codec: Codec(metadata: { Metadata(name: "recorder", build: "test") }, encodeState: { [UInt8($0)] }, decodeState: { Int($0[0]) }, encodeInput: { [UInt8($0)] }, decodeInput: { Int($0[0]) }, encodeOutput: { [UInt8($0)] }))
+    }
+    func testErrorTextTruncationPreservesUTF8AndWireLimit() {
+        var limits = BinaryTraceLimits(); limits.maxStringBytes = 6
+        XCTAssertEqual(executionErrorText(ModelError("aééz"),limits),"aééz")
+        XCTAssertEqual(executionErrorText(ModelError("aééz!"),limits),"aé...")
+        limits.maxStringBytes = 2
+        XCTAssertEqual(executionErrorText(ModelError("éx"),limits),"é")
+        limits.maxStringBytes = 1
+        XCTAssertEqual(executionErrorText(ModelError("éx"),limits),"")
+        limits.maxStringBytes = 0
+        XCTAssertEqual(executionErrorText(ModelError("large"),limits),"")
     }
     func testCertifiedBatchPreflightBeforeOutputEncodingAndAdmission() throws {
         var m = model(), outputCalls = 0, inputCalls = 0, stateCalls = 0
@@ -174,6 +185,20 @@ final class RecorderTests: XCTestCase {
         let identity = try Recorder(model: m, state: 4, config: RunConfig(strategy: "runtime"))
         XCTAssertThrowsError(try identity.observe(model: changed, before: 4, input: 1, transition: Transition(state: 5)))
         XCTAssertEqual(identity.retainedSteps, 0)
+    }
+    func testRawObservationRejectsAbsoluteSequenceOverflow() throws {
+        var m = model(), cloneCalls = 0
+        m.cloneState = { state in cloneCalls += 1; return state }
+        let initial = try checkInitial(m, state: 4)
+        let recorder = try Recorder(checkedInitial: initial, sequenceOrigin: UInt64.max - 1, config: RunConfig(strategy: "runtime"))
+        try recorder.observe(model: m, before: 4, input: 1, transition: Transition(state: 5))
+        XCTAssertEqual(recorder.observedSteps, 1)
+        let callsBeforeOverflow = cloneCalls
+        XCTAssertThrowsError(try recorder.observe(model: m, before: 5, input: 1, transition: Transition(state: 6)))
+        XCTAssertEqual(cloneCalls, callsBeforeOverflow)
+        XCTAssertTrue(recorder.isFrozen)
+        XCTAssertEqual(recorder.observedSteps, 1)
+        XCTAssertEqual(recorder.retainedSteps, 1)
     }
     func testErrorsFreezeCoherentPrefixAndCannotOverwriteFailure() throws {
         let m = model(), recorder = try Recorder(model: m, state: 4, config: RunConfig(strategy: "runtime"))

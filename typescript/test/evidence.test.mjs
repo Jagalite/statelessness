@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {runInNewContext} from 'node:vm';
 import {readArtifact,writeTraceV2,writeTraceV2To,artifactTrace,checkPhase,diagnosticJSON,snapshotTraceV2,resolveEvidenceLimits,emptyCausalContext,writeAuditTrace,replayTraceV2,verifyUpgrade,accepted,check,metadata} from '../dist/index.js';
 import {writeRawEvidenceNew,exportDiagnosticNew} from '../dist/node_evidence.js';
 const corpus=JSON.parse(fs.readFileSync(new URL('../../conformance/causal-evidence-v2.json',import.meta.url)));
@@ -56,6 +57,19 @@ test('evidence streams preserve receiver and enforce synchronous interfaces',()=
  assert.equal(hex(writeTraceV2(readArtifact(reader).evidence)),row.bytes_hex);
  assert.throws(()=>readArtifact({...reader,read:()=>-1}));assert.throws(()=>readArtifact({...reader,read:()=>9000}));
  assert.throws(()=>writeTraceV2To(evidence(row.evidence),{write:async()=>{}}),/synchronously/);
+ const foreign=runInNewContext("Promise.reject(new Error('foreign writer'))");let touched=false;
+ for(const value of [foreign,{get then(){touched=true;throw Error('must not inspect then');}}])
+  assert.throws(()=>writeTraceV2To(evidence(row.evidence),{write(){return value;}}),/synchronously/);
+ assert.equal(touched,false);
+});
+test('evidence streams handle fragmented reads and detach each returned chunk',()=>{
+ const row=corpus.wire_cases.find(r=>r.valid&&r.artifact_kind==='v2'),e=evidence(row.evidence);
+ e.trace.initialState=new Uint8Array(9000).fill(42);
+ const b=writeTraceV2(e);let offset=0,previous;
+ const reader={read(out){if(previous)previous.fill(0);previous=out;if(offset===b.length)return 0;out[0]=b[offset++];return 1;}};
+ const decoded=readArtifact(reader,{trace:{max_total_bytes:b.length}});
+ assert.equal(offset,b.length);assert.deepEqual(decoded.evidence.trace.initialState,e.trace.initialState);
+ let calls=0;assert.throws(()=>readArtifact({read(out){calls++;out[0]=1;return 1;}},{trace:{max_total_bytes:0}}),/evidence byte limit/);assert.equal(calls,1);
 });
 test('Node sync failure reports incomplete exclusive file without overwriting it',async()=>{
  const {syncBuiltinESMExports}=await import('node:module'),dir=fs.mkdtempSync(path.join(os.tmpdir(),'evidence-sync-')),old=fs.fsyncSync;

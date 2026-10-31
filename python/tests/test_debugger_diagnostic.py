@@ -6,9 +6,193 @@ from statelessness.debugger_diagnostic import (DiagnosticHub, DiagnosticLimits,
 
 
 class DiagnosticTests(unittest.TestCase):
+    def test_local_integer_key_and_scalar_text_are_preserved(self):
+        from statelessness.debugger_inspect import PathSegment, IntegerView
+        class Model:
+            def inspect(self,path,cx): return cx.map(path,((('u8','label'),IntegerView('u8','256')),))
+        path=(PathSegment('map-key',('u8','label')),)
+        hub=DiagnosticHub(); hub.add_sink(1,SinkPermissions(('*',),(path,))); hub.register_producer(1,1)
+        hub.configure(0,(Subscription(1,'value',path=path,trigger='equals',equals=('u8','256')),))
+        hub.acknowledge(1,1,0)
+        with hub.begin_turn(1,1,0) as turn: turn.probe('value',lambda:Model())
+        event=hub.pop(1)
+        self.assertEqual(event.path,path)
+        self.assertEqual(event.payload.value,('u8','256'))
+
+    def test_large_projection_is_budgeted_and_evicted_exactly(self):
+        value='é'*(256*1024+1)
+        limits=DiagnosticLimits(event_bytes=600_000,turn_bytes=600_000,baseline_bytes=550_000,
+                                projection_value_bytes=550_000,projection_work=300_000)
+        hub=DiagnosticHub(limits)
+        hub.add_sink(1,SinkPermissions.local_all(),SinkLimits(records=1,bytes=600_000,policy='oldest'))
+        for producer in (1,2): hub.register_producer(producer,1)
+        hub.configure(0,(Subscription(1,'value',trigger='changed'),))
+        for producer in (1,2): hub.acknowledge(producer,1,0)
+        for producer in (1,2):
+            with hub.begin_turn(producer,1,0) as turn: turn.probe('value',lambda:value)
+        self.assertEqual(hub.health(1)['baseline_evicted'],1)
+        self.assertEqual(hub.queued(1)[0],1)
+        event=hub.pop(1)
+        self.assertEqual(event.payload.value,value)
+        self.assertEqual(hub.queued(1),(0,0))
+        with hub.begin_turn(1,1,1) as turn: turn.probe('value',lambda:value)
+        self.assertEqual(hub.pop(1).baseline_reason,'evicted')
+
     def hub(self):
         hub=DiagnosticHub(); hub.add_sink(1,SinkPermissions.local_all()); hub.register_producer(1,1)
         return hub
+
+    def test_context_iteration_cannot_reenter_turn_admission(self):
+        hub=self.hub();hub.configure(0,(Subscription(1,'value'),));hub.acknowledge(1,1,0)
+        attempts=[]
+        class Context:
+            def __iter__(self):
+                try: hub.configure(1,())
+                except ModelError as error: attempts.append(str(error))
+                yield ('model','counter')
+        with hub.begin_turn(1,1,0,context=Context()) as turn:
+            turn.probe('value',lambda:1)
+        self.assertEqual(len(attempts),1)
+        self.assertIn('owned',attempts[0])
+        self.assertEqual(hub.revision,1)
+        self.assertEqual(hub.queued(1)[0],1)
+        class Broken:
+            def __iter__(self): raise ValueError('context failed')
+        with self.assertRaisesRegex(ValueError,'context failed'):
+            hub.begin_turn(1,1,1,context=Broken())
+        with hub.begin_turn(1,1,1): pass
+
+    def test_context_iteration_is_bounded_and_failure_is_atomic(self):
+        hub=self.hub();hub.configure(0,());hub.acknowledge(1,1,0)
+        pulled=[]
+        def infinite():
+            while True:
+                pulled.append(1)
+                yield ('model','counter')
+        with self.assertRaisesRegex(ModelError,'context label limit'):
+            hub.begin_turn(1,1,0,context=infinite())
+        self.assertEqual(len(pulled),11)
+        with hub.begin_turn(1,1,0,context={'model':'counter'}) as turn:
+            self.assertEqual(turn.context,{'model':'counter'})
+
+    def test_configuration_stages_copy_and_guards_reentrant_selector(self):
+        hub=self.hub();attempts=[]
+        class Reentrant(str):
+            def __hash__(self):
+                try: hub.configure(0,())
+                except ModelError as error: attempts.append(str(error))
+                return super().__hash__()
+        sub=Subscription(1,'value',selector=((Reentrant('model'),'counter'),))
+        ack=hub.configure(0,(sub,))
+        self.assertEqual(ack.capture_revision,1)
+        self.assertTrue(attempts)
+        self.assertTrue(all('owned' in message for message in attempts))
+        class FailsCopy(str):
+            def __deepcopy__(self,memo): raise ValueError('copy failed')
+        invalid=Subscription(1,'value',selector=((FailsCopy('model'),'counter'),))
+        with self.assertRaises(ModelError): hub.configure(1,(invalid,))
+        self.assertEqual(hub.revision,1)
+        self.assertEqual(hub.configure(1,()).capture_revision,2)
+
+    def test_sink_permission_copy_is_guarded_and_atomic(self):
+        hub=DiagnosticHub();attempts=[]
+        class Reentrant(str):
+            def __deepcopy__(self,memo):
+                try: hub.add_sink(1,SinkPermissions.local_all())
+                except ModelError as error: attempts.append(str(error))
+                return str(self)
+        hub.add_sink(1,SinkPermissions((Reentrant('value'),),((),)))
+        self.assertEqual(len(attempts),1)
+        self.assertIn('owned',attempts[0])
+        self.assertEqual(hub.queued(1),(0,0))
+        class Broken(str):
+            def __deepcopy__(self,memo): raise ValueError('copy failed')
+        with self.assertRaises(ModelError): hub.add_sink(2,SinkPermissions((Broken('value'),),((),)))
+        hub.add_sink(2,SinkPermissions.local_all())
+        self.assertEqual(hub.queued(2),(0,0))
+
+    def test_schema_snapshot_and_failed_projection_provenance(self):
+        from statelessness.debugger_inspect import DisplaySchema, PathSegment
+        class Adapter:
+            def __init__(self,version,fail): self.version=version; self.fail=fail; self.calls=0
+            def schema(self):
+                self.calls+=1
+                return DisplaySchema('counter',self.version)
+            def inspect(self,path,cx):
+                if self.fail: raise ValueError('host failure')
+                return cx.scalar((),('u64','7'))
+        hub=self.hub(); hub.add_sink(2,SinkPermissions.local_all())
+        hub.configure(0,(Subscription(1,'value'),Subscription(2,'value',path=(PathSegment('field','x'),))))
+        hub.acknowledge(1,1,0)
+        first=Adapter(2,False)
+        with hub.begin_turn(1,5,0) as turn: turn.probe('value',lambda:first)
+        self.assertEqual(first.calls,1)
+        self.assertEqual(hub.pop(1).display_schema.version,2)
+        self.assertEqual(hub.pop(2).display_schema.version,2)
+        second=Adapter(3,True)
+        with hub.begin_turn(1,5,1) as turn: turn.probe('value',lambda:second)
+        self.assertEqual(second.calls,1)
+        for sink in (1,2):
+            event=hub.pop(sink)
+            self.assertEqual((event.display_schema.name,event.display_schema.version),('counter',3))
+            self.assertIsNone(event.payload)
+            self.assertEqual(event.baseline_reason,'schema-changed')
+            self.assertTrue(event.change_unknown)
+            self.assertEqual(hub.health(sink)['inspection_failed'],1)
+            self.assertEqual(hub.health(sink)['truncated'],1)
+
+    def test_unknown_health_counts_only_after_sampling(self):
+        from statelessness.debugger_inspect import DisplaySchema
+        class Broken:
+            def schema(self): return DisplaySchema('counter',2)
+            def inspect(self,path,cx): raise ValueError('host failure')
+        hub=self.hub()
+        hub.configure(0,(Subscription(1,'value',trigger='changed',sample_every=2),))
+        hub.acknowledge(1,1,0)
+        for seq in range(2):
+            with hub.begin_turn(1,1,seq) as turn: turn.probe('value',Broken)
+        self.assertEqual(hub.queued(1)[0],1)
+        self.assertEqual(hub.health(1)['inspection_failed'],2)
+        self.assertEqual(hub.health(1)['truncated'],1)
+        self.assertEqual(hub.health(1)['sampled'],1)
+
+    def test_unknown_container_child_count_never_becomes_known_baseline(self):
+        from statelessness.debugger_inspect import DisplaySchema, InspectNode
+        class Unknown:
+            def schema(self): return DisplaySchema('unknown',1)
+            def inspect(self,path,cx): return InspectNode('object','unknown',child_count=None)
+        hub=self.hub(); hub.configure(0,(Subscription(1,'value',trigger='changed'),)); hub.acknowledge(1,1,0)
+        for seq in (0,1):
+            with hub.begin_turn(1,1,seq) as turn: turn.probe('value',Unknown)
+        first,second=hub.pop(1),hub.pop(1)
+        self.assertTrue(first.change_unknown and second.change_unknown)
+        self.assertTrue(first.baseline and second.baseline)
+        self.assertEqual(second.baseline_reason,'inspection-incomplete')
+
+    def test_health_and_sampling_counters_saturate_at_u64(self):
+        from statelessness.debugger_inspect import DisplaySchema
+        class Value:
+            def __init__(self,broken): self.broken=broken
+            def schema(self): return DisplaySchema('counter',1)
+            def inspect(self,path,cx):
+                if self.broken: raise ValueError('host failure')
+                return cx.scalar(path,('u64','7'))
+        maximum=(1<<64)-1
+        hub=DiagnosticHub(DiagnosticLimits(baseline_bytes=0))
+        hub.add_sink(1,SinkPermissions.local_all(),SinkLimits(records=1,policy='oldest'))
+        hub.register_producer(1,1)
+        hub.configure(0,(Subscription(1,'value',trigger='changed'),
+                         Subscription(1,'value',trigger='equals',equals=('u64','1'))))
+        hub.acknowledge(1,1,0)
+        health=hub._sinks[1]['health']
+        for key in health: health[key]=maximum
+        for entry in hub._producers[1]['config']: entry['eligible']=maximum
+        with hub.begin_turn(1,1,0) as turn: turn.probe('value',lambda:Value(True))
+        with hub.begin_turn(1,1,2) as turn: turn.probe('value',lambda:Value(False))
+        self.assertEqual(hub._producers[1]['config'][0]['eligible'],maximum)
+        self.assertEqual(hub.health(1),{key:maximum for key in health})
+        self.assertEqual(hub.abandon(1),1)
+        self.assertEqual(hub.health(1)['abandoned'],maximum)
     def test_no_interest_lazy_and_ack_revisions(self):
         hub=self.hub(); calls=[]
         ack=hub.configure(0,(Subscription(1,'value'),))
@@ -20,6 +204,27 @@ class DiagnosticTests(unittest.TestCase):
         self.assertEqual(calls,[1])
         self.assertEqual(hub.peek(1).capture_revision,1)
         with self.assertRaisesRegex(ModelError,'stale'): hub.configure(0,())
+
+    def test_producer_order_controls_acknowledgements_and_eviction(self):
+        from statelessness.debugger_inspect import inspect
+        from statelessness.debugger_watches import _node_bytes
+        budget=_node_bytes(inspect(7).node)
+        hub=DiagnosticHub(DiagnosticLimits(baseline_bytes=budget))
+        hub.add_sink(1,SinkPermissions.local_all())
+        for producer in (9,1): hub.register_producer(producer,1)
+        ack=hub.configure(0,(Subscription(1,'value',trigger='changed'),))
+        self.assertEqual(ack.pending_producers,(1,9))
+        self.assertEqual(hub.pending_producers,(1,9))
+        for producer in (9,1): hub.acknowledge(producer,1,0)
+        for producer in (9,1):
+            with hub.begin_turn(producer,1,0) as turn: turn.probe('value',lambda:7)
+        hub.pop(1);hub.pop(1)
+        self.assertEqual(hub.health(1)['baseline_evicted'],1)
+        with hub.begin_turn(9,1,1) as turn: turn.probe('value',lambda:7)
+        self.assertEqual(hub.queued(1)[0],0)
+        with hub.begin_turn(1,1,1) as turn: turn.probe('value',lambda:7)
+        event=hub.pop(1)
+        self.assertEqual((event.producer,event.baseline_reason,event.change_unknown),(1,'evicted',True))
     def test_probe_once_for_fanout_and_incomplete_turn(self):
         hub=self.hub(); hub.add_sink(2,SinkPermissions.local_all())
         hub.configure(0,(Subscription(1,'value'),Subscription(2,'value'))); hub.acknowledge(1,1,0)
@@ -189,7 +394,7 @@ class DiagnosticTests(unittest.TestCase):
         import json
         from statelessness.debugger_diagnostic import event_json, JsonlSink
         from statelessness.debugger_inspect import FloatView
-        for kind,decimal,bits in (('f32','-0',1<<31),('f32','NaN',0x7fc00001),
+        for kind,decimal,bits in (('u8','label',(1<<64)-1),('f32','-0',1<<31),('f32','NaN',0x7fc00001),
                                   ('f64','-0',1<<63),('f64','NaN',0x7ff8000000000001)):
             hub=self.hub(); hub.configure(0,(Subscription(1,'value'),)); hub.acknowledge(1,1,0)
             with hub.begin_turn(1,1,0) as turn: turn.probe('value',lambda:[FloatView(kind,decimal,bits)])

@@ -1,0 +1,14 @@
+{
+  "schema": "stateless-guided-v2-freeze/1",
+  "revision": 3,
+  "source_commit": "a4cc11eea8db62115b452eee3c6610c04fa06b96",
+  "derivation": "Independent source-only stdlib oracle plus hand-derived assertions; no candidate output",
+  "candidate_output_used": false,
+  "cases": 90,
+  "files": {
+    "conformance/guided-v2/corpus.json": "12c762786c729e6e2030a2cb279184f23767695e15bc85afdb0ea74fecc21b35",
+    "conformance/guided-v2/oracle.py": "25727bd3e8eb2b328ea85e2d36e94896c4e7d7b326d8e2359d5cac0560d0c537",
+    "conformance/guided-v2/README.md": "7e4b438403c909d65d79f2b2b08128bca36f841d7a63eb3b75c67af74ad4f501",
+    "docs/native-parity/N05-SOURCE-CONTRACT.md": "ced199e47efa371dae0b5ad954aa288f771ed3f2add58e7775f3295e48df0cb7"
+  }
+}

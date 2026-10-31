@@ -1692,7 +1692,7 @@ pub fn replay(input: &Path, output: &Path) -> Result<Value> {
     let report = app_report(&evidence)?;
     evidence
         .write_raw_new(output, &consumer_limits())
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("N11_DESTINATION_CREATE_ERROR {e}"))?;
     Ok(
         json!({"producer":"rust","mode":"replay","version":2,"evidence":evidence_json(&evidence),"report":report,"retained_config":config_json(&evidence.trace.config)}),
     )
@@ -1722,7 +1722,7 @@ pub fn upgrade(input: &Path, output: &Path) -> Result<Value> {
     let report = app_report(&evidence)?;
     evidence
         .write_raw_new(output, &consumer_limits())
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("N11_DESTINATION_CREATE_ERROR {e}"))?;
     Ok(
         json!({"producer":"rust","mode":"upgrade","version":2,"evidence":evidence_json(&evidence),"report":report,"retained_config":config_json(&evidence.trace.config)}),
     )
@@ -1732,7 +1732,7 @@ pub fn diagnostic(input: &Path, output: &Path) -> Result<Value> {
     let ids = ["threshold.bound"];
     let policy = diagnostic_policy(&ids);
     let bytes = diagnostic_json(&artifact, &policy).map_err(|e| e.to_string())?;
-    export_diagnostic_new(&artifact, output, &policy).map_err(|e| e.to_string())?;
+    export_diagnostic_new(&artifact, output, &policy).map_err(|e| format!("N11_DESTINATION_CREATE_ERROR {e}"))?;
     require(
         export_diagnostic_new(&artifact, output, &policy).is_err()
             && std::fs::read(output).map_err(|e| e.to_string())? == bytes,

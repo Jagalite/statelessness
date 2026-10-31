@@ -3,9 +3,16 @@
 Experimental, dependency-free **Python implementation**, not a Rust/FFI binding.
 Python >=3.10. Applications retain their own state types, callbacks, and codecs.
 This package implements the `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, and
-`trace-json-v1` profiles in `../spec/README.md`. It does not imply full Rust feature
-parity: guided search, runtime ring recording,
-campaigns, composition helpers, and the binary `.sttrace` format are not provided.
+`trace-json-v1` profiles in `../spec/README.md`. Features beyond these four
+profiles, including runtime observation, bounded recording, and binary interchange,
+retain their separately documented experimental status. Full Rust feature parity
+is not implied.
+
+Candidate [guided exploration](GUIDED.md) adds `guided_fuzz`, custom `Feedback`,
+`StateFeedback` and `exact_state`, with bounded feature/corpus counts and optional
+observers and cooperative controls. It shares the ordinary fuzz execution/check
+kernel. See [the runnable example](examples/guided.py). Portable profiles and
+ordinary fuzz defaults are unchanged. Campaigns and assurance remain separate work.
 
 `WithOracle`, `Paired`, and `Projection` are additive experimental APIs described
 by the [`paired-v1` candidate](../spec/paired-v1.md). They keep independent reference
@@ -31,6 +38,21 @@ No Rust compiler or native library is needed. JSON is only used for fixture and
 trace interchange; native application transitions are ordinary Python calls.
 The corpus is a repository artifact, not implicitly downloaded by the library.
 Supply its path when running the installed package outside the checkout.
+
+The optional legacy and indexed lifecycle monitors accept `max_events` (default
+100,000) for the combined input and output classifier results per transition.
+An over-limit batch fails without applying any of its events; the bound is part
+of the Python monitor build identity and is not a process-memory limit.
+Rust has no such bound, so the `;events=N` build suffix is an accepted
+Python-only divergence (build identities are engine-specific in any case).
+
+`IndexedLifecycleMonitor` also offers opt-in Rust Debug-compatible check details
+through `rust_debug_key`, `rust_debug_string`, and `rust_debug_identity`. The two
+callbacks must synchronously return the exact Rust Debug text for the inner key
+and a string respectively, including quotes and escapes. The nonempty identity
+identifies both callbacks; it does not prove their compatibility with a Rust
+toolchain. Default native diagnostics remain unchanged. Formatter failures are
+model errors, and callback work and returned text are outside retention limits.
 
 ## Native application example
 
@@ -62,6 +84,11 @@ assert result.failure.inputs == ("increment",) * 3
 ```
 
 `examples/counter.py` adds application-owned codecs, JSON recording, and replay.
+[`examples/background_jobs.py`](examples/background_jobs.py) explores a finite
+job reducer and uses the same reducer in an asyncio host, including a controlled
+late completion after cancellation. Its gates simulate external work; they do not
+qualify a real service or an independently installed consumer.
+
 The optional `check_transition(before, input, transition)` callback returns
 additional `Check` values. Checks and outputs are ordered. A `ModelError` is a
 broken callback/adapter, not a failed property. Rejected and ignored transitions
@@ -72,7 +99,135 @@ by the framework.
 never calls `step`. The caller checks its initial state separately. Periodic
 checking marks omitted checks as skipped rather than passing.
 
+## Experimental assurance observation
+
+The `AssuranceManifest` declares required state or transition checks, input
+families, coverage goals, provenance, and a required completion outcome. An
+`AssuranceObserver` records actual search check batches and coverage callback
+hits. After search, pass its termination through `assurance_search_outcome`,
+finish the observer, and call `report.assess()`. The strict assessment rejects
+missing, skipped or failed checks, missing coverage, unclassified inputs, callback
+errors, and incomplete search. See [examples/assurance.py](examples/assurance.py)
+for a complete finite BFS example.
+`manifest.require(id, phase)` and `manifest.add_domain(descriptor)` return new
+manifests with explicit requirements or declared domain assumptions. A domain
+declaration does not establish that its inputs were exercised.
+Coverage callbacks receive a temporary hit collector. It permits at most 4,096
+distinct family/goal hits per observation, with identifiers up to 4,096 UTF-8
+bytes; rejected writes fail that observation even if caught by the callback.
+At most 1,024 distinct observation errors are retained, plus an overflow marker.
+The observer retains at most 4,096 distinct phase/property identities and accepts
+property IDs up to 4,096 UTF-8 bytes. Exceeding either limit records an error and
+prevents a successful assurance assessment.
+The 4,096 coverage-identity limit also applies across an entire observation
+report and its merged summary. A merged summary that exceeds its property,
+coverage, or error limit records an error and retains the individual job reports.
+Manifest catalogs admit at most 8,192 entries per collection, 4,096 UTF-8 bytes
+per text field, and 1 MiB of total text before snapshots are made. Coverage hits
+are restricted to the callback thread, and rejected observer reentry and partial
+check batches prevent an adequate assessment.
+Finishing an observer consumes it; later observation or finish calls fail.
+
+`assured_enumerate`, `assured_fuzz`, and `assured_guided_fuzz` run search with an
+observer and return an `AssuredRun` containing the search result or model error
+alongside the assurance report. The wrappers capture configured budgets and
+retain partial observations when a search fails.
+Guided reports include the algorithm, configured corpus limits and feedback
+identity once feedback metadata has been obtained; metadata is called once.
+
+This is an experimental observer slice, not N10 completion or an attestation of
+the model or manifest. `merge_assurance_reports` combines reports with matching
+manifest and executable metadata, preserving individual and missing job IDs.
+`assured_campaign` and `assured_guided_campaign` add evidence to campaigns, preserving
+job evidence before input encoding and sink delivery. Multiworker runs require an
+explicit `ProcessWorkers` policy and spawn-picklable factories, as for ordinary campaigns.
+Assured campaigns and `merge_assurance_reports` reject more than 100,000 expected
+jobs by default before creating the job catalog. Set `max_jobs` explicitly to a
+different nonnegative limit when the caller can support the retained evidence.
+Their `max_evidence_bytes` budget defaults to 64 MiB of serialized job reports.
+Direct merges reject an over-budget input; campaigns continue delivery, mark
+unretained job reports missing, and report the evidence limit failure.
+This logical serialized-byte budget is not a process-memory limit.
+`report.properties`, `report.families`, and `report.coverage` derive sorted
+statuses from the retained evidence; a history goal is never called unreachable
+solely because a graph was exhausted. Broad parity qualification remains open. If a search raises,
+record the error in `observer.finish(..., error=error)` and use a non-completed
+outcome; do not claim an exhausted search. The unprefixed names are also available
+from `statelessness.assurance`.
+
+Manifest, report and merged report `to_json()` exports use the Rust assurance
+JSON field and status names. They validate before export; this is an evidence
+export and does not authenticate the underlying observations.
+Strings use the Rust writer's escaping (only `"`, `\`, `\n`, `\r`, `\t` are
+short escapes; other controls are `\u00XX`, never `\b`/`\f`). Report
+`termination` uses Rust Debug spelling (`GraphExhausted`, `MergedJobs`,
+`Campaign::JobsCompleted`, `Campaign::CallbackError(ModelError("..."))`); snake-case
+terminations passed to `Observer.finish` are normalized. `assess()` reasons use
+Rust wording (for example `property edge Transition: Missing`,
+`cover goal two: NotReachedBeforeStop`); non-ASCII Debug escaping of a family
+exclusion reason approximates Rust's printable tables. Budgets contain only Rust
+keys; the Python-only `assured_*_auto` APIs do not record their candidate limit,
+matching Go and Swift (Rust has no assured automatic entry point). Campaign
+evidence-byte limits are not recorded in budgets.
+`AssuranceManifest.from_json`, `AssuranceReport.from_json`, and
+`MergedAssuranceReport.from_json` import these shapes
+with a configurable `max_bytes` limit (default 1 MiB), reject duplicate keys and
+verify report catalogs against retained evidence. Merged import also recomputes
+job aggregates and enforces `max_jobs`. An imported report is not proof that its
+observations occurred.
+
+`statelessness.reference_controller` provides a partial finite controller
+fixture: the reducer, bounded input enumeration, independent packaged requirements,
+coverage, codec, checks and named fault controls. It does not establish N10
+controller qualification or an executed cross-engine differential.
+Its build identity fingerprints the packaged controller source and independent
+requirements at module load, together with the bounds and selected mutation.
+Its packaged witness corpus can be checked with `check_regressions()`, and
+`statelessness.reference_host.Host` provides a single-owner worker example with
+ordered effects, cooperative cancellation and optional recording. The host does
+not provide durable exactly-once execution across crashes.
+`statelessness.reference_suite.write_mutation_suite(directory)` writes exclusive
+binary original and minimized witnesses plus a report. A fresh process can replay
+one with `python -m statelessness.reference_suite MUTATION PATH`.
+`verify_mutation_suite(directory)` validates a complete same-build suite and
+replays both labeled witnesses for every named control; incomplete suites cannot
+pass that check. Its `max_total_bytes` bounds summary and witness bytes together.
+For foreign builds, supply both `expected_build` for the summary and
+`expected_mutation_builds` with a build pin for every named control; model,
+codec and target checks still apply. Witnesses carry exactly Rust's
+`write_mutation_suite` run parameters (no witness-kind parameter), and the
+summary is written in Rust `suite_json` layout (`"search":"Some(FailureFound)"`),
+so Rust- and Go-produced suites verify. A witness-kind parameter recorded by an
+older Python suite must still match its label.
+`write_mutation_suite_with_pins(directory, pins_path)` creates a complete suite
+and publishes those producer pins separately without overwriting existing files.
+Both producer APIs accept `max_evidence_bytes` to bound the combined serialized
+witness bytes; a control whose pair cannot be retained is not evaluated. This
+limit excludes the JSON summary, producer pins, callback allocations and process
+memory. A zero-byte witness limit can still produce an incomplete JSON summary.
+The corresponding fresh-process producer is
+`python -m statelessness.reference_suite --write-suite DIRECTORY --write-pins PINS.json`.
+Use `--max-evidence-bytes` in that mode to set the combined witness-byte cap.
+With `return_report=True`, verification also reports total bytes read and whether
+the producer and all mutation builds match the local controller builds.
+For a fresh-process local suite check, use
+`python -m statelessness.reference_suite --suite DIRECTORY`.
+Add `--pins PINS.json` for foreign suites, using a separate JSON object with
+`report_build` and a complete `mutation_builds` mapping. The pins file has a
+separate one-mebibyte limit and is not counted in the suite byte budget.
+Use an empty destination with a single writer; directory checks and ownership
+checks do not lock out concurrent replacements. If a file descriptor cannot be
+identified immediately after creation, the descriptor is closed and its path is
+left for inspection rather than deleting a possible replacement.
+
 ## State and cost contract
+
+`runtime_build_id()` computes an on-demand SHA-256 identity for packaged Python
+sources and bundled JSON/text data as they exist on disk when called. Keep those
+files stable during the walk: concurrent edits can produce a mixed digest, and
+already-imported code may differ from files edited since import. The identity is
+not an authenticity guarantee and excludes the interpreter, native extensions,
+environment and bytecode.
 
 Callbacks must be deterministic and free of real I/O, clocks, hidden mutable
 history, and effect execution. The library defensively deep-copies snapshots and
@@ -134,10 +289,20 @@ aggregate replay transitions, and whether original validation completed.
 `RunLimits(max_duration=seconds, cancellation=callable)` provides cooperative
 control; `ShrinkLimits` also caps aggregate replay transitions including original
 validation. A callback or iterator pull cannot be interrupted; limits do not cap
-callback allocations. Callback errors raise `ModelError`, never count as property
-reproduction. Search completion does not prove exhaustive coverage or global
+callback allocations. On early exit, shrinking closes a simplifier iterator that
+provides `close`; a cleanup failure does not replace an existing search error.
+Callback errors raise `ModelError`, never count as property reproduction. Search
+completion does not prove exhaustive coverage or global
 minimality. These APIs implement the experimental [`search-v1` candidate](../spec/search-v1.md)
 and consume its hand-authored TSV corpus in tests; they do not expand `PROFILES`.
+
+`fuzz_auto(model, config, options=..., limits=...)` is an opt-in finite-domain
+path that also checks its run cancellation and deadline between automatic
+generation and membership iterator pulls. Interrupted sampling leaves its
+tentative RNG state uncommitted. `guided_fuzz_auto`, `run_auto_campaign`, and
+`run_guided_auto_campaign` extend the same behavior to guided and campaign
+search. Existing `fuzz(Auto(...))` and other existing entry points retain their
+callback-boundary controls; a feedback factory itself cannot be preempted.
 
 `fuzz(..., observer=observer)` accepts optional `SearchObserver` hooks:
 `initial(state, checks)`, `transition(before, input, transition, state_checks,
@@ -189,6 +354,9 @@ ordinary FIFO exploration and accepts the same `RunLimits` controls as fuzzing.
 Cancellation/deadline polls surround enumeration, hashing, collision comparisons
 and estimation. Completed check boundaries and their failures precede stops.
 Depth/transition caps still probe one input to distinguish exhaustion from cutoff.
+An admitted enumerated input is copied before the reducer and copied again for
+the reducer call, so copy hooks can run or fail before the reducer. They must
+provide detached values; concurrent mutation through external aliases is not atomic.
 
 An optional `estimated_state_bytes(state)` model hook returns an unsigned 64-bit
 logical retained-state estimate or `None`. `SearchLimits` optionally caps their
@@ -292,6 +460,95 @@ with that prefix are rejected. Python's build label `native-python-v1` identifie
 the implementation, not a source fingerprint. Replay preserves producer stamps.
 `encode-buffers-v1` and `replay-evidence-v1` are experimental candidates; the four
 qualified profiles and portable wire projections remain unchanged.
+
+## Candidate synchronous runtime diagnostics
+
+`Event.Started(metadata, config)`, `Event.Checkpoint(sequence, state, checks)`,
+`Event.Transition(sequence, before, input, transition, checks)`,
+`Event.Message(level, sequence_or_none, message)`, and
+`Event.Finished(transitions, reason)` describe work the application already owns.
+Top-level `Started`, `Checkpoint`, `TransitionEvent`, `Message`, and `Finished`
+are the same variants; the existing top-level `Transition` remains the model
+result. `Observer.observe(model, event)` is a structural synchronous protocol.
+Events borrow payloads and freeze only their wrapper/check collection. Keep
+payloads stable during observation; they are not detached snapshots. Diagnostics
+do not execute reducers, initializers, effects, or checks, and do not certify
+continuity or supply checked-token authority. Use the existing Recorder for that.
+
+```python
+import io
+from statelessness import (Event, TextObserver, ObservationOptions, LogLevel,
+                          SnapshotPolicy, EncodedPayloads)
+
+writer = io.BytesIO()
+observer = TextObserver(writer, "application", ObservationOptions(
+    level=LogLevel.TRACE, snapshots=SnapshotPolicy.every(10)), EncodedPayloads(4096))
+# actual and checked are the application's already computed values:
+observer.observe(model, Event.Transition(sequence, before, input, actual, checked.checks))
+observer.flush()  # Explicit; errors are the application's policy decision.
+assert observer.into_inner() is writer  # Transfer without flush or close.
+```
+
+`ObservationOptions()` defaults to `LogLevel.OFF`, `SnapshotPolicy.NONE`, and a
+1 MiB record limit. The ascending levels are `OFF/ERROR/WARN/INFO/DEBUG/TRACE`
+(Rust-style `Off/Error/Warn/Info/Debug/Trace` aliases are also available).
+Failed checks take Error precedence over Skipped checks at Warn. Ordinary
+checkpoints are Trace, transitions Debug even when rejected/ignored, and start/
+finish Info. Messages use their own level; Off messages are always filtered.
+Filtering precedes formatter and codec work. Only configured Trace includes
+payloads and passing check details; check failures do not suppress Trace payloads.
+
+Snapshots use `SnapshotPolicy.NONE`, `SnapshotPolicy.every(nonzero_u64)` (or
+`Every`), and `SnapshotPolicy.EVERY_TRANSITION`. At Trace, explicit checkpoints
+include state with any non-None policy regardless of interval. Transitions format
+input, ordered actual outputs, and then the selected post-state using absolute
+sequence divisibility. Before-state is unused. `set_level` and `set_snapshots`
+affect future events only; emit an explicit checkpoint when enabling snapshots.
+Python integers cover the full u64 sequence/period domain; invalid values and
+booleans are rejected. Gaps, duplicates, and reordered diagnostic events remain
+the application's responsibility.
+
+`PayloadFormat` callbacks `state/input/output(model, value, out)` synchronously
+write bytes and return `None`. The callback writer expires after each call; no
+retained lease may alter later records. `NoPayloads` writes `unavailable` and
+needs neither codecs, copying, nor repr on model values. `EncodedPayloads(limit)`
+uses the existing bounded `EncodeBuffer` dispatch, preferring `encode_*_into`,
+including explicit `model_codec(...).bind(model)` declarations. It reuses a
+bytearray and writes lowercase `hex:` bytes. Existing dispatch copies values;
+legacy return-bytes encoders can allocate before the bound is enforced. Buffer
+reuse promises neither Python capacity retention nor zero allocation.
+
+Each record is bounded in UTF-8 bytes including its final LF, and staged before
+any destination write. Rejected buffer writes stay sticky even if swallowed by
+callbacks. Codec/formatter/record-limit errors publish nothing and the next event
+can recover. `TextObserverError.stage` identifies `encode_input/output/state`,
+`format_input/output/state`, `record_limit`, `sink_write`, `sink_flush`, or
+`sink_poisoned` (generic invalid formatting/ownership has `format`/`sink`).
+Sink short writes are completed; interrupted writes are retried. Zero/invalid
+progress, write failure, and flush failure permanently poison the sink, including
+when subsequently set Off. Writer failures can leave partial records. Publication
+uses an additional bounded immutable byte snapshot so retained writer arguments
+cannot alias reusable record storage. Limits do not bound callback allocations,
+object copies, retained writers, process memory, or time spent in blocking I/O.
+
+`get_ref()` exposes the caller-owned binary writer; `into_inner()` transfers it
+and disables further observation without implicitly flushing/closing. Direct
+writer use is the caller's responsibility. `sink_poisoned` reports permanent I/O
+failure. Observers/formatters are synchronous and not thread-safe; nested observer
+entry and reinitialization are rejected. Ordinary Python exceptions are contained
+with stage attribution even if their string formatting fails; process interrupts
+are re-raised, and I/O interrupts other than `InterruptedError` still poison.
+
+Library text follows the pinned Rust field order, variant names, double-quoted
+escaping, and common printable UTF-8 from the
+[`observation-v1` contract](../spec/observation-v1.md). Python's Unicode printability
+tables determine additional `\u{...}` escapes, so arbitrary Unicode/future Rust
+Debug changes are outside exact byte compatibility. Library text stays on one
+line; custom payload bytes are deliberately unsanitized and their formatter owns
+escaping. Diagnostic text is not a replay artifact. The
+[installed consumer](../examples/native-observation/python/README.md) reads shared
+fixtures without importing source via path overrides. This remains an experimental
+candidate; the source additions and tests await integrated Kyoto qualification.
 
 ## Candidate checked results and runtime recording
 
@@ -475,6 +732,11 @@ otherwise native equality is used. Hooks receive detached snapshots and must
 return an actual bool. No serialization or hash digest stands in for equality.
 Cloning and equality remain cooperative, faithful and deterministic; arbitrary
 callback execution/memory and malicious private mutation are not sandboxed.
+`compare_equivalence_bounded` accepts `ResearchComparisonLimits` to set
+explicit projection and exact-state equality call limits and returns the limits
+and consumed calls alongside the ordinary report. Reaching a limit returns an incomplete report;
+the original API uses fixed limits of one million calls for each relation and its
+shared report format remains unchanged.
 
 The result retains shortest BFS failure witnesses, pair prefixes, missing
 properties and separate state/edge/pair budgets. Observed properties sort by ID
@@ -508,3 +770,28 @@ These APIs do not promote a compatibility profile or infer Rust object layout.
 The package-root `ModelCodec[S, I, O]` remains the existing generic protocol.
 The explicit declaration object is exported as `ModelCodecBinding`; it is also
 available as `codec_declarations.ModelCodec`, alongside the `model_codec` factory.
+
+`statelessness.debugger_watches.MarkerCollector` collects optional post-turn
+markers. Its detail callback runs only when the marker can be admitted; retained
+text is truncated at UTF-8 boundaries. Its byte limit uses a 48-byte logical
+per-marker charge matching the 64-bit Rust layout, not Python heap usage or memory
+allocated by callbacks. Use a collector from one thread and avoid reentrant calls
+from the detail callback; `finish()` consumes it and returns an immutable batch.
+
+`Network.machine_ids()` returns an ordered tuple snapshot of registered machine
+IDs. `NetworkState.machine(id)` searches the canonical increasing-ID state and
+returns `None` when no ID exists (previously it raised `KeyError`). The returned
+state is not copied. If an application uses `None` as a state, inspect the
+`machines` entries to distinguish it from an absent ID.
+For compatibility the network's `machines` mapping remains mutable. Each
+operation captures its registration in increasing ID order before invoking
+callbacks and rejects an empty registration. Unlike Rust's immutable network
+registration, changes made between operations change the model's semantics;
+callers must avoid concurrent mutation while a snapshot is captured.
+Network state equality copies both queues before machine values and comparison,
+so queue copy hooks may run even when machine values compare unequal. Queue copy
+errors are deferred until after machine comparison and queue length checks.
+Successful queue and machine copies share a deepcopy memo. If a queue copy fails,
+its partial memo is discarded before the machine values are copied.
+Isolation depends on cooperative `deepcopy` hooks and is not atomic against
+concurrent or cross-alias mutation during capture.

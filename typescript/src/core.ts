@@ -5,7 +5,7 @@ import {EncodeStorage,encodeModel,type EncodeBuffer} from './encoding.js';
 export {EncodeStorage,EncodeBuffer,withEncodeBuffer} from './encoding.js';
 import {CheckSink,withCheckSink,appendStateChecks,appendTransitionChecks} from './checks.js';
 export {CheckSink,withCheckSink} from './checks.js';
-import {runControl, searchChecks, addSkippedChecks, type RunLimits, type SearchObserver} from './search_support.js';
+import {runControl, searchChecks, captureEdgeConsumers, addSkippedChecks, type RunLimits, type SearchObserver} from './search_support.js';
 /** Independent native engine. Callbacks describe effects; the engine never executes I/O.
  * Models must be deterministic. Explicit copy hooks preserve application-owned
  * classes and reference graphs without guessing that structuredClone is suitable.
@@ -203,15 +203,21 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
     if (halted)
         return halted;
     const initial = copyState(m, call('initial_state', () => m.initialState()));
+    // Preserve the node before checks or observers can mutate an external alias.
+    // A failed copy is consumed only when the search actually continues.
+    const initialNode = (() => { try { return { value: copyState(m, initial) } as const; } catch (error) { return { error } as const; } })();
+    const initialCheck = (() => { try { return { value: copyState(m, initial) } as const; } catch (error) { return { error } as const; } })();
     states = 1;
-    const checked = searchChecks(m, initial, undefined, undefined, undefined, observer,[],checkStorage);
+    const checked = searchChecks(m, initial, undefined, undefined, undefined, observer,[],checkStorage,undefined, () => { if ('error' in initialCheck) throw initialCheck.error; return initialCheck.value; });
     skipped = addSkippedChecks(skipped,checked.skipped);
     if (checked.violations.length)
         return report('failure_found', { inputs: [], violations: checked.violations });
     halted = stopped();
     if (halted)
         return halted;
-    retained = estimate(initial);
+    if ('error' in initialNode) throw initialNode.error;
+    const retainedInitial = initialNode.value;
+    retained = estimate(retainedInitial);
     halted = stopped();
     if (halted)
         return halted;
@@ -224,12 +230,12 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
             return report('estimated_state_byte_limit');
         }
     }
-    const initialHash = hash(initial);
+    const initialHash = hash(retainedInitial);
     halted = stopped();
     if (halted)
         return halted;
     const visited = new Map<string | number | bigint, number[]>([[initialHash, [0]]]);
-    nodes.push({ state: initial, parent: -1, depth: 0 });
+    nodes.push({ state: retainedInitial, parent: -1, depth: 0 });
     for (let cursor = 0; cursor < nodes.length; cursor++) {
         halted = stopped();
         if (halted)
@@ -260,20 +266,30 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
                 break;
             if (transitions === maxTransitions)
                 return report('transition_limit');
-            const t = step(m, node.state, item.value);
+            // Retain the enumerated input before reducer callbacks can mutate an
+            // external alias. This adds an observable clone before each step.
+            const retainedInput = copyInput(m, item.value);
+            const t = step(m, node.state, retainedInput);
+            const successor = (() => { try { return { value: copyState(m, t.state) } as const; } catch (error) { return { error } as const; } })();
+            const checkState = (() => { try { return { value: copyState(m, t.state) } as const; } catch (error) { return { error } as const; } })();
+            const edge = (() => { try { return { value: { before: copyState(m, node.state), input: copyInput(m, retainedInput), transition: copyTransition(m, t) } } as const; } catch (error) { return { error } as const; } })();
+            const consumers = captureEdgeConsumers(m, observer);
+            const edgeValue = () => { if ('error' in edge) throw edge.error; return edge.value; };
             transitions++;
             reached = Math.max(reached, node.depth + 1);
             const wantHistory = observer?.needsHistory ? call('observer needs_history', () => { const v = observer.needsHistory!(); if (typeof v !== 'boolean')
                 throw new TypeError('needsHistory must return boolean'); return v; }) : false;
-            const history = wantHistory ? [...path(cursor), copyInput(m, item.value)] : [];
-            const checked = searchChecks(m, t.state, node.state, item.value, t, observer, history,checkStorage);
+            const history = wantHistory ? [...path(cursor), copyInput(m, retainedInput)] : [];
+            const checked = searchChecks(m, t.state, node.state, retainedInput, t, observer, history,checkStorage, () => edgeValue().input, () => { if ('error' in checkState) throw checkState.error; return checkState.value; }, () => edgeValue().transition, () => edgeValue().before, consumers);
             skipped = addSkippedChecks(skipped,checked.skipped);
             if (checked.violations.length)
-                return report('failure_found', { inputs: [...path(cursor), copyInput(m, item.value)], violations: checked.violations });
+                return report('failure_found', { inputs: [...path(cursor), copyInput(m, retainedInput)], violations: checked.violations });
             halted = stopped();
             if (halted)
                 return halted;
-            const key = hash(t.state);
+            if ('error' in successor) throw successor.error;
+            const retainedSuccessor = successor.value;
+            const key = hash(retainedSuccessor);
             halted = stopped();
             if (halted)
                 return halted;
@@ -284,7 +300,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
                 halted = stopped();
                 if (halted)
                     return halted;
-                const equal = call('state equality', () => { const v = m.equalStates(copyState(m, nodes[other].state), copyState(m, t.state)); if (typeof v !== 'boolean')
+                const equal = call('state equality', () => { const v = m.equalStates(copyState(m, nodes[other].state), copyState(m, retainedSuccessor)); if (typeof v !== 'boolean')
                     throw new TypeError('equalStates must return boolean'); return v; });
                 halted = stopped();
                 if (halted)
@@ -298,7 +314,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
                 continue;
             if (nodes.length === maxStates)
                 return report('state_limit');
-            const bytes = estimate(t.state);
+            const bytes = estimate(retainedSuccessor);
             halted = stopped();
             if (halted)
                 return halted;
@@ -312,7 +328,7 @@ export function enumerateStatesExact<S, I, O>(m: EnumerateModel<S, I, O>, config
             }
             bucket.unshift(nodes.length);
             visited.set(key, bucket);
-            nodes.push({ state: t.state, parent: cursor, input: copyInput(m, item.value), depth: node.depth + 1 });
+            nodes.push({ state: retainedSuccessor, parent: cursor, input: copyInput(m, retainedInput), depth: node.depth + 1 });
             states = nodes.length;
             retained = total;
         }

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Native campaign examples</title>
+<style>
+  body { font: 16px system-ui, sans-serif; max-width: 72rem; margin: 2rem auto; padding: 0 1rem; }
+  button, label { margin: .3rem; }
+  button { padding: .5rem .8rem; }
+  pre { background: #f2f4f6; padding: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+</style>
+<h1>Queue campaigns</h1>
+<p>Six independent jobs run serially in this browser. Guided jobs retain their own
+  bounded feature corpus. Cancellation is cooperative and can respond between deliveries.</p>
+<p>
+  <button id="ordinary">Run ordinary</button>
+  <button id="guided">Run guided</button>
+  <button id="cancel" disabled>Cancel</button>
+  <label><input id="bug" type="checkbox"> Inject a FIFO bug and stop on failure</label>
+</p>
+<p id="status" role="status">Ready</p>
+<pre id="output" aria-label="Campaign reports"></pre>
+<!-- serve.mjs resolves the installed package's PUBLIC entry point for this map. -->
+<script type="importmap">{"imports":{"@jagalite/statelessness":"/package/index.js"}}</script>
+<script type="module">
+  import { CampaignCancellation } from '@jagalite/statelessness';
+  import { runBrowserCampaign } from './browser.mjs';
+  import { displayJSON, inputLabels } from './common.mjs';
+
+  const ordinary = document.querySelector('#ordinary');
+  const guided = document.querySelector('#guided');
+  const cancel = document.querySelector('#cancel');
+  const bug = document.querySelector('#bug');
+  const status = document.querySelector('#status');
+  const output = document.querySelector('#output');
+  let active = null;
+  cancel.onclick = () => active?.cancel();
+
+  async function run(useGuidance) {
+    if (active) return;
+    active = new CampaignCancellation();
+    ordinary.disabled = guided.disabled = bug.disabled = true;
+    cancel.disabled = false;
+    output.textContent = '';
+    status.textContent = useGuidance ? 'Running guided jobs' : 'Running ordinary jobs';
+    try {
+      const report = await runBrowserCampaign({
+        guided: useGuidance, bug: bug.checked, cancellation: active,
+        onJob(job) {
+          output.textContent += displayJSON({ type: 'job', inputLabels: inputLabels(job), job }) + '\n';
+        },
+      });
+      output.textContent += displayJSON({ type: 'campaign', report }) + '\n';
+      status.textContent = `${report.termination.kind}; delivered ${report.delivered}/${report.requested}; `
+        + `failures ${report.failures}; errors ${report.errors}; accounting complete ${report.accountingComplete}`;
+    } catch (error) {
+      status.textContent = `Campaign could not run: ${error.message}`;
+    } finally {
+      active = null;
+      ordinary.disabled = guided.disabled = bug.disabled = false;
+      cancel.disabled = true;
+    }
+  }
+  ordinary.onclick = () => run(false);
+  guided.onclick = () => run(true);
+</script>
+</html>

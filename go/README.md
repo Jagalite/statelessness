@@ -9,6 +9,7 @@ cd go
 CGO_ENABLED=0 go test ./...
 go vet ./...
 go run ./examples/counter
+go run ./examples/reference-controller
 go build -o bin/stateless-corpus ./cmd/stateless-corpus
 ```
 
@@ -28,6 +29,42 @@ replace github.com/Jagalite/statelessness/go => /path/to/statelessness/go
 Import it as `s "github.com/Jagalite/statelessness/go"`. The counter in
 `examples/counter/main.go` is a complete native model that finds a failure, records
 its witness, and replays it. No JSON is used by the transition function.
+The reference-controller example runs two asynchronous workers through the
+ordered host, demonstrates supersession and cancellation, and replays the
+recorded execution against the same reducer.
+The optional `demo` package ports Rust's finite request-lifecycle fixture with
+fixed and intentionally buggy reducers, generation, and matching value bytes;
+it is a teaching fixture, not a qualified production controller.
+Its optional `demo/debug` package supplies an owned display projection for
+debugger inspection and watches without adding a debugger dependency to `demo`.
+
+The Go reference-suite verifier accepts a directory of preserved mutation
+witnesses. It defaults to the local build; `-pins` permits explicit foreign
+report and mutant build identities. For example, from the repository root:
+
+```sh
+npm --prefix typescript run build
+node typescript/scripts/write_reference_suite.mjs /tmp/reference-suite /tmp/reference-pins.json
+go -C go run ./cmd/verify-reference-suite -suite /tmp/reference-suite -pins /tmp/reference-pins.json
+```
+
+Both output paths must be new. The pins identify the chosen producer build;
+they do not authenticate the files or substitute for independent review.
+The reverse direction uses the same report and per-mutant pin format:
+
+```sh
+go -C go run ./cmd/write-reference-suite -suite /tmp/go-reference-suite -pins /tmp/go-reference-pins.json
+node typescript/scripts/verify_reference_suite.mjs /tmp/go-reference-suite /tmp/go-reference-pins.json
+```
+
+Rust can also produce a suite for the Go verifier. Build the `controller` and
+`reference_pins` examples, then run the compiled binaries:
+
+```sh
+target/debug/examples/controller mutations /tmp/rust-reference-suite
+target/debug/examples/reference_pins > /tmp/rust-reference-pins.json
+go -C go run ./cmd/verify-reference-suite -suite /tmp/rust-reference-suite -pins /tmp/rust-reference-pins.json
+```
 
 ## API and ownership
 
@@ -53,8 +90,8 @@ are not recoverable model findings. Native trace limits count retained data, not
 hidden callback allocations or process RSS.
 
 Implements `core-v1`, `bfs-v1`, `rng-splitmix64-v1`, `trace-json-v1`.
-Guided search, campaign/composition helpers, ring recording,
-and binary `.sttrace` interoperability are not provided by this release. See
+Additional candidate APIs, including [guided search](GUIDED.md) and
+[campaigns](CAMPAIGN.md), do not expand that qualified profile list. See
 `../spec/README.md`; passing finite tests is not universal correctness proof.
 
 No module release/tag or registry publication is performed by this change. Future
@@ -77,6 +114,9 @@ reducer; a typed `ObservationError` retains the actual transition if history
 advancement fails. `CloneHistory` must deeply copy mutable history; enumeration
 requires both actual state equality and `EqualHistory`. Persistence requires both
 component codecs and uses the shared `ORC1` framing and semantic/build identities.
+Encoding snapshots history before the actual encoder to isolate its observation
+from callback alias mutation. The history clone therefore runs even when the
+actual encoder later fails; clone hooks must cooperate and may have side effects.
 This is an experimental candidate, not complete Rust parity or a qualified profile.
 
 The golden tests read `../conformance/paired-v1.tsv`. For copied module test trees,
@@ -123,10 +163,25 @@ globally minimal witness. Reports include resource termination and whether origi
 evidence was validated before shrinking; interrupted validation preserves supplied
 evidence without asserting reproduction.
 
-`RunLimits` supports optional `*time.Duration` and `*atomic.Bool` cancellation.
-Zero duration expires at entry. Controls poll between engine callbacks, never
-preempt callbacks or an automatic iterator scan. Callback failures stay errors,
-and completed failing check batches win over simultaneous cancellation.
+`RunLimits` supports optional `*time.Duration`, an alternative exact unsigned
+128-bit nanosecond budget via `MaxDurationNS`, and `*atomic.Bool` cancellation.
+The duration forms are mutually exclusive. Direct enumeration, fuzzing, guided
+search, shrinking, campaigns, their assurance wrappers, and debugger offline
+verification/minimization support the exact form. Exact elapsed accounting
+requires a monotonic poll at least once
+per maximum Go duration interval (about 292 years).
+Zero duration expires at entry. Controls poll between engine callbacks and never
+preempt a callback already executing. `FuzzAutoWithLimits64` is an opt-in path
+that also polls its own run control between automatic-domain iterator calls,
+returning a cancelled or deadline report without committing the interrupted
+reservoir scan’s RNG state. `FuzzWithLimits64` with a separately constructed
+`Auto64` retains callback-boundary polling. `GuidedFuzzAutoWithLimits64`,
+`GuidedFuzzAutoObserved64`, `RunAutoCampaign64`, and `RunGuidedAutoCampaign64`
+provide the same cooperative scanning for their own runs. Campaign equality
+callbacks and factory captures must be concurrency-safe. The guided campaign
+feedback factory receives an ordinary Auto64 model: any work it performs inside
+that callback is not preempted. Callback failures stay errors, and completed
+failing check batches win over simultaneous cancellation.
 `ShrinkLimits.MaxReplayedTransitions` optionally bounds aggregate replay work,
 including original validation. Deadlines use the Go monotonic clock; unconstrained
 runs do not read the clock. Separate runs need separate RNGs and mutable models.
@@ -150,6 +205,39 @@ its combined history model/codec. Generation and causal membership see only the
 actual application's state; input simplification and semantic identity forward
 unchanged. The resulting typed `GenerateModel[OracleState[...], ...]` supports the
 same native fuzz, shrink, recording, and exact replay pipeline.
+
+## Assurance report JSON and Go-only extensions
+
+`AssuranceEvidence.JSON`, `AssuranceManifest.JSON` and `MergedAssurance.JSON`
+emit the Rust `src/assurance.rs` `to_json` shape byte-for-byte: Rust field
+order, Rust `quoted` string escaping, byte-ordered budget maps and numerically
+ordered job IDs. Terminations use Rust `{:?}` spelling (`GraphExhausted`,
+`CasesCompleted`, `ModelError`, `Panicked` for a campaign job that unwound,
+`MergedJobs`, and `Campaign::<CampaignTermination Debug>` such as
+`Campaign::CallbackError(ModelError("..."))`). Budget maps contain only the keys
+Rust writes (`fuzz_budgets`, `control_budgets`, guidance, merge and campaign
+keys); `max_duration_ns` is an unsigned 128-bit decimal. Observation admission
+limits (`AssuranceObservationLimits`) and automatic-domain options are not
+recorded as budgets. Campaign outcomes follow Rust `run_campaign` exactly: job
+errors alone do not change the aggregate outcome; they surface through the
+failed job evidence or missing jobs.
+
+`ParseAssuranceJSON` and `ParseMergedAssuranceJSON` accept genuine Rust output,
+including `Panicked` jobs and `Campaign::...` aggregates without any Go
+extension; such campaign reports are verified against the coordinator facts
+Rust records (termination plus `campaign.started`/`finished`/`delivered`/
+`accounting_complete`) and are re-emitted unchanged.
+
+Go-only extensions, kept outside every Rust-defined field:
+
+- `MergedAssurance.JSON` appends a top-level `nested_jobs` object (proofs for
+  jobs that are themselves merged reports) and a top-level `campaign` object
+  (coordinator counts, coordinator budgets and `assurance_max_evidence_bytes`,
+  the campaign evidence-ledger bound). Rust defines neither key; consumers
+  that require the exact Rust shape must strip them. When present, Go cross-checks coordinator
+  failure and transition totals that Rust does not record.
+- `AssuranceRunGuidedCampaign64` has no Rust counterpart; its job budgets
+  combine Rust `fuzz_budgets` with the Rust `guided_fuzz` guidance keys.
 
 ## Experimental Rust audit binary v1
 
@@ -202,6 +290,10 @@ and `OracleStateOverhead[S,H]()` using checked unsigned64 addition; missing valu
 or overflow remain unknown. The exposed overhead is actual architecture-specific
 Go inline pair padding (`unsafe.Sizeof(pair)` minus member sizes), excluding heap
 headers and RSS. Each application estimate includes its own owned representation.
+When both estimators are present, `WithOracle` clones history before the actual
+estimator runs to preserve its observation against callback alias mutation. That
+clone runs even if the actual estimate is unknown or fails; the actual result
+takes precedence over a clone failure. Clone hooks should be cooperative.
 Generation, enumeration, and persistence continue using the combined native model.
 
 These estimates bound admitted model-state representation only. Temporary
@@ -248,6 +340,14 @@ and `Paired` appends reference checks before projection comparisons, all sharing
 existing append positions. Child failures remain failures if enclosing code ignores
 them. Legacy Go callbacks returning checks plus an error retain only their valid
 prefix for diagnostics and preserve the original checker error.
+
+`Paired` snapshots reference history and effects before reference checks so those
+checks cannot change the later reference projection through an external alias.
+These earlier clone hooks may have side effects even when a reference check fails;
+check errors retain precedence over snapshot failures. The standalone `Paired`
+API has no actual-state or actual-output clone hooks, so callers must keep those
+values stable during its callbacks. Clone hooks must cooperate and do not make
+capture atomic against concurrent external mutation.
 
 `append-checks-v1` is experimental. Reusable check buffers retain capacity, while
 observer/trace snapshots and legacy defaults can allocate; no zero-allocation or
@@ -472,3 +572,134 @@ values intentionally fail validation rather than silently choosing a format.
 `BindModelCodec` returns a new model codec for explicit assignment, requires only
 encoding for Output, and preserves metadata and engine behavior. It checks the
 current metadata version on every hook and evaluates decode limits afresh.
+
+Runtime observation is optional, synchronous diagnostic text. `Event[S,I,O]`
+uses `EventStarted`, `EventCheckpoint`, `EventTransition`, `EventMessage`, and
+`EventFinished` tags. `Observer[S,I,O]` accepts a model and an application-owned
+event. `TextObserver` never calls initial-state, reducer, checker, enumeration,
+or effect execution callbacks. Events do not prove continuity or authorize
+unchecked recording; use existing `CheckInitial`/`CheckTurn` tokens and Recorder
+for exact evidence. `TurnObservation.Event()` is a diagnostic conversion only.
+
+```go
+options := statelessness.DefaultObservationOptions()
+options.Level = statelessness.LogTrace
+options.Snapshots = statelessness.SnapshotEveryTransition()
+log, err := statelessness.NewTextObserver[State, Input, Output](
+    writer, "application", options,
+    statelessness.NewEncodedPayloads[State, Input, Output](4096),
+)
+if err != nil { return err }
+// The application has already executed this turn and obtained these checks.
+err = log.Observe(model, statelessness.Event[State, Input, Output]{
+    Kind: statelessness.EventTransition, Sequence: sequence,
+    Before: before, Input: input, Transition: actual, Checks: checks,
+})
+```
+
+`DefaultObservationOptions()` is Off / None / 1 MiB. A literal zero options
+value retains a zero-byte bound; limits include the final LF and count UTF-8
+bytes. Levels are `LogOff`, `LogError`, `LogWarn`, `LogInfo`, `LogDebug`, and
+`LogTrace`. Failure checks take Error precedence over skipped checks at Warn.
+Ordinary checkpoints are Trace, transitions Debug even when rejected or ignored,
+and start/finish Info. Messages carry their own level; Off messages are filtered.
+Filtering precedes formatter and codec work. Only configured Trace formats
+payloads and Passed check details, even when the record itself is Error or Warn.
+
+`SnapshotNone()`, `SnapshotEvery(nonzero uint64)`, and
+`SnapshotEveryTransition()` select post-state payloads by absolute transition
+sequence. Explicit Trace checkpoints include state under any non-None policy,
+independent of interval. Payload order is input, ordered outputs, then selected
+post-state; before-state is unused. `SetLevel` and `SetSnapshots` affect future
+events and cannot recover omitted history. Emit a fresh checkpoint when enabling
+snapshots mid-run. Sequence and periodic arithmetic retain the full u64 range.
+
+`PayloadFormat` can format opaque application types without a codec; nil selects
+`NoPayloads`, which emits `unavailable`. `EncodedPayloads` uses the existing
+incremental-before-legacy dispatch, including declaration bindings, a reusable
+bounded EncodeBuffer, and lowercase hex. No codec is required on base Model.
+Legacy encoders necessarily allocate their return buffers before admission;
+clones and other callback allocations are also outside the logical byte limits.
+Encoding uses the existing model clone hooks; borrowed custom formatting does
+not copy payloads. Formatters must not mutate application data or execute effects.
+
+Events borrow slices, payload reference fields, and config parameters for the
+duration of `Observe`; neither event construction nor observation detaches them.
+Applications own ordering and must prevent concurrent mutation. Checked tokens
+retain their existing detached ownership and private authority. An event copied
+from a detached TurnObservation is still diagnostic data. No automatic observer
+hook was added to model execution, checking, or recording.
+
+Library text follows the pinned Rust variant names, field order, quoted strings,
+`Some(n)`/`None`, and metadata/config spelling in `observation-v1`. It escapes
+quote, backslash, NUL, LF/CR/TAB and nonprintable scalars with Rust-style escapes,
+while preserving common printable UTF-8. Native Unicode classification uses Go's
+Unicode tables, including grapheme-extending marks; exact bytes across every
+Unicode version/category or future Rust Debug format are not promised. Invalid
+library-owned UTF-8 is rejected. Custom formatter bytes are unsanitized; valid
+UTF-8 and single-line output are the caller's responsibility. This is diagnostic
+text, not a replay or persistence format.
+
+Every record is staged before destination I/O. Record/encode buffer failures are
+sticky even when a callback swallows an error. Format/codec errors publish no
+destination bytes and the next event can recover. `TextObserverError.Stage`
+attributes `format`, `format input/output/state`, `encode input/output/state`,
+`write`, `flush`, or `poisoned`; `Cause`/`Unwrap` retains opaque host errors without
+calling their Error/String/Format methods. Its own Error string is intentionally
+constant per stage. Callback panics become constant errors without formatting
+the panic value; fatal runtime errors such as unrecoverable OOM remain outside
+this contract. Formatter/encoder writer leases expire on return or panic.
+The generic oracle `ObservationError[S,O]` remains a separate API retaining the
+actual transition. Public diagnostic errors supplied by callbacks, including
+typed nil and errors propagated from another observer, are opaque causes under
+the active `format input/output/state` stage. Only an internal codec failure from
+the same active payload lease and matching payload kind retains its encode
+stage. A sticky record bound failure takes precedence over callback errors or
+panics. Public errors do not confer failure attribution or checked authority.
+
+Nested declaration/framing encoding reuses the existing batch and revocable
+leases. `EncodeRaw` callback errors remain cooperative; failed writes and failed
+framed calls remain sticky even if ignored. Panic containment targets the module's
+Go 1.23 default panic behavior. The legacy `GODEBUG=panicnil=1` setting is outside
+this observation profile: an existing raw value-codec boundary may swallow a nil
+panic before it reaches the observer.
+
+Writer/flush failures permanently poison the sink, including subsequent Off
+observations, and may leave a delivered prefix. Native `io.Writer` semantics
+apply: `n < len(p)` with nil error becomes `io.ErrShortWrite`; partial bytes plus
+an error are never retried or duplicated. Go writer errors, including Interrupted,
+are terminal here. `Flush` calls an optional `Flush() error` method and otherwise
+succeeds without writing. `GetRef` returns the caller's writer; direct external
+use is their responsibility. `IntoInner` transfers that reference without flushing
+or closing, including after poison, and disables further observer use. Call Flush
+explicitly before transfer when required. The sink and payload formatter are
+exclusive, nonconcurrent objects; reentrant observation, flush, settings changes,
+and ownership transfer during a callback are rejected.
+Do not copy TextObserver or EncodedPayloads after first use.
+
+The source-only observation tests include error-family compatibility, active
+stage attribution, typed-nil and hostile callback failures, nested declaration
+framing, sticky bounds, expired copied leases, and checked Recorder integration.
+The installed consumer is in `examples/native-observation/go`. `observation-v1`
+is advertised only by `ExperimentalProfiles()`. Compilation and execution remain
+deferred to the parent's frozen integrated Kyoto qualification.
+
+`GuidedFuzz`, `GuidedFuzzWithLimits`, and `GuidedFuzzObserved` implement bounded
+`feature-corpus-v2` exploration with explicit mutable-feature clone/equality/hash
+hooks, callback-scoped feature buffers, and owned corpus witnesses. See
+[the Go guidance contract](GUIDED.md) and [example](examples/guided/main.go).
+This opt-in API leaves ordinary fuzz defaults and advertised profiles unchanged.
+
+Network step captures the selected input and retained pending payloads before
+machine-state clone hooks. These hooks may therefore run earlier than child
+reduction and must cooperate: cloning cannot provide an atomic snapshot if hooks
+or concurrent external code mutate other values through shared aliases.
+
+For indexed lifecycle checks, `WithIndexedRustDebugDiagnostics` returns an
+opt-in wrapper usable with `IndexedRustDebugOracle`. The application supplies
+formatters matching the pinned Rust toolchain's `Debug` output for its key type
+and for strings, together with a stable identity for both formatters. The identity
+is included in monitor metadata; it does not prove formatter equivalence or match
+Rust monitor metadata automatically. The original monitor and its native-code
+diagnostics remain the default. Formatter work and allocations are not bounded by
+lifecycle retention limits. See `docs/native-parity/N08-N09-CONTRACT.md`.

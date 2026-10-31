@@ -13,6 +13,8 @@ public struct ProtocolLimits {
     public var maxCacheBytes = 4 * 1024 * 1024
     public var maxCandidates = 256
     public var maxCandidateBytes = 256 * 1024
+    public var maxEventEntries = 1024
+    public var maxEventBytes = 256 * 1024
     public var maxHandles = 64
     public var maxPageSize = 100
     public var maxTelemetrySnapshotBytes = 8 * 1024 * 1024
@@ -52,6 +54,11 @@ public struct ProtocolResponse: Equatable {
     public let configuration: UInt64
     public let error: ProtocolError?
     public let fields: [String: String]
+    /// Wire field order, when supplied by a producer or retained by decoding.
+    public let fieldOrder: [String]?
+    init(session: String,epoch: UInt64,requestID: UInt64,revision: UInt64,configuration: UInt64,error: ProtocolError?,fields: [String:String],fieldOrder: [String]? = nil) {
+        self.session = session; self.epoch = epoch; self.requestID = requestID; self.revision = revision; self.configuration = configuration; self.error = error; self.fields = fields; self.fieldOrder = fieldOrder
+    }
     public static func == (lhs: Self,rhs: Self) -> Bool {
         lhs.session.utf8.elementsEqual(rhs.session.utf8) && lhs.epoch == rhs.epoch && lhs.requestID == rhs.requestID && lhs.revision == rhs.revision && lhs.configuration == rhs.configuration && lhs.error == rhs.error && lhs.fields.count == rhs.fields.count && lhs.fields.allSatisfy { key,value in
             rhs.fields.contains { $0.key.utf8.elementsEqual(key.utf8) && $0.value.utf8.elementsEqual(value.utf8) }
@@ -62,8 +69,8 @@ public enum ProtocolWire {
     private static func safe(_ b: UInt8) -> Bool { (48...57).contains(b) || (65...90).contains(b) || (97...122).contains(b) || [45,95,46,58].contains(b) }
     public static func escape(_ value: String) -> String { value.utf8.map { safe($0) ? String(UnicodeScalar($0)) : String(format: "%%%02X", $0) }.joined() }
     public static func unescape(_ value: String, maximum: Int) throws -> String {
+        guard maximum >= 0, maximum > Int.max / 3 || value.utf8.count <= maximum * 3 else { throw ProtocolError.limit }
         var out: [UInt8] = []; let bytes = Array(value.utf8); var i = 0
-        guard maximum >= 0, maximum > Int.max / 3 || bytes.count <= maximum * 3 else { throw ProtocolError.limit }
         func nibble(_ b: UInt8) throws -> UInt8 {
             switch b { case 48...57: return b-48; case 65...70: return b-55; case 97...102: return b-87; default: throw ProtocolError.malformed }
         }
@@ -82,9 +89,10 @@ public enum ProtocolWire {
     }
     static func inputBytes(_ value: String, maximum: Int) throws -> Data {
         guard value.hasPrefix("bytes:") else { throw ProtocolError.malformed }
-        let chars = Array(value.dropFirst(6).utf8)
-        guard chars.count % 2 == 0 else { throw ProtocolError.malformed }
-        guard chars.count / 2 <= maximum else { throw ProtocolError.limit }
+        let encoded = value.dropFirst(6).utf8
+        guard encoded.count % 2 == 0 else { throw ProtocolError.malformed }
+        guard maximum >= 0, encoded.count / 2 <= maximum else { throw ProtocolError.limit }
+        let chars = Array(encoded)
         func nibble(_ byte: UInt8) throws -> UInt8 {
             switch byte {
             case 48...57: return byte - 48
@@ -172,16 +180,32 @@ public enum ProtocolWire {
     }
     private static func encode(_ fields: [String], limits: ProtocolLimits, maximum: Int) throws -> Data {
         guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, fields.count <= maximum else { throw ProtocolError.limit }
-        var result = Data()
+        // Admit the escaped size before allocating the frame or individual fields.
+        var size = 0
         for (index, field) in fields.enumerated() {
             guard field.utf8.count <= limits.maxFieldBytes else { throw ProtocolError.limit }
-            let escaped = Data(escape(field).utf8)
-            guard escaped.count <= limits.maxFrameBytes-result.count-(index == 0 ? 0 : 1) else { throw ProtocolError.limit }
-            if index != 0 { result.append(9) }; result.append(escaped)
+            if index != 0 { guard size < limits.maxFrameBytes else { throw ProtocolError.limit }; size += 1 }
+            for byte in field.utf8 {
+                let width = safe(byte) ? 1 : 3
+                guard width <= limits.maxFrameBytes - size else { throw ProtocolError.limit }
+                size += width
+            }
+        }
+        var result = Data()
+        result.reserveCapacity(size)
+        let hex = Array("0123456789ABCDEF".utf8)
+        for (index, field) in fields.enumerated() {
+            if index != 0 { result.append(9) }
+            for byte in field.utf8 {
+                if safe(byte) { result.append(byte) }
+                else { result.append(37); result.append(hex[Int(byte >> 4)]); result.append(hex[Int(byte & 15)]) }
+            }
         }; return result
     }
     public static func encodeRequest(_ r: ProtocolRequest, limits: ProtocolLimits = ProtocolLimits()) throws -> Data {
-        try encode(["DDBG","u32:\(r.version)","request","string:\(r.session)","u64:\(r.epoch)","u64:\(r.requestID)","u64:\(r.expectedRevision)","u64:\(r.expectedConfiguration)",r.command]+r.arguments, limits: limits, maximum: limits.maxRequestFields)
+        guard limits.maxRequestFields >= 9, r.arguments.count <= limits.maxRequestFields - 9,
+              limits.maxFieldBytes >= 7, r.session.utf8.count <= limits.maxFieldBytes - 7 else { throw ProtocolError.limit }
+        return try encode(["DDBG","u32:\(r.version)","request","string:\(r.session)","u64:\(r.epoch)","u64:\(r.requestID)","u64:\(r.expectedRevision)","u64:\(r.expectedConfiguration)",r.command]+r.arguments, limits: limits, maximum: limits.maxRequestFields)
     }
     public static func decodeRequest(_ data: Data, limits: ProtocolLimits = ProtocolLimits()) throws -> ProtocolRequest {
         guard data.count <= limits.maxFrameBytes else { throw ProtocolError.limit }
@@ -200,9 +224,15 @@ public enum ProtocolWire {
         return ProtocolRequest(session: String(f[3].dropFirst(7)),epoch: try quantity(f[4]),requestID: try quantity(f[5]),expectedRevision: try quantity(f[6]),expectedConfiguration: try quantity(f[7]),command: f[8],arguments: arguments)
     }
     public static func encodeResponse(_ r: ProtocolResponse, limits: ProtocolLimits = ProtocolLimits()) throws -> Data {
-        guard limits.maxResponseFields <= (Int.max-11)/2, r.fields.count <= limits.maxResponseFields else { throw ProtocolError.limit }
+        guard limits.maxResponseFields >= 0, limits.maxResponseFields <= (Int.max-11)/2, r.fields.count <= limits.maxResponseFields,
+              limits.maxFieldBytes >= 7, r.session.utf8.count <= limits.maxFieldBytes - 7 else { throw ProtocolError.limit }
         var f = ["DDBG","u32:1","response","string:\(r.session)","u64:\(r.epoch)","u64:\(r.requestID)","u64:\(r.revision)","u64:\(r.configuration)",r.error == nil ? "ok" : "error",r.error?.rawValue ?? "none","u64:\(r.fields.count)"]
-        for key in r.fields.keys.sorted() { f += [key,r.fields[key]!] }
+        let keys: [String]
+        if let order = r.fieldOrder {
+            guard order.count == r.fields.count,Set(order).count == order.count,order.allSatisfy({ r.fields[$0] != nil }) else { throw ProtocolError.malformed }
+            keys = order
+        } else { keys = r.fields.keys.sorted() }
+        for key in keys { f += [key,r.fields[key]!] }
         return try encode(f,limits: limits,maximum: 11 + limits.maxResponseFields*2)
     }
     public static func decodeResponse(_ data: Data, limits: ProtocolLimits = ProtocolLimits()) throws -> ProtocolResponse {
@@ -210,7 +240,7 @@ public enum ProtocolWire {
         guard String(data:data,encoding:.utf8) != nil else { throw ProtocolError.malformed }
         let raw = String(decoding: data, as: UTF8.self)
         let parts = raw.split(separator:"\t",omittingEmptySubsequences:false)
-        guard limits.maxResponseFields <= (Int.max-11)/2, parts.count <= 11+limits.maxResponseFields*2 else { throw ProtocolError.limit }
+        guard limits.maxResponseFields >= 0, limits.maxResponseFields <= (Int.max-11)/2, parts.count <= 11+limits.maxResponseFields*2 else { throw ProtocolError.limit }
         let f = try parts.map { try unescape(String($0),maximum:limits.maxFieldBytes) }
         guard f.count >= 11, f[0] == "DDBG", f[1] == "u32:1", f[2] == "response", f[3].hasPrefix("string:") else { throw ProtocolError.malformed }
         let count = try quantity(f[10]); guard count <= UInt64(limits.maxResponseFields), f.count == 11+Int(count)*2 else { throw ProtocolError.malformed }
@@ -218,11 +248,11 @@ public enum ProtocolWire {
         if f[8] == "ok", f[9] == "none" { error = nil }
         else if f[8] == "error", let value = ProtocolError(rawValue:f[9]) { error = value }
         else { throw ProtocolError.malformed }
-        var fields: [String:String] = [:]
+        var fields: [String:String] = [:], order: [String] = []
         for index in 0..<Int(count) {
-            let key = f[11+index*2]; guard fields[key] == nil else { throw ProtocolError.malformed }; fields[key] = f[12+index*2]
+            let key = f[11+index*2]; guard fields[key] == nil else { throw ProtocolError.malformed }; fields[key] = f[12+index*2]; order.append(key)
         }
-        return ProtocolResponse(session:String(f[3].dropFirst(7)),epoch:try quantity(f[4]),requestID:try quantity(f[5]),revision:try quantity(f[6]),configuration:try quantity(f[7]),error:error,fields:fields)
+        return ProtocolResponse(session:String(f[3].dropFirst(7)),epoch:try quantity(f[4]),requestID:try quantity(f[5]),revision:try quantity(f[6]),configuration:try quantity(f[7]),error:error,fields:fields,fieldOrder:order)
     }
     public static func frame(_ payload: Data, maximum: Int = 65536) throws -> Data {
         guard !payload.isEmpty, payload.count <= maximum, payload.count <= Int(UInt32.max) else { throw ProtocolError.limit }
@@ -254,6 +284,8 @@ private final class ProtocolEpochs: @unchecked Sendable {
 }
 /// Explicit typed host bridge. Callbacks are cooperative; they must enforce their
 /// own projection/event/metric budgets and detached snapshot ownership.
+/// Explicit, detached state projection for the built-in inspection command.
+public typealias ProtocolInspectionProjection<S> = (S,SnapshotID,[PathSegment],PageRequest,InspectLimits) throws -> InspectResult
 public enum ProtocolHostCommand {
     case exportTrace(handle: UInt64, offset: UInt64, limit: UInt64)
     case checks(UInt64), outputs(handle: UInt64, includeExact: Bool)
@@ -268,16 +300,69 @@ public enum ProtocolHostCommand {
 /// fits the wire limits; it must apply exactly the prepared operation.
 public struct PreparedProtocolResponse {
     public let fields: [String:String]
+    public let fieldOrder: [String]?
     public let commit: () throws -> Void
-    public init(fields: [String:String],commit: @escaping () throws -> Void = {}) { self.fields = fields; self.commit = commit }
+    public let fit: (([String:String], ([String:String]) -> Bool) throws -> [String:String])?
+    public init(fields: [String:String],commit: @escaping () throws -> Void = {}) { self.fields = fields; self.fieldOrder = nil; self.commit = commit; self.fit = nil }
+    public init(fields: [String:String],fit: @escaping ([String:String], ([String:String]) -> Bool) throws -> [String:String],commit: @escaping () throws -> Void = {}) { self.fields = fields; self.fieldOrder = nil; self.commit = commit; self.fit = fit }
+    public init(orderedFields: [(String,String)],commit: @escaping () throws -> Void = {}) throws {
+        var fields: [String:String] = [:], order: [String] = []
+        for (key,value) in orderedFields { guard fields[key] == nil else { throw ProtocolError.malformed }; fields[key] = value; order.append(key) }
+        self.fields = fields; self.fieldOrder = order; self.fit = nil; self.commit = commit
+    }
+    public init(orderedFields: [(String,String)],fit: @escaping ([String:String], ([String:String]) -> Bool) throws -> [String:String],commit: @escaping () throws -> Void = {}) throws {
+        var fields: [String:String] = [:], order: [String] = []
+        for (key,value) in orderedFields { guard fields[key] == nil else { throw ProtocolError.malformed }; fields[key] = value; order.append(key) }
+        self.fields = fields; self.fieldOrder = order; self.fit = fit; self.commit = commit
+    }
 }
 public struct ProtocolHostBindings {
     public let commands: Set<String>
     public let exposedProbeSinks: Set<UInt64>
     public let approvedProbeProfiles: Set<UInt64>
     public let prepare: (ProtocolHostCommand) throws -> PreparedProtocolResponse
-    public init(commands: Set<String>, exposedProbeSinks: Set<UInt64> = [], approvedProbeProfiles: Set<UInt64> = [], prepare: @escaping (ProtocolHostCommand) throws -> PreparedProtocolResponse) { self.commands = commands; self.exposedProbeSinks = exposedProbeSinks; self.approvedProbeProfiles = approvedProbeProfiles; self.prepare = prepare }
+    let sharedHandleCommands: Set<String>
+    let prepareWithHandle: ((ProtocolHostCommand,UInt64?) throws -> PreparedProtocolResponse)?
+    let reset: () -> Void
+    public init(commands: Set<String>, exposedProbeSinks: Set<UInt64> = [], approvedProbeProfiles: Set<UInt64> = [], prepare: @escaping (ProtocolHostCommand) throws -> PreparedProtocolResponse) { self.commands = commands; self.exposedProbeSinks = exposedProbeSinks; self.approvedProbeProfiles = approvedProbeProfiles; self.prepare = prepare; self.sharedHandleCommands = []; self.prepareWithHandle = nil; self.reset = {} }
+    init(commands: Set<String>,exposedProbeSinks: Set<UInt64> = [],approvedProbeProfiles: Set<UInt64> = [],sharedHandleCommands: Set<String>,reset: @escaping () -> Void,prepareWithHandle: @escaping (ProtocolHostCommand,UInt64?) throws -> PreparedProtocolResponse) {
+        self.commands = commands; self.exposedProbeSinks = exposedProbeSinks; self.approvedProbeProfiles = approvedProbeProfiles; self.sharedHandleCommands = sharedHandleCommands; self.reset = reset; self.prepareWithHandle = prepareWithHandle; self.prepare = { try prepareWithHandle($0,nil) }
+    }
 
+}
+private struct ProtocolStreamEvent {
+    let epoch, sequence, revision, configuration: UInt64
+    let kind: String
+    let bytes: Int
+}
+/// Reference emission order for concrete simulation commands. Host-provided
+/// response ordering remains explicit through PreparedProtocolResponse.
+private func nativeResponseOrder(_ command: String,_ fields: [String:String]) -> [String]? {
+    func indexed(_ prefix: String,_ suffixes: [String]) -> [String] {
+        let marker = prefix + "."
+        let indices = Set(fields.keys.compactMap { key -> Int? in
+            guard key.hasPrefix(marker) else { return nil }
+            let rest = key.dropFirst(marker.count)
+            guard let dot = rest.firstIndex(of:".") else { return nil }
+            return Int(rest[..<dot])
+        })
+        return indices.sorted().flatMap { index in suffixes.map { "\(prefix).\(index).\($0)" } }
+    }
+    let order: [String]
+    switch command {
+    case "status": order = ["mode","phase","sequence","environment","capability.input_delivery","capability.inspection","capability.watch_configuration","capability.exact_values","capability.live_control","capability.live_restore","capability.effects","capability.probe_queries","capability.probe_configuration","capability.trace_export","capability.effect_telemetry","capability.metric_queries","limits.telemetry_snapshot_bytes","limits.frame_bytes","limits.dedup_entries","limits.dedup_bytes","limits.page_size","events.dropped","stop"]
+    case "snapshot": order = ["handle","snapshot.revision","snapshot.sequence"]
+    case "step","select": order = ["delivered","sequence"]
+    case "checks": order = ["checks.complete","checks.total","checks.first_failure.id","checks.first_failure.index","checks.first_failure.phase","checks.first_failure.sequence","checks.first_failure","checks.returned","checks.truncated"] + indexed("checks",["id","status"])
+    case "outputs": order = ["outputs.total","disposition","outputs.provenance","outputs.payloads"] + indexed("outputs",["encoded"]) + ["outputs.truncated"]
+    case "inputs": order = ["complete","next_offset"] + indexed("candidates",["token","encoded"]) + ["candidates.returned"]
+    case "events": order = ["events.dropped","events.returned"] + indexed("events",["version","session","epoch","sequence","revision","configuration","kind"])
+    case "export_trace": order = ["export.kind","export.redacted","export.snapshot_revision","export.snapshot_sequence","export.total_bytes","export.offset","export.returned_bytes","export.next_offset","export.complete","export.retained_steps","export.evicted_steps","export.capture_outcome","export.bytes"]
+    case "cancel": order = []
+    default: return nil
+    }
+    let present = order.filter { fields[$0] != nil }, selected = Set(present)
+    return present + fields.keys.filter { !selected.contains($0) }.sorted()
 }
 /// Single-owner local simulation adapter. No listener, model loading, clocks or host effects.
 public final class ProtocolAdapter<S,I,O> {
@@ -293,21 +378,92 @@ public final class ProtocolAdapter<S,I,O> {
     public private(set) var configuration: UInt64 = 0
     public private(set) var captureRevision: UInt64 = 0
     private let host: ProtocolHostBindings?
+    private var watches: ProtocolWatchAttachment<S>?
+    private var responseFieldOrder: [String]?
+    private var inspection: ProtocolInspectionProjection<S>?
+    private var inspectionSchema: ((S) throws -> DisplaySchema)?
     private let decodeInput: ((Data) throws -> I)?
     private let encodeInput: ((I) throws -> Data)?
-    private var candidates: [(UInt64,CandidateToken<I>,Int)] = []
+    private var candidates: [(UInt64,UInt64,Data,Int)] = []
     private var candidateBytes = 0
     private var nextCandidate: UInt64 = 0
+    private var events: [ProtocolStreamEvent] = []
+    private var eventBytes = 0
+    private var eventSequence: UInt64 = 0, eventDrops: UInt64 = 0
     public init(session: DebugSession<S,I,O>, authority: ProtocolAuthority = ProtocolAuthority(), limits: ProtocolLimits = ProtocolLimits(), decodeInput: ((Data) throws -> I)? = nil, encodeInput: ((I) throws -> Data)? = nil, host: ProtocolHostBindings? = nil) throws {
-        guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, limits.maxRequestFields >= 9, limits.maxResponseFields > 0, limits.maxInputBytes >= 0, limits.maxCacheEntries > 0, limits.maxCacheBytes > 0, limits.maxHandles > 0, limits.maxCandidates > 0, limits.maxCandidateBytes > 0, limits.maxPageSize > 0, limits.maxTelemetrySnapshotBytes > 0, limits.maxProbeProfiles >= 0 else { throw ProtocolError.limit }
+        guard limits.maxFrameBytes > 0, limits.maxFieldBytes > 0, limits.maxRequestFields >= 9, limits.maxResponseFields > 0, limits.maxInputBytes >= 0, limits.maxCacheEntries > 0, limits.maxCacheBytes > 0, limits.maxHandles > 0, limits.maxCandidates > 0, limits.maxCandidateBytes > 0, limits.maxEventEntries > 0, limits.maxEventBytes >= 512, limits.maxPageSize > 0, limits.maxTelemetrySnapshotBytes > 0, limits.maxProbeProfiles >= 0 else { throw ProtocolError.limit }
         self.session = session; self.authority = authority; self.limits = limits; self.decodeInput = decodeInput; self.encodeInput = encodeInput; self.host = host; epoch = try ProtocolEpochs.shared.take()
     }
-    public func disconnect() throws { guard !busy else { throw ProtocolError.busy }; connected = false; handles.removeAll(); candidates.removeAll(); candidateBytes = 0; cache.removeAll(); cacheBytes = 0 }
+    public func disconnect() throws { guard !busy else { throw ProtocolError.busy }; busy = true; defer { busy = false }; try session.withProtocolCallback { host?.reset() }; connected = false; handles.removeAll(); candidates.removeAll(); candidateBytes = 0; cache.removeAll(); cacheBytes = 0 }
     public func reconnect() throws -> UInt64 {
-        guard !busy else { throw ProtocolError.busy }; guard !connected else { throw ProtocolError.invalidInput }; epoch = try ProtocolEpochs.shared.take(); connected = true; highWater = 0; handles.removeAll(); candidates.removeAll(); candidateBytes = 0; cache.removeAll(); cacheBytes = 0; return epoch
+        guard !busy else { throw ProtocolError.busy }; guard !connected else { throw ProtocolError.invalidInput }; epoch = try ProtocolEpochs.shared.take(); connected = true; highWater = 0; handles.removeAll(); candidates.removeAll(); candidateBytes = 0; cache.removeAll(); cacheBytes = 0; events.removeAll(); eventBytes = 0; eventSequence = 0; publish("reconnected"); return epoch
+    }
+    private func publish(_ kind: String) {
+        guard eventSequence < UInt64.max else { if eventDrops < UInt64.max { eventDrops += 1 }; return }
+        eventSequence += 1
+        let (a,overflow1) = MemoryLayout<ProtocolStreamEvent>.stride.addingReportingOverflow(session.id.utf8.count)
+        let (size,overflow2) = a.addingReportingOverflow(kind.utf8.count)
+        guard !overflow1,!overflow2,events.count < limits.maxEventEntries,size <= limits.maxEventBytes-eventBytes else { if eventDrops < UInt64.max { eventDrops += 1 }; return }
+        events.append(ProtocolStreamEvent(epoch:epoch,sequence:eventSequence,revision:session.revision,configuration:configuration,kind:kind,bytes:size)); eventBytes += size
     }
     public func validateHandle(_ handle: UInt64) throws {
         guard let h = handles.first(where: { $0.0 == handle }), h.1 == session.revision, h.2 == session.sequence else { throw ProtocolError.staleHandle }
+    }
+    /// Attach a dedicated, host-authorized watch registry to this simulation.
+    public func enableWatches(_ registry: WatchRegistry, project: @escaping ProtocolWatchProjection<S>) throws {
+        try attachWatches(registry,schema:nil,supportsPaging:false) { state,snapshot,path,page,limits in
+            guard page.offset == 0,page.limit == min(100,limits.maxPageSize) else { throw WatchError.invalidConfig }
+            return try project(state,snapshot,path,limits)
+        }
+    }
+    public func enableWatches(_ registry: WatchRegistry,schema: @escaping (S) throws -> DisplaySchema,project: @escaping ProtocolWatchProjection<S>) throws {
+        try attachWatches(registry,schema:schema,supportsPaging:false) { state,snapshot,path,page,limits in
+            guard page.offset == 0,page.limit == min(100,limits.maxPageSize) else { throw WatchError.invalidConfig }
+            return try project(state,snapshot,path,limits)
+        }
+    }
+    public func enablePagedWatches(_ registry: WatchRegistry, project: @escaping ProtocolPagedWatchProjection<S>) throws {
+        try attachWatches(registry,schema:nil,supportsPaging:true,project:project)
+    }
+    public func enablePagedWatches(_ registry: WatchRegistry,schema: @escaping (S) throws -> DisplaySchema,project: @escaping ProtocolPagedWatchProjection<S>) throws {
+        try attachWatches(registry,schema:schema,supportsPaging:true,project:project)
+    }
+    private func attachWatches(_ registry: WatchRegistry,schema: ((S) throws -> DisplaySchema)?,supportsPaging: Bool,project: @escaping ProtocolPagedWatchProjection<S>) throws {
+        guard !busy else { throw ProtocolError.busy }
+        guard watches == nil, host?.commands.contains("watch") != true else { throw ProtocolError.invalidInput }
+        busy = true; defer { busy = false }
+        watches = ProtocolWatchAttachment(registry:registry,project:project,schema:schema,supportsPaging:supportsPaging)
+        configuration = registry.captureRevision
+        observeWatches()
+    }
+    public func enableInspection(project: @escaping ProtocolInspectionProjection<S>) throws {
+        guard !busy else { throw ProtocolError.busy }
+        guard inspection == nil, host?.commands.contains("inspect") != true else { throw ProtocolError.invalidInput }
+        inspection = project
+    }
+    /// A separately supplied schema permits mismatch rejection before projection.
+    /// Schema and projection each receive independently detached state.
+    public func enableInspection(schema: @escaping (S) throws -> DisplaySchema,project: @escaping ProtocolInspectionProjection<S>) throws {
+        try enableInspection(project:project)
+        inspectionSchema = schema
+    }
+    private func observeWatches() {
+        guard let watches else { return }
+        let snapshot = SnapshotID(session:session.epoch,revision:session.revision,sequence:session.sequence)
+        let failed = session.stop == .propertyFailure
+        var context = WatchObservationContext(snapshot:snapshot,origin:session.watchOrigin)
+        context.propertyFailure = failed
+        if failed {
+            let failures = session.watchFailingProperties
+            context.failingProperties = failures.ids
+            context.failingPropertiesComplete = failures.complete
+        }
+        do {
+            let schema: (() throws -> DisplaySchema)? = watches.schema.map { declared in { try self.session.withInspectionState { try declared($0) } } }
+            try watches.registry.observePaged(context:context,schema:schema) { path,page,limits in
+                try session.withInspectionState { state in try watches.project(state,snapshot,path,page,limits) }
+            }
+        } catch { watches.registry.recordObservationGap(snapshot:snapshot,origin:session.watchOrigin) }
     }
     public func handle(_ original: ProtocolRequest) -> ProtocolResponse {
         var r = original
@@ -324,13 +480,23 @@ public final class ProtocolAdapter<S,I,O> {
         if let cached = cache.first(where: { $0.0.requestID == r.requestID }) { return cached.0 == r ? cached.1 : response(.duplicateConflict) }
         guard r.requestID > highWater else { return response(.retiredRequest) }; highWater = r.requestID
         var result: ProtocolResponse
-        do { result = response(nil,try execute(r)) }
+        responseFieldOrder = nil
+        do {
+            let fields = try execute(r)
+            if responseFieldOrder == nil && host?.commands.contains(r.command) != true { responseFieldOrder = nativeResponseOrder(r.command,fields) }
+            result = ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:session.revision,configuration:configuration,error:nil,fields:fields,fieldOrder:responseFieldOrder)
+        }
         catch let error as ProtocolError { result = response(error) }
         catch let error as DebugError {
             switch error { case .staleRevision: result = response(.staleRevision); case .ended: result = response(.ended); case .reentrant: result = response(.busy); case .unsupported: result = response(.unsupported); default: result = response(.invalidInput) }
         } catch { result = response(.callback) }
         if (try? ProtocolWire.encodeResponse(result,limits: limits)) == nil { result = response(.limit) }
-        let size = requestBytes + ((try? ProtocolWire.encodeResponse(result,limits: limits).count) ?? limits.maxCacheBytes) + 256
+        // An unencodable response cannot be cached. Preserve the request high
+        // water mark without inventing an overflowing cache-size sentinel.
+        guard let responseBytes = try? ProtocolWire.encodeResponse(result,limits:limits).count else { return result }
+        let (payloadBytes,payloadOverflow) = requestBytes.addingReportingOverflow(responseBytes)
+        let (size,sizeOverflow) = payloadBytes.addingReportingOverflow(256)
+        guard !payloadOverflow,!sizeOverflow else { return result }
         while !cache.isEmpty && (cache.count >= limits.maxCacheEntries || size > limits.maxCacheBytes-cacheBytes) { cacheBytes -= cache.removeFirst().2 }
         if size <= limits.maxCacheBytes { cache.append((r,result,size)); cacheBytes += size }; return result
     }
@@ -369,8 +535,8 @@ public final class ProtocolAdapter<S,I,O> {
                 "sequence":"u64:\(session.sequence)",
                 "environment":"string:\(session.inputPolicy)",
                 "capability.input_delivery":"bool:\(authority.deliverInputs)",
-                "capability.inspection":"bool:\(host?.commands.contains("inspect") == true)",
-                "capability.watch_configuration":"bool:\(authority.configureWatches && host?.commands.contains("watch") == true)",
+                "capability.inspection":"bool:\(inspection != nil || host?.commands.contains("inspect") == true)",
+                "capability.watch_configuration":"bool:\(authority.configureWatches && (watches != nil || host?.commands.contains("watch") == true))",
                 "capability.exact_values":"bool:\(authority.readExactValues)",
                 "capability.live_control":"bool:false",
                 "capability.live_restore":"bool:false",
@@ -385,7 +551,7 @@ public final class ProtocolAdapter<S,I,O> {
                 "limits.dedup_entries":"u64:\(limits.maxCacheEntries)",
                 "limits.dedup_bytes":"u64:\(limits.maxCacheBytes)",
                 "limits.page_size":"u64:\(limits.maxPageSize)",
-                "events.dropped":"u64:0",
+                "events.dropped":"u64:\(eventDrops)",
                 "stop":"enum:\(stopCode)"
             ]
         case "snapshot":
@@ -430,11 +596,22 @@ public final class ProtocolAdapter<S,I,O> {
                 fields["outputs.truncated"] = "bool:\(outputs.count > limits.maxPageSize)"
             }
             return fields
+        case "export_trace" where host?.commands.contains("export_trace") != true:
+            guard authority.exportExactTrace else { throw ProtocolError.unauthorized }
+            try validateHandle(ProtocolWire.quantity(r.arguments[0])); try session.checkRevision(r.expectedRevision)
+            let offset = try ProtocolWire.quantity(r.arguments[1]), count = try ProtocolWire.quantity(r.arguments[2])
+            guard count > 0, count <= UInt64((limits.maxFieldBytes-6)/2), offset <= UInt64.max-count else { throw ProtocolError.limit }
+            guard session.capabilities.exactRecording else { throw ProtocolError.unsupported }
+            let window = try session.traceWindow(offset: offset, limit: Int(count))
+            guard offset <= window.total else { throw ProtocolError.invalidInput }
+            let next = offset + UInt64(window.bytes.count)
+            return ["export.kind":"enum:exact_trace_sensitive","export.redacted":"bool:false","export.snapshot_revision":"u64:\(session.revision)","export.snapshot_sequence":"u64:\(session.sequence)","export.total_bytes":"u64:\(window.total)","export.offset":"u64:\(offset)","export.returned_bytes":"u64:\(window.bytes.count)","export.next_offset":next == window.total ? "none" : "u64:\(next)","export.complete":"bool:\(next == window.total)","export.retained_steps":"u64:\(window.retained)","export.evicted_steps":"u64:\(window.evicted)","export.capture_outcome":"enum:\(stopCode)","export.bytes":"bytes:" + window.bytes.map {String(format:"%02x",$0)}.joined()]
         case "step":
             guard r.arguments.count == 1 else { throw ProtocolError.malformed }
             guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision)
             let data = try ProtocolWire.inputBytes(r.arguments[0], maximum: limits.maxInputBytes)
             let result = try session.stepEncoded(expectedRevision: r.expectedRevision, bytes: data, decodeInput: decodeInput)
+            if result.delivered { observeWatches(); publish("transition") }
             return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
         case "inputs" where encodeInput != nil:
             guard r.arguments.count == 2 else { throw ProtocolError.malformed }; try session.checkRevision(r.expectedRevision)
@@ -442,28 +619,43 @@ public final class ProtocolAdapter<S,I,O> {
             guard let o = Int(exactly:offset), let n = Int(exactly:limit), n > 0, n <= limits.maxPageSize, n <= limits.maxCandidates else { throw ProtocolError.limit }
             let page = try session.inputs(expectedRevision:r.expectedRevision,offset:o,limit:n)
             var fields = ["complete":"bool:\(page.complete)","next_offset":page.nextOffset.map {"u64:\($0)"} ?? "none"]
-            var pending: [(UInt64,CandidateToken<I>,Int)] = []; var pendingBytes = 0
+            var pending: [(UInt64,UInt64,Data,Int)] = []; var pendingBytes = 0
             for (index,token) in page.candidates.enumerated() {
                 guard nextCandidate < .max else { throw ProtocolError.exhausted }
                 let encoded = try session.encodedCandidate(token,encode:encodeInput!)
                 guard encoded.count <= limits.maxInputBytes, encoded.count <= limits.maxCandidateBytes else { throw ProtocolError.limit }
-                guard encoded.count <= limits.maxCandidateBytes-pendingBytes else { throw ProtocolError.limit }; pendingBytes += encoded.count
-                nextCandidate += 1; pending.append((nextCandidate,token,encoded.count))
-                fields["inputs.\(index).token"] = "u64:\(nextCandidate)"
-                fields["inputs.\(index).payload"] = authority.readExactValues ? "bytes:" + encoded.map {String(format:"%02x",$0)}.joined() : "none"
+                guard encoded.count+64 <= limits.maxCandidateBytes-pendingBytes else { throw ProtocolError.limit }; pendingBytes += encoded.count+64
+                nextCandidate += 1; pending.append((nextCandidate,token.revision,encoded,encoded.count+64))
+                fields["candidates.\(index).token"] = "u64:\(nextCandidate)"
+                if authority.readExactValues { fields["candidates.\(index).encoded"] = "bytes:" + encoded.map {String(format:"%02x",$0)}.joined() }
             }
-            fields["inputs.returned"] = "u64:\(pending.count)"
+            fields["candidates.returned"] = "u64:\(pending.count)"
             _ = try ProtocolWire.encodeResponse(ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:session.revision,configuration:configuration,error:nil,fields:fields),limits:limits)
             for item in pending {
-                while !candidates.isEmpty && (candidates.count >= limits.maxCandidates || item.2 > limits.maxCandidateBytes-candidateBytes) { candidateBytes -= candidates.removeFirst().2 }
-                candidates.append(item); candidateBytes += item.2
+                while !candidates.isEmpty && (candidates.count >= limits.maxCandidates || item.3 > limits.maxCandidateBytes-candidateBytes) { candidateBytes -= candidates.removeFirst().3 }
+                candidates.append(item); candidateBytes += item.3
             }; return fields
         case "select" where encodeInput != nil:
             guard r.arguments.count == 1 else { throw ProtocolError.malformed }; guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision)
-            let id = try ProtocolWire.quantity(r.arguments[0]); guard let candidate = candidates.first(where: {$0.0 == id}), candidate.1.revision == session.revision else { throw ProtocolError.staleHandle }
-            let result = try session.step(candidate.1); return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
+            let id = try ProtocolWire.quantity(r.arguments[0]); guard let candidate = candidates.first(where: {$0.0 == id}), candidate.1 == session.revision else { throw ProtocolError.staleHandle }
+            let result = try session.stepCanonicalCandidate(expectedRevision: r.expectedRevision, bytes: candidate.2, decodeInput: decodeInput); if result.delivered { observeWatches(); publish("transition") }; return ["delivered":"bool:\(result.delivered)","sequence":"u64:\(result.sequence)"]
+        case "events" where host?.commands.contains("events") != true:
+            guard r.arguments.count == 1 else { throw ProtocolError.malformed }
+            let limit = try ProtocolWire.quantity(r.arguments[0])
+            guard limit > 0,limit <= UInt64(limits.maxPageSize),let n = Int(exactly:limit) else { throw ProtocolError.limit }
+            let count = min(n,events.count)
+            var fields = ["events.dropped":"u64:\(eventDrops)","events.returned":"u64:\(count)"]
+            for (i,event) in events.prefix(count).enumerated() {
+                let key = "events.\(i)"
+                fields[key+".version"] = "u64:1"; fields[key+".session"] = "string:"+session.id; fields[key+".epoch"] = "u64:\(event.epoch)"; fields[key+".sequence"] = "u64:\(event.sequence)"; fields[key+".revision"] = "u64:\(event.revision)"; fields[key+".configuration"] = "u64:\(event.configuration)"; fields[key+".kind"] = "enum:"+event.kind
+            }
+            let predicted = ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:UInt64.max,configuration:UInt64.max,error:nil,fields:fields)
+            _ = try ProtocolWire.encodeResponse(predicted,limits:limits)
+            for event in events.prefix(count) { eventBytes -= event.bytes }
+            events.removeFirst(count)
+            return fields
         case "cancel":
-            guard r.arguments.isEmpty else { throw ProtocolError.malformed }; guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.cancel(expectedRevision: r.expectedRevision); return [:]
+            guard r.arguments.isEmpty else { throw ProtocolError.malformed }; guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.cancel(expectedRevision: r.expectedRevision); publish("cancelled"); return [:]
         default: return try executeHost(r)
         }
     }
@@ -501,7 +693,7 @@ public final class ProtocolAdapter<S,I,O> {
             try exact(1); let h = try q(0); try validateHandle(h)
             if r.command == "outputs" { command = .outputs(handle:h,includeExact:authority.readExactValues) } else { command = .checks(h) }
         case "inspect":
-            guard a.count >= 4 else { throw ProtocolError.malformed }; try session.checkRevision(r.expectedRevision); let h = try q(0); try validateHandle(h); command = .inspect(handle:h,schema:try schema(1),offset:try q(2),limit:try page(q(3)),path:try path(4))
+            guard a.count >= 4 else { throw ProtocolError.malformed }; let h = try q(0); try validateHandle(h); try session.checkRevision(r.expectedRevision); command = .inspect(handle:h,schema:try schema(1),offset:try q(2),limit:try page(q(3)),path:try path(4))
         case "inputs": try exact(2); try session.checkRevision(r.expectedRevision); command = .inputs(offset:try q(0),limit:try page(q(1)))
         case "select": try exact(1); guard authority.deliverInputs else { throw ProtocolError.unauthorized }; try session.checkRevision(r.expectedRevision); command = .select(try q(0))
         case "events": try exact(1); command = .events(try page(q(0)))
@@ -524,14 +716,67 @@ public final class ProtocolAdapter<S,I,O> {
             try exact(3); guard a[2] == "bool:true" || a[2] == "bool:false" else { throw ProtocolError.malformed }; let payload = a[2] == "bool:true", sink = try q(0); guard host?.exposedProbeSinks.contains(sink) == true else { throw ProtocolError.unauthorized }; command = .probeEvents(sink:sink,limit:try page(q(1)),includePayload:payload)
         default: throw ProtocolError.unsupported
         }
-        guard let host, host.commands.contains(r.command) else { throw ProtocolError.unsupported }
+        let isWatch = ["watch","unwatch","watch_status","watch_current"].contains(r.command)
         guard !changesConfiguration || configuration < .max, !changesCapture || captureRevision < .max else { throw ProtocolError.exhausted }
-        let prepared = try host.prepare(command)
-        let predicted = ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:UInt64.max,configuration:configuration + (changesConfiguration ? 1 : 0),error:nil,fields:prepared.fields)
-        _ = try ProtocolWire.encodeResponse(predicted,limits:limits)
-        try prepared.commit()
-        let fields = prepared.fields
-        if changesConfiguration { configuration += 1 }; if changesCapture { captureRevision += 1 }
+        let prepared: PreparedProtocolResponse
+        var reservedHandle: UInt64?
+        if case let .inspect(_,schema,offset,limit,path) = command, let inspection {
+            guard let pageOffset = Int(exactly:offset),let pageLimit = Int(exactly:limit) else { throw ProtocolError.limit }
+            let segments = try watchPath(path)
+            let snapshot = SnapshotID(session:session.epoch,revision:session.revision,sequence:session.sequence)
+            var inspectLimits = InspectLimits(); inspectLimits.maxDepth = 16; inspectLimits.maxNodes = 128
+            inspectLimits.maxBytes = limits.maxFrameBytes / 8; inspectLimits.maxValueBytes = limits.maxFieldBytes / 4; inspectLimits.maxPageSize = limits.maxPageSize
+            let result: InspectResult
+            var preflightSchema: DisplaySchema?
+            do {
+                if let inspectionSchema {
+                    let declared = try session.withInspectionState { state in try inspectionSchema(state) }
+                    guard declared.version == schema else { throw InspectError.schemaMismatch }
+                    preflightSchema = declared
+                }
+                result = try session.withInspectionState { state in try inspection(state,snapshot,segments,PageRequest(offset:pageOffset,limit:pageLimit),inspectLimits) }
+                guard result.snapshot == snapshot,result.schema.version == schema,result.path == segments else { throw InspectError.invalidMetadata }
+                guard preflightSchema == nil || preflightSchema == result.schema else { throw InspectError.invalidMetadata }
+                try validateProjection(result.node,limits:inspectLimits)
+            } catch is InspectError { throw ProtocolError.invalidInput }
+            catch let error as ProtocolError { throw error }
+            catch let error as DebugError { if case .reentrant = error { throw ProtocolError.busy }; throw ProtocolError.callback }
+            catch { throw ProtocolError.callback }
+            guard result.schema.name.utf8.count <= limits.maxFieldBytes - 7 else { throw ProtocolError.limit }
+            var fields = ["schema.name":"string:"+result.schema.name,"schema.version":"u64:\(result.schema.version)","snapshot.revision":"u64:\(snapshot.revision)","snapshot.sequence":"u64:\(snapshot.sequence)"]
+            try probeNode(result.node,prefix:"node",depth:0,fields:&fields)
+            let order = ["schema.name","schema.version","snapshot.revision","snapshot.sequence"] + probeNodeOrder(result.node,prefix:"node")
+            prepared = try PreparedProtocolResponse(orderedFields:order.map { ($0,fields[$0]!) })
+        } else if isWatch, let watches {
+            guard watches.registry.captureRevision == configuration else { throw ProtocolError.staleConfiguration }
+            prepared = try prepareWatch(watches,session:session,command:command,limits:limits)
+        } else {
+            guard let host,host.commands.contains(r.command) else { throw ProtocolError.unsupported }
+            if host.sharedHandleCommands.contains(r.command) {
+                switch command {
+                case .metricSnapshot(handle:nil,offset:_,limit:_), .metricWindow:
+                    guard nextHandle < .max else { throw ProtocolError.exhausted }; reservedHandle = nextHandle+1
+                default: break
+                }
+            }
+            prepared = try session.withProtocolCallback {
+                if let prepare = host.prepareWithHandle { return try prepare(command,reservedHandle) }
+                return try host.prepare(command)
+            }
+        }
+        func fits(_ fields: [String:String]) -> Bool {
+            let predicted = ProtocolResponse(session:session.id,epoch:epoch,requestID:r.requestID,revision:UInt64.max,configuration:configuration + (changesConfiguration ? 1 : 0),error:nil,fields:fields)
+            return (try? ProtocolWire.encodeResponse(predicted,limits:limits)) != nil
+        }
+        let fields = try session.withProtocolCallback { try prepared.fit?(prepared.fields,fits) ?? prepared.fields }
+        guard fits(fields) else { throw ProtocolError.limit }
+        try session.withProtocolCallback { try prepared.commit() }
+        if let order = prepared.fieldOrder {
+            let retained = order.filter { fields[$0] != nil }, known = Set(retained)
+            responseFieldOrder = retained + fields.keys.filter { !known.contains($0) }.sorted()
+        }
+        if let reservedHandle { nextHandle = reservedHandle }
+        if changesConfiguration { configuration += 1; publish(r.command == "watch" ? "watch_configured" : "watch_removed") }; if changesCapture { captureRevision += 1 }
         return fields
     }
 

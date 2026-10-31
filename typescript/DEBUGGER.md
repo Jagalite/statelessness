@@ -42,6 +42,16 @@ Additional optional subpaths are `/debug/fork`, `/debug/inspect`,
 `/debug/effects`, `/debug/metrics`, and `/debug/dashboard`. Import these from
 `@jagalite/statelessness` only when the host opts into that facility.
 
+The `telemetry_health` protocol command emits exactly the Rust
+`append_telemetry_health` field list, in Rust order. Because JavaScript effect
+handles are released only by explicit disposal (no destructor hook),
+`telemetry.destructor_hook_losses` and `telemetry.active_effect_handles` are
+reported as `unknown:explicit_disposal_only`, never as zero.
+`telemetry.retained_detail_bytes` is a fixed logical estimate of retained detail
+records, not a heap or RSS measurement; this disclosure is documented here and
+in `EffectObserver.telemetryHealth().retainedBytesAreLogicalEstimates` rather
+than sent as an extra wire field.
+
 `DebugSession.recording` uses canonical checked tokens to capture initial and
 turn checks once. It rejects caller-created `stateless.debug.*` provenance.
 Verified forks retain accidental-mismatch FNV identities for parent/checkpoint
@@ -68,6 +78,15 @@ and bounded event rings with explicit loss health. Local acknowledgements do
 not acknowledge a remote producer. Duplicate/stale observations do not evaluate
 projections. Matching queries share one projection per boundary.
 
+Watch configuration accounting uses logical 296-byte configuration and 32-byte
+path-segment headers, plus UTF-8 selector text and equality scalar text. These
+headers match the checked Rust fixture on the current 64-bit platform; Rust uses
+native type sizes, which may differ by target or toolchain. The standard `f32`
+and `f64` float kinds use fixed literals; other dynamic float type strings are
+also charged. Configuration capture reads bounded declared fields rather than
+cloning unknown caller properties. This accounting bounds the retained declared
+configuration, not JavaScript object overhead or the caller's input allocation.
+
 Scoped diagnostics keep producer acknowledgement/effective transitions separate
 from desired capture revisions. All supplied scope selectors must match before
 materializing a probe value. A selected value thunk is attempted once across
@@ -91,3 +110,23 @@ host input. The host's `ownedBytes` estimate bounds logical queue accounting.
 Authorized protocol output reads use the session model's optional
 `encodeOutputInto` bounded sink (or legacy `encodeOutput` adapter); no output
 decoder is needed. Legacy encoder source allocations remain host-owned.
+
+A watch observation can supply `outputVariants` for all outputs from a
+transition; an output selector matches any entry. The singular `outputVariant`
+remains supported, and either field can satisfy a selector when both are supplied.
+The collection must be a dense array of valid Unicode strings, with at most
+4096 entries and 1 MiB of UTF-8 text; invalid or oversized observations fail
+before the registry advances its boundary.
+
+Watch failure metadata retains the first 16 property IDs, each truncated at a
+UTF-8 boundary to 256 bytes. An observed event with truncated IDs is marked
+partial when its projected value would otherwise be complete; explicit snapshots
+retain their projection completeness. The first 16 supplied IDs must be valid
+Unicode strings of at most 1 MiB in JavaScript string length; these host
+admission limits are separate from Rust's typed string inputs.
+
+Watch model, machine, and schema names are retained in events as UTF-8 prefixes
+of at most 1024 bytes. Truncation marks an otherwise complete observation partial;
+explicit snapshots preserve projection completeness. Full schema names are used
+for identity checks. JavaScript metadata inputs must be valid Unicode strings
+of at most 1,048,576 UTF-16 code units; this is a host admission limit.

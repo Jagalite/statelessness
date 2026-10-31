@@ -157,6 +157,44 @@ func TestReplayEvidenceCanonicalIdentityAndFailure(t *testing.T) {
 		t.Fatal(r, e)
 	}
 }
+
+func TestReplayBuildMismatchRejectsBeforeDecodeAndObserver(t *testing.T) {
+	for _, bounded := range []bool{false, true} {
+		t.Run(fmt.Sprintf("bounded=%v", bounded), func(t *testing.T) {
+			trace := replayTrace(t)
+			decodeState, decodeInput, observations := 0, 0, 0
+			model := counter()
+			stateDecoder, inputDecoder := model.Codec.DecodeState, model.Codec.DecodeInput
+			model.Codec.DecodeState = func(b []byte) (counterState, error) { decodeState++; return stateDecoder(b) }
+			model.Codec.DecodeInput = func(b []byte) (string, error) { decodeInput++; return inputDecoder(b) }
+			observer := s.ReplayObserver[counterState, string, string]{
+				Initial: func(s.ReplayInitialObservation[counterState]) error { observations++; return nil },
+				Turn:    func(s.ReplayTurnObservation[counterState, string, string]) error { observations++; return nil },
+				Error:   func(s.ReplayErrorObservation[counterState, string, string]) error { observations++; return nil },
+			}
+			run := func(tr *s.Trace) (*s.ReplayReport, error) {
+				if bounded {
+					audit, err := s.AuditFromPortable(*tr, s.RunConfig{})
+					if err != nil {
+						return nil, err
+					}
+					return s.ReplayWithObservationsBounded(model, audit, false, s.DefaultBinaryLimits(), observer)
+				}
+				return s.ReplayWithObservations(model, tr, false, observer)
+			}
+			foreign := *trace
+			foreign.Metadata.Build = "different-build"
+			report, err := run(&foreign)
+			if err != nil || report.Outcome != "incompatible" || report.BuildMatches || report.StepsVerified != 0 || decodeState != 0 || decodeInput != 0 || observations != 0 {
+				t.Fatalf("mismatch report=%+v err=%v state=%d input=%d observations=%d", report, err, decodeState, decodeInput, observations)
+			}
+			report, err = run(trace)
+			if err != nil || report.Outcome != "exact" || !report.BuildMatches || decodeState == 0 || decodeInput == 0 || observations != 3 {
+				t.Fatalf("matched report=%+v err=%v state=%d input=%d observations=%d", report, err, decodeState, decodeInput, observations)
+			}
+		})
+	}
+}
 func TestReplayEvidenceBoundedPrevalidationAndActualBudget(t *testing.T) {
 	tr := replayTrace(t)
 	audit, e := s.AuditFromPortable(*tr, s.RunConfig{Strategy: "replay"})

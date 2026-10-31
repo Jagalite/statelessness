@@ -397,13 +397,16 @@ impl Recorder {
         transition: &Transition<M::State, M::Output>,
         checked: Option<(&[Check], usize)>,
     ) -> Result<Observation, ModelError> {
-        if model.metadata().map_err(|e| stage("metadata", e))? != self.metadata {
-            return Err(ModelError::new("runtime recorder model identity changed"));
-        }
         let sequence = self
             .observed_steps
             .checked_add(1)
             .ok_or_else(|| ModelError::new("runtime observation sequence overflow"))?;
+        self.sequence_origin
+            .checked_add(sequence)
+            .ok_or_else(|| ModelError::new("runtime observation sequence overflow"))?;
+        if model.metadata().map_err(|e| stage("metadata", e))? != self.metadata {
+            return Err(ModelError::new("runtime recorder model identity changed"));
+        }
         let maximum = blob_limit(&self.options);
         let mut encoder = EncodeBuffer::new(&mut self.before_scratch, maximum);
         model

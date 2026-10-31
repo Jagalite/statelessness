@@ -527,6 +527,117 @@ fn cyclic_simplification_hints_terminate_without_a_budget_cutoff() {
     assert_eq!(report.minimized.inputs.len(), 1);
 }
 
+struct DuplicateHints(usize);
+impl Model for DuplicateHints {
+    type State = u8;
+    type Input = u8;
+    type Output = ();
+    fn metadata(&self) -> ModelMetadata {
+        metadata()
+    }
+    fn initial_state(&self) -> Result<u8, ModelError> {
+        Ok(0)
+    }
+    fn step(&self, _: &u8, input: &u8) -> Result<Transition<u8, ()>, ModelError> {
+        Ok(Transition::accepted(*input, Vec::new()))
+    }
+    fn check_state(&self, state: &u8) -> Result<Vec<Check>, ModelError> {
+        Ok(if *state == 0 {
+            vec![]
+        } else {
+            vec![Check::failed("nonzero", "nonzero")]
+        })
+    }
+}
+impl Generate for DuplicateHints {
+    fn generate(&self, _: &u8, _: &mut Rng) -> Result<Option<u8>, ModelError> {
+        Ok(Some(1))
+    }
+    fn simpler_inputs(&self, input: &u8) -> Vec<u8> {
+        vec![*input; self.0]
+    }
+}
+
+#[test]
+fn skipped_simplifier_hints_are_bounded_without_changing_replay_history() {
+    let failure = fuzz(&DuplicateHints(0), FuzzConfig::default())
+        .unwrap()
+        .failure
+        .unwrap();
+    let finite = shrink(
+        &DuplicateHints(3),
+        &failure,
+        ShrinkConfig { max_attempts: 3 },
+    )
+    .unwrap();
+    let limited = shrink(
+        &DuplicateHints(4),
+        &failure,
+        ShrinkConfig { max_attempts: 3 },
+    )
+    .unwrap();
+    assert_eq!(finite.termination, ShrinkTermination::SearchComplete);
+    assert_eq!(limited.termination, ShrinkTermination::AttemptLimit);
+    assert_eq!(finite.attempts, 2);
+    assert_eq!(limited.attempts, finite.attempts);
+    assert_eq!(limited.history, finite.history);
+}
+
+struct SpreadDuplicateHints;
+impl Model for SpreadDuplicateHints {
+    type State = Vec<u8>;
+    type Input = u8;
+    type Output = ();
+    fn metadata(&self) -> ModelMetadata {
+        metadata()
+    }
+    fn initial_state(&self) -> Result<Vec<u8>, ModelError> {
+        Ok(Vec::new())
+    }
+    fn step(&self, state: &Vec<u8>, input: &u8) -> Result<Transition<Vec<u8>, ()>, ModelError> {
+        let mut next = state.clone();
+        next.push(*input);
+        Ok(Transition::accepted(next, Vec::new()))
+    }
+    fn check_state(&self, state: &Vec<u8>) -> Result<Vec<Check>, ModelError> {
+        Ok(if state.len() >= 6 {
+            vec![Check::failed("long", "long")]
+        } else {
+            vec![]
+        })
+    }
+}
+impl Generate for SpreadDuplicateHints {
+    fn generate(&self, _: &Vec<u8>, _: &mut Rng) -> Result<Option<u8>, ModelError> {
+        Ok(Some(1))
+    }
+    // Every position re-yields an already-seen zero once simplified. The total
+    // number of skipped hints across positions exceeds the limit, but no single
+    // iterator does, so the run must still complete.
+    fn simpler_inputs(&self, input: &u8) -> Vec<u8> {
+        if *input == 0 { vec![0; 10] } else { vec![0] }
+    }
+}
+
+#[test]
+fn skipped_hint_bound_is_per_iterator_not_per_run() {
+    let failure = fuzz(&SpreadDuplicateHints, FuzzConfig::default())
+        .unwrap()
+        .failure
+        .unwrap();
+    // About 210 hints are skipped in total, at most 10 per iterator, and fewer
+    // than 150 candidates are replayed.
+    let report = shrink(
+        &SpreadDuplicateHints,
+        &failure,
+        ShrinkConfig { max_attempts: 150 },
+    )
+    .unwrap();
+    assert_eq!(report.termination, ShrinkTermination::SearchComplete);
+    assert!(report.attempts < 150);
+    assert!(report.minimized.inputs.iter().all(|input| *input == 0));
+}
+
 struct DisabledGenerator;
 impl Model for DisabledGenerator {
     type State = ();

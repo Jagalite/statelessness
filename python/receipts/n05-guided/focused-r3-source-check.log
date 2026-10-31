@@ -1,0 +1,10 @@
+python/src/statelessness/guided.py: OK
+python/src/statelessness/search.py: OK
+python/src/statelessness/core.py: OK
+python/src/statelessness/__init__.py: OK
+python/tests/test_guided.py: OK
+python/tests/qualify_guided_install.py: OK
+scripts/native-guided-consumers/python/consumer.py: OK
+scripts/native-guided-consumers/python/test_seal.py: OK
+python/GUIDED.md: OK
+scripts/native-guided-consumers/python/README.md: OK

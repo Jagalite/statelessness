@@ -1,0 +1,107 @@
+{
+  "base": "0a26bf5a068e5948d82a3d8bd9eb4063ae85115f",
+  "branch": "t3/native-campaign-runtime",
+  "files": [
+    {
+      "path": "typescript/package.json",
+      "sha256": "86e0eb92b6146d6f313005b033b5b409ac5665c74ed4093638ea9b5db5644618"
+    },
+    {
+      "path": "typescript/src/index.ts",
+      "sha256": "46fe33d85b34e5571ec97087c5e218cc785a10030d04224322c118d298d42eff"
+    },
+    {
+      "path": "typescript/src/campaign.ts",
+      "sha256": "516b83703c75c93ea4f7c4b0674eb1855374eada424b7f3496d20c5ac25cc6d8"
+    },
+    {
+      "path": "typescript/src/campaign_lifecycle.ts",
+      "sha256": "0e5673c9fb63f5eaea311b36ad0b6b618392cca5f5670fd699bfd943a784cc37"
+    },
+    {
+      "path": "typescript/src/campaign_wire.ts",
+      "sha256": "11edb0a50390eb96ddee4a9f52011feaa968a0147929ea4114a2f46a14fcfce2"
+    },
+    {
+      "path": "typescript/src/campaign_test_support.ts",
+      "sha256": "eef2be03aa3500a38e1d1a8c22f1b28c2695f6e678630e83793373d002587238"
+    },
+    {
+      "path": "typescript/src/node_campaign.ts",
+      "sha256": "9fbc11dfa457ea94e2194b05affc4061aefe10572ec439a704fd1c2ab657ebf0"
+    },
+    {
+      "path": "typescript/src/node_campaign_worker.ts",
+      "sha256": "8c9bdfad1d24a2c0b167a80c584c768ab35b29da7513f01f7549eab609957f59"
+    },
+    {
+      "path": "typescript/test/campaign.test.mjs",
+      "sha256": "d7da179add5a95c9a8cf4f6f5aeb3c170c586fed98915189e0193594137c29bc"
+    },
+    {
+      "path": "typescript/test/campaign-lifecycle.test.mjs",
+      "sha256": "50b3aeb77e72cb80c192de893025d80d5c110d4f77377766091e84313543a62e"
+    },
+    {
+      "path": "typescript/test/fixtures/campaign-worker.mjs",
+      "sha256": "7b585739473532e5ded08a2ae06d5d825eb78ffe4efb829cadcadc4d6ef74e87"
+    },
+    {
+      "path": "typescript/test/fixtures/campaign-lifecycle.mjs",
+      "sha256": "cc58a3dfbd660aac9306228680f8fc031d008139a824008e6541d60fcdf87b8b"
+    },
+    {
+      "path": "docs/native-parity/N06-TYPESCRIPT.md",
+      "sha256": "b43daee17e4b921d1f88919e7d3282e9831bf9d7c24472ee4d5d06a90024bd3c"
+    },
+    {
+      "path": "validation/native-parity/n06/typescript/qualify.py",
+      "sha256": "8dffa9799a2014def5fa27c7c20bb235beed83609a3a1177da3baf49545ee797"
+    },
+    {
+      "path": "validation/native-parity/n06/typescript/freeze.py",
+      "sha256": "72ecfb403c30fbdb550f478d9119085958489fbf14858d7ebe6f4d7d6ae1e461"
+    },
+    {
+      "path": "validation/native-parity/n06/typescript/.gitignore",
+      "sha256": "2b33a2c5592ead0764ebb798554030599557cbadb047f4dae00d456b0ca7e822"
+    },
+    {
+      "path": "examples/native-campaign/typescript/README.md",
+      "sha256": "28340c87b3aabbcd6f38a06edc21e9d1f60591ca5bedda62a513e5eaa44e4e58"
+    },
+    {
+      "path": "examples/native-campaign/typescript/browser.html",
+      "sha256": "9e33b9c92987c13db673366e0103121aaf389e667e079f1025ee7a3b440bfbfb"
+    },
+    {
+      "path": "examples/native-campaign/typescript/browser.mjs",
+      "sha256": "ee36eadea2fa87ad79d63d1c92e910e42e024b12c4d5a6743fc8f4d5824b11ba"
+    },
+    {
+      "path": "examples/native-campaign/typescript/common.mjs",
+      "sha256": "535c824a04a4e2680799be9efd7b2b14163d70292a1edbdce89added0e1098cc"
+    },
+    {
+      "path": "examples/native-campaign/typescript/node.mjs",
+      "sha256": "5c597998411edeb12e6827f110e3abd2c58dd75523f5f8c2109fd8a8cdfa9058"
+    },
+    {
+      "path": "examples/native-campaign/typescript/package.json",
+      "sha256": "d3dc11cc8516d1164d5ff326fcd9a0b46e089c8d8336fb74c34a89aed5034e81"
+    },
+    {
+      "path": "examples/native-campaign/typescript/queue-model.mjs",
+      "sha256": "446cd726a7bda963383580afd66d724a5a53ea50f424654b5e30215fd10d4e43"
+    },
+    {
+      "path": "examples/native-campaign/typescript/serve.mjs",
+      "sha256": "c4eeff8d12ddd571b106d182c0787737c5959c3ebc687447ba8ad6462eaae46b"
+    },
+    {
+      "path": "examples/native-campaign/typescript/worker-model.mjs",
+      "sha256": "5f8a6be080f9ef6dbc7ed53c396839542df33a096ccd69c1cddad5255e27dd2f"
+    }
+  ],
+  "note": ".gitignore is packaging hygiene added after freeze; executable source unchanged"
+}

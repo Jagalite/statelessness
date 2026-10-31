@@ -113,6 +113,35 @@ final class EvidenceTests: XCTestCase {
             XCTAssertThrowsError(try reader.finish())
         }
     }
+    func testMalformedEvidenceVectorPreservesElementError() throws {
+        let decoder = try EvidenceDecoder([2,0,0,0,2], limits: EvidenceDecodeLimits(metadataBytes: 4096))
+        XCTAssertThrowsError(try decoder.vector(allocationSize: 16) { d -> UInt64? in
+            try d.optional { try $0.integer(1) }
+        }) { error in
+            XCTAssertTrue(String(describing: error).contains("invalid option tag"))
+        }
+        XCTAssertThrowsError(try decoder.finish())
+    }
+    func testEvidenceVectorsAcceptExactMinimumWireSizes() throws {
+        // Each row has one element of the shortest possible representation.
+        let provenanceBytes: [UInt8] = [0,0,0,0] + [UInt8](repeating: 0, count: 8) + [0,0,1,0,0,0] + [UInt8](repeating: 0, count: 8)
+        let provenance = try EvidenceDecoder(provenanceBytes, limits: EvidenceDecodeLimits(metadataBytes: 4096))
+        XCTAssertEqual(try provenance.provenance().environment, [AuditParameter("", "")])
+        try provenance.finish()
+
+        let contextBytes: [UInt8] = [0,0,0,0,1,0,0,0] + [UInt8](repeating: 0, count: 12)
+        let context = try EvidenceDecoder(contextBytes, limits: EvidenceDecodeLimits(metadataBytes: 4096))
+        XCTAssertEqual(try context.context().causes, [OutputOrigin(sequence: 0, output: 0)])
+        try context.finish()
+
+        let stepBytes: [UInt8] = [1,0,0,0] + [UInt8](repeating: 0, count: 20)
+        let steps = try EvidenceDecoder(stepBytes, limits: EvidenceDecodeLimits(metadataBytes: 4096))
+        let decoded = try steps.vector(allocationSize: 120) { try $0.step() }
+        XCTAssertEqual(decoded.count, 1)
+        XCTAssertEqual(decoded[0].sequence, 0)
+        XCTAssertTrue(decoded[0].causal.causes.isEmpty)
+        try steps.finish()
+    }
     func testWriterPreflightsBeforeUserSinkAndOwnedMetadataRemainsIndependent() throws {
         let row = try (evidenceTestCorpus()["wire_cases"] as! [[String:Any]]).first { $0["case"] as? String == "two-turn-causal" }!
         let original = evidenceTestV2(row["evidence"] as! [String:Any])

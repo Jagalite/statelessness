@@ -1,0 +1,8 @@
+scripts/native-guided-consumers/go/README.md: OK
+scripts/native-guided-consumers/go/feedback.go: OK
+scripts/native-guided-consumers/go/fixture.go: OK
+scripts/native-guided-consumers/go/go.mod: OK
+scripts/native-guided-consumers/go/main.go: OK
+scripts/native-guided-consumers/go/normalize.go: OK
+scripts/native-guided-consumers/go/schema.go: OK
+scripts/native-guided-consumers/go/witness.go: OK

@@ -1558,28 +1558,10 @@ impl<M: ModelCodec + Enumerate> ProtocolSession<M> {
             }
             Command::WatchStatus => {
                 let watches = self.watches.as_ref().ok_or(ProtocolError::Unsupported)?;
-                let statuses = watches.list();
-                fields.put("watches.total", number(statuses.len() as u64))?;
-                fields.put(
-                    "watches.truncated",
-                    boolean(statuses.len() > self.limits.max_page_size),
-                )?;
-                for (index, status) in statuses.iter().take(self.limits.max_page_size).enumerate() {
-                    fields.put(format!("watches.{index}.id"), number(status.id))?;
-                    fields.put(
-                        format!("watches.{index}.generation"),
-                        number(status.generation),
-                    )?;
-                    fields.put(format!("watches.{index}.enabled"), boolean(status.enabled))?;
-                    fields.put(
-                        format!("watches.{index}.has_baseline"),
-                        boolean(status.has_baseline),
-                    )?;
-                    fields.put(
-                        format!("watches.{index}.effective_sequence"),
-                        number(status.effective_sequence),
-                    )?;
-                }
+                let total = watches.protocol_status_count();
+                fields.put("watches.total", number(total as u64))?;
+                // Reserve the longer boolean spelling before adding any rows.
+                fields.put("watches.truncated", boolean(false))?;
                 fields.put(
                     "watches.dropped_events",
                     number(watches.health().dropped_events),
@@ -1592,6 +1574,36 @@ impl<M: ModelCodec + Enumerate> ProtocolSession<M> {
                     "watches.inspection_errors",
                     number(watches.health().inspection_errors),
                 )?;
+                let mut returned = 0;
+                for (index, (id, generation, enabled, baseline, sequence)) in watches
+                    .protocol_statuses()
+                    .take(self.limits.max_page_size)
+                    .enumerate()
+                {
+                    let previous_len = fields.fields.len();
+                    let previous_bytes = fields.bytes;
+                    let row = (|| -> Result<(), ProtocolError> {
+                        fields.put(format!("watches.{index}.id"), number(id))?;
+                        fields.put(format!("watches.{index}.generation"), number(generation))?;
+                        fields.put(format!("watches.{index}.enabled"), boolean(enabled))?;
+                        fields.put(format!("watches.{index}.has_baseline"), boolean(baseline))?;
+                        fields.put(
+                            format!("watches.{index}.effective_sequence"),
+                            number(sequence),
+                        )?;
+                        Ok(())
+                    })();
+                    match row {
+                        Ok(()) => returned += 1,
+                        Err(ProtocolError::Limit) => {
+                            fields.fields.truncate(previous_len);
+                            fields.bytes = previous_bytes;
+                            break;
+                        }
+                        Err(error) => return Err(error),
+                    }
+                }
+                fields.replace_reserved("watches.truncated", boolean(returned < total).into());
             }
             Command::WatchCurrent { watch_id } => {
                 let watches = self.watches.as_ref().ok_or(ProtocolError::Unsupported)?;
@@ -2891,10 +2903,15 @@ fn append_labels(
         format!("{prefix}.measurement_origin"),
         format!("enum:{:?}", labels.origin),
     )?;
-    fields.put(
-        format!("{prefix}.debugger_affected"),
-        boolean(labels.debugger_affected),
-    )?;
+    // Effect details also carry the current aggregate affected state. Give
+    // their original metric label a distinct key instead of emitting a
+    // duplicate, potentially conflicting response field.
+    let affected = if prefix == "effect" {
+        "effect.labels.debugger_affected".to_owned()
+    } else {
+        format!("{prefix}.debugger_affected")
+    };
+    fields.put(affected, boolean(labels.debugger_affected))?;
     Ok(())
 }
 fn append_origin(fields: &mut Fields, origin: RequestOrigin) -> Result<(), ProtocolError> {

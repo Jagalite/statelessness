@@ -424,6 +424,46 @@ fn explicit_snapshot_returns_type_and_does_not_replace_change_baseline() {
         WatchEventKind::Changed
     );
 }
+
+#[test]
+fn explicit_snapshot_marks_truncated_failure_metadata_incomplete() {
+    let reads = Cell::new(0);
+    let sr = Cell::new(0);
+    let value = state(&reads, &sr);
+    let mut r = registry();
+    let id = r
+        .add(WatchConfig::changed(path("number"), 1))
+        .unwrap()
+        .watch_id;
+    let long_id = "é".repeat(129);
+    let ids = [long_id.as_str()];
+    let mut ctx = context(0);
+    ctx.property_failure = true;
+    ctx.failing_properties = &ids;
+    let event = r.snapshot_now(id, &value, ctx).unwrap();
+    assert_eq!(event.failing_properties, vec!["é".repeat(128)]);
+    assert_eq!(
+        event.completeness,
+        Completeness::Partial(IncompleteReason::ValueLimit)
+    );
+    assert_eq!(
+        r.snapshot().events.last().unwrap().completeness,
+        event.completeness
+    );
+
+    let many_ids = ["id"; 17];
+    ctx.failing_properties = &many_ids;
+    let event = r.snapshot_now(id, &value, ctx).unwrap();
+    assert_eq!(event.failing_properties.len(), 16);
+    assert_eq!(
+        event.completeness,
+        Completeness::Partial(IncompleteReason::ValueLimit)
+    );
+
+    ctx.failing_properties = &["id"];
+    let event = r.snapshot_now(id, &value, ctx).unwrap();
+    assert_eq!(event.completeness, Completeness::Complete);
+}
 #[test]
 fn exact_recording_and_replay_bytes_are_identical_with_watches_off_and_on() {
     use stateless::demo::{Input, RequestModel};
@@ -603,4 +643,31 @@ fn failure_annotation_is_bounded_and_cannot_hide_an_inspector_error() {
     );
     assert_ne!(event.completeness, Completeness::Complete);
     assert_eq!(r.health().inspection_errors, 1);
+}
+
+#[test]
+fn equals_trigger_failure_preserves_inspector_error() {
+    let reads = Cell::new(0);
+    let sr = Cell::new(0);
+    let value = state(&reads, &sr);
+    let mut r = registry();
+    let mut config = WatchConfig::changed(path("missing"), 1);
+    config.trigger = WatchTrigger::Equals(Scalar::Bool(true));
+    let id = r.add(config).unwrap().watch_id;
+    let mut ctx = context(0);
+    ctx.property_failure = true;
+    r.observe(&value, ctx);
+    let current = r.current(id).unwrap();
+    assert_eq!(
+        current.kind,
+        WatchEventKind::InspectorError(InspectError::PathNotFound)
+    );
+    assert!(current.property_failure);
+    assert!(current.value.is_none());
+    assert!(
+        r.snapshot()
+            .events
+            .iter()
+            .any(|event| event.kind == current.kind)
+    );
 }

@@ -75,6 +75,25 @@ public final class DebugSession<S,I,O> {
     private var checkPolicy = CheckPolicy()
     public var capabilities: SessionCapabilities { SessionCapabilities(exactRecording: recorder != nil) }
     public var inputPolicy: String { policy.label }
+    var watchOrigin: ObservationOrigin { policy.unrestricted ? .outOfDomainInjection : .simulation }
+    // Bound diagnostic traversal even when failures occur after many passing checks.
+    var watchFailingProperties: (ids: [String], complete: Bool) {
+        let checks = sequence == 0 ? initialChecks : (last?.checks ?? [])
+        var ids: [String] = []
+        for check in checks.prefix(1024) where check.status == .failed {
+            if ids.count == 16 { return (ids, false) }
+            ids.append(check.id)
+        }
+        return (ids, checks.count <= 1024)
+    }
+    func withInspectionState<R>(_ body: (S) throws -> R) throws -> R {
+        let wasBusy = busy; busy = true; defer { busy = wasBusy }
+        return try body(model.cloneState(current))
+    }
+    func withProtocolCallback<R>(_ body: () throws -> R) throws -> R {
+        let wasBusy = busy; busy = true; defer { busy = wasBusy }
+        return try body()
+    }
     public var state: S {
         get throws {
             // Clone callbacks may read recursively, but cannot mutate the owner.
@@ -128,6 +147,20 @@ public final class DebugSession<S,I,O> {
         guard !busy else { throw DebugError.reentrant }
         guard let recorder else { throw DebugError.unsupported("exact recording not enabled") }; return recorder.snapshot()
     }
+    public func traceWindow(offset: UInt64, limit: Int) throws -> (bytes: [UInt8], total: UInt64, retained: Int, evicted: UInt64) {
+        guard limit > 0, UInt64(limit) <= UInt64.max-offset else { throw ProtocolError.limit }
+        try enter(); defer { busy = false }
+        guard let recorder else { throw DebugError.unsupported("exact recording not enabled") }
+        var position: UInt64 = 0, bytes: [UInt8] = []
+        try recorder.writeTo { chunk in
+            let end = position.addingReportingOverflow(UInt64(chunk.count))
+            guard !end.overflow else { throw ProtocolError.limit }
+            let lo = max(offset, position), hi = min(offset + UInt64(limit), end.partialValue)
+            if lo < hi { bytes.append(contentsOf: chunk[Int(lo-position)..<Int(hi-position)]) }
+            position = end.partialValue
+        }
+        return (bytes, position, recorder.retainedSteps, recorder.evictedSteps)
+    }
     public func observation() throws -> TurnObservation<S,I,O>? {
         let wasBusy = busy; busy = true; defer { busy = wasBusy }
         guard let last else { return nil }
@@ -143,7 +176,9 @@ public final class DebugSession<S,I,O> {
         func result(_ delivered: Bool) -> StepResult { StepResult(sequence: sequence, delivered: delivered, stop: stop) }
         guard sequence < limits.maxTurns, revision != UInt64.max else { phase = .ended; stop = .budgetExhausted; return result(false) }
         let input = try model.cloneInput(input)
-        guard try policy.permits(model, model.cloneState(current), model.cloneInput(input), limits.maxCandidates) else { throw DebugError.inputNotPermitted }
+        let policyInput = try model.cloneInput(input)
+        let policyState = try model.cloneState(current)
+        guard try policy.permits(model, policyState, policyInput, limits.maxCandidates) else { throw DebugError.inputNotPermitted }
         let bypass = try pending.map { try $0.0 == revision && equalInputs(model.cloneInput($0.1), model.cloneInput(input)) } ?? false
         pending = nil
         if !bypass {
@@ -213,7 +248,20 @@ public final class DebugSession<S,I,O> {
     }
     public func step(_ token: CandidateToken<I>) throws -> StepResult {
         guard token.owner == epoch, exactText(token.domain,policy.label) else { throw DebugError.invalidCommand("candidate belongs to another session/domain") }
-        return try step(expectedRevision: token.revision,input: token.value)
+        // A token binds a past selection, not permission to bypass the current
+        // bounded domain. Hold ownership across all enumeration/copy callbacks.
+        let input: I
+        try enter()
+        do {
+            try checkRevision(token.revision)
+            let permitted = try InputPolicy<S,I,O>.enumerated(equalInputs: equalInputs)
+            guard try permitted.permits(model, current, token.value, limits.maxCandidates) else {
+                throw DebugError.inputNotPermitted
+            }
+            input = try model.cloneInput(token.value)
+            busy = false
+        } catch { busy = false; throw error }
+        return try step(expectedRevision: token.revision,input: input)
     }
 }
 
@@ -221,10 +269,14 @@ extension InputPolicy {
     public static func enumerated(equalInputs: @escaping (I,I) throws -> Bool) throws -> Self {
         try Self(label: "enumerated-domain") { model,state,input,maximum in
             guard maximum > 0, let enumerate = model.inputs else { throw DebugError.unsupported("enumerated admission unavailable") }
+            // Preserve the queried value before state/domain callbacks can mutate
+            // an external alias.  An unused copy failure must not preempt an
+            // empty domain, iterator error, or candidate-budget error.
+            let query = Result { try model.cloneInput(input) }
             let iterator = try enumerate(model.cloneState(state))
             for _ in 0..<maximum {
                 guard let candidate = try iterator.next() else { return false }
-                if try equalInputs(model.cloneInput(candidate),model.cloneInput(input)) { return true }
+                if try equalInputs(model.cloneInput(candidate),model.cloneInput(query.get())) { return true }
             }
             guard try iterator.next() == nil else { throw ModelError("environmental admission budget exhausted") }
             return false
@@ -250,6 +302,19 @@ extension DebugSession {
             }
         }
         return try step(expectedRevision: expectedRevision, input: input)
+    }
+    public func stepCanonicalCandidate(expectedRevision: UInt64, bytes: Data, decodeInput: ((Data) throws -> I)? = nil) throws -> StepResult {
+        let value: I
+        try enter()
+        do {
+            try checkRevision(expectedRevision)
+            do {
+                if let decodeInput { value = try decodeInput(bytes) }
+                else { guard let codec = model.codec else { throw ProtocolError.unsupported }; value = try codec.decodeInput(Array(bytes)) }
+            } catch { throw ProtocolError.invalidInput }
+            busy = false
+        } catch { busy = false; throw error }
+        return try step(CandidateToken(owner: epoch, revision: expectedRevision, domain: policy.label, value: value))
     }
     func encodedOutput(_ output: O, maximum: Int) throws -> Data {
         try enter(); defer { busy = false }

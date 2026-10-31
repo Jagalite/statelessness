@@ -418,6 +418,33 @@ class RawEncoderBoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelError,'expired'): retained[0].finish()
         with self.assertRaisesRegex(ModelError,'encoded blob exceeds byte limit'): sink.finish()
 
+class CompositeInputSnapshotTests(unittest.TestCase):
+    def test_oracle_state_pins_history_before_model_encoder(self):
+        state = OracleState(1, 2)
+        class MutatingModel(vc.Schema):
+            def encode_into(self, value, sink):
+                object.__setattr__(state, 'oracle', 9)
+                vc.U8.encode_into(value, sink)
+        self.assertEqual(vc.encode_canonical(vc.OracleStateOf(MutatingModel(), vc.U8), state), b'\x01\x02')
+
+    def test_mutating_element_encoder_cannot_change_later_sequence_slots(self):
+        for kind in ('vector', 'array', 'tuple'):
+            with self.subTest(kind=kind):
+                values = [1, 2]
+                class MutatingByte(vc.Schema):
+                    def encode_into(self, value, sink):
+                        if value == 1:
+                            values[1] = 9
+                            values.append(3)
+                        vc.U8.encode_into(value, sink)
+                element = MutatingByte()
+                composite = (vc.VectorOf(element) if kind == 'vector' else
+                             vc.ArrayOf(element, 2) if kind == 'array' else
+                             vc.TupleOf(element, vc.U8))
+                expected = b'\x02\x00\x00\x00\x01\x02' if kind == 'vector' else b'\x01\x02'
+                self.assertEqual(vc.encode_canonical(composite, values), expected)
+
+
 class AdmissionRegressionTests(unittest.TestCase):
     def test_raw_string_retains_length_prefix_before_rejected_body(self):
         for maximum in (4,5):

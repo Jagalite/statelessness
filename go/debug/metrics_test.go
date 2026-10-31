@@ -88,7 +88,7 @@ func TestMetricsCatalogIsolationAndBoundedHistory(t *testing.T) {
 	m.Increment(d.Attempts, l, 1)
 	a, _ := m.Snapshot(nil)
 	b, _ := m.Snapshot(nil)
-	if !reflect.DeepEqual(m.AvailableWindows(), []uint64{b.Revision}) || b.Health.SnapshotsEvicted != 1 || b.Health.RejectedSeries != 1 || b.Schema.FiniteBoundsNS[0] != 1 || b.Labels.Operations[0] != "default" {
+	if !reflect.DeepEqual(m.AvailableWindows(), []uint64{b.Revision}) || b.Health.SnapshotsEvicted != 1 || b.Health.RejectedSeries != 1 || b.Schema.FiniteBoundsNS[0] != 1 || b.Labels.Operations[0] != "unspecified" {
 		t.Fatal(b)
 	}
 	if _, e = m.Window(a.Revision, b.Revision); e == nil {
@@ -241,5 +241,12 @@ func TestHistoryRetentionRejectionStillReturnsCumulativeSnapshot(t *testing.T) {
 	s, e := m.Snapshot(nil)
 	if e != nil || s.Health.SnapshotRejections != 1 || s.Series[d.SeriesKey{Family: d.Requests, Labels: l}].Number != 1 || len(m.AvailableWindows()) != 0 {
 		t.Fatal(s, e)
+	}
+}
+
+func TestDefaultMetricLabelsMatchPinnedCatalog(t *testing.T) {
+	catalog := d.DefaultLabelCatalog()
+	if !reflect.DeepEqual(catalog.Operations, []string{"unspecified"}) || !reflect.DeepEqual(catalog.Components, []string{"host"}) || !reflect.DeepEqual(catalog.WorkerPools, []string{"default"}) {
+		t.Fatal(catalog)
 	}
 }

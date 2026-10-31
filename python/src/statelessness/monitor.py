@@ -173,13 +173,14 @@ class Recorder:
         self._require_active()
         self._busy = True
         try:
+            sequence = self._observed + 1
+            if self._origin + sequence > U64_MAX:
+                raise ModelError('runtime observation sequence overflow')
             metadata = _call('runtime metadata', model.metadata)
             if not isinstance(metadata, Metadata) or not all(
                     str.__eq__(getattr(metadata, n), getattr(self._metadata, n)) is True
                     if n in ('name', 'build') else type(getattr(metadata, n)) is int and getattr(metadata, n) == getattr(self._metadata, n)
                     for n in Metadata.__dataclass_fields__): raise ModelError('runtime recorder model identity changed')
-            sequence = self._observed + 1
-            if sequence > U64_MAX: raise ModelError('runtime observation sequence overflow')
             l, o, maximum = self._options.limits, self._options, self._blob_limit()
             encoded_before = self._encode(model, 'state', before, maximum, 'before state')
             expected = self._steps[-1][0].post_state if self._steps else self._initial

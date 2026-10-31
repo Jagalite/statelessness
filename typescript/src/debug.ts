@@ -5,6 +5,7 @@ import { writeAuditTrace } from './binary.js';
 import { replayWithObservationsBounded, type ReplayOptions, type ReplayObserver } from './replay.js';
 import { shrink, type GenerateModel, type ShrinkConfig, type ShrinkLimits, type ShrinkReport } from './search.js';
 import { runControl } from './search_support.js';
+import {capturePolicy} from './debug_session.js';
 
 export interface EncodedPreview { readonly bytes: Uint8Array; readonly totalBytes: number; readonly complete: boolean; readonly provenance: 'stored-exact-encoding' }
 export interface EvidenceBoundary {
@@ -30,8 +31,13 @@ export class EvidenceViewer {
   this.#artifact=readArtifact(this.#bytes,this.#limits);
   const trace=artifactTrace(this.#artifact); validateRecording(trace);
   if(this.#artifact.kind==='v2')this.checkpointAfter=this.#artifact.evidence.checkpointAfter;else {
-   const text=trace.config.parameters.find(([k])=>k==='stateless.monitor.checkpoint_after_sequence')?.[1]??'0';
-   if(!/^\+?[0-9]+$/.test(text))throw new ModelError('invalid retained checkpoint sequence');this.checkpointAfter=BigInt(text);
+   let checkpoint:string|undefined,origin:string|undefined;
+   for(const [key,value] of trace.config.parameters){
+    if(key==='stateless.monitor.checkpoint_after_sequence'){if(checkpoint!==undefined)throw new ModelError('ambiguous retained checkpoint sequence');checkpoint=value;}
+    if(key==='stateless.monitor.sequence_origin'){if(origin!==undefined)throw new ModelError('ambiguous retained sequence origin');origin=value;}
+   }
+   const parse=(text:string|undefined)=>{const value=text??'0';if(!/^\+?[0-9]+$/.test(value))throw new ModelError('invalid retained sequence');const parsed=BigInt(value);if(parsed>U64)throw new ModelError('retained sequence overflow');return parsed;};
+   this.checkpointAfter=parse(origin)+parse(checkpoint);
   }
   if(this.checkpointAfter<0n||this.checkpointAfter+BigInt(trace.steps.length)>U64)throw new ModelError('retained sequence overflow');
  }
@@ -66,41 +72,48 @@ export class EvidenceViewer {
   });
  }
  minimize<S,I,O>(model:CodecModel<S,I,O>&GenerateModel<S,I,O>,sequence:number,index:number,config:ShrinkConfig,limits:ShrinkLimits & {readonly maxReplayedTransitions:bigint},policy?:InputPolicy<S,I>,maxAdmissionCandidates=100000,legacyPhase?:Violation['phase']):ShrinkReport<I> {
+  const ownedPolicy=policy===undefined?undefined:capturePolicy(policy),maxAttempts=config.maxAttempts,maxReplayedTransitions=limits.maxReplayedTransitions,maxDurationMs=limits.maxDurationMs,cancellation=limits.cancellation,ownedConfig:ShrinkConfig={maxAttempts},ownedLimits:ShrinkLimits&{maxReplayedTransitions:bigint}={maxReplayedTransitions,...(maxDurationMs===undefined?{}:{maxDurationMs}),...(cancellation===undefined?{}:{cancellation:()=>cancellation.call(limits)})};
   let target:Violation;
   if(this.#artifact.kind==='v1'&&sequence>0&&legacyPhase!==undefined){if(legacyPhase!=='state'&&legacyPhase!=='transition')throw new ModelError('invalid legacy noninitial phase');const selected=this.boundary(sequence)?.checks[index];if(!selected||selected.status!=='failed')throw new ModelError('selected check is not a failure');target={phase:legacyPhase,check:{...selected}};}else target=this.failure(sequence,index);
-  const trace=artifactTrace(this.#artifact);natural(config.maxAttempts,'maxAttempts',1);
-  if(typeof limits.maxReplayedTransitions!=='bigint'||limits.maxReplayedTransitions<0n||limits.maxReplayedTransitions>U64)throw new ConfigError('maxReplayedTransitions must be u64 bigint');
+  const trace=artifactTrace(this.#artifact);natural(maxAttempts,'maxAttempts',1);
+  if(typeof maxReplayedTransitions!=='bigint'||maxReplayedTransitions<0n||maxReplayedTransitions>U64)throw new ConfigError('maxReplayedTransitions must be u64 bigint');
   natural(maxAdmissionCandidates,'maxAdmissionCandidates',1);
   const unique=(name:string)=>{const v=trace.config.parameters.filter(([k])=>k===name);if(v.length>1)throw new ModelError('ambiguous recorded environmental policy');return v[0]?.[1];};
   const environment=unique('stateless.debug.environment'),origin=unique('stateless.debug.origin');
   if((environment===undefined)!==(origin===undefined))throw new ModelError('incomplete recorded environmental policy provenance');
   if(origin!==undefined){if(origin!=='simulation'&&origin!=='out-of-domain-injection')throw new ModelError('unknown recorded environmental policy origin');
-   if(policy?(policy.label!==environment||(policy.kind==='unrestricted')!==(origin==='out-of-domain-injection')):!(origin==='out-of-domain-injection'&&environment==='out-of-domain-injection'))throw new ModelError('recorded environmental policy requires matching explicit policy');}
-  const started=limits.maxDurationMs===undefined?0:performance.now();const stop=runControl(limits);const stopped=()=>{const reason=stop();if(reason)throw new ModelError(`minimization ${reason}`);};stopped();
+   if(ownedPolicy?(ownedPolicy.label!==environment||(ownedPolicy.kind==='unrestricted')!==(origin==='out-of-domain-injection')):!(origin==='out-of-domain-injection'&&environment==='out-of-domain-injection'))throw new ModelError('recorded environmental policy requires matching explicit policy');}
+  const started=maxDurationMs===undefined?0:performance.now();const stop=runControl(ownedLimits);const stopped=()=>{const reason=stop();if(reason)throw new ModelError(`minimization ${reason}`);};stopped();
   let charged=0n;
   if(this.#artifact.kind==='v2'){
-   const verified=this.verify(model,{...limits,maxTransitions:limits.maxReplayedTransitions}, {},()=>stopped());
+   const verified=this.verify(model,{...ownedLimits,maxTransitions:maxReplayedTransitions}, {},()=>stopped());
    if(verified.outcome!=='exact'||!verified.failure_reproduced)throw new ModelError('minimization requires exact v2 phase and failure replay');charged=BigInt(trace.steps.length);
   }
   stopped();
   const count=BigInt(trace.steps.length);
-  if(count>0n&&count>=limits.maxReplayedTransitions-charged)throw new ModelError('minimization budget cannot cover verification and original validation');
-  const verified=this.verify(model,{...limits,maxTransitions:limits.maxReplayedTransitions-charged},{},()=>stopped());
+  if(count>0n&&count>=maxReplayedTransitions-charged)throw new ModelError('minimization budget cannot cover verification and original validation');
+  const verified=this.verify(model,{...ownedLimits,maxTransitions:maxReplayedTransitions-charged},{},()=>stopped());
   if(verified.outcome!=='exact'||!verified.failure_reproduced)throw new ModelError('minimization requires an exactly reproduced failure');
   charged+=count;stopped();
-  const remaining:ShrinkLimits={...limits,maxReplayedTransitions:limits.maxReplayedTransitions-charged};
-  if(limits.maxDurationMs!==undefined){const ms=limits.maxDurationMs-(performance.now()-started);if(ms<=0)throw new ModelError('minimization deadline');Object.assign(remaining,{maxDurationMs:ms});}
+  const remaining:ShrinkLimits={...ownedLimits,maxReplayedTransitions:maxReplayedTransitions-charged};
+  if(maxDurationMs!==undefined){const ms=maxDurationMs-(performance.now()-started);if(ms<=0)throw new ModelError('minimization deadline');Object.assign(remaining,{maxDurationMs:ms});}
   const adapted=new Proxy(model,{get(target,key){
    if(key==='initialState')return ()=>model.decodeState(trace.initialState.slice());
-   if(key==='isEnabled')return (s:S,i:I)=>{stopped();const causal=()=>model.isEnabled?model.isEnabled(model.cloneState(s),model.cloneInput(i)):true;
-    if(!policy||policy.kind==='unrestricted')return causal();
-    if(policy.kind==='declared'){const value=policy.permits(model.cloneState(s),model.cloneInput(i));if(typeof value!=='boolean')throw new ModelError('policy admission must return boolean');return value&&causal();}
-    const iterator=policy.candidates(model.cloneState(s))[Symbol.iterator]();let found=false;
-    try{for(let count=0;;count++){stopped();const next=iterator.next();if(next.done)return found;if(count>=maxAdmissionCandidates)throw new ModelError('environmental admission candidate limit');const equal=policy.equal(model.cloneInput(next.value),model.cloneInput(i));if(typeof equal!=='boolean')throw new ModelError('policy equality must return boolean');if(equal)return causal();}}finally{iterator.return?.();}
+   if(key==='isEnabled')return (s:S,i:I)=>{stopped();
+    let enabledResult:{ok:true;value:typeof model.isEnabled}|{ok:false;error:unknown};try{enabledResult={ok:true,value:model.isEnabled};}catch(error){enabledResult={ok:false,error};}
+    if(!ownedPolicy||ownedPolicy.kind==='unrestricted'){if(!enabledResult.ok)throw enabledResult.error;if(!enabledResult.value)return true;}
+    const cloneInput=model.cloneInput,cloneState=model.cloneState;
+    let captured:{ok:true;value:I}|{ok:false;error:unknown};try{captured={ok:true,value:cloneInput.call(model,i)};}catch(error){captured={ok:false,error};}
+    const query=()=>{if(!captured.ok)throw captured.error;return cloneInput.call(model,captured.value);};
+    const causal=()=>{if(!enabledResult.ok)throw enabledResult.error;const enabled=enabledResult.value;return enabled?enabled.call(model,cloneState.call(model,s),query()):true;};
+    if(!ownedPolicy||ownedPolicy.kind==='unrestricted')return causal();
+    if(ownedPolicy.kind==='declared'){const admitted=query();const value=ownedPolicy.permits(cloneState.call(model,s),admitted);if(typeof value!=='boolean'){if((value as unknown) instanceof Promise)void (value as unknown as Promise<unknown>).catch(()=>{});throw new ModelError('policy admission must return boolean');}return value&&causal();}
+    const iterator=ownedPolicy.candidates(cloneState.call(model,s))[Symbol.iterator]();
+    try{for(let count=0;;count++){stopped();const next=iterator.next();if(next.done)return false;if(count>=maxAdmissionCandidates)throw new ModelError('environmental admission candidate limit');const equal=ownedPolicy.equal(cloneInput.call(model,next.value),query());if(typeof equal!=='boolean'){if((equal as unknown) instanceof Promise)void (equal as unknown as Promise<unknown>).catch(()=>{});throw new ModelError('policy equality must return boolean');}if(equal)return causal();}}finally{iterator.return?.();}
    };
    const value=Reflect.get(target,key,target);return typeof value==='function'?value.bind(target):value;
   }});
   const inputs=trace.steps.slice(0,sequence).map(s=>model.decodeInput(s.input.slice()));
-  const report=shrink(adapted,{inputs,violations:[target]},config,remaining);report.replayed_transitions+=charged;return report;
+  const report=shrink(adapted,{inputs,violations:[target]},ownedConfig,remaining);report.replayed_transitions+=charged;return report;
  }
 }

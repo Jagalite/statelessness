@@ -1,0 +1,121 @@
+{
+  "parent": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+  "rust_baseline": "0876717bee85e335449c2c99ada41f6c6e6112d1",
+  "source_manifest": {
+    "path": "/private/tmp/n12-completion-20261029-source-frozen.json",
+    "sha256": "30e73e9166ae92153c2007fc29f74983dca5b3257ee32baf2a83ba9ffa2dd144",
+    "bytes": 190353,
+    "files": 988
+  },
+  "changed_source": {
+    "docs/native-parity/REQUIREMENTS.md": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 3858,
+      "sha256": "3662709f6bcb2c3c1f545274b31badfad29583f49f76fa7605c18b45bc008f12"
+    },
+    "docs/native-parity/capabilities.json": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 179953,
+      "sha256": "55bd900013e6b480848f73a93372e877aab46e597392e8c405dc625b0753a10f"
+    },
+    "docs/native-parity/requirements.json": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 18623,
+      "sha256": "6cec8bd427060d92b74d37ed91f880a786dbe5bd5b82801fe84f550e4e21aa58"
+    },
+    "go/debug/metrics.go": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 24199,
+      "sha256": "43686644afad34dbc0ba53f624885a287b39694c918fc82699690fb3bd448016"
+    },
+    "go/debug/metrics_test.go": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 8293,
+      "sha256": "ee2f2d400c41569087489781bd06993332d51fd1462f6880d43fd4d198b745ba"
+    },
+    "python/src/statelessness/debugger_session.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 12749,
+      "sha256": "d452fcfc6966221a8d9e6e4a68c005ee143b8164e84e629e176628890fa4d945"
+    },
+    "python/src/statelessness/debugger_workbench.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 7937,
+      "sha256": "36fa91a1e684ff4a0fc27872dd33edde2b3a20be07aded56b815822c9ec845ef"
+    },
+    "python/tests/test_debugger_session.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 9333,
+      "sha256": "5c2724566443db9cbcdbf8ea9d3bd47d32343219dd94f3fc07ef2873fc9f3a32"
+    },
+    "scripts/native-parity/completion-gate.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 10689,
+      "sha256": "725f8cd6c1c5aca449f13dbed3a30888b9ed2548194fbf172f31f3213bc4687d"
+    },
+    "scripts/native-parity/qualify-n12-integration.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 14958,
+      "sha256": "10633c38e09c7335fa6558fd382fe17c4b42e75c34e535e669b28aad1405ccd4"
+    },
+    "scripts/native-parity/test_completion_gate.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 5388,
+      "sha256": "c4619c1b2979fd3b7a2ff302c4d07ea98e7f20641cb5148fbfb3b1bf2db141ff"
+    },
+    "scripts/native-parity/test_n12_sealed_inputs.py": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 1522,
+      "sha256": "b324e6bf1dfe4a319e8f0149d14f31433bf6c2352a46614d3045b1848e04c6e3"
+    },
+    "swift/Sources/StatelessDebug/Protocol.swift": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 41862,
+      "sha256": "115efedc37cb34327e625bf07e4257d8dbec20d5e91648191114816b1a9668dd"
+    },
+    "swift/Sources/StatelessDebug/Session.swift": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 17773,
+      "sha256": "c679b6f99c417d4dda4227255b4a593916b2d566b33ecc44405287f5879c1faf"
+    },
+    "swift/Tests/StatelessDebugTests/ProtocolTests.swift": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 13272,
+      "sha256": "e61f52162a79d2cd77e04b81ab0fcee5fb5f9e82912e543aacdf9989d1ecd272"
+    },
+    "swift/Tests/StatelessDebugTests/SessionTests.swift": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 5172,
+      "sha256": "80ae13ec266d6e2cee8a680633cdf0a5e9c10b692eb9e492f0e027826b01ff6f"
+    },
+    "typescript/src/debug_session.ts": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 18204,
+      "sha256": "22195f0a80b0d4198acf07d4e583a3699aebfebec0202f32b9aa4570475c8a9b"
+    },
+    "typescript/test/debug-session.test.mjs": {
+      "type": "regular",
+      "mode": 420,
+      "bytes": 11283,
+      "sha256": "8c4a51c386c5ddad5381fb55aec55dabe18b1c8ee729b538cf7b904231057741"
+    }
+  },
+  "not_qualification": true
+}

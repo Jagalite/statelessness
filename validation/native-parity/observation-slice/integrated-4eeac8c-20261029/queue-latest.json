@@ -1,0 +1,18 @@
+{
+  "id": "43415fbf900d4d38bdbc01a97e8e3d56",
+  "status": "queued",
+  "started": null,
+  "finished": null,
+  "exit_code": null,
+  "admission_reason": "OS memory pressure: warning",
+  "effective_max_running": 0,
+  "planned_order": 23,
+  "estimated_start_in_seconds": null,
+  "captured_utc": "2026-10-29T14:03:28.954010+00:00",
+  "queue_size": 41,
+  "log_existed": false,
+  "log_size_bytes": 0,
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "fresh_scopes_submitted": [],
+  "actual_tests_run": null
+}

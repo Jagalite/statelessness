@@ -169,6 +169,16 @@ final class AppendChecksTests: XCTestCase {
             assertExpired(saved!)
         }
     }
+    func testEmptySinkRejectsUnrepresentableReservationAndPoisonsLease() throws {
+        var m = appendBase()
+        m.checkStateInto = { _,sink in
+            XCTAssertThrowsError(try sink.reserve(Int.max))
+            XCTAssertThrowsError(try sink.push(.passed("not retained")))
+        }
+        var checks: [Check] = []
+        XCTAssertThrowsError(try checkStateInto(m,state:0,checks:&checks))
+        XCTAssertTrue(checks.isEmpty)
+    }
     func testFirstValidationFailureWinsOverLaterCallbackError() throws {
         var m = appendBase()
         m.checkStateInto = { _, sink in

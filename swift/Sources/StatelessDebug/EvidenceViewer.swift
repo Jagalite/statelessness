@@ -37,20 +37,60 @@ public struct InputPolicy<S,I,O> {
     private init() { label = "out-of-domain-injection"; unrestricted = true; permits = { _,_,_,_ in true } }
     public static var outOfDomainInjection: Self { Self() }
 }
+
+// Capture the admission query before an application state-copy hook can mutate
+// it through an alias. Shared by minimization's policy adapter and its tests.
+func policyPermitsSnapshot<S,I,O>(_ policy: InputPolicy<S,I,O>, model: Model<S,I,O>, state: S, input: I, maximum: Int) throws -> Bool {
+    let policyInput = try model.cloneInput(input)
+    let policyState = try model.cloneState(state)
+    return try policy.permits(model, policyState, policyInput, maximum)
+}
 private final class Deadline {
     let limits: RunLimits
     let start: TimeInterval?
+    let integerClock: IntegerDeadlineClock?
     init(_ limits: RunLimits) throws {
         if let n = limits.maxDuration, !n.isFinite || n < 0 { throw ConfigError("invalid duration") }
         self.limits = limits; start = limits.maxDuration == nil ? nil : ProcessInfo.processInfo.systemUptime
+        integerClock = limits.maxDurationNanoseconds == nil ? nil : IntegerDeadlineClock()
     }
     func check() throws {
         if limits.isCancelled() { throw ModelError("debug operation cancelled") }
+        if let clock = integerClock, let duration = limits.maxDurationNanoseconds, clock.reached(duration) { throw ModelError("debug operation deadline") }
         if let start, let n = limits.maxDuration, ProcessInfo.processInfo.systemUptime - start >= n { throw ModelError("debug operation deadline") }
     }
     func remaining() throws -> RunLimits {
         try check()
+        if let clock = integerClock, let duration = limits.maxDurationNanoseconds {
+            return RunLimits(maxDurationNanoseconds: clock.remaining(duration), isCancelled: limits.cancellationEnabled ? limits.isCancelled : nil)
+        }
         return RunLimits(maxDuration: start.flatMap { s in limits.maxDuration.map { max(0, $0 - (ProcessInfo.processInfo.systemUptime - s)) } }, isCancelled: limits.isCancelled)
+    }
+}
+
+// Declared environment and origin are a single provenance record. An absent
+// pair denotes legacy evidence; partial, repeated and unknown values fail closed.
+/// A live capture records its origin without a simulation input policy, so it
+/// constrains no branch. Minimization still requires full policy provenance.
+func branchParentPolicy(_ trace: AuditTrace) throws -> (String,Bool)? {
+    let origins = trace.config.parameters.filter { exactText($0.key,"stateless.debug.origin") }
+    if origins.count == 1, exactText(origins[0].value,"recorded-live-observation"),
+       !trace.config.parameters.contains(where: { exactText($0.key,"stateless.debug.environment") }) { return nil }
+    return try recordedEnvironment(trace)
+}
+
+func recordedEnvironment(_ trace: AuditTrace) throws -> (String,Bool)? {
+    func unique(_ key: String) throws -> String? {
+        let values = trace.config.parameters.filter { exactText($0.key,key) }
+        guard values.count <= 1 else { throw ModelError("ambiguous recorded environmental policy") }
+        return values.first?.value
+    }
+    switch (try unique("stateless.debug.environment"),try unique("stateless.debug.origin")) {
+    case (nil,nil): return nil
+    case let (environment?,origin?):
+        guard exactText(origin,"simulation") || exactText(origin,"out-of-domain-injection") else { throw ModelError("unknown policy origin") }
+        return (environment,exactText(origin,"out-of-domain-injection"))
+    default: throw ModelError("incomplete environmental policy provenance")
     }
 }
 
@@ -65,11 +105,20 @@ public struct EvidenceViewer {
         case let .v1(trace):
             try validateRecording(trace.portable().trace)
             try writeAuditTrace(trace, limits: limits.trace) { _ in }
-            let values = trace.config.parameters.filter { exactText($0.key, "stateless.monitor.checkpoint_after_sequence") }
-            if let value = values.first {
-                guard let n = checkpointInteger(value.value) else { throw ModelError("invalid checkpoint") }
-                checkpointAfter = n
-            } else { checkpointAfter = 0 }
+            func counter(_ key: String) throws -> UInt64 {
+                var found: UInt64?
+                for parameter in trace.config.parameters where exactText(parameter.key,key) {
+                    guard found == nil else { throw ModelError("ambiguous retained checkpoint sequence") }
+                    guard let value = checkpointInteger(parameter.value) else { throw ModelError("invalid checkpoint") }
+                    found = value
+                }
+                return found ?? 0
+            }
+            let origin = try counter("stateless.monitor.sequence_origin")
+            let relative = try counter("stateless.monitor.checkpoint_after_sequence")
+            let (absolute,overflow) = origin.addingReportingOverflow(relative)
+            guard !overflow else { throw ModelError("retained sequence overflow") }
+            checkpointAfter = absolute
         case let .v2(evidence): try evidence.validate(limits: limits); checkpointAfter = evidence.checkpointAfter
         }
         guard !checkpointAfter.addingReportingOverflow(UInt64(artifact.trace.steps.count)).overflow else { throw ModelError("retained sequence overflow") }
@@ -113,22 +162,10 @@ public struct EvidenceViewer {
         } catch let error as ReplayError<S,I,O> { throw error.error }
     }
     private func validatePolicy<S,I,O>(_ policy: InputPolicy<S,I,O>?) throws {
-        func unique(_ key: String) throws -> String? {
-            let values = artifact.trace.config.parameters.filter { exactText($0.key,key) }
-            guard values.count <= 1 else { throw ModelError("ambiguous recorded environmental policy") }
-            return values.first?.value
-        }
-        let environment = try unique("stateless.debug.environment"), origin = try unique("stateless.debug.origin")
-        switch (environment,origin) {
-        case (nil,nil): return
-        case let (environment?,origin?):
-            guard exactText(origin,"simulation") || exactText(origin,"out-of-domain-injection") else { throw ModelError("unknown policy origin") }
-            let unrestricted = exactText(origin,"out-of-domain-injection")
-            if let policy {
-                guard exactText(policy.label,environment), policy.unrestricted == unrestricted else { throw ModelError("minimization policy differs") }
-            } else if !(unrestricted && exactText(environment,"out-of-domain-injection")) { throw ModelError("declared policy requires explicit policy callback") }
-        default: throw ModelError("incomplete environmental policy provenance")
-        }
+        guard let (environment,unrestricted) = try recordedEnvironment(artifact.trace) else { return }
+        if let policy {
+            guard exactText(policy.label,environment),policy.unrestricted == unrestricted else { throw ModelError("minimization policy differs") }
+        } else if !(unrestricted && exactText(environment,"out-of-domain-injection")) { throw ModelError("declared policy requires explicit policy callback") }
     }
     /// Each candidate decodes a fresh retained checkpoint. Both environmental
     /// admission and generator causality apply. Verification consumes this same
@@ -163,11 +200,11 @@ public struct EvidenceViewer {
         let original = generator
         var adapted = generator; adapted.model = model
         adapted.isEnabled = { state,input in
-            if let policy, try !policy.permits(original.model, try original.model.cloneState(state), try original.model.cloneInput(input), maxAdmissionCandidates) { return false }
+            if let policy, try !policyPermitsSnapshot(policy, model: original.model, state: state, input: input, maximum: maxAdmissionCandidates) { return false }
             return try original.isEnabled(state,input)
         }
         let inputs = try artifact.trace.steps.map { try codec.decodeInput($0.input) }
-        var report = try shrink(adapted, original: Failure(inputs: inputs, violations: [target]), config: config, limits: ShrinkLimits(control: try deadline.remaining(), maxReplayedTransitions: maximum - count))
+        var report = try shrink(adapted, original: Failure(inputs: inputs, violations: [target]), config: config, limits: ShrinkLimits(control: try deadline.remaining(), maxReplayedTransitions: maximum - count,maxSimplificationCandidates:shrinkLimits.maxSimplificationCandidates))
         let (total,overflow) = report.replayedTransitions.addingReportingOverflow(count)
         guard !overflow else { throw ModelError("minimization transition counter overflow") }
         report.replayedTransitions = total; return report
@@ -175,13 +212,14 @@ public struct EvidenceViewer {
 }
 
 private func checkpointInteger(_ text: String) -> UInt64? {
-    let bytes = Array(text.utf8),digits = bytes.first == 43 ? Array(bytes.dropFirst()) : bytes
-    guard !digits.isEmpty else { return nil }
+    var iterator = text.utf8.makeIterator()
+    guard var byte = iterator.next() else { return nil }
+    if byte == 43 { guard let next = iterator.next() else { return nil }; byte = next }
     var result: UInt64 = 0
-    for byte in digits {
+    while true {
         guard byte >= 48,byte <= 57 else { return nil }
         let (product,a) = result.multipliedReportingOverflow(by: 10), (sum,b) = product.addingReportingOverflow(UInt64(byte-48))
         guard !a,!b else { return nil }; result = sum
+        guard let next = iterator.next() else { return result }; byte = next
     }
-    return result
 }

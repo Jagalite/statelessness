@@ -9,7 +9,6 @@ import (
 	"math"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type EvidenceViewer struct {
@@ -61,19 +60,33 @@ func NewEvidenceViewer(a s.Artifact, limits s.EvidenceLimits) (*EvidenceViewer, 
 	checkpoint := uint64(0)
 	seen := false
 	if a.V1 != nil {
+		var origin uint64
+		originSeen := false
 		for _, entry := range t.Config.Parameters {
-			if entry[0] == "stateless.monitor.checkpoint_after_sequence" {
-				if seen {
-					continue
-				}
-				seen = true
-				var err error
-				checkpoint, err = strconv.ParseUint(strings.TrimPrefix(entry[1], "+"), 10, 64)
-				if err != nil {
-					return nil, fmt.Errorf("invalid retained checkpoint sequence")
-				}
+			var target *uint64
+			var present *bool
+			switch entry[0] {
+			case "stateless.monitor.checkpoint_after_sequence":
+				target, present = &checkpoint, &seen
+			case "stateless.monitor.sequence_origin":
+				target, present = &origin, &originSeen
+			default:
+				continue
 			}
+			if *present {
+				return nil, fmt.Errorf("ambiguous retained checkpoint sequence provenance")
+			}
+			*present = true
+			value, err := strconv.ParseUint(strings.TrimPrefix(entry[1], "+"), 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid retained checkpoint sequence provenance")
+			}
+			*target = value
 		}
+		if checkpoint > math.MaxUint64-origin {
+			return nil, fmt.Errorf("host sequence overflow")
+		}
+		checkpoint += origin
 	}
 	if a.V2 != nil {
 		checkpoint = a.V2.CheckpointAfter
@@ -152,6 +165,10 @@ func Verify[S, I, O any](v *EvidenceViewer, m s.Model[S, I, O], limits s.ShrinkL
 }
 func VerifyWithOptions[S, I, O any](v *EvidenceViewer, m s.Model[S, I, O], limits s.ShrinkLimits, allowBuildMismatch bool) (*Verification[S, I, O], error) {
 	limits = snapshotLimits(limits)
+	deadline, err := s.NewRunDeadline(limits.Control)
+	if err != nil {
+		return nil, err
+	}
 	if m.Codec != nil {
 		codec := *m.Codec
 		m.Codec = &codec
@@ -162,15 +179,11 @@ func VerifyWithOptions[S, I, O any](v *EvidenceViewer, m s.Model[S, I, O], limit
 		limits.MaxReplayedTransitions = &maximum
 	}
 	t := v.artifact.ExactTrace()
-	started := time.Now()
-	if limits.Control.MaxDuration != nil && *limits.Control.MaxDuration < 0 {
-		return result, fmt.Errorf("negative duration")
-	}
 	stop := func() error {
-		if limits.Control.Cancellation != nil && limits.Control.Cancellation.Load() {
+		switch deadline.Stop() {
+		case "cancelled":
 			return fmt.Errorf("verification cancelled")
-		}
-		if limits.Control.MaxDuration != nil && time.Since(started) >= *limits.Control.MaxDuration {
+		case "deadline":
 			return fmt.Errorf("verification deadline")
 		}
 		return nil
@@ -194,6 +207,12 @@ func VerifyWithOptions[S, I, O any](v *EvidenceViewer, m s.Model[S, I, O], limit
 	}}
 	r, e := s.ReplayWithObservationsBounded(m, t, allowBuildMismatch, v.limits.Trace, observer)
 	result.Report = r
+	// Preserve a replay/callback failure over a simultaneous stop, but do not
+	// return a non-error replay outcome if an early exit bypassed all observers
+	// after consuming the remaining deadline or observing cancellation.
+	if e == nil {
+		e = stop()
+	}
 	return result, e
 }
 
@@ -205,6 +224,10 @@ func snapshotLimits(limits s.ShrinkLimits) s.ShrinkLimits {
 	if limits.Control.MaxDuration != nil {
 		x := *limits.Control.MaxDuration
 		limits.Control.MaxDuration = &x
+	}
+	if limits.Control.MaxDurationNS != nil {
+		x := *limits.Control.MaxDurationNS
+		limits.Control.MaxDurationNS = &x
 	}
 	return limits
 }

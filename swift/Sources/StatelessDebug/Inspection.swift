@@ -20,8 +20,27 @@ public struct DisplaySchema: Equatable {
     public init(name: String, version: UInt32 = 1,source: SourceSite? = nil) { self.name = name; self.version = version; self.source = source }
     public static func == (a: Self,b: Self) -> Bool { exactText(a.name,b.name) && a.version == b.version && a.source == b.source }
 }
-public enum PathSegment: Equatable {
+public enum PathSegment: Hashable {
     case field(ExactString), variant(ExactString), index(UInt64), mapKey(ExactString), typedMapKey(InspectMapKey)
+    public static func == (a: Self,b: Self) -> Bool {
+        switch (a,b) {
+        case let (.field(x),.field(y)),let (.variant(x),.variant(y)): return x == y
+        case let (.index(x),.index(y)): return x == y
+        case let (.mapKey(x),.mapKey(y)): return x == y
+        case let (.typedMapKey(x),.typedMapKey(y)): return x == y
+        case let (.mapKey(x),.typedMapKey(.string(y))),let (.typedMapKey(.string(y)),.mapKey(x)): return x == y
+        default: return false
+        }
+    }
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case let .field(value): hasher.combine(0); hasher.combine(value)
+        case let .variant(value): hasher.combine(1); hasher.combine(value)
+        case let .index(value): hasher.combine(2); hasher.combine(value)
+        case let .mapKey(value): hasher.combine(3); hasher.combine(InspectMapKey.string(value))
+        case let .typedMapKey(value): hasher.combine(3); hasher.combine(value)
+        }
+    }
 }
 public enum DisplayScalar: Equatable {
     case unit, bool(Bool), character(UInt32)
@@ -29,7 +48,7 @@ public enum DisplayScalar: Equatable {
     case integer(kind: ExactString, decimal: ExactString)
     case float(kind: ExactString, decimal: ExactString, bits: UInt64)
 }
-public enum IncompleteReason: String { case pagination, sampled, observationGap, schemaChanged, work, depth, nodes, bytes, valueLimit, redacted, opaque, unavailable }
+public enum IncompleteReason: String, Sendable { case pagination, sampled, observationGap, schemaChanged, work, depth, nodes, bytes, valueLimit, redacted, opaque, unavailable }
 public enum Completeness: Equatable { case complete, partial(IncompleteReason) }
 public enum MapOrdering: Equatable { case stable, unstable }
 public enum NodeKind: Equatable {
@@ -37,8 +56,10 @@ public enum NodeKind: Equatable {
     case object(ExactString), enumeration(name: ExactString,variantID: ExactString,variantLabel: ExactString)
     case sequence(ExactString), map(MapOrdering), opaque(ExactString), redacted, unavailable, truncated(IncompleteReason)
 }
-public struct PageRequest { public let offset: Int; public let limit: Int; public init(offset: Int = 0,limit: Int = 100) { self.offset = offset; self.limit = limit } }
-public struct PageInfo: Equatable { public let offset: Int; public let returned: Int; public let total: Int; public let nextOffset: Int? }
+public struct PageRequest: Equatable { public let offset: Int; public let limit: Int; public init(offset: Int = 0,limit: Int = 100) { self.offset = offset; self.limit = limit } }
+public struct PageInfo: Equatable { public let offset: Int; public let returned: Int; public let total: Int; public let nextOffset: Int?
+    public init(offset: Int,returned: Int,total: Int,nextOffset: Int?) { self.offset = offset; self.returned = returned; self.total = total; self.nextOffset = nextOffset }
+}
 public struct InspectChild: Equatable {
     public let segment: PathSegment
     public let label: ExactString
@@ -55,6 +76,8 @@ public struct InspectNode: Equatable {
     public init(kind: NodeKind, children: [InspectChild] = [], childCount: Int? = nil, page: PageInfo? = nil, completeness: Completeness = .complete) { self.kind = kind; self.children = children; self.childCount = childCount; self.page = page; self.completeness = completeness }
     public var isComplete: Bool {
         guard completeness == .complete, children.allSatisfy({ $0.node.isComplete }), childCount == nil || childCount == children.count else { return false }
+        var segments = Set<PathSegment>()
+        for child in children { guard segments.insert(child.segment).inserted else { return false } }
         if let page, page.offset != 0 || page.returned != children.count || page.total != children.count || page.nextOffset != nil { return false }
         switch kind {
         case .opaque, .redacted, .unavailable, .truncated, .map(.unstable): return false
@@ -80,6 +103,11 @@ public func compareNodes(_ before: InspectNode?, _ after: InspectNode?) -> DiffK
     if before.map({ !$0.isComplete }) == true || after.map({ !$0.isComplete }) == true { return .unknown }
     switch (before,after) { case (nil,.some): return .added; case (.some,nil): return .removed; case let (a?,b?): return a == b ? .unchanged : .changed; default: return .unknown }
 }
+private func containerCompleteness(_ children: [InspectChild],offset: Int,end: Int,total: Int) -> Completeness {
+    for child in children { if child.node.completeness != .complete { return child.node.completeness } }
+    return offset == 0 && end == total ? .complete : .partial(.pagination)
+}
+private struct ProjectionBudgetFault: Error { let reason: IncompleteReason }
 /// Owns bounded projection accounting. Application closures remain cooperative;
 /// these limits do not bound their allocations, process RSS or execution time.
 public final class InspectContext {
@@ -88,63 +116,136 @@ public final class InspectContext {
     public private(set) var nodes = 0
     public private(set) var bytes = 0
     private var depth = 0
+    private var budgetScopes: [IncompleteReason?] = []
+    private func budgetExceeded(_ reason: IncompleteReason) throws -> Never {
+        if !budgetScopes.isEmpty { budgetScopes[budgetScopes.count-1] = reason }
+        throw InspectError.budgetExceeded
+    }
+    private func withinBudgetScope<T>(_ body: () throws -> T) throws -> T {
+        budgetScopes.append(nil); defer { budgetScopes.removeLast() }
+        let result = try body()
+        if let reason = budgetScopes.last! { throw ProjectionBudgetFault(reason:reason) }
+        return result
+    }
     public init(limits: InspectLimits = InspectLimits()) throws {
         guard limits.maxWork >= 0,limits.maxDepth >= 0,limits.maxNodes >= 0,limits.maxBytes >= 0,limits.maxValueBytes >= 0,limits.maxPageSize >= 0 else { throw InspectError.invalidLimits }
         self.limits = limits
     }
-    public func chargeWork(_ amount: Int = 1) throws { guard amount >= 0, amount <= limits.maxWork-work else { throw InspectError.budgetExceeded }; work += amount }
+    public func chargeWork(_ amount: Int = 1) throws { guard amount >= 0, amount <= limits.maxWork-work else { try budgetExceeded(.work) }; work += amount }
+    private func chargeBytes(_ count: Int) throws { guard count >= 0,count <= limits.maxBytes-bytes else { try budgetExceeded(.bytes) }; bytes += count }
+    private func validateMetadata(_ value: String) throws {
+        guard value.utf8.count <= 4096,value.utf8.count <= limits.maxBytes-bytes else { throw InspectError.invalidMetadata }
+    }
     private func charge(_ payload: Int) throws {
         try chargeWork()
-        guard depth <= limits.maxDepth, nodes < limits.maxNodes, payload >= 0, payload <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }
-        nodes += 1; bytes += payload
+        guard depth <= limits.maxDepth else { try budgetExceeded(.depth) }
+        guard nodes < limits.maxNodes else { try budgetExceeded(.nodes) }
+        guard payload >= 0, 128 <= limits.maxBytes-bytes, payload <= limits.maxBytes-bytes-128 else { try budgetExceeded(.bytes) }
+        nodes += 1; bytes += 128+payload
     }
     public func scalar(_ value: DisplayScalar) throws -> InspectNode {
         try validateDisplayScalar(value)
         let payload: Int
-        switch value { case let .integer(kind,decimal): payload = kind.value.utf8.count + decimal.value.utf8.count; case let .float(kind,decimal,_): payload = kind.value.utf8.count + decimal.value.utf8.count; default: payload = 16 }
-        guard payload <= limits.maxValueBytes else { throw InspectError.budgetExceeded }
-        try charge(payload); return InspectNode(kind: .scalar(value))
+        let kindBytes: Int
+        let decimal: String
+        switch value {
+        case let .integer(_,text): kindBytes = 0; decimal = text.value
+        case let .float(kind,text,_): kindBytes = kind.value.utf8.count; decimal = text.value
+        default: kindBytes = 0; decimal = ""
+        }
+        guard 128 <= limits.maxBytes-bytes, kindBytes <= limits.maxBytes-bytes-128 else { try budgetExceeded(.bytes) }
+        let available = limits.maxBytes-bytes-128-kindBytes
+        let count = decimal.utf8.prefix(available == Int.max ? available : available+1).count
+        guard count <= available else { try budgetExceeded(.bytes) }
+        payload = kindBytes + count
+        try charge(payload); return InspectNode(kind: .scalar(value),childCount:0)
     }
     public func string(_ value: String) throws -> InspectNode {
-        let maximum = min(limits.maxValueBytes,limits.maxBytes-bytes)
+        guard 128 <= limits.maxBytes-bytes else { try budgetExceeded(.bytes) }
+        let maximum = min(limits.maxValueBytes,limits.maxBytes-bytes-128)
         var preview = "", count = 0
         for scalar in value.unicodeScalars { let text = String(scalar); guard text.utf8.count <= maximum-count else { break }; preview += text; count += text.utf8.count }
         try charge(count)
-        return InspectNode(kind: .string(preview: ExactString(preview),totalBytes: value.utf8.count),completeness: count == value.utf8.count ? .complete : .partial(.valueLimit))
+        return InspectNode(kind: .string(preview: ExactString(preview),totalBytes: value.utf8.count),childCount:0,completeness: count == value.utf8.count ? .complete : .partial(.valueLimit))
     }
     public func bytes(_ value: [UInt8]) throws -> InspectNode {
-        let count = min(value.count,limits.maxValueBytes,limits.maxBytes-bytes)
+        guard 128 <= limits.maxBytes-bytes else { try budgetExceeded(.bytes) }
+        let count = min(value.count,limits.maxValueBytes,limits.maxBytes-bytes-128)
         try charge(count)
-        return InspectNode(kind: .bytes(preview: Array(value.prefix(count)),totalBytes: value.count),completeness: count == value.count ? .complete : .partial(.valueLimit))
+        return InspectNode(kind: .bytes(preview: Array(value.prefix(count)),totalBytes: value.count),childCount:0,completeness: count == value.count ? .complete : .partial(.valueLimit))
     }
     /// Redaction skips evaluation entirely, including a closure that throws.
     public func field(_ name: String, redacted: Bool = false,source: SourceSite? = nil, project: (InspectContext) throws -> InspectNode) throws -> InspectChild {
+        try field(id:name,label:name,redacted:redacted,source:source,project:project)
+    }
+    /// The stable path identity and the display label may differ.
+    public func field(id: String,label: String,redacted: Bool = false,source: SourceSite? = nil,project: (InspectContext) throws -> InspectNode) throws -> InspectChild {
+        try validateMetadata(id); try validateMetadata(label)
         try chargeWork()
-        if let source { guard source.file.utf8.count <= limits.maxValueBytes,source.file.utf8.count <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }; bytes += source.file.utf8.count }
-        guard name.utf8.count <= limits.maxValueBytes, name.utf8.count <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }
-        bytes += name.utf8.count
-        if redacted { try charge(0); return InspectChild(segment: .field(ExactString(name)),label: ExactString(name),node: InspectNode(kind: .redacted,completeness: .partial(.redacted)),source: source) }
+        try chargeBytes(64)
+        if let source {
+            guard source.file.utf8.count <= limits.maxValueBytes else { try budgetExceeded(.valueLimit) }
+            try chargeBytes(source.file.utf8.count)
+        }
+        try chargeBytes(id.utf8.count); try chargeBytes(label.utf8.count)
+        guard depth < limits.maxDepth else { try budgetExceeded(.depth) }
+        if redacted { try charge(0); return InspectChild(segment: .field(ExactString(id)),label: ExactString(label),node: InspectNode(kind: .redacted,childCount:0,completeness: .partial(.redacted)),source: source) }
         depth += 1; defer { depth -= 1 }
         guard depth <= limits.maxDepth else { throw InspectError.budgetExceeded }
-        return try InspectChild(segment: .field(ExactString(name)),label: ExactString(name),node: project(self),source: source)
+        return try InspectChild(segment: .field(ExactString(id)),label: ExactString(label),node: project(self),source: source)
     }
     public func object(_ name: String, fields: (InspectContext) throws -> [InspectChild]) throws -> InspectNode {
-        guard name.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }
+        try validateMetadata(name)
         try charge(name.utf8.count)
         let children = try fields(self)
-        return InspectNode(kind: .object(ExactString(name)),children: children,childCount: children.count)
+        return InspectNode(kind: .object(ExactString(name)),children: children,childCount: children.count,completeness:containerCompleteness(children,offset:0,end:children.count,total:children.count))
+    }
+    /// Project only the requested contiguous field page, without invoking omitted fields.
+    public func object(_ name: String,total: Int,page: PageRequest,project: (Int,InspectContext) throws -> InspectChild) throws -> InspectNode {
+        guard total >= 0,page.offset >= 0,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
+        try validateMetadata(name)
+        try charge(name.utf8.count)
+        let offset = min(page.offset,total), end = offset + min(page.limit,total-offset)
+        if depth >= limits.maxDepth && total > 0 {
+            return InspectNode(kind:.object(ExactString(name)),childCount:total,page:PageInfo(offset:offset,returned:0,total:total,nextOffset:offset),completeness:.partial(.depth))
+        }
+        var children: [InspectChild] = [], partial: IncompleteReason?
+        for index in offset..<end {
+            let oldNodes = nodes, oldBytes = bytes
+            do { children.append(try withinBudgetScope { try project(index,self) }) }
+            catch let fault as ProjectionBudgetFault {
+                nodes = oldNodes; bytes = oldBytes; partial = fault.reason; break
+            }
+        }
+        let after = offset + children.count
+        let info = PageInfo(offset:offset,returned:children.count,total:total,nextOffset:after < total ? after : nil)
+        return InspectNode(kind:.object(ExactString(name)),children:children,childCount:total,page:info,completeness:partial.map { .partial($0) } ?? containerCompleteness(children,offset:offset,end:after,total:total))
     }
     public func sequence(name: String, total: Int, page: PageRequest = PageRequest(), project: (Int,InspectContext) throws -> InspectNode) throws -> InspectNode {
-        guard total >= 0,page.offset >= 0,page.offset <= total,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
-        guard name.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }
+        guard total >= 0,page.offset >= 0,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
+        try validateMetadata(name)
         try charge(name.utf8.count)
-        let end = page.offset + min(page.limit,total-page.offset)
-        var children: [InspectChild] = []
-        depth += 1; defer { depth -= 1 }
-        guard depth <= limits.maxDepth else { throw InspectError.budgetExceeded }
-        for i in page.offset..<end { try chargeWork(); children.append(try InspectChild(segment: .index(UInt64(i)),label: ExactString(String(i)),node: project(i,self))) }
-        let info = PageInfo(offset: page.offset,returned: children.count,total: total,nextOffset: end < total ? end : nil)
-        return InspectNode(kind: .sequence(ExactString(name)),children: children,childCount: total,page: info,completeness: page.offset == 0 && end == total ? .complete : .partial(.pagination))
+        let offset = min(page.offset,total), end = offset + min(page.limit,total-offset)
+        if depth >= limits.maxDepth && total > 0 {
+            return InspectNode(kind:.sequence(ExactString(name)),childCount:total,page:PageInfo(offset:offset,returned:0,total:total,nextOffset:offset),completeness:.partial(.depth))
+        }
+        var children: [InspectChild] = [], partial: IncompleteReason?
+        if offset < end {
+            depth += 1; defer { depth -= 1 }
+            for i in offset..<end {
+                let oldNodes = nodes, oldBytes = bytes
+                do {
+                    let child = try withinBudgetScope { try chargeWork(); try chargeBytes(64); try chargeBytes(16); try chargeBytes(String(i).utf8.count); return try InspectChild(segment: .index(UInt64(i)),label: ExactString(String(i)),node: project(i,self)) }
+                    children.append(child)
+                }
+                catch let fault as ProjectionBudgetFault {
+                    nodes = oldNodes; bytes = oldBytes; partial = fault.reason; break
+                }
+            }
+        }
+        let after = offset + children.count
+        let info = PageInfo(offset: offset,returned: children.count,total: total,nextOffset: after < total ? after : nil)
+        return InspectNode(kind: .sequence(ExactString(name)),children: children,childCount: total,page: info,completeness:partial.map { .partial($0) } ?? containerCompleteness(children,offset:offset,end:after,total:total))
     }
 }
 public struct InspectResult {
@@ -159,7 +260,7 @@ public func diff(_ before: InspectResult,_ after: InspectResult) -> DiffKind {
     return compareNodes(before.node,after.node)
 }
 
-public enum InspectMapKey: Equatable {
+public enum InspectMapKey: Hashable {
     case string(ExactString),integer(kind: ExactString,decimal: ExactString),bool(Bool),character(UInt32)
     fileprivate var segment: PathSegment {
         switch self {
@@ -173,46 +274,92 @@ public struct InspectMapEntry { public let key: InspectMapKey; public let label:
 }
 extension InspectContext {
     public func opaque(_ label: String) throws -> InspectNode {
-        guard label.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }; try charge(label.utf8.count)
-        return InspectNode(kind: .opaque(ExactString(label)),completeness: .partial(.opaque))
+        var preview = "", count = 0
+        for scalar in label.unicodeScalars {
+            let text = String(scalar)
+            guard text.utf8.count <= limits.maxValueBytes-count else { break }
+            preview += text; count += text.utf8.count
+        }
+        try charge(count)
+        return InspectNode(kind: .opaque(ExactString(preview)),childCount:0,completeness: .partial(.opaque))
     }
-    public func unavailable() throws -> InspectNode { try charge(0); return InspectNode(kind: .unavailable,completeness: .partial(.unavailable)) }
+    public func unavailable() throws -> InspectNode { try charge(0); return InspectNode(kind: .unavailable,childCount:0,completeness: .partial(.unavailable)) }
     public func enumeration(name: String,variantID: String,variantLabel: String,fields: (InspectContext) throws -> [InspectChild]) throws -> InspectNode {
-        for value in [name,variantID,variantLabel] { guard value.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded } }
+        for value in [name,variantID,variantLabel] { try validateMetadata(value) }
         try charge(name.utf8.count+variantID.utf8.count+variantLabel.utf8.count)
+        if depth >= limits.maxDepth {
+            return InspectNode(kind:.enumeration(name:ExactString(name),variantID:ExactString(variantID),variantLabel:ExactString(variantLabel)),childCount:1,page:PageInfo(offset:0,returned:0,total:1,nextOffset:0),completeness:.partial(.depth))
+        }
+        try chargeBytes(64); try chargeBytes(variantID.utf8.count); try chargeBytes(variantLabel.utf8.count)
         depth += 1; defer { depth -= 1 }
         guard depth <= limits.maxDepth else { throw InspectError.budgetExceeded }
         let object = try self.object(variantLabel,fields: fields)
         let child = InspectChild(segment: .variant(ExactString(variantID)),label: ExactString(variantLabel),node: object)
-        return InspectNode(kind: .enumeration(name: ExactString(name),variantID: ExactString(variantID),variantLabel: ExactString(variantLabel)),children: [child],childCount: 1)
+        return InspectNode(kind: .enumeration(name: ExactString(name),variantID: ExactString(variantID),variantLabel: ExactString(variantLabel)),children: [child],childCount: 1,completeness:object.completeness)
+    }
+    /// Pages the variant and then its fields, without evaluating omitted fields.
+    public func enumeration(name: String,variantID: String,variantLabel: String,fieldCount: Int,page: PageRequest,project: (Int,InspectContext) throws -> InspectChild) throws -> InspectNode {
+        guard fieldCount >= 0,page.offset >= 0,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
+        for value in [name,variantID,variantLabel] { try validateMetadata(value) }
+        try charge(name.utf8.count+variantID.utf8.count+variantLabel.utf8.count)
+        let offset = min(page.offset,1), kind = NodeKind.enumeration(name:ExactString(name),variantID:ExactString(variantID),variantLabel:ExactString(variantLabel))
+        if depth >= limits.maxDepth { return InspectNode(kind:kind,childCount:1,page:PageInfo(offset:offset,returned:0,total:1,nextOffset:offset),completeness:.partial(.depth)) }
+        guard offset == 0 else { return InspectNode(kind:kind,childCount:1,page:PageInfo(offset:1,returned:0,total:1,nextOffset:nil),completeness:.partial(.pagination)) }
+        let oldNodes = nodes, oldBytes = bytes
+        let object: InspectNode
+        do {
+            object = try withinBudgetScope {
+                try chargeBytes(64); try chargeBytes(variantID.utf8.count); try chargeBytes(variantLabel.utf8.count)
+                depth += 1; defer { depth -= 1 }
+                return try self.object(variantLabel,total:fieldCount,page:PageRequest(offset:0,limit:page.limit),project:project)
+            }
+        } catch let fault as ProjectionBudgetFault {
+            nodes = oldNodes; bytes = oldBytes
+            return InspectNode(kind:kind,childCount:1,page:PageInfo(offset:0,returned:0,total:1,nextOffset:0),completeness:.partial(fault.reason))
+        }
+        let child = InspectChild(segment:.variant(ExactString(variantID)),label:ExactString(variantLabel),node:object)
+        return InspectNode(kind:kind,children:[child],childCount:1,page:PageInfo(offset:0,returned:1,total:1,nextOffset:nil),completeness:object.completeness)
     }
     /// Iterator work and payload projection are bounded independently. Stable
     /// ordering is a host declaration; unstable maps always compare Unknown.
     public func map(ordering: MapOrdering,total: Int,page: PageRequest = PageRequest(),next: () throws -> InspectMapEntry?) throws -> InspectNode {
-        guard total >= 0,page.offset >= 0,page.offset <= total,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
+        guard total >= 0,page.offset >= 0,page.limit > 0,page.limit <= limits.maxPageSize else { throw InspectError.invalidPage }
         try charge(0)
-        for _ in 0..<page.offset { try chargeWork(); guard try next() != nil else { throw InspectError.pathNotFound } }
-        let end = page.offset+min(page.limit,total-page.offset)
-        var children: [InspectChild] = []
-        depth += 1; defer { depth -= 1 }
-        guard depth <= limits.maxDepth else { throw InspectError.budgetExceeded }
-        for _ in page.offset..<end {
+        let offset = min(page.offset,total), end = offset+min(page.limit,total-offset)
+        if depth >= limits.maxDepth && total > 0 {
+            return InspectNode(kind:.map(ordering),childCount:total,page:PageInfo(offset:offset,returned:0,total:total,nextOffset:offset),completeness:.partial(.depth))
+        }
+        var children: [InspectChild] = [], partial: IncompleteReason?
+        if offset < end {
+          depth += 1; defer { depth -= 1 }
+          for i in 0..<end {
+            let oldNodes = nodes, oldBytes = bytes
+            do {
+            let child: InspectChild? = try withinBudgetScope {
             try chargeWork(); guard let entry = try next() else { throw InspectError.pathNotFound }
+            if i < offset { return nil }
+            try chargeBytes(64)
             try validateMapKey(entry.key)
             let keyBytes: Int
             switch entry.key {
             case let .string(value): keyBytes = value.value.utf8.count
             case let .integer(kind,decimal): keyBytes = kind.value.utf8.count + decimal.value.utf8.count
-            case .bool: keyBytes = 1
-            case .character: keyBytes = 4
+            case .bool,.character: keyBytes = 16
             }
-            guard keyBytes <= limits.maxValueBytes,keyBytes <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }
-            bytes += keyBytes
-            guard entry.label.utf8.count <= limits.maxValueBytes,entry.label.utf8.count <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }
-            bytes += entry.label.utf8.count
-            children.append(try InspectChild(segment: entry.key.segment,label: ExactString(entry.label),node: entry.project(self)))
+            guard keyBytes <= limits.maxValueBytes else { throw InspectError.budgetExceeded }
+            try chargeBytes(keyBytes)
+            guard entry.label.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }
+            try chargeBytes(entry.label.utf8.count)
+            return try InspectChild(segment: entry.key.segment,label: ExactString(entry.label),node: entry.project(self))
+            }
+            if let child { children.append(child) }
+            } catch let fault as ProjectionBudgetFault {
+                nodes = oldNodes; bytes = oldBytes; partial = fault.reason; break
+            }
+          }
         }
-        return InspectNode(kind: .map(ordering),children: children,childCount: total,page: PageInfo(offset: page.offset,returned: children.count,total: total,nextOffset: end < total ? end : nil),completeness: page.offset == 0 && end == total ? .complete : .partial(.pagination))
+        let after = offset + children.count
+        return InspectNode(kind: .map(ordering),children: children,childCount: total,page: PageInfo(offset: offset,returned: children.count,total: total,nextOffset: after < total ? after : nil),completeness:partial.map { .partial($0) } ?? containerCompleteness(children,offset:offset,end:after,total:total))
     }
 }
 public struct InspectChange {
@@ -242,7 +389,14 @@ public func structuralDiff(_ before: InspectResult,_ after: InspectResult,maxCha
             case .object,.enumeration,.sequence,.map: if node.childCount != node.children.count { return false }
             default: break
             }
-            for child in node.children { guard consume() else { return false }; stack.append(child.node) }
+            for index in node.children.indices {
+                guard consume() else { return false }
+                for prior in node.children.indices.prefix(index) {
+                    guard consume() else { return false }
+                    if node.children[prior].segment == node.children[index].segment { return false }
+                }
+                stack.append(node.children[index].node)
+            }
         }
         return true
     }
@@ -253,10 +407,19 @@ public func structuralDiff(_ before: InspectResult,_ after: InspectResult,maxCha
         guard let a else { if b != nil { add(path,.added) }; return }
         guard let b else { add(path,.removed); return }
         guard a.kind == b.kind else { add(path,.changed); return }
+        if a.childCount != b.childCount || a.page != b.page { add(path,.changed) }
+        if a.children.count == b.children.count {
+            for (left,right) in zip(a.children,b.children) {
+                guard consume() else { return }
+                if left.segment != right.segment { add(path,.changed); break }
+            }
+        }
         for child in a.children {
-            var selected: InspectNode?
-            for candidate in b.children { guard consume() else { return }; if candidate.segment == child.segment { selected = candidate.node; break } }
-            visit(child.node,selected,path+[child.segment])
+            var selected: InspectChild?
+            for candidate in b.children { guard consume() else { return }; if candidate.segment == child.segment { selected = candidate; break } }
+            let childPath = path+[child.segment]
+            if let selected,child.label != selected.label || child.source != selected.source { add(childPath,.changed) }
+            visit(child.node,selected?.node,childPath)
         }
         for child in b.children {
             var found = false
@@ -275,7 +438,15 @@ public func resolve(_ result: InspectResult,path: [PathSegment],schemaVersion: U
     for segment in path.dropFirst(result.path.count) {
         if node.kind == .redacted { throw InspectError.redactedPath }
         var selected: InspectNode?
-        for child in node.children { guard work < maxWork else { throw InspectError.budgetExceeded }; work += 1; if child.segment == segment { selected = child.node; break } }
+        // A path is usable only when exactly one sibling names it. Scanning
+        // the whole sibling set spends the caller's explicit work budget.
+        for child in node.children {
+            guard work < maxWork else { throw InspectError.budgetExceeded }; work += 1
+            if child.segment == segment {
+                guard selected == nil else { throw InspectError.invalidMetadata }
+                selected = child.node
+            }
+        }
         guard let selected else { throw InspectError.pathNotFound }; node = selected
     }
     if node.kind == .redacted { throw InspectError.redactedPath }
@@ -316,78 +487,64 @@ func validateProjection(_ root: InspectNode,limits: InspectLimits) throws {
     var stack: [(InspectNode,Int)] = [(root,0)],nodes = 0,work = 0,bytes = 0
     func charge(_ count: Int) throws { guard count >= 0,count <= limits.maxBytes-bytes else { throw InspectError.budgetExceeded }; bytes += count }
     func text(_ value: String) throws { guard value.utf8.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }; try charge(value.utf8.count) }
+    func metadata(_ value: String) throws { guard value.utf8.count <= 4096,value.utf8.count <= limits.maxBytes-bytes else { throw InspectError.invalidMetadata }; try charge(value.utf8.count) }
     func segment(_ value: PathSegment) throws {
         switch value {
-        case let .field(s),let .variant(s),let .mapKey(s): try text(s.value)
+        case let .field(s),let .variant(s): try metadata(s.value)
+        case let .mapKey(s): try text(s.value)
         case let .typedMapKey(key): try validateMapKey(key); switch key { case let .string(s): try text(s.value); case let .integer(k,d): try text(k.value); try text(d.value); default: try charge(16) }
         default: try charge(16)
         }
     }
     while let (node,depth) = stack.popLast() {
         guard nodes < limits.maxNodes,work < limits.maxWork,depth <= limits.maxDepth else { throw InspectError.budgetExceeded }; nodes += 1; work += 1; try charge(128)
+        // Rust's corresponding fields are unsigned; reject values Swift's
+        // public Int-based constructors can represent but the wire cannot.
+        if let count = node.childCount, count < 0 { throw InspectError.invalidMetadata }
+        if let page = node.page {
+            guard page.offset >= 0,page.returned >= 0,page.total >= 0,page.nextOffset.map({ $0 >= 0 }) ?? true else { throw InspectError.invalidMetadata }
+        }
         switch node.kind {
-        case let .scalar(value): try validateDisplayScalar(value); switch value { case let .integer(k,d),let .float(k,d,_): try text(k.value); try text(d.value); default: break }
-        case let .string(s,_): try text(s.value)
-        case let .bytes(b,_): guard b.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }; try charge(b.count)
-        case let .object(s),let .sequence(s),let .opaque(s): try text(s.value)
-        case let .enumeration(n,i,l): try text(n.value); try text(i.value); try text(l.value)
+        case let .scalar(value):
+            try validateDisplayScalar(value)
+            let decimal: String
+            switch value { case let .integer(_,d): decimal = d.value; case let .float(k,d,_): try charge(k.value.utf8.count); decimal = d.value; default: decimal = "" }
+            let available = limits.maxBytes-bytes
+            let count = decimal.utf8.prefix(available == Int.max ? available : available+1).count
+            guard count <= available else { throw InspectError.budgetExceeded }
+            try charge(count)
+        case let .string(s,total): guard total >= 0 else { throw InspectError.invalidMetadata }; try text(s.value)
+        case let .bytes(b,total): guard total >= 0 else { throw InspectError.invalidMetadata }; guard b.count <= limits.maxValueBytes else { throw InspectError.budgetExceeded }; try charge(b.count)
+        case let .object(s),let .sequence(s): try metadata(s.value)
+        case let .opaque(s): try text(s.value)
+        case let .enumeration(n,i,l): try metadata(n.value); try metadata(i.value); try metadata(l.value)
         default: break
         }
         guard node.children.count <= limits.maxNodes-nodes, node.children.count <= limits.maxWork-work else { throw InspectError.budgetExceeded }
-        for child in node.children { work += 1; try charge(64); try text(child.label.value); if let source = child.source { try text(source.file) }; try segment(child.segment); stack.append((child.node,depth+1)) }
+        for child in node.children { work += 1; try charge(64); try metadata(child.label.value); if let source = child.source { try text(source.file) }; try segment(child.segment); stack.append((child.node,depth+1)) }
     }
 }
 
-/// Runtime admission for explicitly constructed display values. This validates
-/// display kinds/ranges; it does not introduce a canonical floating-point codec.
-private func validateInteger(kind: String,decimal: String) throws {
-    let unsigned: Bool,bits: Int
-    switch kind {
-    case "u8": unsigned = true; bits = 8
-    case "u16": unsigned = true; bits = 16
-    case "u32": unsigned = true; bits = 32
-    case "u64": unsigned = true; bits = 64
-    case "u128": unsigned = true; bits = 128
-    case "usize": unsigned = true; bits = UInt.bitWidth
-    case "i8": unsigned = false; bits = 8
-    case "i16": unsigned = false; bits = 16
-    case "i32": unsigned = false; bits = 32
-    case "i64": unsigned = false; bits = 64
-    case "i128": unsigned = false; bits = 128
-    case "isize": unsigned = false; bits = Int.bitWidth
-    default: throw InspectError.invalidMetadata
-    }
-    if bits == 128 {
-        if unsigned { guard let value = try? TraceUInt128(decimal: decimal),exactText(value.description,decimal) else { throw InspectError.invalidMetadata } }
-        else { guard let value = try? TraceInt128(decimal: decimal),exactText(value.description,decimal) else { throw InspectError.invalidMetadata } }
-    } else if unsigned {
-        guard let value = UInt64(decimal),exactText(String(value),decimal),bits == 64 || value <= UInt64.max >> (64-bits) else { throw InspectError.invalidMetadata }
-    } else {
-        guard let value = Int64(decimal),exactText(String(value),decimal) else { throw InspectError.invalidMetadata }
-        if bits < 64 { let max = (Int64(1) << (bits-1))-1; guard value >= -max-1,value <= max else { throw InspectError.invalidMetadata } }
-    }
-}
+/// Swift owns float kind text, unlike Rust's static kind string, so bound it.
 private func validCharacter(_ scalar: UInt32) -> Bool { scalar <= 0x10FFFF && !(0xD800...0xDFFF).contains(scalar) }
 private func validateDisplayScalar(_ value: DisplayScalar) throws {
     switch value {
-    case let .integer(kind,decimal): try validateInteger(kind: kind.value,decimal: decimal.value)
+    case let .integer(kind,_):
+        let kinds = ["i8","i16","i32","i64","i128","isize","u8","u16","u32","u64","u128","usize"]
+        guard kinds.contains(where:{ exactText($0,kind.value) }) else { throw InspectError.invalidMetadata }
     case let .character(scalar): guard validCharacter(scalar) else { throw InspectError.invalidMetadata }
-    case let .float(kind,decimal,bits):
-        if exactText(kind.value,"f32") {
-            guard let bits = UInt32(exactly: bits),let text = Float(decimal.value) else { throw InspectError.invalidMetadata }
-            let value = Float(bitPattern: bits)
-            guard (text.isNaN && value.isNaN) || text.bitPattern == bits else { throw InspectError.invalidMetadata }
-        } else if exactText(kind.value,"f64") {
-            guard let text = Double(decimal.value) else { throw InspectError.invalidMetadata }
-            let value = Double(bitPattern: bits)
-            guard (text.isNaN && value.isNaN) || text.bitPattern == bits else { throw InspectError.invalidMetadata }
-        } else { throw InspectError.invalidMetadata }
+    case let .float(kind,_,_):
+        guard kind.value.utf8.prefix(4097).count <= 4096 else { throw InspectError.invalidMetadata }
     default: break
     }
 }
 private func validateMapKey(_ value: InspectMapKey) throws {
     switch value {
-    case let .integer(kind,decimal): try validateInteger(kind: kind.value,decimal: decimal.value)
+    // Rust's MapKey stores a typed kind and an arbitrary decimal String;
+    // the text is an identity, not a parsed value.
+    case let .integer(kind,_):
+        let kinds = ["i8","i16","i32","i64","i128","isize","u8","u16","u32","u64","u128","usize"]
+        guard kinds.contains(where:{ exactText($0,kind.value) }) else { throw InspectError.invalidMetadata }
     case let .character(scalar): guard validCharacter(scalar) else { throw InspectError.invalidMetadata }
     default: break
     }
