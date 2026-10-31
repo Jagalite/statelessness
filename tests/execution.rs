@@ -140,6 +140,118 @@ fn identity_mismatches_cannot_be_overridden_by_the_build_option() {
 }
 
 #[test]
+fn strict_build_mismatch_rejects_before_model_or_observer_callbacks() {
+    use std::cell::Cell;
+    struct Spy {
+        calls: Cell<usize>,
+        state_decodes: Cell<usize>,
+        input_decodes: Cell<usize>,
+    }
+    impl Model for Spy {
+        type State = State;
+        type Input = Input;
+        type Output = Output;
+        fn metadata(&self) -> ModelMetadata {
+            RequestModel::fixed().metadata()
+        }
+        fn initial_state(&self) -> Result<State, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().initial_state()
+        }
+        fn step(&self, s: &State, i: &Input) -> Result<Transition<State, Output>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().step(s, i)
+        }
+        fn check_state(&self, s: &State) -> Result<Vec<Check>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().check_state(s)
+        }
+        fn check_transition(
+            &self,
+            s: &State,
+            i: &Input,
+            t: &TransitionRef<'_, State, Output>,
+        ) -> Result<Vec<Check>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().check_transition(s, i, t)
+        }
+    }
+    impl ModelCodec for Spy {
+        fn encode_state(&self, s: &State) -> Result<Vec<u8>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().encode_state(s)
+        }
+        fn decode_state(&self, b: &[u8]) -> Result<State, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            self.state_decodes.set(self.state_decodes.get() + 1);
+            RequestModel::fixed().decode_state(b)
+        }
+        fn encode_input(&self, i: &Input) -> Result<Vec<u8>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().encode_input(i)
+        }
+        fn decode_input(&self, b: &[u8]) -> Result<Input, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            self.input_decodes.set(self.input_decodes.get() + 1);
+            RequestModel::fixed().decode_input(b)
+        }
+        fn encode_output(&self, o: &Output) -> Result<Vec<u8>, ModelError> {
+            self.calls.set(self.calls.get() + 1);
+            RequestModel::fixed().encode_output(o)
+        }
+    }
+    let mut trace = record(
+        &RequestModel::fixed(),
+        [Input::Start],
+        RunConfig::default(),
+        1,
+    )
+    .unwrap();
+    trace.metadata.build.push_str("-other");
+    let spy = Spy {
+        calls: Cell::new(0),
+        state_decodes: Cell::new(0),
+        input_decodes: Cell::new(0),
+    };
+    let notifications = Cell::new(0);
+    let report = replay_with_observations(&spy, &trace, ReplayOptions::default(), |_, _| {
+        notifications.set(notifications.get() + 1);
+        Ok(())
+    })
+    .unwrap();
+    assert!(matches!(report.outcome, ReplayOutcome::Incompatible { .. }));
+    assert!(!report.build_matches);
+    assert_eq!(report.steps_verified, 0);
+    assert!(!report.failure_reproduced);
+    assert_eq!(spy.calls.get(), 0);
+    assert_eq!(notifications.get(), 0);
+    let initial = Cell::new(0);
+    let turns = Cell::new(0);
+    let control = replay_with_observations(
+        &spy,
+        &trace,
+        ReplayOptions {
+            allow_build_mismatch: true,
+        },
+        |event, _| {
+            match event {
+                ReplayObservation::Initial(_) => initial.set(initial.get() + 1),
+                ReplayObservation::Turn(_) => turns.set(turns.get() + 1),
+                ReplayObservation::Error { .. } => {}
+            }
+            Ok(())
+        },
+    )
+    .unwrap();
+    assert_eq!(control.outcome, ReplayOutcome::Exact);
+    assert!(!control.build_matches);
+    assert!(spy.state_decodes.get() > 0);
+    assert!(spy.input_decodes.get() > 0);
+    assert_eq!(initial.get(), 1);
+    assert_eq!(turns.get(), 1);
+}
+
+#[test]
 fn malformed_or_noncanonical_payloads_cannot_replay_successfully() {
     let model = RequestModel::fixed();
     let original = record(&model, [Input::Start], RunConfig::default(), 1).unwrap();

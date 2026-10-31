@@ -13,6 +13,7 @@ struct Counter {
     bound: u8,
     state_checks: Cell<usize>,
     transition_checks: Cell<usize>,
+    metadata_calls: Cell<usize>,
 }
 
 impl Counter {
@@ -23,6 +24,7 @@ impl Counter {
             bound: 100,
             state_checks: Cell::new(0),
             transition_checks: Cell::new(0),
+            metadata_calls: Cell::new(0),
         }
     }
 }
@@ -33,6 +35,7 @@ impl Model for Counter {
     type Output = u8;
 
     fn metadata(&self) -> ModelMetadata {
+        self.metadata_calls.set(self.metadata_calls.get() + 1);
         ModelMetadata {
             name: "monitor-review".into(),
             model_version: 1,
@@ -82,6 +85,49 @@ impl Model for Counter {
         } else {
             Check::failed("transition-output", "wrong output")
         }])
+    }
+}
+
+#[test]
+fn overflow_rejects_before_metadata_callback_and_preserves_prefix() {
+    use stateless::execution::check_initial;
+    use stateless::monitor::RecorderOptions;
+    for (origin, accepted) in [(u64::MAX, 0), (u64::MAX - 1, 1)] {
+        let model = Counter::new(true);
+        let initial_state = 0;
+        let checked = check_initial(&model, &initial_state).unwrap();
+        let mut recorder = Recorder::with_checked_initial_at(
+            &checked,
+            origin,
+            RunConfig::default(),
+            RecorderOptions::default(),
+        )
+        .unwrap();
+        if accepted == 1 {
+            recorder
+                .observe(&model, &0, &1, &Transition::accepted(1, vec![1]))
+                .unwrap();
+        }
+        let calls = model.metadata_calls.get();
+        let checks = (model.state_checks.get(), model.transition_checks.get());
+        let prefix = recorder.snapshot();
+        let error = recorder
+            .observe(
+                &model,
+                &(accepted as u8),
+                &1,
+                &Transition::accepted(2, vec![2]),
+            )
+            .unwrap_err();
+        assert!(error.0.contains("sequence overflow"));
+        assert_eq!(model.metadata_calls.get(), calls);
+        assert_eq!(
+            (model.state_checks.get(), model.transition_checks.get()),
+            checks
+        );
+        assert_eq!(recorder.observed_steps(), accepted);
+        assert!(recorder.is_frozen());
+        assert_eq!(recorder.snapshot().steps, prefix.steps);
     }
 }
 

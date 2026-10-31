@@ -784,13 +784,25 @@ impl<R: Read> LimitedReader<'_, R> {
         if self.consumed > self.limits.max_total_bytes {
             return Err(TraceError::LimitExceeded("total bytes"));
         }
-        self.reader.read_exact(buffer).map_err(|err| {
-            if err.kind() == io::ErrorKind::UnexpectedEof {
-                TraceError::Truncated
-            } else {
-                TraceError::Io(err)
+        let mut remaining = buffer;
+        while !remaining.is_empty() {
+            match self.reader.read(remaining) {
+                Ok(0) => return Err(TraceError::Truncated),
+                Ok(n) if n <= remaining.len() => remaining = &mut remaining[n..],
+                Ok(_) => {
+                    return Err(TraceError::Io(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "reader returned more bytes than requested",
+                    )));
+                }
+                Err(err) if err.kind() == io::ErrorKind::Interrupted => continue,
+                Err(err) if err.kind() == io::ErrorKind::UnexpectedEof => {
+                    return Err(TraceError::Truncated);
+                }
+                Err(err) => return Err(TraceError::Io(err)),
             }
-        })
+        }
+        Ok(())
     }
     fn frame(&mut self) -> Result<(u8, Vec<u8>), TraceError> {
         let mut head = [0u8; 5];
@@ -815,7 +827,13 @@ impl<R: Read> LimitedReader<'_, R> {
         loop {
             match self.reader.read(&mut byte) {
                 Ok(0) => return Ok(()),
-                Ok(_) => return Err(TraceError::InvalidData("trailing data after footer")),
+                Ok(1) => return Err(TraceError::InvalidData("trailing data after footer")),
+                Ok(_) => {
+                    return Err(TraceError::Io(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "reader returned more bytes than requested",
+                    )));
+                }
                 Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
                 Err(e) => return Err(TraceError::Io(e)),
             }

@@ -35,6 +35,10 @@ abi-v2-wasm = []
 name = "stateless"
 path = "src/main.rs"
 
+[[example]]
+name = "native-stateful-network"
+path = "examples/native-stateful/rust/network.rs"
+
 [[bench]]
 name = "engine"
 harness = false

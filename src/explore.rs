@@ -899,7 +899,9 @@ fn fuzz_stop(stop: Stop) -> FuzzTermination {
 
 #[derive(Clone, Debug)]
 pub struct ShrinkConfig {
-    /// Includes the initial replay that validates the original failure. Must be > 0.
+    /// Includes the initial replay that validates the original failure. Also
+    /// bounds consecutive skipped, already-seen hints from one simplifier
+    /// iterator. Must be > 0.
     pub max_attempts: usize,
 }
 
@@ -1122,6 +1124,10 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
                 return Ok(report);
             }
             let mut alternative = 0usize;
+            // Duplicate hints do not create replay attempts or history entries,
+            // but a lazy host iterator can produce them forever. Bound
+            // consecutive skips per iterator so finite runs are unaffected.
+            let mut duplicate_hints = 0usize;
             loop {
                 if let Some(stop) = work.control.stop() {
                     report.termination = shrink_stop(stop);
@@ -1149,8 +1155,14 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
                     return Ok(report);
                 }
                 if known {
+                    if duplicate_hints == config.max_attempts {
+                        report.termination = ShrinkTermination::AttemptLimit;
+                        return Ok(report);
+                    }
+                    duplicate_hints += 1;
                     continue;
                 }
+                duplicate_hints = 0;
                 if !attempt(
                     model,
                     target,

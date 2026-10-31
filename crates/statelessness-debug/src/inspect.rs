@@ -2,7 +2,7 @@
 //!
 //! Implementations must be side-effect-free and honor the context's bounds. Limits
 //! bound debugger-owned projection payloads, not allocations inside user callbacks.
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 pub const INSPECT_API_V1: () = ();
@@ -198,7 +198,12 @@ impl InspectNode {
                     && page.total == self.children.len()
                     && page.next_offset.is_none()
             })
-            && self.children.iter().all(|c| c.node.is_complete())
+            && {
+                let mut segments = BTreeSet::new();
+                self.children
+                    .iter()
+                    .all(|child| segments.insert(&child.segment) && child.node.is_complete())
+            }
     }
     /// Conservative retained payload accounting, including owned node/child headers.
     /// Allocator metadata and application memory are deliberately not claimed here.
@@ -652,8 +657,10 @@ impl InspectContext {
             for field in fields {
                 self.charge_work(1)?;
                 if field.id == id {
+                    if selected.is_some() {
+                        return Err(InspectError::InvalidMetadata);
+                    }
                     selected = Some(field);
-                    break;
                 }
             }
             let field = selected.ok_or(InspectError::PathNotFound)?;

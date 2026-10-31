@@ -638,6 +638,28 @@ impl WatchRegistry {
             })
             .collect()
     }
+    // Protocol summaries do not need cloned selectors or trigger payloads.
+    pub(crate) fn protocol_statuses(
+        &self,
+    ) -> impl Iterator<Item = (u64, u64, bool, bool, u64)> + '_ {
+        self.entries.values().map(|e| {
+            let has_baseline = e
+                .current
+                .as_ref()
+                .is_some_and(|v| v.value.as_ref().is_some_and(InspectNode::is_complete))
+                && e.reset.is_none();
+            (
+                e.id,
+                e.generation,
+                e.config.enabled,
+                has_baseline,
+                e.effective_sequence,
+            )
+        })
+    }
+    pub(crate) fn protocol_status_count(&self) -> usize {
+        self.entries.len()
+    }
     pub fn current(&self, id: u64) -> Option<&WatchEvent> {
         self.entries.get(&id).and_then(|e| e.current.as_ref())
     }
@@ -697,6 +719,13 @@ impl WatchRegistry {
         if matches!(result.node.kind, inspect::NodeKind::Redacted) {
             return Err(WatchError::RedactedPath);
         }
+        let completeness = if result.node.completeness == Completeness::Complete
+            && !metadata_complete(schema.name, &context)
+        {
+            Completeness::Partial(inspect::IncompleteReason::ValueLimit)
+        } else {
+            result.node.completeness
+        };
         let event = WatchEvent {
             schema_version: 1,
             display_schema_version: schema.version,
@@ -706,7 +735,7 @@ impl WatchRegistry {
             snapshot: context.snapshot,
             origin: context.origin,
             kind: WatchEventKind::Snapshot,
-            completeness: result.node.completeness,
+            completeness,
             value: Some(result.node),
             path: e.config.selector.path.clone(),
             schema_name: Some(bounded_metadata(schema.name)),
@@ -967,7 +996,10 @@ impl WatchRegistry {
             let kind =
                 if context.property_failure && !matches!(kind, WatchEventKind::InspectorError(_)) {
                     WatchEventKind::PropertyFailure
-                } else if should_emit && matches!(e.config.trigger, WatchTrigger::Equals(_)) {
+                } else if should_emit
+                    && matches!(e.config.trigger, WatchTrigger::Equals(_))
+                    && !matches!(kind, WatchEventKind::InspectorError(_))
+                {
                     WatchEventKind::ValueMatched
                 } else {
                     kind
