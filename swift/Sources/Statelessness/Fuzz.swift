@@ -126,8 +126,13 @@ func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout 
     storage.checks.removeAll(keepingCapacity: true)
     do { try stateChecksInto(m, try checked?.get() ?? state, checks: &storage.checks, stage: "initial check_state") }
     catch { try observerCheckError(observer, phase: "initial_state", checks: storage.checks, complete: false, checkerError: error); throw error }
-    if let observer { try call("search observer initial") { try observer.initial(copied(m.cloneState, observed!.get()), storage.checks) } }
+    if let observer, let observed { try notifyInitialObserver(observer, clone: m.cloneState, observed: observed, checks: storage.checks) }
     return try searchFindings("initial_state", storage.checks, skipped: &skipped)
+}
+// A separate function keeps the closure from capturing the whole model and a
+// force-unwrapped optional, which crashes the Swift 6.0.3 SIL ownership verifier.
+private func notifyInitialObserver<S, I, O>(_ observer: SearchObserver<S, I, O>, clone: (S) throws -> S, observed: Result<S, Error>, checks: [Check]) throws {
+    try call("search observer initial") { try observer.initial(copied(clone, observed.get()), checks) }
 }
 func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = [], storage: SearchCheckStorage? = nil, capturedTransition: Result<Transition<S,O>,Error>? = nil, capturedState: Result<S,Error>? = nil, capturedInput: Result<I,Error>? = nil, capturedBefore: Result<S,Error>? = nil) throws -> [Violation] {
     let storage = storage ?? SearchCheckStorage()
