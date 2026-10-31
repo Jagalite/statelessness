@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {MetricsStore,Histogram,MetricSnapshot,defaultLabels,metricCatalog,protocolBindings,U64_MAX} from '../dist/debug_metrics.js';
-import {Dashboard,correlate} from '../dist/debug_dashboard.js';
+import {Dashboard,correlate,boundedJson} from '../dist/debug_dashboard.js';
 const l=defaultLabels(),schema={id:U64_MAX,finiteBoundsNs:[10n,20n]},store=(extra={})=>new MetricsStore({epoch:U64_MAX,start:{domain:9n,nanos:0n},schema,...extra});
 test('manual histogram arithmetic and overflow quantile with fullwidth schema',()=>{const golden=JSON.parse(readFileSync(new URL('../../conformance/debugger-diagnostics-v1.json',import.meta.url))).histogram,s=store();for(const n of golden.samples_ns)s.observe('QueueWait',l,BigInt(n));const h=s.current().get('QueueWait',l);assert.deepEqual(h.buckets.slice(0,3),golden.bucket_counts.map(BigInt));assert.equal(h.count,4n);assert.equal(h.sumNs,51n);assert.deepEqual(h.quantile(schema,50n,100n),{upperBoundNs:10n,observations:4n,lowSampleWarning:true});assert.deepEqual(h.quantile(schema,95n,100n),{upperBoundNs:null,observations:4n,lowSampleWarning:true});assert.equal(h.quantile(schema,101n,100n),null);assert.equal(new Histogram().quantile(schema,50n,100n),null);});
 test('finite labels caps overflow import filtering and production population',()=>{const s=store({limits:{maxSeries:1}});s.increment('Requests',l,U64_MAX);s.increment('Requests',l,1n);s.increment('Attempts',l);s.increment('Requests',{...l,origin:'ReplayHarness'});s.increment('Requests',{...l,operation:1});assert.equal(s.current().get('Requests',l),U64_MAX);assert.deepEqual([s.health.arithmeticErrors,s.health.rejectedSeries,s.health.importedIgnored,s.health.invalidLabels],[1n,1n,1n,1n]);assert.equal(s.current().complete,false);const p=store();p.increment('Requests',{...l,debuggerAffected:true});assert.equal(p.current().production().series.size,0);});
@@ -15,3 +15,41 @@ test('causal join validates identities without claiming execution truth',()=>{co
 test('report byte budget stops before row projection and health cannot carry payloads',()=>{const d=Dashboard.fromSnapshot(store().current(),{},[l],1);Object.defineProperty(d.rows[0],'labels',{get(){throw Error('row projected after header budget');}});assert.throws(()=>d.toJson(20),/byte budget/);assert.throws(()=>Dashboard.fromSnapshot(store().current(),{clockFailures:'payload-secret'},[l],1),/integer/);});
 
 test('catalog rejects lone UTF16 surrogates instead of replacing UTF8 identity',()=>{assert.throws(()=>store({labels:{operations:['\ud800'],components:['host'],workerPools:['default']}}));const s=store({labels:{operations:['é','e\u0301'],components:['host'],workerPools:['default']}});assert.equal(s.current().labels.operations.length,2);});
+
+test('dashboard snapshots health and metrics before consuming label callbacks',()=>{const snap=store().current(),health={detailEventDrops:1n,metric:{invalidMeasurements:2n}};const labels={*[Symbol.iterator](){health.detailEventDrops=0n;health.metric.invalidMeasurements=0n;snap.health.invalidMeasurements=0n;snap.complete=true;yield l;}};snap.health.invalidMeasurements=3n;snap.complete=false;const d=Dashboard.fromSnapshot(snap,health,labels,18);assert.equal(d.observationComplete,false);assert.equal(d.health.detailEventDrops,1n);assert.equal(d.health.metric.invalidMeasurements,2n);assert.equal(d.metricHealth.invalidMeasurements,3n);});
+
+test('bounded dashboard JSON avoids reading fields beyond budget and handles sparse arrays',()=>{let read=false;const source={long:'abcdef'};Object.defineProperty(source,'late',{enumerable:true,get(){read=true;throw Error('unexpected field read');}});assert.throws(()=>boundedJson(source,10),/byte budget/);assert.equal(read,false);assert.equal(boundedJson([,1],8),'[null,1]');assert.equal(boundedJson('é',4),'\"é\"');assert.throws(()=>boundedJson('é',3),/byte budget/);const cycle={};cycle.self=cycle;assert.throws(()=>boundedJson(cycle,100),/cyclic/);});
+
+test('dashboard public evidence is detached from retained report',()=>{const source=store();source.observe('QueueWait',l,5n);const d=Dashboard.fromSnapshot(source.current(),{detailEventDrops:1n,metric:{invalidMeasurements:2n}},[l],18),before=d.toJson(30000);const health=d.health;health.detailEventDrops=0n;health.metric.invalidMeasurements=0n;d.metricHealth.invalidMeasurements=99n;const rows=d.rows;rows[0].labels.operation='poison';const histogram=rows.find(r=>r.family==='QueueWait').value;histogram.count=999n;assert.equal(d.toJson(30000),before);assert.throws(()=>{d.observationComplete=true;},TypeError);assert.equal(d.observationComplete,false);});
+
+test('snapshot validation rejects reentrant mutations without losing updates',()=>{
+ const s=store(); s.increment('Requests',l,3n);
+ const before=s.current(), windows=s.availableWindows();
+ assert.throws(()=>s.snapshot(null,()=>s.increment('Requests',l,2n)),/validation in progress/);
+ assert.equal(s.current().get('Requests',l),3n); assert.equal(s.revision,before.revision);
+ assert.deepEqual(s.availableWindows(),windows);
+ const prepared=s.prepareCapture(()=>[]);
+ const snapshot=s.snapshot(null,()=>{
+  for(const operation of [()=>s.setGauge('Running',l,1n),()=>s.recordHealth('invalidLabels'),()=>s.markIncomplete(),()=>s.setGaugeScope('Unknown'),()=>s.snapshot(),()=>prepared.commit()])
+   assert.throws(operation,/validation in progress/);
+ });
+ assert.equal(snapshot.get('Requests',l),3n); assert.equal(snapshot.complete,true);
+ s.increment('Requests',l,2n); assert.equal(s.current().get('Requests',l),5n);
+});
+
+test('snapshot protects staging from reentrant timestamp getters and releases guard',()=>{
+ const s=store();s.increment('Requests',l,1n);
+ const end={get domain(){s.increment('Requests',l,1n);return 9n;},nanos:1n};
+ assert.throws(()=>s.snapshot(end),/validation in progress/);
+ assert.equal(s.current().get('Requests',l),1n);assert.deepEqual(s.availableWindows(),[]);
+ s.increment('Requests',l,1n);assert.equal(s.snapshot().get('Requests',l),2n);
+});
+
+test('histogram accessor distinguishes histogram, counter, and absent series',()=>{
+ const s=store();s.observe('QueueWait',l,5n);s.increment('Requests',l,1n);
+ const snapshot=s.current(),histogram=snapshot.histogram('QueueWait',l);
+ assert.ok(histogram instanceof Histogram);assert.equal(histogram.count,1n);
+ assert.equal(histogram,snapshot.get('QueueWait',l));
+ assert.equal(snapshot.histogram('Requests',l),undefined);
+ assert.equal(snapshot.histogram('QueueWait',{...l,operation:1}),undefined);
+});

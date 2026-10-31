@@ -12,6 +12,29 @@ const model = (overrides = {}) => ({ initialState: () => 0, step: s => accepted(
     metadata: () => metadata('guided-test','v1'), encodeState: s => Uint8Array.of(s), decodeState: b => b[0], encodeInput: i => Uint8Array.of(i), decodeInput: b => b[0], encodeOutput: o => Uint8Array.of(o), ...overrides });
 const feedback = (overrides = {}) => ({ ...identity, metadata: () => ({...fbmeta}), transitionFeatures: (_b,_i,t,out) => { out.push(t.state); }, ...overrides });
 
+test('guided fuzz retains successor and feedback observation before checks mutate aliases', () => {
+ let emitted, calls=0; const before=[], features=[];
+ const m=model({initialState:()=>({n:0}),cloneState:s=>({...s}),cloneInput:i=>({...i}),
+  cloneOutput:o=>({...o}),generate:()=>({n:1}),
+  step:(s,i)=>{before.push(s.n);emitted={n:s.n+i.n};return accepted(emitted,[{n:emitted.n}]);},
+  checkState:s=>{if(s.n>0 && emitted)emitted.n=99;return [];}});
+ const f=feedback({transitionFeatures:(b,i,t,out)=>{features.push([b.n,i.n,t.state.n,t.outputs[0].n]);calls++;out.push(calls);}});
+ const result=fuzzGuided(m,config({maxSteps:2}),guidance(),f);
+ assert.equal(result.transitions,2n);
+ assert.deepEqual(before,[0,1]);assert.deepEqual(features,[[0,1,1,1],[1,1,2,2]]);
+});
+test('guided fuzz captures edge and feedback before history input copy hooks', () => {
+ let emitted, armed=false;const checks=[],features=[];
+ const m=model({initialState:()=>({n:0}),cloneState:s=>({...s}),
+  cloneInput:i=>{const copy={...i};if(armed && emitted)emitted.n=99;return copy;},
+  cloneOutput:o=>({...o}),generate:()=>({n:1}),
+  step:(s,i)=>{emitted={n:s.n+i.n};armed=true;return accepted(emitted,[{n:1}]);},
+  checkState:s=>{if(s.n)checks.push(s.n);return [];}});
+ const f=feedback({transitionFeatures:(_b,_i,t,out)=>{features.push(t.state.n);out.push(1);}});
+ fuzzGuided(m,config({maxSteps:1}),guidance(),f);
+ assert.deepEqual(checks,[1]);assert.deepEqual(features,[1]);
+});
+
 test('defaults, default-empty initial feedback and exact-state identity are explicit', () => {
     assert.equal(GUIDANCE_ALGORITHM, 'feature-corpus-v2');
     assert.deepEqual(DEFAULT_GUIDANCE, {maxCorpusEntries:256,maxCorpusInputs:25600,maxFeatures:100000,maxFeaturesPerObservation:256});

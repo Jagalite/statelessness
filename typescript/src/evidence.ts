@@ -1,5 +1,6 @@
 /** Canonical causal envelopes. Host provenance is asserted data, never authentication. */
 import { type CodecModel, type Check, type ReplayReport, ModelError, natural, scalar, validateRecording, validateMetadata } from './core.js';
+import { consumeWriterPromiseRejection } from './binary.js';
 import { type AuditTrace, type AuditReader, type AuditWriter, type BinaryLimits, resolveBinaryLimits, BinaryError, snapshotAuditTrace as snapshotAuditTraceRaw, captureAuditTraceForEvidence as captureAuditTraceRaw, auditTraceWireLength as auditTraceWireLengthRaw, writeAuditTrace as writeAuditTraceRaw, readAuditTrace as readAuditTraceRaw, auditCRC32, preflightRejectedEvidenceTrace } from './binary.js';
 import { type ReplayOptions, replayWithObservationsBounded, ReplayError } from './replay.js';
 function binary<T>(fn: () => T): T {
@@ -561,14 +562,15 @@ export function writeTraceV2(value: TraceV2, overrides: EvidenceLimitOptions = {
     d.setUint32(out.length - 4, auditCRC32(out.subarray(0, out.length - 4)), true);
     return out;
 }
+/** A bad writer return is detected after the call, which may already publish bytes.
+ * A returned native Promise with a throwing species can leave its rejection unhandled. */
 export function writeTraceV2To(value: TraceV2, writer: AuditWriter, limits: EvidenceLimitOptions = {}): void {
     const write = writer.write;
     if (typeof write !== 'function')
         return fail('invalid evidence writer');
     const bytes = writeTraceV2(value, limits), result: unknown = write.call(writer, bytes);
     if (result !== undefined) {
-        if (result instanceof Promise)
-            Promise.prototype.then.call(result, undefined, () => { });
+        consumeWriterPromiseRejection(result);
         fail('evidence writer must return undefined synchronously');
     }
 }
@@ -682,7 +684,9 @@ function readBounded(source: Uint8Array | AuditReader, maximum: number): Uint8Ar
     const read = source.read;
     if (typeof read !== 'function')
         fail('invalid evidence reader');
-    const chunks: Uint8Array[] = [];
+    // Keep retained storage proportional to the bytes read, not to the number
+    // of read calls: a reader is allowed to return one byte at a time.
+    let bytes = new Uint8Array(0);
     let total = 0;
     while (true) {
         const target = new Uint8Array(Math.min(8192, maximum - total + 1)), n = read.call(source, target);
@@ -691,16 +695,17 @@ function readBounded(source: Uint8Array | AuditReader, maximum: number): Uint8Ar
             break;
         if (n > maximum - total)
             fail('evidence byte limit');
-        chunks.push(target.slice(0, n));
+        const required = total + n;
+        if (required > bytes.length) {
+            const capacity = Math.max(required, Math.min(maximum, Math.max(8192, bytes.length * 2)));
+            const grown = new Uint8Array(capacity);
+            grown.set(bytes.subarray(0, total));
+            bytes = grown;
+        }
+        bytes.set(target.subarray(0, n), total);
         total += n;
     }
-    const bytes = new Uint8Array(total);
-    let p = 0;
-    for (const c of chunks) {
-        bytes.set(c, p);
-        p += c.length;
-    }
-    return bytes;
+    return bytes.length === total ? bytes : bytes.slice(0, total);
 }
 export function readArtifact(source: Uint8Array | AuditReader, overrides: EvidenceLimitOptions = {}): Artifact {
     const l = resolveEvidenceLimits(overrides), bytes = readBounded(source, l.trace.max_total_bytes), d = new DataView(bytes.buffer);

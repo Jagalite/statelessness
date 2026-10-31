@@ -67,10 +67,44 @@ qualified `PROFILES`. Rust runtime parity and independent specification review
 remain pending. `test/paired.test.mjs` exercises independent bounded-queue reducers,
 shared golden results, fail-fast recording, checkpoint restart, and exact replay.
 
-Native guided exploration is available as an explicit candidate API below.
-Campaign execution and assurance integration are separate work; this addition
-does not qualify or promote a portable profile.
+Native guided exploration, campaigns and assurance integration are available as
+candidate APIs. Their availability does not qualify or promote a portable profile.
 The archive is installable locally; this change does not publish to npm.
+
+Assurance JSON follows Rust `src/assurance.rs` for every Rust-defined field:
+`search.budgets` uses Rust keys only (`max_duration_ns` in nanoseconds,
+`cancellation_enabled`, snake_case `guidance.max_*`, `campaign.*`), and job
+terminations use Rust `Debug` spelling (`CasesCompleted`, `ModelError`,
+`Panicked` for a campaign job that threw a non-`ModelError`). TypeScript-only
+extensions stay outside those fields: assured campaigns expose retained-report
+accounting as the in-memory `MergedAssurance.retention` object
+(`maxRetainedReports`, `maxRetainedBytes`, `retainedReports`, `retainedBytes`,
+`droppedReports`), which is never serialized; a drop is still recorded in
+`callback_errors` as `assurance retained evidence limit exceeded`. Observation
+limits (`AssuranceObservationLimits`) are caller configuration and are not
+echoed into budgets, and neither is the automatic candidate limit (matching Go,
+Python and Swift). The assured automatic fuzzing entry points and the
+guided/automatic assured campaign entry points are TypeScript-only extensions
+with no Rust counterpart.
+
+The runnable `examples/reference-controller.mjs` combines finite assurance,
+one named fault control, shrinking and exact replay. Run `npm run build` followed
+by `node examples/reference-controller.mjs` in this package directory. The
+example is a bounded model, not a production liveness claim; its independent
+requirements catalog still awaits review.
+
+The runnable `examples/background-jobs.mjs` uses one reducer in finite search
+and a promise-based host. After `npm run build`, run `node examples/background-jobs.mjs`. It signals cancellation to simulated work that deliberately ignores the signal,
+and checks a controlled late completion, and confirms a stale-completion fault is found.
+The work is simulated, IDs are bounded to two and cannot be reused; the example
+does not establish liveness or installed-consumer qualification.
+
+The installed `stateless-reference-suite create DIRECTORY` command creates a
+new reference mutation suite without overwriting an existing directory;
+`stateless-reference-suite verify DIRECTORY` validates and replays its witnesses
+in a separate process. Success requires every named fault control to be killed
+and replayed. Both report the catalog's pending review status; neither establishes
+production qualification.
 
 ### Independent generation, fuzzing and shrinking
 
@@ -280,6 +314,11 @@ estimate. Omission defaults to unknown; explicit `0n` is permitted. The estimate
 is the checked u64 sum of model bytes, history bytes and this declared overhead.
 It does not infer managed-runtime object layout or claim cross-language byte/RSS
 identity. The portable-v1 conformance wire response keeps its existing schema.
+
+Pair and Network equality capture both states and pending messages before invoking
+child comparators, and pin the selected child and input comparators for that call.
+Clone hooks therefore run even if the first child comparison returns false; they
+must cooperate, and cannot make external concurrent mutation atomic.
 
 For budgets beyond JavaScript's safe Number range,
 `enumerateStatesExact(model, { maxStates, maxTransitions: bigint, maxDepth },
@@ -638,6 +677,11 @@ optional seventh metadata callback when the model has no `metadata()` method.
 All three budgets (`maxStates`, `maxEdges`, `maxEquivalencePairs`) are exact u64
 `bigint` values. Defaults are 256n, 4096n and 65536n. State indexes and the actual
 declared array length are native numbers; edge/pair/skipped counters are bigint.
+`compareEquivalenceBounded` additionally accepts u64 bigint state and projection
+comparison limits and returns their consumed counts beside the unchanged shared
+report. The ordinary API applies finite defaults of one million comparisons of
+each kind. Exhaustion reports `Incomplete`; callback work and allocation inside a
+single comparison remain application-owned.
 
 Each declared edge, including unreachable states' edges, is materialized once.
 The exact and projected breadth-first traversals then share that owned table.
@@ -704,3 +748,53 @@ metadata before inspecting values, sinks, bytes, or decode limits. A limits
 provider runs afresh per decode, and encoding never evaluates it. Extra model
 methods remain available through the facade. Existing model methods that invoke
 other methods on `this` continue to use the original model.
+
+`RequestModel.fixed()` and `RequestModel.buggy()` expose the finite Rust
+request-lifecycle teaching fixture, including ordered generation and its canonical
+state, input, and output encodings. Pass the same build identity to both producers
+when comparing trace metadata; the model appends `:fixed` or `:injected`. This
+fixture demonstrates stale-completion detection and is not a qualified production
+application model.
+Its optional retained-state estimate charges a logical 32-byte header plus one
+byte per pending generation, enabling bounded search; it does not estimate JavaScript
+object or allocator overhead and is not a hard memory bound.
+
+After building TypeScript, run the request-lifecycle teaching fixture with
+`node typescript/bin/demo.mjs explore fixed`, `explore buggy`, or `fuzz buggy 42`.
+It emits a JSON report; bigint counts are decimal strings. This small demo CLI
+does not represent the full Rust CLI surface. Installed packages expose the same
+command as `stateless-demo`. A completed exploration or fuzz run exits 0 even if
+it finds a counterexample; inspect the report's termination and failure fields.
+Invalid command syntax exits 2 and runtime or seed-range errors exit 1.
+
+### Source build identity
+
+`RUNTIME_SOURCE_BUILD_ID` identifies the TypeScript source inputs captured during
+`npm run build` as a SHA-256 digest. The digest includes sorted `.ts` source
+paths and bytes (excluding the generated identity itself), package and compiler
+configuration, lockfile, and the identity generators. Symbolic links in the
+source tree are rejected at build time. It is embedded in the
+build and is available without Node APIs. It is an input identity, not a hash
+of emitted JavaScript or proof of the executing code, compiler, dependencies,
+environment, authenticity, or an atomic snapshot if sources change during build.
+Consumers needing release provenance should verify package artifacts separately.
+
+Indexed lifecycle monitors optionally accept a fifth `IndexedRustDiagnostics`
+argument with `identity`, `formatKey`, and `formatString`. The two synchronous
+callbacks must return the exact pinned Rust `Debug` text for the inner key and
+for a string respectively (including string quotes and escapes). Use a stable
+identity that changes with either formatter; it appears in the monitor's semantic
+name. This opt-in formats indexed check details and does not itself make Rust and
+native metadata identical. Without it, existing native-code diagnostics remain
+unchanged. See `docs/native-parity/N08-N09-CONTRACT.md` for the candidate contract.
+
+`fuzzAuto` and `fuzzGuidedAuto` add cooperative cancellation and deadline
+checks within finite-domain scans. `runAutoCampaign` and
+`runGuidedAutoCampaign` provide the same behavior for single-worker,
+caller-thread campaigns. The Node-only `runNodeAutoCampaign` and
+`runNodeGuidedAutoCampaign` APIs use module workers with the same cooperative
+scan control; modules supply enumeration and input equality locally. An
+interrupted reservoir scan leaves its
+sampling RNG unchanged. Cancellation is cooperative: application callbacks,
+including campaign feedback factories and iterator calls already executing,
+cannot be preempted.

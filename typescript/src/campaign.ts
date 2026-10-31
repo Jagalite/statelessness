@@ -1,9 +1,9 @@
 import { count64, type Count } from './counts.js';
 import { metadataPanic } from './guided_sync.js';
 /** Bounded independent jobs. The lifecycle law is private; report inputs belong to the application. */
-import { ConfigError, ModelError, Rng, natural, validateMetadata, type Metadata } from './core.js';
-import { DEFAULT_FUZZ, fuzz, type FuzzConfig, type FuzzReport, type GenerateModel } from './search.js';
-import { fuzzGuided, validateGuidanceConfig, type Feedback, type GuidanceConfig, type GuidedFuzzReport } from './guided.js';
+import { ConfigError, ModelError, Rng, natural, validateMetadata, type Metadata, type EnumerateModel } from './core.js';
+import { DEFAULT_FUZZ, fuzz, fuzzAuto, type AutoOptions, type FuzzConfig, type FuzzReport, type GenerateModel } from './search.js';
+import { fuzzGuided, fuzzGuidedAuto, validateGuidanceConfig, type Feedback, type GuidanceConfig, type GuidedFuzzReport } from './guided.js';
 import { snapshotFuzzConfig } from './fuzz_kernel.js';
 import { synchronous } from './guided_sync.js';
 import { Lifecycle, type CampaignReport, type Summary, type LifecycleInput, type LifecycleOutput } from './campaign_lifecycle.js';
@@ -119,6 +119,15 @@ export interface CampaignJobHooks<S, I, O, K, C extends Count = number> {
     disposeModel?: (model: CampaignModel<S, I, O>) => void;
     disposeFeedback?: (feedback: CampaignFeedback<S, I, O, K>) => void;
 }
+/**
+ * Internal caller-thread runner extension used by the assurance, automatic and Node
+ * hosts. Deliberately not part of CampaignJobHooks; it is passed as a separate
+ * argument by package-internal callers only. Coordinator and sink ownership are unchanged.
+ */
+export interface CampaignJobRunners<S, I, O, K, C extends Count = number> {
+    runJob?: (jobId:bigint,model:CampaignModel<S,I,O>,config:FuzzConfig<C>,limits:RunLimits,metadata:Metadata)=>FuzzReport<I,C>;
+    runGuidedJob?: (jobId:bigint,model:CampaignModel<S,I,O>,config:FuzzConfig<C>,limits:RunLimits,metadata:Metadata,feedback:CampaignFeedback<S,I,O,K>,guidance:GuidanceConfig<C>)=>GuidedFuzzReport<I,C>;
+}
 /** Never stringify arbitrary exception payloads or invoke a custom formatter. */
 export function campaignPanicMessage(value: unknown): string {
     if (typeof value === 'string') return value;
@@ -139,7 +148,7 @@ function voidCallback(callback: () => unknown): void {
 }
 
 /** Uses the actual public fuzz/guided functions; their native ModelError wrapping is preserved. */
-export function executeCampaignJob<S, I, O, K, C extends Count = number>(campaign: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, jobId: bigint, hooks: CampaignJobHooks<S, I, O, K, C> = {}): JobReport<I, C> {
+export function executeCampaignJob<S, I, O, K, C extends Count = number>(campaign: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, jobId: bigint, hooks: CampaignJobHooks<S, I, O, K, C> = {}, runners: CampaignJobRunners<S, I, O, K, C> = {}): JobReport<I, C> {
     const seed = jobSeed(campaign.masterSeed, jobId);
     const config = snapshotFuzzConfig({ ...campaign.fuzz, seed });
     let metadata: Metadata | null = null;
@@ -157,8 +166,9 @@ export function executeCampaignJob<S, I, O, K, C extends Count = number>(campaig
             if (hooks.guidance !== undefined) {
                 // remaining() includes model factory and metadata time; feedback construction is also timed.
                 feedback = synchronous(hooks.feedbackFactory!(jobId, model));
-                outcome = { kind: 'Completed', report: fuzzGuided(model, config, hooks.guidance, feedback, control.remaining()) };
-            } else outcome = { kind: 'Completed', report: fuzz(model, config, control.remaining()) };
+                outcome = { kind: 'Completed', report: runners.runGuidedJob?synchronous(runners.runGuidedJob(jobId,model,config,control.remaining(),metadata,feedback,hooks.guidance)):fuzzGuided(model, config, hooks.guidance, feedback, control.remaining()) };
+            } else if (runners.runJob) outcome = { kind:'Completed', report:synchronous(runners.runJob(jobId,model,config,control.remaining(),metadata)) };
+            else outcome = { kind: 'Completed', report: fuzz(model, config, control.remaining()) };
         } catch (error) {
             const panic = metadataPanic(error);
             if (panic) throw panic.value;
@@ -202,12 +212,12 @@ export async function invokeCampaignSink<I, C extends Count = number>(sink: Camp
     }
 }
 /** Internal serial runtime also used by the Node module host when configured workers=1. */
-export async function runCallerCampaign<S, I, O, K, C extends Count = number>(config: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I, C>, hooks: CampaignJobHooks<S, I, O, K, C> = {}): Promise<CampaignReport<C>> {
+export async function runCallerCampaign<S, I, O, K, C extends Count = number>(config: CampaignConfig<C>, control: CampaignControl, factory: CampaignFactory<S, I, O>, sink: CampaignSink<I, C>, hooks: CampaignJobHooks<S, I, O, K, C> = {}, runners: CampaignJobRunners<S, I, O, K, C> = {}): Promise<CampaignReport<C>> {
     const lifecycle = new Lifecycle(config.firstJob, config.jobs, config.stopOnFailure);
     for (;;) {
         const effects = applyCampaignEvent(lifecycle, { kind: 'Claim', stop: control.stop() });
         if (effects.length === 0) break;
-        const job = executeCampaignJob(config, control, factory, effects[0].jobId, hooks);
+        const job = executeCampaignJob(config, control, factory, effects[0].jobId, hooks, runners);
         applyCampaignEvent(lifecycle, { kind: 'Complete', jobId: job.jobId, summary: campaignSummary(job) });
         const receipt = applyCampaignEvent(lifecycle, { kind: 'Receive', jobId: job.jobId });
         if (receipt[0]?.kind !== 'Deliver') throw new Error('invalid campaign receipt');
@@ -230,6 +240,45 @@ export async function runGuidedCampaign<S, I, O, K, C extends Count = number>(va
     const config = validateCampaignConfig(value);
     if (BigInt(config.workers) !== 1n) throw new ConfigError('multiple campaign workers require an explicit host adapter; use node-campaign in Node');
     return runCallerCampaign(config, new CampaignControl(limits), factory, sink, { guidance: admitted, feedbackFactory });
+}
+
+/** Caller-thread automatic campaigns. Node worker hosts require a separate adapter. */
+export type AutoCampaignModel<S, I, O> = Omit<CampaignModel<S, I, O>, 'generate'> & EnumerateModel<S, I, O>;
+/**
+ * Internal runtime form of the AutoCampaignModel / NodeAutoCampaignModule contract:
+ * enumeration and input equality replace generate. A violation is a ModelError so a
+ * campaign job reports FactoryError instead of failing later inside the scan.
+ * A thenable is left to the synchronous-factory check.
+ */
+export function requireAutoCampaignModel<M>(model: M): M {
+    const m = model as unknown as Record<string, unknown> | null;
+    if (m === null || (typeof m !== 'object' && typeof m !== 'function')) throw new ModelError('automatic campaign model must be an object');
+    if (typeof (m as { then?: unknown }).then === 'function') return model;
+    if (typeof m.inputs !== 'function' || typeof m.equalInputs !== 'function') throw new ModelError('automatic campaign model requires inputs and equalInputs');
+    return model;
+}
+/** Internal: validate the exports a NodeAutoCampaignModule must provide before any job is claimed. */
+export function validateAutoCampaignModule(module: unknown, guided: boolean): void {
+    const m = module as Record<string, unknown> | null;
+    if (m === null || typeof m !== 'object') throw new Error('automatic worker module must be a module namespace object');
+    for (const name of ['createModel', 'encodeInput']) if (typeof m[name] !== 'function') throw new Error(`automatic worker module requires ${name}`);
+    if (guided && typeof m.createFeedback !== 'function') throw new Error('guided automatic worker module requires createFeedback');
+    for (const name of ['createFeedback', 'disposeModel', 'disposeFeedback']) if (m[name] !== undefined && typeof m[name] !== 'function') throw new Error(`automatic worker module export ${name} must be a function`);
+}
+export async function runAutoCampaign<S, I, O, C extends Count = number>(value: CampaignConfig<C>, limits: CampaignLimits, options: AutoOptions<Count>, factory: (jobId: bigint) => AutoCampaignModel<S, I, O>, sink: CampaignSink<I, C>): Promise<CampaignReport<C>> {
+    const maxCandidates = options.maxCandidates;
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    const config = validateCampaignConfig(value);
+    if (BigInt(config.workers) !== 1n) throw new ConfigError('automatic campaigns currently require one caller-thread worker');
+    return runCallerCampaign(config, new CampaignControl(limits), factory as unknown as CampaignFactory<S,I,O>, sink, {}, { runJob: (_id, model, fuzz, runLimits) => fuzzAuto(model as unknown as AutoCampaignModel<S,I,O>, {maxCandidates}, fuzz, runLimits) });
+}
+export async function runGuidedAutoCampaign<S, I, O, K, C extends Count = number>(value: CampaignConfig<C>, limits: CampaignLimits, options: AutoOptions<Count>, guidance: GuidanceConfig<C>, factory: (jobId: bigint) => AutoCampaignModel<S, I, O>, feedbackFactory: (jobId: bigint, model: AutoCampaignModel<S,I,O>) => CampaignFeedback<S,I,O,K>, sink: CampaignSink<I,C>): Promise<CampaignReport<C>> {
+    const maxCandidates = options.maxCandidates;
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    const admitted = validateGuidanceConfig(guidance);
+    const config = validateCampaignConfig(value);
+    if (BigInt(config.workers) !== 1n) throw new ConfigError('automatic campaigns currently require one caller-thread worker');
+    return runCallerCampaign(config, new CampaignControl(limits), factory as unknown as CampaignFactory<S,I,O>, sink, { guidance: admitted, feedbackFactory: feedbackFactory as unknown as (jobId: bigint, model: CampaignModel<S,I,O>) => CampaignFeedback<S,I,O,K> }, { runGuidedJob: (_id, model, fuzz, runLimits, _metadata, feedback, g) => fuzzGuidedAuto(model as unknown as AutoCampaignModel<S,I,O>, {maxCandidates}, fuzz, g, feedback, runLimits) });
 }
 
 function boundedCount(value: Count, low: bigint, high: bigint): boolean { try { const n = count64(value, "count"); return n >= low && n <= high; } catch { return false; } }

@@ -2,22 +2,27 @@
 // @ts-ignore Node built-ins; not reachable from the browser core entry.
 import { Worker, parentPort, workerData } from 'node:worker_threads';
 import { ModelError } from './errors.js';
-import { applyCampaignEvent, CampaignCancellation, CampaignControl, campaignPanicMessage, campaignSummary, executeCampaignJob, type CampaignConfig } from './campaign.js';
+import { applyCampaignEvent, CampaignCancellation, CampaignControl, campaignPanicMessage, campaignSummary, executeCampaignJob, requireAutoCampaignModel, validateAutoCampaignModule, type CampaignConfig } from './campaign.js';
 import { Lifecycle } from './campaign_lifecycle.js';
 import { packCampaignJob } from './campaign_wire.js';
 import type { NodeCampaignModule } from './node_campaign.js';
 import { TRANSPORT_PROBE_FIELDS as probeFields } from './campaign_test_support.js';
+import {runWorkerAssured,runWorkerAssuredGuided} from './assurance.js';
+import { fuzzAuto } from './search.js';
+import { fuzzGuidedAuto } from './guided.js';
 
 if (workerData.role === 'coordinator') coordinate();
 else void work().catch(error => { throw error; });
 
 async function work(): Promise<void> {
-    const { config, guidance, module, data, deadline, cancellation: buffer } = workerData;
+    const { config, guidance, module, data, deadline, cancellation: buffer, assurance, auto } = workerData;
     const cancellation = new CampaignCancellation(buffer);
     const control = new CampaignControl({ cancellation }, deadline);
     const implementation: NodeCampaignModule<any, any, any, any> = await import(module);
     if (typeof implementation.createModel !== 'function' || typeof implementation.encodeInput !== 'function') throw new Error('worker module requires createModel and encodeInput');
     if (guidance !== undefined && typeof implementation.createFeedback !== 'function') throw new Error('guided worker module requires createFeedback');
+    // The NodeAutoCampaignModule contract is a type; enforce it at runtime when automatic mode is requested.
+    if (auto) validateAutoCampaignModule(implementation, guidance !== undefined);
     let pending: ((reply: any) => void) | undefined;
     parentPort.on('message', (message: any) => {
         if (!pending) throw new Error('unsolicited campaign worker reply');
@@ -31,14 +36,19 @@ async function work(): Promise<void> {
         if (claim.kind === 'stop') break;
         if (claim.kind !== 'run') throw new Error('invalid campaign claim reply');
         const context = { cancellation };
-        const job = executeCampaignJob(config, control, id => implementation.createModel(id, data, context), claim.jobId, {
+        let evidence:unknown;
+        const job = executeCampaignJob(config, control, id => { const model = implementation.createModel(id, data, context); return auto ? requireAutoCampaignModel(model) : model; }, claim.jobId, {
             guidance,
             feedbackFactory: (id, model) => implementation.createFeedback!(id, model, data, context),
             disposeModel: implementation.disposeModel?.bind(implementation),
             disposeFeedback: implementation.disposeFeedback?.bind(implementation),
+        }, {
+            ...(auto?{runJob:(_id:any,model:any,jobConfig:any,jobLimits:any)=>fuzzAuto(model,auto,jobConfig,jobLimits),runGuidedJob:(_id:any,model:any,jobConfig:any,jobLimits:any,_actual:any,feedback:any,guided:any)=>fuzzGuidedAuto(model,auto,jobConfig,guided,feedback,jobLimits)}:{}),
+            ...(assurance?{runJob:(id:any,model:any,jobConfig:any,jobLimits:any,actual:any)=>{if(typeof implementation.createCoverage!=='function')throw new ModelError('worker module requires createCoverage');const coverage=implementation.createCoverage(id,model,data,context);if(typeof coverage!=='function')throw new ModelError('coverage factory must return a function');const result=runWorkerAssured(model,actual,assurance.metadata,assurance.manifest,coverage,jobConfig,jobLimits,assurance.observationLimits);evidence=result.assurance;if(!result.search.ok)throw result.search.error;return result.search.value;}}:{}),
+            ...(assurance?{runGuidedJob:(id:any,model:any,jobConfig:any,jobLimits:any,actual:any,feedback:any,guided:any)=>{if(typeof implementation.createCoverage!=='function')throw new ModelError('worker module requires createCoverage');const coverage=implementation.createCoverage(id,model,data,context);if(typeof coverage!=='function')throw new ModelError('coverage factory must return a function');const result=runWorkerAssuredGuided(model,actual,assurance.metadata,assurance.manifest,coverage,jobConfig,jobLimits,guided,feedback,assurance.observationLimits);evidence=result.assurance;if(!result.search.ok)throw result.search.error;return result.search.value;}}:{}),
         });
         // Complete and its stop effect happen before input transfer and the bounded blocking send.
-        const completed = await request({ kind: 'complete', jobId: job.jobId, summary: campaignSummary(job) });
+        const completed = await request({ kind: 'complete', jobId: job.jobId, summary: campaignSummary(job),assurance:evidence });
         if (completed.kind !== 'completed') throw new Error('invalid campaign complete reply');
         const wire = packCampaignJob(job, input => implementation.encodeInput(input));
         const sent = await request({ kind: 'send', job: wire });
@@ -122,7 +132,7 @@ function coordinate(): void {
     if (stopped) applyCampaignEvent(lifecycle, { kind: 'Claim', stop: stopped });
     else for (let index = 0; index < Number(BigInt(config.workers) < BigInt(config.jobs) ? BigInt(config.workers) : BigInt(config.jobs)); index++) {
         let worker: any;
-        try { worker = new Worker(new URL('./node_campaign_worker.js', import.meta.url), { workerData: { role: 'job', config, guidance, module, data, deadline, cancellation: buffer } }); }
+        try { worker = new Worker(new URL('./node_campaign_worker.js', import.meta.url), { workerData: { role: 'job', config, guidance, module, data, deadline, cancellation: buffer,auto:workerData.auto,assurance:workerData.assurance } }); }
         catch (error) {
             applyCampaignEvent(lifecycle, { kind: 'WorkerFailed', error: new ModelError(`unable to start campaign worker: ${campaignPanicMessage(error)}`), lostWork: false });
             break;
@@ -147,6 +157,7 @@ function coordinate(): void {
                 case 'complete':
                     if (sender.active !== message.jobId || sender.completed) throw new Error('invalid worker completion');
                     applyCampaignEvent(lifecycle, { kind: 'Complete', jobId: message.jobId, summary: message.summary });
+                    if(message.assurance!==undefined){if(!workerData.assurance)throw new Error('unexpected worker assurance');parentPort.postMessage({kind:'assurance',jobId:message.jobId,report:message.assurance});}
                     completedCount++;
                     sender.completed = true; worker.postMessage({ kind: 'completed' }); break;
                 case 'send': {

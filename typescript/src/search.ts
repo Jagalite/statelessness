@@ -29,65 +29,107 @@ function call<T>(stage: string, fn: () => T): T {
         throw new ModelError(`${stage}: ${e instanceof Error ? e.message : String(e)}`);
     }
 }
+function closeSimplifier<I>(iterator: Iterator<I>): void {
+    try { iterator.return?.(); }
+    catch (error) {
+        let detail = 'unknown error';
+        try { const text: unknown = error instanceof Error ? error.message : String(error); if (typeof text === 'string') detail = text; } catch { /* Hostile thrown value. */ }
+        throw new ModelError(`simpler_inputs close: ${detail}`);
+    }
+}
 const state = <S, I, O>(m: Model<S, I, O>, s: S): S => call('snapshot state', () => m.cloneState(s));
 const input = <S, I, O>(m: Model<S, I, O>, i: I): I => call('snapshot input', () => m.cloneInput(i));
 function copyTransition<S, I, O>(m: Model<S, I, O>, t: Transition<S, O>): Transition<S, O> { return call('snapshot transition', () => ({ state: m.cloneState(t.state), outputs: Array.from(t.outputs, o => m.cloneOutput(o)), disposition: disposition(t.disposition.kind, t.disposition.reason) })); }
-function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> { return copyTransition(m, call('step', () => m.step(state(m, s), input(m, i)))); }
+function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> {
+    const cloneInput = m.cloneInput, cloneState = m.cloneState, reduce = m.step;
+    const capturedInput = call('snapshot input', () => cloneInput.call(m, i));
+    const capturedState = call('snapshot state', () => cloneState.call(m, s));
+    return copyTransition(m, call('step', () => reduce.call(m, capturedState, capturedInput)));
+}
 function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
     return call('is_enabled', () => {
-        const v = m.isEnabled ? m.isEnabled(state(m, s), input(m, i)) : true;
+        const predicate = m.isEnabled;
+        if (!predicate) return true;
+        const cloneInput = m.cloneInput, cloneState = m.cloneState;
+        const capturedInput = call('snapshot input', () => cloneInput.call(m, i));
+        const capturedState = call('snapshot state', () => cloneState.call(m, s));
+        const v = predicate.call(m, capturedState, capturedInput);
         if (typeof v !== 'boolean')
             throw new TypeError('isEnabled must return boolean');
         return v;
     });
 }
 /** Transactional reservoir sampling: an oversized/erroring domain never advances rng. */
-export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng: Rng, options: AutoOptions<Count> = DEFAULT_AUTO): I | typeof NO_INPUT {
+export function sampleEnumerated<S, I, O>(m: EnumerateModel<S, I, O>, s: S, rng: Rng, options: AutoOptions<Count> = DEFAULT_AUTO, poll?: () => boolean): I | typeof NO_INPUT {
     const maxCandidates=options.maxCandidates;
     if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
     const candidate = rng.clone();
     let selected: I | typeof NO_INPUT = NO_INPUT, count = 0n;
     const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
-    for (;;) {
-        const item = call('enumerate inputs next', () => iterator.next());
-        if (item.done)
-            break;
-        if (count === BigInt(maxCandidates))
-            throw new ModelError('automatic input domain exceeds max_candidates');
-        count++;
-        if (count === 1n || candidate.index(BigInt(count)) === 0n)
-            selected = input(m, item.value);
-    }
+    let exhausted = false, failed = false;
+    try {
+        for (;;) {
+            if (poll?.()) { failed = true; return NO_INPUT; }
+            const item = call('enumerate inputs next', () => iterator.next());
+            if (poll?.()) { failed = true; return NO_INPUT; }
+            if (item.done) { exhausted = true; break; }
+            if (count === BigInt(maxCandidates))
+                throw new ModelError('automatic input domain exceeds max_candidates');
+            count++;
+            if (count === 1n || candidate.index(BigInt(count)) === 0n)
+                selected = input(m, item.value);
+        }
+    } catch (error) { failed = true; throw error; }
+    finally { if (!exhausted) { if (failed) { try { iterator.return?.(); } catch {} } else iterator.return?.(); } }
+    if (poll?.()) return NO_INPUT;
     rng.copyFrom(candidate);
     return selected;
 }
 export function containsEnumerated<S, I, O>(m: EnumerateModel<S, I, O> & {
     equalInputs(left: I, right: I): boolean;
-}, s: S, i: I, options: AutoOptions<Count> = DEFAULT_AUTO): boolean {
+}, s: S, i: I, options: AutoOptions<Count> = DEFAULT_AUTO, poll?: () => boolean): boolean {
     const maxCandidates=options.maxCandidates;
     if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    const cloneInput = m.cloneInput, cloneState = m.cloneState, inputs = m.inputs, equalInputs = m.equalInputs;
+    const copyInput = (value: I): I => call('snapshot input', () => cloneInput.call(m, value));
+    // Preserve the query before application state/domain callbacks can mutate an
+    // external alias. Defer a failed copy until a candidate needs comparison so
+    // an empty or failing domain keeps its normal outcome.
+    let query: { ok: true; value: I } | { ok: false; error: unknown };
+    try { query = { ok: true, value: copyInput(i) }; }
+    catch (error) { query = { ok: false, error }; }
     let count = 0n;
-    const iterator = call('enumerate inputs', () => m.inputs(state(m, s))[Symbol.iterator]());
-    for (;;) {
-        const item = call('enumerate inputs next', () => iterator.next());
-        if (item.done)
-            return false;
-        if (count === BigInt(maxCandidates))
-            throw new ModelError('automatic input domain exceeds max_candidates');
-        count++;
-        if (call('input equality', () => boolean(m.equalInputs(input(m, item.value), input(m, i)), 'equalInputs')))
-            return true;
-    }
+    const iterator = call('enumerate inputs', () => inputs.call(m, call('snapshot state', () => cloneState.call(m, s)))[Symbol.iterator]());
+    let exhausted = false, failed = false;
+    try {
+        for (;;) {
+            if (poll?.()) { failed = true; return false; }
+            const item = call('enumerate inputs next', () => iterator.next());
+            if (poll?.()) { failed = true; return false; }
+            if (item.done) { exhausted = true; return false; }
+            if (count === BigInt(maxCandidates))
+                throw new ModelError('automatic input domain exceeds max_candidates');
+            count++;
+            if (!query.ok) throw query.error;
+            const equal = call('input equality', () => boolean(equalInputs.call(m, copyInput(item.value), copyInput(query.value)), 'equalInputs'));
+            if (poll?.()) { failed = true; return false; }
+            if (equal) return true;
+        }
+    } catch (error) { failed = true; throw error; }
+    finally { if (!exhausted) { if (failed) { try { iterator.return?.(); } catch {} } else iterator.return?.(); } }
 }
 /** Preserve every model capability and bind delegated methods to their original receiver. */
 export function automatic<M extends EnumerateModel<any, any, any> & {
     equalInputs(left: any, right: any): boolean;
 }>(m: M, options: AutoOptions<Count> = DEFAULT_AUTO): M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never) {
+    return automaticControlled(m, options);
+}
+export function automaticControlled<M extends EnumerateModel<any, any, any> & { equalInputs(left: any, right: any): boolean }>(m: M, options: AutoOptions<Count> = DEFAULT_AUTO, poll?: () => boolean): M & (M extends Model<infer S, infer I, infer O> ? GenerateModel<S, I, O> : never) {
     const maxCandidates=options.maxCandidates;
     if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
     const opts = { maxCandidates };
-    const generate = (s: any, r: Rng) => sampleEnumerated(m, s, r, opts);
-    const isEnabled = (s: any, i: any) => containsEnumerated(m, s, i, opts);
+    const generate = (s: any, r: Rng) => sampleEnumerated(m, s, r, opts, poll);
+    const isEnabled = (s: any, i: any) => containsEnumerated(m, s, i, opts, poll);
     const bound = new Map<PropertyKey, unknown>();
     const facade = Object.assign(Object.create(Object.getPrototypeOf(m)), { generate, isEnabled }) as M;
     return new Proxy(facade, { get(target, key) {
@@ -138,9 +180,21 @@ export function fuzz<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O
 export function fuzz<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, config: FuzzConfig<C> = DEFAULT_FUZZ as FuzzConfig<C>, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I, C> {
     return runFuzz(m, snapshotFuzzConfig(config), runControl(limits), observer);
 }
+/** Cooperative finite-domain fuzzing; callback execution itself is not preempted. */
+export function fuzzAuto<S, I, O, C extends Count = number>(model: EnumerateModel<S, I, O> & { equalInputs(left: I, right: I): boolean }, options: AutoOptions<Count>, config: FuzzConfig<C>, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): FuzzReport<I, C> {
+    const maxCandidates = options.maxCandidates;
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    const owned = snapshotFuzzConfig(config);
+    const base = runControl(limits);
+    let reason: ControlStop | null = null;
+    const stop = () => reason ?? (reason = base());
+    const modelAuto = automaticControlled(model, { maxCandidates }, () => stop() !== null);
+    return runFuzz(modelAuto, owned, stop, observer);
+}
 /** Observe every fully checked edge, including the first failing edge. */
 export function fuzzObserved<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, config: FuzzConfig<C>, observer: SearchObserver<S, I, O>, limits: RunLimits = {}): FuzzReport<I, C> { return fuzz(m, config, limits, observer); }
 export interface ShrinkConfig<C extends Count = number> {
+    /** Bounds replay attempts and, separately, skipped duplicate simplifier hints. */
     readonly maxAttempts: C;
 }
 export const DEFAULT_SHRINK: ShrinkConfig = Object.freeze({ maxAttempts: 10000 });
@@ -199,9 +253,26 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
         reason: ShrinkTermination;
     };
     const replay = (inputs: readonly I[]): Candidate => {
+        type Captured = { ok: true; value: I } | { ok: false; error: unknown };
+        const capture = (value: I): Captured => {
+            try { return { ok: true, value: input(m, value) }; }
+            catch (error) { return { ok: false, error }; }
+        };
+        const unwrap = (value: Captured): I => { if (!value.ok) throw value.error; return value.value; };
+        const retained: Captured[] = [];
         let reason = stop();
         if (reason)
             return { kind: 'stopped', reason };
+        // Freeze the replay prefix before initial-state/check callbacks can
+        // change later candidate slots. Defer individual copy failures until
+        // their transition is reached, and do not capture beyond the budget.
+        const candidateLength = inputs.length;
+        const remaining = maxReplayedTransitions === undefined ? BigInt(candidateLength)
+            : maxReplayedTransitions > r.replayed_transitions
+                ? maxReplayedTransitions - r.replayed_transitions : 0n;
+        const captureCount = Number(remaining < BigInt(candidateLength) ? remaining : BigInt(candidateLength));
+        const slots = inputs.slice(0, captureCount);
+        const candidates = slots.map(capture);
         let s = state(m, call('shrink initial_state', () => m.initialState()));
         const initial = searchChecks(m,s,undefined,undefined,undefined,undefined,[],checkStorage);
         if (initial.violations.length)
@@ -209,23 +280,31 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
         reason = stop();
         if (reason)
             return { kind: 'stopped', reason };
-        for (let n = 0; n < inputs.length; n++) {
+        for (let n = 0; n < candidateLength; n++) {
             reason = stop();
             if (reason)
                 return { kind: 'stopped', reason };
             if (maxReplayedTransitions !== undefined && r.replayed_transitions >= maxReplayedTransitions)
                 return { kind: 'stopped', reason: 'transition_limit' };
-            const valid = enabled(m, s, inputs[n]);
+            // Preserve the witness before enabled/step callbacks can change an
+            // external alias to the candidate. The reducer receives its own copy.
+            const source = unwrap(candidates[n]);
+            const current = input(m, source);
+            const witnessInput = capture(current);
+            const stepInput = capture(current);
+            const observedInput = capture(current);
+            retained.push(witnessInput);
+            const valid = enabled(m, s, current);
             reason = stop();
             if (reason)
                 return { kind: 'stopped', reason };
             if (!valid)
                 return { kind: 'invalid' };
-            const t = step(m, s, inputs[n]);
+            const t = step(m, s, unwrap(stepInput));
             r.replayed_transitions = increment64(r.replayed_transitions, 'replayed transition count overflow');
-            const observed = searchChecks(m,t.state,s,inputs[n],t,undefined,[],checkStorage);
+            const observed = searchChecks(m,t.state,s,undefined,t,undefined,[],checkStorage,()=>unwrap(observedInput));
             if (observed.violations.length)
-                return { kind: 'failure', failure: { inputs: inputs.slice(0, n + 1).map(i => input(m, i)), violations: observed.violations } };
+                return { kind: 'failure', failure: { inputs: retained.map(i => input(m, unwrap(i))), violations: observed.violations } };
             reason = stop();
             if (reason)
                 return { kind: 'stopped', reason };
@@ -345,33 +424,48 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
             if (interrupted())
                 return r;
             const alternatives = call('simpler_inputs', () => (m.simplerInputs?.(input(m, r.minimized.inputs[index])) ?? [])[Symbol.iterator]());
-            if (interrupted())
-                return r;
-            let alternative = 0n;
-            for (;;) {
+            let exhausted = false, failed = false;
+            try {
                 if (interrupted())
                     return r;
-                const item = call('simpler_inputs next', () => alternatives.next());
-                if (interrupted())
-                    return r;
-                if (item.done)
-                    break;
-                const alt = alternative;
-                alternative = increment64(alternative, 'simplification index overflow');
-                const candidate = r.minimized.inputs.map(i => input(m, i));
-                candidate[index] = input(m, item.value);
-                const wasSeen = known(candidate);
-                if (interrupted())
-                    return r;
-                if (wasSeen)
-                    continue;
-                if (!attempt(candidate, { kind: 'simplify', index: countLike(BigInt(index), maxAttempts), alternative: countLike(alt, maxAttempts) }))
-                    return r;
-                if (r.history.at(-1)!.outcome === 'retained') {
-                    simplified = true;
-                    break positions;
+                let alternative = 0n;
+                // Already-seen hints do not create replay history, but a lazy
+                // simplifier can yield them forever. Bound consecutive skips per
+                // iterator (reset after every replayed hint), matching Rust
+                // shrink_ops, so finite multi-position runs are unaffected.
+                let duplicateHints = 0n;
+                for (;;) {
+                    if (interrupted())
+                        return r;
+                    const item = call('simpler_inputs next', () => alternatives.next());
+                    if (interrupted())
+                        return r;
+                    if (item.done) { exhausted = true; break; }
+                    const alt = alternative;
+                    alternative = increment64(alternative, 'simplification index overflow');
+                    const candidate = r.minimized.inputs.map(i => input(m, i));
+                    candidate[index] = input(m, item.value);
+                    const wasSeen = known(candidate);
+                    if (interrupted())
+                        return r;
+                    if (wasSeen) {
+                        if (duplicateHints === BigInt(maxAttempts)) {
+                            r.termination = 'attempt_limit';
+                            return r;
+                        }
+                        duplicateHints++;
+                        continue;
+                    }
+                    duplicateHints = 0n;
+                    if (!attempt(candidate, { kind: 'simplify', index: countLike(BigInt(index), maxAttempts), alternative: countLike(alt, maxAttempts) }))
+                        return r;
+                    if (r.history.at(-1)!.outcome === 'retained') {
+                        simplified = true;
+                        break positions;
+                    }
                 }
-            }
+            } catch (error) { failed = true; throw error; }
+            finally { if (!exhausted) { if (failed) { try { alternatives.return?.(); } catch {} } else closeSimplifier(alternatives); } }
         }
         if (!simplified)
             return r;

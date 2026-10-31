@@ -1,7 +1,7 @@
 import { count64, countLike, arrayGrowth, type Count, type CountValue } from './counts.js';
 /** Feature novelty guides generation; it never merges model states or replaces checks. */
-import { ModelError, ConfigError, natural, scalar, disposition, type Model, type Transition, type Rng } from './core.js';
-import { type GenerateModel, type FuzzConfig, type FuzzReport } from './search.js';
+import { ModelError, ConfigError, natural, scalar, disposition, type Model, type EnumerateModel, type Transition, type Rng } from './core.js';
+import { automaticControlled, type AutoOptions, type GenerateModel, type FuzzConfig, type FuzzReport } from './search.js';
 import { runFuzz, snapshotFuzzConfig, type FuzzDriver } from './fuzz_kernel.js';
 import { runControl, addSkippedChecks, type RunLimits, type SearchObserver } from './search_support.js';
 import { feedbackMetadataCall, guidedCall, synchronous, synchronousVoid } from './guided_sync.js';
@@ -256,6 +256,22 @@ export function fuzzGuided<S, I, O, K, C extends Count = number>(model: Generate
     const stop = runControl(limits);
     const metadata = feedbackMetadataCall(() => copyMetadata(feedback.metadata()));
     const m = synchronousModel(model);
+    const driver = new Driver(m, feedback, admitted, metadata, fuzz.cases);
+    const report = runFuzz(m, fuzz, stop, synchronousObserver(observer), driver);
+    return { ...report, guidance: driver.report };
+}
+/** Guided fuzz with cooperative finite-domain scans; callbacks are not preempted. */
+export function fuzzGuidedAuto<S, I, O, K, C extends Count = number>(model: EnumerateModel<S, I, O> & { equalInputs(left: I, right: I): boolean }, options: AutoOptions<Count>, config: FuzzConfig<C>, guidance: GuidanceConfig<C>, feedback: Feedback<S, I, O, K>, limits: RunLimits = {}, observer?: SearchObserver<S, I, O>): GuidedFuzzReport<I, C> {
+    const maxCandidates = options.maxCandidates;
+    if (count64(maxCandidates, 'maxCandidates') === 0n) throw new ConfigError('maxCandidates must be positive');
+    const admitted = validateGuidanceConfig(guidance);
+    const fuzz = snapshotFuzzConfig(config, true);
+    const base = runControl(limits);
+    let reason: 'cancelled' | 'deadline' | null = null;
+    const stop = () => reason ?? (reason = base());
+    const auto = automaticControlled(model, { maxCandidates }, () => stop() !== null);
+    const metadata = feedbackMetadataCall(() => copyMetadata(feedback.metadata()));
+    const m = synchronousModel(auto);
     const driver = new Driver(m, feedback, admitted, metadata, fuzz.cases);
     const report = runFuzz(m, fuzz, stop, synchronousObserver(observer), driver);
     return { ...report, guidance: driver.report };

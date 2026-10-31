@@ -38,10 +38,18 @@ function call<T>(stage: string, fn: () => T): T {
 const state = <S, I, O>(m: Model<S, I, O>, s: S): S => call('snapshot state', () => m.cloneState(s));
 const input = <S, I, O>(m: Model<S, I, O>, i: I): I => call('snapshot input', () => m.cloneInput(i));
 function copyTransition<S, I, O>(m: Model<S, I, O>, t: Transition<S, O>): Transition<S, O> { return call('snapshot transition', () => ({ state: m.cloneState(t.state), outputs: Array.from(t.outputs, o => m.cloneOutput(o)), disposition: disposition(t.disposition.kind, t.disposition.reason) })); }
+type Captured<T> = { ok: true; value: T } | { ok: false; error: unknown };
+function capture<T>(fn: () => T): Captured<T> { try { return {ok:true,value:fn()}; } catch (error) { return {ok:false,error}; } }
+function take<T>(value: Captured<T>): T { if (!value.ok) throw value.error; return value.value; }
 function step<S, I, O>(m: Model<S, I, O>, s: S, i: I): Transition<S, O> { return copyTransition(m, call('step', () => m.step(state(m, s), input(m, i)))); }
 function enabled<S, I, O>(m: GenerateModel<S, I, O>, s: S, i: I): boolean {
     return call('is_enabled', () => {
-        const v = m.isEnabled ? m.isEnabled(state(m, s), input(m, i)) : true;
+        const predicate = m.isEnabled;
+        if (!predicate) return true;
+        const cloneInput = m.cloneInput, cloneState = m.cloneState;
+        const capturedInput = call('snapshot input', () => cloneInput.call(m, i));
+        const capturedState = call('snapshot state', () => cloneState.call(m, s));
+        const v = predicate.call(m, capturedState, capturedInput);
         if (typeof v !== 'boolean')
             throw new TypeError('isEnabled must return boolean');
         return v;
@@ -64,8 +72,12 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
         if (stopped())
             return r;
         let s = state(m, call('initial_state', () => m.initialState()));
+        // Keep the check observation separate from continuation: cloning the
+        // latter can invoke application code that mutates an external alias.
+        const initialCheck = capture(() => state(m, s));
+        const initialState = capture(() => state(m, s));
         r.cases = countLike(BigInt(r.cases) + 1n, config.cases);
-        const initial = searchChecks(m, s, undefined, undefined, undefined, observer,[],checkStorage);
+        const initial = searchChecks(m, initialCheck.ok ? initialCheck.value : s, undefined, undefined, undefined, observer,[],checkStorage,undefined,()=>take(initialCheck));
         r.skipped_checks = addSkippedChecks(r.skipped_checks,initial.skipped);
         if (initial.violations.length) {
             r.termination = 'failure_found';
@@ -74,9 +86,12 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
         }
         if (stopped())
             return r;
+        if (driver || BigInt(config.maxSteps) > 0n) s = take(initialState);
         if (driver) {
+            const continuation = capture(() => state(m, s));
             guidedCall('initial feedback', () => driver.initial(s, BigInt(r.cases)));
             if (stopped()) return r;
+            if (BigInt(config.maxSteps) > 0n) s = take(continuation);
         }
         let mutated: I[] = [], replace: number | null = null;
         if (driver) {
@@ -98,29 +113,57 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
             }
             if (stopped())
                 return r;
+            const executionState = capture(() => state(m, s));
+            const current = executionState.ok ? executionState.value : s;
+            const admissionState = capture(() => state(m, current));
+            const admission = admissionState.ok ? admissionState.value : current;
+            // Feedback's before-state must predate enabled/generation callbacks.
+            const feedbackBefore = driver ? capture(() => state(m, current)) : undefined;
             let next: I | typeof NO_INPUT = NO_INPUT, reused = false;
-            if ((replace === null || n !== BigInt(replace)) && n < BigInt(mutated.length) && enabled(m, s, mutated[Number(n)])) {
-                next = input(m, mutated[Number(n)]);
-                reused = true;
+            let admitted: Captured<I> | undefined;
+            if ((replace === null || n !== BigInt(replace)) && n < BigInt(mutated.length)) {
+                const candidate = mutated[Number(n)];
+                const captured = capture(() => input(m, candidate));
+                if (enabled(m, admission, captured.ok ? captured.value : candidate)) {
+                    admitted = captured;
+                    next = captured.ok ? captured.value : candidate;
+                    reused = true;
+                }
             }
             if (stopped())
                 return r;
             if (!reused)
-                next = call('generate', () => { const v = m.generate(state(m, s), rng); return v === NO_INPUT ? NO_INPUT : input(m, v); });
+                next = call('generate', () => { const v = m.generate(state(m, admission), rng); return v === NO_INPUT ? NO_INPUT : input(m, v); });
             if (stopped())
                 return r;
             if (next === NO_INPUT)
                 break;
-            const valid = reused || enabled(m, s, next);
+            if (!admitted) admitted = capture(() => input(m, next as I));
+            const valid = reused || enabled(m, admission, admitted.ok ? admitted.value : next);
             if (stopped())
                 return r;
             if (!valid)
                 throw new ModelError('generate returned a causally disabled input');
-            const t = step(m, s, next);
+            take(admissionState);
+            const beforeState = take(executionState);
+            // Retain the admitted input before reducer callbacks can mutate an
+            // external alias. Clone hooks must still provide detached values.
+            const observedInput = take(admitted);
+            const feedbackInput = driver ? capture(() => input(m, observedInput)) : undefined;
+            const edgeBefore = capture(() => state(m, beforeState));
+            const edgeInput = capture(() => input(m, observedInput));
+            const stepInput = input(m, observedInput);
+            const t = step(m, beforeState, stepInput);
             r.transitions++;
+            const edgeState = capture(() => state(m, t.state));
+            const edgeTransition = capture(() => copyTransition(m, t));
+            const successor = capture(() => state(m, t.state));
+            const feedbackTransition = driver ? capture(() => copyTransition(m, t)) : undefined;
             arrayGrowth(inputs.length);
-            inputs.push(input(m, next));
-            const observed = searchChecks(m, t.state, s, next, t, observer, inputs,checkStorage);
+            inputs.push(input(m, observedInput));
+            const feedbackHistory = driver ? capture(() => inputs.map(i => input(m, i))) : undefined;
+            const observed = searchChecks(m, t.state, beforeState, observedInput, t, observer, inputs,checkStorage,
+                () => take(edgeInput), () => take(edgeState), () => take(edgeTransition), () => take(edgeBefore));
             r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
             if (observed.violations.length) {
                 r.termination = 'failure_found';
@@ -130,10 +173,10 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
             if (stopped())
                 return r;
             if (driver) {
-                guidedCall('transition feedback', () => driver.transition(s, next as I, t, inputs, BigInt(r.cases), r.transitions));
+                guidedCall('transition feedback', () => driver.transition(take(feedbackBefore!), take(feedbackInput!), take(feedbackTransition!), take(feedbackHistory!), BigInt(r.cases), r.transitions));
                 if (stopped()) return r;
             }
-            s = t.state;
+            if (n + 1n < BigInt(config.maxSteps) && r.transitions < config.maxTransitions) s = take(successor);
         }
         previous = inputs;
     }

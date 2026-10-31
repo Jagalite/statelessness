@@ -145,7 +145,7 @@ test('automatic sampling and shrink use exact bounds without huge materializatio
     assert.equal(sampleEnumerated(m, 0, new Rng(1n), { maxCandidates: MAX }), NO_INPUT);
     assert.equal(containsEnumerated(m, 0, 1, { maxCandidates: MAX }), false);
     assert.equal(automatic(m, { maxCandidates: MAX }).generate(0, new Rng(1n)), NO_INPUT);
-    const failure = { inputs: [], violations: [{ phase: 'state', check: check('failure', 'failed', 'bounded initial failure') }] };
+    const failure = { inputs: [], violations: [{ phase: 'initial_state', check: check('failure', 'failed', 'bounded initial failure') }] };
     const stopped = shrink(initialFailure(), failure, { maxAttempts: MAX }, { cancellation: () => true });
     assert.equal(stopped.termination, 'cancelled'); assert.equal(stopped.attempts, 1n); assert.equal(stopped.history[0].candidate_length, 0n);
     const result = shrink(initialFailure(), failure, { maxAttempts: MAX });

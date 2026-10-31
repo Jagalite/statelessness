@@ -1,5 +1,5 @@
 /** Optional typed simulation: host callbacks remain synchronous and cooperative. */
-import {type Model,type CodecModel,type Check,type Transition,ModelError,ConfigError,natural,disposition} from './core.js';
+import {type Model,type CodecModel,type Check,type Transition,ModelError,ConfigError,natural,scalar,disposition} from './core.js';
 import {checkInitial,checkTurnExact,type CheckedInitial,type CheckedTurn,type ExactCheckPolicy,FULL_CHECKS_EXACT} from './checked.js';
 import {EncodeStorage,encodeModel} from './encoding.js';
 import {BRANCH_FACTORY} from './debug_internal.js';
@@ -14,14 +14,16 @@ export interface DebugTurn<S,I,O>{readonly sequence:bigint;readonly before:S;rea
 export interface StepResult {readonly sequence:bigint;readonly delivered:boolean;readonly stop:SessionStop|null}
 export interface SessionRecorder<S,I,O>{recordCheckedTurn(turn:CheckedTurn<S,I,O>):void}
 function synchronous(value:unknown):void{if(value!==undefined){if(value instanceof Promise)void value.catch(()=>{});throw new ModelError('callback must return undefined synchronously');}}
+function policyBoolean(value:unknown,message:string):boolean{if(typeof value==='boolean')return value;if(value instanceof Promise)void value.catch(()=>{});throw new ModelError(message);}
 const message=(e:unknown)=>e instanceof Error?e.message:String(e);
 /** Capture declaration topology, not the application's callback receiver. */
-function capturePolicy<S,I>(policy:InputPolicy<S,I>):InputPolicy<S,I>{
- const kind=policy.kind,label=policy.label;
- if(kind==='declared'){const permits=(policy as Extract<InputPolicy<S,I>,{kind:'declared'}>).permits;return Object.freeze({kind,label,permits:permits.bind(policy)});}
- if(kind==='enumerated'){const {candidates,equal}=policy as Extract<InputPolicy<S,I>,{kind:'enumerated'}>;return Object.freeze({kind,label,candidates:candidates.bind(policy),equal:equal.bind(policy)});}
- return Object.freeze({kind,label});
+export function capturePolicy<S,I>(policy:InputPolicy<S,I>):InputPolicy<S,I>{
+ if(!policy||typeof policy!=='object')throw new ModelError('invalid input policy');const kind=policy.kind,label=policy.label;scalar(label);
+ if(kind==='declared'){const permits=(policy as Extract<InputPolicy<S,I>,{kind:'declared'}>).permits;if(typeof permits!=='function')throw new ModelError('invalid input policy');return Object.freeze({kind,label,permits:permits.bind(policy)});}
+ if(kind==='enumerated'){const {candidates,equal}=policy as Extract<InputPolicy<S,I>,{kind:'enumerated'}>;if(typeof candidates!=='function'||typeof equal!=='function')throw new ModelError('invalid input policy');return Object.freeze({kind,label,candidates:candidates.bind(policy),equal:equal.bind(policy)});}
+ if(kind!=='unrestricted')throw new ModelError('invalid input policy');return Object.freeze({kind,label});
 }
+function captureConfig(config:RunConfig):RunConfig{const {strategy,seed,parameters}=config;return {strategy,seed,parameters:parameters.map(([key,value])=>[key,value] as const)};}
 const candidates=new WeakMap<object,{owner:object;epoch:bigint;revision:bigint;input:unknown}>();
 export interface CandidateToken<I>{readonly revision:bigint;readonly input:I}
 export class DebugSession<S,I,O>{
@@ -30,26 +32,27 @@ export class DebugSession<S,I,O>{
  #pending:{revision:bigint;input:I}|null=null;#pre=new Map<bigint,(state:S,input:I)=>boolean>();#post=new Map<bigint,(turn:DebugTurn<S,I,O>)=>boolean>();#issues:string[]=[];
  readonly #domain?:{inputs:(state:S)=>Iterable<I>;equal:(left:I,right:I)=>boolean};readonly #equalInputs:(left:I,right:I)=>boolean;readonly #checks:ExactCheckPolicy;#recorder?:SessionRecorder<S,I,O>;#nativeRecorder?:Recorder<S,I,O>;
  constructor(id:string,model:Model<S,I,O>,policy:InputPolicy<S,I>,limits:SessionLimits,options:{state?:S;checkPolicy?:ExactCheckPolicy;recorder?:SessionRecorder<S,I,O>;equalInputs?:(left:I,right:I)=>boolean;makeRecorder?:(initial:CheckedInitial<S,I,O>)=>SessionRecorder<S,I,O>;inputDomain?:{inputs:(state:S)=>Iterable<I>;equal:(left:I,right:I)=>boolean}}={}){
+  const policySnapshot=capturePolicy(policy),limitSnapshot:SessionLimits={maxTurns:limits.maxTurns,maxContinue:limits.maxContinue,maxCandidates:limits.maxCandidates,maxBreakpoints:limits.maxBreakpoints},sourceChecks=options.checkPolicy??FULL_CHECKS_EXACT,checksSnapshot={stateEvery:sourceChecks.stateEvery,transitionChecks:sourceChecks.transitionChecks},recorderSnapshot=options.recorder,makeRecorder=options.makeRecorder,optionEquality=options.equalInputs,domain=options.inputDomain,modelInputEquality=(model as Model<S,I,O>&{equalInputs?:(left:I,right:I)=>boolean}).equalInputs,modelInputs=(model as Model<S,I,O>&{inputs?:(state:S)=>Iterable<I>}).inputs;
+  const domainSnapshot=domain?Object.freeze({inputs:domain.inputs.bind(domain),equal:domain.equal.bind(domain)}):undefined;
   const initial=Object.hasOwn(options,'state')?options.state as S:model.initialState();
-  if(!id)throw new ConfigError('nonempty session identity required');if(typeof limits.maxTurns!=='bigint'||limits.maxTurns<1n||limits.maxTurns>U64)throw new ConfigError('maxTurns must be positive u64 bigint');
-  natural(limits.maxContinue,'maxContinue',1);natural(limits.maxBreakpoints,'maxBreakpoints');natural(limits.maxCandidates,'maxCandidates',1);
-  if(epoch===U64-1n)throw new ModelError('session epoch exhausted');this.epoch=++epoch;this.id=id;this.#model=model;this.#policy=capturePolicy(policy);this.#limits={...limits};this.#checks={...(options.checkPolicy??FULL_CHECKS_EXACT)};this.#recorder=options.recorder;
-  const capturedPolicy=this.#policy,modelInputEquality=(model as Model<S,I,O>&{equalInputs?:(left:I,right:I)=>boolean}).equalInputs,optionEquality=options.equalInputs;
+  if(!id)throw new ConfigError('nonempty session identity required');if(typeof limitSnapshot.maxTurns!=='bigint'||limitSnapshot.maxTurns<1n||limitSnapshot.maxTurns>U64)throw new ConfigError('maxTurns must be positive u64 bigint');
+  natural(limitSnapshot.maxContinue,'maxContinue',1);natural(limitSnapshot.maxBreakpoints,'maxBreakpoints');natural(limitSnapshot.maxCandidates,'maxCandidates',1);
+  if(epoch===U64-1n)throw new ModelError('session epoch exhausted');this.epoch=++epoch;this.id=id;this.#model=model;this.#policy=policySnapshot;this.#limits=limitSnapshot;this.#checks=checksSnapshot;this.#recorder=recorderSnapshot;
+  const capturedPolicy=this.#policy;
   this.#equalInputs=optionEquality?optionEquality.bind(options):(modelInputEquality?modelInputEquality.bind(model):capturedPolicy.kind==='enumerated'?capturedPolicy.equal:Object.is);
-  const modelInputs=(model as Model<S,I,O>&{inputs?:(state:S)=>Iterable<I>}).inputs,domain=options.inputDomain;
-  if(domain){const {inputs,equal}=domain;this.#domain=Object.freeze({inputs:inputs.bind(domain),equal:equal.bind(domain)});}
+  if(domainSnapshot)this.#domain=domainSnapshot;
   else this.#domain=modelInputs?{inputs:modelInputs.bind(model),equal:this.#equalInputs}:capturedPolicy.kind==='enumerated'?{inputs:capturedPolicy.candidates,equal:capturedPolicy.equal}:undefined;
   this.#state=model.cloneState(initial);
-  this.#busy=true;try{const initial=checkInitial(model,this.#state);this.#initialChecks=initial.checks;if(options.makeRecorder)try{this.#recorder=options.makeRecorder(initial);}catch(e){this.#issues.push(`exact recording: ${message(e)}`);this.#phase='ended';this.#stop={kind:'recording_error',message:message(e)};}if(this.#initialChecks.some(c=>c.status==='failed')){this.#phase='ended';this.#stop={kind:'property_failure'};}}catch(e){this.#phase='ended';this.#stop={kind:'initial_check_error',message:message(e)};}finally{this.#busy=false;}
+  this.#busy=true;try{const initial=checkInitial(model,this.#state);this.#initialChecks=initial.checks;if(makeRecorder)try{this.#recorder=makeRecorder.call(options,initial);}catch(e){this.#issues.push(`exact recording: ${message(e)}`);this.#phase='ended';this.#stop={kind:'recording_error',message:message(e)};}if(this.#initialChecks.some(c=>c.status==='failed')){this.#phase='ended';this.#stop={kind:'property_failure'};}}catch(e){this.#phase='ended';this.#stop={kind:'initial_check_error',message:message(e)};}finally{this.#busy=false;}
  }
  static recording<S,I,O>(id:string,model:CodecModel<S,I,O>,policy:InputPolicy<S,I>,limits:SessionLimits,config:RunConfig,options:RecorderOptions={},state?:{value:S}):DebugSession<S,I,O>{
-  if(config.parameters.some(([key])=>key.startsWith('stateless.debug.')))throw new ModelError('stateless.debug. parameters are reserved');return DebugSession.#recording(id,model,policy,limits,config,options,state);
+  const captured=captureConfig(config);if(captured.parameters.some(([key])=>key.startsWith('stateless.debug.')))throw new ModelError('stateless.debug. parameters are reserved');return DebugSession.#recording(id,model,policy,limits,captured,options,state);
  }
- static [BRANCH_FACTORY]<S,I,O>(id:string,model:CodecModel<S,I,O>,policy:InputPolicy<S,I>,limits:SessionLimits,config:RunConfig,options:RecorderOptions={},state?:{value:S}):DebugSession<S,I,O>{return DebugSession.#recording(id,model,policy,limits,config,options,state);}
+ static [BRANCH_FACTORY]<S,I,O>(id:string,model:CodecModel<S,I,O>,policy:InputPolicy<S,I>,limits:SessionLimits,config:RunConfig,options:RecorderOptions={},state?:{value:S}):DebugSession<S,I,O>{return DebugSession.#recording(id,model,policy,limits,captureConfig(config),options,state);}
  static #recording<S,I,O>(id:string,model:CodecModel<S,I,O>,policy:InputPolicy<S,I>,limits:SessionLimits,config:RunConfig,options:RecorderOptions={},state?:{value:S}):DebugSession<S,I,O>{
   let native:Recorder<S,I,O>|undefined;
-  const parameters=config.parameters.map(([k,v])=>[k,v] as [string,string]);parameters.push(['stateless.debug.environment',policy.label],['stateless.debug.origin',policy.kind==='unrestricted'?'out-of-domain-injection':'simulation']);
-  const session=new DebugSession(id,model,policy,limits,{...(state?{state:state.value}:{}),makeRecorder:initial=>{native=Recorder.withCheckedInitial(initial,{...config,parameters},options);return {recordCheckedTurn:turn=>{native!.observeChecked(turn);}};}});session.#nativeRecorder=native;return session;
+  const capturedPolicy=capturePolicy(policy),parameters=config.parameters.map(([k,v])=>[k,v] as [string,string]),recorderLimits=options.limits,recorderOptions:RecorderOptions={maxSteps:options.maxSteps,maxRetainedBytes:options.maxRetainedBytes,...(recorderLimits?{limits:{...recorderLimits}}:{})};parameters.push(['stateless.debug.environment',capturedPolicy.label],['stateless.debug.origin',capturedPolicy.kind==='unrestricted'?'out-of-domain-injection':'simulation']);
+  const session=new DebugSession(id,model,capturedPolicy,limits,{...(state?{state:state.value}:{}),makeRecorder:initial=>{native=Recorder.withCheckedInitial(initial,{...config,parameters},recorderOptions);return {recordCheckedTurn:turn=>{native!.observeChecked(turn);}};}});session.#nativeRecorder=native;return session;
  }
  withReadOwnership<T>(read:()=>T):T{return this.#read(read);}
  projectState<T>(project:(state:S)=>T):T{return this.#read(()=>project(this.#model.cloneState(this.#state)));}
@@ -73,13 +76,18 @@ export class DebugSession<S,I,O>{
  addPreBreakpoint(predicate:(state:S,input:I)=>boolean):bigint{if(this.#busy)throw new ModelError('session busy');const id=this.#breakpoint();this.#pre.set(id,predicate);return id;}
  addPostBreakpoint(predicate:(turn:DebugTurn<S,I,O>)=>boolean):bigint{if(this.#busy)throw new ModelError('session busy');const id=this.#breakpoint();this.#post.set(id,predicate);return id;}
  removeBreakpoint(id:bigint):boolean{if(this.#busy)throw new ModelError('session busy');return this.#pre.delete(id)||this.#post.delete(id);}
- #permits(input:I):boolean{const p=this.#policy;if(p.kind==='unrestricted')return true;const m=this.#model;if(p.kind==='declared'){const value=p.permits(m.cloneState(this.#state),m.cloneInput(input));if(typeof value!=='boolean')throw new ModelError('policy admission must return boolean');return value;}const it=p.candidates(m.cloneState(this.#state))[Symbol.iterator]();let found=false;
-  try{for(let n=0;;n++){const next=it.next();if(next.done)return found;if(n>=this.#limits.maxCandidates)throw new ModelError('environmental admission candidate limit');const equal=p.equal(m.cloneInput(next.value),m.cloneInput(input));if(typeof equal!=='boolean')throw new ModelError('policy equality must return boolean');if(equal)return true;}}finally{it.return?.();}}
+ #permits(input:I):boolean{const p=this.#policy;if(p.kind==='unrestricted')return true;const m=this.#model;
+  // Preserve the admitted query before state/domain callbacks can mutate aliases.
+  // For enumerated policies an unused copy failure must not defeat an empty domain.
+  if(p.kind==='declared'){const query=m.cloneInput(input);return policyBoolean(p.permits(m.cloneState(this.#state),query),'policy admission must return boolean');}
+  let query:{ok:true;value:I}|{ok:false;error:unknown};try{query={ok:true,value:m.cloneInput(input)};}catch(error){query={ok:false,error};}
+  const it=p.candidates(m.cloneState(this.#state))[Symbol.iterator]();
+  try{for(let n=0;;n++){const next=it.next();if(next.done)return false;if(n>=this.#limits.maxCandidates)throw new ModelError('environmental admission candidate limit');if(!query.ok)throw query.error;const equal=policyBoolean(p.equal(m.cloneInput(next.value),m.cloneInput(query.value)),'policy equality must return boolean');if(equal)return true;}}finally{it.return?.();}}
  step(expected:bigint,input:I,observer?:(turn:DebugTurn<S,I,O>)=>void):StepResult{
   this.#guard(expected);if(this.#phase==='ended'||this.#phase==='disconnected')throw new ModelError('session ended');const result=(delivered:boolean):StepResult=>({sequence:this.#sequence,delivered,stop:this.stopReason});
   if(this.#sequence>=this.#limits.maxTurns||this.#revision===U64){this.#phase='ended';this.#stop={kind:'budget_exhausted'};return result(false);}
   const m=this.#model;this.#busy=true;
-  try{input=m.cloneInput(input);const oldPhase=this.#phase;this.#phase='ended';if(!this.#permits(input)){this.#phase=oldPhase;throw new ModelError('input not permitted');}
+  try{const oldPhase=this.#phase;this.#phase='ended';input=m.cloneInput(input);if(!this.#permits(input)){this.#phase=oldPhase;throw new ModelError('input not permitted');}
    let bypass=false;
    if(this.#pending!==null&&this.#pending.revision===this.#revision){const equal=this.#policy.kind==='enumerated'?this.#policy.equal:this.#equalInputs;const same=equal(m.cloneInput(this.#pending.input),m.cloneInput(input));if(typeof same!=='boolean'){if((same as unknown) instanceof Promise)void (same as unknown as Promise<unknown>).catch(()=>{});throw new ModelError('input equality must return boolean');}bypass=same;}
    this.#pending=null;

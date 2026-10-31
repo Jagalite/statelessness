@@ -6,6 +6,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./node-reference": {
+      "types": "./dist/node_reference.d.ts",
+      "import": "./dist/node_reference.js"
+    },
     "./node-campaign": {
       "types": "./dist/node_campaign.d.ts",
       "import": "./dist/node_campaign.js"
@@ -46,6 +50,10 @@
       "types": "./dist/debug_protocol.d.ts",
       "import": "./dist/debug_protocol.js"
     },
+    "./debug/node-protocol": {
+      "types": "./dist/node_debug_protocol.d.ts",
+      "import": "./dist/node_debug_protocol.js"
+    },
     "./debug/metrics": {
       "types": "./dist/debug_metrics.d.ts",
       "import": "./dist/debug_metrics.js"
@@ -68,7 +76,9 @@
     }
   },
   "bin": {
-    "stateless-corpus": "./bin/corpus.mjs"
+    "stateless-corpus": "./bin/corpus.mjs",
+    "stateless-reference-suite": "./bin/reference-suite.mjs",
+    "stateless-demo": "./bin/demo.mjs"
   },
   "files": [
     "dist",
@@ -80,8 +90,9 @@
     "examples"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test test/*.test.mjs",
+    "build": "node scripts/reference-identity.mjs && node scripts/runtime-identity.mjs && tsc -p tsconfig.json",
+    "test": "npm run build && npm run typecheck:tests && node --test test/*.test.mjs",
+    "typecheck:tests": "tsc -p test/tsconfig.json",
     "prepack": "npm run build"
   },
   "devDependencies": {

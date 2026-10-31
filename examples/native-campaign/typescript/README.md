@@ -40,3 +40,21 @@ callback or sink. Sorting the collected job identities is display logic, not a
 generic CampaignReport merge or a durable queue checkpoint.
 
 See [the API and evidence boundary](../../../docs/native-parity/N06-TYPESCRIPT.md).
+
+`reference.mjs` is the separate caller-thread adapter for the Rust public
+campaign fixture. It executes the public TypeScript `jobSeed`, campaign
+validation, `runCampaign`, and `runGuidedCampaign` APIs; it does not read or
+generate expected results. With the candidate package installed, use:
+
+```sh
+node reference.mjs --list-cases
+node reference.mjs --case guided-basic
+node reference.mjs --all-reference
+node --test reference.test.mjs
+```
+
+The inventory contains 15 seed, 15 validation and 19 campaign cases in fixture
+order. Output is JSON Lines with full-width counts encoded as decimal strings.
+Errors and callback order are the TypeScript engine's actual results, so any
+differences from Rust must be reported rather than normalized away. This
+source-tree smoke test is not an installed-release or cross-platform qualification.

@@ -1,0 +1,16 @@
+import {enumerateStatesExact,type ExactSearchConfig,type SearchReport,type SearchLimits,type Failure} from './core.js';
+import {shrink,type ShrinkConfig,type ShrinkLimits} from './search.js';
+import {ReferenceController,REFERENCE_MUTATIONS,type ReferenceInput,type ReferenceMutation} from './reference_controller.js';
+
+export const REFERENCE_MUTATION_TARGETS:Readonly<Record<ReferenceMutation,string>>=Object.freeze({'obsolete-publication':'controller.publication_current','missing-cleanup':'controller.cleanup_required','double-settlement':'controller.settlement_once','dropped-cancellation-ack':'controller.cancellation_ack','duplicate-completion':'controller.duplicate_inert','early-release':'controller.release_after_settlement','skipped-retry-deadline':'controller.retry_deadline','ignored-mutation':'controller.ignored_inert','reordered-effects':'controller.effect_order'});
+export interface ReferenceMutationResult {mutation:ReferenceMutation;status:{kind:'Killed'|'Survives'}|{kind:'NotEvaluated';reason:string};search:SearchReport<ReferenceInput>['termination']|null;original:Failure<ReferenceInput>|null;minimized:Failure<ReferenceInput>|null;shrinkComplete:boolean}
+export interface ReferenceEvaluationLimits {readonly search?:SearchLimits;readonly shrink?:ShrinkLimits}
+/** Exhaustion is survival; budgets, unrelated failures and callback errors never become kills. */
+export function evaluateReferenceMutation(mutation:ReferenceMutation,config:ExactSearchConfig,shrinkConfig?:ShrinkConfig,limits:ReferenceEvaluationLimits={}):ReferenceMutationResult{
+ const result:ReferenceMutationResult={mutation,status:{kind:'NotEvaluated',reason:'evaluation not started'},search:null,original:null,minimized:null,shrinkComplete:false};
+ try{if(!REFERENCE_MUTATIONS.includes(mutation))throw new Error('unknown reference mutation');const model=new ReferenceController(undefined,mutation),report=enumerateStatesExact(model,config,limits.search);result.search=report.termination;
+  if(report.failure){const target=REFERENCE_MUTATION_TARGETS[mutation],index=report.failure.violations.findIndex(v=>v.phase==='transition'&&v.check.id===target);if(index<0)throw new Error('search found an unrelated failure before the required target');const violations=[...report.failure.violations];[violations[0],violations[index]]=[violations[index],violations[0]];const failure={inputs:report.failure.inputs.map(i=>model.cloneInput(i)),violations};result.original=failure;
+   const reduced=shrink(model,failure,shrinkConfig,limits.shrink);if(!reduced.validated_original||!reduced.minimized.violations.some(v=>v.phase==='transition'&&v.check.id===target))throw new Error('target property did not survive causal replay/shrinking');result.minimized=reduced.minimized;result.shrinkComplete=reduced.termination==='search_complete';result.status={kind:'Killed'};
+  }else if(report.termination==='graph_exhausted'&&report.skipped_checks===0n)result.status={kind:'Survives'};else result.status={kind:'NotEvaluated',reason:`incomplete search: ${report.termination}; skipped=${report.skipped_checks}`};
+ }catch(error){result.status={kind:'NotEvaluated',reason:error instanceof Error?error.message:String(error)};}return result;
+}
