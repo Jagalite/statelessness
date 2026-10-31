@@ -76,3 +76,31 @@ test('pending breakpoint equality gets detached inputs and requires a synchronou
   s.step(0n,1);assert.throws(()=>s.step(0n,1),/equality must return boolean/);assert.equal(s.state,0);assert.equal(s.sequence,0n);
  }
 });
+
+test('candidate page permits one lookahead at exact work limit',()=>{
+ let reads=0, enumerations=0;
+ const m=model();m.inputs=function*(){enumerations++;for(const n of [1,2]){reads++;yield n;}};
+ const s=new DebugSession('lookahead',m,{kind:'unrestricted',label:'out-of-domain-injection'},{...limits,maxCandidates:1});
+ const page=s.candidates(0n,0,1);
+ assert.equal(page.complete,false);assert.equal(page.nextOffset,1);assert.equal(page.candidates[0].input,1);assert.equal(reads,2);
+ assert.throws(()=>s.candidates(0n,1,1),/budget/);assert.equal(enumerations,1);
+});
+
+test('admission retains query before state copy callbacks and defers unused copy failure',()=>{
+ for(const kind of ['declared','enumerated']){
+  let active=false, first;
+  const m={...model(),cloneInput(i){const copy={...i};if(active&&!first)first=copy;return copy;},cloneState(s){if(active&&first)first.value=9;return s;},step:(s,i)=>accepted(s+i.value,[])};
+  const p=kind==='declared'?{kind,label:'query',permits:(_s,i)=>i.value===1}:{kind,label:'query',candidates:()=>[{value:1}],equal:(a,b)=>a.value===b.value};
+  const session=new DebugSession(`query-${kind}`,m,p,limits);active=true;
+  assert.equal(session.step(0n,{value:1}).delivered,true);
+ }
+ let calls=0;const m={...model(),cloneInput(i){if(++calls===2)throw Error('copy');return i;}};
+ const session=new DebugSession('empty-query',m,{kind:'enumerated',label:'empty',candidates:()=>[],equal:(a,b)=>a===b},limits);
+ assert.throws(()=>session.step(0n,1),/not permitted/);assert.equal(session.revision,0n);
+});
+
+test('input copy failure leaves session terminal',()=>{
+ const m=model();m.cloneInput=()=>{throw Error('input clone');};
+ const session=new DebugSession('copy-terminal',m,{kind:'unrestricted',label:'all'},limits);
+ assert.throws(()=>session.step(0n,1),/input clone/);assert.equal(session.phase,'ended');assert.equal(session.sequence,0n);
+});

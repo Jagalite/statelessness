@@ -28,4 +28,4 @@ Repository = "https://github.com/Jagalite/statelessness"
 where = ["src"]
 
 [tool.setuptools.package-data]
-statelessness = ["py.typed"]
+statelessness = ["py.typed", "controller_catalog/*.txt", "controller_catalog/*.json"]

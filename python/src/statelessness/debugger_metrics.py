@@ -118,9 +118,13 @@ class MetricSnapshot:
     complete:bool=True
     temporality:str='cumulative'
     def get(self,family,labels=Labels()):return self.series.get((_family(family),labels))
+    def histogram(self,family,labels=Labels()):
+        """Return the stored histogram for this series, or None for another kind."""
+        value=self.get(family,labels)
+        return value if isinstance(value,Histogram) else None
     def estimated_bytes(self):return 512+sum(32+len(s.encode()) for v in vars(self.labels).values() for s in v)+8*len(self.schema.finite_bounds_ns)+sum(768 if isinstance(v,Histogram) else 256 for v in self.series.values())
     def production(self):
-        s=deepcopy(self);s.series={k:v for k,v in s.series.items() if k[1].origin=='Live' and not k[1].debugger_affected};s.gauge_scopes={k:v for k,v in s.gauge_scopes.items() if k in s.series};return s
+        s=deepcopy(self);s.series={k:v for k,v in s.series.items() if k[1].origin=='Live' and not k[1].debugger_affected};s.gauge_scopes={k:v for k,v in s.gauge_scopes.items() if k[1].origin=='Live' and not k[1].debugger_affected};return s
     @staticmethod
     def window(start,end):
         if (start.epoch,start.schema,start.labels,start.start,start.gauge_scope)!=(end.epoch,end.schema,end.labels,end.start,end.gauge_scope) or start.temporality!='cumulative' or end.temporality!='cumulative' or any(end.gauge_scopes.get(k)!=v for k,v in start.gauge_scopes.items()):raise MetricError('incompatible')
@@ -131,8 +135,11 @@ class MetricSnapshot:
         s=deepcopy(end);s.start=start.end;s.temporality='delta';s.complete &= start.complete
         if any(k not in end.series for k in start.series):raise MetricError('counter reset')
         for k,v in s.series.items():
-            if k not in start.series or _kind(k[0])=='gauge':continue
+            if k not in start.series:continue
             p=start.series[k]
+            if _kind(k[0])=='gauge':
+                if type(v) is not int or type(p) is not int:raise MetricError('incompatible')
+                continue
             if isinstance(v,Histogram) and isinstance(p,Histogram):
                 values=[v.count-p.count,v.sum_ns-p.sum_ns]+[a-b for a,b in zip(v.buckets,p.buckets)]
                 if min(values)<0:raise MetricError('counter reset')
@@ -171,14 +178,17 @@ class MetricsStore:
         if not epoch or type(labels) is not LabelCatalog or type(schema) is not HistogramSchema or type(limits) is not MetricLimits or gauge_scope not in _SCOPES or (start is not None and type(start) is not SnapshotTime):raise MetricError('invalid config')
         self._snapshot=MetricSnapshot(0,epoch,start,start,schema,labels,{},gauge_scope,{},MetricHealth(),limits)
         if self._snapshot.estimated_bytes()>limits.max_bytes:raise MetricError('invalid config')
-        self._history=[];self._last_valid_end=start;self._default_scope=gauge_scope
+        self._history=[];self._last_valid_end=start;self._default_scope=gauge_scope;self._snapshot_busy=False
+    def _ensure_mutable(self):
+        if self._snapshot_busy:raise MetricError('snapshot in progress')
     @property
     def health(self):return deepcopy(self._snapshot.health)
     @property
     def revision(self):return self._snapshot.revision
-    def mark_incomplete(self):self._snapshot.complete=False
+    def mark_incomplete(self):self._ensure_mutable();self._snapshot.complete=False
     def labels_valid(self,l):return self._snapshot.labels.accepts(l)
     def record_health(self,name,n=1):
+        self._ensure_mutable()
         _uint(n)
         if name not in vars(self._snapshot.health):raise ValueError('unknown health field')
         h=self._snapshot.health;setattr(h,name,min(U64_MAX,getattr(h,name)+n))
@@ -198,6 +208,7 @@ class MetricsStore:
     def _refresh_scope(self):
         scopes=set(self._snapshot.gauge_scopes.values());self._snapshot.gauge_scope=next(iter(scopes)) if len(scopes)==1 else 'Unknown' if scopes else self._default_scope
     def increment(self,family,labels=Labels(),n=1):
+        self._ensure_mutable()
         _uint(n);f=_family(family)
         if _kind(f)!='counter':self._loss('arithmetic_errors');return
         k=self._value(f,labels)
@@ -205,11 +216,13 @@ class MetricsStore:
         if self._snapshot.series[k]+n>U64_MAX:self._loss('arithmetic_errors');return
         self._snapshot.series[k]+=n
     def set_gauge(self,family,labels,value):
+        self._ensure_mutable()
         _uint(value);f=_family(family)
         if _kind(f)!='gauge':self._loss('arithmetic_errors');return
         k=self._value(f,labels)
         if k is not None:self._snapshot.series[k]=value
     def gauge_delta(self,family,labels,delta):
+        self._ensure_mutable()
         if type(delta) is not int or not -(1<<63)<=delta<(1<<63):raise ValueError('signed delta out of range')
         f=_family(family)
         if _kind(f)!='gauge':self._loss('arithmetic_errors');return
@@ -219,22 +232,30 @@ class MetricsStore:
         if not 0<=v<=U64_MAX:self._loss('arithmetic_errors');self._snapshot.gauge_scopes[k]='Unknown';self._refresh_scope();return
         self._snapshot.series[k]=v
     def observe(self,family,labels,nanos):
+        self._ensure_mutable()
         _uint(nanos);f=_family(family)
         if _kind(f)!='histogram':self._loss('arithmetic_errors');return
         k=self._value(f,labels)
         if k is not None and not self._snapshot.series[k].add(self._snapshot.schema,nanos):self._loss('arithmetic_errors')
     def set_gauge_scope(self,scope):
+        self._ensure_mutable()
         if scope not in _SCOPES:raise ValueError('invalid scope')
         self._default_scope=scope
         for k in self._snapshot.gauge_scopes:self._snapshot.gauge_scopes[k]=scope
         self._refresh_scope()
     def set_gauge_scope_for(self,labels,scope):
+        self._ensure_mutable()
         if scope not in _SCOPES:raise ValueError('invalid scope')
         for k in self._snapshot.gauge_scopes:
             if k[1]==labels:self._snapshot.gauge_scopes[k]=scope
         self._refresh_scope()
     def current(self):return deepcopy(self._snapshot)
     def snapshot(self,end=None,*,validate=None):
+        self._ensure_mutable()
+        self._snapshot_busy=True
+        try:return self._snapshot_transaction(end,validate)
+        finally:self._snapshot_busy=False
+    def _snapshot_transaction(self,end,validate):
         if end is not None and type(end) is not SnapshotTime:raise ValueError('invalid endpoint')
         s=deepcopy(self._snapshot);s.revision=min(U64_MAX,s.revision+1);last=self._last_valid_end
         if end is not None and any(t is not None and (t.domain!=end.domain or t.nanos>end.nanos) for t in (s.start,last)):
@@ -254,7 +275,8 @@ class MetricsStore:
         self._history=history;return deepcopy(s)
     def available_windows(self):return tuple(s.revision for s in self._history)
     def window(self,start,end):
-        by_id={s.revision:s for s in self._history}
+        by_id={}
+        for snapshot in self._history:by_id.setdefault(snapshot.revision,snapshot)
         if start not in by_id or end not in by_id:raise MetricError('unknown window')
         return MetricSnapshot.window(by_id[start],by_id[end])
 
@@ -290,9 +312,11 @@ def protocol_adapters(store,*,max_page_size=100,max_capture_bytes=16*1024*1024):
         for i,((f,l),v) in enumerate(rows[offset:offset+limit]):
             prefix=f'metrics.series.{i}';d=descriptors[f]
             for name in ('name','kind','unit','population'):result.append((prefix+'.'+name,('enum:'+d[name].title()) if name=='kind' else 'string:'+d[name]))
-            for name,n,names in (('operation',l.operation,s.labels.operations),('component',l.component,s.labels.components),('worker_pool',l.worker_pool,s.labels.worker_pools)):
-                result.extend(((prefix+'.'+name+'.id',f'u64:{n}'),(prefix+'.'+name+'.name','string:'+names[n])))
+            for name,n in (('operation',l.operation),('component',l.component),('worker_pool',l.worker_pool)):
+                result.append((prefix+'.'+name+'.id',f'u64:{n}'))
             result.extend(((prefix+'.outcome','enum:'+l.outcome),(prefix+'.measurement_origin','enum:'+l.origin),(prefix+'.debugger_affected','bool:'+str(l.debugger_affected).lower())))
+            for name,n,names in (('operation',l.operation,s.labels.operations),('component',l.component,s.labels.components),('worker_pool',l.worker_pool,s.labels.worker_pools)):
+                if n<len(names):result.append((prefix+'.'+name+'.name','string:'+names[n]))
             if isinstance(v,Histogram):
                 result.extend(((prefix+'.count',f'u64:{v.count}'),(prefix+'.sum_ns',f'u128:{v.sum_ns}')))
                 for j,n in enumerate(v.buckets[:len(s.schema.finite_bounds_ns)+1]):result.extend(((f'{prefix}.buckets.{j}.count',f'u64:{n}'),(f'{prefix}.buckets.{j}.upper_bound_ns',f'u64:{s.schema.finite_bounds_ns[j]}' if j<len(s.schema.finite_bounds_ns) else 'infinity')))
@@ -312,6 +336,7 @@ def protocol_adapters(store,*,max_page_size=100,max_capture_bytes=16*1024*1024):
         def commit():
             if generation!=state['generation'] or state['next']+1!=handle:raise ProtocolError('stale_handle')
             if staged is not None:
+                store._ensure_mutable()
                 if store.__dict__!=baseline:raise ProtocolError('stale_revision')
                 store.__dict__.update(staged.__dict__)
             state.update(next=handle,capture=(handle,deepcopy(s)))
@@ -319,7 +344,7 @@ def protocol_adapters(store,*,max_page_size=100,max_capture_bytes=16*1024*1024):
     def snapshot(args):
         handle,offset,limit=args;page(offset,limit)
         if handle is None:
-            if offset:raise ProtocolError('malformed')
+            if offset:raise ProtocolError('invalid_input')
             staged=deepcopy(store);s=staged.snapshot(None);return prepare(s,offset,limit,staged)
         _uint(handle)
         if state['capture'] is None or state['capture'][0]!=handle:raise ProtocolError('stale_handle')

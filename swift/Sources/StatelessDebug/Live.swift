@@ -50,8 +50,11 @@ public final class LiveController<I> {
     public private(set) var overflowCount: UInt64 = 0
     public private(set) var pauseGeneration: UInt64 = 0
     public private(set) var bufferedBytes = 0
-    public var bufferedArrivals: Int { arrivals.count }
-    private var arrivals: [(I,Int)] = []
+    public var bufferedArrivals: Int { arrivals.count-arrivalHead }
+    // Slots are cleared as ownership transfers; periodic compaction avoids the
+    // per-delivery array shift while keeping storage proportional to the bound.
+    private var arrivals: [(I,Int)?] = []
+    private var arrivalHead = 0
     private var staged: [DispatchState] = []
     private let owner = PermitOwner()
     private var serial: UInt64 = 0
@@ -89,7 +92,7 @@ public final class LiveController<I> {
     /// Rejection returns ownership so host backpressure can retry explicitly.
     public func externalArrival(_ input: I,ownedBytes: Int) -> ArrivalRejected<I>? {
         guard phase != .terminated else { return ArrivalRejected(error: .wrongPhase,input: input) }
-        guard ownedBytes >= 0,arrivals.count < options.maxArrivals,ownedBytes <= options.maxArrivalBytes-bufferedBytes else {
+        guard ownedBytes >= 0,bufferedArrivals < options.maxArrivals,ownedBytes <= options.maxArrivalBytes-bufferedBytes else {
             if overflowCount < UInt64.max { overflowCount += 1 }; if options.overflow == .disconnect { disconnect() }; return ArrivalRejected(error: .overflow,input: input)
         }
         arrivals.append((input,ownedBytes)); bufferedBytes += ownedBytes; return nil
@@ -100,9 +103,13 @@ public final class LiveController<I> {
     }
     public func beginNext() throws -> (DeliveryPermit,I)? {
         guard (phase == .running || phase == .oneTurnAuthorized),effectPhase == .dispatched else { throw LiveError.wrongPhase }
-        guard !arrivals.isEmpty else { return nil }
+        guard bufferedArrivals > 0 else { return nil }
         guard serial != UInt64.max,revision != UInt64.max else { throw LiveError.exhausted }
-        let (input,bytes) = arrivals.removeFirst(); bufferedBytes -= bytes; repause = phase == .oneTurnAuthorized; phase = .delivering; serial += 1; activeSerial = serial
+        guard let (input,bytes) = arrivals[arrivalHead] else { throw LiveError.wrongPhase }
+        arrivals[arrivalHead] = nil; arrivalHead += 1
+        if arrivalHead == arrivals.count { arrivals.removeAll(keepingCapacity:true); arrivalHead = 0 }
+        else if arrivalHead >= 64,arrivalHead >= arrivals.count/2 { arrivals.removeFirst(arrivalHead); arrivalHead = 0 }
+        bufferedBytes -= bytes; repause = phase == .oneTurnAuthorized; phase = .delivering; serial += 1; activeSerial = serial
         return (DeliveryPermit(owner: owner,epoch: epoch,revision: revision,serial: serial),input)
     }
     private func validate(_ permit: DeliveryPermit) throws {

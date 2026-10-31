@@ -110,8 +110,10 @@ final class EvidenceDecoder {
         try value { d in
             let length = try d.integer(4)
             try d.collection(length, size: allocationSize)
-            guard let count = Int(exactly: length) else { try d.reject(ModelError("length overflow")) }
-            var values: [T] = []; values.reserveCapacity(count)
+            guard let count = Int(exactly: length),count < Int.max / max(1,MemoryLayout<T>.stride) else { try d.reject(ModelError("length overflow")) }
+            // Grow only as elements decode. A forged count must not trigger a
+            // large allocation before the first missing or invalid element.
+            var values: [T] = []
             for _ in 0..<count { values.append(try decode(d)) }; return values
         }
     }
@@ -151,7 +153,7 @@ public func decodeArtifact(_ bytes: [UInt8], limits: EvidenceLimits = EvidenceLi
     let (body,overflow) = traceLength.addingReportingOverflow(metadataLength), (total,over2) = body.addingReportingOverflow(32)
     guard !overflow, !over2, total == UInt64(bytes.count), metadataLength <= limits.maxMetadataBytes, let embedded = Int(exactly: traceLength) else { throw ModelError("invalid evidence lengths or metadata limit") }
     let end = bytes.count - 4
-    guard UInt64(auditCRC32(Array(bytes.prefix(end)))) == integer(end, width: 4) else { throw ModelError("evidence checksum mismatch") }
+    guard UInt64(auditCRC(bytes,0..<end)) == integer(end, width: 4) else { throw ModelError("evidence checksum mismatch") }
     // Exact total accounting above proves both indices fit the retained array.
     let split = 28 + embedded
     let trace = try evidenceTrace { try decodeAuditTrace(Array(bytes[28..<split]), limits: limits.trace) }

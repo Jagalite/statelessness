@@ -597,6 +597,32 @@ fn checked_attachment_accepts_global_host_sequence_and_rejects_overflow_or_gaps(
 }
 
 #[test]
+fn raw_observation_rejects_absolute_sequence_overflow_without_losing_prefix() {
+    let model = Counter::default();
+    let initial = check_initial(&model, &5).unwrap();
+    let mut recorder = Recorder::with_checked_initial_at(
+        &initial,
+        u64::MAX - 1,
+        RunConfig::default(),
+        RecorderOptions::default(),
+    )
+    .unwrap();
+    let first = model.step(&5, &1).unwrap();
+    recorder.observe(&model, &5, &1, &first).unwrap();
+    let second = model.step(&6, &1).unwrap();
+    assert!(
+        recorder
+            .observe(&model, &6, &1, &second)
+            .unwrap_err()
+            .0
+            .contains("sequence overflow")
+    );
+    assert!(recorder.is_frozen());
+    assert_eq!(recorder.observed_steps(), 1);
+    assert_eq!(recorder.snapshot().steps.len(), 1);
+}
+
+#[test]
 fn replay_initial_observer_failure_keeps_checked_state_without_delivery() {
     let model = Counter::default();
     let trace = record(&model, [1], RunConfig::default(), 1).unwrap();

@@ -1,0 +1,277 @@
+[
+  {
+    "id": "bb49163638154cdfabcc6067024ac3c4",
+    "owner_id": "76492106-eba8-4a67-8bc9-fed7b6e4581e",
+    "status": "failed",
+    "submitted": 1793280606.860193,
+    "started": 1793280682.232376,
+    "finished": 1793280682.871087,
+    "exit_code": 1,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/bb49163638154cdfabcc6067024ac3c4.log",
+    "log_identity": {
+      "bytes": 4539,
+      "sha256": "8e6793ba98e8b1f5a56286330c991ddc06f86e27c6fd4db769d28ee4c1180906"
+    }
+  },
+  {
+    "id": "e1148c043906476a9c447ad3a2756e0a",
+    "owner_id": "32e5ca83-d05f-431c-a278-9acff4e08ffd",
+    "status": "cancelled",
+    "submitted": 1793280672.5839949,
+    "started": null,
+    "finished": 1793280687.583578,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-1",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-1"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-1",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-1"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/e1148c043906476a9c447ad3a2756e0a.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "ae82e2710c5d49a1b5a2e55eef2e6a53",
+    "owner_id": "6e3a9309-3e3e-48d3-bf20-0a04857120e6",
+    "status": "cancelled",
+    "submitted": 1793280711.02436,
+    "started": null,
+    "finished": 1793280802.550339,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/ae82e2710c5d49a1b5a2e55eef2e6a53.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "67fc2ea72c9041fc83228aa6b0f6f88c",
+    "owner_id": "2536a077-1524-401c-85f1-d82a23bc7046",
+    "status": "queued",
+    "submitted": 1793280729.6276438,
+    "started": null,
+    "finished": null,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_n12_sealed_inputs.py"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_n12_sealed_inputs.py"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/67fc2ea72c9041fc83228aa6b0f6f88c.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "e6950139c1c240c68555a63140255743",
+    "owner_id": "572f0e84-e39b-43fe-8b9c-c44f73ddb092",
+    "status": "cancelled",
+    "submitted": 1793280729.772011,
+    "started": null,
+    "finished": 1793280798.3719628,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-2",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-2"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-2",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-2"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/e6950139c1c240c68555a63140255743.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "c295a7c557da47d491470c0205df028c",
+    "owner_id": "4a2d727f-1d7d-4a42-89a2-e79a622ec193",
+    "status": "cancelled",
+    "submitted": 1793280811.336305,
+    "started": null,
+    "finished": 1793280854.126475,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/c295a7c557da47d491470c0205df028c.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "5b181e1d030642239e58c648f52e8e44",
+    "owner_id": "26f10399-7ad1-4110-b56f-abd6675d693e",
+    "status": "cancelled",
+    "submitted": 1793280811.431196,
+    "started": null,
+    "finished": 1793280854.267467,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-3",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-3"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-3",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-3"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/5b181e1d030642239e58c648f52e8e44.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "0cee3de256f0474fb16995e18b6de877",
+    "owner_id": "83a2cf9c-672c-4655-93c9-f52e50526d18",
+    "status": "queued",
+    "submitted": 1793280862.323741,
+    "started": null,
+    "finished": null,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/test_completion_gate.py"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/0cee3de256f0474fb16995e18b6de877.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "id": "6b80f419e40d4554bb0bf634dc18e1b3",
+    "owner_id": "fae77971-03ed-4713-a657-360b698d8c34",
+    "status": "queued",
+    "submitted": 1793280862.413413,
+    "started": null,
+    "finished": null,
+    "exit_code": null,
+    "command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-4",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-4"
+    ],
+    "requested_command": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "scripts/native-parity/n12-wire/prepare.py",
+      "--artifacts",
+      "/private/tmp/n12-completion-20261029-artifacts-4",
+      "--output",
+      "/private/tmp/n12-completion-20261029-receipts/prepare-4"
+    ],
+    "policy_message": null,
+    "log": "/Users/jagatranvo/.local/state/kyoto/6b80f419e40d4554bb0bf634dc18e1b3.log",
+    "log_identity": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

@@ -128,7 +128,7 @@ export function appendStateChecks<S, I, O>(m: Model<S, I, O>, state: S, sink: Ch
         }
     }, context);
 }
-export function appendTransitionChecks<S, I, O>(m: Model<S, I, O>, before: S, input: I, t: Transition<S, O>, sink: CheckSink): void {
+export function appendTransitionChecks<S, I, O>(m: Model<S, I, O>, before: S, input: I, t: Transition<S, O>, sink: CheckSink, resolveInput?: () => I): void {
     withChildCheckSink(sink, child => {
         const hook = m.checkTransitionInto;
         if (hook !== undefined && typeof hook !== 'function')
@@ -136,7 +136,7 @@ export function appendTransitionChecks<S, I, O>(m: Model<S, I, O>, before: S, in
         const legacy = hook === undefined ? m.checkTransition : undefined;
         if (hook === undefined && legacy === undefined)
             return;
-        const b = m.cloneState(before), i = m.cloneInput(input), after = { state: m.cloneState(t.state), outputs: t.outputs.map(o => m.cloneOutput(o)), disposition: { ...t.disposition } };
+        const b = m.cloneState(before), i = m.cloneInput(resolveInput ? resolveInput() : input), after = { state: m.cloneState(t.state), outputs: t.outputs.map(o => m.cloneOutput(o)), disposition: { ...t.disposition } };
         if (hook !== undefined)
             requireSynchronousCheckReturn(hook.call(m, b, i, after, child));
         else

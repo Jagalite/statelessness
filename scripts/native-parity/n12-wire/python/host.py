@@ -13,7 +13,7 @@ from statelessness.debugger import InputPolicy
 from statelessness.debugger_protocol import (
     ProtocolAuthority, ProtocolLimits, ProtocolSession, serve,
 )
-from statelessness.debugger_session import DebugSession
+from statelessness.debugger_workbench import EnumeratedSession
 
 
 def callback(message):
@@ -39,6 +39,8 @@ class WireCounter:
         if len(data) != 8:
             raise ModelError("invalid fixture state")
         return int.from_bytes(data, "little")
+
+    def inputs(self, state): return (0,1,2,3)
 
     def encode_input_into(self, value, sink):
         sink.append(bytes((value,)))
@@ -80,12 +82,12 @@ def main():
     if hasattr(signal, "SIGPIPE"):
         signal.signal(signal.SIGPIPE, signal.SIG_IGN)
     model = WireCounter()
-    session = DebugSession(
+    session = EnumeratedSession(
         "wire\té😀", model,
         InputPolicy("out-of-domain-injection", unrestricted=True),
     )
     protocol = ProtocolSession(
-        session, decode_input=model.decode_input,
+        session, decode_input=model.decode_input, encode_input=lambda value:bytes((value,)),
         encode_output_into=model.encode_output_into,
         authority=ProtocolAuthority(
             deliver_inputs=not args.read_only, read_exact_values=args.exact,

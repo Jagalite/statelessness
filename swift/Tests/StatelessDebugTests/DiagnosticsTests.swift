@@ -58,6 +58,18 @@ final class DiagnosticsTests: XCTestCase {
         XCTAssertEqual(events.map(\.transition),[0,3])
         XCTAssertEqual(hub.health.sampled,1); XCTAssertEqual(hub.health.filtered,1)
     }
+    func testSchemaSourceDoesNotResetDiagnosticBaseline() throws {
+        let hub = try setup([ProbeSubscription(sink:1,site:"q",trigger:.changed)])
+        for (transition,version) in [(UInt64(0),UInt32(1)),(1,1),(2,2)] {
+            let scope = try hub.beginTurn(producer:1,runID:1,transition:transition,origin:.test)
+            let schema = DisplaySchema(name:"quantity",version:version,source:SourceSite(file:"file\(transition)",line:1,column:1))
+            try scope.probe(site:"q",value:{DiagnosticValue(schema:schema) {_,limits in try InspectContext(limits:limits).scalar(.unit)}})
+            try scope.finish(completeTurn:true)
+        }
+        let events = try hub.drain(sink:1,limit:10)
+        XCTAssertEqual(events.map(\.transition),[0,2])
+        XCTAssertEqual(events.map(\.baselineReason),[.initial,.schemaChanged])
+    }
     func testSourceSchemaGapSelectorAndProducerBaselinesAreIndependent() throws {
         var sub = ProbeSubscription(sink:1,site:"q",trigger:.changed); sub.selector.entity = "one"
         let hub = try setup([sub]); var selected = CaptureContext(); selected.entity = "one"
@@ -128,7 +140,7 @@ final class DiagnosticsTests: XCTestCase {
     func testManualEventJSONGoldenAndBoundedExactSidecarBinding() throws {
         let hub = try setup([ProbeSubscription(sink:1,site:"q")]); try emit(hub,0,"7")
         let event = try XCTUnwrap(hub.pop(sink:1))
-        let golden = #"{"schema_version":"1","run_id":"18446744073709551615","producer":"1","epoch":"18446744073709551615","producer_sequence":"1","capture_revision":"1","transition":"0","origin":"Test","severity":"Debug","site":"q","kind":"Probe","path":[],"display_schema":{"name":"quantity","version":"1"},"baseline":true,"baseline_reason":"Initial","change_unknown":false,"incomplete_turn":false,"payload":{"kind":"integer","value":{"type":"I128","decimal":"7"},"completeness":{"kind":"complete","reason":null},"child_count":null,"page":null,"children":[]}}"#
+        let golden = #"{"schema_version":"1","run_id":"18446744073709551615","producer":"1","epoch":"18446744073709551615","producer_sequence":"1","capture_revision":"1","transition":"0","origin":"Test","severity":"Debug","site":"q","kind":"Probe","path":[],"display_schema":{"name":"quantity","version":"1"},"baseline":true,"baseline_reason":"Initial","change_unknown":false,"incomplete_turn":false,"payload":{"kind":"integer","value":{"type":"I128","decimal":"7"},"completeness":{"kind":"complete","reason":null},"child_count":"0","page":null,"children":[]}}"#
         XCTAssertEqual(try diagnosticEventJSON(event),golden)
         let trace = AuditTrace(metadata:Metadata(name:"manual",build:"golden"),config:RunConfig(strategy:"manual"),initialState:[0],initialChecks:[],steps:[],termination:.completed)
         let manifest = try DiagnosticSidecarManifest(trace:trace,runID:UInt64.max)

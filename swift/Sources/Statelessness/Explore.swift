@@ -24,6 +24,7 @@ public struct Failure<Input> {
     public let inputs: [Input]; public let violations: [Violation]
     public init(inputs: [Input], violations: [Violation]) { self.inputs = inputs; self.violations = violations }
 }
+extension Failure: Sendable where Input: Sendable {}
 public struct SearchReport<Input> {
     public var termination: String
     public var states: Int
@@ -54,20 +55,24 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
     func hash(_ state: S) throws -> UInt64 { try call("state hash") { try m.hashState?(copied(m.cloneState, state)) ?? 0 } }
     if stopped() { return r }
     let initial = try searchInitial(m)
+    // Checks can invoke application code with aliases to the returned value.
+    // Preserve the search node first, while deferring an unused copy failure.
+    let initialSnapshot = Result { try copied(m.cloneState, initial) }
     r.states = 1
     let initialBad = try searchInitialChecks(m, state: initial, skipped: &r.skippedChecks, observer: observer, storage: checkStorage)
     if !initialBad.isEmpty { r.termination = "failure_found"; r.failure = Failure(inputs: [], violations: initialBad); return r }
     if stopped() { return r }
-    let initialBytes = try estimate(initial)
+    let retainedInitial = try initialSnapshot.get()
+    let initialBytes = try estimate(retainedInitial)
     r.estimatedRetainedStateBytes = initialBytes
     if stopped() { return r }
     if let maximum = limits.maxEstimatedStateBytes {
         guard let bytes = initialBytes else { throw ModelError("state byte budget requires estimated_state_bytes") }
         if bytes > maximum { r.states = 0; r.estimatedRetainedStateBytes = 0; r.termination = "estimated_state_byte_limit"; return r }
     }
-    let initialHash = try hash(initial)
+    let initialHash = try hash(retainedInitial)
     if stopped() { return r }
-    var nodes = [Node<S, I>(state: initial, parent: -1, input: nil, depth: 0)]
+    var nodes = [Node<S, I>(state: retainedInitial, parent: -1, input: nil, depth: 0)]
     var visited: [UInt64: [Int]] = [initialHash: [0]]
     func path(_ index: Int) throws -> [I] {
         var result: [I] = [], k = index
@@ -95,29 +100,39 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
             if stopped() { return r }
             guard let input = item else { break }
             if r.transitions == config.maxTransitions { r.termination = "transition_limit"; return r }
-            let transition = try perform(m, current.state, input)
+            // Keep the enumerated input stable across reducer and check callbacks.
+            // This additional copy occurs before the reducer and can fail or have
+            // side effects even when the successor would already be visited. The
+            // model's clone hooks must detach reference-backed inputs.
+            let retainedInput = try copied(m.cloneInput, input)
+            let transition = try perform(m, current.state, retainedInput)
             r.transitions += 1; r.maxDepthReached = max(r.maxDepthReached, current.depth + 1)
+            // Preserve the successor before checks/observers can mutate an external
+            // alias. A failure is needed only if search continues past this edge.
+            // Clone hooks are cooperative and can still have observable effects.
+            let successor = Result { try copied(m.cloneState, transition.state) }
             var history: [I] = []
-            if observer?.needsHistory() == true { history = try path(cursor); history.append(try copied(m.cloneInput, input)) }
-            let bad = try searchEdge(m, state: current.state, input: input, transition: transition, skipped: &r.skippedChecks, observer: observer, history: history, storage: checkStorage)
+            if observer?.needsHistory() == true { history = try path(cursor); history.append(try copied(m.cloneInput, retainedInput)) }
+            let bad = try searchEdge(m, state: current.state, input: retainedInput, transition: transition, skipped: &r.skippedChecks, observer: observer, history: history, storage: checkStorage)
             if !bad.isEmpty {
-                var witness = try path(cursor); witness.append(try copied(m.cloneInput, input))
+                var witness = try path(cursor); witness.append(try copied(m.cloneInput, retainedInput))
                 r.failure = Failure(inputs: witness, violations: bad); r.termination = "failure_found"; return r
             }
             if stopped() { return r }
-            let key = try hash(transition.state)
+            let retainedSuccessor = try successor.get()
+            let key = try hash(retainedSuccessor)
             if stopped() { return r }
             var duplicate = false
             // Rust collision chains visit the most recently admitted state first.
             for index in (visited[key] ?? []).reversed() {
                 if stopped() { return r }
-                let same = try call("state equality") { try equal(copied(m.cloneState, nodes[index].state), copied(m.cloneState, transition.state)) }
+                let same = try call("state equality") { try equal(copied(m.cloneState, nodes[index].state), copied(m.cloneState, retainedSuccessor)) }
                 if stopped() { return r }
                 if same { duplicate = true; break }
             }
             if duplicate { continue }
             if nodes.count == config.maxStates { r.termination = "state_limit"; return r }
-            let successorBytes = try estimate(transition.state)
+            let successorBytes = try estimate(retainedSuccessor)
             if stopped() { return r }
             let total: UInt64?
             if let retained = r.estimatedRetainedStateBytes, let bytes = successorBytes {
@@ -127,9 +142,9 @@ public func enumerateStates<S, I, O>(_ m: Model<S, I, O>, config: SearchConfig =
                 guard successorBytes != nil else { throw ModelError("state byte budget requires estimated_state_bytes") }
                 guard let sum = total, sum <= maximum else { r.termination = "estimated_state_byte_limit"; return r }
             }
-            let ownedInput = try copied(m.cloneInput, input)
+            let ownedInput = try copied(m.cloneInput, retainedInput)
             visited[key, default: []].append(nodes.count)
-            nodes.append(Node(state: transition.state, parent: cursor, input: ownedInput, depth: current.depth + 1))
+            nodes.append(Node(state: retainedSuccessor, parent: cursor, input: ownedInput, depth: current.depth + 1))
             r.states = nodes.count; r.estimatedRetainedStateBytes = total
         }
         cursor += 1

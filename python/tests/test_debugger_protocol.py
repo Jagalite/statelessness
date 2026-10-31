@@ -3,6 +3,7 @@ import io
 import os
 import threading
 import unittest
+from unittest.mock import patch
 from dataclasses import replace
 from statelessness.debugger_protocol import *
 from statelessness.debugger import InputPolicy
@@ -10,6 +11,102 @@ from statelessness.debugger_session import DebugSession
 from test_debugger import Counter
 
 class ProtocolTests(unittest.TestCase):
+    def test_frame_admission_precedes_escaping_and_argument_expansion(self):
+        from statelessness import debugger_protocol as protocol
+        limits=ProtocolLimits(max_frame_bytes=2048,max_field_bytes=8192)
+        # Each field is within its limit, but the escaped frame is not.
+        with patch.object(protocol,'escape',side_effect=AssertionError('escaped before admission')):
+            with self.assertRaisesRegex(ProtocolError,'limit'):
+                protocol._encode(('DDBG','é'*400),limits)
+            with self.assertRaisesRegex(ProtocolError,'limit'):
+                encode_request(Request('s',1,1,0,0,'status',('x',)*56),limits)
+        exact=protocol._encode(('DDBG','é'*340),limits)
+        self.assertEqual(len(exact),2045)
+        self.assertEqual(protocol._decode_fields(exact,limits,2),['DDBG','é'*340])
+
+    def test_decoder_checks_count_without_splitting_entire_payload(self):
+        from statelessness import debugger_protocol as protocol
+        class UnsplitBytes(bytes):
+            def split(self,*args,**kwargs): raise AssertionError('whole payload split')
+        limits=ProtocolLimits()
+        with self.assertRaisesRegex(ProtocolError,'limit'):
+            protocol._decode_fields(UnsplitBytes(b'a\t'*500),limits,2)
+        # Earlier malformed fields still win over a later field-count limit.
+        with self.assertRaisesRegex(ProtocolError,'malformed'):
+            protocol._decode_fields(b'%XX\ta\tb',limits,2)
+
+    def test_encoder_caps_caller_iterators_before_expansion(self):
+        class MoreThanLength(tuple):
+            def __iter__(self):
+                yield from super().__iter__()
+                yield 'extra'
+        request=Request('s',1,1,0,0,'status',MoreThanLength(('x',)))
+        with self.assertRaisesRegex(ProtocolError,'limit'): encode_request(request)
+        response=Response('s',1,1,0,0,None,MoreThanLength((('k','v'),)))
+        with self.assertRaisesRegex(ProtocolError,'limit'): encode_response(response)
+        response=Response('s',1,1,0,0,None,(MoreThanLength(('k','v')),))
+        with self.assertRaisesRegex(ProtocolError,'limit'): encode_response(response)
+        class ChangingLength:
+            def __init__(self): self.calls=0
+            def __len__(self): self.calls+=1; return 0 if self.calls==1 else 1000000
+            def __iter__(self): return iter(())
+        arguments=ChangingLength()
+        self.assertEqual(decode_request(encode_request(Request('s',1,1,0,0,'status',arguments))).arguments,())
+        self.assertEqual(arguments.calls,1)
+        class MisleadingString(str):
+            def __len__(self): return 0
+            def encode(self,*args,**kwargs): return b'x'*100000
+        response=Response('s',1,1,0,0,None,((MisleadingString('k'),MisleadingString('v')),))
+        self.assertEqual(decode_response(encode_response(response)).fields,(('k','v'),))
+
+    def test_rust_inspection_wire_differential(self):
+        from pathlib import Path
+        from statelessness.debugger_inspect import ObjectView, FieldView, IntegerView
+        class Slice:
+            def inspect(self, path, cx): return cx.sequence(path, (), name='slice')
+        def projection(_):
+            return ObjectView('request-lifecycle.State', (
+                FieldView('generation', 'generation', IntegerView('u8', '0')),
+                FieldView('pending', 'pending', Slice()),
+                FieldView('unused1', 'unused1', False), FieldView('unused2', 'unused2', False)))
+        session=DebugSession('counter', Counter(), InputPolicy('positive', lambda m,s,i:i>0))
+        p=ProtocolSession(session, adapters=inspection_adapters(session, project=projection))
+        handle=dict(p.handle(self.request(p, command='snapshot')).fields)['handle']
+        cases=[('root','u64:1','u64:0',()), ('scalar','u64:1','u64:0',('field:generation',)),
+               ('page','u64:1','u64:0',('field:pending',)), ('object_past_end','u64:1','u64:9',()),
+               ('sequence_past_end','u64:1','u64:9',('field:pending',)),
+               ('missing','u64:1','u64:0',('field:missing',)), ('schema','u64:2','u64:0',())]
+        actual=[]
+        for index,(name,schema,offset,path) in enumerate(cases,2):
+            response=p.handle(self.request(p,index,command='inspect',arguments=(handle,schema,offset,'u64:1',*path)))
+            actual.append(name+'\t'+'\t'.join(encode_response(response).decode().split('\t')[8:]))
+        default=Path(__file__).resolve().parents[2]/'conformance'/'swift-inspection-wire-v1.tsv'
+        fixture=Path(os.environ.get('STATELESS_RUST_INSPECTION_WIRE', str(default)))
+        expected=[]
+        for line in fixture.read_text().splitlines():
+            parts=line.split('\t'); expected.append(parts[0]+'\t'+'\t'.join(parts[9:]))
+        self.assertEqual(actual,expected)
+
+    def test_response_limit_counts_pairs_not_wire_tokens(self):
+        limits=ProtocolLimits(max_response_fields=32)
+        fields=tuple((f'k{i}',f'string:{i}') for i in range(32))
+        response=Response('s',1,1,0,0,None,fields)
+        encoded=encode_response(response,limits)
+        self.assertEqual(decode_response(encoded,limits),response)
+        with self.assertRaisesRegex(ProtocolError,'limit'):
+            encode_response(replace(response,fields=fields+(('extra','string:x'),)),limits)
+        malformed=encoded.replace(b'u64:32\tk0',b'u64:33\tk0',1)
+        with self.assertRaisesRegex(ProtocolError,'malformed'): decode_response(malformed,limits)
+
+    def test_unpaired_surrogate_is_malformed_without_consuming_request_id(self):
+        p=self.adapter()
+        request=self.request(p,command='snapshot',arguments=('\ud800',))
+        with self.assertRaisesRegex(ProtocolError,'malformed'): encode_request(request)
+        self.assertEqual(p.handle(request).error,'malformed')
+        self.assertIsNone(p.handle(replace(request,arguments=())).error)
+        with self.assertRaisesRegex(ProtocolError,'malformed'):
+            encode_response(Response('counter',1,1,0,0,None,(('value','string:\ud800'),)))
+
     def test_adapter_commit_reserves_revision_digit_growth(self):
         committed=[]
         fields=(('watch.id','string:'+'x'*1900),)
@@ -21,6 +118,46 @@ class ProtocolTests(unittest.TestCase):
         p.limits=replace(p.limits,max_frame_bytes=2048)
         self.assertEqual(p.handle(request).error,'limit')
         self.assertEqual(committed,[])
+
+    def test_step_reserves_acknowledgement_before_delivery(self):
+        def make(name):
+            session=DebugSession(name,Counter(),InputPolicy('all',lambda *args:True))
+            return ProtocolSession(session,decode_input=lambda data:int(data),authority=ProtocolAuthority(deliver_inputs=True))
+        p=make('x'*1900)
+        fields=(('delivered','bool:false'),('sequence','u64:18446744073709551615'))
+        worst=replace(p._response(1,fields=fields),revision=(1<<64)-1,configuration=(1<<64)-1)
+        p=make('x'*(1900+2049-len(encode_response(worst))))
+        request=replace(self.request(p,command='step',arguments=('bytes:31',)),session=p.session.id)
+        p.limits=replace(p.limits,max_frame_bytes=2048)
+        self.assertLessEqual(len(encode_request(request,p.limits)),2048)
+        self.assertEqual(p.handle(request).error,'limit')
+        self.assertEqual((p.session.state,p.session.revision,p.session.sequence),(0,0,0))
+        self.assertEqual(p.handle(request).error,'limit')
+        self.assertEqual(p.session.state,0)
+
+    def test_select_and_cancel_reserve_acknowledgements(self):
+        from statelessness.debugger_workbench import EnumeratedSession
+        class Enumerated(Counter):
+            def inputs(self,state): return (1,)
+        def make(name):
+            session=EnumeratedSession(name,Enumerated(),InputPolicy.enumerated())
+            return ProtocolSession(session,encode_input=lambda value:str(value).encode(),decode_input=lambda data:int(data),authority=ProtocolAuthority(deliver_inputs=True))
+        for command in ('select','cancel'):
+            with self.subTest(command=command):
+                p=make('x'*1900)
+                fields=(('delivered','bool:false'),('sequence','u64:18446744073709551615')) if command=='select' else ()
+                worst=replace(p._response(2,fields=fields),revision=(1<<64)-1,configuration=(1<<64)-1)
+                p=make('x'*(1900+2049-len(encode_response(worst))))
+                args=()
+                if command=='select':
+                    inputs=replace(self.request(p,command='inputs',arguments=('u64:0','u64:1')),session=p.session.id)
+                    result=p.handle(inputs);self.assertIsNone(result.error)
+                    args=(dict(result.fields)['candidates.0.token'],)
+                request=replace(self.request(p,2,command=command,arguments=args),session=p.session.id)
+                p.limits=replace(p.limits,max_frame_bytes=2048)
+                self.assertLessEqual(len(encode_request(request,p.limits)),2048)
+                self.assertEqual(p.handle(request).error,'limit')
+                self.assertEqual((p.session.state,p.session.revision,p.session.sequence,p.session.phase),(0,0,0,'ready'))
 
     def test_output_encoding_is_optional_authorized_bounded_and_leased(self):
         from statelessness import Transition, ModelError
@@ -97,6 +234,37 @@ class ProtocolTests(unittest.TestCase):
             with self.assertRaises(EOFError): read_frame(io.BytesIO(raw))
         self.assertIsNone(read_frame(io.BytesIO()))
         with self.assertRaises(ProtocolError): read_frame(io.BytesIO(bytes(4)))
+    def test_framing_rejects_invalid_io_counts(self):
+        class Reader:
+            def __init__(self, chunks): self.chunks=iter(chunks)
+            def read(self, n): return next(self.chunks)
+        for chunks in ((b'xx',), (b'\x00',b'xxxx'), (b'\x00',b'\x00\x00\x01',b'xx'), (None,)):
+            with self.subTest(chunks=chunks), self.assertRaises(OSError): read_frame(Reader(chunks))
+        class OddBytes(bytes):
+            def __len__(self): return 0
+            def __getitem__(self, key): raise AssertionError('overridden slice')
+        class OddArray(bytearray):
+            def __len__(self): return 0
+            def __getitem__(self, key): raise AssertionError('overridden slice')
+        with self.assertRaises(OSError): read_frame(Reader((OddBytes(b'xx'),)))
+        self.assertEqual(read_frame(Reader((OddBytes(b'\x00'), OddArray(b'\x00'), b'\x00', b'\x03', b'a', bytearray(b'b'), b'c'))), b'abc')
+        class Writer:
+            def __init__(self, count): self.count=count; self.flushed=False
+            def write(self, data): return self.count(data)
+            def flush(self): self.flushed=True
+        for count in (lambda data: len(data)+1, lambda data: True, lambda data: None, lambda data: 0):
+            writer=Writer(count)
+            with self.assertRaises(OSError): write_frame(writer,b'x')
+            self.assertFalse(writer.flushed)
+        class FragmentWriter:
+            def __init__(self): self.data=bytearray(); self.flushed=False
+            def write(self, data): self.data.extend(data[:1]); return 1
+            def flush(self): self.flushed=True
+        writer=FragmentWriter(); write_frame(writer,b'abc')
+        self.assertEqual(writer.data,b'\x00\x00\x00\x03abc'); self.assertTrue(writer.flushed)
+        class Count(int):
+            def __le__(self, other): raise AssertionError('overridden comparison')
+        writer=Writer(lambda data: Count(len(data))); write_frame(writer,b'x'); self.assertTrue(writer.flushed)
     def test_admission_dedup_retirement_reconnect(self):
         p=self.adapter(authority=ProtocolAuthority(deliver_inputs=True),limits=ProtocolLimits(max_cache_entries=1))
         request=self.request(p,command='step',arguments=('bytes:01',))
@@ -359,8 +527,72 @@ class ProtocolTests(unittest.TestCase):
         handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
         response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
         self.assertIsNone(response.error)
-        self.assertIn(('inspect.root.child.1.kind','enum:redacted'),response.fields)
+        self.assertIn(('node.children.1.node.kind','enum:redacted'),response.fields)
+        self.assertEqual(dict(response.fields)['snapshot.revision'],'u64:0')
         self.assertNotIn('repr',str(response.fields))
+
+    def test_inspection_uses_current_protocol_budgets_and_host_caps(self):
+        from statelessness.debugger_inspect import DisplaySchema, InspectLimits
+        seen=[]
+        class Projected:
+            def schema(self): return DisplaySchema('projected',1)
+            def inspect(self,path,cx):
+                seen.append(cx.limits)
+                return cx.scalar(path,('u64','7'))
+        s=DebugSession('counter',Counter(),InputPolicy('positive',lambda m,s,i:i>0))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:Projected()))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        args=(handle,'u64:1','u64:0','u64:1')
+        self.assertIsNone(p.handle(self.request(p,2,command='inspect',arguments=args)).error)
+        self.assertEqual(seen[-1],InspectLimits(max_work=10000,max_depth=16,max_nodes=128,max_bytes=8192,max_value_bytes=2048,max_page_size=100))
+        p.limits=replace(p.limits,max_frame_bytes=4096,max_field_bytes=256,max_page_size=4)
+        self.assertIsNone(p.handle(self.request(p,3,command='inspect',arguments=args)).error)
+        self.assertEqual((seen[-1].max_bytes,seen[-1].max_value_bytes,seen[-1].max_page_size),(512,64,4))
+        custom=InspectLimits(max_work=50,max_depth=2,max_nodes=3,max_bytes=512,max_value_bytes=32,max_page_size=2)
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:Projected(),limits=custom))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        self.assertIsNone(p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:1'))).error)
+        self.assertEqual(seen[-1],custom)
+
+    def test_inspection_uses_reference_scalar_wire_layout(self):
+        from statelessness.debugger_inspect import IntegerView
+        s=DebugSession('counter',Counter(),InputPolicy('positive',lambda m,s,i:i>0))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda _:IntegerView('u64','7')))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
+        self.assertIsNone(response.error)
+        self.assertEqual(response.fields,(('schema.name','string:IntegerView'),('schema.version','u64:1'),
+            ('snapshot.revision','u64:0'),('snapshot.sequence','u64:0'),('node.completeness','enum:Complete'),
+            ('node.child_count','u64:0'),('node.kind','enum:integer'),('node.value','u64:7'),('node.children.returned','u64:0')))
+
+    def test_inspection_projection_cannot_mutate_borrowed_session(self):
+        from statelessness.debugger_inspect import IntegerView
+        from statelessness.debugger_session import DebugError
+        s=DebugSession('counter',Counter(),InputPolicy('positive',lambda m,state,i:i>0))
+        attempts=[]
+        def project(value):
+            try: s.step(s.revision,1)
+            except DebugError as error: attempts.append(str(error))
+            return IntegerView('u64',str(value))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=project))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
+        self.assertIsNone(response.error)
+        self.assertEqual(dict(response.fields)['node.value'],'u64:0')
+        self.assertEqual((s.state,s.sequence,s.revision),(0,0,0))
+        self.assertEqual(len(attempts),1)
+        self.assertIn('owned',attempts[0])
+
+    def test_inspection_errors_use_reference_invalid_input_code(self):
+        from statelessness.debugger_inspect import ObjectView,FieldView
+        s=DebugSession('counter',Counter(),InputPolicy('positive',lambda m,state,i:i>0))
+        p=ProtocolSession(s,adapters=inspection_adapters(s,project=lambda value:ObjectView('Counter',(FieldView('value','Value',value),))))
+        handle=dict(p.handle(self.request(p,command='snapshot')).fields)['handle']
+        missing=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10','field:missing')))
+        self.assertEqual(missing.error,'invalid_input')
+        mismatch=p.handle(self.request(p,3,command='inspect',arguments=(handle,'u64:2','u64:0','u64:10')))
+        self.assertEqual(mismatch.error,'invalid_input')
+        self.assertEqual((s.state,s.revision),(0,0))
 
     def test_concrete_map_keys_through_wire_and_child_metadata(self):
         from statelessness.debugger_inspect import DisplaySchema
@@ -388,20 +620,21 @@ class ProtocolTests(unittest.TestCase):
             if type(key) is str: token='string:'+key
             elif type(key) is bool: token='bool:'+str(key).lower()
             else: token=key[0]+':'+key[1]
-            child=fields[f'inspect.root.child.{index}.segment.value']
-            self.assertEqual(child,'string:'+key[1] if type(key) is tuple and key[0]=='char' else token)
+            child=fields[f'node.children.{index}.segment']
+            self.assertEqual(child,'key.'+token)
             response=wire(self.request(p,index+3,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10','key.'+token)))
             self.assertIsNone(response.error)
-            self.assertEqual(dict(response.fields)['inspect.root.value'],'string:'+value)
+            self.assertEqual(dict(response.fields)['node.value'],'string:'+value)
 
     def test_float_and_enum_projection_preserves_typed_wire_values(self):
         import struct
         from statelessness.debugger_inspect import FloatView, EnumView
         values=[(FloatView('f32','-0',1<<31),'f32','-0',1<<31),
+                (FloatView('u8','not-a-number',(1<<64)-1),'u8','not-a-number',(1<<64)-1),
                 (FloatView('f32','NaN',0x7fc00001),'f32','NaN',0x7fc00001),
                 (FloatView('f64','NaN',0x7ff8000000000001),'f64','NaN',0x7ff8000000000001),
                 (-0.0,'f64','-0',1<<63),
-                (struct.unpack('>d',bytes.fromhex('7ff8000000000001'))[0],'f64','nan',0x7ff8000000000001)]
+                (struct.unpack('>d',bytes.fromhex('7ff8000000000001'))[0],'f64','NaN',0x7ff8000000000001)]
         for value,kind,decimal,bits in values:
             for nested in (False,True):
                 with self.subTest(kind=kind,decimal=decimal,nested=nested):
@@ -411,7 +644,7 @@ class ProtocolTests(unittest.TestCase):
                     response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
                     self.assertIsNone(response.error)
                     fields=dict(decode_response(encode_response(response)).fields)
-                    prefix='inspect.root.child.0' if nested else 'inspect.root'
+                    prefix='node.children.0.node' if nested else 'node'
                     self.assertEqual(fields[prefix+'.kind'],'enum:float')
                     self.assertEqual(fields[prefix+'.value'],kind+':'+decimal)
                     self.assertEqual(fields[prefix+'.bits'],'u64:'+str(bits))
@@ -421,6 +654,6 @@ class ProtocolTests(unittest.TestCase):
         response=p.handle(self.request(p,2,command='inspect',arguments=(handle,'u64:1','u64:0','u64:10')))
         self.assertIsNone(response.error)
         fields=dict(decode_response(encode_response(response)).fields)
-        self.assertEqual(fields['inspect.root.value'],'string:Choice')
-        self.assertEqual(fields['inspect.root.variant_id'],'string:some')
-        self.assertEqual(fields['inspect.root.variant_label'],'string:Some')
+        self.assertEqual(fields['node.value'],'string:Choice')
+        self.assertEqual(fields['node.variant_id'],'string:some')
+        self.assertEqual(fields['node.variant_label'],'string:Some')

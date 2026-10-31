@@ -64,3 +64,38 @@ class WorkbenchTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelError, 'not verified'):
             fork_verified(viewer, 'bad', Changed(), 1, InputPolicy('positive', lambda *args: True))
 
+    def test_fork_requires_unambiguous_complete_parent_policy_before_replay(self):
+        environment='stateless.debug.environment';origin='stateless.debug.origin'
+        cases=[(((environment,'positive'),),'incomplete'),
+               (((origin,'simulation'),),'incomplete'),
+               (((environment,'positive'),(environment,'positive'),(origin,'simulation')),'ambiguous'),
+               (((environment,'positive'),(origin,'unknown')),'unknown')]
+        for params,message in cases:
+            with self.subTest(message=message,params=params):
+                trace=fixture();trace=replace(trace,config=replace(trace.config,parameters=params))
+                model=Counter()
+                with self.assertRaisesRegex(ModelError,message):
+                    fork_verified(EvidenceViewer(Artifact(trace)),'bad',model,1,InputPolicy('out-of-domain-injection',unrestricted=True))
+                self.assertEqual(model.calls,0)
+        trace=fixture();trace=replace(trace,config=replace(trace.config,parameters=((environment,'out-of-domain-injection'),(origin,'out-of-domain-injection'))))
+        model=Counter()
+        with self.assertRaisesRegex(ModelError,'environment differs'):
+            fork_verified(EvidenceViewer(Artifact(trace)),'bad',model,1,InputPolicy('out-of-domain-injection',lambda *args:True))
+        self.assertEqual(model.calls,0)
+        branch=fork_verified(EvidenceViewer(Artifact(trace)),'ok',Counter(),1,InputPolicy('out-of-domain-injection',unrestricted=True))
+        self.assertEqual(branch.session.state,5)
+        self.assertEqual(dict(replace(branch.provenance,parent_prefix_verified=False).parameters())['stateless.debug.parent_prefix_verified'],'false')
+
+
+
+class BranchParentPolicyTests(unittest.TestCase):
+    def test_live_capture_parents_impose_no_branch_policy(self):
+        from types import SimpleNamespace
+        from statelessness.debugger import _branch_parent_policy, _recorded_environment
+        trace = lambda *parameters: SimpleNamespace(config=SimpleNamespace(parameters=parameters))
+        live = trace(('stateless.debug.origin', 'recorded-live-observation'))
+        self.assertIsNone(_branch_parent_policy(live))
+        # Minimization keeps requiring complete simulation policy provenance.
+        with self.assertRaises(ModelError): _recorded_environment(live)
+        self.assertEqual(_branch_parent_policy(trace(('stateless.debug.environment', 'allowed'), ('stateless.debug.origin', 'simulation'))), ('allowed', False))
+        with self.assertRaises(ModelError): _branch_parent_policy(trace(('stateless.debug.origin', 'simulation')))

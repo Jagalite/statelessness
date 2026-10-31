@@ -22,10 +22,17 @@ MUST NOT be reported as successful qualification.
 
 The Rust runner and independent native Python, Go, TypeScript, and Swift packages
 implement these four profiles.
-The native ports do **not** provide fuzzing, shrinking, guided corpora,
-campaign scheduling, runtime ring recording, composition helpers,
-or Rust's binary `.sttrace` reader/writer. Those require additional profiles and
-independent qualification; exposing an operation name alone is not parity.
+Capabilities beyond those four profiles have separate experimental contracts and
+qualification. The [native status](../docs/NATIVE-PARITY-STATUS.md) records their
+actual APIs and evidence; this four-profile claim is not a missing-API inventory.
+Exposing an operation name alone is not parity.
+
+The [`observation-v1` candidate](observation-v1.md) defines synchronous diagnostic
+events, filtering, snapshots and optional encoded text payloads in all four native
+packages. It reuses existing checked results and bounded Recorder without granting
+diagnostic events continuity or checked-token authority. Its independently authored
+corpus and source implementation remain separate from executed qualification and
+do not add a fifth qualified profile.
 
 Python and TypeScript additionally expose experimental `WithOracle`/`Paired`
 adapters for the [`paired-v1` candidate](paired-v1.md). This candidate is outside

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {compareEquivalence,qualificationParameters,accepted,check,metadata} from '../dist/index.js';
+import {compareEquivalence,compareEquivalenceBounded,qualificationParameters,accepted,check,metadata} from '../dist/index.js';
 const equality={equalStates:(a,b)=>a===b,equalInputs:(a,b)=>a===b,equalOutputs:(a,b)=>a===b,equalProjections:(a,b)=>a===b};
 const config=(extra={})=>({enabled:true,maxStates:256n,maxEdges:4096n,maxEquivalencePairs:65536n,...extra});
 const proposal=(extra={})=>({name:'finite-example-projection',version:1,build:'fixture-proposal-v1',assumptions:{established:true,finiteDomain:'explicit closed fixture',equivalence:'equal observable behavior',effects:'ordered equality',transitionProperties:'exact named checks',queueOrder:'exact represented order',oracleHistory:'history represented in state',visibleTiming:'logical time represented'},requiredProperties:[{id:'state',phase:'state'},{id:'transition',phase:'transition'}],...extra});
@@ -23,6 +23,37 @@ test('research rejects invalid proposals and exact duplicate domains',()=>{
  for(const p of [proposal({name:' '}),proposal({build:''}),proposal({version:0}),proposal({assumptions:{...proposal().assumptions,effects:'\t'}}),proposal({requiredProperties:[{id:' ',phase:'state'}]}),proposal({requiredProperties:[{id:'state',phase:'state'},{id:'state',phase:'state'}]})])assert.throws(()=>run(toggle().model,[0,1],p));
  assert.throws(()=>run(toggle().model,[0,0,1]),/duplicate exact states/);
  const r=run(toggle().model,[0,1],proposal({requiredProperties:[{id:'state',phase:'state'},{id:'state',phase:'transition'}]}));assert.deepEqual(r.missingProperties,[{id:'state',phase:'transition'}]);
+});
+test('research cannot qualify malformed exact-state equality',()=>{
+ const model=toggle().model;
+ const nonreflexive={...equality,equalStates:(a,b)=>a===b&&a!==1};
+ let report=run(model,[0,1],proposal(),config(),()=>0,nonreflexive);assert.equal(report.status,'Incomplete');assert.match(report.limitation,/state equality must be reflexive/);
+ const asymmetric={...equality,equalStates:(a,b)=>a<=b};
+ report=run(model,[0,1],proposal(),config(),()=>0,asymmetric);assert.equal(report.status,'Incomplete');assert.match(report.limitation,/state equality must be symmetric/);
+ const ambiguous={...equality,equalStates:(a,b)=>a===b||a===2||b===2};
+ report=run(toggle({initialState:()=>2}).model,[0,1],proposal(),config(),()=>0,ambiguous);assert.equal(report.status,'Incomplete');assert.match(report.limitation,/matches multiple declared states/);
+});
+test('research comparison callback budgets bound actual work without changing shared schema',()=>{
+ const fixture=toggle(),limits={maxStateComparisons:1000n,maxProjectionComparisons:1000n};let state=0n,projected=0n;
+ const eq={...equality,equalStates:(a,b)=>{state++;return a===b;},equalProjections:(a,b)=>{projected++;return a===b;}};
+ const full=compareEquivalenceBounded(fixture.model,[0,1],proposal(),config(),()=>0,eq,limits);
+ assert.equal(full.report.status,'AgreesWithinDeclaredFixture');assert.equal(full.stateComparisons,state);assert.equal(full.projectionComparisons,projected);assert.ok(state>0n&&projected>0n);
+ assert.equal(Object.hasOwn(full.report,'stateComparisons'),false);assert.equal(Object.hasOwn(full.report.config,'maxStateComparisons'),false);
+ for(const [bound,expected]of [[{...limits,maxStateComparisons:0n},'state'],[{...limits,maxProjectionComparisons:0n},'projection'],[{...limits,maxStateComparisons:full.stateComparisons-1n},'state'],[{...limits,maxProjectionComparisons:full.projectionComparisons-1n},'projection']]){
+  const result=compareEquivalenceBounded(fixture.model,[0,1],proposal(),config(),()=>0,equality,bound);
+  assert.equal(result.report.status,'Incomplete');assert.match(result.report.limitation,new RegExp(`${expected} equality comparison budget`));assert.ok(result.stateComparisons<=bound.maxStateComparisons);assert.ok(result.projectionComparisons<=bound.maxProjectionComparisons);
+ }
+ const exact=compareEquivalenceBounded(fixture.model,[0,1],proposal(),config(),()=>0,equality,{maxStateComparisons:full.stateComparisons,maxProjectionComparisons:full.projectionComparisons});assert.equal(exact.report.status,'AgreesWithinDeclaredFixture');
+ assert.throws(()=>compareEquivalenceBounded(fixture.model,[0,1],proposal(),config(),()=>0,equality,{...limits,maxStateComparisons:-1n}),/u64/);
+});
+test('research comparison counts exclude clone failures before equality callbacks',()=>{
+ let clones=0,stateCalls=0;const model=toggle({cloneState:s=>{if(++clones===3)throw Error('state clone failure');return s;}}).model;
+ const limits={maxStateComparisons:1000n,maxProjectionComparisons:1000n};
+ const failedState=compareEquivalenceBounded(model,[0,1],proposal(),config(),()=>0,{...equality,equalStates:(a,b)=>{stateCalls++;return a===b;}},limits);
+ assert.equal(failedState.report.status,'Incomplete');assert.match(failedState.report.limitation,/state clone failure/);assert.equal(failedState.stateComparisons,0n);assert.equal(stateCalls,0);
+ let projectedClones=0,projectedCalls=0;const eq={...equality,cloneProjection:k=>{if(++projectedClones===3)throw Error('projection clone failure');return {...k};},equalProjections:(a,b)=>{projectedCalls++;return a.n===b.n;}};
+ const failedProjection=compareEquivalenceBounded(toggle().model,[0,1],proposal(),config(),()=>({n:0}),eq,limits);
+ assert.equal(failedProjection.report.status,'Incomplete');assert.match(failedProjection.report.limitation,/projection clone failure/);assert.equal(failedProjection.projectionComparisons,0n);assert.equal(projectedCalls,0);
 });
 test('research domain closure and callback failures retain only completed edge counts',()=>{
  assert.match(run(toggle().model,[0]).limitation,/successor.*outside/);
@@ -98,6 +129,17 @@ test('research projection and equality errors remain partial unqualified evidenc
 });
 test('research rejects non-reflexive projection relations before traversing a cyclic quotient',()=>{
  for(const [project,eq]of [[()=>NaN,equality],[()=>0,{...equality,equalProjections:()=>false}]]){const r=run(toggle().model,[0,1],proposal(),config(),project,eq);assert.equal(r.status,'Incomplete');assert.match(r.limitation,/reflexive/);assert.equal(r.materializedEdges,2n);}
+});
+test('research cannot qualify an observed asymmetric projection relation',()=>{
+ const report=run(toggle().model,[0,1],proposal(),config(),x=>x,{...equality,equalProjections:(a,b)=>a<=b});
+ assert.equal(report.status,'Incomplete');assert.match(report.limitation,/projection equality must be symmetric/);
+});
+test('research rejects a nontransitive reachable projection relation',()=>{
+ const model=toggle({step:s=>accepted((s+1)%3,[1,2])}).model,eq={...equality,equalProjections:(a,b)=>Math.abs(a-b)<=1};
+ const result=compareEquivalenceBounded(model,[0,1,2],proposal(),config(),x=>x,eq,{maxStateComparisons:1000n,maxProjectionComparisons:1000n});
+ assert.equal(result.report.status,'Incomplete');assert.match(result.report.limitation,/projection equality must be transitive/);assert.ok(result.projectionComparisons>0n);
+ const limited=compareEquivalenceBounded(model,[0,1,2],proposal(),config(),x=>x,eq,{maxStateComparisons:1000n,maxProjectionComparisons:3n});
+ assert.equal(limited.report.status,'Incomplete');assert.match(limited.report.limitation,/projection equality comparison budget/);assert.equal(limited.projectionComparisons,3n);
 });
 test('research blank declarations use Rust Unicode White_Space rather than JavaScript trim',()=>{
  for(const p of [proposal({name:'\u0085'}),proposal({build:'\u0085'}),proposal({assumptions:{...proposal().assumptions,effects:'\u0085'}}),proposal({requiredProperties:[{id:'\u0085',phase:'state'}]})])assert.throws(()=>run(toggle().model,[0,1],p,{}));

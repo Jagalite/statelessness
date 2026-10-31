@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"hash/crc32"
 	"io"
 	"strconv"
@@ -20,12 +21,30 @@ func (r *auditReader) exact(data []byte) error {
 	if e := auditAdd(&r.consumed, uint64(len(data)), r.limits.MaxTotalBytes, "total bytes"); e != nil {
 		return e
 	}
-	_, e := io.ReadFull(r.reader, data)
-	if errors.Is(e, io.EOF) || errors.Is(e, io.ErrUnexpectedEOF) {
-		return auditError("truncated", "")
-	}
-	if e != nil {
-		return &AuditError{Kind: "io", Err: e}
+	empty := 0
+	for len(data) > 0 {
+		n, e := r.reader.Read(data)
+		if n < 0 || n > len(data) {
+			return &AuditError{Kind: "io", Err: fmt.Errorf("invalid reader count %d", n)}
+		}
+		data = data[n:]
+		if len(data) == 0 {
+			return nil
+		}
+		if errors.Is(e, io.EOF) || errors.Is(e, io.ErrUnexpectedEOF) {
+			return auditError("truncated", "")
+		}
+		if e != nil {
+			return &AuditError{Kind: "io", Err: e}
+		}
+		if n == 0 {
+			empty++
+			if empty >= 100 {
+				return &AuditError{Kind: "io", Err: io.ErrNoProgress}
+			}
+		} else {
+			empty = 0
+		}
 	}
 	return nil
 }
@@ -63,6 +82,9 @@ func (r *auditReader) eof() error {
 	var one [1]byte
 	for attempt := 0; attempt < 100; attempt++ {
 		n, e := r.reader.Read(one[:])
+		if n < 0 || n > len(one) {
+			return &AuditError{Kind: "io", Err: fmt.Errorf("invalid reader count %d", n)}
+		}
 		if n != 0 {
 			return auditError("invalid_data", "trailing data after footer")
 		}

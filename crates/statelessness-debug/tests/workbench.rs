@@ -171,3 +171,177 @@ fn minimization_starts_from_saved_midrun_checkpoint() {
         vec![Input::Cancel, Input::Complete(1)]
     );
 }
+
+#[test]
+fn fork_requires_unambiguous_complete_environment_provenance() {
+    let cases: &[(&[(&str, &str)], &str)] = &[
+        (
+            &[
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.origin", "simulation"),
+            ],
+            "ambiguous",
+        ),
+        (
+            &[
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.environment", "other"),
+                ("stateless.debug.origin", "simulation"),
+            ],
+            "ambiguous",
+        ),
+        (
+            &[
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.origin", "simulation"),
+                ("stateless.debug.origin", "out-of-domain-injection"),
+            ],
+            "ambiguous",
+        ),
+        (
+            &[("stateless.debug.environment", "enumerated-domain")],
+            "incomplete",
+        ),
+        (&[("stateless.debug.origin", "simulation")], "incomplete"),
+        (
+            &[
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.origin", "unknown"),
+            ],
+            "unknown",
+        ),
+        (
+            &[
+                ("stateless.debug.environment", "enumerated-domain"),
+                ("stateless.debug.origin", "out-of-domain-injection"),
+            ],
+            "differs",
+        ),
+    ];
+    for (parameters, message) in cases {
+        let mut trace = failure();
+        trace
+            .config
+            .parameters
+            .extend(parameters.iter().map(|(k, v)| ((*k).into(), (*v).into())));
+        let view = TraceViewer::new(trace).unwrap();
+        let error = match view.fork_verified(
+            "branch",
+            RequestModel::fixed(),
+            1,
+            ReplayOptions::default(),
+            InputPolicy::enumerated(),
+            SessionLimits::default(),
+            RecorderOptions::default(),
+        ) {
+            Ok(_) => panic!("invalid provenance accepted"),
+            Err(error) => error,
+        };
+        assert!(error.to_string().contains(message), "{error}");
+        // Malformed provenance is rejected before the deliberately mismatched
+        // model reaches replay, even with explicit unrestricted authority.
+        if *message != "differs" {
+            let error = match view.fork_verified(
+                "branch",
+                RequestModel::fixed(),
+                1,
+                ReplayOptions::default(),
+                InputPolicy::unrestricted(),
+                SessionLimits::default(),
+                RecorderOptions::default(),
+            ) {
+                Ok(_) => panic!("ambiguous provenance accepted"),
+                Err(error) => error,
+            };
+            assert!(error.to_string().contains(message), "{error}");
+        }
+    }
+    let mut trace = failure();
+    trace.config.parameters.extend([
+        (
+            "stateless.debug.environment".into(),
+            "enumerated-domain".into(),
+        ),
+        ("stateless.debug.origin".into(), "simulation".into()),
+    ]);
+    let view = TraceViewer::new(trace).unwrap();
+    for policy in [InputPolicy::enumerated(), InputPolicy::unrestricted()] {
+        assert!(
+            view.fork_verified(
+                "branch",
+                RequestModel::buggy(),
+                1,
+                ReplayOptions::default(),
+                policy,
+                SessionLimits::default(),
+                RecorderOptions::default()
+            )
+            .is_ok()
+        );
+    }
+}
+
+#[test]
+fn duplicate_retained_checkpoint_is_rejected() {
+    for second in ["5", "6", "invalid"] {
+        let mut trace = failure();
+        trace.config.parameters.push((
+            "stateless.monitor.checkpoint_after_sequence".into(),
+            "5".into(),
+        ));
+        trace.config.parameters.push((
+            "stateless.monitor.checkpoint_after_sequence".into(),
+            second.into(),
+        ));
+        assert!(
+            TraceViewer::new(trace).is_err(),
+            "accepted duplicate {second}"
+        );
+    }
+    let mut trace = failure();
+    trace.config.parameters.push((
+        "stateless.monitor.checkpoint_after_sequence".into(),
+        "5".into(),
+    ));
+    assert!(TraceViewer::new(trace).is_ok());
+}
+
+#[test]
+fn retained_range_includes_origin_and_rejects_invalid_provenance() {
+    let origin = "stateless.monitor.sequence_origin";
+    let checkpoint = "stateless.monitor.checkpoint_after_sequence";
+    let mut trace = failure();
+    trace.config.parameters.extend([
+        (origin.into(), "20".into()),
+        (checkpoint.into(), "5".into()),
+    ]);
+    assert_eq!(
+        TraceViewer::new(trace.clone()).unwrap().retained_range(),
+        (25, 28)
+    );
+    let mut duplicate = trace.clone();
+    duplicate
+        .config
+        .parameters
+        .push((origin.into(), "20".into()));
+    assert!(TraceViewer::new(duplicate).is_err());
+    let mut invalid = trace.clone();
+    invalid
+        .config
+        .parameters
+        .iter_mut()
+        .find(|(k, _)| k == origin)
+        .unwrap()
+        .1 = "invalid".into();
+    assert!(TraceViewer::new(invalid).is_err());
+    let mut overflow = trace;
+    overflow
+        .config
+        .parameters
+        .iter_mut()
+        .find(|(k, _)| k == origin)
+        .unwrap()
+        .1 = u64::MAX.to_string();
+    assert!(TraceViewer::new(overflow).is_err());
+}

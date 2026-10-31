@@ -21,6 +21,51 @@ current-source receipts. Independent requirements review remains pending.
   Rust/Python/TypeScript corpus. Keep the established portable profiles unchanged.
 - Extend source-bound qualification and benchmark fixtures. Retain conservative
   production storage/equality defaults until measured experiments qualify a change.
+- Bound consecutive already-seen shrink hints per simplifier iterator, so an
+  endless hint stream ends with `attempt_limit` while finite streams are
+  unaffected. All native ports follow the same rule.
+- Reject trace readers that report more bytes than requested, and check
+  runtime observation sequence overflow before the model metadata callback.
+- Reject debugger branches with a declared policy from a parent recorded with
+  unrestricted injection, and parents with partial policy provenance.
+
+### Native port compatibility notes
+
+These native candidate APIs changed shape to match Rust. Update callers and
+regenerate any persisted artifacts listed here.
+
+- **Assurance JSON (all ports).** Terminations use Rust Debug spelling
+  (`GraphExhausted`, `Panicked`, `MergedJobs`, `Campaign::<termination>`);
+  budgets contain only Rust keys (`max_duration_ns` in nanoseconds, snake-case
+  `guidance.*`); assessment reasons use Rust wording. Host-only keys such as
+  `assurance.*` and `auto.max_candidates` are no longer written. Python
+  `from_json` rejects reports exported with the earlier snake-case terminations;
+  re-export them. Go additionally drops its "campaign with job errors is failed"
+  rule and keeps `nested_jobs`/`campaign` as documented Go-only extensions.
+- **Debugger protocol.** `watch_status`, `telemetry_health` and per-sink probe
+  health use Rust field order in every port. Go `probe_status` sink health adds
+  `abandoned`; Go `telemetry_health` adds the destructor and handle fields (Go and
+  TypeScript report `unknown:explicit_disposal_only` for the two destructor
+  counts). TypeScript no longer emits
+  `telemetry.retained_bytes_are_logical_estimates`.
+- **Go diagnostics.** Add `DiagnosticScope.Close` for `defer`, which publishes an
+  abandoned turn as incomplete instead of locking the hub. Unscoped
+  `Probe`/`Marker` records no longer enter the protocol queue, so `probe_events`
+  returns an empty page where it previously returned `unsupported`. Add
+  `Diagnostics.Abandon` and a Rust-shaped `SinkHealth` via `Health(sink)`; the
+  old `SinkHealth(sink)` method remains. `Dashboard.JSON` key order and nesting
+  now match Rust.
+- **TypeScript.** `ReferenceHost` takes a fourth `ReferenceHostOptions` argument
+  and gains `tick` and `recording`; `close()` now succeeds while a `receive` is
+  pending. `CampaignJobHooks` no longer exposes `runJob`/`runGuidedJob`.
+  `REFERENCE_SOURCE_ID` changes because identity hashing now length-frames files.
+- **Python.** Watches that expire after sampling or evaluation keep their last
+  current value, as in Rust. Reference suites are written in Rust's
+  `suite_json` layout (`"search":"Some(FailureFound)"`) and no longer record a
+  `witness` run parameter. `reference_host.Host` is a context manager.
+- **Swift.** Watch paths decode strictly as in Rust (`bool` only `true`/`false`;
+  range-checked integers). Watch TTL is checked before selector matching and
+  emits an expiry event. `AssuranceReport` gains `validate()` and `outcome`.
 
 ## 0.2.0
 

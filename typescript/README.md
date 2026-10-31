@@ -67,9 +67,44 @@ qualified `PROFILES`. Rust runtime parity and independent specification review
 remain pending. `test/paired.test.mjs` exercises independent bounded-queue reducers,
 shared golden results, fail-fast recording, checkpoint restart, and exact replay.
 
-Not implemented: Rust's advanced fuzzing/shrinking, guided/campaign/
-composition helpers, ring recording, and binary `.sttrace` audit format.
+Native guided exploration, campaigns and assurance integration are available as
+candidate APIs. Their availability does not qualify or promote a portable profile.
 The archive is installable locally; this change does not publish to npm.
+
+Assurance JSON follows Rust `src/assurance.rs` for every Rust-defined field:
+`search.budgets` uses Rust keys only (`max_duration_ns` in nanoseconds,
+`cancellation_enabled`, snake_case `guidance.max_*`, `campaign.*`), and job
+terminations use Rust `Debug` spelling (`CasesCompleted`, `ModelError`,
+`Panicked` for a campaign job that threw a non-`ModelError`). TypeScript-only
+extensions stay outside those fields: assured campaigns expose retained-report
+accounting as the in-memory `MergedAssurance.retention` object
+(`maxRetainedReports`, `maxRetainedBytes`, `retainedReports`, `retainedBytes`,
+`droppedReports`), which is never serialized; a drop is still recorded in
+`callback_errors` as `assurance retained evidence limit exceeded`. Observation
+limits (`AssuranceObservationLimits`) are caller configuration and are not
+echoed into budgets, and neither is the automatic candidate limit (matching Go,
+Python and Swift). The assured automatic fuzzing entry points and the
+guided/automatic assured campaign entry points are TypeScript-only extensions
+with no Rust counterpart.
+
+The runnable `examples/reference-controller.mjs` combines finite assurance,
+one named fault control, shrinking and exact replay. Run `npm run build` followed
+by `node examples/reference-controller.mjs` in this package directory. The
+example is a bounded model, not a production liveness claim; its independent
+requirements catalog still awaits review.
+
+The runnable `examples/background-jobs.mjs` uses one reducer in finite search
+and a promise-based host. After `npm run build`, run `node examples/background-jobs.mjs`. It signals cancellation to simulated work that deliberately ignores the signal,
+and checks a controlled late completion, and confirms a stale-completion fault is found.
+The work is simulated, IDs are bounded to two and cannot be reused; the example
+does not establish liveness or installed-consumer qualification.
+
+The installed `stateless-reference-suite create DIRECTORY` command creates a
+new reference mutation suite without overwriting an existing directory;
+`stateless-reference-suite verify DIRECTORY` validates and replays its witnesses
+in a separate process. Success requires every named fault control to be killed
+and replayed. Both report the catalog's pending review status; neither establishes
+production qualification.
 
 ### Independent generation, fuzzing and shrinking
 
@@ -120,6 +155,109 @@ separate state/transition check batches, and defensive copies of all model data.
 `checkError(phase, checks, complete)` reports partial iterable output on checker
 failure; a transition-check failure reports the completed state batch first.
 Observer exceptions propagate as contextual `ModelError` values.
+
+### Native guided exploration
+
+`fuzzGuided(model, config, guidance, feedback, limits?, observer?)` shares the
+ordinary fuzz kernel and all property checks. `fuzzGuidedObserved(model, config,
+guidance, feedback, observer, limits?)` puts observation before optional controls.
+Both return a normal fuzz report plus a non-null `guidance` report identified by
+`feature-corpus-v2`. Ordinary fuzz keeps its existing defaults and report shape.
+
+```ts
+import { StateFeedback, fuzzGuided, DEFAULT_FUZZ, DEFAULT_GUIDANCE }
+  from '@jagalite/statelessness';
+
+const feedback = new StateFeedback<number, number>(
+  { name: 'counter-depth', version: 1, build: 'app-v1' },
+  state => state,
+  { cloneFeature: key => key, equalFeatures: (a, b) => a === b,
+    hashFeature: key => key },
+);
+const result = fuzzGuided(counter, { ...DEFAULT_FUZZ, seed: 42n },
+  DEFAULT_GUIDANCE, feedback);
+```
+
+See [the complete counter example](examples/guided.ts). Custom
+`Feedback<S, I, O, K>` provides `metadata()`, `transitionFeatures(before, input,
+after, out)`, `cloneFeature`, and `equalFeatures`. Optional `initialFeatures`
+defaults to no emissions. `StateFeedback` projects initial and successor states;
+`exactStateFeedback(model)` uses full state clones and `equalStates`, with optional
+`hashState`, and identity `exact-state/1/clone-eq-hash-v1`. Its state must include
+any represented oracle history. Feature equality never substitutes for model
+state equality, replay evidence, or exhaustive coverage.
+
+Optional `hashFeature` accelerates lookup; omitted hashes use one bucket and exact
+equality. Hashes are strings, finite numbers, or bigints. Equal features must hash
+equally; collisions are resolved by `equalFeatures`, which must return a boolean.
+Provide lawful, deterministic equality rather than relying on object identity or
+NaN equality. Clone hooks must not mutate their argument and must detach nested
+mutable data. Every push snapshots its feature; equality and hash hooks receive
+detached copies. Inputs, states, and outputs supplied to feedback/observers are
+detached using the model's clone hooks. Retained corpus prefixes own separate input
+clones, including independent copies of shared prefixes.
+
+`FeatureBuffer.push(key)` counts every emission, including duplicates. The buffer
+is an engine-issued capability valid only during that callback. Retaining it does
+not retain a writable corpus or reusable scratch; all pushes after return/error
+throw `ModelError`. A swallowed overrun remains fatal. A callback's own thrown
+value takes precedence over that sticky error. Failed feedback teaches no keys
+and returns no successful partial report. Buffers are revoked in internal
+`finally` cleanup, which invokes no application disposal callback. Arbitrary
+feedback/feature-hook throwables are contextualized as `ModelError`; unprintable
+thrown values receive a fixed placeholder. This normalization is guided-only.
+Ordinary fuzz retains its existing exception formatting, including secondary
+exceptions from a throwing `Error.message` getter or string conversion. Shared
+model/checker/observer dispatch retains its existing exception precedence in both
+paths. These are explicit TypeScript host policies.
+Reentrant `push` calls from a clone hook are rejected and remain sticky, so
+application cloning cannot bypass the per-observation emission bound.
+
+Guided callbacks are synchronous. Promises and thenables returned by feedback,
+feature identity/projection, model, or observer hooks are rejected. Void hooks
+must return `undefined`; TypeScript's `void` annotation alone cannot enforce
+this. Native Promise rejections are handled after rejection of the hook, and
+escaped buffers remain expired when async continuations run. Arbitrary thenables
+are never awaited or invoked. The engine cannot prevent unrelated application
+side effects scheduled by an async callback. Search remains browser-compatible
+and dependency-free; these rules do not constitute a browser/platform runtime
+qualification.
+
+Guidance limits are positive safe integers: `maxCorpusEntries` (default 256),
+`maxCorpusInputs` (25,600), `maxFeatures` (100,000), and
+`maxFeaturesPerObservation` (256). They bound counts, not bytes or RSS. Feature
+and input allocations and callback duration remain application responsibilities.
+The report includes `unique_features`, `corpus_inputs`, ordered `corpus` entries,
+`mutation_cases`, bigint `dropped_prefixes`/`evicted_prefixes`, and saturation
+flags. Each entry records cloned `inputs`, `new_features`, 1-based
+`discovered_case`, and bigint global `discovered_transition`. Other u64 search
+counts remain bigint; skipped-check totals saturate at u64 max.
+
+Initial features are witnessed without retaining an empty entry. Novel passing
+prefixes are retained FIFO, evicting oldest entries to satisfy both corpus limits.
+Eviction leaves their features witnessed. Overlong novel prefixes are counted as
+drops; a later fitting prefix can recover an unwitnessed key even at the feature
+cap, with `new_features: 0`. Repeated overlong known keys do not add drops. Flags
+record attempted excess, so exactly filling a limit does not set them. Reports
+are evidence snapshots; there is no corpus import or checkpoint/resume API.
+
+Admission validates guidance and fuzz budgets, starts the cooperative clock, then
+queries feedback metadata once. Empty names/builds and version zero are allowed;
+bare search does not query model metadata. Pre-cancelled and zero-duration runs
+still query feedback metadata. Metadata duration counts toward the deadline.
+Checks and observers run before property failure extraction; a property failure
+suppresses feedback. Checker/observer errors preserve existing partial check
+batches and primary-error precedence. Passing feedback learns before the next
+control poll, so cancellation can return its discovery. A callback error takes
+precedence over that cancellation. Controls never interrupt a callback.
+
+Candidate selection uses the source SplitMix64 rejection-index call order: percent,
+corpus index, mode, and only the selected mode's deletion/replacement draws. A
+replacement regenerates one position; later enabled inputs remain reusable.
+Generation and mutation share the stream. Steps-zero cases still run initial
+checks/feedback and candidate selection; a transition cap is tested only at step
+entry. Replay passing retained witnesses with `record`/`replay`; only actual
+property failures are valid `shrink` inputs.
 
 `WithOracle` forwards generation, enabled checks, simplification hints and input
 identity to the actual model (using the actual component of the combined state).
@@ -176,6 +314,11 @@ estimate. Omission defaults to unknown; explicit `0n` is permitted. The estimate
 is the checked u64 sum of model bytes, history bytes and this declared overhead.
 It does not infer managed-runtime object layout or claim cross-language byte/RSS
 identity. The portable-v1 conformance wire response keeps its existing schema.
+
+Pair and Network equality capture both states and pending messages before invoking
+child comparators, and pin the selected child and input comparators for that call.
+Clone hooks therefore run even if the first child comparison returns false; they
+must cooperate, and cannot make external concurrent mutation atomic.
 
 For budgets beyond JavaScript's safe Number range,
 `enumerateStatesExact(model, { maxStates, maxTransitions: bigint, maxDepth },
@@ -332,6 +475,97 @@ borrow: callbacks cannot observe another turn or transfer the recorder midway
 through capture. A prior terminal failure remains primary. Sealed immutable check
 batches are quota-validated before the recorder copies them into retained storage.
 
+`observation-v1` adds optional synchronous diagnostics through `Event`, `Observer`,
+`PayloadFormat`, `NoPayloads`, `EncodedPayloads` and `TextObserver`. The event union
+uses `kind: 'started' | 'checkpoint' | 'transition' | 'message' | 'finished'`.
+The caller supplies metadata/config, actual application transitions and completed
+checks; observation never runs initial-state, reducer, check or effect callbacks.
+NoPayloads and custom formatters work with a base `Model` without a codec.
+Events are diagnostic data: they neither prove continuity nor authorize a checked
+recorder handoff. Existing checked tokens, periodic checking and Recorder behavior
+are unchanged. To share already completed checks, pass
+`{kind: 'transition', ...token.observation()}` to the logger and the actual token to
+`recorder.observeChecked(token)`.
+
+```ts
+const chunks: Uint8Array[] = [];
+const writer = {
+  write(bytes: Uint8Array): number { chunks.push(bytes.slice()); return bytes.length; },
+  flush(): void {},
+};
+const log = new TextObserver<number, number, number>(writer, 'application', {
+  level: LogLevel.Trace,
+  snapshots: SnapshotPolicy.Every(2n),
+}, new NoPayloads());
+// Supply an already executed turn; the observer does not call model.step().
+log.observe(model, {kind: 'transition', sequence: 2n, before: 1, input: 1,
+  transition: accepted(2, [2]), checks: []});
+```
+
+`DEFAULT_OBSERVATION_OPTIONS` is Off, SnapshotPolicy.None and 1 MiB per record.
+Options accept `level`, `snapshots`, and `maxRecordBytes`; zero record bytes is
+valid. `LogLevel` increases through Off, Error, Warn, Info, Debug, Trace. Failures
+take Error precedence over skipped Warn checks. Ordinary checkpoints are Trace,
+transitions Debug (including rejected/ignored), and start/finish Info. Messages
+use their own level and explicit Off is always filtered. Filtering precedes
+payload formatting, cloning and codec dispatch. Only configured Trace renders
+payloads and passed check details, even for an event promoted to Error/Warn.
+
+Snapshots select None, Every(nonzero u64 bigint), or EveryTransition. All event
+sequences, transition totals and seeds are exact u64 `bigint`; transition sequence
+is positive. At Trace every explicit checkpoint includes state under any non-None
+policy, independently of the interval. Transition formatting visits input, ordered
+outputs and selected post-state; it never reads before-state. `setLevel` and
+`setSnapshots` change future events without filling omitted history.
+
+Events borrow their application values for the synchronous call; they are not
+retained or cloned by the observer. Keep payloads, arrays and fields immutable
+during observation, and keep formatters pure. EncodedPayloads uses the existing
+model encoding dispatcher, including its clone hooks, bounded reusable
+EncodeBuffer storage and declaration-bound/version-gated codecs. Prefer
+`new EncodedPayloads<State, Input, Output>(maxBlobBytes)` with a CodecModel-typed
+observer. It emits lowercase `hex:` bytes. Legacy encode callbacks may allocate
+before admission; clone/callback allocations and work are outside the limits.
+Bounded snapshots copy admitted bytes for publication. Limits bound logical
+record/blob bytes, not process memory or all transient allocations.
+
+`PayloadWriter.write`/`writeAll` accept UTF-8 strings or Uint8Array bytes. A lease
+expires when its formatter returns, including on errors; callbacks must return
+undefined synchronously. Record and encoding overflow remain sticky even if a
+callback catches the rejected write. A complete record (including LF) is staged
+before destination writes. Formatting, codec and record-limit errors publish no
+bytes for that event and allow the next event to recover. `TextObservationError.stage`
+identifies `format_input/output/state`, `encode_input/output/state`, `record_limit`,
+`sink_write`, `sink_flush`, `sink_poisoned`, or native validation/ownership `format`.
+Its stage type is `TextObservationErrorStage`. The existing `ObservationError`
+export remains the oracle-advance error carrying the retained actual transition.
+Public error stages confer no attribution: a formatter that throws a constructed
+or nested observer error reports the current `format_input/output/state` stage.
+Only record failures and EncodedPayloads failures tied to the current callback's
+writer retain their internal stages; earlier calls and other writers do not.
+Hostile thrown diagnostics are contained without invoking a reducer or checker.
+
+`ObservationWriter.write` must synchronously return the consumed prefix length.
+The observer completes short writes, retries errors with `code: 'EINTR'`, and
+rejects zero/invalid/async returns. This is not a Node Writable stream interface.
+A write failure may expose a partial record; write/flush failures permanently
+poison the observer, including after changing to Off. `isPoisoned` reports health,
+`getRef` exposes the caller's writer, and `intoInner` transfers its handle and
+disables the observer without flushing, closing or disposing it. `flush` is
+explicit. Writers must consume/copy the supplied byte view during the call and
+must not mutate it. Reentrant observation, setters, flush and transfer are rejected.
+
+Native text follows the Rust field order and variant spellings in the shared
+`spec/observation-v1.md` profile. Library fields quote and escape newline, carriage
+return, tab, NUL, quote, backslash and nonprinting characters, preserving common
+printable UTF-8. JavaScript Unicode category tables can differ from Rust Debug;
+universal Unicode/future aggregate Debug byte compatibility is not claimed.
+Custom payloads are written verbatim: escaping and single-line output are the
+formatter's responsibility. Diagnostic text is never an exact replay artifact.
+The module is browser-safe and imports no Node APIs. Implementation and fixtures
+are source-authored candidates pending integrated Kyoto qualification; this
+addition alone does not establish N07 completion or browser/runtime qualification.
+
 `causal-evidence-v2` is an experimental candidate. `TraceV2` wraps an unchanged
 binary-v1 `AuditTrace` with exact `bigint` checkpoint/host sequences, ordered
 provenance and per-turn state-check boundaries/causes. `readArtifact` accepts
@@ -443,6 +677,11 @@ optional seventh metadata callback when the model has no `metadata()` method.
 All three budgets (`maxStates`, `maxEdges`, `maxEquivalencePairs`) are exact u64
 `bigint` values. Defaults are 256n, 4096n and 65536n. State indexes and the actual
 declared array length are native numbers; edge/pair/skipped counters are bigint.
+`compareEquivalenceBounded` additionally accepts u64 bigint state and projection
+comparison limits and returns their consumed counts beside the unchanged shared
+report. The ordinary API applies finite defaults of one million comparisons of
+each kind. Exhaustion reports `Incomplete`; callback work and allocation inside a
+single comparison remain application-owned.
 
 Each declared edge, including unreachable states' edges, is materialized once.
 The exact and projected breadth-first traversals then share that owned table.
@@ -509,3 +748,53 @@ metadata before inspecting values, sinks, bytes, or decode limits. A limits
 provider runs afresh per decode, and encoding never evaluates it. Extra model
 methods remain available through the facade. Existing model methods that invoke
 other methods on `this` continue to use the original model.
+
+`RequestModel.fixed()` and `RequestModel.buggy()` expose the finite Rust
+request-lifecycle teaching fixture, including ordered generation and its canonical
+state, input, and output encodings. Pass the same build identity to both producers
+when comparing trace metadata; the model appends `:fixed` or `:injected`. This
+fixture demonstrates stale-completion detection and is not a qualified production
+application model.
+Its optional retained-state estimate charges a logical 32-byte header plus one
+byte per pending generation, enabling bounded search; it does not estimate JavaScript
+object or allocator overhead and is not a hard memory bound.
+
+After building TypeScript, run the request-lifecycle teaching fixture with
+`node typescript/bin/demo.mjs explore fixed`, `explore buggy`, or `fuzz buggy 42`.
+It emits a JSON report; bigint counts are decimal strings. This small demo CLI
+does not represent the full Rust CLI surface. Installed packages expose the same
+command as `stateless-demo`. A completed exploration or fuzz run exits 0 even if
+it finds a counterexample; inspect the report's termination and failure fields.
+Invalid command syntax exits 2 and runtime or seed-range errors exit 1.
+
+### Source build identity
+
+`RUNTIME_SOURCE_BUILD_ID` identifies the TypeScript source inputs captured during
+`npm run build` as a SHA-256 digest. The digest includes sorted `.ts` source
+paths and bytes (excluding the generated identity itself), package and compiler
+configuration, lockfile, and the identity generators. Symbolic links in the
+source tree are rejected at build time. It is embedded in the
+build and is available without Node APIs. It is an input identity, not a hash
+of emitted JavaScript or proof of the executing code, compiler, dependencies,
+environment, authenticity, or an atomic snapshot if sources change during build.
+Consumers needing release provenance should verify package artifacts separately.
+
+Indexed lifecycle monitors optionally accept a fifth `IndexedRustDiagnostics`
+argument with `identity`, `formatKey`, and `formatString`. The two synchronous
+callbacks must return the exact pinned Rust `Debug` text for the inner key and
+for a string respectively (including string quotes and escapes). Use a stable
+identity that changes with either formatter; it appears in the monitor's semantic
+name. This opt-in formats indexed check details and does not itself make Rust and
+native metadata identical. Without it, existing native-code diagnostics remain
+unchanged. See `docs/native-parity/N08-N09-CONTRACT.md` for the candidate contract.
+
+`fuzzAuto` and `fuzzGuidedAuto` add cooperative cancellation and deadline
+checks within finite-domain scans. `runAutoCampaign` and
+`runGuidedAutoCampaign` provide the same behavior for single-worker,
+caller-thread campaigns. The Node-only `runNodeAutoCampaign` and
+`runNodeGuidedAutoCampaign` APIs use module workers with the same cooperative
+scan control; modules supply enumeration and input equality locally. An
+interrupted reservoir scan leaves its
+sampling RNG unchanged. Cancellation is cooperative: application callbacks,
+including campaign feedback factories and iterator calls already executing,
+cannot be preempted.

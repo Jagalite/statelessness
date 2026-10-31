@@ -54,3 +54,57 @@ final class SessionTests: XCTestCase {
         XCTAssertTrue(rejected); XCTAssertEqual(results.count,1); XCTAssertEqual(session.sequence,1)
     }
 }
+
+extension SessionTests {
+    func testEnumeratedPolicyCapturesQueryBeforeStateCallbacks() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let query = Box(1)
+        let model = Model<Int,Box,Int>(initialState: { 0 }, step: { state,_ in Transition(state: state) },
+            checkState: { _ in [] }, cloneState: { state in query.value = 2; return state },
+            cloneInput: { Box($0.value) }, cloneOutput: { $0 },
+            inputs: { _ in InputIterator(values: [Box(1)]) })
+        let policy = try InputPolicy<Int,Box,Int>.enumerated(equalInputs: { $0.value == $1.value })
+        XCTAssertTrue(try policy.permits(model,0,query,2))
+
+        var empty = model
+        empty.cloneInput = { _ in throw ModelError("copy") }
+        empty.inputs = { _ in InputIterator(values: []) }
+        XCTAssertFalse(try policy.permits(empty,0,Box(1),2))
+    }
+
+    func testSessionCopiesPolicyInputBeforeState() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        var firstStepCopy: Box?, capture = false
+        let model = Model<Int,Box,Int>(initialState: { 0 }, step: { state,input in Transition(state: state+input.value) },
+            checkState: { _ in [] }, cloneState: { state in firstStepCopy?.value = 2; return state },
+            cloneInput: { value in
+                let result = Box(value.value)
+                if capture && firstStepCopy == nil { firstStepCopy = result }
+                return result
+            }, cloneOutput: { $0 }, inputs: { _ in InputIterator(values: [Box(1)]) })
+        let session = try DebugSession(id: "copy-order",model: model,
+            policy: InputPolicy.enumerated(equalInputs: { $0.value == $1.value }),
+            equalInputs: { $0.value == $1.value })
+        capture = true
+        XCTAssertTrue(try session.step(expectedRevision: 0,input: Box(1)).delivered)
+    }
+
+    func testCandidateRevalidatesChangedDomainUnderUnrestrictedPolicy() throws {
+        var domain = [1], delivered = 0, reads = 0
+        var m = model()
+        m.inputs = { _ in InputIterator { reads += 1; return domain.isEmpty ? nil : domain.removeFirst() } }
+        m.step = { state, input in delivered += 1; return Transition(state: state+input,outputs: []) }
+        var limits = SessionLimits(); limits.maxCandidates = 1
+        let session = try DebugSession(id: "revalidate", model: m, policy: .outOfDomainInjection, limits: limits, equalInputs: ==)
+        let token = try session.inputs(expectedRevision: 0, offset: 0, limit: 1).candidates[0]
+        domain = [2,1]; reads = 0
+        XCTAssertThrowsError(try session.step(token)) // One lookahead cannot admit 1.
+        XCTAssertEqual(reads,2); XCTAssertEqual(delivered,0); XCTAssertEqual(session.revision,0)
+        domain = [2]; reads = 0
+        XCTAssertThrowsError(try session.step(token))
+        XCTAssertEqual(reads,2); XCTAssertEqual(delivered,0)
+        domain = [1]; reads = 0
+        XCTAssertTrue(try session.step(token).delivered)
+        XCTAssertEqual(reads,1); XCTAssertEqual(delivered,1)
+    }
+}

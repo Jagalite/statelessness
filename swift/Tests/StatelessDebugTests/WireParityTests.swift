@@ -5,6 +5,46 @@ import StatelessDebug
 
 final class WireParityTests: XCTestCase {
     final class Calls { var values: [String] = [] }
+    func testRustGeneratedInspectionWireFixture() throws {
+        let root = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        let path = ProcessInfo.processInfo.environment["STATELESS_SWIFT_INSPECTION_WIRE"] .map { URL(fileURLWithPath:$0) } ?? root.appendingPathComponent("conformance/swift-inspection-wire-v1.tsv")
+        let fixture = try String(contentsOf:path,encoding:.utf8)
+        let expected = Dictionary(uniqueKeysWithValues:fixture.split(separator:"\n").map { line -> (String,[Substring]) in
+            let fields = line.split(separator:"\t",omittingEmptySubsequences:false)
+            return (String(fields[0]),Array(fields.dropFirst(9)))
+        })
+        let model = Model<Int,Int,Int>(initialState:{0},step:{s,_ in Transition(state:s)},checkState:{_ in []},cloneState:{$0},cloneInput:{$0},cloneOutput:{$0})
+        let session = try DebugSession(id:"test",model:model,policy:.outOfDomainInjection,equalInputs: ==)
+        let adapter = try ProtocolAdapter(session:session)
+        var visitedFields: [Int] = []
+        try adapter.enableInspection(schema:{ _ in DisplaySchema(name:"request-lifecycle.State") }) { state,snapshot,path,page,limits in
+            let context = try InspectContext(limits:limits)
+            let node: InspectNode
+            if path.isEmpty {
+                node = try context.object("request-lifecycle.State",total:4,page:page) { index,c in
+                    visitedFields.append(index)
+                    guard index == 0 else { throw InspectError.pathNotFound }
+                    return try c.field("generation") { try $0.scalar(.integer(kind:ExactString("u8"),decimal:ExactString(String(state)))) }
+                }
+            } else if path == [.field(ExactString("generation"))] {
+                node = try context.scalar(.integer(kind:ExactString("u8"),decimal:ExactString(String(state))))
+            } else if path == [.field(ExactString("pending"))] {
+                node = try context.sequence(name:"slice",total:0,page:page) { _,_ in throw InspectError.pathNotFound }
+            } else { throw InspectError.pathNotFound }
+            return InspectResult(snapshot:snapshot,schema:DisplaySchema(name:"request-lifecycle.State"),path:path,node:node)
+        }
+        func request(_ id: UInt64,_ command: String,_ args: [String] = []) -> ProtocolResponse { adapter.handle(ProtocolRequest(session:"test",epoch:adapter.epoch,requestID:id,command:command,arguments:args)) }
+        XCTAssertNil(request(1,"snapshot").error)
+        let cases: [(String,[String])] = [("root",[]),("scalar",["field:generation"]),("page",["field:pending"]),("object_past_end",[]),("sequence_past_end",["field:pending"]),("missing",["field:missing"]),("schema",[])]
+        for (index,item) in cases.enumerated() {
+            let schema = item.0 == "schema" ? "u64:2" : "u64:1"
+            let offset = item.0.hasSuffix("past_end") ? "u64:9" : "u64:0"
+            let actual = request(UInt64(index+2),"inspect",["u64:1",schema,offset,"u64:1"]+item.1)
+            let wire = String(decoding:try ProtocolWire.encodeResponse(actual),as:UTF8.self)
+            XCTAssertEqual(Array(wire.split(separator:"\t",omittingEmptySubsequences:false).dropFirst(8)),expected[item.0],item.0)
+        }
+        XCTAssertEqual(visitedFields,[0]) // Schema mismatch is rejected before field projection.
+    }
 
     func adapter(_ calls: Calls, exact: Bool = false, delivery: Bool = true) throws -> ProtocolAdapter<UInt64, UInt8, UInt64> {
         func bytes(_ value: UInt64) -> [UInt8] {

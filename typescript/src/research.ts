@@ -65,6 +65,11 @@ export interface ExperimentReport<I> {
     missingProperties: RequiredProperty[];
     limitation: string;
 }
+/** Native callback work limits; these do not alter the shared experiment schema. */
+export interface ResearchComparisonLimits { readonly maxStateComparisons:bigint; readonly maxProjectionComparisons:bigint }
+export const DEFAULT_RESEARCH_COMPARISON_LIMITS:Readonly<ResearchComparisonLimits>=Object.freeze({maxStateComparisons:1_000_000n,maxProjectionComparisons:1_000_000n});
+export interface BoundedExperimentReport<I> { readonly report:ExperimentReport<I>; readonly comparisonLimits:Readonly<ResearchComparisonLimits>; readonly stateComparisons:bigint; readonly projectionComparisons:bigint }
+interface ComparisonBudget { readonly limits:Readonly<ResearchComparisonLimits>; state:bigint; projection:bigint }
 export interface ResearchEquality<S, I, O, K> {
     equalStates(left: S, right: S): boolean;
     equalInputs(left: I, right: I): boolean;
@@ -176,6 +181,16 @@ interface Graph<I, O> {
 }
 /** Execute every declared edge once, then compare both traversals of the same owned table. */
 export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, states: readonly S[], proposal: Proposal, config: Partial<ExperimentConfig>, projection: (state: S) => K, equality: ResearchEquality<S, I, O, K>, metadata?: () => Metadata): ExperimentReport<I> {
+    return compareEquivalenceInternal(model,states,proposal,config,projection,equality,metadata,{limits:DEFAULT_RESEARCH_COMPARISON_LIMITS,state:0n,projection:0n});
+}
+/** Reports actual comparison callback counts separately from the shared wire report. */
+export function compareEquivalenceBounded<S,I,O,K>(model:ResearchModel<S,I,O>,states:readonly S[],proposal:Proposal,config:Partial<ExperimentConfig>,projection:(state:S)=>K,equality:ResearchEquality<S,I,O,K>,limits:ResearchComparisonLimits=DEFAULT_RESEARCH_COMPARISON_LIMITS,metadata?:()=>Metadata):BoundedExperimentReport<I>{
+    if(limits===null||typeof limits!=='object'||Array.isArray(limits))fail('invalid research comparison limits');
+    const owned=Object.freeze({maxStateComparisons:exact(limits.maxStateComparisons,'maxStateComparisons'),maxProjectionComparisons:exact(limits.maxProjectionComparisons,'maxProjectionComparisons')});
+    const budget:ComparisonBudget={limits:owned,state:0n,projection:0n},report=compareEquivalenceInternal(model,states,proposal,config,projection,equality,metadata,budget);
+    return {report,comparisonLimits:owned,stateComparisons:budget.state,projectionComparisons:budget.projection};
+}
+function compareEquivalenceInternal<S, I, O, K>(model: ResearchModel<S, I, O>, states: readonly S[], proposal: Proposal, config: Partial<ExperimentConfig>, projection: (state: S) => K, equality: ResearchEquality<S, I, O, K>, metadata: (() => Metadata)|undefined,budget:ComparisonBudget): ExperimentReport<I> {
     const p = proposalCopy(proposal);
     if (config === null || typeof config !== 'object' || Array.isArray(config))
         fail('invalid research configuration');
@@ -218,7 +233,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
     const initialState = model.initialState, inputs = model.inputs, step = model.step;
     const checksModel = { checkState: model.checkState, checkStateInto: model.checkStateInto, checkTransition: model.checkTransition, checkTransitionInto: model.checkTransitionInto };
     const cs = (v: S) => sync(cloneState.call(model, v)), ci = (v: I) => sync(cloneInput.call(model, v)), co = (v: O) => sync(cloneOutput.call(model, v));
-    const eqs = (a: S, b: S) => bool(sync(equalStates.call(equality, cs(a), cs(b))));
+    const eqs = (a: S, b: S) => {if(budget.state>=budget.limits.maxStateComparisons)fail('state equality comparison budget reached');const left=cs(a),right=cs(b);budget.state++;return bool(sync(equalStates.call(equality,left,right)));};
     const cp = (key: K): K => {
         if (cloneProjection)
             return sync(cloneProjection.call(equality, key));
@@ -226,7 +241,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
             fail('mutable projection keys require cloneProjection');
         return key;
     };
-    const eqk = (a: K, b: K) => bool(sync(equalProjections.call(equality, cp(a), cp(b))));
+    const eqk = (a: K, b: K) => {if(budget.projection>=budget.limits.maxProjectionComparisons)fail('projection equality comparison budget reached');const left=cp(a),right=cp(b);budget.projection++;return bool(sync(equalProjections.call(equality,left,right)));};
     let domain: S[];
     try {
         domain = declared!.map(cs);
@@ -235,14 +250,19 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
         report.limitation = message(error);
         return report;
     }
+    const findIn = (states: readonly S[], state:S):number => {
+        let match=-1;
+        for(let index=0;index<states.length;index++){
+            const forward=eqs(states[index],state),reverse=eqs(state,states[index]);
+            if(forward!==reverse)fail('state equality must be symmetric');
+            if(forward){if(match!==-1)fail('state equality matches multiple declared states');match=index;}
+        }
+        return match;
+    };
     let duplicate = false;
     try {
-        outer: for (let i = 0; i < domain.length; i++)
-            for (let j = 0; j < i; j++)
-                if (eqs(domain[j], domain[i])) {
-                    duplicate = true;
-                    break outer;
-                }
+        for(const state of domain)if(!eqs(state,state))fail('state equality must be reflexive');
+        for(let i=0;i<domain.length;i++)if(findIn(domain.slice(0,i),domain[i])!==-1){duplicate=true;break;}
     }
     catch (error) {
         report.limitation = message(error);
@@ -250,7 +270,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
     }
     if (duplicate)
         fail('declared research domain contains duplicate exact states');
-    const find = (state: S) => domain.findIndex(s => eqs(s, state));
+    const find = (state: S) => findIn(domain,state);
     let graph: Graph<I, O>;
     try {
         const initial = find(sync(initialState.call(model)));
@@ -322,8 +342,9 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
     }
     try {
         const keys = domain.map(state => cp(sync(projection(cs(state)))));
-        for (const key of keys)
-            if (!eqk(key, key))
+        const equivalent=(left:number,right:number):boolean=>{const forward=eqk(keys[left],keys[right]);if(left!==right&&forward!==eqk(keys[right],keys[left]))fail('projection equality must be symmetric');return forward;};
+        for (let index=0;index<keys.length;index++)
+            if (!equivalent(index,index))
                 fail('projection equality must be reflexive');
         const witness = (v: ViolationWitness<I>): ViolationWitness<I> => ({ property: { ...v.property }, details: v.details, inputs: v.inputs.map(ci) });
         const reach = (equivalent: (a: number, b: number) => boolean): [
@@ -364,7 +385,21 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
             r.observedProperties.sort(propertyOrder);
             return [r, paths];
         };
-        const [ex, paths] = reach((a, b) => a === b), [re] = reach((a, b) => eqk(keys[a], keys[b]));
+        const [ex, paths] = reach((a, b) => a === b);
+        // Partition reachable states only after checking that every encountered
+        // relation agrees with its class. Comparisons are charged to the same
+        // bounded callback budget used by the projected traversal.
+        const classes:number[]=[];
+        for(let position=0;position<ex.states.length;position++){
+            const matches:boolean[]=[];let matched:number|undefined;
+            for(let earlier=0;earlier<position;earlier++){
+                const same=equivalent(ex.states[position],ex.states[earlier]);matches.push(same);
+                if(same){if(matched!==undefined&&matched!==classes[earlier])fail('projection equality must be transitive');matched=classes[earlier];}
+            }
+            if(matched!==undefined){if(matches.some((same,i)=>same!==(classes[i]===matched)))fail('projection equality must be transitive');classes.push(matched);}
+            else classes.push(position);
+        }
+        const [re] = reach(equivalent);
         report.missingViolations = ex.violations.filter(v => !re.violations.some(r => sameProperty(v.property, r.property))).map(witness);
         report.missingProperties = p.requiredProperties.filter(v => !ex.observedProperties.some(r => sameProperty(v, r))).map(v => ({ ...v }));
         const sameChecks = (a: Check[], b: Check[]) => a.length === b.length && a.every((v, i) => v.id === b[i].id && v.status === b[i].status && v.details === b[i].details);
@@ -384,7 +419,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
                     return 'transition disposition differs';
                 if (!sameChecks(x.checks, y.checks))
                     return 'transition checks differ';
-                if (!eqk(keys[x.target], keys[y.target]))
+                if (!equivalent(x.target,y.target))
                     return 'successor equivalence classes differ';
             }
             return null;
@@ -393,7 +428,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
         outer: for (let i = 0; i < ex.states.length; i++)
             for (let j = i + 1; j < ex.states.length; j++) {
                 const left = ex.states[i], right = ex.states[j];
-                if (!eqk(keys[left], keys[right]))
+                if (!equivalent(left,right))
                     continue;
                 if (report.comparedPairs === c.maxEquivalencePairs) {
                     limited = true;
@@ -404,7 +439,7 @@ export function compareEquivalence<S, I, O, K>(model: ResearchModel<S, I, O>, st
                 if (reason)
                     report.counterexamples.push({ leftState: left, rightState: right, leftPrefix: paths[left]!.map(ci), rightPrefix: paths[right]!.map(ci), reason });
             }
-        const different = report.counterexamples.length > 0 || report.missingViolations.length > 0 || ex.states.some(s => !re.states.some(r => eqk(keys[s], keys[r]))) || re.violations.some(v => !ex.violations.some(e => sameProperty(v.property, e.property)));
+        const different = report.counterexamples.length > 0 || report.missingViolations.length > 0 || ex.states.some(s => !re.states.some(r => equivalent(s,r))) || re.violations.some(v => !ex.violations.some(e => sameProperty(v.property, e.property)));
         if (different) {
             report.status = 'Counterexample';
             report.limitation = 'The proposed equivalence changes observable behavior or property reachability in this finite fixture; it must not be used for pruning.';

@@ -1,0 +1,73 @@
+FF..FFE
+======================================================================
+ERROR: test_valid_fixture_admission_is_not_parity (__main__.CompletionEvidenceTests.test_valid_fixture_admission_is_not_parity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 42, in test_valid_fixture_admission_is_not_parity
+    self.assertEqual(self.check(), self.key)
+                     ~~~~~~~~~~^^
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 39, in check
+    return gate.validate_receipt(self.root, self.receipt, {self.key})
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/completion-gate.py", line 103, in validate_receipt
+    manifest = local(root, receipt['source_manifest']['path'])
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/completion-gate.py", line 35, in local
+    raise ValueError(f'symlink source path: {name}')
+ValueError: symlink source path: source.json
+
+======================================================================
+FAIL: test_assertion_missing_artifact_and_platform_mismatch_fail (__main__.CompletionEvidenceTests.test_assertion_missing_artifact_and_platform_mismatch_fail)
+----------------------------------------------------------------------
+ValueError: symlink source path: source.json
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 63, in test_assertion_missing_artifact_and_platform_mismatch_fail
+    with self.assertRaisesRegex(ValueError,'assertion'):self.check()
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "assertion" does not match "symlink source path: source.json"
+
+======================================================================
+FAIL: test_changed_source_and_added_source_fail (__main__.CompletionEvidenceTests.test_changed_source_and_added_source_fail)
+----------------------------------------------------------------------
+ValueError: symlink source path: source.json
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 46, in test_changed_source_and_added_source_fail
+    with self.assertRaisesRegex(ValueError,'source bytes'):self.check()
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "source bytes" does not match "symlink source path: source.json"
+
+======================================================================
+FAIL: test_narrowed_manifest_fails (__main__.CompletionEvidenceTests.test_narrowed_manifest_fails)
+----------------------------------------------------------------------
+ValueError: symlink source path: source.json
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 53, in test_narrowed_manifest_fails
+    with self.assertRaisesRegex(ValueError,'scope narrowed'):self.check()
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "scope narrowed" does not match "symlink source path: source.json"
+
+======================================================================
+FAIL: test_self_review_and_path_escape_fail (__main__.CompletionEvidenceTests.test_self_review_and_path_escape_fail)
+----------------------------------------------------------------------
+ValueError: symlink source path: source.json
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jagatranvo/.t3/worktrees/stateless/t3-e52c3da6/scripts/native-parity/test_completion_gate.py", line 71, in test_self_review_and_path_escape_fail
+    with self.assertRaisesRegex(ValueError,'self-review'):self.check()
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "self-review" does not match "symlink source path: source.json"
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.104s
+
+FAILED (failures=4, errors=1)

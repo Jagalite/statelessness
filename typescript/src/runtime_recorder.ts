@@ -307,16 +307,9 @@ export class Recorder<S, I, O> {
         checks: readonly Check[];
         boundary: number;
     }): Observation {
-        const metadata = call('metadata', () => validateMetadata(model.metadata()));
-        if ((Object.keys(this.#metadata) as (keyof Metadata)[]).some(k => metadata[k] !== this.#metadata[k]))
-            throw new ModelError('runtime recorder model identity changed');
-        if (this.#observed === U64)
+        if (this.#origin + this.#observed >= U64)
             throw new ModelError('runtime observation sequence overflow');
-        const maximum = this.#blobLimit(), beforeBytes = call('encode before state', () => encodeModel(model, 'state', before, this.#encoding, maximum));
-        const expected = this.#steps.length ? this.#steps[this.#steps.length - 1].step.postState : this.#initial;
-        if (!bytesEqual(beforeBytes, expected))
-            throw new ModelError('runtime before state is discontinuous; observations are missing or reordered');
-        const l = this.#options.limits, outputs = t.outputs, count = outputs.length, rawDisposition = t.disposition, d = disposition(rawDisposition.kind, rawDisposition.reason);
+        const l = this.#options.limits, sourceOutputs = t.outputs, count = sourceOutputs.length, rawDisposition = t.disposition, d = disposition(rawDisposition.kind, rawDisposition.reason);
         natural(count, 'output count', 0, 0xffffffff);
         if (count > l.max_outputs_per_step)
             throw new ModelError('runtime recording limit: outputs per step');
@@ -327,6 +320,22 @@ export class Recorder<S, I, O> {
             throw new ModelError('runtime recording limit: frame bytes');
         if (d.kind !== 'accepted' && stringBytes(d.reason, Math.min(0xffffffff, l.max_string_bytes)) > payloadBudget)
             throw new ModelError('runtime recording limit: frame bytes');
+        const observed = call('snapshot observation', () => {
+            const ownedBefore = model.cloneState(before), ownedInput = model.cloneInput(input), ownedState = model.cloneState(t.state), ownedOutputs: C[] = [];
+            for (let i = 0; i < count; i++) ownedOutputs.push(model.cloneOutput(sourceOutputs[i]));
+            return { before: ownedBefore, input: ownedInput, transition: { state: ownedState, outputs: ownedOutputs, disposition: d } };
+        });
+        before = observed.before;
+        input = observed.input;
+        t = observed.transition;
+        const metadata = call('metadata', () => validateMetadata(model.metadata()));
+        if ((Object.keys(this.#metadata) as (keyof Metadata)[]).some(k => metadata[k] !== this.#metadata[k]))
+            throw new ModelError('runtime recorder model identity changed');
+        const maximum = this.#blobLimit(), beforeBytes = call('encode before state', () => encodeModel(model, 'state', before, this.#encoding, maximum));
+        const expected = this.#steps.length ? this.#steps[this.#steps.length - 1].step.postState : this.#initial;
+        if (!bytesEqual(beforeBytes, expected))
+            throw new ModelError('runtime before state is discontinuous; observations are missing or reordered');
+        const outputs = t.outputs;
         const encodedInput = call('encode input', () => encodeModel(model, 'input', input, this.#encoding, maximum));
         let checks: Check[], boundary: number;
         if (checked) {

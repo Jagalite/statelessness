@@ -1,0 +1,23 @@
+[package]
+name = "native-campaign-rust-reference"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+statelessness = { path = "../../.." }
+
+[[bin]]
+name = "native-campaign-public"
+path = "../native-campaign-public.rs"
+
+[lib]
+path = "lib.rs"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

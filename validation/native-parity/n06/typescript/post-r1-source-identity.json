@@ -1,0 +1,44 @@
+{
+  "scope": "Mutable qualifier source checkpoint; not a source freeze or execution receipt",
+  "observed_head": "bc93b05db878bba433d211076eddf3030cdc264c",
+  "branch": "t3/native-campaign-runtime",
+  "source_review": {
+    "task_id": "node:delegated-task:command%3Amcp%3A64e00a88-587b-4d4f-be27-c21290bde4e5%3Adelegate-task%3An06-ts-driver-raw-path-review-r3-20261022",
+    "status": "completed_no_actionable_findings",
+    "previous_round": "Round 2 found only raw invocation normalization bypass; corrected and reviewed without actionable findings in round 3",
+    "scope": "Static source review only; no executable qualification",
+    "reviewed_qualifier_sha256": "70c05fcafac2a2c37d52bcb0d7cfd838af27f1fdbbdcbb19890cfeacabd93882"
+  },
+  "execution": "Not performed; no new job authorized or submitted",
+  "files": [
+    {
+      "path": "validation/native-parity/n06/typescript/qualify.py",
+      "sha256": "70c05fcafac2a2c37d52bcb0d7cfd838af27f1fdbbdcbb19890cfeacabd93882"
+    },
+    {
+      "path": "validation/native-parity/n06/typescript/POST-R1-Q2.md",
+      "sha256": "e9a6ef069cd7c99d3fade9c441776ae9ef555c82cd38639c879428c39b20f191"
+    },
+    {
+      "path": "validation/native-parity/n06/typescript/HANDOFF.md",
+      "sha256": "f2880b3dfbe59df404aafd72651524fc27be4705012438173623111db5810c8f"
+    },
+    {
+      "path": "docs/native-parity/N06-TYPESCRIPT.md",
+      "sha256": "7d53e7b362b690149188879502007870f48e95d3e74321c2383a89b0a3a6a3c3"
+    }
+  ],
+  "static_checks": {
+    "git_diff_check": "passed",
+    "owned_file_trailing_whitespace": "none",
+    "runtime_and_test_worktree_diff": "none"
+  },
+  "preserved_r1": {
+    "manifest_sha256": "d5fa4f4fe098aaca7389518f542e859e578257777579ee088868255c8af21c41",
+    "driver_sha256": "8dffa9799a2014def5fa27c7c20bb235beed83609a3a1177da3baf49545ee797",
+    "full_manifest_entries_rechecked": 138,
+    "membership_type_mode_size_hash_match": true,
+    "job_id": "84048d5f31b4404ba8a6c07e1af98f6a",
+    "job_observation": "Not polled or changed during this source correction"
+  }
+}

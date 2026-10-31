@@ -1,0 +1,721 @@
+{
+  "admitted_n05_helpers": {
+    "scripts/native-guided-support": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-guided-support/evidence.py": {
+      "bytes": 8961,
+      "mode": "0644",
+      "sha256": "e5d934535179ea9262ce164cf865b1ff4b6214bd1f66938d088c41a358e3eea0",
+      "type": "file"
+    },
+    "scripts/native-guided-support/execution.py": {
+      "bytes": 14024,
+      "mode": "0644",
+      "sha256": "4ee1f01c0d56082438f263811d1a372e5689264d237ddc8b4f1b7c4e48486ed9",
+      "type": "file"
+    },
+    "scripts/native-guided-support/installed.py": {
+      "bytes": 17222,
+      "mode": "0644",
+      "sha256": "a0c9ac8912b08568bcd1ef400605f4dcb56cc93c6a65270da50c69ea1484b1af",
+      "type": "file"
+    },
+    "scripts/native-guided-support/qualification.py": {
+      "bytes": 38929,
+      "mode": "0644",
+      "sha256": "fd214751d55531d33d795238823006910e9fad3712eda6433f694f4c5a9a6da2",
+      "type": "file"
+    }
+  },
+  "branch": "t3/native-campaign-runtime",
+  "created_utc": "2026-10-22T17:18:16.990382+00:00",
+  "dependency_pins": {
+    "conformance/fixtures/native-campaign-author.py": {
+      "bytes": 3686,
+      "mode": "0644",
+      "sha256": "4e6a4993b5fb06b141465fd29333bf08ea39ad85237fddb9f404c3165cfc9c6b",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-golden.py": {
+      "bytes": 9478,
+      "mode": "0644",
+      "sha256": "dc1d4e75b9d99dc790a530bfddb742c1acefdf9226401db7b7a5659372c75e76",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-inventory.py": {
+      "bytes": 3167,
+      "mode": "0644",
+      "sha256": "79b9faf376439dd2945a1df021b51e16c7b504882c32ccc927e712ee00cf7409",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-public.rs": {
+      "bytes": 23275,
+      "mode": "0644",
+      "sha256": "532bb5736cac7a9eb65b5b1f442bb61ba53f5ae7dbb2b8544950411b6231c2a8",
+      "type": "file"
+    },
+    "conformance/fixtures/native-campaign-v1.schema.json": {
+      "bytes": 12927,
+      "mode": "0644",
+      "sha256": "59138f9b05ecbad86fd4bd559ce3d6e44d70a23bf6b6e9f7e354525b3a462d9f",
+      "type": "file"
+    },
+    "docs/native-parity/N06-RUST-CONTRACT.md": {
+      "bytes": 19341,
+      "mode": "0644",
+      "sha256": "6c232b3961e4c4ed52d49f55ed1182f22be9080e7c1bbc37b7445bdd370c2082",
+      "type": "file"
+    },
+    "scripts/native-guided-support/evidence.py": {
+      "bytes": 8961,
+      "mode": "0644",
+      "sha256": "e5d934535179ea9262ce164cf865b1ff4b6214bd1f66938d088c41a358e3eea0",
+      "type": "file"
+    }
+  },
+  "entries": {
+    "docs/native-parity/N06-QUALIFICATION.md": {
+      "bytes": 17012,
+      "mode": "0644",
+      "sha256": "fc9fa1c37fe9a5f78b0036503c0bfd3dd4cf62af48b84176ccbabd8b85b5200c",
+      "type": "file"
+    },
+    "scripts/check-native-campaign-consumers.py": {
+      "bytes": 707,
+      "mode": "0644",
+      "sha256": "ea90950309be5b272d0c4bc58881125e24eb80b6746ed6d837eaeac73e7278c8",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/go": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/go/README.md": {
+      "bytes": 13268,
+      "mode": "0644",
+      "sha256": "6015676ddd3b6eb0622227e4a8c5132a7a533b904294946a7482f4fd76e8a092",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/cases.go": {
+      "bytes": 11027,
+      "mode": "0644",
+      "sha256": "678201184fdc8a1fdbd830f48dc72743888a952266c65d48a8c902c48a2c384c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/go.mod": {
+      "bytes": 240,
+      "mode": "0644",
+      "sha256": "24b052be80b3034ac66cfdda8dbe9574fc123ecc5f568bc93280e591dea7e2b9",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host.go": {
+      "bytes": 19198,
+      "mode": "0644",
+      "sha256": "6c4db659c3fac58c1af4cb32a52c26f0437da5278856c24e812a4d06269dd71c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host_equivalence.go": {
+      "bytes": 13638,
+      "mode": "0644",
+      "sha256": "a5c21a44cd00483627fd62e2b67aff6e22bfdd1b9a80df49bf5eae4247d5164f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/host_validation.go": {
+      "bytes": 3376,
+      "mode": "0644",
+      "sha256": "9bb302915b4503b3f860aa09298f54518b03a7659b87ae459deeeed566d76402",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/main.go": {
+      "bytes": 864,
+      "mode": "0644",
+      "sha256": "006a75acab87547f120029bb26dc748ae812c453112f0019055b9a2324ffa99e",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/go/wire.go": {
+      "bytes": 5930,
+      "mode": "0644",
+      "sha256": "2b24f29eb736813403e0d431dd3fbbcf8ba7cdc965b0eb721de1fd3edbe047c4",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/python": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/python/README.md": {
+      "bytes": 16257,
+      "mode": "0644",
+      "sha256": "e24f9bf16f3e588de94c71e1aa99510cdcd7bf8a5cc31eaa4e8c4cdad9653c08",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/python/consumer.py": {
+      "bytes": 64117,
+      "mode": "0644",
+      "sha256": "07aad8b05047024b685b113e33e31ecf6fd88468eb8a26e046a1e7eab4114dcf",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/rust/Cargo.toml": {
+      "bytes": 203,
+      "mode": "0644",
+      "sha256": "6f67f973b5b4f82a2e8a7b11ce292d6035097d8e17fdff21f7c5255869ae48aa",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/README.md": {
+      "bytes": 7116,
+      "mode": "0644",
+      "sha256": "5e45951b8206bda7942ffed70c927a93af6a59cf09e7ce046516388926c79680",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/src": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/rust/src/host": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/rust/src/host.rs": {
+      "bytes": 10036,
+      "mode": "0644",
+      "sha256": "3ce8fe7513a8423bfeac85548da7940680f76c64548953aab12f074d0223de16",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/src/host/seeded.rs": {
+      "bytes": 10956,
+      "mode": "0644",
+      "sha256": "bcdd537cd77f9bdb800dec925de7bb0d6dace12d7fc1446983051c5abd0d4772",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/rust/src/main.rs": {
+      "bytes": 1143,
+      "mode": "0644",
+      "sha256": "f66d7df6022530f5d95523c8ab1e3ee8713abc5a72292147ec63b6a7a1f3703e",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Package.swift": {
+      "bytes": 848,
+      "mode": "0644",
+      "sha256": "b904826dde3f67a42866f4369ea20b1eb39728a6f2dfe569803d1c16c087801c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/README.md": {
+      "bytes": 16501,
+      "mode": "0644",
+      "sha256": "56a5e3e7be5a5ef955333098bcc141035035a7fade4337614f1b07e82475785c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/AdmissionHostChecks.swift": {
+      "bytes": 4975,
+      "mode": "0644",
+      "sha256": "3aef0a0a959692fbead67fa4200b7615d13a79be427221a71cf86aa02f90c2fd",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/CampaignConsumer.swift": {
+      "bytes": 629,
+      "mode": "0644",
+      "sha256": "98303ddcf90a9026af5eeb24e43886d57a465269594a749cd499c024a7228b68",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Deterministic.swift": {
+      "bytes": 11384,
+      "mode": "0644",
+      "sha256": "226717631736d56dca3612c379aea34cc49a5da6fb876f881ac0de0a52c9320c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/HostChecks.swift": {
+      "bytes": 21363,
+      "mode": "0644",
+      "sha256": "bf14de9238a7b56b30493828744b4a0dcf1e9f7cc33c3d770a1ba503cffecc8f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Projection.swift": {
+      "bytes": 5324,
+      "mode": "0644",
+      "sha256": "436d11619cd71c130d7b0c51db9df22a2aa4dc7570f6ffa389ea6e87d0e64d7f",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/SeededHostChecks.swift": {
+      "bytes": 15767,
+      "mode": "0644",
+      "sha256": "25bd679abfc871ebea085fa8c8f603aa81c422496dc0c1cc6824719ced002e39",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/swift/Sources/CampaignConsumer/Support.swift": {
+      "bytes": 1952,
+      "mode": "0644",
+      "sha256": "57c2ca611a7f7464a9a5e3973e04df905a0cefcbb179c317831da473a48a3c71",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-consumers/typescript/README.md": {
+      "bytes": 12883,
+      "mode": "0644",
+      "sha256": "b1a77992d000d76df6e8b59f00967a9ed9e7de1d64d09bbe2e103383b1a31f4b",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/assertions.ts": {
+      "bytes": 1790,
+      "mode": "0644",
+      "sha256": "64fc1b815d0497e2ae9c0e92f94b10968511d7e217ceb231a778f03887a92d99",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/consumer.ts": {
+      "bytes": 1569,
+      "mode": "0644",
+      "sha256": "1db1cd67392e9f9670155cf8fb30edf7208da741d04f825a58eaadf37ed4825b",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/deterministic.ts": {
+      "bytes": 10024,
+      "mode": "0644",
+      "sha256": "1972fd12455c8dacefb8044bc28ff2e540a7786ff5331924ddf9feb73e9d5acd",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/host-checks.ts": {
+      "bytes": 15988,
+      "mode": "0644",
+      "sha256": "332a5f1db5e398567666a6fc6bcda5996f426b131689eca346fc523316027ad5",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/host-fixture.ts": {
+      "bytes": 8313,
+      "mode": "0644",
+      "sha256": "e2738b80cf87863ea68c33b28c2a0fd0690136bd1559e7299ba017b2fad7bf58",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/node-runtime.d.ts": {
+      "bytes": 568,
+      "mode": "0644",
+      "sha256": "6e1b604755e9654cfbf976662cc98bf9b3cce00f3211cf63ac8fcc9df6ecfe2c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/package.json": {
+      "bytes": 89,
+      "mode": "0644",
+      "sha256": "c187c827534e8181b2893540200827ba83476ca5e11c272466bd2f85b44ed656",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/precedence-checks.ts": {
+      "bytes": 4269,
+      "mode": "0644",
+      "sha256": "fda56531575c54ddff91c8e9623920d692b57d93e4eb053882b73bb0f0cd602c",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/precedence-fixture.ts": {
+      "bytes": 1175,
+      "mode": "0644",
+      "sha256": "8f2e4641e145e50dea64659c1d88c5c107cb049438e07e1f7aa21aeb48f633fa",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/projection.ts": {
+      "bytes": 5101,
+      "mode": "0644",
+      "sha256": "d9a6340a39f349177675bd09badd94520ec84f16b53fdc24566d91be9b05bab4",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/seeded-checks.ts": {
+      "bytes": 9275,
+      "mode": "0644",
+      "sha256": "aaaef2682ec2d38939e4eddf13f691ff4289916366c67d0ca29485014223b0ac",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/seeded-fixture.ts": {
+      "bytes": 10177,
+      "mode": "0644",
+      "sha256": "7dfbf8074939b54ff54328411f6297d32b2dab6f01ccfab96242238bd4d3db26",
+      "type": "file"
+    },
+    "scripts/native-campaign-consumers/typescript/tsconfig.json": {
+      "bytes": 332,
+      "mode": "0644",
+      "sha256": "527399fb11aecc1c257fc2b7959f59856d6488ffae2e07b0c26ccadbd724f120",
+      "type": "file"
+    },
+    "scripts/native-campaign-support": {
+      "mode": "0755",
+      "type": "directory"
+    },
+    "scripts/native-campaign-support/capture.py": {
+      "bytes": 5890,
+      "mode": "0644",
+      "sha256": "01925e7398631faa6a47bf9a8d286cb788cbbeb1f2bab2252a7af8736e49656e",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/domains.py": {
+      "bytes": 2825,
+      "mode": "0644",
+      "sha256": "1dec7eafc33c35f72a6c39d33d04eab0ef64a97af288f34dcd554375244bce75",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/driver.py": {
+      "bytes": 13846,
+      "mode": "0644",
+      "sha256": "be193bd433599f12d6112eeecabc8baf5a583f7c7f8a34f6dd2986c9462effd2",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/environment.py": {
+      "bytes": 456,
+      "mode": "0644",
+      "sha256": "ef9482ccbcb87e9c747d886797fc51e8505553b005dd87003d2be9e8856e345e",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/execution.py": {
+      "bytes": 17273,
+      "mode": "0644",
+      "sha256": "d02a9ededa4ebb6606bc753c5ec3f5034ec626a0d6e597fa02b23070acb18b9c",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/focused_run.py": {
+      "bytes": 11114,
+      "mode": "0644",
+      "sha256": "6cbfd4b0d1782e94dc4869ca021e1de119f200e76258f816cc78d77ac3eba97a",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/host-requirements.json": {
+      "bytes": 2732,
+      "mode": "0644",
+      "sha256": "bac3397a87c71a14d5e01f3c76da2d6aa199958ccf0099877e6b8068289ef87b",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/installed.py": {
+      "bytes": 20824,
+      "mode": "0644",
+      "sha256": "2a385f3bb8e232c9dc13fcdc08d506e70a66ac171f893186dc20f6e3c57bdd3a",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/object_store.py": {
+      "bytes": 1461,
+      "mode": "0644",
+      "sha256": "ca564e44c6f4aa4afcab5b7b32d47313f0207518c6a72aedd62c2aa6390106fa",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/public-cases.json": {
+      "bytes": 798,
+      "mode": "0644",
+      "sha256": "a338916034300132645a47ad239d80e68ce4e08b2be8b9599c9b22016c90b5d4",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/qualification.py": {
+      "bytes": 58684,
+      "mode": "0644",
+      "sha256": "8998b63d6279ea951df647000154445c95efc3075ea3d6351d306fa5c740d311",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/receipt_io.py": {
+      "bytes": 9419,
+      "mode": "0644",
+      "sha256": "857903e84d8e739071194e86a94f9731ea0095be268a31d785c42b8934844bc3",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/recorder.py": {
+      "bytes": 29831,
+      "mode": "0644",
+      "sha256": "2acee34b7b98069de7800c00c7954e39261b21156278603b8b49aff333e3e6a0",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/recorder_guard.py": {
+      "bytes": 8947,
+      "mode": "0644",
+      "sha256": "87198ada2f04b161ffcb7157854ba7d2ecde39dccdfcc93964eeb100b594f6d5",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/suite_runner.py": {
+      "bytes": 10867,
+      "mode": "0644",
+      "sha256": "ec258613962a1de3337d47a501184b6632244aba4a074c5c02c44a3938bd3aeb",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/terminal.py": {
+      "bytes": 1510,
+      "mode": "0644",
+      "sha256": "69092d48f771512232cf3d514b43d51559439399594e8a32dc915c330f3cae50",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/test_focused.py": {
+      "bytes": 24234,
+      "mode": "0644",
+      "sha256": "6486bda9dd93a6e982b0f2d7dbf907c8093b1bb434a83def3af00dd3a24fc53f",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/test_harness.py": {
+      "bytes": 31343,
+      "mode": "0644",
+      "sha256": "d95c1d89c494f9cc7ef762e0a1b178c2a46501097f88b0270437c98a92e4123a",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/test_recorder.py": {
+      "bytes": 39436,
+      "mode": "0644",
+      "sha256": "529130bfbb622795d8e78bd890136677d4d561fc8fb31897336304c01ed1e53a",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/toolchains.py": {
+      "bytes": 23486,
+      "mode": "0644",
+      "sha256": "c3fec3ebc7c02e8e7fe0c0bcb485a215ca3f4b08c576305a7e053ef21e7475d4",
+      "type": "file"
+    },
+    "scripts/native-campaign-support/transport.py": {
+      "bytes": 1647,
+      "mode": "0644",
+      "sha256": "156cf4c437ff5f77b7db72ba6d95ff78e4030c31024344c956ac6dde170c8277",
+      "type": "file"
+    }
+  },
+  "execution": {
+    "builds": "not-executed",
+    "effective_command": null,
+    "existing_handles": "eight reported; not polled or changed",
+    "new_jobs": [],
+    "qualification": "pending",
+    "requested_command": null,
+    "tests": "not-executed"
+  },
+  "historical_pins": {
+    "docs/native-parity/N06-QUALIFICATION.md": {
+      "bytes": 17012,
+      "mode": "0644",
+      "sha256": "fc9fa1c37fe9a5f78b0036503c0bfd3dd4cf62af48b84176ccbabd8b85b5200c",
+      "type": "file"
+    },
+    "validation/native-parity/n06/qualification/source-readiness-r2.manifest.json": {
+      "bytes": 16082,
+      "mode": "0644",
+      "sha256": "09f65e46bdd5393e7847004910dfa90cf17749879de9cbbd4c658482d238fee5",
+      "type": "file"
+    },
+    "validation/native-parity/n06/qualification/source-readiness-r2.md": {
+      "bytes": 7302,
+      "mode": "0644",
+      "sha256": "c612000f5a2c071bde99b90acd1c4099dd201678ed85879a84c322303b5d8108",
+      "type": "file"
+    }
+  },
+  "metadata_commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "70cc3442304145249d8c4ad9604a98c4d647c6b5\n"
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "t3/native-campaign-runtime\n"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--exit-code",
+        "HEAD",
+        "--",
+        "scripts/native-guided-support"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "?? docs/native-parity/N06-QUALIFICATION.md\n?? scripts/check-native-campaign-consumers.py\n?? scripts/native-campaign-consumers/\n?? scripts/native-campaign-support/\n?? validation/native-parity/n06/qualification/source-readiness-r3.md\n"
+    }
+  ],
+  "observed_head": "70cc3442304145249d8c4ad9604a98c4d647c6b5",
+  "root": "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336",
+  "schema": "n06-harness-source-readiness/2",
+  "source_exclusions": [],
+  "source_membership_type_mode_hash_before_after_equal": true,
+  "source_selections": [
+    "scripts/check-native-campaign-consumers.py",
+    "scripts/native-campaign-support",
+    "scripts/native-campaign-consumers",
+    "docs/native-parity/N06-QUALIFICATION.md"
+  ],
+  "static_checks": {
+    "aggregate_marker_present": false,
+    "inspector_executable": "/opt/homebrew/bin/python3",
+    "inspector_version": "3.14.6 (main, Jun 10 2026, 10:03:53) [Clang 21.0.0 (clang-2100.0.123.102)]",
+    "invocation": [
+      "/opt/homebrew/Cellar/python@3.14/3.14.6/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python",
+      "-I",
+      "-S",
+      "-B",
+      "-c",
+      "import ast, datetime, hashlib, json, os, stat, subprocess, sys\nfrom pathlib import Path\nroot = Path.cwd()\nassert str(root) == \"/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336\"\nout = root / \"validation/native-parity/n06/qualification\"\nprevious_path = out / \"source-readiness-r2.manifest.json\"\nprevious_raw = previous_path.read_bytes()\nassert hashlib.sha256(previous_raw).hexdigest() == \"09f65e46bdd5393e7847004910dfa90cf17749879de9cbbd4c658482d238fee5\"\nprevious = json.loads(previous_raw)\ncommands = []\ndef command(argv):\n    result = subprocess.run(argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)\n    row = dict(argv=argv, cwd=str(root), exit_code=result.returncode,\n               stdout=result.stdout.decode(\"utf-8\"), stderr=result.stderr.decode(\"utf-8\"))\n    commands.append(row)\n    if result.returncode:\n        raise RuntimeError(row)\n    return row[\"stdout\"].strip()\nhead = command([\"git\", \"rev-parse\", \"HEAD\"])\nbranch = command([\"git\", \"branch\", \"--show-current\"])\nassert branch == \"t3/native-campaign-runtime\"\ncommand([\"git\", \"diff\", \"--exit-code\", \"HEAD\", \"--\", \"scripts/native-guided-support\"])\ncommand([\"git\", \"status\", \"--short\"])\ndef entry(path):\n    info = path.lstat()\n    mode = format(stat.S_IMODE(info.st_mode), \"04o\")\n    if stat.S_ISDIR(info.st_mode):\n        return dict(type=\"directory\", mode=mode)\n    if stat.S_ISREG(info.st_mode):\n        raw = path.read_bytes()\n        after = path.lstat()\n        assert (info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns, info.st_ctime_ns) == (\n            after.st_dev, after.st_ino, after.st_mode, after.st_size, after.st_mtime_ns, after.st_ctime_ns)\n        return dict(type=\"file\", mode=mode, bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest())\n    if stat.S_ISLNK(info.st_mode):\n        target = os.readlink(path)\n        return dict(type=\"symlink\", mode=mode, target=target, sha256=hashlib.sha256(os.fsencode(target)).hexdigest())\n    raise RuntimeError(\"unsupported selected source type: \" + str(path))\ndef scan(selections):\n    values = {}\n    def visit(path):\n        row = entry(path)\n        values[path.relative_to(root).as_posix()] = row\n        if row[\"type\"] == \"directory\":\n            children = sorted(path.iterdir())\n            for child in children:\n                visit(child)\n            assert children == sorted(path.iterdir())\n    for selection in selections:\n        visit(root / selection)\n    return values\nselections = previous[\"source_selections\"]\nbefore = scan(selections)\npins = {rel: entry(root / rel) for rel in previous[\"dependency_pins\"]}\nassert pins == previous[\"dependency_pins\"]\nhelpers = scan([\"scripts/native-guided-support\"])\nhistorical = {\n    \"validation/native-parity/n06/qualification/source-readiness-r2.manifest.json\":\n        entry(previous_path),\n    \"validation/native-parity/n06/qualification/source-readiness-r2.md\":\n        entry(out / \"source-readiness-r2.md\"),\n    \"docs/native-parity/N06-QUALIFICATION.md\":\n        entry(root / \"docs/native-parity/N06-QUALIFICATION.md\")}\nassert historical[\"validation/native-parity/n06/qualification/source-readiness-r2.md\"][\"sha256\"] == \"c612000f5a2c071bde99b90acd1c4099dd201678ed85879a84c322303b5d8108\"\nassert historical[\"docs/native-parity/N06-QUALIFICATION.md\"] == previous[\"entries\"][\"docs/native-parity/N06-QUALIFICATION.md\"]\nparsed, suites, json_files = [], [], []\nfor rel, row in before.items():\n    if row[\"type\"] != \"file\":\n        continue\n    path = root / rel\n    if path.suffix == \".py\":\n        syntax = ast.parse(path.read_bytes(), filename=rel)\n        parsed.append(rel)\n        if path.parent.name == \"native-campaign-support\" and path.stem in {\"test_harness\", \"test_recorder\", \"test_focused\"}:\n            ids = []\n            for node in syntax.body:\n                if isinstance(node, ast.ClassDef) and any(\n                    isinstance(base, ast.Attribute) and isinstance(base.value, ast.Name)\n                    and base.value.id == \"unittest\" and base.attr == \"TestCase\" for base in node.bases):\n                    ids.extend(path.stem + \".\" + node.name + \".\" + member.name for member in node.body\n                               if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)) and member.name.startswith(\"test_\"))\n            assert ids and len(ids) == len(set(ids))\n            suites.append(dict(module=path.stem, sha256=row[\"sha256\"], test_ids=sorted(ids), authored_count=len(ids)))\n    elif path.suffix == \".json\":\n        json.loads(path.read_bytes())\n        json_files.append(rel)\nafter = scan(selections)\nassert after == before\nassert scan([\"scripts/native-guided-support\"]) == helpers\nassert {rel: entry(root / rel) for rel in pins} == pins\nassert {rel: entry(root / rel) for rel in historical} == historical\nmarker_present = \"N06_AGGREGATE_READY\" in (root / \"docs/native-parity/N06-INTEGRATION.md\").read_text().splitlines()\nassert not marker_present\nmanifest = dict(schema=\"n06-harness-source-readiness/2\", status=\"source-ready-awaiting-independent-r3\",\n    created_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), root=str(root), branch=branch,\n    observed_head=head, source_selections=selections, source_exclusions=[], entries=before,\n    dependency_pins=pins, admitted_n05_helpers=helpers, historical_pins=historical,\n    source_membership_type_mode_hash_before_after_equal=True,\n    static_checks=dict(kind=\"AST/JSON and filesystem metadata only; no repository imports\",\n        python_files_parsed=parsed, json_files_parsed=json_files, suites=sorted(suites,key=lambda row:row[\"module\"]),\n        aggregate_marker_present=marker_present, invocation=list(sys.orig_argv),\n        inspector_executable=sys.executable, inspector_version=sys.version),\n    metadata_commands=commands,\n    execution=dict(tests=\"not-executed\", builds=\"not-executed\", new_jobs=[], existing_handles=\"eight reported; not polled or changed\",\n        requested_command=None, effective_command=None, qualification=\"pending\"))\npath = out / \"source-readiness-r3.manifest.json\"\nraw = (json.dumps(manifest, sort_keys=True, indent=2) + \"\\n\").encode()\nwith path.open(\"xb\") as destination:\n    destination.write(raw)\nassert path.read_bytes() == raw\nprint(json.dumps(dict(path=str(path), sha256=hashlib.sha256(raw).hexdigest(),\n    entries=len(before), files=sum(row[\"type\"]==\"file\" for row in before.values()),\n    pins=len(pins), helper_entries=len(helpers), parsed_python=len(parsed),\n    suites={row[\"module\"]:row[\"authored_count\"] for row in suites}, observed_head=head)))\n"
+    ],
+    "json_files_parsed": [
+      "scripts/native-campaign-support/host-requirements.json",
+      "scripts/native-campaign-support/public-cases.json",
+      "scripts/native-campaign-consumers/typescript/package.json",
+      "scripts/native-campaign-consumers/typescript/tsconfig.json"
+    ],
+    "kind": "AST/JSON and filesystem metadata only; no repository imports",
+    "python_files_parsed": [
+      "scripts/check-native-campaign-consumers.py",
+      "scripts/native-campaign-support/capture.py",
+      "scripts/native-campaign-support/domains.py",
+      "scripts/native-campaign-support/driver.py",
+      "scripts/native-campaign-support/environment.py",
+      "scripts/native-campaign-support/execution.py",
+      "scripts/native-campaign-support/focused_run.py",
+      "scripts/native-campaign-support/installed.py",
+      "scripts/native-campaign-support/object_store.py",
+      "scripts/native-campaign-support/qualification.py",
+      "scripts/native-campaign-support/receipt_io.py",
+      "scripts/native-campaign-support/recorder.py",
+      "scripts/native-campaign-support/recorder_guard.py",
+      "scripts/native-campaign-support/suite_runner.py",
+      "scripts/native-campaign-support/terminal.py",
+      "scripts/native-campaign-support/test_focused.py",
+      "scripts/native-campaign-support/test_harness.py",
+      "scripts/native-campaign-support/test_recorder.py",
+      "scripts/native-campaign-support/toolchains.py",
+      "scripts/native-campaign-support/transport.py",
+      "scripts/native-campaign-consumers/python/consumer.py"
+    ],
+    "suites": [
+      {
+        "authored_count": 27,
+        "module": "test_focused",
+        "sha256": "6486bda9dd93a6e982b0f2d7dbf907c8093b1bb434a83def3af00dd3a24fc53f",
+        "test_ids": [
+          "test_focused.FocusedTests.test_actual_base_prefix_outside_declared_installation_is_rejected",
+          "test_focused.FocusedTests.test_alias_retarget_to_same_referent_is_not_silently_accepted",
+          "test_focused.FocusedTests.test_complete_declared_roots_detect_later_support_tree_change",
+          "test_focused.FocusedTests.test_control_rejects_duplicate_keys_and_wrong_json_type",
+          "test_focused.FocusedTests.test_control_requires_invocation_digest_not_a_self_reported_manifest",
+          "test_focused.FocusedTests.test_damaged_first_driver_root_keeps_complete_later_root_and_runtime",
+          "test_focused.FocusedTests.test_dangling_artifact_root_is_explicit_and_terminal_fifo_gets_fallback",
+          "test_focused.FocusedTests.test_declared_b_and_running_a_cannot_share_a_pass",
+          "test_focused.FocusedTests.test_empty_skipped_and_wrong_execution_inventory_do_not_pass",
+          "test_focused.FocusedTests.test_failed_suite_bad_artifact_still_writes_terminal_and_later_capture",
+          "test_focused.FocusedTests.test_fifo_symlink_and_dangling_control_are_rejected_without_open",
+          "test_focused.FocusedTests.test_final_control_drift_fails_even_when_other_after_captures_succeed",
+          "test_focused.FocusedTests.test_future_source_root_does_not_need_to_exist_during_prepare",
+          "test_focused.FocusedTests.test_hardlinked_control_and_link_added_during_read_are_rejected",
+          "test_focused.FocusedTests.test_later_captured_module_import_is_valid_but_changed_bytes_are_not",
+          "test_focused.FocusedTests.test_later_suite_cannot_replace_an_already_retained_receipt",
+          "test_focused.FocusedTests.test_loaded_module_outside_installation_and_frozen_sources_is_rejected",
+          "test_focused.FocusedTests.test_missing_isolation_flag_cannot_qualify_actual_driver",
+          "test_focused.FocusedTests.test_noop_driver_is_rejected_before_any_suite_launch",
+          "test_focused.FocusedTests.test_noop_suite_with_discovered_test_cannot_pass",
+          "test_focused.FocusedTests.test_python_failure_keeps_snapshot_capture_and_partial_python",
+          "test_focused.FocusedTests.test_runner_records_real_callback_work_and_exact_success",
+          "test_focused.FocusedTests.test_same_control_bytes_replaced_inode_is_visible_at_final_recheck",
+          "test_focused.FocusedTests.test_snapshot_failure_retains_later_python_capture",
+          "test_focused.FocusedTests.test_source_inventory_binds_methods_and_bytes_without_importing",
+          "test_focused.FocusedTests.test_stale_suite_receipt_prevents_launch_and_cannot_be_borrowed",
+          "test_focused.FocusedTests.test_zero_exit_without_receipt_attempts_all_suites_and_fails"
+        ]
+      },
+      {
+        "authored_count": 23,
+        "module": "test_harness",
+        "sha256": "d95c1d89c494f9cc7ef762e0a1b178c2a46501097f88b0270437c98a92e4123a",
+        "test_ids": [
+          "test_harness.HarnessEvidenceTests.test_after_capture_failure_prevents_success_receipt",
+          "test_harness.HarnessEvidenceTests.test_candidate_authored_vectors_are_rejected_before_case_execution",
+          "test_harness.HarnessEvidenceTests.test_content_addressed_object_tampering_is_detected",
+          "test_harness.HarnessEvidenceTests.test_damaged_successful_receipt_is_failed_not_pending",
+          "test_harness.HarnessEvidenceTests.test_domain_inventory_never_clamps_or_filters_full_width_job_ids",
+          "test_harness.HarnessEvidenceTests.test_driver_source_roots_seal_siblings_and_generated_membership",
+          "test_harness.HarnessEvidenceTests.test_exact_comparison_rejects_type_field_and_array_changes",
+          "test_harness.HarnessEvidenceTests.test_failed_operation_special_artifact_keeps_primary_and_terminal_receipt",
+          "test_harness.HarnessEvidenceTests.test_failed_operation_still_captures_after_state_without_erasing_error",
+          "test_harness.HarnessEvidenceTests.test_membership_and_type_changes_cannot_reuse_an_identity",
+          "test_harness.HarnessEvidenceTests.test_n06_object_store_rejects_fifo_replacement_on_read_and_reuse",
+          "test_harness.HarnessEvidenceTests.test_native_tool_components_modes_and_membership_are_bound",
+          "test_harness.HarnessEvidenceTests.test_no_root_marker_means_no_aggregate_authorization",
+          "test_harness.HarnessEvidenceTests.test_partial_campaign_inventory_cannot_seal_as_all_49_cases",
+          "test_harness.HarnessEvidenceTests.test_partial_roots_record_fifo_dangling_and_changed_later_package",
+          "test_harness.HarnessEvidenceTests.test_process_failure_keeps_exact_bytes_and_command",
+          "test_harness.HarnessEvidenceTests.test_rust_binary_and_depfile_bind_mode_type_and_bytes",
+          "test_harness.HarnessEvidenceTests.test_saved_go_overlay_is_visible_to_control_and_disabled_by_n06",
+          "test_harness.HarnessEvidenceTests.test_source_capture_failure_still_records_snapshot_and_compiler_stages",
+          "test_harness.HarnessEvidenceTests.test_terminal_failure_retains_original_exit_and_after_capture_on_verification_error",
+          "test_harness.HarnessEvidenceTests.test_terminal_receipt_fifo_preserves_primary_in_independent_fallback",
+          "test_harness.HarnessEvidenceTests.test_toolchain_journal_failure_still_captures_later_installation",
+          "test_harness.HarnessEvidenceTests.test_unexecuted_host_inventory_and_partial_assertions_fail_closed"
+        ]
+      },
+      {
+        "authored_count": 25,
+        "module": "test_recorder",
+        "sha256": "529130bfbb622795d8e78bd890136677d4d561fc8fb31897336304c01ed1e53a",
+        "test_ids": [
+          "test_recorder.RecorderTests.test_another_live_child_is_not_in_recorder_group_or_signalled",
+          "test_recorder.RecorderTests.test_check_false_does_not_accept_surviving_descendants",
+          "test_recorder.RecorderTests.test_clean_exit_exact_argv_cwd_environment_raw_streams_and_hashes",
+          "test_recorder.RecorderTests.test_fifo_journal_is_bounded_and_recovers_original_events",
+          "test_recorder.RecorderTests.test_fifo_raw_stream_and_request_paths_are_bounded",
+          "test_recorder.RecorderTests.test_fifo_swap_between_lstat_and_open_is_bounded",
+          "test_recorder.RecorderTests.test_fifo_terminal_paths_get_independent_failed_receipt",
+          "test_recorder.RecorderTests.test_fifo_unowned_and_probe_paths_are_never_opened_blocking",
+          "test_recorder.RecorderTests.test_guard_launch_failure_still_has_hashed_result_and_raw_stdin",
+          "test_recorder.RecorderTests.test_guard_refuses_lost_ownership_and_never_retries_group_signal",
+          "test_recorder.RecorderTests.test_inventory_failure_cannot_suppress_terminal_or_primary",
+          "test_recorder.RecorderTests.test_keyboard_interrupt_retains_logs_and_cleans_with_live_guardian",
+          "test_recorder.RecorderTests.test_lost_anchor_and_reused_numeric_pgid_never_authorize_signal",
+          "test_recorder.RecorderTests.test_nonzero_with_descendant_preserves_primary_and_cleanup_errors",
+          "test_recorder.RecorderTests.test_normal_leader_exit_with_remaining_child_fails_and_cleans_owned_group",
+          "test_recorder.RecorderTests.test_primary_command_failure_survives_observation_error",
+          "test_recorder.RecorderTests.test_setup_failure_still_attempts_terminal_receipt",
+          "test_recorder.RecorderTests.test_symlink_hardlink_and_inode_substitutions_are_rejected",
+          "test_recorder.RecorderTests.test_target_launch_failure_retains_empty_streams_request_and_guard_result",
+          "test_recorder.RecorderTests.test_terminal_write_error_gets_fallback_without_masking_target",
+          "test_recorder.RecorderTests.test_text_and_count_api_and_check_false_nonzero",
+          "test_recorder.RecorderTests.test_timeout_retains_partial_logs_and_group_kill_evidence",
+          "test_recorder.RecorderTests.test_unlink_and_added_hardlink_preserve_original_streams",
+          "test_recorder.RecorderTests.test_zero_exit_cannot_accept_substituted_receipts",
+          "test_recorder.RecorderTests.test_zombie_only_group_is_not_relabelled_as_gone"
+        ]
+      }
+    ]
+  },
+  "status": "source-ready-awaiting-independent-r3"
+}

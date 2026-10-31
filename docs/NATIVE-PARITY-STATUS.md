@@ -6,6 +6,25 @@ Work began on 2026-10-20 on `docs/native-language-parity`, extending the
 the missing Go and Swift candidate oracle APIs from N02. Full native parity,
 profile promotion, package publication and performance qualification remain open.
 
+## Current state (2026-10-31)
+
+Implementation is source-complete for the N01–N14 scope found by a code-checked
+gap audit; qualification is not. The last confirmed source gaps (Go sink health
+and telemetry/dashboard shape, TypeScript `telemetry_health` order) and all
+findings from independent reviews of every language are implemented. Local
+live-tree suites pass on macOS: Go (`go vet` and all packages), Python 957,
+TypeScript 1565, Swift 686 and Rust 675 across 68 test binaries. Receipts are in
+[the resume log](../validation/native-parity/resume-20261029/STATUS.md).
+
+Still open: frozen-source qualification, installed consumers, platform matrices,
+mutation controls, cross-engine replay and the five-engine debugger wire corpus,
+whose [deferred plan](https://claude.ai/artifact/N4qigTcK8bzDn4i7d9RsGs) extends `scripts/native-parity/n12-wire/`. The Rust
+`stateless` binary is a documented Rust-only mechanism (N14); native ports expose
+its outcomes through package APIs.
+
+Sections below record earlier slices chronologically. Where a section lists a
+gap that this summary or a later section reports closed, the later entry wins.
+
 ## Source delivered in the first slice
 
 - [Rust inventory](native-parity/INVENTORY.md): 3,327 lexical candidates across
@@ -402,6 +421,29 @@ research consumers remain gates until exact-candidate receipts establish them.
 Full N13 modeling/domain/inspection helpers, N05/N06, N12 direct wire and broad144
 remain separately open; no profile, release or parent integration is promoted.
 
+## N07 observation integration candidate
+
+The isolated `t3/n07-observation-parity` worktree extends committed candidate
+`54ba3f32796fc5c71458fb4cda14b2ab9290ee83` with independent native diagnostic
+events, severity/snapshot options, bounded synchronous text sinks and optional
+encoded payload presentation. Existing periodic checks, sealed checked results
+and runtime Recorder remain separate evidence-producing APIs. Logging neither
+executes the application nor certifies event continuity.
+
+The [integration contract and gates](native-parity/OBSERVATION-INTEGRATION.md)
+separate source implementation/review from compilation, executable suites,
+installed consumers and platform/resource qualification. The independent
+[observation corpus](../conformance/observation-v1.json) compares only its declared
+text contract; custom formatter output and arbitrary Rust Debug representations
+are not silently normalized into parity. Exact changed-tree execution state is
+recorded in the [observation receipts](../validation/native-parity/observation-slice/README.md).
+Previous checked, research and N13 receipts do not qualify this changed tree.
+The audit explicitly leaves the six dedicated `DebugObservation` sum/member
+mappings open. The planned installed gate uses 36 observation cases per engine
+and two suffix contracts (10 producers, 50 binary pairs, 50 JSON pairs); these
+counts describe source coverage until execution is recorded.
+Full N07 and broader native parity remain open pending their relevant gates.
+
 ## Other candidate evidence
 
 The separate `t3/integrate-n12-n13-native-parity` candidate combines reviewed
@@ -444,11 +486,11 @@ N06 and N10 qualification remain open.
 
 ## Next work
 
-1. Finish the semantic export and per-language API audit before closing M0.
-2. Complete N02 installed-consumer and cross-language runtime qualification,
-   preserving experimental status until promotion is explicitly reviewed.
-3. Finish the causal-evidence candidate's final source, installed-consumer and
-   interoperability qualification against the [scoped audit](native-parity/CAUSAL-EVIDENCE-AUDIT.md).
-   Continue append/BFS/binary-v1 and N03/N04 qualification across platforms.
-4. Continue M2–M6 against the plan; retain separate source, qualification and
-   release states for every language and capability.
+1. Commit the current tree by language, then freeze it for qualification.
+2. Run frozen-source native suites, installed consumers and mutation controls
+   through Kyoto; fix and re-freeze on any failure.
+3. Build and run the five-engine debugger wire corpus per its [deferred plan](https://claude.ai/artifact/N4qigTcK8bzDn4i7d9RsGs).
+4. Cross-engine historical and failure replay, platform matrices and
+   equivalent-work performance measurements.
+5. Reconcile the feature ledger's language cells from those receipts only;
+   retain separate source, qualification and release states.

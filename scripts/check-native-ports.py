@@ -36,7 +36,13 @@ def fixture_environment():
         STATELESS_CAUSAL_CORPUS=str(ROOT / 'conformance/causal-evidence-v2.json'),
         STATELESS_DIAGNOSTIC_CORPUS=str(ROOT / 'conformance/debugger-diagnostics-v1.json'),
         STATELESS_VALUE_CORPUS=str(ROOT / 'conformance/canonical-value-codec-v1.json'),
-        STATELESS_RESEARCH_CORPUS=str(ROOT / 'conformance/research-equivalence-v1.json'))
+        STATELESS_RESEARCH_CORPUS=str(ROOT / 'conformance/research-equivalence-v1.json'),
+        STATELESS_REQUIREMENTS_DIR=str(ROOT / 'docs/requirements'),
+        STATELESS_RUST_EFFECT_WIRE=str(ROOT / 'conformance/swift-effect-wire-v1.tsv'),
+        STATELESS_RUST_INSPECTION_WIRE=str(ROOT / 'conformance/swift-inspection-wire-v1.tsv'),
+        STATELESS_SWIFT_EFFECT_WIRE=str(ROOT / 'conformance/swift-effect-wire-v1.tsv'),
+        STATELESS_SWIFT_INSPECTION_WIRE=str(ROOT / 'conformance/swift-inspection-wire-v1.tsv'),
+        STATELESS_SWIFT_WATCH_PROBE_WIRE=str(ROOT / 'conformance/swift-watch-probe-wire-v1.tsv'))
 
 
 def main():

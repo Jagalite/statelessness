@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 	"unsafe"
 )
 
@@ -27,11 +28,49 @@ func AllowWatchPaths(paths [][]Segment) WatchAuthorization {
 func AllowAllWatches() WatchAuthorization { return AllowWatchPaths([][]Segment{{}}) }
 func (a WatchAuthorization) allows(path []Segment) bool {
 	for _, p := range a.paths {
-		if len(p) <= len(path) && slices.Equal(p, path[:len(p)]) {
+		if len(p) <= len(path) && watchPathPrefixEqual(p, path) {
 			return true
 		}
 	}
 	return false
+}
+
+// Compare the active variant fields, as Rust's typed PathSegment does. Avoid
+// decoding or scanning text here: configuration bounds are checked below.
+func watchPathPrefixEqual(prefix, path []Segment) bool {
+	for i, left := range prefix {
+		right := path[i]
+		if left.Kind != right.Kind {
+			return false
+		}
+		switch left.Kind {
+		case "field", "variant":
+			if left.Name != right.Name {
+				return false
+			}
+		case "index":
+			if left.Index != right.Index {
+				return false
+			}
+		case "map_key":
+			if left.KeyType != right.KeyType {
+				return false
+			}
+			switch left.KeyType {
+			case "string", "char":
+				if left.Name != right.Name {
+					return false
+				}
+			default:
+				if left.Decimal != right.Decimal {
+					return false
+				}
+			}
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 type WatchSelector struct {
@@ -61,7 +100,9 @@ type WatchConfig struct {
 }
 
 func ChangedWatch(path []Segment) WatchConfig {
-	return WatchConfig{Selector: WatchSelector{Path: append([]Segment{}, path...), SchemaVersion: 1}, Trigger: "changed", Enabled: true, EvaluationInterval: 1, DeliveryInterval: 1, Limits: DefaultInspectLimits(), Limit: 100}
+	limits := DefaultInspectLimits()
+	limits.MaxBytes = 32 * 1024
+	return WatchConfig{Selector: WatchSelector{Path: append([]Segment{}, path...), SchemaVersion: 1}, Trigger: "changed", Enabled: true, EvaluationInterval: 1, DeliveryInterval: 1, Limits: limits, Limit: 100}
 }
 
 type WatchLimits struct {
@@ -74,7 +115,10 @@ func DefaultWatchLimits() WatchLimits {
 }
 
 type WatchContext struct {
-	FailingProperties                                   []string
+	FailingProperties []string
+	// OutputVariants lists outputs from the transition; OutputVariant remains
+	// available for callers with a single output. Selectors match either field.
+	OutputVariants                                      []string
 	Phase                                               string
 	PropertyStatusKnown                                 bool
 	Snapshot                                            SnapshotID
@@ -82,7 +126,24 @@ type WatchContext struct {
 	PropertyFailed                                      bool
 }
 type WatchAck struct{ WatchID, Generation, CaptureRevision, EffectiveSequence uint64 }
+
+// DiagnosticEventMetadata records producer-owned provenance; it does not imply
+// a complete scoped-turn envelope.
+type DiagnosticEventMetadata struct {
+	RunID, Producer, Epoch, ProducerSequence, Transition uint64
+	Origin, Site                                         string
+	Path                                                 []Segment
+	Severity                                             Severity
+	Kind, BaselineReason                                 string
+	SchemaVersion                                        uint32
+	Baseline, ChangeUnknown, SchemaKnown                 bool
+	TurnCompletenessKnown, IncompleteTurn                bool
+}
 type WatchEvent struct {
+	Diagnostic                                     *DiagnosticEventMetadata
+	FailureBaseline, FailureSchemaKnown            bool
+	FailureBaselineReason                          string
+	InspectionError                                string
 	Snapshot                                       SnapshotID
 	PreviousSnapshot                               *SnapshotID
 	Origin, Phase, SchemaName, Completeness        string
@@ -101,6 +162,10 @@ type watchSource struct {
 	Model, Machine, Origin string
 }
 type watchEntry struct {
+	validatedSchema                                                               *DisplaySchema
+	current                                                                       *WatchEvent
+	currentBytes                                                                  uint64
+	effectiveSequence                                                             uint64
 	pendingBaseline                                                               string
 	source                                                                        watchSource
 	high                                                                          bool
@@ -113,18 +178,22 @@ type watchEntry struct {
 }
 type WatchHealth struct{ Records, Bytes, DroppedTotal, InspectionFailures, ExporterFailures uint64 }
 type WatchRegistry struct {
-	droppedTotal, inspectionFailures, exporterFailures              uint64
-	limits                                                          WatchLimits
-	auth                                                            WatchAuthorization
-	entries                                                         map[uint64]*watchEntry
-	next, revision, lastSequence, ringBytes, baselineBytes, dropped uint64
-	ring                                                            []WatchEvent
-	busy                                                            bool
+	currentBytes                                                                               uint64
+	observed                                                                                   bool
+	observationGaps, droppedTotal, inspectionFailures, exporterFailures                        uint64
+	baselineEvictions                                                                          uint64
+	limits                                                                                     WatchLimits
+	auth                                                                                       WatchAuthorization
+	entries                                                                                    map[uint64]*watchEntry
+	next, revision, lastSequence, lastSession, lastRevision, ringBytes, baselineBytes, dropped uint64
+	ring                                                                                       []WatchEvent
+	busy                                                                                       bool
+	diagnosticProjection                                                                       bool
 }
 
 func NewWatchRegistry(limits WatchLimits, auth WatchAuthorization) (*WatchRegistry, error) {
-	if limits.MaxWatches <= 0 || limits.MaxRingRecords <= 0 || limits.MaxRingBytes == 0 || limits.MaxEventBytes == 0 || limits.MaxBaselineBytes == 0 || limits.MaxConfigBytes == 0 {
-		return nil, fmt.Errorf("positive watch budgets required")
+	if limits.MaxWatches < 0 || limits.MaxRingRecords < 0 {
+		return nil, fmt.Errorf("negative watch capacity")
 	}
 	return &WatchRegistry{limits: limits, auth: auth, entries: map[uint64]*watchEntry{}, next: 1}, nil
 }
@@ -153,10 +222,10 @@ func cloneWatchConfig(c WatchConfig) WatchConfig {
 	return c
 }
 func (r *WatchRegistry) validate(c WatchConfig) error {
-	if !r.auth.allows(c.Selector.Path) {
-		return fmt.Errorf("unauthorized watch path")
+	if r.observed && r.lastSequence == math.MaxUint64 {
+		return fmt.Errorf("revision exhausted")
 	}
-	if c.Selector.SchemaVersion == 0 || c.EvaluationInterval == 0 || c.DeliveryInterval == 0 || c.Limit == 0 || c.Limit > c.Limits.MaxPageSize {
+	if c.Selector.SchemaVersion == 0 || c.EvaluationInterval == 0 || c.DeliveryInterval == 0 || c.Limit == 0 || c.Limit > c.Limits.MaxPageSize || (!r.diagnosticProjection && (c.Limits.MaxDepth > 32 || uint64(len(c.Selector.Path)) > c.Limits.MaxDepth || c.Limits.MaxBytes == 0 || c.Limits.MaxBytes > r.limits.MaxEventBytes)) || (c.TTLObservations != nil && *c.TTLObservations == 0) {
 		return fmt.Errorf("invalid watch config")
 	}
 	if c.Trigger != "changed" && c.Trigger != "every" && c.Trigger != "equals" && c.Trigger != "property_failure" && c.Trigger != "above_u128" {
@@ -177,6 +246,14 @@ func (r *WatchRegistry) validate(c WatchConfig) error {
 	}
 	if cost > r.limits.MaxConfigBytes {
 		return fmt.Errorf("watch configuration budget")
+	}
+	for _, segment := range c.Selector.Path {
+		if _, ok := canonicalInspectSegment(segment); !ok {
+			return fmt.Errorf("invalid watch path")
+		}
+	}
+	if !r.auth.allows(c.Selector.Path) {
+		return fmt.Errorf("unauthorized watch path")
 	}
 	if c.Equals != nil {
 		if e := validateScalar(*c.Equals); e != nil {
@@ -202,9 +279,9 @@ func (r *WatchRegistry) Add(c WatchConfig) (WatchAck, error) {
 	id := r.next
 	r.next++
 	r.revision++
-	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: 1}
+	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: 1, effectiveSequence: r.boundary()}
 	r.push(WatchEvent{WatchID: id, Generation: 1, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: "watch_enabled"})
-	return WatchAck{id, 1, r.revision, r.lastSequence}, nil
+	return WatchAck{id, 1, r.revision, r.boundary()}, nil
 }
 func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if r.busy {
@@ -220,6 +297,9 @@ func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if r.revision == math.MaxUint64 || w.generation == math.MaxUint64 {
 		return WatchAck{}, fmt.Errorf("revision exhausted")
 	}
+	r.currentBytes -= w.currentBytes
+	w.currentBytes = 0
+	w.current = nil
 	r.baselineBytes -= w.baselineBytes
 	r.revision++
 	generation := w.generation + 1
@@ -227,13 +307,13 @@ func (r *WatchRegistry) Update(id uint64, c WatchConfig) (WatchAck, error) {
 	if !w.config.Enabled && c.Enabled {
 		reason = "reenabled"
 	}
-	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: generation, pendingBaseline: reason}
+	r.entries[id] = &watchEntry{config: cloneWatchConfig(c), generation: generation, pendingBaseline: reason, effectiveSequence: r.boundary()}
 	kind := "watch_enabled"
 	if !c.Enabled {
 		kind = "watch_disabled"
 	}
 	r.push(WatchEvent{WatchID: id, Generation: generation, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: kind})
-	return WatchAck{id, generation, r.revision, r.lastSequence}, nil
+	return WatchAck{id, generation, r.revision, r.boundary()}, nil
 }
 func (r *WatchRegistry) Remove(id uint64) error {
 	if r.busy {
@@ -243,10 +323,13 @@ func (r *WatchRegistry) Remove(id uint64) error {
 	if !ok {
 		return fmt.Errorf("unknown watch")
 	}
-	if r.revision == math.MaxUint64 {
+	if r.revision == math.MaxUint64 || w.generation == math.MaxUint64 || r.observed && r.lastSequence == math.MaxUint64 {
 		return fmt.Errorf("revision exhausted")
 	}
 	r.revision++
+	r.currentBytes -= w.currentBytes
+	w.currentBytes = 0
+	w.current = nil
 	r.baselineBytes -= w.baselineBytes
 	delete(r.entries, id)
 	r.push(WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: r.lastSequence, Kind: "watch_removed"})
@@ -254,7 +337,25 @@ func (r *WatchRegistry) Remove(id uint64) error {
 }
 func (r *WatchRegistry) CaptureRevision() uint64 { return r.revision }
 func matchesWatch(s WatchSelector, c WatchContext) bool {
-	return (s.Model == "" || s.Model == c.Model) && (s.Machine == "" || s.Machine == c.Machine) && (s.InputVariant == "" || s.InputVariant == c.InputVariant) && (s.OutputVariant == "" || s.OutputVariant == c.OutputVariant) && (s.Origin == "" || s.Origin == c.Origin)
+	return (s.Model == "" || s.Model == c.Model) && (s.Machine == "" || s.Machine == c.Machine) && (s.InputVariant == "" || s.InputVariant == c.InputVariant) && (s.OutputVariant == "" || s.OutputVariant == c.OutputVariant || slices.Contains(c.OutputVariants, s.OutputVariant)) && (s.Origin == "" || s.Origin == c.Origin)
+}
+
+// Copy before callbacks and bound host work; caller owns its initial allocation.
+func copyWatchOutputs(values []string) ([]string, error) {
+	const maxOutputVariants, maxOutputVariantBytes = 4096, 1024 * 1024
+	if len(values) > maxOutputVariants {
+		return nil, fmt.Errorf("watch output variants budget")
+	}
+	outputBytes := 0
+	outputs := make([]string, len(values))
+	for i, output := range values {
+		if !utf8.ValidString(output) || len(output) > maxOutputVariantBytes-outputBytes {
+			return nil, fmt.Errorf("invalid or oversized watch output variants")
+		}
+		outputBytes += len(output)
+		outputs[i] = strings.Clone(output)
+	}
+	return outputs, nil
 }
 func retainedNode(n InspectNode) uint64 {
 	size := inspectNodeHeader + uint64(len(n.Name)+len(n.VariantID)+len(n.VariantLabel)+len(n.Text)+len(n.Bytes)+len(n.Ordering)+len(n.Incomplete))
@@ -275,7 +376,96 @@ func retainedNode(n InspectNode) uint64 {
 	}
 	return size
 }
-func (r *WatchRegistry) push(event WatchEvent) {
+func (r *WatchRegistry) recordDropped() {
+	if r.droppedTotal < math.MaxUint64 {
+		r.droppedTotal++
+		if r.dropped < math.MaxUint64 {
+			r.dropped++
+		}
+	}
+}
+
+// reportDrops adds a best-effort marker without evicting existing records.
+// Unreported drops remain pending across drains until a later observation has room.
+func (r *WatchRegistry) reportDrops() {
+	if r.diagnosticProjection || r.dropped == 0 {
+		return
+	}
+	event := WatchEvent{CaptureRevision: r.revision, Snapshot: SnapshotID{Session: r.lastSession, Revision: r.lastRevision, Sequence: r.lastSequence}, Sequence: r.lastSequence, Origin: "diagnostic_control", Phase: "control", Kind: "events_dropped", Completeness: "observation_gap", Diff: DiffUnknown, Dropped: r.dropped}
+	size := retainedEvent(event)
+	if len(r.ring) >= r.limits.MaxRingRecords || size > r.limits.MaxEventBytes || size > r.limits.MaxRingBytes-r.ringBytes {
+		return
+	}
+	r.ring = append(r.ring, event)
+	r.ringBytes += size
+	r.dropped = 0
+}
+
+func (r *WatchRegistry) push(event WatchEvent) bool {
+	// Reject oversized records before allocating owned copies of their metadata.
+	bytes := retainedEvent(event)
+	if r.limits.MaxRingRecords == 0 || bytes > r.limits.MaxEventBytes || bytes > r.limits.MaxRingBytes {
+		r.recordDropped()
+		return false
+	}
+	event, ok := r.ownedEvent(event)
+	if !ok {
+		r.recordDropped()
+		return false
+	}
+	bytes = retainedEvent(event)
+	if bytes > r.limits.MaxEventBytes || bytes > r.limits.MaxRingBytes {
+		r.recordDropped()
+		return false
+	}
+	for len(r.ring) >= r.limits.MaxRingRecords || bytes > r.limits.MaxRingBytes-r.ringBytes {
+		old := r.ring[0]
+		oldBytes := retainedEvent(old)
+		r.ringBytes -= oldBytes
+		r.ring = r.ring[1:]
+		r.recordDropped()
+	}
+	r.ring = append(r.ring, event)
+	r.ringBytes += bytes
+	return true
+}
+
+// ownedEvent returns a detached deep copy of every host-visible field. It is
+// shared by queue admission and non-destructive protocol previews so neither
+// path can alias caller or queued storage, or omit a field the other copies.
+func (r *WatchRegistry) ownedEvent(event WatchEvent) (WatchEvent, bool) {
+	event.Kind = strings.Clone(event.Kind)
+	event.FailureBaselineReason = strings.Clone(event.FailureBaselineReason)
+	event.InspectionError = strings.Clone(event.InspectionError)
+	event.Origin = strings.Clone(event.Origin)
+	event.Phase = strings.Clone(event.Phase)
+	event.SchemaName = strings.Clone(event.SchemaName)
+	event.Completeness = strings.Clone(event.Completeness)
+	event.Path = append([]Segment(nil), event.Path...)
+	for i := range event.Path {
+		event.Path[i] = cloneSegment(event.Path[i])
+	}
+	event.FailingProperties = append([]string(nil), event.FailingProperties...)
+	for i := range event.FailingProperties {
+		event.FailingProperties[i] = strings.Clone(event.FailingProperties[i])
+	}
+	if event.PreviousSnapshot != nil {
+		previous := *event.PreviousSnapshot
+		event.PreviousSnapshot = &previous
+	}
+	if event.Diagnostic != nil {
+		metadata := *event.Diagnostic
+		metadata.Origin = strings.Clone(metadata.Origin)
+		metadata.Site = strings.Clone(metadata.Site)
+		metadata.Kind = strings.Clone(metadata.Kind)
+		metadata.BaselineReason = strings.Clone(metadata.BaselineReason)
+		metadata.Path = append([]Segment(nil), metadata.Path...)
+		for i := range metadata.Path {
+			metadata.Path[i] = cloneSegment(metadata.Path[i])
+		}
+		event.Diagnostic = &metadata
+	}
+
 	if event.Source != nil {
 		source := *event.Source
 		source.File = strings.Clone(source.File)
@@ -284,31 +474,15 @@ func (r *WatchRegistry) push(event WatchEvent) {
 	if event.Node != nil {
 		node, e := cloneProjection(*event.Node, InspectLimits{MaxWork: r.limits.MaxEventBytes, MaxDepth: 256, MaxNodes: r.limits.MaxEventBytes/inspectNodeHeader + 1, MaxBytes: r.limits.MaxEventBytes, MaxValueBytes: r.limits.MaxEventBytes, MaxPageSize: r.limits.MaxEventBytes})
 		if e != nil {
-			r.dropped++
-			r.droppedTotal++
-			return
+			return WatchEvent{}, false
 		}
 		event.Node = &node
 	}
-	bytes := retainedEvent(event)
-	if bytes > r.limits.MaxEventBytes || bytes > r.limits.MaxRingBytes {
-		r.dropped++
-		r.droppedTotal++
-		return
-	}
-	for len(r.ring) >= r.limits.MaxRingRecords || bytes > r.limits.MaxRingBytes-r.ringBytes {
-		old := r.ring[0]
-		oldBytes := retainedEvent(old)
-		r.ringBytes -= oldBytes
-		r.ring = r.ring[1:]
-		r.dropped++
-		r.droppedTotal++
-	}
-	r.ring = append(r.ring, event)
-	r.ringBytes += bytes
+	return event, true
 }
 
-// Observe never calls value when no enabled selected watch needs evaluation.
+// Observe calls value for a selected watch to check its schema, even on sampled boundaries.
+// It skips the value and schema callbacks when no enabled watch is selected.
 // Projection remains cooperative; it executes no reducer, codec or runtime clock.
 func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapter) error {
 	if r.busy {
@@ -316,6 +490,11 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 	}
 	r.busy = true
 	defer func() { r.busy = false }()
+	outputs, err := copyWatchOutputs(context.OutputVariants)
+	if err != nil {
+		return err
+	}
+	context.OutputVariants = outputs
 	metadataSize := uint64(len(context.Model) + len(context.Machine) + len(context.Origin) + len(context.InputVariant) + len(context.OutputVariant) + len(context.Phase))
 	if uint64(len(context.FailingProperties)) > r.limits.MaxEventBytes/8 {
 		return fmt.Errorf("failure metadata budget")
@@ -326,10 +505,61 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 	if metadataSize > min(r.limits.MaxConfigBytes, r.limits.MaxEventBytes) {
 		return fmt.Errorf("watch context metadata budget")
 	}
+	if !r.diagnosticProjection && r.observed {
+		if context.Snapshot.Session == r.lastSession && context.Snapshot.Sequence <= r.lastSequence {
+			return nil
+		}
+		interested := false
+		for _, entry := range r.entries {
+			if entry.config.Enabled && !entry.expired {
+				interested = true
+				break
+			}
+		}
+		gap := context.Snapshot.Session != r.lastSession || (r.lastSequence < math.MaxUint64 && context.Snapshot.Sequence != r.lastSequence+1)
+		if interested && gap {
+			if r.observationGaps < math.MaxUint64 {
+				r.observationGaps++
+			}
+			ids := make([]uint64, 0, len(r.entries))
+			for id := range r.entries {
+				ids = append(ids, id)
+			}
+			sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+			for _, id := range ids {
+				entry := r.entries[id]
+				r.baselineBytes -= entry.baselineBytes
+				entry.baselineBytes = 0
+				entry.baseline = nil
+				r.currentBytes -= entry.currentBytes
+				entry.currentBytes = 0
+				entry.current = nil
+				entry.source = watchSource{}
+				entry.pendingBaseline = "observation_gap"
+				entry.high = false
+				entry.lastAlert = nil
+				r.push(WatchEvent{WatchID: id, Generation: entry.generation, CaptureRevision: r.revision, Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Kind: "observation_gap", Completeness: "observation_gap"})
+			}
+		}
+	}
 	r.lastSequence = context.Snapshot.Sequence
+	r.lastSession = context.Snapshot.Session
+	r.lastRevision = context.Snapshot.Revision
+	r.observed = true
+	// Rust reports drop markers after a boundary that began with an interested watch.
+	interestedAtBoundary := false
+	for _, w := range r.entries {
+		if w.config.Enabled && !w.expired {
+			interestedAtBoundary = true
+			break
+		}
+	}
 	// Known property failures force capture, but never bypass watch policy gates.
-	propertyFailure := context.PropertyStatusKnown && context.PropertyFailed
+	propertyFailure := !r.diagnosticProjection && context.PropertyStatusKnown && context.PropertyFailed
 	var adapter InspectAdapter
+	var adapterErr error
+	var adapterSchema DisplaySchema
+	adapterEvaluated := false
 	ids := make([]uint64, 0, len(r.entries))
 	for id := range r.entries {
 		ids = append(ids, id)
@@ -343,49 +573,135 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		if w.selected == math.MaxUint64 || w.evaluated == math.MaxUint64 || w.delivered == math.MaxUint64 {
 			return fmt.Errorf("watch counter exhausted")
 		}
-		w.selected++
-		event := WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Origin: strings.Clone(context.Origin), Phase: strings.Clone(context.Phase), PropertyFailed: context.PropertyFailed, PropertyStatusKnown: context.PropertyStatusKnown}
-		for _, id := range context.FailingProperties {
-			event.FailingProperties = append(event.FailingProperties, strings.Clone(id))
-		}
-		if w.config.TTLObservations != nil && w.selected > *w.config.TTLObservations {
-			w.expired = true
-			r.baselineBytes -= w.baselineBytes
-			w.baselineBytes = 0
-			w.baseline = nil
-			event.Kind = "watch_expired"
-			r.push(event)
-			continue
-		}
-		if !propertyFailure && (w.selected-1)%w.config.EvaluationInterval != 0 {
-			continue
-		}
 		if value == nil {
 			return fmt.Errorf("selected watch needs value")
 		}
-		if adapter == nil {
-			adapter = value()
+		if !adapterEvaluated {
+			adapter, adapterErr = watchAdapterSafely(value)
+			if adapterErr == nil {
+				if adapter == nil {
+					adapterErr = fmt.Errorf("nil inspect adapter")
+				} else {
+					adapterSchema, adapterErr = inspectSchemaSafely(adapter)
+					if adapterErr == nil {
+						adapter = watchSnapshotAdapter{InspectAdapter: adapter, schema: adapterSchema}
+					}
+				}
+			}
+			adapterEvaluated = true
 		}
-		q := InspectQuery{Snapshot: context.Snapshot, Path: w.config.Selector.Path, SchemaVersion: w.config.Selector.SchemaVersion, Offset: w.config.Offset, Limit: w.config.Limit, Limits: w.config.Limits}
-		result, e := Inspect(adapter, q)
-		w.evaluated++
-		if e != nil || result.Node.Kind == "redacted" {
-			// An unavailable observation breaks continuity, not retained history.
+		if adapterErr == nil && (adapterSchema.Version != w.config.Selector.SchemaVersion ||
+			(w.validatedSchema != nil && (adapterSchema.Name != w.validatedSchema.Name || adapterSchema.Version != w.validatedSchema.Version))) {
+			// A schema identity change pauses this watch before its accessor runs.
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
 			r.baselineBytes -= w.baselineBytes
 			w.baselineBytes = 0
 			w.baseline = nil
 			w.source = watchSource{}
 			w.pendingBaseline = "observation_gap"
+			w.config.Enabled = false
+			r.push(WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Kind: "schema_changed"})
+			continue
+		}
+		// Record the observed identity before the accessor runs, including when
+		// projection later fails. Bound the retained Go string by the projection
+		// budget; malformed or oversized host metadata is not retained.
+		if adapterErr == nil && w.validatedSchema == nil && utf8.ValidString(adapterSchema.Name) && uint64(len(adapterSchema.Name)) <= w.config.Limits.MaxBytes {
+			w.validatedSchema = &DisplaySchema{Name: strings.Clone(adapterSchema.Name), Version: adapterSchema.Version}
+		}
+		// Preserve a source change observed between projected samples.
+		if w.baseline != nil && w.source != (watchSource{context.Snapshot.Session, context.Model, context.Machine, context.Origin}) {
+			w.pendingBaseline = "source_changed"
+		}
+		w.selected++
+		event := WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Origin: strings.Clone(context.Origin), Phase: strings.Clone(context.Phase), PropertyFailed: context.PropertyFailed, PropertyStatusKnown: context.PropertyStatusKnown}
+		for _, id := range context.FailingProperties {
+			event.FailingProperties = append(event.FailingProperties, strings.Clone(id))
+		}
+		expire := func() {
+			if w.config.TTLObservations != nil && w.selected >= *w.config.TTLObservations {
+				w.expired = true
+				w.config.Enabled = false
+				r.push(WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision, Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Kind: "watch_expired"})
+			}
+		}
+		if !propertyFailure && (w.selected-1)%w.config.EvaluationInterval != 0 {
+			expire()
+			continue
+		}
+		q := InspectQuery{Snapshot: context.Snapshot, Path: w.config.Selector.Path, SchemaVersion: w.config.Selector.SchemaVersion, Offset: w.config.Offset, Limit: w.config.Limit, Limits: w.config.Limits}
+		result, e := InspectResult{Snapshot: context.Snapshot}, adapterErr
+		if e == nil {
+			result, e = Inspect(adapter, q)
+		}
+		w.evaluated++
+		if e != nil || (result.Node.Kind == "redacted" && !r.diagnosticProjection) {
+			// Preserve only schema and baseline information actually observed
+			// before clearing the failed projection's retained state.
+			event.FailureBaseline = w.baseline == nil
+			if event.FailureBaseline {
+				event.FailureBaselineReason = w.pendingBaseline
+				if event.FailureBaselineReason == "" {
+					event.FailureBaselineReason = "initial"
+				}
+			}
+			if result.Schema.Version == q.SchemaVersion && uint64(len(result.Schema.Name)) <= q.Limits.MaxValueBytes && utf8.ValidString(result.Schema.Name) {
+				event.FailureSchemaKnown = true
+				event.SchemaName = boundedWatchSchema(result.Schema.Name)
+				if w.baseline != nil && (w.baseline.Schema.Name != result.Schema.Name || w.baseline.Schema.Version != result.Schema.Version) {
+					event.FailureBaseline = true
+					event.FailureBaselineReason = "schema_changed"
+				}
+			}
+			// An unavailable observation breaks continuity, not retained history.
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
+			r.baselineBytes -= w.baselineBytes
+			w.baselineBytes = 0
+			w.baseline = nil
+			w.source = watchSource{}
+			w.pendingBaseline = "observation_gap"
+			if r.diagnosticProjection {
+				w.pendingBaseline = "inspection_incomplete"
+			}
 			event.Diff = DiffUnknown
 			if e != nil {
-				r.inspectionFailures++
+				if r.inspectionFailures < math.MaxUint64 {
+					r.inspectionFailures++
+				}
 				event.Kind = "inspection_error"
+				message, _ := safeErrorMessage(e)
+				event.InspectionError = normalizedInspectionError(message)
 				event.Completeness = "unavailable"
 			} else {
 				event.Kind = "redacted_path"
 				event.Completeness = "redacted"
 			}
-			r.push(event)
+			size := retainedEvent(event)
+			if size <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
+				copy := event
+				w.current = &copy
+				w.currentBytes = size
+				r.currentBytes += size
+			} else if !r.diagnosticProjection {
+				w.pendingBaseline = "evicted"
+				if r.baselineEvictions < math.MaxUint64 {
+					r.baselineEvictions++
+				}
+			}
+			eligible := w.config.Trigger == "every" || w.config.Trigger == "changed" || propertyFailure
+			if !eligible {
+				expire()
+				continue
+			}
+			w.delivered++
+			if propertyFailure || (w.delivered-1)%w.config.DeliveryInterval == 0 {
+				r.push(event)
+			}
+			expire()
 			continue
 		}
 		reason := ""
@@ -395,19 +711,29 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			if reason == "" {
 				reason = "initial"
 			}
-		} else if w.source != (watchSource{context.Snapshot.Session, context.Model, context.Machine, context.Origin}) {
-			reason = "source_changed"
+		} else if w.pendingBaseline == "source_changed" {
+			reason = w.pendingBaseline
+			w.pendingBaseline = ""
 		} else if !reflect.DeepEqual(w.baseline.Schema, result.Schema) {
 			reason = "schema_changed"
 		} else if context.Snapshot.Sequence < w.baselineSequence || context.Snapshot.Sequence > w.baselineSequence && context.Snapshot.Sequence-w.baselineSequence > 1 && w.config.EvaluationInterval == 1 {
 			reason = "observation_gap"
-		} else if w.config.BaselineTTLSequences != nil && context.Snapshot.Sequence-w.baselineSequence > *w.config.BaselineTTLSequences {
+		}
+		// Rust's TTL is measured from the retained current observation, including
+		// an incomplete node or inspection error, not just a complete baseline.
+		// If current was evicted, there is no retained timestamp to expire.
+		if !r.diagnosticProjection && w.current != nil && w.config.BaselineTTLSequences != nil && context.Snapshot.Sequence >= w.current.Snapshot.Sequence && context.Snapshot.Sequence-w.current.Snapshot.Sequence > *w.config.BaselineTTLSequences {
+			reason = "expired"
+		} else if r.diagnosticProjection && w.baseline != nil && w.config.BaselineTTLSequences != nil && context.Snapshot.Sequence >= w.baselineSequence && context.Snapshot.Sequence-w.baselineSequence > *w.config.BaselineTTLSequences {
 			reason = "expired"
 		}
 		event.Path = append([]Segment{}, result.Path...)
-		event.SchemaName = result.Schema.Name
+		event.SchemaName = boundedWatchSchema(result.Schema.Name)
 		event.Source = result.Schema.Source
 		event.Completeness = result.Node.Incomplete
+		if event.Completeness == "" && len(result.Schema.Name) > 1024 {
+			event.Completeness = "value_limit"
+		}
 		if w.baseline != nil {
 			x := w.baseline.Snapshot
 			event.PreviousSnapshot = &x
@@ -450,7 +776,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			}
 		}
 		deliver = deliver || propertyFailure
-		if reason != "" {
+		if !result.Node.IsComplete() && !r.diagnosticProjection {
+			event.Kind = "unknown"
+		} else if reason != "" {
 			event.Kind = "baseline_" + reason
 		} else {
 			event.Kind = "watch_value"
@@ -459,6 +787,9 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			}
 		}
 
+		r.currentBytes -= w.currentBytes
+		w.currentBytes = 0
+		w.current = nil
 		r.baselineBytes -= w.baselineBytes
 		w.baseline = nil
 		w.baselineBytes = 0
@@ -472,7 +803,10 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 		}
 		if !result.Node.IsComplete() {
 			w.pendingBaseline = "observation_gap"
-		} else if size <= r.limits.MaxBaselineBytes-r.baselineBytes {
+			if r.diagnosticProjection {
+				w.pendingBaseline = "inspection_incomplete"
+			}
+		} else if size <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
 			copy := result
 			w.baseline = &copy
 			w.baselineBytes = size
@@ -482,8 +816,41 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 			w.source = watchSource{context.Snapshot.Session, strings.Clone(context.Model), strings.Clone(context.Machine), strings.Clone(context.Origin)}
 		} else {
 			w.pendingBaseline = "evicted"
-			event.Kind = "baseline_evicted"
-			deliver = true
+			if r.diagnosticProjection {
+				if r.baselineEvictions < math.MaxUint64 {
+					r.baselineEvictions++
+				}
+				w.high = false
+				w.lastAlert = nil
+			} else {
+				event.Kind = "baseline_evicted"
+				deliver = true
+			}
+		}
+		if propertyFailure {
+			event.Kind = "property_failure"
+		}
+		// Retain current observations independently of ring sampling, under the
+		// same aggregate byte budget as baselines. Never retain a rejected node.
+		current := event
+		current.Node = &result.Node
+		current.Diff = kind
+		currentSize := retainedEvent(current)
+		if currentSize <= r.limits.MaxBaselineBytes-r.baselineBytes-r.currentBytes {
+			w.current = &current
+			w.currentBytes = currentSize
+			r.currentBytes += currentSize
+		} else if !r.diagnosticProjection {
+			// A baseline without its current observation cannot represent Rust's
+			// retained watch state. Drop both and mark the next observation evicted.
+			r.baselineBytes -= w.baselineBytes
+			w.baselineBytes = 0
+			w.baseline = nil
+			w.source = watchSource{}
+			w.pendingBaseline = "evicted"
+			if r.baselineEvictions < math.MaxUint64 {
+				r.baselineEvictions++
+			}
 		}
 		if deliver {
 			w.delivered++
@@ -494,20 +861,35 @@ func (r *WatchRegistry) Observe(context WatchContext, value func() InspectAdapte
 				r.push(event)
 			}
 		}
+		expire()
+	}
+	if interestedAtBoundary {
+		r.reportDrops()
 	}
 	return nil
+}
+
+func watchAdapterSafely(value func() InspectAdapter) (adapter InspectAdapter, err error) {
+	defer func() {
+		if recover() != nil {
+			err = fmt.Errorf("inspection adapter callback panicked")
+		}
+	}()
+	return value(), nil
 }
 func (r *WatchRegistry) Drain() ([]WatchEvent, error) {
 	if r.busy {
 		return nil, fmt.Errorf("watch callback active")
 	}
 	events := r.ring
-	if r.dropped > 0 {
+	if r.diagnosticProjection && r.dropped > 0 {
 		events = append([]WatchEvent{{Kind: "events_dropped", Dropped: r.dropped}}, events...)
 	}
 	r.ring = nil
 	r.ringBytes = 0
-	r.dropped = 0
+	if r.diagnosticProjection {
+		r.dropped = 0
+	}
 	return events, nil
 }
 
@@ -525,7 +907,7 @@ func (r *WatchRegistry) Export(w io.Writer) (failure error) {
 	r.busy = true
 	defer func() { r.busy = false }()
 	events := r.ring
-	if r.dropped > 0 {
+	if r.diagnosticProjection && r.dropped > 0 {
 		events = append([]WatchEvent{{Kind: "events_dropped", Dropped: r.dropped}}, events...)
 	}
 	for _, e := range events {
@@ -550,7 +932,9 @@ func (r *WatchRegistry) Export(w io.Writer) (failure error) {
 	}
 	r.ring = nil
 	r.ringBytes = 0
-	r.dropped = 0
+	if r.diagnosticProjection {
+		r.dropped = 0
+	}
 	return nil
 }
 
@@ -587,9 +971,18 @@ func unsignedProjection(node InspectNode) (*big.Int, bool) {
 }
 
 func retainedEvent(event WatchEvent) uint64 {
-	size := uint64(unsafe.Sizeof(WatchEvent{})) + uint64(len(event.Kind)+len(event.Origin)+len(event.Phase)+len(event.SchemaName)+len(event.Completeness))
+	size := uint64(unsafe.Sizeof(WatchEvent{})) + uint64(len(event.Kind)+len(event.FailureBaselineReason)+len(event.InspectionError)+len(event.Origin)+len(event.Phase)+len(event.SchemaName)+len(event.Completeness))
+	if event.PreviousSnapshot != nil {
+		size += uint64(unsafe.Sizeof(SnapshotID{}))
+	}
 	if event.Node != nil {
 		size += retainedNode(*event.Node)
+	}
+	if event.Diagnostic != nil {
+		size += uint64(unsafe.Sizeof(DiagnosticEventMetadata{})) + uint64(len(event.Diagnostic.Origin)+len(event.Diagnostic.Site)+len(event.Diagnostic.Kind)+len(event.Diagnostic.BaselineReason))
+		for _, segment := range event.Diagnostic.Path {
+			size += segmentHeader + uint64(len(segment.Kind)+len(segment.Name)+len(segment.KeyType)+len(segment.Decimal))
+		}
 	}
 	for _, p := range event.Path {
 		size += segmentHeader + uint64(len(p.Kind)+len(p.Name)+len(p.KeyType)+len(p.Decimal))
@@ -608,6 +1001,14 @@ func (r *WatchRegistry) Gap(context WatchContext) error {
 	if r.busy {
 		return fmt.Errorf("watch callback active")
 	}
+	outputs, err := copyWatchOutputs(context.OutputVariants)
+	if err != nil {
+		return err
+	}
+	context.OutputVariants = outputs
+	if r.observationGaps < math.MaxUint64 {
+		r.observationGaps++
+	}
 	ids := make([]uint64, 0, len(r.entries))
 	for id := range r.entries {
 		ids = append(ids, id)
@@ -616,6 +1017,9 @@ func (r *WatchRegistry) Gap(context WatchContext) error {
 	for _, id := range ids {
 		w := r.entries[id]
 		if w.config.Enabled && matchesWatch(w.config.Selector, context) {
+			r.currentBytes -= w.currentBytes
+			w.currentBytes = 0
+			w.current = nil
 			r.baselineBytes -= w.baselineBytes
 			w.baseline = nil
 			w.source = watchSource{}
@@ -643,6 +1047,9 @@ func (r *WatchRegistry) AddValidated(expectedRevision uint64, config WatchConfig
 	if r.busy {
 		return ResolvedWatchAck{}, fmt.Errorf("watch callback active")
 	}
+	if len(r.entries) >= r.limits.MaxWatches || r.next == math.MaxUint64 || r.revision == math.MaxUint64 {
+		return ResolvedWatchAck{}, fmt.Errorf("watch capacity or revision exhausted")
+	}
 	result, e := func() (InspectResult, error) {
 		r.busy = true
 		defer func() { r.busy = false }()
@@ -658,5 +1065,150 @@ func (r *WatchRegistry) AddValidated(expectedRevision uint64, config WatchConfig
 	if e != nil {
 		return ResolvedWatchAck{}, e
 	}
-	return ResolvedWatchAck{ack, result.Schema, result.Node.Kind}, nil
+	schema := DisplaySchema{Name: strings.Clone(result.Schema.Name), Version: result.Schema.Version}
+	r.entries[ack.WatchID].validatedSchema = &schema
+	kind := result.Node.Kind
+	if result.Node.Scalar != nil {
+		kind = result.Node.Scalar.Kind
+		if kind == "float" {
+			kind = result.Node.Scalar.Text
+		}
+	}
+	return ResolvedWatchAck{ack, result.Schema, kind}, nil
 }
+
+func (r *WatchRegistry) boundary() uint64 {
+	if !r.observed {
+		return 0
+	}
+	if r.lastSequence == math.MaxUint64 {
+		return math.MaxUint64
+	}
+	return r.lastSequence + 1
+}
+
+func normalizedInspectionError(message string) string {
+	switch message {
+	case "path not found", "inspection path not found":
+		return "PathNotFound"
+	case "wrong path segment", "wrong inspection path segment":
+		return "WrongPathSegment"
+	case "invalid page":
+		return "InvalidPage"
+	case "work limit":
+		return "WorkLimit"
+	case "budget exceeded", "projection budget exceeded", "path budget exceeded":
+		return "BudgetExceeded"
+	}
+	return "InvalidMetadata"
+}
+
+// Error formatting belongs to the host callback and can itself panic.
+func safeErrorMessage(err error) (message string, ok bool) {
+	defer func() {
+		if recover() != nil {
+			message = ""
+			ok = false
+		}
+	}()
+	return err.Error(), true
+}
+
+// SnapshotNow projects a watch at an explicit safe point, including when the
+// watch is disabled. It does not advance observation order or change its
+// baseline. The returned event and ring entry own independent projections.
+func (r *WatchRegistry) SnapshotNow(id uint64, value InspectAdapter, context WatchContext) (WatchEvent, error) {
+	if r.busy {
+		return WatchEvent{}, fmt.Errorf("watch callback active")
+	}
+	w, ok := r.entries[id]
+	if !ok {
+		return WatchEvent{}, fmt.Errorf("unknown watch")
+	}
+	// Unlike configuration updates, a snapshot does not need another sequence.
+	if !r.auth.allows(w.config.Selector.Path) {
+		return WatchEvent{}, fmt.Errorf("unauthorized watch path")
+	}
+	if !utf8.ValidString(context.Origin) || len(context.Origin) > 1024 {
+		return WatchEvent{}, fmt.Errorf("invalid snapshot origin")
+	}
+	metadataIncomplete := len(context.FailingProperties) > 16
+	ids := make([]string, 0, min(len(context.FailingProperties), 16))
+	for _, id := range context.FailingProperties[:min(len(context.FailingProperties), 16)] {
+		if !utf8.ValidString(id) {
+			return WatchEvent{}, fmt.Errorf("invalid failure property identity")
+		}
+		end := min(len(id), 256)
+		if len(id) > end {
+			metadataIncomplete = true
+		}
+		for end > 0 && end < len(id) && !utf8.RuneStart(id[end]) {
+			end--
+		}
+		ids = append(ids, strings.Clone(id[:end]))
+	}
+	r.busy = true
+	defer func() { r.busy = false }()
+	config := w.config
+	event := WatchEvent{WatchID: id, Generation: w.generation, CaptureRevision: r.revision,
+		Sequence: context.Snapshot.Sequence, Snapshot: context.Snapshot, Origin: strings.Clone(context.Origin),
+		Phase: "control", Kind: "snapshot", Diff: DiffUnknown,
+		PropertyFailed: context.PropertyFailed, PropertyStatusKnown: context.PropertyStatusKnown,
+		FailingProperties: ids, Path: config.Selector.Path}
+	// Reserve known event metadata before invoking the adapter. Unknown schema
+	// metadata is checked against the completed event before it is returned.
+	overhead := retainedEvent(event)
+	if overhead >= r.limits.MaxEventBytes {
+		return WatchEvent{}, fmt.Errorf("snapshot event budget")
+	}
+	if value == nil {
+		return WatchEvent{}, fmt.Errorf("nil inspect adapter")
+	}
+	schema, err := inspectSchemaSafely(value)
+	if err != nil {
+		return WatchEvent{}, err
+	}
+	if known := w.validatedSchema; known != nil && (known.Name != schema.Name || known.Version != schema.Version) {
+		return WatchEvent{}, fmt.Errorf("schema mismatch")
+	}
+	value = watchSnapshotAdapter{InspectAdapter: value, schema: schema}
+	q := InspectQuery{Snapshot: context.Snapshot, Path: config.Selector.Path, SchemaVersion: config.Selector.SchemaVersion,
+		Offset: config.Offset, Limit: config.Limit, Limits: config.Limits}
+	q.Limits.MaxBytes = min(q.Limits.MaxBytes, r.limits.MaxEventBytes-overhead)
+	result, err := Inspect(value, q)
+	if err != nil {
+		return WatchEvent{}, err
+	}
+	if result.Node.Kind == "redacted" {
+		return WatchEvent{}, fmt.Errorf("redacted watch path")
+	}
+	event.Path, event.SchemaName, event.Source = result.Path, boundedWatchSchema(result.Schema.Name), result.Schema.Source
+	event.Completeness, event.Node = result.Node.Incomplete, &result.Node
+	if event.Completeness == "" && (metadataIncomplete || len(result.Schema.Name) > 1024) {
+		event.Completeness = "value_limit"
+	}
+	if retainedEvent(event) > r.limits.MaxEventBytes {
+		return WatchEvent{}, fmt.Errorf("snapshot event budget")
+	}
+	r.push(event)
+	return event, nil
+}
+
+// Bound event metadata at a UTF-8 boundary while retaining the full schema
+// separately for identity comparisons and projection.
+func boundedWatchSchema(name string) string {
+	end := min(len(name), 1024)
+	for end > 0 && end < len(name) && !utf8.RuneStart(name[end]) {
+		end--
+	}
+	return strings.Clone(name[:end])
+}
+
+// Freeze the schema checked before projection so a stateful adapter cannot
+// return a different identity on a second DisplaySchema call.
+type watchSnapshotAdapter struct {
+	InspectAdapter
+	schema DisplaySchema
+}
+
+func (a watchSnapshotAdapter) DisplaySchema() DisplaySchema { return a.schema }

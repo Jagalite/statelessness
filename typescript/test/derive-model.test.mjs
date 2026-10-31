@@ -4,6 +4,16 @@ import {codecField,orderedRecord,tupleRecord,unitRecord,enumCases,taggedEnum,bin
 const hex = bytes => Buffer.from(bytes).toString('hex');
 const f = codecField();
 const pair = orderedRecord({name:'Pair',fields:[f.value('a',valueCodecs.u8),f.value('b',valueCodecs.u16)],construct:v=>({...v})});
+
+test('record encoders retain later field slots before invoking callbacks', () => {
+ for (const shape of ['record','tuple','enum']) {
+  const value = shape === 'tuple' ? [1,2] : {kind:'Data',a:1,b:2};
+  const first = customValueSchema({name:'mutating',encodeInto(v,out){ if (shape === 'tuple') value[1]=9; else value.b=9; out.extend(Uint8Array.of(v)); }});
+  const fields = shape === 'tuple' ? [f.value(0,first),f.value(1,valueCodecs.u8)] : [f.value('a',first),f.value('b',valueCodecs.u8)];
+  const schema = shape === 'tuple' ? tupleRecord({name:'T',fields}) : shape === 'record' ? orderedRecord({name:'R',fields}) : taggedEnum({name:'E',discriminator:'kind',cases:[enumCases('kind').record('Data',7,{fields})]});
+  assert.deepEqual([...encodeValue(schema,value,8)], shape === 'enum' ? [7,1,2] : [1,2], shape);
+ }
+});
 test('ordered records use raw concatenation, guards, and delayed construction',()=>{
  assert.equal(hex(encodeValue(pair,{b:0x302,a:1},100)), '010203');
  assert.deepEqual(decodeValue(pair,Uint8Array.of(1,2,3),{work:3,depth:2}),{a:1,b:0x302});

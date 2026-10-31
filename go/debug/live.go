@@ -5,6 +5,8 @@ import (
 	s "github.com/Jagalite/statelessness/go"
 	"math"
 	"strconv"
+	"strings"
+	"unsafe"
 )
 
 var ErrLivePhase = errors.New("live: wrong phase or permit")
@@ -351,12 +353,17 @@ func DefaultLiveLimits() LiveLimits { return LiveLimits{1024, 1 << 20, 4096} }
 
 type LiveEvent struct {
 	Epoch, StreamSequence, HostSequence uint64
+	ExpectedSequence, ActualSequence    uint64
+	Origin                              EffectOrigin
 	Kind                                string
 	Outputs                             int
 	FullChecking                        bool
 	Disposition                         string
 	FailedChecks, ChecksOmitted         int
 }
+
+const liveEventBytes = int(unsafe.Sizeof(LiveEvent{}))
+
 type LiveHealth struct {
 	Epoch, AttachedAfter, HostSequence                               uint64
 	CaptureComplete, RecorderFrozen                                  bool
@@ -380,10 +387,20 @@ type LiveBridge[S, I, O any] struct {
 }
 
 func AttachLiveBridge[S, I, O any](epoch, after uint64, initial *s.CheckedInitial[S, I, O], config s.RunConfig, record s.RecorderOptions, limits LiveLimits) (*LiveBridge[S, I, O], error) {
-	if epoch == 0 || limits.MaxEvents <= 0 || limits.MaxEventBytes <= 0 || limits.MaxEffectOrigins <= 0 {
+	if epoch == 0 || limits.MaxEvents <= 0 || limits.MaxEventBytes < liveEventBytes || limits.MaxEffectOrigins <= 0 {
 		return nil, ErrLiveLimit
 	}
+	for _, parameter := range config.Parameters {
+		if strings.HasPrefix(parameter[0], "stateless.debug.") {
+			return nil, &s.ConfigError{Message: "stateless.debug. provenance parameters are reserved"}
+		}
+	}
 	config.Parameters = append([][2]string{}, config.Parameters...)
+	config.Parameters = append(config.Parameters,
+		[2]string{"stateless.debug.live.max_events", strconv.Itoa(limits.MaxEvents)},
+		[2]string{"stateless.debug.live.max_event_bytes", strconv.Itoa(limits.MaxEventBytes)},
+		[2]string{"stateless.debug.live.max_effect_origins", strconv.Itoa(limits.MaxEffectOrigins)},
+	)
 	config.Parameters = append(config.Parameters, [2]string{"stateless.debug.origin", "recorded-live-observation"}, [2]string{"stateless.debug.host_epoch", strconv.FormatUint(epoch, 10)})
 	r, e := s.NewRecorderWithCheckedInitialAt(initial, after, config, record)
 	if e != nil {
@@ -399,7 +416,7 @@ func (b *LiveBridge[S, I, O]) publish(event LiveEvent, summaries ...[]s.Check) {
 		return
 	}
 	b.stream++
-	if len(b.events) >= b.limits.MaxEvents || len(b.events) >= b.limits.MaxEventBytes/128 {
+	if len(b.events) >= b.limits.MaxEvents || len(b.events) >= b.limits.MaxEventBytes/liveEventBytes {
 		satInc(&b.drops)
 		return
 	}
@@ -448,13 +465,14 @@ func (b *LiveBridge[S, I, O]) Observe(epoch, sequence uint64, t *s.CheckedTurn[S
 	if e != nil {
 		return e
 	}
-	gap := b.host == math.MaxUint64 || sequence != b.host+1
+	expected := b.host + 1
+	gap := sequence != expected
+	b.host = sequence
 	if gap {
 		b.complete = false
 		b.recorder.StopWithError(errors.New("host sequence gap"))
-		b.publish(LiveEvent{Kind: "gap"})
+		b.publish(LiveEvent{Kind: "gap", ExpectedSequence: expected, ActualSequence: sequence})
 	}
-	b.host = sequence
 	var recording error
 	if b.complete && !b.recorder.IsFrozen() {
 		_, recording = s.ObserveCheckedRecorder(b.recorder, t)
@@ -497,7 +515,7 @@ func (b *LiveBridge[S, I, O]) EffectDispatched(origin EffectOrigin) error {
 				return ErrLivePhase
 			}
 			p.dispatched = true
-			b.publish(LiveEvent{Kind: "effect-dispatched", Outputs: 1, FullChecking: true})
+			b.publish(LiveEvent{Kind: "effect-dispatched", Origin: origin, Outputs: 1, FullChecking: true})
 			return nil
 		}
 	}

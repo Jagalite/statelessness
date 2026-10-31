@@ -80,3 +80,43 @@ func TestBranchProvenanceAndFailedBoundary(t *testing.T) {
 		t.Fatal(trace, e)
 	}
 }
+
+func TestForkRequiresUnambiguousEnvironmentProvenance(t *testing.T) {
+	const env = "stateless.debug.environment"
+	const origin = "stateless.debug.origin"
+	policy := d.InputPolicy[int, int]{Label: "allowed", Validate: func(int, int) (bool, error) { return true, nil }}
+	cases := []struct {
+		name       string
+		parameters [][2]string
+		policy     d.InputPolicy[int, int]
+		wantError  bool
+	}{
+		{"duplicate environment", [][2]string{{env, "allowed"}, {env, "allowed"}, {origin, "simulation"}}, d.Unrestricted[int, int](), true},
+		{"conflicting environment", [][2]string{{env, "allowed"}, {env, "other"}, {origin, "simulation"}}, policy, true},
+		{"duplicate origin", [][2]string{{env, "allowed"}, {origin, "simulation"}, {origin, "out-of-domain-injection"}}, d.Unrestricted[int, int](), true},
+		{"missing origin", [][2]string{{env, "allowed"}}, d.Unrestricted[int, int](), true},
+		{"missing environment", [][2]string{{origin, "simulation"}}, policy, true},
+		{"unknown origin", [][2]string{{env, "allowed"}, {origin, "unknown"}}, d.Unrestricted[int, int](), true},
+		{"unrestricted parent", [][2]string{{env, "allowed"}, {origin, "out-of-domain-injection"}}, policy, true},
+		{"different label", [][2]string{{env, "other"}, {origin, "simulation"}}, policy, true},
+		{"matching simulation", [][2]string{{env, "allowed"}, {origin, "simulation"}}, policy, false},
+		{"explicit unrestricted", [][2]string{{env, "allowed"}, {origin, "simulation"}}, d.Unrestricted[int, int](), false},
+		{"legacy", nil, policy, false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := fixture()
+			a.V2.Trace.Config.Parameters = tc.parameters
+			v, err := d.NewEvidenceViewer(a, s.DefaultEvidenceLimits())
+			if err != nil {
+				t.Fatal(err)
+			}
+			count := 0
+			g := model(&count)
+			_, err = d.Fork(v, g.Model, 0, "fork", tc.policy, g.InputEqual, d.DefaultSessionLimits(), s.ShrinkLimits{})
+			if (err != nil) != tc.wantError {
+				t.Fatalf("error = %v, want error %v", err, tc.wantError)
+			}
+		})
+	}
+}

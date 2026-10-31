@@ -493,6 +493,16 @@ function arrayCount(value: readonly unknown[], expected?: number): number {
         return error('array length');
     return n;
 }
+// Capture slots before application encoders run. This shallow copy costs O(n)
+// temporary references, independently of the encoded-byte budget; callers must
+// bound input sizes and cooperate when elements themselves are mutable. Indexed
+// getters are evaluated eagerly and may run or fail before an earlier element's
+// encoder; vector length output may already be present in a raw sink on failure.
+function captureSlots<T>(value: readonly T[], n: number): T[] {
+    const captured: T[] = [];
+    for (let i = 0; i < n; i++) captured.push(value[i]);
+    return captured;
+}
 function option<T>(element: ValueSchema<T>, layout?: LogicalLayout): ValueSchema<Option<T>> {
     const tag = shapes.get(element), known: Record<string, number> = { unit: 1, bool: 1, u8: 2, u64: 16, string: 24 };
     const selected = layout ?? (tag !== undefined && Object.prototype.hasOwnProperty.call(known, tag) ? logicalLayout(known[tag], `Option<${tag}>`) : undefined);
@@ -519,8 +529,9 @@ function vector<T>(element: ValueSchema<T>): LengthSchema<T[]> {
     const encode = (value: T[], width: number, out: EncodeBuffer) => {
         const n = arrayCount(value);
         encodeLengthValue(n, width, out);
+        const captured = captureSlots(value, n);
         for (let i = 0; i < n; i++)
-            emit(element, value[i], out);
+            emit(element, captured[i], out);
     };
     const decode = (width: number, r: Decoder) => {
         const n = readLength(width, r);
@@ -544,8 +555,9 @@ function array<T>(element: ValueSchema<T>, length: number, layout?: LogicalLayou
     const selected = layout ?? (shapes.get(element) === 'u16' && length === 3 ? logicalLayout(6, '[u16;3]') : undefined);
     return makeSchema<T[]>({ name: `[${element.schema()};${length}]`, layout: selected, encodeInto(v, out) {
             arrayCount(v, length);
+            const captured = captureSlots(v, length);
             for (let i = 0; i < length; i++)
-                emit(element, v[i], out);
+                emit(element, captured[i], out);
         }, decodeFrom(r) {
             r.collection(length, (weight ?? error('collection element requires explicit allocation layout')).bytes);
             const out: T[] = [];
@@ -569,8 +581,9 @@ function tuple<const S extends readonly [
     const selected = layout ?? (n === 2 && shapes.get(owned[0]) === 'u8' && shapes.get(owned[1]) === 'u64' ? logicalLayout(16, '(u8,u64)') : undefined);
     return makeSchema<TupleValue<S>>({ name: `(${owned.map(s => s.schema()).join(',')})`, layout: selected, encodeInto(v, out) {
             arrayCount(v, n);
+            const captured = captureSlots(v, n);
             for (let i = 0; i < n; i++)
-                emit(owned[i], v[i], out);
+                emit(owned[i], captured[i], out);
         }, decodeFrom(r) { return owned.map(s => r.value(s)) as TupleValue<S>; } }, undefined, undefined, combined(owned));
 }
 function oracleState<S, H>(model: ValueSchema<S>, oracle: ValueSchema<H>, layout?: LogicalLayout): ValueSchema<{
@@ -639,7 +652,12 @@ function recordParts<T>(source: RecordDeclaration<T>, tuple = false) {
     for (const f of owned) { if (!bindings.has(f)) error('invalid field binding'); const key = typeof f.key === 'number' ? String(f.key) : f.key; if (seen.has(key)) error('duplicate field key'); seen.add(key); }
     const d = { encode: owned.every(f => !!f.encode), decode: !!(construct || constructPositional) && owned.every(f => !!f.decode) }; requirement(required, d);
     const copiedLayout = layoutCopy(layout);
-    return { name, layout: copiedLayout, d, encode(v: T, out: EncodeBuffer) { for (const f of owned) f.encode!(f.get(v), out); }, decode(r: Decoder): T { const values: any = tuple || constructPositional ? [] : Object.create(null); for (const f of owned) { const value = f.decode!(r); if (tuple || constructPositional) values.push(value); else Object.defineProperty(values, f.key, { value, enumerable: true, writable: true, configurable: true }); } return noPromise(constructPositional ? constructPositional(...values) : construct!(values)); } };
+    // Capture fields before invoking application encoders, so an encoder cannot
+    // alter later slots through an alias. Accessors run eagerly and can fail before
+    // earlier field encoders; a tagged enum's raw sink may already contain its tag.
+    // Captures are shallow: mutable field contents still require cooperation.
+    // The temporary references are O(field count), outside the encoded-byte budget.
+    return { name, layout: copiedLayout, d, encode(v: T, out: EncodeBuffer) { const values = owned.map(f => f.get(v)); for (let i = 0; i < owned.length; i++) owned[i].encode!(values[i], out); }, decode(r: Decoder): T { const values: any = tuple || constructPositional ? [] : Object.create(null); for (const f of owned) { const value = f.decode!(r); if (tuple || constructPositional) values.push(value); else Object.defineProperty(values, f.key, { value, enumerable: true, writable: true, configurable: true }); } return noPromise(constructPositional ? constructPositional(...values) : construct!(values)); } };
 }
 export function orderedRecord<T>(source: RecordDeclaration<T>): ValueSchema<T> { const p = recordParts(source); return makeSchema({ name: p.name, layout: p.layout, encodeInto: p.encode, decodeFrom: p.decode }, undefined, undefined, p.d); }
 export function tupleRecord<T>(source: RecordDeclaration<T>): ValueSchema<T> { const p = recordParts(source, true); return makeSchema({ name: p.name, layout: p.layout, encodeInto: p.encode, decodeFrom: p.decode }, undefined, undefined, p.d); }

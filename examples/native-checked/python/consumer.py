@@ -1,13 +1,16 @@
 """Installed checked handoff and bounded runtime Recorder application."""
 from dataclasses import replace
+import io
 import json
 from pathlib import Path
 import sys
 import statelessness
 from statelessness import (Check, Metadata, Transition, EncodeBuffer, ReplayError,
     check_initial, check_turn, CheckPolicy, CheckedInitial, Recorder, RecorderOptions, replay, replay_with_observations, replay_with_observations_bounded)
-from statelessness.trace_binary import RunConfig, BinaryLimits, audit_to_bytes, audit_from_bytes
+from statelessness.trace_binary import AuditTrace, RunConfig, BinaryLimits, audit_to_bytes, audit_from_bytes
 from statelessness.trace_json import dumps, loads
+from statelessness.observation import (Event, LogLevel, NoPayloads, ObservationOptions,
+    SnapshotPolicy, TextObserver)
 
 LIMITS = BinaryLimits(max_total_bytes=8192, max_frame_bytes=2048, max_blob_bytes=64, max_string_bytes=256,
     max_steps=16, max_checks_per_step=16, max_outputs_per_step=16, max_parameters=32, max_items=256)
@@ -58,11 +61,13 @@ def observation(value, current):
         transition=dict(state=actual.transition.state, outputs=list(actual.transition.outputs), disposition=disposition(actual.transition.disposition)),
         checks=checks(actual.checks), state_check_count=actual.state_check_count, expected=step(value.expected), actual_input=value.actual_input.hex(),
         actual_outputs=[v.hex() for v in value.actual_outputs], actual_state=value.actual_state.hex(), differences=differences(value.differences), report=report(current))
-def session(audit, bounded=False):
+def session(trace, bounded=False):
     model, observations = Threshold(), []
     def observer(value, current): observations.append(observation(value, current))
-    if bounded: result = replay_with_observations_bounded(model, audit, observer, limits=LIMITS)
-    else: result = replay_with_observations(model, audit.to_portable()[0], observer)
+    if bounded: result = replay_with_observations_bounded(model, trace, observer, limits=LIMITS)
+    else:
+        portable = trace.to_portable()[0] if isinstance(trace, AuditTrace) else trace
+        result = replay_with_observations(model, portable, observer)
     return dict(report=report(result), observations=observations), model
 def config(value): return dict(strategy=value.strategy, seed=None if value.seed is None else str(value.seed), parameters=value.parameters)
 def options(max_steps=3): return RecorderOptions(max_steps, 8192, LIMITS)
@@ -76,6 +81,10 @@ def rejected(operation):
     except Exception: return True
     raise RuntimeError("expected rejection")
 def counts(model): return dict(initial_state=model.initial_calls, reducer=model.steps, state=model.state_calls, transition=model.edge_calls)
+def suffix_counts(model):
+    actual = counts(model)
+    if actual != dict(initial_state=0, reducer=1, state=2, transition=1): raise RuntimeError("suffix replay counts differ")
+    return actual
 def controls():
     model = Threshold(); initial = check_initial(model, 1)
     before = counts(model); rec = Recorder.with_checked_initial_at(initial, 10, RunConfig("manual"), options())
@@ -137,13 +146,99 @@ if mode == "record":
         checked=dict(initial_checks=initial.state_check_count,state_check_count=first_checked.state_check_count,full_checking=first_checked.full_checking,sequence=str(first_checked.sequence)),
         legacy_encoder_calls=model.legacy + rich_model.legacy + bounded_model.legacy,
         codec_into_calls=model.into + rich_model.into + bounded_model.into, steps=len(audit.steps), termination=audit.termination)
-elif mode == "replay":
+elif mode in ("record-suffix", "record-failing-suffix"):
+    failing = mode == "record-failing-suffix"
+    turn_count = 3 if failing else 2
+    model = Threshold(); state = 0
+    initial = check_initial(model, state)
+    before = counts(model)
+    rec = Recorder.with_checked_initial_at(initial, 40, RunConfig("manual"), options(1))
+    if counts(model) != before: raise RuntimeError("suffix attach reran application")
+    observer_prefix = "suffix-observer\n"
+    writer = io.BytesIO(); writer.write(observer_prefix.encode("utf-8"))
+    observer = TextObserver(writer, "suffix",
+        ObservationOptions(LogLevel.TRACE, SnapshotPolicy.EVERY_TRANSITION, 1024), NoPayloads())
+    before_codecs = (model.legacy, model.into, model.decode)
+    observer.observe(model, Event.Checkpoint(40, initial.state, initial.checks))
+    if counts(model) != before or (model.legacy, model.into, model.decode) != before_codecs: raise RuntimeError("suffix checkpoint observer ran application or codec callbacks")
+    for sequence in range(41, 41 + turn_count):
+        actual = model.step(state, 1)
+        checked = check_turn(model, state, 1, actual, sequence)
+        if sequence == 41: first_checked = checked
+        before = counts(model)
+        # Detached diagnostics do not authorize exact recording; retain the token.
+        view = checked.observation()
+        before_codecs = (model.legacy, model.into, model.decode)
+        observer.observe(model, Event.Transition(view.sequence, view.before, view.input, view.transition, view.checks))
+        if counts(model) != before or (model.legacy, model.into, model.decode) != before_codecs: raise RuntimeError("suffix turn observer ran application or codec callbacks")
+        rec.observe_checked(checked)
+        if counts(model) != before: raise RuntimeError("suffix checked handoff reran application")
+        state = actual.state
+    before_codecs = (model.legacy, model.into, model.decode)
+    observer.flush()
+    if counts(model) != before or (model.legacy, model.into, model.decode) != before_codecs: raise RuntimeError("suffix observer flush ran application or codec callbacks")
+    observer_text = writer.getvalue().decode("utf-8")
+    audit = rec.snapshot(); main_counts = counts(model)
+    if main_counts != dict(initial_state=0,reducer=turn_count,state=turn_count+1,transition=turn_count): raise RuntimeError("suffix check-once counts differ")
+    if state != turn_count or checked.sequence != 40+turn_count: raise RuntimeError("suffix final application turn differs")
+    state_checks = (Check("threshold.bound"), Check("state.appended"))
+    terminal_checks = ((Check("threshold.bound", "failed", "at least three"), Check("state.appended")) if failing else state_checks) + (Check("edge.checked"),)
+    if audit.initial_state != str(turn_count-1).encode("ascii") or audit.initial_checks != state_checks: raise RuntimeError("suffix checkpoint lost state-only checks")
+    if len(audit.steps) != 1 or audit.steps[0].post_state != str(turn_count).encode("ascii") or audit.steps[0].checks != terminal_checks: raise RuntimeError("suffix retained turn differs")
+    if audit.termination != ("property_failed" if failing else "interrupted") or rec.is_frozen() != failing or rec.observed_steps() != turn_count or rec.evicted_steps() != turn_count-1: raise RuntimeError("suffix recorder status differs")
+    parameters = dict(audit.config.parameters)
+    for name, expected in (("sequence_origin", "40"), ("checkpoint_after_sequence", str(turn_count-1)), ("observed_steps", str(turn_count)), ("evicted_steps", str(turn_count-1))):
+        if parameters.get("stateless.monitor." + name) != expected: raise RuntimeError("suffix local metadata differs: " + name)
+    binary = audit_to_bytes(audit, limits=LIMITS)
+    portable, retained_config = audit.to_portable()
+    portable_bytes = dumps(portable).encode("utf-8")
+    if failing:
+        before = counts(model); before_codecs = (model.legacy, model.into, model.decode)
+        # Supplied diagnostics have no checked authority, even after a failure.
+        freeze_writer = io.BytesIO()
+        freeze_observer = TextObserver(freeze_writer, "suffix",
+            ObservationOptions(LogLevel.TRACE, SnapshotPolicy.EVERY_TRANSITION, 1024), NoPayloads())
+        freeze_observer.observe(model, Event.Checkpoint(44, 999, ()))
+        freeze_observer.flush()
+        if counts(model) != before or (model.legacy, model.into, model.decode) != before_codecs: raise RuntimeError("frozen suffix observer ran application or codec callbacks")
+        # Reuse sequence 43's authentic token; do not execute or check another turn.
+        rejected(lambda: rec.observe_checked(checked))
+        after = rec.snapshot()
+        if (not rec.is_frozen() or counts(model) != before
+                or (model.legacy, model.into, model.decode) != before_codecs
+                or audit_to_bytes(after, limits=LIMITS) != binary
+                or dumps(after.to_portable()[0]).encode("utf-8") != portable_bytes):
+            raise RuntimeError("frozen suffix artifact or callback counts changed")
+        if counts(model) != before or (model.legacy, model.into, model.decode) != before_codecs: raise RuntimeError("frozen artifact comparison ran application or codec callbacks")
+        if freeze_writer.getvalue() != b'Trace stream="suffix" event=checkpoint sequence=44 checks=0 state=unavailable\n': raise RuntimeError("frozen diagnostic differs")
+    Path(path + ".bin").write_bytes(binary)
+    Path(path + ".json").write_bytes(portable_bytes)
+    rich, rich_model = session(audit); bounded, bounded_model = session(audit, True)
+    receipt = dict(rich=rich, bounded=bounded, rich_counts=suffix_counts(rich_model), bounded_counts=suffix_counts(bounded_model), retained_config=config(retained_config), main_counts=main_counts,
+        checked=dict(initial_checks=initial.state_check_count,state_check_count=first_checked.state_check_count,full_checking=first_checked.full_checking,sequence=str(first_checked.sequence)),
+        observer_prefix=observer_prefix, observer_text=observer_text,
+        legacy_encoder_calls=model.legacy + rich_model.legacy + bounded_model.legacy,
+        codec_into_calls=model.into + rich_model.into + bounded_model.into, steps=len(audit.steps), termination=audit.termination)
+    if failing:
+        receipt.update(freeze_verified=True, freeze_observer_text=freeze_writer.getvalue().decode("utf-8"))
+elif mode in ("replay", "replay-suffix"):
     audit = audit_from_bytes(Path(path).read_bytes(), limits=LIMITS)
     rich, rich_model = session(audit); bounded, bounded_model = session(audit, True)
     receipt = dict(rich=rich, bounded=bounded, retained_config=config(audit.config),
         legacy_encoder_calls=rich_model.legacy + bounded_model.legacy, codec_into_calls=rich_model.into + bounded_model.into)
+    if mode == "replay-suffix":
+        receipt.update(rich_counts=suffix_counts(rich_model), bounded_counts=suffix_counts(bounded_model))
 elif mode == "replay-json":
     model = Threshold(); result = replay(model, loads(Path(path).read_bytes()))
     receipt = dict(report(result), legacy_encoder_calls=model.legacy, codec_into_calls=model.into)
-else: raise ValueError("expected record, replay, or replay-json")
+elif mode == "replay-suffix-json":
+    portable = loads(Path(path).read_bytes())
+    rich, rich_model = session(portable)
+    # Bounded replay requires an audit envelope. JSON contains no configuration;
+    # explicit defaults supply that envelope without claiming recovered provenance.
+    audit = AuditTrace.from_portable(portable, RunConfig())
+    bounded, bounded_model = session(audit, True)
+    receipt = dict(rich=rich, bounded=bounded, rich_counts=suffix_counts(rich_model), bounded_counts=suffix_counts(bounded_model),
+        legacy_encoder_calls=rich_model.legacy + bounded_model.legacy, codec_into_calls=rich_model.into + bounded_model.into)
+else: raise ValueError("expected record, record-suffix, record-failing-suffix, replay, replay-suffix, replay-json, or replay-suffix-json")
 print(json.dumps(dict(receipt, producer="python", mode=mode, package=str(Path(statelessness.__file__).resolve()))))

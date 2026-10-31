@@ -4,7 +4,7 @@ Callbacks are cooperative. Exact byte previews can contain secrets. Verification
 and minimization execute application code only when explicitly requested.
 """
 from dataclasses import dataclass, replace
-from .core import ModelError, Failure, Violation, validate_recording, _copy, _natural, _call
+from .core import ModelError, Failure, Violation, validate_recording, _copy, _natural, _call, _SnapshotFailure
 from .evidence import Artifact, EvidenceLimits, _limits
 from .replay_evidence import replay_with_observations_bounded, _audit_preflight
 from .search import ShrinkConfig, ShrinkLimits, RunLimits, shrink
@@ -62,18 +62,47 @@ class InputPolicy:
         if self.unrestricted: return True
         if self.enumerated_domain:
             _natural(maximum, 'admission maximum', 1)
+            # Capture before state/domain callbacks can mutate an external alias.
+            # An empty or failing domain never needs the query, so defer copy failure.
+            try: query, query_error = _copy(input), None
+            except _SnapshotFailure as error: query, query_error = None, error
             iterator = iter(_call('enumerated input domain', model.inputs, _copy(state)))
             sentinel = object()
             for _ in range(maximum):
                 value = _call('enumerated input next', next, iterator, sentinel)
                 if value is sentinel: return False
-                if value == input: return True
+                if query_error is not None: raise query_error
+                if value == _copy(query): return True
             if _call('enumerated input lookahead', next, iterator, sentinel) is not sentinel:
                 raise ModelError('environmental admission work budget exhausted')
             return False
-        value = _call('debugger input admission', self.admission, model, _copy(state), _copy(input))
+        captured_input = _copy(input)
+        value = _call('debugger input admission', self.admission, model, _copy(state), captured_input)
         if type(value) is not bool: raise ModelError('admission must return bool')
         return value
+
+
+def _recorded_environment(trace):
+    def unique(name):
+        values = [value for key,value in trace.config.parameters if key == name]
+        if len(values) > 1: raise ModelError('ambiguous recorded environmental policy')
+        return values[0] if values else None
+    environment,origin=unique('stateless.debug.environment'),unique('stateless.debug.origin')
+    if environment is None and origin is None: return None
+    if environment is None or origin is None: raise ModelError('incomplete recorded environmental policy provenance')
+    if origin not in ('simulation','out-of-domain-injection'): raise ModelError('unknown recorded environmental policy origin')
+    return environment,origin=='out-of-domain-injection'
+
+
+
+def _branch_parent_policy(trace):
+    # A live capture records its origin without a simulation input policy, so
+    # it constrains no branch. Minimization still requires full provenance.
+    parameters = trace.config.parameters
+    origins = [value for key,value in parameters if key == 'stateless.debug.origin']
+    if origins == ['recorded-live-observation'] and not any(key == 'stateless.debug.environment' for key,_ in parameters):
+        return None
+    return _recorded_environment(trace)
 
 
 class EvidenceViewer:
@@ -100,11 +129,19 @@ class EvidenceViewer:
     def retained_range(self):
         start = self._artifact.value.checkpoint_after if self._artifact.version == 2 else 0
         if self._artifact.version == 1:
-            values = [v for k, v in self._artifact.trace.config.parameters if k == 'stateless.monitor.checkpoint_after_sequence']
-            if values:
-                digits=values[0][1:] if values[0].startswith('+') else values[0]
+            counters={}
+            for key,value in self._artifact.trace.config.parameters:
+                if key not in ('stateless.monitor.sequence_origin','stateless.monitor.checkpoint_after_sequence'): continue
+                if key in counters: raise ModelError('ambiguous retained checkpoint sequence provenance')
+                digits=value[1:] if value.startswith('+') else value
                 if not digits or not digits.isascii() or not digits.isdigit(): raise ModelError('invalid retained checkpoint sequence')
-                start = int(digits)
+                # Rust accepts arbitrary leading zeroes; Python's decimal
+                # conversion limit must not reject an otherwise valid u64.
+                significant=digits.lstrip('0') or '0'
+                if len(significant)>20 or (len(significant)==20 and significant>'18446744073709551615'):
+                    raise ModelError('retained sequence overflow')
+                counters[key] = int(significant)
+            start=counters.get('stateless.monitor.sequence_origin',0)+counters.get('stateless.monitor.checkpoint_after_sequence',0)
         try:
             _natural(start, 'checkpoint sequence'); _natural(start + len(self._artifact.trace.steps), 'retained end')
         except ValueError as error: raise ModelError('retained sequence overflow') from error
@@ -226,16 +263,9 @@ class EvidenceViewer:
 
     def _validate_policy(self, policy):
         if policy is not None and type(policy) is not InputPolicy: raise ModelError('expected InputPolicy')
-        params = self._artifact.trace.config.parameters
-        def unique(name):
-            values = [v for k, v in params if k == name]
-            if len(values) > 1: raise ModelError('ambiguous recorded environmental policy')
-            return values[0] if values else None
-        environment, origin = unique('stateless.debug.environment'), unique('stateless.debug.origin')
-        if environment is None and origin is None: return
-        if environment is None or origin is None: raise ModelError('incomplete recorded environmental policy provenance')
-        if origin not in ('simulation', 'out-of-domain-injection'): raise ModelError('unknown recorded environmental policy origin')
-        unrestricted = origin == 'out-of-domain-injection'
+        recorded = _recorded_environment(self._artifact.trace)
+        if recorded is None: return
+        environment,unrestricted = recorded
         if policy is None:
             if unrestricted and environment == 'out-of-domain-injection': return
             raise ModelError('recorded environmental policy requires explicit policy')

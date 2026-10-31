@@ -1144,6 +1144,72 @@ fn duplicate_delivery_fault_is_detected_shrunk_recorded_and_replayed() {
 }
 
 #[test]
+fn swift_persisted_fault_trace_replays_when_supplied() {
+    let Some(path) = std::env::var_os("STATELESS_SWIFT_CAMPAIGN_REPLAY") else {
+        return;
+    };
+    let trace =
+        Trace::read_from(std::fs::File::open(path).unwrap(), &ReadLimits::default()).unwrap();
+    let faulty = DuplicateDelivery(lifecycle(2, false));
+    let local = faulty.metadata();
+    assert_eq!(trace.metadata.name, local.name);
+    assert_eq!(trace.metadata.model_version, local.model_version);
+    assert_eq!(trace.metadata.properties_version, local.properties_version);
+    assert_eq!(trace.metadata.codec_version, local.codec_version);
+    assert_ne!(trace.metadata.build, local.build);
+    assert_eq!(trace.termination, Termination::PropertyFailed);
+    assert_eq!(trace.steps.len(), 3, "unexpected persisted witness");
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[0].input).unwrap(),
+        Input::Claim { stop: None }
+    ));
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[1].input).unwrap(),
+        Input::Complete { job_id: 50, .. }
+    ));
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[2].input).unwrap(),
+        Input::Receive { job_id: 50 }
+    ));
+    assert!(
+        trace.steps[2]
+            .checks
+            .iter()
+            .any(|check| check.id == "campaign.effects" && check.is_failure())
+    );
+    let strict = replay(&faulty, &trace, ReplayOptions::default()).unwrap();
+    assert!(matches!(strict.outcome, ReplayOutcome::Incompatible { .. }));
+    assert!(!strict.build_matches);
+    assert_eq!(strict.steps_verified, 0);
+    assert!(!strict.failure_reproduced);
+    let compared = replay(
+        &faulty,
+        &trace,
+        ReplayOptions {
+            allow_build_mismatch: true,
+        },
+    )
+    .unwrap();
+    assert_eq!(compared.outcome, ReplayOutcome::Exact);
+    assert!(!compared.build_matches);
+    assert_eq!(compared.steps_verified, 3);
+    assert!(compared.failure_reproduced);
+    let healthy = replay(
+        &faulty.0,
+        &trace,
+        ReplayOptions {
+            allow_build_mismatch: true,
+        },
+    )
+    .unwrap();
+    assert!(matches!(healthy.outcome, ReplayOutcome::Diverged { .. }));
+    assert!(!healthy.failure_reproduced);
+    println!(
+        "Swift-produced campaign trace: strict incompatible; cross-build exact, 3 steps and failure reproduced"
+    );
+}
+
+#[test]
 fn persisted_fault_trace_replays_when_supplied() {
     let Some(path) = std::env::var_os("STATELESS_SELF_MODEL_REPLAY") else {
         return;
@@ -1153,10 +1219,48 @@ fn persisted_fault_trace_replays_when_supplied() {
         Trace::read_from(std::fs::File::open(&path).unwrap(), &ReadLimits::default()).unwrap();
     assert_eq!(trace.termination, Termination::PropertyFailed);
     let faulty = DuplicateDelivery(lifecycle(2, false));
+    // These expectations are independent of the producer's replay result. A
+    // different failing trace must not satisfy this persisted-witness control.
+    assert_eq!(trace.steps.len(), 3);
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[0].input).unwrap(),
+        Input::Claim { stop: None }
+    ));
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[1].input).unwrap(),
+        Input::Complete { job_id: 50, .. }
+    ));
+    assert!(matches!(
+        faulty.decode_input(&trace.steps[2].input).unwrap(),
+        Input::Receive { job_id: 50 }
+    ));
+    assert!(
+        trace.steps[2]
+            .checks
+            .iter()
+            .any(|check| check.id == "campaign.effects" && check.is_failure())
+    );
     let report = replay(&faulty, &trace, ReplayOptions::default()).unwrap();
     assert_eq!(report.outcome, ReplayOutcome::Exact);
     assert!(report.failure_reproduced);
     assert_eq!(report.steps_verified, trace.steps.len());
+    let strict_healthy = replay(&faulty.0, &trace, ReplayOptions::default()).unwrap();
+    assert!(matches!(
+        strict_healthy.outcome,
+        ReplayOutcome::Incompatible { .. }
+    ));
+    assert!(!strict_healthy.build_matches);
+    let healthy = replay(
+        &faulty.0,
+        &trace,
+        ReplayOptions {
+            allow_build_mismatch: true,
+        },
+    )
+    .unwrap();
+    assert!(matches!(healthy.outcome, ReplayOutcome::Diverged { .. }));
+    assert!(!healthy.failure_reproduced);
+    assert!(!healthy.build_matches);
     println!(
         "fresh-process campaign replay: {}, {} steps verified, failure reproduced",
         path.display(),

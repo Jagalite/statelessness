@@ -25,6 +25,22 @@ class AppendModel:
 
 
 class AppendDispatchTests(unittest.TestCase):
+    def test_observed_policy_is_validated_and_snapshotted_before_callbacks(self):
+        policy = CheckPolicy(1, True)
+        class Mutating(AppendModel):
+            def check_state_into(self, state, sink):
+                object.__setattr__(policy, 'transition_checks', False)
+                sink.append(Check('state'))
+            def check_transition_into(self, before, input, transition, sink):
+                sink.append(Check('transition'))
+        checks = check_observed(Mutating(), 0, 1, Transition(1), 1, policy)
+        self.assertEqual([item.id for item in checks], ['state', 'transition'])
+        object.__setattr__(policy, 'state_every', 0)
+        buffer = [Check('old')]
+        with self.assertRaises(ValueError):
+            check_observed_into(Mutating(), 0, 1, Transition(1), 1, buffer, policy)
+        self.assertEqual(buffer, [])
+
     def test_all_native_paths_prefer_append_hooks(self):
         for model in (AppendModel(), Auto(AppendModel()),
                       Generated(AppendModel(), lambda state, rng: 1)):
@@ -142,6 +158,57 @@ class SinkLeaseTests(unittest.TestCase):
             buffer = [Check("old")]
             with self.assertRaises(ModelError): check_observed_into(Invalid(), 0, 1, Transition(1), 1, buffer)
             self.assertEqual(buffer, [])
+
+    def test_check_failure_with_unprintable_exception_remains_sticky(self):
+        class BadDetail(Exception):
+            def __str__(self): raise RuntimeError('detail failed')
+        class BadCheck(Check):
+            def __getattribute__(self, name):
+                if name == 'id': raise BadDetail()
+                return super().__getattribute__(name)
+        class Invalid(AppendModel):
+            def check_state_into(self, state, checks):
+                checks.append(Check('valid'))
+                bad = object.__new__(BadCheck)
+                object.__setattr__(bad, 'id', 'bad')
+                object.__setattr__(bad, 'status', 'passed')
+                object.__setattr__(bad, 'details', '')
+                try: checks.append(bad)
+                except Exception: pass
+                try: checks.append(Check('should-not-pass'))
+                except Exception: pass
+        observed = []
+        class Observer:
+            def check_error(self, phase, checks, complete): observed.append((phase, checks, complete))
+        with self.assertRaises(ModelError): enumerate_states(Invalid(), observer=Observer())
+        self.assertEqual(observed, [('initial_state', (Check('valid'),), False)])
+
+    def test_exception_formatting_cannot_reenter_a_parent_sink(self):
+        from statelessness.core import _dispatch_checks
+        class Parent:
+            def check_state_into(self, state, outer):
+                outer.append(Check('before'))
+                class BadDetail(Exception):
+                    def __str__(self):
+                        try: outer.append(Check('reentrant'))
+                        except ModelError: pass
+                        return 'bad check'
+                class BadCheck(Check):
+                    def __getattribute__(self, name):
+                        if name == 'id': raise BadDetail()
+                        return super().__getattribute__(name)
+                bad = object.__new__(BadCheck)
+                object.__setattr__(bad, 'id', 'bad')
+                object.__setattr__(bad, 'status', 'passed')
+                object.__setattr__(bad, 'details', '')
+                class Child:
+                    def check_state_into(self, state, inner): inner.append(bad)
+                try: _dispatch_checks(Child(), 'check_state_into', 'check_state', (state,), outer, 'nested')
+                except ModelError: pass
+        values = []
+        with self.assertRaises(ModelError):
+            _dispatch_checks(Parent(), 'check_state_into', 'check_state', (0,), values, 'outer')
+        self.assertEqual(values, [Check('before')])
 
     def test_nested_lease_expires_but_outer_and_preceding_checks_remain(self):
         from statelessness.core import _dispatch_checks

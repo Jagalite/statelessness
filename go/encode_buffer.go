@@ -13,6 +13,9 @@ type encodeBatch struct {
 	bytes   *[]byte
 	maximum uint64
 	failure error
+	// Diagnostics retain host errors without invoking arbitrary Error/Format
+	// methods. All existing encoding entry points keep their current behavior.
+	preserveErrors bool
 }
 type encodeLease struct {
 	batch  *encodeBatch
@@ -137,6 +140,13 @@ func invokeEncodeBatch(stage string, batch *encodeBatch, callback func(*EncodeBu
 	lease := &encodeLease{batch: batch, active: true}
 	buffer := &EncodeBuffer{lease: lease}
 	defer func() { lease.active = false; lease.batch = nil }()
+	if batch.preserveErrors {
+		err := observationCallback(func() error { return callback(buffer) })
+		if err != nil {
+			return encodeFailure(batch, err)
+		}
+		return batch.failure
+	}
 	var callbackError error
 	_, err := call(stage, func() (struct{}, error) {
 		callbackError = callback(buffer)

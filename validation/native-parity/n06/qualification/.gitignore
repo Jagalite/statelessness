@@ -1,0 +1,3 @@
+# Private install trees, build caches and raw per-attempt payloads are referenced
+# by compact sealed manifests, never copied into the repository as giant receipts.
+attempts/

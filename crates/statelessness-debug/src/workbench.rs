@@ -89,17 +89,28 @@ impl TraceViewer {
     pub fn new(trace: Trace) -> Result<Self, ModelError> {
         validate_recording(&trace)?;
         let identity = artifact_identity(&trace)?;
-        let checkpoint_after = trace
-            .config
-            .parameters
-            .iter()
-            .find(|(k, _)| k == "stateless.monitor.checkpoint_after_sequence")
-            .map(|(_, v)| {
-                v.parse::<u64>()
-                    .map_err(|_| ModelError::new("invalid retained checkpoint sequence"))
-            })
-            .transpose()?
-            .unwrap_or(0);
+        let mut checkpoint = None;
+        let mut origin = None;
+        for (key, value) in &trace.config.parameters {
+            let target = match key.as_str() {
+                "stateless.monitor.checkpoint_after_sequence" => &mut checkpoint,
+                "stateless.monitor.sequence_origin" => &mut origin,
+                _ => continue,
+            };
+            if target.is_some() {
+                return Err(ModelError::new(
+                    "ambiguous retained checkpoint sequence provenance",
+                ));
+            }
+            *target =
+                Some(value.parse::<u64>().map_err(|_| {
+                    ModelError::new("invalid retained checkpoint sequence provenance")
+                })?);
+        }
+        let checkpoint_after = origin
+            .unwrap_or(0u64)
+            .checked_add(checkpoint.unwrap_or(0))
+            .ok_or_else(|| ModelError::new("retained sequence overflow"))?;
         checkpoint_after
             .checked_add(trace.steps.len() as u64)
             .ok_or_else(|| ModelError::new("retained sequence overflow"))?;
@@ -243,6 +254,14 @@ impl TraceViewer {
         let prefix = self
             .prefix(sequence)
             .map_err(|e| DebugError::InvalidCommand(e.to_string()))?;
+        let parent_policy = branch_parent_policy(&self.trace)
+            .map_err(|e| DebugError::InvalidCommand(e.to_string()))?;
+        if let Some((environment, unrestricted)) = parent_policy
+            && !policy.is_unrestricted()
+            && (environment != policy.label || unrestricted)
+        {
+            return Err(DebugError::InvalidCommand("branch environment differs; select explicit unrestricted injection or retain the parent's policy".into()));
+        }
         let report = replay_with_observations_bounded(
             &model,
             &prefix,
@@ -256,17 +275,6 @@ impl TraceViewer {
                 "fork prefix is not verified: {:?}",
                 report.outcome
             )));
-        }
-        if let Some((_, parent_policy)) = self
-            .trace
-            .config
-            .parameters
-            .iter()
-            .find(|(key, _)| key == "stateless.debug.environment")
-            && parent_policy != &policy.label
-            && !policy.is_unrestricted()
-        {
-            return Err(DebugError::InvalidCommand("branch environment differs; select explicit unrestricted injection or retain the parent's policy".into()));
         }
         let state = model
             .decode_state(
@@ -523,6 +531,47 @@ fn validate_minimization_policy<M: Model>(
     trace: &Trace,
     policy: Option<&InputPolicy<M>>,
 ) -> Result<(), ModelError> {
+    match recorded_environment(trace)? {
+        None => Ok(()),
+        Some((environment, unrestricted)) => {
+            if let Some(policy) = policy {
+                if policy.label != environment || policy.is_unrestricted() != unrestricted {
+                    return Err(ModelError::new(
+                        "minimization environment differs from recorded policy",
+                    ));
+                }
+                Ok(())
+            } else if unrestricted && environment == "out-of-domain-injection" {
+                Ok(())
+            } else {
+                Err(ModelError::new(
+                    "recorded environmental policy requires minimize_with_policy",
+                ))
+            }
+        }
+    }
+}
+
+// A live capture records its origin without a simulation input policy, so it
+// constrains no branch. Minimization still requires full policy provenance.
+fn branch_parent_policy(trace: &Trace) -> Result<Option<(&str, bool)>, ModelError> {
+    let parameters = &trace.config.parameters;
+    let environment = parameters
+        .iter()
+        .any(|(key, _)| key == "stateless.debug.environment");
+    let mut origins = parameters
+        .iter()
+        .filter(|(key, _)| key == "stateless.debug.origin");
+    if !environment
+        && let (Some((_, origin)), None) = (origins.next(), origins.next())
+        && origin == "recorded-live-observation"
+    {
+        return Ok(None);
+    }
+    recorded_environment(trace)
+}
+
+fn recorded_environment(trace: &Trace) -> Result<Option<(&str, bool)>, ModelError> {
     let unique = |name: &str| -> Result<Option<&str>, ModelError> {
         let mut values = trace
             .config
@@ -538,7 +587,7 @@ fn validate_minimization_policy<M: Model>(
     let environment = unique("stateless.debug.environment")?;
     let origin = unique("stateless.debug.origin")?;
     match (environment, origin) {
-        (None, None) => Ok(()),
+        (None, None) => Ok(None),
         (Some(environment), Some(origin)) => {
             let unrestricted = match origin {
                 "out-of-domain-injection" => true,
@@ -549,20 +598,7 @@ fn validate_minimization_policy<M: Model>(
                     ));
                 }
             };
-            if let Some(policy) = policy {
-                if policy.label != environment || policy.is_unrestricted() != unrestricted {
-                    return Err(ModelError::new(
-                        "minimization environment differs from recorded policy",
-                    ));
-                }
-                Ok(())
-            } else if unrestricted && environment == "out-of-domain-injection" {
-                Ok(())
-            } else {
-                Err(ModelError::new(
-                    "recorded environmental policy requires minimize_with_policy",
-                ))
-            }
+            Ok(Some((environment, unrestricted)))
         }
         _ => Err(ModelError::new(
             "incomplete recorded environmental policy provenance",
@@ -697,4 +733,56 @@ fn minimize_impl<M: ModelCodec + Generate>(
         .checked_add(verification_steps)
         .ok_or_else(|| ModelError::new("minimization work counter overflow"))?;
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn trace(parameters: &[(&str, &str)]) -> Trace {
+        Trace {
+            metadata: ModelMetadata {
+                name: "m".into(),
+                model_version: 1,
+                properties_version: 1,
+                codec_version: 1,
+                build: "b".into(),
+            },
+            config: RunConfig {
+                strategy: "s".into(),
+                seed: None,
+                parameters: parameters
+                    .iter()
+                    .map(|(k, v)| (k.to_string(), v.to_string()))
+                    .collect(),
+            },
+            initial_state: Vec::new(),
+            initial_checks: Vec::new(),
+            steps: Vec::new(),
+            termination: Termination::Completed,
+        }
+    }
+
+    #[test]
+    fn live_capture_parents_impose_no_branch_policy() {
+        let live = trace(&[("stateless.debug.origin", "recorded-live-observation")]);
+        assert_eq!(branch_parent_policy(&live).unwrap(), None);
+        // Minimization keeps requiring complete simulation policy provenance.
+        assert!(recorded_environment(&live).is_err());
+        let declared = trace(&[
+            ("stateless.debug.environment", "allowed"),
+            ("stateless.debug.origin", "simulation"),
+        ]);
+        assert_eq!(
+            branch_parent_policy(&declared).unwrap(),
+            Some(("allowed", false))
+        );
+        let partial = trace(&[("stateless.debug.origin", "simulation")]);
+        assert!(branch_parent_policy(&partial).is_err());
+        let ambiguous = trace(&[
+            ("stateless.debug.origin", "recorded-live-observation"),
+            ("stateless.debug.origin", "recorded-live-observation"),
+        ]);
+        assert!(branch_parent_policy(&ambiguous).is_err());
+    }
 }

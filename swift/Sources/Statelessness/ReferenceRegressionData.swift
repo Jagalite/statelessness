@@ -1,0 +1,40 @@
+// Exact copy of docs/requirements/controller-witnesses.txt.
+// ReferenceControllerTests verifies the installed corpus against the source artifact.
+enum ReferenceRegressionData {
+    static let corpus = #"""
+# Version 1. Requirements-derived seeds; this is NOT a claim of runtime execution
+# or globally minimal counterexamples. Search writes actual original/minimized
+# binary traces. Each section must fail its named target in the mutant and pass
+# in the normal reducer. Preserve original cases when adding a minimized case.
+[obsolete-publication]
+submit
+submit
+complete 1 1 success
+[missing-cleanup]
+submit
+complete 1 1 success
+[double-settlement]
+submit
+complete 1 1 success
+[dropped-cancellation-ack]
+submit
+cancel 1
+cancelled 1 1
+[duplicate-completion]
+submit
+complete 1 1 success
+complete 1 1 success
+[early-release]
+submit
+cancel 1
+[skipped-retry-deadline]
+submit
+complete 1 1 retry
+ tick 1
+[ignored-mutation]
+cancel 0
+[reordered-effects]
+submit
+submit
+"""# + "\n"
+}

@@ -17,6 +17,13 @@ func must(err error) {
 	}
 }
 
+func destinationWrite(err error) {
+    if err != nil {
+        fmt.Fprintln(os.Stderr, "N11_DESTINATION_CREATE_ERROR", err)
+        os.Exit(1)
+    }
+}
+
 type counts struct{ legacy, decode, step, state, input, output, initial, stateChecks, edgeChecks int }
 
 func application(variant string) (s.Model[int, int, string], *counts) {
@@ -353,7 +360,7 @@ func main() {
 			must(e)
 		}
 		require(v != nil, "expected v2")
-		must(v.ExportRawNew(os.Args[3], el()))
+		destinationWrite(v.ExportRawNew(os.Args[3], el()))
 		receipt = map[string]any{"version": 2, "evidence": norm(v), "report": replayV(m, v, el()), "retained_config": configView(v.Trace.Config)}
 	case "diagnostic":
 		require(len(os.Args) == 4, "missing output")
@@ -364,7 +371,7 @@ func main() {
 		must(f.Close())
 		data, e := s.DiagnosticJSON(a, policy())
 		must(e)
-		must(s.ExportDiagnosticNew(a, os.Args[3], policy()))
+		destinationWrite(s.ExportDiagnosticNew(a, os.Args[3], policy()))
 		rejected(s.ExportDiagnosticNew(a, os.Args[3], policy()), "")
 		actual, e := os.ReadFile(os.Args[3])
 		must(e)

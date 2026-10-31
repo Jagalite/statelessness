@@ -1,0 +1,20 @@
+[
+  "python3",
+  "/Volumes/seed1/Projects/kyoto/kyoto.py",
+  "submit",
+  "--cwd",
+  "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1",
+  "--cpu-slots",
+  "2",
+  "--memory-mb",
+  "512",
+  "--estimate",
+  "120",
+  "--resource",
+  "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/execution",
+  "--",
+  "python3",
+  "-B",
+  "/Users/jagatranvo/.t3/worktrees/stateless/t3-25250336/validation/native-parity/n06/python/focused-r1/run.py",
+  "8f2c35e9b161d6fb6de2d74a3c59c617a3fd1c58cb80b1aacc8bcc15c5d94bbc"
+]

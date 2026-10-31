@@ -71,12 +71,23 @@ func controls(_ v:TraceV2,_ prefix:String)throws->([String:Bool],String){
  let before=count(c),legacy=try decodeArtifact(encodeAuditTrace(v.trace,limits:finiteLimits()),limits:evidenceLimits());try require(legacy.checkPhase(sequence:0,checkIndex:0) == .initialState && legacy.checkPhase(sequence:1,checkIndex:0)==nil && count(c)==before,"passive v1 phase invention")
  return (["check_once":true,"coordinated_metadata_eviction":true,"coordinated_cause_eviction":true,"coordinated_trace_eviction":true,"source_index_before_eviction":true,"phase_divergence":true,"verified_upgrade":true,"diagnostic_exact":true,"diagnostic_caps":true,"exclusive_private_files":true,"no_overwrite":true,"passive_v1_no_execution":true],String(decoding:data,as:UTF8.self))
 }
+func destinationWrite(_ operation: () throws -> Void) throws {
+  do { try operation() } catch {
+    FileHandle.standardError.write(Data("N11_DESTINATION_CREATE_ERROR \(error)\n".utf8))
+    throw error
+  }
+}
+do {
 let args=CommandLine.arguments;try require(args.count>=3,"missing operation/path");let mode=args[1],path=args[2],(model,counts)=application();var receipt:[String:Any]
 switch mode{
 case "record":let r=try attach(model);for seq in 1...3{let actual=try model.step(seq-1,1),checked=try checkTurn(model,before:seq-1,input:1,transition:actual,sequence:UInt64(seq)),before=count(counts);try r.observe(checked,causal:context(seq));try require(count(counts)==before,"handoff reexecuted")};let v=r.snapshot(),mainCounts=count(counts);try require(mainCounts == ["initial_state":0,"reducer":3,"state":4,"transition":3],"check-once counts");try v.writeRawNew(path:path+".v2",limits:evidenceLimits());try save(encodeAuditTrace(v.trace,limits:finiteLimits()),path+".v1");try save(encodeTrace(v.trace.portable().trace),path+".json");let (control,text)=try controls(v,path);receipt=["evidence":normalize(v),"report":try reportJSON(v.replay(model,limits:evidenceLimits())),"retained_config":configJSON(v.trace),"main_counts":mainCounts,"controls":control,"diagnostic_text":text]
 case "read-v1":let a=try readArtifact(path);guard case .v1 = a else{throw ModelError("expected v1")};receipt=["version":1,"initial_phase":optional(a.checkPhase(sequence:0,checkIndex:0)?.rawValue),"turn_phase":optional(a.checkPhase(sequence:1,checkIndex:0)?.rawValue),"execution_calls":counts.initial+counts.step+counts.stateChecks+counts.edgeChecks,"retained_config":configJSON(a.trace)]
-case "replay","upgrade":try require(args.count==4,"missing output");let a=try readArtifact(path),v:TraceV2;if mode=="replay"{guard case let .v2(evidence)=a else{throw ModelError("expected v2")};v=evidence}else{v=try TraceV2.verifyUpgrade(model,trace:a.trace,provenance:provenance(),checkpointAfter:0,limits:evidenceLimits())};try v.writeRawNew(path:args[3],limits:evidenceLimits());receipt=["version":2,"evidence":normalize(v),"report":try reportJSON(v.replay(model,limits:evidenceLimits())),"retained_config":configJSON(v.trace)]
-case "diagnostic":try require(args.count==4,"missing output");let a=try readArtifact(path),data=try diagnosticJSON(a,policy:policy());try exportDiagnosticNew(a,path:args[3],policy:policy());try rejected{try exportDiagnosticNew(a,path:args[3],policy:policy())};try require(load(args[3])==data,"diagnostic overwritten");receipt=["diagnostic_text":String(decoding:data,as:UTF8.self),"execution_calls":counts.initial+counts.step+counts.stateChecks+counts.edgeChecks,"no_overwrite":true]
+case "replay","upgrade":try require(args.count==4,"missing output");let a=try readArtifact(path),v:TraceV2;if mode=="replay"{guard case let .v2(evidence)=a else{throw ModelError("expected v2")};v=evidence}else{v=try TraceV2.verifyUpgrade(model,trace:a.trace,provenance:provenance(),checkpointAfter:0,limits:evidenceLimits())};try destinationWrite{try v.writeRawNew(path:args[3],limits:evidenceLimits())};receipt=["version":2,"evidence":normalize(v),"report":try reportJSON(v.replay(model,limits:evidenceLimits())),"retained_config":configJSON(v.trace)]
+case "diagnostic":try require(args.count==4,"missing output");let a=try readArtifact(path),data=try diagnosticJSON(a,policy:policy());try destinationWrite{try exportDiagnosticNew(a,path:args[3],policy:policy())};try rejected{try exportDiagnosticNew(a,path:args[3],policy:policy())};try require(load(args[3])==data,"diagnostic overwritten");receipt=["diagnostic_text":String(decoding:data,as:UTF8.self),"execution_calls":counts.initial+counts.step+counts.stateChecks+counts.edgeChecks,"no_overwrite":true]
 default:throw ModelError("unknown operation")}
 receipt["producer"]="swift";receipt["mode"]=mode;receipt["legacy_encoder_calls"]=counts.legacy;receipt["codec_into_calls"]=counts.encodes
 print(String(decoding:try JSONSerialization.data(withJSONObject:receipt,options:[.sortedKeys]),as:UTF8.self))
+} catch {
+  FileHandle.standardError.write(Data("\(error)\n".utf8))
+  exit(1)
+}

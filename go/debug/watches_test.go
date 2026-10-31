@@ -25,6 +25,7 @@ func TestWatchNoInterestRevisionsAndFaultIsolation(t *testing.T) {
 	if e != nil || ack.CaptureRevision != 1 {
 		t.Fatal(ack, e)
 	}
+	c.Snapshot.Sequence = 2
 	if e = r.Observe(c, value); e != nil || calls != 1 {
 		t.Fatal(e, calls)
 	}
@@ -35,7 +36,7 @@ func TestWatchNoInterestRevisionsAndFaultIsolation(t *testing.T) {
 	if e != nil || len(events) != 2 || events[1].Kind != "baseline_initial" {
 		t.Fatal(events, e)
 	}
-	c.Snapshot.Sequence = 2
+	c.Snapshot.Sequence = 3
 	if e = r.Observe(c, value); e != nil {
 		t.Fatal(e)
 	}
@@ -70,7 +71,28 @@ func TestWatchLossAndAuthorization(t *testing.T) {
 		t.Fatal(e)
 	}
 	events, e := r.Drain()
-	if e != nil || len(events) != 2 || events[0].Kind != "events_dropped" || events[0].Dropped != 1 {
+	if e != nil || len(events) != 1 || events[0].Kind != "watch_removed" || r.Health().DroppedTotal != 1 {
+		t.Fatal(events, e)
+	}
+	// An uninterested observation leaves the loss pending.
+	if err := r.Observe(d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: 1}}, nil); err != nil {
+		t.Fatal(err)
+	}
+	events, e = r.Drain()
+	if e != nil || len(events) != 0 {
+		t.Fatal(events, e)
+	}
+	config := d.ChangedWatch([]d.Segment{d.FieldPath("name")})
+	config.Selector.Model = "selected"
+	if _, err := r.Add(config); err != nil {
+		t.Fatal(err)
+	}
+	r.Drain()
+	if err := r.Observe(d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: 2, Revision: 7}}, nil); err != nil {
+		t.Fatal(err)
+	}
+	events, e = r.Drain()
+	if e != nil || len(events) != 1 || events[0].Kind != "events_dropped" || events[0].Dropped != 1 || events[0].Snapshot.Revision != 7 {
 		t.Fatal(events, e)
 	}
 }
@@ -221,21 +243,24 @@ func TestFailureCaptureKeepsPolicyGates(t *testing.T) {
 			if err = r.Observe(context, value); err != nil {
 				t.Fatal(err)
 			}
-			r.Drain()
+			firstEvents, _ := r.Drain()
+			if policy == "ttl" && (len(firstEvents) < 1 || firstEvents[len(firstEvents)-1].Kind != "watch_expired" || firstEvents[len(firstEvents)-1].Node != nil) {
+				t.Fatal("TTL did not expire at final observation", firstEvents)
+			}
 			before := calls
 			context.Snapshot.Sequence = 1
 			if err = r.Observe(context, value); err != nil {
 				t.Fatal(err)
 			}
-			if calls != before {
-				t.Fatalf("policy %s invoked callback", policy)
+			want := before
+			if policy == "unknown" || policy == "healthy" {
+				want++ // selected sampled boundaries still check schema
+			}
+			if calls != want {
+				t.Fatalf("policy %s: callback count %d, want %d", policy, calls, want)
 			}
 			events, _ := r.Drain()
-			if policy == "ttl" {
-				if len(events) != 1 || events[0].Kind != "watch_expired" {
-					t.Fatal(events)
-				}
-			} else if len(events) != 0 {
+			if len(events) != 0 {
 				t.Fatal(events)
 			}
 		})
@@ -268,8 +293,8 @@ func TestFailureCaptureReusesValueAndHonorsRetentionBudget(t *testing.T) {
 		t.Fatal(calls)
 	}
 	events, _ := r.Drain()
-	if len(events) != 2 || events[0].Kind != "events_dropped" || events[0].Dropped != 2 || !events[1].PropertyFailed {
-		t.Fatal(events)
+	if len(events) != 1 || !events[0].PropertyFailed || r.Health().DroppedTotal != 4 {
+		t.Fatal(events, r.Health())
 	}
 }
 
@@ -289,6 +314,28 @@ func (v watchGapProjection) Inspect(path []d.Segment, c *d.InspectContext) (d.In
 		return c.Unavailable(path)
 	}
 	return c.Scalar(path, d.Scalar{Kind: "u128", Decimal: v.value})
+}
+
+func TestFailureForcedEqualsWatchRetainsInspectionError(t *testing.T) {
+	r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := d.ChangedWatch(nil)
+	config.Trigger, config.Equals = "equals", &d.Scalar{Kind: "u128", Decimal: "7"}
+	config.EvaluationInterval, config.DeliveryInterval = 5, 5
+	if _, err = r.Add(config); err != nil {
+		t.Fatal(err)
+	}
+	r.Drain()
+	err = r.Observe(d.WatchContext{Snapshot: d.SnapshotID{Session: 1}, PropertyStatusKnown: true, PropertyFailed: true, FailingProperties: []string{"p"}}, func() d.InspectAdapter { return watchGapProjection{fault: "error"} })
+	if err != nil {
+		t.Fatal(err)
+	}
+	events, err := r.Drain()
+	if err != nil || len(events) != 1 || events[0].Kind != "inspection_error" || !events[0].PropertyFailed || events[0].Node != nil {
+		t.Fatalf("events=%#v err=%v", events, err)
+	}
 }
 func TestWatchProjectionGapInvalidatesBaseline(t *testing.T) {
 	for _, fault := range []string{"error", "redacted", "unavailable"} {
@@ -328,5 +375,132 @@ func TestWatchProjectionGapInvalidatesBaseline(t *testing.T) {
 				}
 			})
 		}
+	}
+}
+
+func TestWatchExpiresOnSampledFinalObservation(t *testing.T) {
+	r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+	if err != nil {
+		t.Fatal(err)
+	}
+	zero := uint64(0)
+	invalid := d.ChangedWatch(nil)
+	invalid.TTLObservations = &zero
+	if _, err = r.Add(invalid); err == nil {
+		t.Fatal("zero TTL accepted")
+	}
+	ttl := uint64(2)
+	config := d.ChangedWatch(nil)
+	config.TTLObservations = &ttl
+	config.EvaluationInterval = 2
+	if _, err = r.Add(config); err != nil {
+		t.Fatal(err)
+	}
+	r.Drain()
+	calls := 0
+	value := func() d.InspectAdapter { calls++; return numericProjection("1") }
+	for seq := uint64(1); seq <= 2; seq++ {
+		if err = r.Observe(d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: seq}}, value); err != nil {
+			t.Fatal(err)
+		}
+		events, _ := r.Drain()
+		if seq == 2 && (len(events) != 1 || events[0].Kind != "watch_expired") {
+			t.Fatal("final sampled boundary", events)
+		}
+	}
+	if calls != 2 {
+		t.Fatal("schema was not checked at sampled boundary", calls)
+	}
+	if err = r.Observe(d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: 3}}, value); err != nil {
+		t.Fatal(err)
+	}
+	if events, _ := r.Drain(); len(events) != 0 || calls != 2 {
+		t.Fatal("expired watch remained active", events, calls)
+	}
+}
+
+func TestSampledSourceResetFollowedByIncompleteProjection(t *testing.T) {
+	r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := d.ChangedWatch(nil)
+	config.EvaluationInterval = 2
+	if _, err = r.Add(config); err != nil {
+		t.Fatal(err)
+	}
+	_, _ = r.Drain()
+	for i, step := range []struct{ model, fault string }{
+		{"a", ""}, {"b", ""}, {"a", "unavailable"}, {"a", ""}, {"a", ""},
+	} {
+		ctx := d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: uint64(i + 1)}, Model: step.model}
+		if err = r.Observe(ctx, func() d.InspectAdapter { return watchGapProjection{fault: step.fault, value: "1"} }); err != nil {
+			t.Fatal(err)
+		}
+	}
+	events, err := r.Drain()
+	if err != nil || len(events) != 3 || events[1].Kind != "unknown" || events[2].Kind != "baseline_observation_gap" {
+		t.Fatalf("events=%#v err=%v", events, err)
+	}
+}
+
+func TestWatchTTLUsesRetainedIncompleteOrErrorObservation(t *testing.T) {
+	for _, fault := range []string{"error", "unavailable"} {
+		t.Run(fault, func(t *testing.T) {
+			r, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+			if err != nil {
+				t.Fatal(err)
+			}
+			config := d.ChangedWatch(nil)
+			config.EvaluationInterval = 3
+			ttl := uint64(1)
+			config.BaselineTTLSequences = &ttl
+			if _, err = r.Add(config); err != nil {
+				t.Fatal(err)
+			}
+			_, _ = r.Drain()
+			for sequence := uint64(1); sequence <= 4; sequence++ {
+				projection := watchGapProjection{value: "1"}
+				if sequence == 1 {
+					projection.fault = fault
+				}
+				ctx := d.WatchContext{Snapshot: d.SnapshotID{Session: 1, Sequence: sequence}}
+				if err := r.Observe(ctx, func() d.InspectAdapter { return projection }); err != nil {
+					t.Fatal(err)
+				}
+			}
+			events, err := r.Drain()
+			if err != nil || len(events) != 2 || events[1].Kind != "baseline_expired" {
+				t.Fatalf("events=%#v err=%v", events, err)
+			}
+		})
+	}
+}
+
+func TestWatchAuthorizationUsesTypedSegmentIdentity(t *testing.T) {
+	key := d.Segment{Kind: "map_key", KeyType: "u8", Decimal: "label"}
+	auth := d.AllowWatchPaths([][]d.Segment{{key}})
+	registry, err := d.NewWatchRegistry(d.DefaultWatchLimits(), auth)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Fields outside the active key variant are not part of Rust MapKey identity.
+	decorated := key
+	decorated.Name, decorated.Index = "ignored", 17
+	if _, err := registry.Add(d.ChangedWatch([]d.Segment{decorated})); err != nil {
+		t.Fatalf("same typed key rejected: %v", err)
+	}
+	different := key
+	different.Decimal = "other"
+	if _, err := registry.Add(d.ChangedWatch([]d.Segment{different})); err == nil {
+		t.Fatal("different key authorized")
+	}
+	malformed := d.Segment{Kind: "map_key", KeyType: "bool", Decimal: "not-bool"}
+	all, err := d.NewWatchRegistry(d.DefaultWatchLimits(), d.AllowAllWatches())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := all.Add(d.ChangedWatch([]d.Segment{malformed})); err == nil {
+		t.Fatal("malformed key accepted")
 	}
 }

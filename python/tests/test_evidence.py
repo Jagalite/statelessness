@@ -264,6 +264,17 @@ class EvidenceIntegrityTests(unittest.TestCase):
         with self.assertRaisesRegex(ModelError, 'interrupted reader'): Artifact.read(reader)
         self.assertEqual(reader.calls, 1)
 
+    def test_reader_cannot_return_more_than_requested(self):
+        class OverRead:
+            def __init__(self): self.calls = 0
+            def read(self, count):
+                self.calls += 1
+                return b'x' * (count + 1)
+        reader = OverRead()
+        with self.assertRaisesRegex(ModelError, 'more bytes than requested'):
+            Artifact.read(reader)
+        self.assertEqual(reader.calls, 1)
+
     def test_allowlist_uses_actual_string_content_and_details_never_escape(self):
         class Spoof(str):
             def __eq__(self, other): return True
@@ -286,6 +297,17 @@ class ClosedPolicyTests(unittest.TestCase):
         self.assertEqual(touched, [])
 
 class EvidencePrecedenceTests(unittest.TestCase):
+    def test_validation_does_not_copy_step_prefix(self):
+        class NoSlice(tuple):
+            def __getitem__(self, key):
+                if isinstance(key, slice):
+                    raise AssertionError('validation copied the step prefix')
+                return super().__getitem__(key)
+
+        value = sample()
+        object.__setattr__(value.trace, 'steps', NoSlice(value.trace.steps))
+        value.validate()
+
     def test_semantic_failure_precedes_trace_quota(self):
         value = sample()
         failed = replace(value.trace.steps[0], checks=(Check('s', 'failed', 'bad'), Check('t')))

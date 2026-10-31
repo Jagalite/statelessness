@@ -3393,63 +3393,49 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/debugger_session.py class DebugSession"
           ],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/debug/session.go type Session["
           ],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/debug_session.ts class DebugSession"
           ],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/StatelessDebug/Session.swift class DebugSession"
           ],
           "receipt_ids": []
         }
       },
-      "remaining": "Replay report is not a debugger session/viewer/fork. Native optional debugger packages and verified branch/minimization APIs do not exist."
+      "remaining": "Independent session/viewer/fork/minimizer implementations exist. Full semantic API review and qualification remain open; Go/TypeScript candidate and Go/TypeScript/Swift export protocol bindings are missing.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_session.py": "d452fcfc6966221a8d9e6e4a68c005ee143b8164e84e629e176628890fa4d945",
+          "go/debug/session.go": "6e351b579241911d86fba20c31967c2cf711d1c2b53e81b00175ce793aeac178",
+          "typescript/src/debug_session.ts": "22195f0a80b0d4198acf07d4e583a3699aebfebec0202f32b9aa4570475c8a9b",
+          "swift/Sources/StatelessDebug/Session.swift": "c679b6f99c417d4dda4227255b4a593916b2d566b33ecc44405287f5879c1faf"
+        }
+      }
     },
     {
       "id": "debug-inspection",
@@ -3469,63 +3455,49 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/debugger_inspect.py class InspectNode"
           ],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/debug/inspect.go type InspectNode"
           ],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/debug_inspect.ts InspectNode"
           ],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/StatelessDebug/Inspection.swift InspectNode"
           ],
           "receipt_ids": []
         }
       },
-      "remaining": "Native printing/debug representations do not provide schema/path/revision/authority/boundedness equivalents. Must be optional packages with redaction separate from exact evidence."
+      "remaining": "Independent structural inspection, watches and scoped diagnostics exist. Concrete watch/probe protocol service adapters remain missing in all four languages.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_inspect.py": "80541243888522f3c6f9e96b2a80fce5a5c026f6b810f05f59ef7b7f64e32dd1",
+          "go/debug/inspect.go": "4e03d5790f8c11c615976fda44f39355928ce1420a41c731a7ba5869c0789319",
+          "typescript/src/debug_inspect.ts": "73bc0ef4791ccc62908c31213dff087232198048ed69e1ce3648928abea58449",
+          "swift/Sources/StatelessDebug/Inspection.swift": "4fc0a23b095893dff708e3e61bd72216250e59cfaefb880c6c6a24614018e4de"
+        }
+      }
     },
     {
       "id": "debug-live-protocol",
@@ -3544,63 +3516,49 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/debugger_protocol.py class ProtocolSession"
           ],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/debug/protocol.go type ProtocolSession"
           ],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/debug_protocol.ts class ProtocolSession"
           ],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/StatelessDebug/Protocol.swift class ProtocolAdapter"
           ],
           "receipt_ids": []
         }
       },
-      "remaining": "Corpus newline-JSON protocol is a conformance runner, not debugger protocol compatibility or cooperative pause control."
+      "remaining": "Independent framing, authority/revision checks and live permit controllers exist. Generic host callbacks do not close missing watch/probe, candidate/export and telemetry service integrations.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_protocol.py": "3da7f220d0a515af18d2a414cb8cbdc33bce4d099cfafee3d724d7f84cbb62f5",
+          "go/debug/protocol.go": "979386376cf7330bb029f05fc1a24869254a2e0851753a9a3f62a484658cc6af",
+          "typescript/src/debug_protocol.ts": "39259b2839297bee6497b847373061af5af06b0729da910d429fa59c38308dbc",
+          "swift/Sources/StatelessDebug/Protocol.swift": "115efedc37cb34327e625bf07e4257d8dbec20d5e91648191114816b1a9668dd"
+        }
+      }
     },
     {
       "id": "debug-telemetry",
@@ -3621,63 +3579,49 @@
       "required_outcome": "behavioral_api",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/debugger_effects.py class EffectObserver"
           ],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/debug/effects.go type EffectObserver"
           ],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/debug_effects.ts class EffectObserver"
           ],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/StatelessDebug/Effects.swift class EffectObserver"
           ],
           "receipt_ids": []
         }
       },
-      "remaining": "No independent bounded effect telemetry/metric catalog/report implementation. Host-specific async observation may differ, but loss/unknown time/provenance must remain visible."
+      "remaining": "Independent effect lifecycle, timing, metrics and passive dashboards exist. Concrete Go/Swift telemetry protocol service adapters remain missing; current-source/platform/resource qualification is pending.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/debugger_effects.py": "00bc25ea321b94cd46ec6b6c603aee756d6bffed9989cea8b6593f7a03d73496",
+          "go/debug/effects.go": "12667a330265ae965605902971b6bb20952f9c3fd68c68b7a55637b149df4617",
+          "typescript/src/debug_effects.ts": "8dd3ca7e3646960272e14f0ba95e1635998cd10de9b556375c9274858e925788",
+          "swift/Sources/StatelessDebug/Effects.swift": "e8f08deca319b449ba7eef010ef2213320645dfb055fd87d5eeea10febf84642"
+        }
+      }
     },
     {
       "id": "modeling-helpers",
@@ -3773,63 +3717,49 @@
       "required_outcome": "idiomatic_equivalent_outcomes_not_rust_syntax",
       "languages": {
         "python": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "python/src/statelessness/__init__.py:2",
-            "python/src/statelessness/core.py:95",
-            "python/src/statelessness/oracle.py:62",
-            "python/src/statelessness/trace_json.py:114",
-            "python/src/statelessness/search.py:28 GenerateModel"
+          "native_api": [
+            "python/src/statelessness/codec_declarations.py class "
           ],
           "receipt_ids": []
         },
         "go": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "go/model.go:114",
-            "go/explore.go:58",
-            "go/execution.go:60",
-            "go/trace_json.go:120",
-            "go/oracle.go:43",
-            "go/paired.go:19",
-            "go/generate.go:7 GenerateModel",
-            "go/fuzz.go:56 Fuzz"
+          "native_api": [
+            "go/value_derive.go type RecordFields"
           ],
           "receipt_ids": []
         },
         "typescript": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "typescript/src/index.ts:1",
-            "typescript/src/core.ts:58",
-            "typescript/src/oracle.ts:31",
-            "typescript/package.json:8",
-            "typescript/src/search.ts:5 GenerateModel"
+          "native_api": [
+            "typescript/src/value_codec.ts record"
           ],
           "receipt_ids": []
         },
         "swift": {
-          "implementation": "missing",
+          "implementation": "partial",
           "qualification": "qualification-pending",
-          "native_api": [],
-          "absence_review_scope": [
-            "Package.swift:1",
-            "swift/Sources/Statelessness/Model.swift:105",
-            "swift/Sources/Statelessness/Explore.swift:26",
-            "swift/Sources/Statelessness/Oracle.swift:41",
-            "swift/Sources/Statelessness/TraceJSON.swift:69",
-            "swift/Sources/Statelessness/Generate.swift:3 Generate"
+          "native_api": [
+            "swift/Sources/Statelessness/DeriveCodec.swift enum TraceRecords"
           ],
           "receipt_ids": []
         }
       },
-      "remaining": "Existing typed Model builders/protocols let applications handwrite adapters; no equivalent validated model/domain/codec/inspection generation or expansion provenance. Rust procedural syntax/compiler diagnostics are Rust-specific mechanisms, while generated behavior, boundedness and invalid-definition detection remain required outcomes."
+      "remaining": "Ordered record/enum codec declarations and model codec binders exist; full model/domain/inspection helper correspondence remains owned by N13/N14. See derive-model-implementation-review.md; no broad qualification promotion.",
+      "reconciliation": {
+        "baseline": "4e84cf1a8bf15b2e6b0698d6801a92dc94a45d00",
+        "kind": "source-only; independent static review; runtime evidence separate",
+        "sources": {
+          "python/src/statelessness/codec_declarations.py": "7e5c0bc9fb837121b88e6ec9728b6c787ee58c37cc22245bda18d1442e98034f",
+          "go/value_derive.go": "6d69ab76a6abecddabf4be455ec8e8e279e7ae09379fa30a82eaaa158bb531c3",
+          "typescript/src/value_codec.ts": "f42623926009fef488763f810e9ec9a877a4d20856316e527ebe81816c155e5d",
+          "swift/Sources/Statelessness/DeriveCodec.swift": "8acc14a3b5597c813f3f197775af04cb2c8a58ede2574e0cf3411cd54a7eb841"
+        }
+      }
     },
     {
       "id": "native-conformance-tooling",

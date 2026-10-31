@@ -288,3 +288,27 @@ func TestExporterFaultAndPendingAgeArePassive(t *testing.T) {
 		t.Fatal("export mutated lifecycle")
 	}
 }
+
+func TestRequestRejectsInvalidIdentityBeforeClock(t *testing.T) {
+	o, clock := effectObserver(t)
+	clock.fail = true
+	before := clock.reads
+	for _, origin := range []d.RequestOrigin{
+		{Run: 2, Epoch: 1, TransitionSequence: 1},
+		{Run: 1, Epoch: 2, TransitionSequence: 1},
+		{Run: 1, Epoch: 1, TransitionSequence: 0},
+	} {
+		if _, err := o.Requested(origin, d.Labels{}); err == nil {
+			t.Fatal("invalid origin accepted", origin)
+		}
+	}
+	if clock.reads != before || o.TelemetryHealth().ClockFailures != 0 {
+		t.Fatal("rejected request sampled clock", clock.reads, o.TelemetryHealth())
+	}
+	if _, err := o.Requested(d.RequestOrigin{Run: 1, Epoch: 1, TransitionSequence: 1}, d.Labels{}); err != nil {
+		t.Fatal(err)
+	}
+	if clock.reads != before+1 || o.TelemetryHealth().ClockFailures != 1 {
+		t.Fatal("valid request did not sample clock")
+	}
+}

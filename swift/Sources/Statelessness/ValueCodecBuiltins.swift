@@ -83,7 +83,7 @@ public enum ValueCodecs {
         let decode: (UInt8,ValueDecoder)throws->[T] = { width,reader in
             let count = try readLength(width, reader: reader)
             try reader.collection(count, elementSize: element.elementSize())
-            guard let n = Int(exactly: count) else { throw ModelError("decode allocation failed") }
+            guard let n = Int(exactly: count),n < Int.max / max(1,MemoryLayout<T>.stride) else { throw ModelError("decode allocation failed") }
             var values: [T] = []; values.reserveCapacity(n)
             for _ in 0..<n { values.append(try reader.value(element)) }; return values
         }
@@ -102,7 +102,7 @@ public enum ValueCodecs {
             for value in values { try element.encodeRaw(value, into: sink) }
         }, decode: { reader in
             try reader.collection(count, elementSize: element.elementSize())
-            guard let n = Int(exactly: count) else { throw ModelError("decode allocation failed") }
+            guard let n = Int(exactly: count),n < Int.max / max(1,MemoryLayout<T>.stride) else { throw ModelError("decode allocation failed") }
             var values: [T] = []; values.reserveCapacity(n)
             for _ in 0..<n { values.append(try reader.value(element)) }; return values
         }).restrictingDirections(encoding: element.supportsEncoding, decoding: element.supportsDecoding)

@@ -126,6 +126,16 @@ shrinkers, no-progress candidates, interrupted runs, and paired/oracle failures.
 State the achieved reduction criterion; bounded shrinking is not a claim of global
 minimality. Specify candidate order where exact cross-engine witnesses are required.
 
+The shrink attempt limit also bounds consecutive already-seen simplifier hints
+from one `simpler_inputs` iterator: after that many consecutive skipped hints,
+one more ends the run with `attempt_limit`. The count restarts for each new
+iterator and after every hint that is actually replayed, so finite hint streams
+behave exactly as at the pinned baseline. Skipped hints do not count as replay
+attempts or appear in the attempt history, so this termination can occur below
+the replay-attempt limit. An iterator that ends exactly at the skipped-hint limit
+completes normally.
+Cancellation remains cooperative while a callback or iterator is running.
+
 Source: [shrinking implementation](../src/explore.rs).
 
 ### N05 Guided exploration
@@ -205,6 +215,13 @@ production-shaped controller and named fault controls; detect weakened propertie
 using an independently reviewed requirement catalog. Zero failures alone cannot
 satisfy an assurance claim.
 
+Native assurance JSON uses Rust's field order, string escaping, Debug spellings
+for outcomes and terminations (`GraphExhausted`, `Panicked`, `MergedJobs`,
+`Campaign::<termination>`), assessment reason wording, and only Rust-defined
+`budgets` keys (for example `max_duration_ns` in nanoseconds and snake-case
+`guidance.*`). Host-only configuration and retention accounting stay outside
+the Rust-shaped fields, and each language README documents what it keeps.
+
 Sources: [assurance](../src/assurance.rs), [reference model](../src/reference.rs),
 [assurance guide](ASSURANCE.md).
 
@@ -266,7 +283,10 @@ fixture runners, qualification commands and equivalent runnable teaching example
 
 Close when every exported Rust baseline symbol is mapped to a work item, a native
 equivalent, or a documented Rust-specific mechanism with an equivalent outcome.
-No silently excluded module may hide behind a broad feature-parity claim. General
+No silently excluded module may hide behind a broad feature-parity claim.
+The Rust `stateless` binary (`src/main.rs`) is such a documented Rust-specific
+mechanism: native ports provide its outcomes through package APIs, corpus tools
+and runnable examples, and do not replicate its command-line flags. General
 liveness, general partial-order reduction, a TUI and LLDB/GDB integration are not
 requirements of this baseline because Rust does not establish them either.
 

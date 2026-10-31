@@ -7,6 +7,7 @@ use stateless::{
     execution::{self, CheckPolicy},
     model::*,
     monitor::{Recorder, RecorderOptions},
+    observation::{Event, LogLevel, NoPayloads, ObservationOptions, Observer, SnapshotPolicy, TextObserver},
     trace::{ReadLimits, RunConfig, Termination, Trace, TraceStep},
 };
 use std::{
@@ -781,10 +782,12 @@ fn parse_portable(v: &Value) -> Result<Trace> {
             checks: parse_checks(&s["checks"])?,
         });
     }
-    require(
-        v["termination"] == "property_failed" && v["error"] == "",
-        "application requires property failure without terminal error",
-    )?;
+    require(v["error"] == "", "application requires no terminal error")?;
+    let termination = match v["termination"].as_str() {
+        Some("property_failed") => Termination::PropertyFailed,
+        Some("interrupted") => Termination::Interrupted,
+        _ => return Err("application requires property failure or interrupted capture".into()),
+    };
     Ok(Trace {
         metadata: ModelMetadata {
             name: text(m, "name")?.into(),
@@ -798,7 +801,7 @@ fn parse_portable(v: &Value) -> Result<Trace> {
         initial_state: unhex(&v["initial_state"])?,
         initial_checks: parse_checks(&v["initial_checks"])?,
         steps,
-        termination: Termination::PropertyFailed,
+        termination,
     })
 }
 fn report_value(r: &ReplayReport) -> Value {
@@ -986,6 +989,24 @@ fn sessions(t: &Trace) -> Result<Value> {
     Ok(
         json!({"rich":consumer_session(&rich,t,false)?,"bounded":consumer_session(&bounded,t,true)?,"retained_config":consumer_config(&t.config),"legacy_encoder_calls":rich.legacy.get()+bounded.legacy.get(),"codec_into_calls":rich.into.get()+bounded.into.get()}),
     )
+}
+// Keep the established checked-consumer replies stable. Only the suffix modes
+// expose each independent replay's callback counts.
+fn suffix_sessions(t: &Trace, retain_config: bool) -> Result<Value> {
+    let rich = Threshold::default();
+    let bounded = Threshold::default();
+    let rich_session = consumer_session(&rich, t, false)?;
+    let bounded_session = consumer_session(&bounded, t, true)?;
+    let mut receipt = json!({
+        "rich":rich_session,"bounded":bounded_session,
+        "rich_counts":rich.counts(),"bounded_counts":bounded.counts(),
+        "legacy_encoder_calls":rich.legacy.get()+bounded.legacy.get(),
+        "codec_into_calls":rich.into.get()+bounded.into.get(),
+    });
+    if retain_config {
+        receipt["retained_config"] = consumer_config(&t.config);
+    }
+    Ok(receipt)
 }
 fn checked_consumer_controls() -> Result<(Value, Value)> {
     let m = Threshold::default();
@@ -1184,6 +1205,137 @@ pub fn record(prefix: &str) -> Result<Value> {
     receipt["mode"] = json!("record");
     Ok(receipt)
 }
+/// Export an evicted suffix for replay by a separate invocation. Diagnostic
+/// events carry only views of already checked execution, never token authority.
+pub fn record_suffix(prefix: &str) -> Result<Value> {
+    record_suffix_case(prefix, false)
+}
+pub fn record_failing_suffix(prefix: &str) -> Result<Value> {
+    record_suffix_case(prefix, true)
+}
+fn record_suffix_case(prefix: &str, failing: bool) -> Result<Value> {
+    let m = Threshold::default();
+    let checkpoint = 0;
+    let initial = execution::check_initial(&m, &checkpoint).map_err(|e| e.to_string())?;
+    let prior = m.counts();
+    let mut recorder = Recorder::with_checked_initial_at(
+        &initial, 40, manual(), consumer_options(1),
+    ).map_err(|e| e.to_string())?;
+    require(m.counts() == prior, "suffix attach rechecked")?;
+    let observer_prefix = "suffix-observer\n";
+    let mut observer = TextObserver::new(
+        observer_prefix.as_bytes().to_vec(),
+        "suffix",
+        ObservationOptions {
+            level: LogLevel::Trace,
+            snapshots: SnapshotPolicy::EveryTransition,
+            max_record_bytes: 1024,
+        },
+        NoPayloads,
+    );
+    let encodes = m.into.get();
+    observer.observe(&m, Event::Checkpoint {
+        sequence: 40, state: initial.state(), checks: initial.checks(),
+    }).map_err(|e| e.to_string())?;
+    require(m.counts() == prior && m.into.get() == encodes, "suffix checkpoint logging executed callbacks")?;
+    let mut state = checkpoint;
+    let mut checked_value = Value::Null;
+    let mut freeze_observer_text = None;
+    let last_sequence = if failing { 43 } else { 42 };
+    for sequence in 41..=last_sequence {
+        let input = 1;
+        let turn = m.step(&state, &input).map_err(|e| e.to_string())?;
+        let checked = execution::check_turn(
+            &m, &state, &input, &turn, sequence, CheckPolicy::default(),
+        ).map_err(|e| e.to_string())?;
+        if sequence == 41 {
+            checked_value = json!({"initial_checks":initial.state_check_count(),"state_check_count":checked.state_check_count(),"full_checking":checked.full_checking(),"sequence":checked.sequence().to_string()});
+        }
+        let prior = m.counts();
+        let encodes = m.into.get();
+        let view = checked.observation();
+        observer.observe(&m, Event::Transition {
+            sequence: NonZeroU64::new(view.sequence).ok_or("zero suffix sequence")?,
+            before: view.before,
+            input: view.input,
+            transition: view.transition,
+            checks: view.checks,
+        }).map_err(|e| e.to_string())?;
+        require(m.counts() == prior && m.into.get() == encodes, "suffix turn logging executed callbacks")?;
+        recorder.observe_checked(&checked).map_err(|e| e.to_string())?;
+        require(m.counts() == prior, "suffix checked handoff rechecked")?;
+        if failing && sequence == 43 {
+            require(recorder.is_frozen(), "failure did not freeze suffix")?;
+            let frozen = recorder.snapshot();
+            let mut before_wire = vec![];
+            frozen.write_with_limits(&mut before_wire, &consumer_limits()).map_err(|e| e.to_string())?;
+            let before_json = serde_json::to_vec(&portable_json(&frozen)).map_err(|e| e.to_string())?;
+            let prior = m.counts();
+            let encodes = (m.legacy.get(), m.into.get());
+            // This supplied diagnostic is deliberately unrelated to the frozen
+            // checkpoint. It has no checked-token authority or continuity claim.
+            let mut diagnostic = TextObserver::new(
+                Vec::new(), "suffix", ObservationOptions {
+                    level: LogLevel::Trace,
+                    snapshots: SnapshotPolicy::EveryTransition,
+                    max_record_bytes: 1024,
+                }, NoPayloads,
+            );
+            diagnostic.observe(&m, Event::Checkpoint {
+                sequence: 44, state: &999, checks: &[],
+            }).map_err(|e| e.to_string())?;
+            diagnostic.flush().map_err(|e| e.to_string())?;
+            require(recorder.observe_checked(&checked).is_err(), "frozen handoff accepted")?;
+            let after = recorder.snapshot();
+            let mut after_wire = vec![];
+            after.write_with_limits(&mut after_wire, &consumer_limits()).map_err(|e| e.to_string())?;
+            let after_json = serde_json::to_vec(&portable_json(&after)).map_err(|e| e.to_string())?;
+            require(after == frozen && before_wire == after_wire && before_json == after_json,
+                "diagnostics or rejected handoff changed frozen suffix")?;
+            require(m.counts() == prior && (m.legacy.get(), m.into.get()) == encodes,
+                "frozen diagnostic or handoff executed callbacks")?;
+            freeze_observer_text = Some(String::from_utf8(diagnostic.into_inner()).map_err(|e| e.to_string())?);
+        }
+        state = turn.state;
+    }
+    observer.flush().map_err(|e| e.to_string())?;
+    let counts = m.counts();
+    let turns = if failing { 3 } else { 2 };
+    require(counts == json!({"initial_state":0,"reducer":turns,"state":turns+1,"transition":turns}), "suffix check counts")?;
+    require(recorder.observed_steps() == turns && recorder.evicted_steps() == turns-1, "suffix eviction counts")?;
+    let trace = recorder.into_trace();
+    let expected_state = if failing { b"2" } else { b"1" };
+    let expected_post = if failing { b"3" } else { b"2" };
+    let expected_bound = if failing { Check::failed("threshold.bound", "at least three") }
+                         else { Check::passed("threshold.bound") };
+    let expected_termination = if failing { Termination::PropertyFailed } else { Termination::Interrupted };
+    require(trace.initial_state == expected_state
+        && trace.initial_checks == [Check::passed("threshold.bound"), Check::passed("state.appended")]
+        && trace.steps.len() == 1 && trace.steps[0].post_state == expected_post
+        && trace.steps[0].checks == [expected_bound, Check::passed("state.appended"), Check::passed("edge.checked")]
+        && trace.termination == expected_termination,
+        "suffix retained checkpoint or first failure")?;
+    let mut wire = vec![];
+    trace.write_with_limits(&mut wire, &consumer_limits()).map_err(|e| e.to_string())?;
+    write_new(&format!("{prefix}.bin"), &wire)?;
+    write_new(&format!("{prefix}.json"), &serde_json::to_vec(&portable_json(&trace)).map_err(|e| e.to_string())?)?;
+    let mut receipt = suffix_sessions(&trace, true)?;
+    receipt["checked"] = checked_value;
+    receipt["main_counts"] = counts;
+    receipt["observer_prefix"] = json!(observer_prefix);
+    receipt["observer_text"] = json!(String::from_utf8(observer.into_inner()).map_err(|e| e.to_string())?);
+    if let Some(text) = freeze_observer_text {
+        receipt["freeze_observer_text"] = json!(text);
+        receipt["freeze_verified"] = json!(true);
+    }
+    receipt["steps"] = json!(trace.steps.len());
+    receipt["termination"] = json!(termination_name(&trace.termination));
+    receipt["legacy_encoder_calls"] = json!(receipt["legacy_encoder_calls"].as_u64().unwrap() + m.legacy.get() as u64);
+    receipt["codec_into_calls"] = json!(receipt["codec_into_calls"].as_u64().unwrap() + m.into.get() as u64);
+    receipt["producer"] = json!("rust");
+    receipt["mode"] = json!(if failing { "record-failing-suffix" } else { "record-suffix" });
+    Ok(receipt)
+}
 pub fn replay(path: &Path) -> Result<Value> {
     let trace = Trace::read_from(
         std::fs::File::open(path).map_err(|e| e.to_string())?,
@@ -1193,6 +1345,26 @@ pub fn replay(path: &Path) -> Result<Value> {
     let mut receipt = sessions(&trace)?;
     receipt["producer"] = json!("rust");
     receipt["mode"] = json!("replay");
+    Ok(receipt)
+}
+pub fn replay_suffix(path: &Path) -> Result<Value> {
+    let trace = Trace::read_from(
+        std::fs::File::open(path).map_err(|e| e.to_string())?,
+        &consumer_limits(),
+    ).map_err(|e| e.to_string())?;
+    let mut receipt = suffix_sessions(&trace, true)?;
+    receipt["producer"] = json!("rust");
+    receipt["mode"] = json!("replay-suffix");
+    Ok(receipt)
+}
+pub fn replay_suffix_json(path: &Path) -> Result<Value> {
+    // Rust's public replay APIs accept Trace. Portable JSON has no RunConfig;
+    // parse_portable builds the public Trace with RunConfig::default(). This
+    // replay-only default is deliberately absent from the exported receipt.
+    let trace = parse_portable(&json_file(path)?)?;
+    let mut receipt = suffix_sessions(&trace, false)?;
+    receipt["producer"] = json!("rust");
+    receipt["mode"] = json!("replay-suffix-json");
     Ok(receipt)
 }
 pub fn replay_json(path: &Path) -> Result<Value> {

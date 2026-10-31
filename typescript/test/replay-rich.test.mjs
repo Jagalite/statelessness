@@ -48,6 +48,22 @@ test('identity mismatch wins over malformed bounded artifact and does not decode
  const m=model({decodeState(){decoded++;throw Error('decode');}});
  assert.equal(replayWithObservationsBounded(m,source,{}, {max_total_bytes:0}).outcome,'incompatible');assert.equal(decoded,0);
 });
+test('strict build mismatch stops before decoding and observation',()=>{
+ const source={...record(model(),[1]),config:{strategy:'test',seed:null,parameters:[]}};
+ let states=0,inputs=0,initial=0,turns=0;
+ const m=model({metadata:()=>metadata('replay','different-build'),decodeState(b){states++;return b[0];},decodeInput(b){inputs++;return b[0];}});
+ const observe=o=>{if(o.kind==='initial')initial++;if(o.kind==='turn')turns++;};
+ for(const bounded of [false,true]){
+  states=inputs=initial=turns=0;
+  const run=options=>bounded?replayWithObservationsBounded(m,source,options,{},observe):replayWithObservations(m,source,options,observe);
+  const strict=run({});
+  assert.equal(strict.outcome,'incompatible');assert.equal(strict.build_matches,false);
+  assert.equal(states,0);assert.equal(inputs,0);assert.equal(initial,0);assert.equal(turns,0);
+  const allowed=run({allowBuildMismatch:true});
+  assert.equal(allowed.outcome,'exact');assert.equal(allowed.build_matches,false);
+  assert.ok(states>0);assert.ok(inputs>0);assert.equal(initial,1);assert.equal(turns,1);
+ }
+});
 test('bounded artifact validates total/frame/items before decode while actual expansion retains completed evidence',()=>{
  const trace={...record(model(),[1]),config:{strategy:'test',seed:null,parameters:[]}};let decoded=0;
  const m=model({decodeState(b){decoded++;return b[0];}});

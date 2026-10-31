@@ -59,6 +59,19 @@ observations and report truncation/loss; pending ages require an explicit suppli
 instant and are not completed histogram observations. Causal joins validate
 numeric host labels against retained v2 outputs, including before-checkpoint and
 missing/conflicting identities; they do not authenticate external execution.
+`Dashboard.JSON` follows Rust `dashboard.rs` `to_json` key order and nesting:
+snapshot metric counters are flattened into `health`, the observer's metric
+health is `health.host_metric_health`, and rows follow.
+
+`telemetry_health` emits Rust's `append_telemetry_health` field list in Rust
+order. Go has no destructors and cannot observe a handle dropped without a
+terminal lifecycle call, so `TelemetryHealth.ActiveEffectHandles` and
+`DestructorHookLosses` are nil; the wire reports
+`unknown:explicit_disposal_only` for both (the TypeScript precedent) and the
+dashboard reports `null`. `ObservationComplete` therefore cannot include Rust's
+`destructor_hook_losses == 0` term. `EffectHandleBytes`, `AttemptHandleBytes`
+and `DeliveryHandleBytes` are the Go sizes of a handle value plus its shared
+lifecycle state, the analogue of Rust's token-plus-handle `size_of`.
 `ExportMetrics` invokes a host-selected sink outside locks and contains exporter
 errors/panics without retrying host work.
 

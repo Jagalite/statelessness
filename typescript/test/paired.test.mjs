@@ -65,6 +65,105 @@ class Projection {
   equalEffect(a, b) { return a === b; }
 }
 const paired = (mutation = 'none') => new WithOracle(new Queue(mutation), new Paired(new Reference(), new Projection()));
+test('WithOracle enabled query is captured before state clone callbacks',()=>{
+ const input={value:1};
+ const model={generate(){return [];}, cloneInput(i){return {...i};},
+  cloneState(s){input.value=9; this.isEnabled=()=>false; return {...s};},
+  isEnabled(_s,i){return i.value===1;}};
+ const wrapped=new WithOracle(model,{});
+ assert.equal(wrapped.isEnabled({model:{},oracle:{}},input),true);
+ const state={model:{value:1},oracle:{}};
+ const replacing={generate(){return [];},cloneInput(i){state.model={value:9}; return i;},
+  cloneState(s){return {...s};},isEnabled(s){return s.value===1;}};
+ assert.equal(new WithOracle(replacing,{}).isEnabled(state,0),true);
+ const noHook={generate(){return [];},cloneInput(){throw Error('unused');},cloneState(){throw Error('unused');}};
+ assert.equal(new WithOracle(noHook,{}).isEnabled({model:{},oracle:{}},input),true);
+});
+test('WithOracle state encoding captures history before model codec and preserves error precedence',()=>{
+ const state={model:0,oracle:{value:7}}, modelFailure=new Error('model codec'), cloneFailure=new Error('history copy');
+ const model={cloneState:s=>s,encodeState:()=>{state.oracle.value=90;return Uint8Array.of(3);}};
+ const oracle={cloneHistory:h=>({...h}),encodeHistory:h=>Uint8Array.of(h.value)};
+ const wrapper=new WithOracle(model,oracle);
+ const bytes=wrapper.encodeState(state);
+ assert.equal(bytes.at(-1),7);
+ oracle.cloneHistory=()=>{throw cloneFailure;};
+ model.encodeState=()=>{throw modelFailure;};
+ assert.throws(()=>wrapper.encodeState(state),/model codec/);
+ model.encodeState=()=>Uint8Array.of(3);
+ assert.throws(()=>wrapper.encodeState(state),/history copy/);
+});
+test('WithOracle state encoding pins codec adapters and model reference',()=>{
+ const original={value:3},state={model:original,oracle:{value:7}};let wrapper;
+ const model={cloneState(s){assert.equal(this,model);assert.equal(s,original);return {...s};},
+  encodeState(s){assert.equal(this,model);oracle.encodeHistory=()=>Uint8Array.of(99);return Uint8Array.of(s.value);}};
+ const oracle={cloneHistory(h){wrapper.model={};wrapper.oracle={};state.model={value:88};return {...h};},
+  encodeHistory(h){assert.equal(this,oracle);return Uint8Array.of(h.value);}};
+ wrapper=new WithOracle(model,oracle);
+ const bytes=wrapper.encodeState(state);
+ assert.equal(bytes[12],3);assert.equal(bytes.at(-1),7);
+});
+test('WithOracle estimates retained history before model callbacks with unknown and error precedence',()=>{
+ const state={model:0,oracle:{value:7}}, cloneFailure=new Error('history clone'), modelFailure=new Error('model estimate');
+ const model={cloneState:s=>{state.oracle.value=90;return s;},estimatedStateBytes:()=>5n};
+ const oracle={cloneHistory:h=>({...h}),estimatedStateBytes:h=>BigInt(h.value)};
+ assert.equal(new WithOracle(model,oracle,0n).estimatedStateBytes(state),12n);
+ let calls=0;oracle.cloneHistory=()=>{calls++;throw cloneFailure;};
+ model.estimatedStateBytes=()=>null;
+ assert.equal(new WithOracle(model,oracle,0n).estimatedStateBytes(state),null);
+ assert.equal(calls,1);
+ model.estimatedStateBytes=()=>{throw modelFailure;};
+ assert.throws(()=>new WithOracle(model,oracle,0n).estimatedStateBytes(state),e=>e===modelFailure);
+ model.estimatedStateBytes=()=>5n;
+ assert.throws(()=>new WithOracle(model,oracle,0n).estimatedStateBytes(state),e=>e===cloneFailure);
+});
+test('WithOracle estimates pin callbacks across model callback mutations',()=>{
+ const state={model:0,oracle:{value:7}}, model={cloneState:s=>s}, oracle={cloneHistory:h=>({...h})};
+ oracle.estimatedStateBytes=function(h){assert.equal(this,oracle);return BigInt(h.value);};
+ model.estimatedStateBytes=function(){assert.equal(this,model);oracle.estimatedStateBytes=undefined;return 5n;};
+ assert.equal(new WithOracle(model,oracle,0n).estimatedStateBytes(state),12n);
+ model.estimatedStateBytes=()=>{oracle.estimatedStateBytes=()=>100n;return 5n;};
+ assert.equal(new WithOracle(model,oracle,0n).estimatedStateBytes(state),null);
+});
+test('WithOracle estimates retain callback owners if clone replaces adapters',()=>{
+ const state={model:0,oracle:{value:7}};let wrapper;
+ const model={cloneState:s=>s,estimatedStateBytes(){assert.equal(this,model);return 5n;}};
+ const oracle={cloneHistory(h){wrapper.model={};wrapper.oracle={};return {...h};},
+  estimatedStateBytes(h){assert.equal(this,oracle);return BigInt(h.value);}};
+ wrapper=new WithOracle(model,oracle,0n);
+ assert.equal(wrapper.estimatedStateBytes(state),12n);
+});
+test('WithOracle step captures input and history before reducer and state cloning',()=>{
+ const before={model:{value:1},oracle:{value:2}},input={value:3};
+ const model={cloneInput:i=>({...i}),cloneOutput:o=>o,
+  cloneState:s=>{input.value=90;return {...s};},
+  step:(state,i)=>{before.oracle.value=91;input.value=92;return accepted(state,[i.value]);}};
+ let seen;
+ const oracle={cloneHistory:h=>({...h}),advance:(history,i,outputs)=>{seen={history,input:i,outputs};return history;}};
+ const result=new WithOracle(model,oracle).step(before,input);
+ assert.deepEqual(seen,{history:{value:2},input:{value:3},outputs:[3]});
+ assert.deepEqual(result.state.oracle,{value:2});
+});
+test('WithOracle advancement receives retained transition and input despite history callback mutation',()=>{
+ const model=paired(),before=model.initialState(),input={value:1},actual=accepted([0],['original']);
+ model.model.cloneInput=i=>({...i});
+ model.oracle.cloneHistory=h=>{input.value=9;actual.outputs[0]='changed';actual.disposition.kind='ignored';actual.disposition.reason='changed';return h;};
+ let seen;
+ model.oracle.advance=(history,ownedInput,outputs,outcome)=>{seen={history,ownedInput,outputs,outcome};return history;};
+ const result=model.observeTransition(before,input,actual);
+ assert.deepEqual(seen,{history:0,ownedInput:{value:1},outputs:['original'],outcome:{kind:'accepted',reason:''}});
+ assert.deepEqual(result.outputs,['original']);assert.deepEqual(result.disposition,{kind:'accepted',reason:''});
+});
+test('WithOracle owns initial and decoded model state before oracle callbacks',()=>{
+ const model=paired(),borrowed=[0];
+ model.model.initialState=()=>borrowed;
+ model.oracle.initialState=()=>{borrowed.push(1);return 0;};
+ assert.deepEqual(model.initialState(),{model:[0],oracle:0});
+ borrowed.length=1;
+ const bytes=model.encodeState({model:[0],oracle:0});
+ model.model.decodeState=()=>borrowed;
+ model.oracle.decodeHistory=()=>{borrowed.push(1);return 0;};
+ assert.deepEqual(model.decodeState(bytes),{model:[0],oracle:0});
+});
 test('equal actual state retains independently differing reference history', () => {
   class Actual {
     metadata() { return metadata('constant-actual'); }
@@ -136,6 +235,64 @@ test('paired observation retains executed transition and never reruns actual', (
   model.oracle.advance = () => { throw new Error('history failed'); };
   assert.throws(() => model.observeTransition(before, 0, actual), e => e instanceof ObservationError && JSON.stringify(e.transition) === JSON.stringify(actual));
 });
+test('oracle observation captures input and history before transition clone hooks', () => {
+  const model = paired(), before = {model:[0], oracle:[7]}, query = {value:3};
+  const actual = accepted([1], ['x']); let seen;
+  model.model.cloneInput = value => ({...value});
+  model.oracle.cloneHistory = history => [...history];
+  model.model.cloneState = state => { query.value=99; before.oracle[0]=88; return [...state]; };
+  model.oracle.advance = (history, input) => { seen=[history[0],input.value]; return history; };
+  model.observeTransition(before,query,actual);
+  assert.deepEqual(seen,[7,3]);
+  model.model.cloneInput = () => { throw new Error('input copy'); };
+  assert.throws(() => model.observeTransition(before,query,actual), e => e instanceof ObservationError && e.transition !== actual && e.transition.state !== actual.state && e.cause.message === 'input copy');
+});
+test('oracle observation pins owners before copy callbacks', () => {
+  const wrapper=paired(), originalModel=wrapper.model, originalOracle=wrapper.oracle;
+  const before={model:[0],oracle:1}, actual=accepted([2],['a']);
+  originalOracle.advance = history => history+1;
+  originalModel.cloneInput = value => { wrapper.model={}; wrapper.oracle={}; return value; };
+  const result=wrapper.observeTransition(before,0,actual);
+  assert.deepEqual(result.state.model,[2]); assert.equal(result.state.oracle,2);
+  wrapper.model=originalModel; wrapper.oracle=originalOracle;
+});
+test('oracle observation does not consume an unused output clone failure', () => {
+  const wrapper=paired();
+  Object.defineProperty(wrapper.model,'cloneOutput',{configurable:true,get(){throw Error('unused output clone');}});
+  wrapper.oracle.advance = history => history+1;
+  assert.equal(wrapper.observeTransition({model:[0],oracle:1},0,accepted([2],[])).state.oracle,2);
+});
+test('oracle advancement owns the executed transition and survives hostile thrown values',()=>{
+ const model=paired(),before=model.initialState(),actual=accepted([0],['10','21']);
+ model.oracle.advance=()=>{actual.state.push(9);actual.outputs.push('changed');return 1;};
+ const lifted=model.observeTransition(before,0,actual);assert.deepEqual(lifted.state.model,[0]);assert.deepEqual(lifted.outputs,['10','21']);
+ const hostile={toString(){throw Error('must not format');}};const next=accepted([1],['11']);
+ model.oracle.advance=()=>{throw hostile;};
+ assert.throws(()=>model.observeTransition(before,1,next),error=>error instanceof ObservationError&&error.cause===hostile&&error.message==='oracle advancement failed'&&JSON.stringify(error.transition)===JSON.stringify(next));
+});
+test('paired equality callbacks receive snapshots and cannot turn non-booleans into passes',()=>{
+ const model=paired(),a={model:[0],oracle:[1]},b={model:[0],oracle:[1]};
+ model.model.equalStates=(left,right)=>{left.push(3);right.push(4);return true;};
+ model.oracle.cloneHistory=h=>[...h];model.oracle.equalHistory=(left,right)=>{left.push(5);right.push(6);return true;};
+ assert.equal(model.equalStates(a,b),true);assert.deepEqual(a,{model:[0],oracle:[1]});assert.deepEqual(b,{model:[0],oracle:[1]});
+ model.model.equalStates=()=>1;assert.throws(()=>model.equalStates(a,b),/model equality must return boolean/);
+ model.model.equalStates=()=>true;model.oracle.equalHistory=()=>Promise.resolve(true);assert.throws(()=>model.equalStates(a,b),/oracle equality must return boolean/);
+ const checked=paired(),before=checked.initialState(),transition=checked.step(before,0);
+ checked.oracle.projection.equalState=()=>Promise.resolve(true);assert.throws(()=>Array.from(checked.oracle.checkState(transition.state.oracle,transition.state.model)),/projected state equality must return boolean/);
+ checked.oracle.projection.equalEffect=()=>1;assert.throws(()=>Array.from(checked.oracle.checkTransition(before,0,transition)),/projected effect equality must return boolean/);
+});
+test('oracle equality captures histories before model equality callbacks',()=>{
+ const model=paired(),a={model:[0],oracle:[1]},b={model:[0],oracle:[1]};
+ model.oracle.cloneHistory=h=>[...h];
+ model.oracle.equalHistory=(left,right)=>left[0]===right[0];
+ model.model.equalStates=()=>{a.oracle[0]=8;return true;};
+ assert.equal(model.equalStates(a,b),true);
+ let historyCompared=false;
+ model.model.equalStates=()=>false;
+ model.oracle.equalHistory=()=>{historyCompared=true;return true;};
+ assert.equal(model.equalStates(a,b),false);
+ assert.equal(historyCompared,false);
+});
 test('paired malformed checkpoint, strict identity, limits and callback error', () => {
   const model = paired(), bytes = model.encodeState(model.initialState());
   for (const b of [new Uint8Array(), bytes.slice(0, -1), Uint8Array.from([...bytes, 0]), Uint8Array.from([79, 82, 67, 49, ...Array(8).fill(255)])]) assert.throws(() => model.decodeState(b), ModelError);
@@ -194,4 +351,76 @@ test('paired/oracle search preserves emitted checks when later checker/projectio
  class EdgeProjection extends Projection {actualEffect(){throw Error('effect projection failed');}}
  const edge=new WithOracle(new GeneratedQueue(),new Paired(new Reference(),new EdgeProjection()));assert.throws(()=>fuzz(edge,config,{},observer),/effect projection failed/);
  assert.deepEqual(errors,[['state',['queue.bound','reference.bound','pair.state'],true],['transition',['queue.transition','reference.transition'],false]]);
+});
+
+test('WithOracle captures complete check observations before child callbacks',()=>{
+ const state={model:{value:1},oracle:{value:2}}, input={value:3};
+ const transition={state:{model:{value:4},oracle:{value:5}},outputs:[{value:6}],disposition:{kind:'accepted',reason:''}};
+ const mutate=()=>{state.model.value=91;state.oracle.value=92;input.value=93;transition.state.model.value=94;transition.state.oracle.value=95;transition.outputs[0].value=96;transition.disposition.reason='changed';};
+ const model={metadata:()=>metadata('check-capture'),cloneState:s=>({...s}),cloneInput:i=>({...i}),cloneOutput:o=>({...o}),
+  checkState:()=>{mutate();return [];},checkTransition:()=>{mutate();return [];}};
+ let seenState,seenTransition;
+ const oracle={metadata:()=>metadata('check-capture-oracle'),cloneHistory:h=>({...h}),
+  checkState:(history,actual)=>{seenState={history,actual};return [];},
+  checkTransition:(before,i,t)=>{seenTransition={before,input:i,transition:t};return [];}};
+ const wrapped=new WithOracle(model,oracle);
+ wrapped.checkState(state);
+ assert.deepEqual(seenState,{history:{value:2},actual:{value:1}});
+ Object.assign(state.model,{value:1});Object.assign(state.oracle,{value:2});input.value=3;
+ transition.state.model.value=4;transition.state.oracle.value=5;transition.outputs[0].value=6;transition.disposition.reason='';
+ wrapped.checkTransition(state,input,transition);
+ assert.deepEqual(seenTransition,{before:{model:{value:1},oracle:{value:2}},input:{value:3},transition:{state:{model:{value:4},oracle:{value:5}},outputs:[{value:6}],disposition:{kind:'accepted',reason:''}}});
+});
+
+test('Paired preserves reference state across reference checks',()=>{
+ const history={value:1};
+ const reference={cloneState:s=>({...s}),checkState(){history.value=9;return [];}};
+ const projection={actualState:s=>s,referenceState:s=>s.value,equalState:(a,b)=>a===b};
+ const oracle=new Paired(reference,projection);
+ const checks=Array.from(oracle.checkState(history,1));
+ assert.equal(checks.at(-1).status,'passed');
+ const failure=new Error('reference check');
+ let copies=0; reference.cloneState=s=>{if(++copies===1)throw Error('copy failed');return {...s};};
+ reference.checkState=()=>{throw failure;};
+ assert.throws(()=>Array.from(oracle.checkState(history,1)),/reference check/);
+});
+
+test('Paired preserves reference effects across reference transition checks',()=>{
+ let retained; const source={value:7};
+ const reference={cloneState:s=>s,cloneInput:i=>i,cloneOutput:o=>{const copy={...o};if(o===source)retained=copy;return copy;},
+  step:s=>accepted(s,[source]),checkTransition(){retained.value=99;return [];}};
+ const projection={actualEffect:o=>o.value,referenceEffect:o=>o.value,equalEffect:(a,b)=>a===b};
+ const oracle=new Paired(reference,projection);
+ const checks=Array.from(oracle.checkTransition({model:0,oracle:0},0,accepted({model:0,oracle:0},[{value:7}])));
+ assert.equal(checks.find(c=>c.id==='pair.effects').status,'passed');
+});
+
+test('Paired pins projection and preserves state projection error precedence',()=>{
+ const projectionError=new Error('actual projection failed'); let copies=0;
+ const reference={cloneState:s=>{if(++copies===1)throw Error('copy failed');return s;},checkState:()=>[]};
+ const projection={actualState:()=>{throw projectionError;},referenceState:s=>s,equalState:()=>true};
+ const paired=new Paired(reference,projection);
+ assert.throws(()=>Array.from(paired.checkState(1,1)),/actual projection failed/);
+ const replacement={actualState:()=>99,referenceState:()=>0,equalState:()=>false};
+ const original={actualState:s=>s,referenceState:s=>s,equalState:(a,b)=>a===b};
+ const other=new Paired({cloneState:s=>s,checkState(){other.projection=replacement;return [];}},original);
+ assert.equal(Array.from(other.checkState(1,1)).at(-1).status,'passed');
+});
+
+test('Paired pins reference check hooks before observation copies',()=>{
+ let observed=0; const ref={cloneState(s){this.checkState=()=>{throw Error('replacement');};return s;},checkState(){observed++;return [];}};
+ const projection={actualState:s=>s,referenceState:s=>s,equalState:(a,b)=>a===b};
+ const paired=new Paired(ref,projection);
+ assert.equal(Array.from(paired.checkState(1,1)).at(-1).status,'passed');
+ assert.equal(observed,1);
+});
+
+test('Paired pins reference transition checks before output copies',()=>{
+ let seen=0;
+ const ref={cloneState:s=>s,cloneInput:i=>i,cloneOutput(o){this.checkTransition=()=>{throw Error('replacement');};return o;},
+  step:s=>accepted(s,[7]),checkTransition(){seen++;return [];}};
+ const projection={actualEffect:o=>o,referenceEffect:o=>o,equalEffect:(a,b)=>a===b};
+ const oracle=new Paired(ref,projection);
+ assert.equal(Array.from(oracle.checkTransition({model:0,oracle:0},0,accepted({model:0,oracle:0},[7]))).find(c=>c.id==='pair.effects').status,'passed');
+ assert.equal(seen,1);
 });

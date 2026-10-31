@@ -47,9 +47,14 @@ public func traceFromJSON(_ value: JSON, limits: TraceLimits = TraceLimits()) th
     func count(_ n: Int) throws { guard n <= limits.maxItems - items else { throw FormatError("aggregate trace item limit") }; items += n }
     func checks(_ value: JSON?) throws -> [Check] { let a = try readArray(value, maximum: limits.maxItems); try count(a.count); return try a.map(checkFromJSON) }
     func blob(_ value: JSON?) throws -> [UInt8] {
-        let bytes = Array(try readString(value).utf8)
-        guard bytes.count <= limits.maxBlobBytes * 2, bytes.count % 2 == 0 else { throw FormatError("invalid hexadecimal bytes") }
-        guard bytes.count / 2 <= limits.maxPayloadBytes - payload else { throw FormatError("aggregate trace payload limit") }; payload += bytes.count / 2
+        let text = try readString(value)
+        // Inspect only up to the first byte beyond the blob limit. Constructing
+        // an array before this check lets a direct JSON caller force an
+        // allocation proportional to an otherwise rejected hexadecimal value.
+        let count = text.utf8.prefix(limits.maxBlobBytes * 2 + 1).count
+        guard count <= limits.maxBlobBytes * 2, count % 2 == 0 else { throw FormatError("invalid hexadecimal bytes") }
+        guard count / 2 <= limits.maxPayloadBytes - payload else { throw FormatError("aggregate trace payload limit") }; payload += count / 2
+        let bytes = Array(text.utf8)
         func digit(_ c: UInt8) throws -> UInt8 { switch c { case 48...57: return c - 48; case 97...102: return c - 87; default: throw FormatError("invalid lowercase hex") } }
         var result: [UInt8] = []; result.reserveCapacity(bytes.count / 2)
         for i in stride(from: 0, to: bytes.count, by: 2) { result.append(try digit(bytes[i]) * 16 + digit(bytes[i + 1])) }; return result
@@ -68,6 +73,58 @@ public func traceFromJSON(_ value: JSON, limits: TraceLimits = TraceLimits()) th
 }
 public func parseTrace(_ bytes: [UInt8], limits: TraceLimits = TraceLimits()) throws -> Trace { try traceFromJSON(parseJSON(bytes, maximum: limits.maxJSONBytes), limits: limits) }
 public func encodeTrace(_ trace: Trace, limits: TraceLimits = TraceLimits()) throws -> [UInt8] {
+    try limits.validate()
+    // Check retained collection and payload limits before constructing the JSON
+    // tree. In particular, hexString temporarily expands each blob, so doing
+    // this after traceToJSON would allocate for data that must be rejected.
+    // On a multiply-invalid trace, a later limit can precede an earlier
+    // semantic error. Count a lower bound on rendered JSON before creating the
+    // intermediate tree: each retained text byte, each hex digit, and at
+    // least one byte for every check, output, and step must appear in it.
+    // Escaping and JSON syntax may add bytes, so renderJSON remains the exact
+    // limit check. This bounds construction by maxJSONBytes but is not a bound
+    // on process memory or allocations already owned by the caller.
+    guard trace.steps.count <= limits.maxSteps else { throw FormatError("trace step limit") }
+    var items = 0, payload = 0, jsonMinimum = 0
+    func jsonBytes(_ n: Int) throws {
+        guard n <= limits.maxJSONBytes - jsonMinimum else { throw FormatError("JSON output byte limit") }
+        jsonMinimum += n
+    }
+    func text(_ value: String) throws {
+        // Stop one byte after the remaining allowance without materializing
+        // a full UTF-8 copy of an otherwise rejected string.
+        let remaining = limits.maxJSONBytes - jsonMinimum
+        let n = value.utf8.prefix(remaining + 1).count
+        try jsonBytes(n)
+    }
+    func checks(_ values: [Check]) throws {
+        try count(values.count)
+        for value in values { try text(value.id); try text(value.details) }
+    }
+    func count(_ n: Int) throws {
+        guard n <= limits.maxItems - items else { throw FormatError("aggregate trace item limit") }
+        items += n
+        try jsonBytes(n)
+    }
+    func blob(_ bytes: [UInt8]) throws {
+        guard bytes.count <= limits.maxBlobBytes else { throw FormatError("invalid hexadecimal bytes") }
+        guard bytes.count <= limits.maxPayloadBytes - payload else { throw FormatError("aggregate trace payload limit") }
+        payload += bytes.count
+        // TraceLimits.validate() keeps maxBlobBytes <= Int.max/2.
+        try jsonBytes(bytes.count * 2)
+    }
+    try text(trace.metadata.name); try text(trace.metadata.build); try text(trace.error)
+    try blob(trace.initialState); try checks(trace.initialChecks)
+    for step in trace.steps {
+        try count(1); try count(step.outputs.count)
+        try blob(step.input)
+        switch step.disposition {
+        case .accepted: break
+        case let .rejected(reason), let .ignored(reason): try text(reason)
+        }
+        for output in step.outputs { try blob(output) }
+        try blob(step.postState); try checks(step.checks)
+    }
     let value = traceToJSON(trace); _ = try traceFromJSON(value, limits: limits)
     return try renderJSON(value, maximum: limits.maxJSONBytes)
 }

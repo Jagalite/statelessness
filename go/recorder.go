@@ -235,6 +235,9 @@ func recorderObserve[S, I, O any](r *Recorder, m Model[S, I, O], before S, input
 	if r.IsFrozen() {
 		return nil, &ModelError{"runtime recorder is frozen; export its retained trace"}
 	}
+	if r.observed == math.MaxUint64 || r.origin > math.MaxUint64-r.observed-1 {
+		return nil, r.freeze(&ModelError{"runtime observation sequence overflow"})
+	}
 	checks, e := recorderPrepare(r, m, before, input, t, checked, phase, minimumEvictions)
 	if e != nil {
 		return nil, r.freeze(e)
@@ -432,7 +435,11 @@ type recorderCountingWriter struct {
 
 func (w *recorderCountingWriter) Write(data []byte) (int, error) {
 	n, e := w.writer.Write(data)
-	w.bytes += int64(n)
+	// An invalid count does not establish how many bytes were accepted. Keep the
+	// count of prior valid writes; auditWriteAll will reject this return value.
+	if n >= 0 && n <= len(data) {
+		w.bytes += int64(n)
+	}
 	return n, e
 }
 
