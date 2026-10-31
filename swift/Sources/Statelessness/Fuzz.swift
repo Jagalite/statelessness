@@ -132,7 +132,7 @@ func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout 
 // A separate function keeps the closure from capturing the whole model and a
 // force-unwrapped optional, which crashes the Swift 6.0.3 SIL ownership verifier.
 private func notifyInitialObserver<S, I, O>(_ observer: SearchObserver<S, I, O>, clone: (S) throws -> S, observed: Result<S, Error>, checks: [Check]) throws {
-    try call("search observer initial") { try observer.initial(copied(clone, observed.get()), checks) }
+    try call("search observer initial") { let snapshot = try observed.get(); return try observer.initial(copied(clone, snapshot), checks) }
 }
 func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Transition<S, O>, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, history: [I] = [], storage: SearchCheckStorage? = nil, capturedTransition: Result<Transition<S,O>,Error>? = nil, capturedState: Result<S,Error>? = nil, capturedInput: Result<I,Error>? = nil, capturedBefore: Result<S,Error>? = nil) throws -> [Violation] {
     let storage = storage ?? SearchCheckStorage()
@@ -276,7 +276,8 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64, control: 
                 let enabled: Bool
                 do { enabled = try call("is_enabled") {
                     let query = try copied(m.cloneInput, retained)
-                    return try g.isEnabled(copied(m.cloneState, executionState.get()), query)
+                    let current = try executionState.get()
+                    return try g.isEnabled(copied(m.cloneState, current), query)
                 }
                 } catch { if let stop = scanStop?() { report.termination = stop; return report }; throw error }
                 if enabled { reused = retained }
@@ -284,7 +285,7 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64, control: 
             if let stop = control.stop() { report.termination = stop; return report }
             let next: I?
             if let reused { next = reused }
-            else { do { next = try call("generate") { try g.generate(copied(m.cloneState, executionState.get()), &rng) } } catch { if let stop = scanStop?() { report.termination = stop; return report }; throw error } }
+            else { do { next = try call("generate") { let current = try executionState.get(); return try g.generate(copied(m.cloneState, current), &rng) } } catch { if let stop = scanStop?() { report.termination = stop; return report }; throw error } }
             if let stop = control.stop() { report.termination = stop; return report }
             guard let value = next else { break }
             let input = try copied(m.cloneInput, value)
@@ -294,7 +295,8 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64, control: 
             var enabled = reused != nil
             if !enabled { do { enabled = try call("is_enabled") {
                 let query = try copied(m.cloneInput, input)
-                return try g.isEnabled(copied(m.cloneState, executionState.get()), query)
+                let current = try executionState.get()
+                return try g.isEnabled(copied(m.cloneState, current), query)
             }
             } catch { if let stop = scanStop?() { report.termination = stop; return report }; throw error } }
             if let stop = control.stop() { report.termination = stop; return report }
@@ -303,7 +305,7 @@ func fuzzKernel<S, I, O>(_ g: Generate<S, I, O>, config: FuzzConfig64, control: 
             // observer consume them.
             let needsEdge = observer != nil || m.checkTransitionInto != nil || m.checkTransition != nil
             let checkInput: Result<I,Error>? = needsEdge ? Result(catching: { try copied(m.cloneInput, input) }) : nil
-            let checkBefore: Result<S,Error>? = needsEdge ? Result(catching: { try copied(m.cloneState, executionState.get()) }) : nil
+            let checkBefore: Result<S,Error>? = needsEdge ? Result(catching: { let current = try executionState.get(); return try copied(m.cloneState, current) }) : nil
             let t = try perform(m, executionState.get(), input, stage: "step")
             // Checks and observers may hold application aliases to the returned
             // state. Preserve the next iteration's state before invoking them,

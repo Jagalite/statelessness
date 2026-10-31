@@ -125,7 +125,8 @@ public struct WithOracle<S, H, I, O> {
         }
         let a = try component(), h = try component()
         guard offset == bytes.count else { throw ModelError("trailing oracle checkpoint bytes") }
-        let model = try copied(actual.cloneState, c.decodeState(a))
+        let decoded = try c.decodeState(a)
+        let model = try copied(actual.cloneState, decoded)
         return try attach(model: model, oracle: decode(h))
     }
     private func appendState(_ state: OracleState<S, H>, into sink: CheckSink) throws {
@@ -162,7 +163,8 @@ public struct WithOracle<S, H, I, O> {
         let clone: (OracleState<S, H>) throws -> OracleState<S, H> = { try self.attach(model: $0.model, oracle: $0.oracle) }
         var result = Model<OracleState<S, H>, I, O>(
             initialState: {
-                let model = try copied(self.actual.cloneState, self.actual.initialState())
+                let initial = try self.actual.initialState()
+                let model = try copied(self.actual.cloneState, initial)
                 return try self.attach(model: model, oracle: self.oracle.initialState())
             },
             step: { before, input in

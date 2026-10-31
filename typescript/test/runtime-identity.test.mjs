@@ -24,12 +24,16 @@ test('source build identity is deterministic and changes with source inputs', ()
     writeFileSync(source, readFileSync(source, 'utf8') + '\n// identity control\n');
     assert.notEqual(run(), original);
     const changed = run();
-    writeFileSync(join(tmp, 'src/special#?%.ts'), 'export {};\n');
+    // Windows forbids '?' in file names and needs privileges for symbolic links.
+    const windows = process.platform === 'win32';
+    writeFileSync(join(tmp, windows ? 'src/special#%.ts' : 'src/special#?%.ts'), 'export {};\n');
     assert.notEqual(run(), changed);
-    symlinkSync(source, join(tmp, 'src/linked.ts'));
-    const rejected = spawnSync(process.execPath, [join(tmp, 'scripts/runtime-identity.mjs')]);
-    assert.notEqual(rejected.status, 0);
-    assert.match(rejected.stderr.toString(), /symbolic link in source tree/);
+    if (!windows) {
+      symlinkSync(source, join(tmp, 'src/linked.ts'));
+      const rejected = spawnSync(process.execPath, [join(tmp, 'scripts/runtime-identity.mjs')]);
+      assert.notEqual(rejected.status, 0);
+      assert.match(rejected.stderr.toString(), /symbolic link in source tree/);
+    }
   } finally { rmSync(tmp, {recursive: true, force: true}); }
 });
 

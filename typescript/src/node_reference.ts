@@ -8,7 +8,8 @@ import {prepareReferenceMutationSuite,verifyReferenceSuiteArtifacts,type Referen
 
 export function writeReferenceMutationSuiteNew(directory:string,config:ExactSearchConfig,options:ReferenceSuiteOptions={}):ReferenceSuite{
  const suite=prepareReferenceMutationSuite(config,options);mkdirSync(directory,{mode:0o700});
- const syncDirectory=(path:string)=>{const fd=openSync(path,'r');try{fsyncSync(fd);}finally{closeSync(fd);}};
+ // Windows cannot fsync a directory handle; file data is still synced before publication.
+ const syncDirectory=(path:string)=>{if((globalThis as {process?:{platform?:string}}).process?.platform==='win32')return;const fd=openSync(path,'r');try{fsyncSync(fd);}finally{closeSync(fd);}};
  const write=(name:string,bytes:Uint8Array)=>{const fd=openSync(join(directory,name),'wx',0o600);let error:unknown;try{let offset=0;while(offset<bytes.length){const n=writeSync(fd,bytes,offset,bytes.length-offset);if(!Number.isSafeInteger(n)||n<=0||n>bytes.length-offset)throw new Error('invalid evidence write count');offset+=n;}fsyncSync(fd);}catch(e){error=e;}try{closeSync(fd);}catch(e){if(error===undefined)error=e;}if(error!==undefined)throw error;};
  syncDirectory(dirname(directory));for(const [name,bytes] of suite.files)if(name!=='mutations.json')write(name,bytes);syncDirectory(directory);
  const report=suite.files.get('mutations.json');if(!report)throw new Error('missing suite report');write('.mutations.json.pending',report);linkSync(join(directory,'.mutations.json.pending'),join(directory,'mutations.json'));syncDirectory(directory);unlinkSync(join(directory,'.mutations.json.pending'));syncDirectory(directory);

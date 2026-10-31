@@ -58,7 +58,7 @@ func containsEnumeratedControlled<S, I, O>(_ model: Model<S, I, O>, state: S, in
         guard let candidate = try call("automatic inputs next", iterator.next) else { break }
         guard count < options.maxCandidates else { throw ModelError("automatic input domain exceeds max_candidates") }
         count += 1
-        if try call("input equality", { try equalInputs(copied(model.cloneInput, candidate), copied(model.cloneInput, sought.get())) }) { try poll(); return true }
+        if try call("input equality", { let target = try sought.get(); return try equalInputs(copied(model.cloneInput, candidate), copied(model.cloneInput, target)) }) { try poll(); return true }
     }
     try poll()
     return false
