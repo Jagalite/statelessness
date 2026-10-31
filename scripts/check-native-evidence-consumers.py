@@ -12,10 +12,14 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
+import selectors
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,12 +28,27 @@ def fingerprint(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def is_existing_file_error(engine, diagnostic):
+    """Recognize the consumer's file-creation error, not text in its path."""
+    patterns = {
+        'python': r'(?m)^N11_DESTINATION_CREATE_ERROR \[Errno 17\] File exists:',
+        'go': r'(?m)^N11_DESTINATION_CREATE_ERROR open .+: file exists$',
+        'typescript': r'(?m)^N11_DESTINATION_CREATE_ERROR Error: EEXIST: file already exists, open ',
+        'swift': r'(?m)^N11_DESTINATION_CREATE_ERROR evidence file creation failed: File exists$',
+        'rust': r'(?m)^N11_DESTINATION_CREATE_ERROR File exists \(os error 17\)$',
+    }
+    return engine in patterns and re.search(patterns[engine], diagnostic) is not None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--without-swift', action='store_true')
     parser.add_argument('--rust', type=Path, required=True, help='Already Kyoto-built native-evidence Rust reference executable')
     parser.add_argument('--rust-portable', type=Path, help='Optional already-built Rust four-profile corpus runner')
+    parser.add_argument('--snapshot', type=Path, help='Verified N11 snapshot directory containing this checkout copy')
+    parser.add_argument('--setuptools-wheel', type=Path, help='Pinned offline setuptools wheel (required with --snapshot)')
+    parser.add_argument('--typescript-package', type=Path, help='Local TypeScript compiler package to stage (required with --snapshot)')
     args = parser.parse_args()
     out = args.output.resolve()
     if out.exists() and any(out.iterdir()):
@@ -38,7 +57,8 @@ def main():
     work = Path(tempfile.mkdtemp(prefix='stateless-native-evidence-')).resolve()
     logs = out / 'logs'; logs.mkdir()
     packages = out / 'packages'; packages.mkdir()
-    env = dict(os.environ, PYTHONPATH='', PYTHONNOUSERSITE='1', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off', CGO_ENABLED='0')
+    env = {k: v for k, v in os.environ.items() if not k.startswith('PIP_') and k not in ('PYTHONHOME', 'PYTHONOPTIMIZE', 'NODE_PATH', 'NODE_OPTIONS')}
+    env.update(PYTHONPATH='', PYTHONNOUSERSITE='1', PYTHONOPTIMIZE='0', GOPROXY='off', GOTOOLCHAIN='local', GOWORK='off', CGO_ENABLED='0')
     commands = []
     report = {'status': 'running', 'profile': 'causal-evidence-v2 candidate', 'workspace': str(work),
               'platform': platform.platform(), 'commands': commands, 'pairs': [], 'producers': {},
@@ -52,15 +72,39 @@ def main():
     def run(name, argv, cwd=work, expect_failure=False):
         command = list(map(str, argv))
         print(f'[{name}] ' + ' '.join(command), flush=True)
-        completed = subprocess.run(command, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=900)
-        output = completed.stdout.decode('utf-8', 'replace')
-        (logs / f'{name}.log').write_text(output)
-        commands.append({'name': name, 'argv': command, 'cwd': str(cwd), 'exit_code': completed.returncode,
+        log = logs / f'{name}.log'; start = time.monotonic(); count = 0; error = None
+        proc = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            with log.open('wb') as target, selectors.DefaultSelector() as selector:
+                os.set_blocking(proc.stdout.fileno(), False)
+                selector.register(proc.stdout, selectors.EVENT_READ)
+                while selector.get_map():
+                    if time.monotonic() - start > 900: raise RuntimeError(f'{name}: timeout')
+                    for key, _ in selector.select(timeout=0.1):
+                        chunk = os.read(key.fileobj.fileno(), 65536)
+                        if not chunk:
+                            selector.unregister(key.fileobj); break
+                        count += len(chunk)
+                        if count > 16 * 1024 * 1024: raise RuntimeError(f'{name}: output limit')
+                        target.write(chunk)
+                code = proc.wait(timeout=max(0.001, 900 - (time.monotonic() - start)))
+        except BaseException as exc:
+            error = exc; code = None
+        finally:
+            try: os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError: pass
+            proc.wait()
+            proc.stdout.close()
+        output = log.read_bytes().decode('utf-8', 'replace')
+        commands.append({'name': name, 'argv': command, 'cwd': str(cwd), 'exit_code': code,
                          'log_sha256': fingerprint(logs / f'{name}.log'), 'expected_failure': expect_failure})
         save()
-        if completed.returncode:
+        if error: raise error
+        if code < 0: raise RuntimeError(f'{name} terminated by signal {-code}')
+        if code:
             print(output, flush=True)
-            if not expect_failure: raise RuntimeError(f'{name} failed ({completed.returncode})')
+            if not expect_failure: raise RuntimeError(f'{name} failed ({code})')
         elif expect_failure:
             raise RuntimeError(f'{name} unexpectedly succeeded')
         return output.strip()
@@ -74,23 +118,43 @@ def main():
         return result
 
     try:
-        tracked = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=ROOT).decode().split('\0')
-        sources = {p: fingerprint(ROOT / p) for p in tracked if p and (ROOT / p).is_file()
-                   and (not p.startswith(('validation/', 'target/')) or p.startswith('validation/corpus/'))}
+        if args.snapshot:
+            snapshot = args.snapshot.resolve(strict=True)
+            if ROOT != (snapshot / 'source').resolve(): raise RuntimeError('driver must run from snapshot source')
+            if not args.setuptools_wheel or not args.typescript_package: raise RuntimeError('snapshot mode requires pinned setuptools wheel and local TypeScript package')
+            verifier = ROOT / 'scripts/prepare-n11-evidence-snapshot.py'
+            run('snapshot-before', [sys.executable, '-I', verifier, '--verify', snapshot])
+            source_manifest = json.loads((snapshot / 'source-manifest.json').read_text())
+            sources = {p: value['sha256'] for p, value in source_manifest['files'].items()}
+            report['source_commit'] = source_manifest['head']
+            report['snapshot_manifest_sha256'] = fingerprint(snapshot / 'source-manifest.json')
+        else:
+            tracked = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=ROOT).decode().split('\0')
+            sources = {p: fingerprint(ROOT / p) for p in tracked if p and (ROOT / p).is_file()
+                       and (not p.startswith(('validation/', 'target/')) or p.startswith('validation/corpus/'))}
+            report['source_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
         report['source_files'] = sources
         report['source_manifest_sha256'] = hashlib.sha256(json.dumps(sources, sort_keys=True).encode()).hexdigest()
-        report['source_commit'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
         py_source = work / 'python-package'; stage(ROOT / 'python', py_source)
         run('python-builder-venv', [sys.executable, '-m', 'venv', work / 'builder-venv'])
         builder = work / 'builder-venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
         # Build tooling is deliberately isolated from both host and consumer.
         # Match python/pyproject.toml's declared minimum; runtime deps stay zero.
-        run('python-builder-tools', [builder, '-m', 'pip', 'install', 'setuptools>=77', 'wheel'])
+        if args.snapshot:
+            backend = args.setuptools_wheel.resolve(strict=True)
+            if backend.name != 'setuptools-80.9.0-py3-none-any.whl' or fingerprint(backend) != '062d34222ad13e0cc312a4c02d73f059e86a4acbfbdea8f8f76b28c99f306922':
+                raise RuntimeError('wrong or modified setuptools wheel')
+            backend_copy = packages / backend.name
+            shutil.copyfile(backend, backend_copy)
+            if fingerprint(backend_copy) != fingerprint(backend): raise RuntimeError('backend changed while copying')
+            run('python-builder-tools', [builder, '-m', 'pip', 'install', '--no-index', '--no-deps', backend_copy])
+        else:
+            run('python-builder-tools', [builder, '-m', 'pip', 'install', 'setuptools>=77', 'wheel'])
         report['python_builder_tools'] = run('python-builder-freeze', [builder, '-m', 'pip', 'freeze', '--all'])
-        run('python-wheel', [builder, '-m', 'pip', 'wheel', '--no-deps', '--no-build-isolation', '--wheel-dir', packages, py_source])
+        run('python-wheel', [builder, '-m', 'pip', 'wheel', '--no-index', '--no-deps', '--no-build-isolation', '--wheel-dir', packages, py_source])
         run('python-venv', [sys.executable, '-m', 'venv', work / 'venv'])
         py = work / 'venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
-        wheel, = packages.glob('*.whl')
+        wheel, = packages.glob('statelessness-*.whl')
         run('python-install', [py, '-m', 'pip', 'install', '--no-index', '--no-deps', wheel])
         shutil.copy2(ROOT / 'examples/native-evidence/python/consumer.py', work / 'python-consumer.py')
         runners = {'python': [str(py), '-I', str(work / 'python-consumer.py')]}
@@ -107,9 +171,20 @@ def main():
         report['node_version'] = run('node-version', [node, '--version'])
         report['npm_version'] = run('npm-version', [npm, '--version'])
         ts_source = work / 'typescript-package'; stage(ROOT / 'typescript', ts_source)
-        local_tsc = ROOT / 'typescript/node_modules/typescript/bin/tsc'
-        compiler = [node, str(local_tsc)] if local_tsc.is_file() else [tool('tsc')]
+        stage(ROOT / 'docs/requirements', work / 'docs/requirements')
+        if args.snapshot:
+            compiler_source = args.typescript_package.resolve(strict=True)
+            compiler_copy = work / 'typescript-compiler'; stage(compiler_source, compiler_copy)
+            local_tsc = compiler_copy / 'bin/tsc'
+            if not local_tsc.is_file(): raise RuntimeError('invalid TypeScript compiler package')
+            report['typescript_compiler_files'] = {str(p.relative_to(compiler_copy)): fingerprint(p) for p in compiler_copy.rglob('*') if p.is_file()}
+            compiler = [node, str(local_tsc)]
+        else:
+            local_tsc = ROOT / 'typescript/node_modules/typescript/bin/tsc'
+            compiler = [node, str(local_tsc)] if local_tsc.is_file() else [tool('tsc')]
         report['typescript_version'] = run('typescript-version', compiler + ['--version'])
+        run('typescript-reference-identity', [node, 'scripts/reference-identity.mjs'], ts_source)
+        run('typescript-runtime-identity', [node, 'scripts/runtime-identity.mjs'], ts_source)
         run('typescript-package-build', compiler + ['-p', 'tsconfig.json'], ts_source)
         run('typescript-pack', [npm, 'pack', '--ignore-scripts', '--pack-destination', packages], ts_source)
         tarball, = packages.glob('*.tgz')
@@ -222,7 +297,7 @@ def main():
             sentinel=protected/f'{name}.sentinel';sentinel.write_bytes(b'preexisting host content must survive')
             for operation in ('replay','diagnostic'):
                 diagnostic=run(f'{name}-{operation}-existing-file',runner+[operation,str(traces/f'{name}.v2'),str(sentinel)],expect_failure=True)
-                if 'exist' not in diagnostic.lower() or sentinel.read_bytes()!=b'preexisting host content must survive':
+                if not is_existing_file_error(name, diagnostic) or sentinel.read_bytes()!=b'preexisting host content must survive':
                     raise RuntimeError(f'{name} {operation} failed to preserve a distinct preexisting file')
         outputs=out/'outputs';outputs.mkdir()
         for producer in runners:
@@ -279,9 +354,16 @@ def main():
         report['portable_baseline_sha256'] = fingerprint(out / 'portable-baseline.json')
         report['artifacts'].update({str(p.relative_to(out)): fingerprint(p) for directory in (packages, traces, outputs, protected) for p in directory.iterdir() if p.is_file()})
         report['staged_sources'] = {str(p.relative_to(work)): fingerprint(p) for p in work.rglob('*') if p.is_file() and not any(x in p.parts for x in ('.build', 'node_modules', 'venv', 'builder-venv', '__pycache__'))}
+        if args.snapshot:
+            run('snapshot-after', [sys.executable, '-I', ROOT / 'scripts/prepare-n11-evidence-snapshot.py', '--verify', snapshot])
         report['status'] = 'passed'; save()
         print(f'Installed causal evidence qualification passed: {len(runners)} causal evidence applications, {len(report["pairs"])} audit replay pairs, portable baseline regression; {out}', flush=True)
     except BaseException as exc:
+        if args.snapshot:
+            try:
+                run('snapshot-after-failure', [sys.executable, '-I', ROOT / 'scripts/prepare-n11-evidence-snapshot.py', '--verify', args.snapshot.resolve()])
+            except BaseException as verification_error:
+                report['snapshot_after_failure_error'] = str(verification_error)
         report['status'] = 'failed'; report['error'] = str(exc); save(); raise
 
 

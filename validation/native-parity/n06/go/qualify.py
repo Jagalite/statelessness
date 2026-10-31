@@ -625,6 +625,7 @@ def execute_once(out, expected_sha256, cancellation):
             path.chmod(0o644)
         proxyenv = {"GOPROXY": proxy.as_uri()}
         command("installed-build", "go", ["build", "-mod=mod", "-o", str(work / "campaign-example"), "."], consumer, proxyenv)
+        command("installed-public-host-test", "go", ["test", "-mod=mod", "-v", "-count=1", "-timeout=30s", "-run", "^TestPublicCampaign(CancellationDrainsClaimedWorkers|OutOfOrderAndJobBoundInputs)$", "."], consumer, proxyenv)
         command("installed-modules", "go", ["list", "-m", "-json", "all"], consumer, proxyenv)
         before_run = capture_installed("installed-before-run")
         command("installed-example", "installed", [], consumer)
