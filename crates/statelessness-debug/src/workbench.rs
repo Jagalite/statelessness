@@ -254,7 +254,7 @@ impl TraceViewer {
         let prefix = self
             .prefix(sequence)
             .map_err(|e| DebugError::InvalidCommand(e.to_string()))?;
-        let parent_policy = recorded_environment(&self.trace)
+        let parent_policy = branch_parent_policy(&self.trace)
             .map_err(|e| DebugError::InvalidCommand(e.to_string()))?;
         if let Some((environment, unrestricted)) = parent_policy
             && !policy.is_unrestricted()
@@ -552,6 +552,25 @@ fn validate_minimization_policy<M: Model>(
     }
 }
 
+// A live capture records its origin without a simulation input policy, so it
+// constrains no branch. Minimization still requires full policy provenance.
+fn branch_parent_policy(trace: &Trace) -> Result<Option<(&str, bool)>, ModelError> {
+    let parameters = &trace.config.parameters;
+    let environment = parameters
+        .iter()
+        .any(|(key, _)| key == "stateless.debug.environment");
+    let mut origins = parameters
+        .iter()
+        .filter(|(key, _)| key == "stateless.debug.origin");
+    if !environment
+        && let (Some((_, origin)), None) = (origins.next(), origins.next())
+        && origin == "recorded-live-observation"
+    {
+        return Ok(None);
+    }
+    recorded_environment(trace)
+}
+
 fn recorded_environment(trace: &Trace) -> Result<Option<(&str, bool)>, ModelError> {
     let unique = |name: &str| -> Result<Option<&str>, ModelError> {
         let mut values = trace
@@ -714,4 +733,56 @@ fn minimize_impl<M: ModelCodec + Generate>(
         .checked_add(verification_steps)
         .ok_or_else(|| ModelError::new("minimization work counter overflow"))?;
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn trace(parameters: &[(&str, &str)]) -> Trace {
+        Trace {
+            metadata: ModelMetadata {
+                name: "m".into(),
+                model_version: 1,
+                properties_version: 1,
+                codec_version: 1,
+                build: "b".into(),
+            },
+            config: RunConfig {
+                strategy: "s".into(),
+                seed: None,
+                parameters: parameters
+                    .iter()
+                    .map(|(k, v)| (k.to_string(), v.to_string()))
+                    .collect(),
+            },
+            initial_state: Vec::new(),
+            initial_checks: Vec::new(),
+            steps: Vec::new(),
+            termination: Termination::Completed,
+        }
+    }
+
+    #[test]
+    fn live_capture_parents_impose_no_branch_policy() {
+        let live = trace(&[("stateless.debug.origin", "recorded-live-observation")]);
+        assert_eq!(branch_parent_policy(&live).unwrap(), None);
+        // Minimization keeps requiring complete simulation policy provenance.
+        assert!(recorded_environment(&live).is_err());
+        let declared = trace(&[
+            ("stateless.debug.environment", "allowed"),
+            ("stateless.debug.origin", "simulation"),
+        ]);
+        assert_eq!(
+            branch_parent_policy(&declared).unwrap(),
+            Some(("allowed", false))
+        );
+        let partial = trace(&[("stateless.debug.origin", "simulation")]);
+        assert!(branch_parent_policy(&partial).is_err());
+        let ambiguous = trace(&[
+            ("stateless.debug.origin", "recorded-live-observation"),
+            ("stateless.debug.origin", "recorded-live-observation"),
+        ]);
+        assert!(branch_parent_policy(&ambiguous).is_err());
+    }
 }

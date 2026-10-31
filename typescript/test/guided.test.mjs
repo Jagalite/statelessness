@@ -293,3 +293,12 @@ test('skipped-check accounting remains exact and saturating', () => {
     assert.equal(r.skipped_checks,7n);
     assert.equal(addSkippedChecks((1n<<64n)-2n,10n),(1n<<64n)-1n);
 });
+test('guided feedback borrows history and copies a prefix only on retention', () => {
+ const steps=200;let clones=0;
+ const m=model({cloneInput:i=>{clones++;return i;},equalStates:undefined});
+ const f=feedback({transitionFeatures:()=>{}});
+ const result=fuzzGuided(m,config({maxSteps:steps,maxTransitions:BigInt(steps)}),guidance(),f);
+ assert.equal(result.transitions,BigInt(steps));assert.equal(result.guidance.corpus.length,0);
+ // A per-transition prefix copy would need about steps*(steps+1)/2 clones.
+ assert.ok(clones<=16*steps,`${clones} input clones for ${steps} transitions`);
+});

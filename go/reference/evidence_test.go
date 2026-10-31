@@ -4,6 +4,7 @@ import (
 	s "github.com/Jagalite/statelessness/go"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -97,7 +98,8 @@ func TestSuiteJSONAndExclusiveTraceExport(t *testing.T) {
 		t.Fatal(err)
 	}
 	info, err := os.Stat(path)
-	if err != nil || info.Mode().Perm() != 0600 {
+	// Windows does not report POSIX permission bits.
+	if err != nil || (runtime.GOOS != "windows" && info.Mode().Perm() != 0600) {
 		t.Fatal(info, err)
 	}
 	if err = SaveTrace(path, audit); err == nil {

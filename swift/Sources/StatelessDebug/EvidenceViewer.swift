@@ -70,6 +70,15 @@ private final class Deadline {
 
 // Declared environment and origin are a single provenance record. An absent
 // pair denotes legacy evidence; partial, repeated and unknown values fail closed.
+/// A live capture records its origin without a simulation input policy, so it
+/// constrains no branch. Minimization still requires full policy provenance.
+func branchParentPolicy(_ trace: AuditTrace) throws -> (String,Bool)? {
+    let origins = trace.config.parameters.filter { exactText($0.key,"stateless.debug.origin") }
+    if origins.count == 1, exactText(origins[0].value,"recorded-live-observation"),
+       !trace.config.parameters.contains(where: { exactText($0.key,"stateless.debug.environment") }) { return nil }
+    return try recordedEnvironment(trace)
+}
+
 func recordedEnvironment(_ trace: AuditTrace) throws -> (String,Bool)? {
     func unique(_ key: String) throws -> String? {
         let values = trace.config.parameters.filter { exactText($0.key,key) }

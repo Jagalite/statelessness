@@ -17,6 +17,28 @@ type InputPolicy[S, I any] struct {
 func Unrestricted[S, I any]() InputPolicy[S, I] {
 	return InputPolicy[S, I]{Label: "out-of-domain-injection", Unrestricted: true}
 }
+
+// branchParentPolicy treats a live capture, which records its origin without
+// a simulation input policy, as constraining no branch. Minimization still
+// requires full policy provenance.
+func branchParentPolicy(t *s.AuditTrace) (string, bool, bool, error) {
+	origins, environment := 0, false
+	live := false
+	for _, p := range t.Config.Parameters {
+		switch p[0] {
+		case "stateless.debug.environment":
+			environment = true
+		case "stateless.debug.origin":
+			origins++
+			live = p[1] == "recorded-live-observation"
+		}
+	}
+	if !environment && origins == 1 && live {
+		return "", false, false, nil
+	}
+	return recordedEnvironment(t)
+}
+
 func recordedEnvironment(t *s.AuditTrace) (string, bool, bool, error) {
 	var env, origin *string
 	for _, entry := range t.Config.Parameters {

@@ -86,3 +86,16 @@ class WorkbenchTests(unittest.TestCase):
         self.assertEqual(branch.session.state,5)
         self.assertEqual(dict(replace(branch.provenance,parent_prefix_verified=False).parameters())['stateless.debug.parent_prefix_verified'],'false')
 
+
+
+class BranchParentPolicyTests(unittest.TestCase):
+    def test_live_capture_parents_impose_no_branch_policy(self):
+        from types import SimpleNamespace
+        from statelessness.debugger import _branch_parent_policy, _recorded_environment
+        trace = lambda *parameters: SimpleNamespace(config=SimpleNamespace(parameters=parameters))
+        live = trace(('stateless.debug.origin', 'recorded-live-observation'))
+        self.assertIsNone(_branch_parent_policy(live))
+        # Minimization keeps requiring complete simulation policy provenance.
+        with self.assertRaises(ModelError): _recorded_environment(live)
+        self.assertEqual(_branch_parent_policy(trace(('stateless.debug.environment', 'allowed'), ('stateless.debug.origin', 'simulation'))), ('allowed', False))
+        with self.assertRaises(ModelError): _branch_parent_policy(trace(('stateless.debug.origin', 'simulation')))

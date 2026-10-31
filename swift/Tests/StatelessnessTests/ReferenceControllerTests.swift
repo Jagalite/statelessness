@@ -7,6 +7,13 @@ import Darwin
 import Glibc
 #endif
 
+// Relocated package tests receive the reviewed catalog through
+// STATELESS_REQUIREMENTS_DIR; in-tree runs fall back to docs/requirements.
+private func requirementsDirectory() -> URL {
+    if let path = ProcessInfo.processInfo.environment["STATELESS_REQUIREMENTS_DIR"] { return URL(fileURLWithPath:path) }
+    return URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/requirements")
+}
+
 final class ReferenceControllerTests: XCTestCase {
     func testBuildIdentityTracksReferenceImplementationAndCatalog() throws {
         let root = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
@@ -75,9 +82,8 @@ final class ReferenceControllerTests: XCTestCase {
         XCTAssertEqual(try replay(controller.model,trace:trace).outcome,"exact")
     }
     func testIndependentCatalogAndCoverageDetectWeakenedChecks() throws {
-        let root = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let catalog = try String(contentsOf:root.appendingPathComponent("docs/requirements/controller-properties.txt"),encoding:.utf8)
-        let requirements = try Data(contentsOf:root.appendingPathComponent("docs/requirements/controller.json"))
+        let catalog = try String(contentsOf:requirementsDirectory().appendingPathComponent("controller-properties.txt"),encoding:.utf8)
+        let requirements = try Data(contentsOf:requirementsDirectory().appendingPathComponent("controller.json"))
         let contract = try ReferenceRequirements(propertyCatalog:catalog,requirementJSON:Array(requirements))
         let bundled = try ReferenceRequirements.bundled()
         XCTAssertEqual(bundled.propertyFingerprint,contract.propertyFingerprint)
@@ -125,8 +131,7 @@ final class ReferenceControllerTests: XCTestCase {
         XCTAssertFalse(try controller.generated.isEnabled(state,.complete(99,1,.success)))
     }
     func testRetainedRegressionCorpusAndFixedControls() throws {
-        let root = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        let text = try String(contentsOf:root.appendingPathComponent("docs/requirements/controller-witnesses.txt"),encoding:.utf8)
+        let text = try String(contentsOf:requirementsDirectory().appendingPathComponent("controller-witnesses.txt"),encoding:.utf8)
         let cases = try bundledReferenceRegressionCorpus()
         XCTAssertEqual(cases,try parseReferenceRegressionCorpus(text)); XCTAssertEqual(cases.count,9)
         let checked = try checkReferenceRegressions(cases)

@@ -161,7 +161,6 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
             const feedbackTransition = driver ? capture(() => copyTransition(m, t)) : undefined;
             arrayGrowth(inputs.length);
             inputs.push(input(m, observedInput));
-            const feedbackHistory = driver ? capture(() => inputs.map(i => input(m, i))) : undefined;
             const observed = searchChecks(m, t.state, beforeState, observedInput, t, observer, inputs,checkStorage,
                 () => take(edgeInput), () => take(edgeState), () => take(edgeTransition), () => take(edgeBefore));
             r.skipped_checks = addSkippedChecks(r.skipped_checks,observed.skipped);
@@ -173,7 +172,9 @@ export function runFuzz<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, con
             if (stopped())
                 return r;
             if (driver) {
-                guidedCall('transition feedback', () => driver.transition(take(feedbackBefore!), take(feedbackInput!), take(feedbackTransition!), take(feedbackHistory!), BigInt(r.cases), r.transitions));
+                // The driver borrows the engine-owned history, as Rust passes &inputs,
+                // and copies a prefix only when it retains a corpus entry.
+                guidedCall('transition feedback', () => driver.transition(take(feedbackBefore!), take(feedbackInput!), take(feedbackTransition!), inputs, BigInt(r.cases), r.transitions));
                 if (stopped()) return r;
             }
             if (n + 1n < BigInt(config.maxSteps) && r.transitions < config.maxTransitions) s = take(successor);

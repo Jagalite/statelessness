@@ -52,11 +52,11 @@
     {
       "path": "crates/statelessness-debug/src/workbench.rs",
       "baseline_sha256": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d",
-      "sha256": "02ad20693d12713efff4436979c7aabb90f44c68dd23a4f9cafced7ccc216fdf",
+      "sha256": "c6bbd1140795a5cc942db399537f1012ca68c570846ec9f46d23ab417e18c110",
       "gap_ids": [
         "N12"
       ],
-      "reason": "Checkpoint sequence includes sequence_origin; policy provenance is checked before replay; declared-policy branches from unrestricted or partially recorded parents are rejected.",
+      "reason": "Checkpoint sequence includes sequence_origin; policy provenance is checked before replay; declared-policy branches from unrestricted or partially recorded parents are rejected. Live-capture parents, which record no simulation policy, impose none on a branch.",
       "mirrored_by": [
         "go",
         "python",

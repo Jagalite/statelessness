@@ -2,7 +2,7 @@
 from dataclasses import dataclass, replace
 from weakref import WeakKeyDictionary, ref
 from .core import ModelError, _copy, _natural, _call
-from .debugger import EvidenceViewer, VerificationLimits, InputPolicy, _recorded_environment
+from .debugger import EvidenceViewer, VerificationLimits, InputPolicy, _branch_parent_policy, _recorded_environment
 from .debugger_session import DebugSession, DebugError, SessionLimits
 from .evidence import Artifact
 from .trace_binary import audit_to_bytes, RunConfig
@@ -137,7 +137,7 @@ def fork_verified(viewer, id, model, sequence, policy, *, verification=Verificat
     artifact, boundary = viewer.artifact, viewer.boundary(sequence)
     if boundary is None: raise ModelError('fork outside parent history')
     trace = artifact.trace
-    recorded = _recorded_environment(trace)
+    recorded = _branch_parent_policy(trace)
     if recorded is not None and not policy.unrestricted and (recorded[0] != policy.label or recorded[1]):
         raise ModelError('branch environment differs; explicitly select unrestricted injection or retain parent policy')
     if any(c.status == 'failed' for c in trace.initial_checks) or any(c.status == 'failed' for c in boundary.checks):

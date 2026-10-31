@@ -57,3 +57,23 @@ func TestFuzzFailureTakesOwnedInputsWithoutCopy(t *testing.T) {
 		t.Fatalf("report=%+v err=%v", r, err)
 	}
 }
+
+// Guided feedback borrows the engine history and copies a prefix only when it
+// retains a corpus entry, so a case whose feedback emits nothing stays linear.
+func TestGuidedFeedbackDoesNotCopyHistoryPerTransition(t *testing.T) {
+	const steps = 200
+	clones := 0
+	g := guidedCounter()
+	g.CloneInput = func(v int) int { clones++; return v }
+	f := counterFeedback()
+	f.InitialFeatures = nil
+	f.TransitionFeatures = func(int, int, s.Transition[int, int], *s.FeatureBuffer[int]) error { return nil }
+	r, e := s.GuidedFuzz(g, s.FuzzConfig{Cases: 1, MaxSteps: steps, MaxTransitions: steps}, s.DefaultGuidanceConfig(), f)
+	if e != nil || r.Transitions != steps || len(r.Guidance.Corpus) != 0 {
+		t.Fatal(r, e)
+	}
+	// A per-transition prefix copy would need about steps*(steps+1)/2 clones.
+	if clones > 8*steps {
+		t.Fatalf("%d input clones for %d transitions", clones, steps)
+	}
+}

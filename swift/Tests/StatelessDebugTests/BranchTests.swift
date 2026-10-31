@@ -60,4 +60,16 @@ final class BranchTests: XCTestCase {
         }
     }
 
+    func testLiveCaptureParentsImposeNoBranchPolicy() throws {
+        func trace(_ parameters: [AuditParameter]) -> AuditTrace {
+            AuditTrace(metadata: Metadata(name: "branch"),config: RunConfig(strategy: "live",parameters: parameters),initialState: [0],initialChecks: [],steps: [],termination: .completed)
+        }
+        let live = trace([AuditParameter("stateless.debug.origin","recorded-live-observation")])
+        XCTAssertNil(try branchParentPolicy(live))
+        // Minimization keeps requiring complete simulation policy provenance.
+        XCTAssertThrowsError(try recordedEnvironment(live))
+        let declared = try XCTUnwrap(branchParentPolicy(trace([AuditParameter("stateless.debug.environment","allowed"),AuditParameter("stateless.debug.origin","simulation")])))
+        XCTAssertEqual(declared.0,"allowed"); XCTAssertFalse(declared.1)
+        XCTAssertThrowsError(try branchParentPolicy(trace([AuditParameter("stateless.debug.origin","simulation")])))
+    }
 }

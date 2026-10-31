@@ -94,6 +94,17 @@ def _recorded_environment(trace):
     return environment,origin=='out-of-domain-injection'
 
 
+
+def _branch_parent_policy(trace):
+    # A live capture records its origin without a simulation input policy, so
+    # it constrains no branch. Minimization still requires full provenance.
+    parameters = trace.config.parameters
+    origins = [value for key,value in parameters if key == 'stateless.debug.origin']
+    if origins == ['recorded-live-observation'] and not any(key == 'stateless.debug.environment' for key,_ in parameters):
+        return None
+    return _recorded_environment(trace)
+
+
 class EvidenceViewer:
     """Owned, semantically validated v1/v2 artifact; construction is passive."""
     def __init__(self, artifact, *, limits=EvidenceLimits()):

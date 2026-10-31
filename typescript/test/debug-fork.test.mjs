@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {EvidenceViewer} from '../dist/debug.js';
-import {forkVerified,validateBranchParent,bytesIdentity} from '../dist/debug_fork.js';
+import {forkVerified,validateBranchParent,bytesIdentity,branchParentPolicy} from '../dist/debug_fork.js';
 import {DebugSession} from '../dist/debug_session.js';
 import {accepted,check,metadata} from '../dist/index.js';
 const bytes=n=>Uint8Array.of(n),policy={kind:'unrestricted',label:'out-of-domain-injection'},limits={maxTurns:10n,maxContinue:5,maxCandidates:3,maxBreakpoints:2};
@@ -25,3 +25,11 @@ test('session rejects asynchronous policy admission without unhandled rejection'
 // Range controls use an actual recorder, so an unavailable-recorder exception
 // cannot accidentally satisfy these negatives.
 test('recorded trace windows validate direct ranges and return exact header',()=>{const {m}=fixture(),s=DebugSession.recording('window',m,policy,limits,{strategy:'manual',seed:null,parameters:[]});assert.deepEqual(Array.from(s.traceWindow(0n,12).bytes),[83,84,76,69,83,83,26,10,1,0,0,0]);assert.throws(()=>s.traceWindow(-1n,1),/invalid trace window/);assert.throws(()=>s.traceWindow(0n,-1),/invalid trace window/);assert.throws(()=>s.traceWindow((1n<<64n)-1n,1),/invalid trace window/);});
+
+test('live capture parents impose no branch policy',()=>{
+ const trace=parameters=>({config:{parameters}});
+ assert.equal(branchParentPolicy(trace([['stateless.debug.origin','recorded-live-observation']])),null);
+ assert.deepEqual(branchParentPolicy(trace([['stateless.debug.environment','allowed'],['stateless.debug.origin','simulation']])),{label:'allowed',unrestricted:false});
+ assert.throws(()=>branchParentPolicy(trace([['stateless.debug.origin','simulation']])));
+ assert.throws(()=>branchParentPolicy(trace([['stateless.debug.origin','recorded-live-observation'],['stateless.debug.origin','recorded-live-observation']])));
+});

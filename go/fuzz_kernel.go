@@ -250,11 +250,6 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				return nil, e
 			}
 			inputs = append(inputs, saved)
-			var feedbackHistory []I
-			var feedbackHistoryErr error
-			if driver != nil {
-				feedbackHistory, feedbackHistoryErr = cloneInputs(g, inputs)
-			}
 			violations, e := searchEdgeObservedPrepared(g, state, input, transition, inputs, &report.SkippedChecks, observer, &checkStorage, edgeCapture)
 			if e != nil {
 				return nil, e
@@ -270,12 +265,15 @@ func fuzzKernel64[S, I, O any](g GenerateModel[S, I, O], config FuzzConfig64, co
 				return report, nil
 			}
 			if driver != nil {
-				for _, captureErr := range []error{feedbackStateErr, feedbackInputErr, feedbackTransitionErr, feedbackHistoryErr} {
+				for _, captureErr := range []error{feedbackStateErr, feedbackInputErr, feedbackTransitionErr} {
 					if captureErr != nil {
 						return nil, captureErr
 					}
 				}
-				if e := driver.transition(feedbackState, feedbackInput, feedbackTransition, feedbackHistory, report.Cases, report.Transitions); e != nil {
+				// The driver borrows the engine-owned history, as Rust passes
+				// &inputs; it copies the prefix only when it retains a corpus
+				// entry, so feedback without retention is linear per case.
+				if e := driver.transition(feedbackState, feedbackInput, feedbackTransition, inputs, report.Cases, report.Transitions); e != nil {
 					return nil, e
 				}
 				if stop() {
