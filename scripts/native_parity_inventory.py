@@ -10,6 +10,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = '0876717bee85e335449c2c99ada41f6c6e6112d1'
 DEST = ROOT / 'docs/native-parity/rust-baseline.json'
+AMENDMENTS = ROOT / 'docs/native-parity/rust-baseline-amendments.json'
 ROOTS = ('src/', 'crates/statelessness-macros/src/', 'crates/statelessness-debug/src/')
 LANGUAGES = ('python', 'go', 'typescript', 'swift')
 GAPS = {
@@ -146,6 +147,40 @@ def validate(document):
             raise ValueError('Bootstrap inventory cannot assert implementation or qualification; use reviewed capability evidence')
 
 
+def check_working(expected, working, record):
+    """Require working sources to equal the baseline except exact reviewed amendments.
+
+    An amendment names one file, its baseline hash and its reviewed working hash.
+    Drift without an amendment, a stale amendment, or a hash mismatch fails, and
+    declarations in unamended files must still match the baseline exactly.
+    """
+    if record.get('schema_version') != 1 or record.get('baseline_commit') != expected['baseline_commit']:
+        raise ValueError('Rust baseline amendments do not name the pinned baseline')
+    base = {row['path']: row['sha256'] for row in expected['files']}
+    actual = {row['path']: row['sha256'] for row in working['files']}
+    if set(base) != set(actual):
+        raise ValueError('Rust source file set differs from pinned baseline; review and update baseline explicitly')
+    amendments = {}
+    for row in record.get('amendments', []):
+        if row['path'] in amendments:
+            raise ValueError(f'Duplicate Rust baseline amendment: {row["path"]}')
+        if not row.get('reason') or not row.get('gap_ids'):
+            raise ValueError(f'Rust baseline amendment lacks reason or mapping: {row["path"]}')
+        amendments[row['path']] = row
+    drifted = {path for path in base if base[path] != actual[path]}
+    if drifted - set(amendments):
+        raise ValueError('Working Rust sources drifted from pinned baseline without a reviewed amendment: '
+                         + ', '.join(sorted(drifted - set(amendments))))
+    if set(amendments) - drifted:
+        raise ValueError('Stale Rust baseline amendment: ' + ', '.join(sorted(set(amendments) - drifted)))
+    for path, row in amendments.items():
+        if row['baseline_sha256'] != base[path] or row['sha256'] != actual[path]:
+            raise ValueError(f'Rust baseline amendment hash mismatch: {path}')
+    unamended = lambda document: [item for item in document['items'] if item['path'] not in amendments]
+    if unamended(expected) != unamended(working):
+        raise ValueError('Unamended Rust declarations drifted from pinned baseline')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
@@ -168,8 +203,11 @@ def main():
         validate(saved)
         if saved != expected:
             raise SystemExit('Inventory differs from pinned baseline; regenerate and review mapping changes')
-        if inventory(working=True) != expected:
-            raise SystemExit('Working Rust sources drifted from pinned baseline; record a reviewed baseline update')
+        record = json.loads(AMENDMENTS.read_text()) if AMENDMENTS.exists() else {'schema_version': 1, 'baseline_commit': BASELINE}
+        try:
+            check_working(expected, inventory(working=True), record)
+        except ValueError as error:
+            raise SystemExit(f'{error}; record a reviewed baseline amendment') from None
     print(f'{len(expected["items"])} lexical candidates in {len(expected["files"])} pinned files; semantic export audit pending')
 
 

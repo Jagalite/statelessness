@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "0876717bee85e335449c2c99ada41f6c6e6112d1",
+  "description": "Reviewed Rust reference changes made after the pinned baseline. The inventory gate accepts working-source drift only for these exact file hashes; every other Rust source must still match the baseline byte for byte.",
+  "review": "2026-10-31 independent read-only review of Rust, scripts and docs changes; native lanes updated to mirror each behavior change.",
+  "amendments": [
+    {
+      "path": "crates/statelessness-debug/src/inspect.rs",
+      "baseline_sha256": "106cee7faed51e0ba77d02695399faed8c84963538d970428a149766c84ce0c0",
+      "sha256": "f3d9d169d5fd0241e64e1603b159b4b781ad63bbc71221e1393c8fd133464b7b",
+      "gap_ids": [
+        "N12"
+      ],
+      "reason": "Reject duplicate child segments and duplicate selected metadata fields as incomplete or invalid inspection output.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "crates/statelessness-debug/src/protocol.rs",
+      "baseline_sha256": "3c6e3d38d49b3b3f82f5b1cee3b48ed7da8a20d5373538a05506d054f9c687d5",
+      "sha256": "57199fbe2c4489a7fa60510040e906ff346cb4800181208ccafef58d7f0e6efb",
+      "gap_ids": [
+        "N12"
+      ],
+      "reason": "watch_status field order (counters before rows) and the effect.labels.debugger_affected label key.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "crates/statelessness-debug/src/watches.rs",
+      "baseline_sha256": "323f6b4b5a30cb98351cc375244ce49f063af82cd4a3f13d1166c9026c087960",
+      "sha256": "5ca0ebea7a324bda0d49ce3fac667ec8e5b2e7d4134b626ab66d7d64d2d05de3",
+      "gap_ids": [
+        "N12"
+      ],
+      "reason": "Treat incomplete schema metadata as partial, keep Equals triggers from firing on inspector errors, and add allocation-free protocol status summaries.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "crates/statelessness-debug/src/workbench.rs",
+      "baseline_sha256": "2eed7ef95f82191bd98752b1820324796a00c61552c037421fbc93ea468b859d",
+      "sha256": "02ad20693d12713efff4436979c7aabb90f44c68dd23a4f9cafced7ccc216fdf",
+      "gap_ids": [
+        "N12"
+      ],
+      "reason": "Checkpoint sequence includes sequence_origin; policy provenance is checked before replay; declared-policy branches from unrestricted or partially recorded parents are rejected.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/campaign/lifecycle/tests.rs",
+      "baseline_sha256": "3102ec704a8757f339d558e93faf98c82499076ffc94d8177551aba2af582b3a",
+      "sha256": "a94093d744f8a6633fa43a64196b7485cc8ca4d1aea374167c907bd63c3d1b61",
+      "gap_ids": [
+        "N06"
+      ],
+      "reason": "Test-only: persisted campaign witness controls for Swift-produced and self-model traces; no library behavior change.",
+      "mirrored_by": []
+    },
+    {
+      "path": "src/explore.rs",
+      "baseline_sha256": "496c19c7181a6bf3f2af97d3e04df1d3c7b22c241351104b4cd66201f6706ecb",
+      "sha256": "45f67568db4e63bc16f64c809c4b0b6bccc15e1374dd7676a2234c173ae10e65",
+      "gap_ids": [
+        "N04"
+      ],
+      "reason": "Bound consecutive already-seen simplifier hints per simpler_inputs iterator; an endless hint stream ends with attempt_limit, finite streams are unchanged.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/monitor.rs",
+      "baseline_sha256": "d2adec51f0c17a985d07b92c15c4e57ee15ea2917b52e75931d45d95736588ac",
+      "sha256": "c5199163023e1414168859a6aed78e1071483cffbaf96a3369cd7b6ebf4d8c55",
+      "gap_ids": [
+        "N07"
+      ],
+      "reason": "Check runtime observation sequence overflow (including sequence origin) before the model metadata callback.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/trace.rs",
+      "baseline_sha256": "157ed1c5e070372220c14a23e6ba9e636e0ab94507160e7197f1419052bfc786",
+      "sha256": "685b3b77e536e091fa9968e7294528e90dafff127e13e3f3792aa8eec6cd3cb8",
+      "gap_ids": [
+        "N11"
+      ],
+      "reason": "Read frames with a bounded loop that rejects readers reporting more bytes than requested instead of panicking in read_exact.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    }
+  ]
+}
