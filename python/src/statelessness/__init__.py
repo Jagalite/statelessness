@@ -23,16 +23,16 @@ __all__ = [
 
 from .search import (EXHAUSTED, Auto, AutoOptions, Generated, GenerateModel, FuzzConfig,
                      FuzzReport, RunLimits, SearchLimits, SearchObserver, ShrinkAttempt, ShrinkConfig,
-                     ShrinkLimits, ShrinkOperation, ShrinkReport, fuzz, shrink)
+                     ShrinkLimits, ShrinkOperation, ShrinkReport, fuzz, fuzz_auto, shrink)
 __all__ += ["EXHAUSTED", "Auto", "AutoOptions", "Generated", "GenerateModel", "FuzzConfig",
             "FuzzReport", "RunLimits", "SearchLimits", "SearchObserver", "ShrinkAttempt", "ShrinkConfig",
-            "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "shrink"]
+            "ShrinkLimits", "ShrinkOperation", "ShrinkReport", "fuzz", "fuzz_auto", "shrink"]
 
 from .guided import (CorpusEntry, Feedback, FeedbackMetadata, FeatureBuffer,
                      GuidanceConfig, GuidanceReport, StateFeedback, exact_state,
-                     guided_fuzz)
+                     guided_fuzz, guided_fuzz_auto)
 __all__ += ["CorpusEntry", "Feedback", "FeedbackMetadata", "FeatureBuffer",
-            "GuidanceConfig", "GuidanceReport", "StateFeedback", "exact_state", "guided_fuzz"]
+            "GuidanceConfig", "GuidanceReport", "StateFeedback", "exact_state", "guided_fuzz", "guided_fuzz_auto"]
 
 EXPERIMENTAL_PROFILES = EXPERIMENTAL_PROFILES + ("search-v1",)
 
@@ -107,10 +107,27 @@ __all__ += ["DebugObservation", "DebugInitial", "DebugTurn"]
 
 from .campaign import (CampaignConfig, CampaignReport, JobOutcome, JobReport,
     CampaignCancellation, InputTransfer, PickleInputTransfer, ProcessWorkers,
-    job_seed, run_campaign, run_guided_campaign)
+    job_seed, run_campaign, run_guided_campaign, run_auto_campaign, run_guided_auto_campaign)
 __all__ += ["CampaignConfig", "CampaignReport", "JobOutcome", "JobReport",
     "CampaignCancellation", "InputTransfer", "PickleInputTransfer", "ProcessWorkers",
-    "job_seed", "run_campaign", "run_guided_campaign"]
+    "job_seed", "run_campaign", "run_guided_campaign", "run_auto_campaign", "run_guided_auto_campaign"]
 
-from .modeling import DomainDescriptor, Domain, PropertyMetadata, declared_properties, check_lazy, ModelAdapter
-__all__ += ["DomainDescriptor", "Domain", "PropertyMetadata", "declared_properties", "check_lazy", "ModelAdapter"]
+from .modeling import DomainDescriptor, Domain, PropertyMetadata, declared_properties, check_lazy, ModelAdapter, runtime_build_id
+__all__ += ["DomainDescriptor", "Domain", "PropertyMetadata", "declared_properties", "check_lazy", "ModelAdapter", "runtime_build_id"]
+
+# Experimental assurance names are prefixed to avoid colliding with observation
+# Observer and causal-evidence Provenance. This slice is not a promoted profile.
+from . import assurance
+from .assurance import (Manifest as AssuranceManifest, Provenance as AssuranceProvenance,
+    RequiredProperty as AssuranceRequiredProperty, InputFamily as AssuranceInputFamily,
+    CoverGoal as AssuranceCoverGoal, CoverageHits as AssuranceCoverageHits,
+    CheckCounts as AssuranceCheckCounts, PropertyResult as AssurancePropertyResult,
+    FamilyResult as AssuranceFamilyResult, GoalResult as AssuranceGoalResult, Observer as AssuranceObserver,
+    Report as AssuranceReport, Assessment as AssuranceAssessment,
+    MergedReport as MergedAssuranceReport, merge_reports as merge_assurance_reports,
+    AssuredRun, AssuredCampaign, assured_enumerate, assured_fuzz, assured_guided_fuzz, assured_campaign, assured_guided_campaign, assured_fuzz_auto, assured_guided_fuzz_auto, assured_auto_campaign, assured_guided_auto_campaign,
+    search_outcome as assurance_search_outcome)
+__all__ += ["assurance", "AssuranceManifest", "AssuranceProvenance", "AssuranceRequiredProperty",
+    "AssuranceInputFamily", "AssuranceCoverGoal", "AssuranceCoverageHits", "AssuranceCheckCounts", "AssurancePropertyResult", "AssuranceFamilyResult", "AssuranceGoalResult",
+    "AssuranceObserver", "AssuranceReport", "AssuranceAssessment", "MergedAssuranceReport",
+    "merge_assurance_reports", "AssuredRun", "AssuredCampaign", "assured_enumerate", "assured_fuzz", "assured_guided_fuzz", "assured_campaign", "assured_guided_campaign", "assured_fuzz_auto", "assured_guided_fuzz_auto", "assured_auto_campaign", "assured_guided_auto_campaign", "assurance_search_outcome"]

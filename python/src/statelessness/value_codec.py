@@ -1,4 +1,11 @@
-"""Candidate canonical value codecs with explicit logical Rust64 allocation weights."""
+"""Candidate canonical value codecs with explicit logical Rust64 allocation weights.
+
+Encoding mutable lists in composite schemas snapshots their slots before invoking
+element encoders.  This shallow snapshot uses temporary references proportional
+to the input length and is not bounded by the encoded-byte limit (an element may
+encode to zero bytes).  Callers must bound input sizes and ensure mutable element
+contents and codec callbacks cooperate with the snapshot.
+"""
 from dataclasses import dataclass
 import inspect
 from .core import ModelError, U64_MAX
@@ -321,7 +328,11 @@ class VectorOf(Schema):
         _length_schema(width)
         if type(value) is not tuple and type(value) is not list: raise ModelError('vector value must be list or tuple')
         _put_length(len(value),width,sink)
-        for item in value: encode_raw(self.element,item,sink)
+        # Pin the sequence slots before invoking application encoders.  These
+        # are shallow snapshots: mutable elements still require cooperation.
+        try: items=tuple(value)
+        except MemoryError: raise ModelError('encode allocation failed') from None
+        for item in items: encode_raw(self.element,item,sink)
     def decode(self,reader): return self.decode_length(4,reader)
     def decode_length(self,width,reader):
         _require_direction(self,'decode')
@@ -336,7 +347,9 @@ class ArrayOf(Schema):
     def encode_into(self,value,sink):
         _require_direction(self,'encode')
         if (type(value) is not tuple and type(value) is not list) or len(value)!=self.length: raise ModelError('array length mismatch')
-        for item in value: encode_raw(self.element,item,sink)
+        try: items=tuple(value)
+        except MemoryError: raise ModelError('encode allocation failed') from None
+        for item in items: encode_raw(self.element,item,sink)
     def decode(self,reader):
         _require_direction(self,'decode')
         reader.collection(self.length,_weight(self))
@@ -352,7 +365,9 @@ class TupleOf(Schema):
     def encode_into(self,value,sink):
         _require_direction(self,'encode')
         if (type(value) is not tuple and type(value) is not list) or len(value)!=len(self.fields): raise ModelError('tuple arity mismatch')
-        for field,item in zip(self.fields,value): encode_raw(field,item,sink)
+        try: items=tuple(value)
+        except MemoryError: raise ModelError('encode allocation failed') from None
+        for field,item in zip(self.fields,items): encode_raw(field,item,sink)
     def decode(self,reader):
         _require_direction(self,'decode')
         return tuple(reader.value(field) for field in self.fields)
@@ -364,7 +379,11 @@ class OracleStateOf(Schema):
     def encode_into(self,value,sink):
         _require_direction(self,'encode')
         if type(value) is not OracleState: raise ModelError('OracleState value required')
-        encode_raw(self.model,value.model,sink); encode_raw(self.history,value.oracle,sink)
+        # Capture both references before either application encoder can mutate
+        # the frozen wrapper through an external alias. The capture is shallow;
+        # mutable field contents still require cooperative ownership.
+        model,history=value.model,value.oracle
+        encode_raw(self.model,model,sink); encode_raw(self.history,history,sink)
     def decode(self,reader):
         _require_direction(self,'decode')
         return OracleState(reader.value(self.model),reader.value(self.history))

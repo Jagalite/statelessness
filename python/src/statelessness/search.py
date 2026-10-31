@@ -7,11 +7,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+import sys
 import time
 from typing import TYPE_CHECKING, Callable, Generic, Iterable, Protocol
 
 from .core import (S, I, O, Check, Transition, Model, EnumerateModel, ModelError, Rng, Failure,
-                   Violation, _call, _copy, _natural, _step, _saturating_add_u64, _dispatch_checks)
+                   Violation, _Captured, _call, _copy, _error_detail, _natural, _step, _saturating_add_u64, _dispatch_checks)
 
 if TYPE_CHECKING:
     from .guided import GuidanceReport
@@ -48,13 +49,20 @@ class Generated(Generic[S, I, O]):
         return getattr(self.model, name)
 
     def generate(self, state, rng):
-        return self._generate(state, rng)
+        return _copy(self._generate(_copy(state), rng))
 
     def is_enabled(self, state, input):
-        return True if self._enabled is None else self._enabled(state, input)
+        # Select the callback before application-defined copy hooks can mutate
+        # this adapter. The absent callback remains a no-copy fast path.
+        callback = self._enabled
+        if callback is None: return True
+        captured_input = _copy(input)
+        result = callback(_copy(state), captured_input)
+        if type(result) is not bool: raise ModelError("is_enabled must return bool")
+        return result
 
     def simpler_inputs(self, input):
-        return () if self._simpler is None else self._simpler(input)
+        return () if self._simpler is None else (_copy(value) for value in self._simpler(_copy(input)))
 
 
 @dataclass(frozen=True)
@@ -71,6 +79,9 @@ class Auto(Generic[S, I, O]):
     Duplicate entries carry duplicate weight. A max+1 pull detects overflow;
     overflow/iterator errors leave the caller RNG unchanged. Membership stops at
     its first match, so a match within the cap need not inspect the suffix.
+    Membership copies its query before obtaining the domain; the copy hook can
+    have side effects even for an empty domain. Copy failures are deferred until
+    a candidate is compared. Copy hooks must cooperate with external aliases.
     """
     def __init__(self, model: EnumerateModel[S, I, O], options: AutoOptions = AutoOptions()):
         self.model, self.options = model, options
@@ -83,34 +94,49 @@ class Auto(Generic[S, I, O]):
         return _call("automatic inputs", iter, domain)
 
     def generate(self, state, rng):
+        return self._generate(state, rng, None)
+
+    def _generate(self, state, rng, poll):
+        maximum = _natural(self.options.max_candidates, "max_candidates", 1)
         working = Rng(rng.state)
         selected = EXHAUSTED
         sentinel = object()
         iterator = self._inputs(state)
         count = 0
         while True:
+            if poll is not None: poll()
             candidate = _call("automatic inputs next", next, iterator, sentinel)
             if candidate is sentinel:
+                if poll is not None: poll()
                 rng.state = working.state
                 return selected
             count += 1
-            if count > self.options.max_candidates:
+            if count > maximum:
                 raise ModelError("automatic input domain exceeds max_candidates")
             if count == 1 or working.index(count) == 0:
                 selected = _copy(candidate)
 
     def is_enabled(self, state, input):
+        return self._is_enabled(state, input, None)
+
+    def _is_enabled(self, state, input, poll):
+        maximum = _natural(self.options.max_candidates, "max_candidates", 1)
+        # Preserve the query before state-copy and domain callbacks. Defer a
+        # copy failure until a candidate needs comparison, so an empty or
+        # failing domain retains its normal result/error precedence.
+        query = _Captured(input)
         sentinel = object()
         iterator = self._inputs(state)
         count = 0
         while True:
+            if poll is not None: poll()
             candidate = _call("automatic inputs next", next, iterator, sentinel)
             if candidate is sentinel:
                 return False
             count += 1
-            if count > self.options.max_candidates:
+            if count > maximum:
                 raise ModelError("automatic input domain exceeds max_candidates")
-            if _equal(candidate, input):
+            if _equal(candidate, query.get()):
                 return True
 
     def simpler_inputs(self, input):
@@ -171,7 +197,11 @@ class _Control:
 
 def _enabled(model, state, input):
     callback = getattr(model, "is_enabled", None)
-    value = True if callback is None else _call("is_enabled", callback, _copy(state), _copy(input))
+    if callback is None:
+        value = True
+    else:
+        captured_input = _copy(input)
+        value = _call("is_enabled", callback, _copy(state), captured_input)
     if type(value) is not bool:
         raise ModelError("is_enabled must return bool")
     return value
@@ -211,14 +241,45 @@ def _notify_check_error(observer, phase, checks, complete, primary):
         primary.observer_errors = getattr(primary, "observer_errors", ()) + (secondary,)
 
 
-def _violations(model, state, input=None, transition=None, *, observer=None, history=(), storage=None):
+_NO_STATE_SNAPSHOT = object()
+
+
+def _violations(model, state, input=None, transition=None, *, observer=None, history=(), storage=None, edge_capture_error=None, state_snapshot=_NO_STATE_SNAPSHOT, state_snapshot_error=None):
     values = [] if storage is None else storage
     values.clear()
     initial = transition is None
     phase = "initial_state" if initial else "state"
+    # Capture the edge before state checks can mutate application-owned aliases.
+    # Defer snapshot failures to the stage that needs them, so state-check errors
+    # retain precedence and observer history failures do not mask transition checks.
+    edge = history_snapshot = None
+    initial_callback = initial_snapshot = initial_lookup_error = None
+    initial_check_snapshot = None
+    if initial and observer is not None:
+        initial_check_snapshot = _Captured(state)
+        initial_snapshot = _Captured(state)
+        try:
+            initial_callback = getattr(observer, "initial", None)
+        except Exception as error:
+            initial_lookup_error = error
+    observer_transition = transition_lookup_error = None
+    if not initial:
+        edge = _Captured((state, input, transition))
+        if observer is not None:
+            # Resolve the hook once, deferring a lookup failure like the initial
+            # hook. Copy history only for an observer that will consume it.
+            try:
+                observer_transition = _call("search observer transition", getattr, observer, "transition", None)
+            except ModelError as error:
+                transition_lookup_error = error
+            if observer_transition is not None:
+                history_snapshot = _Captured(tuple(history))
     try:
+        if state_snapshot_error is not None:
+            raise state_snapshot_error
+        initial_check_state = (initial_check_snapshot.get() if initial and observer is not None else state)
         _dispatch_checks(model, "check_state_into", "check_state",
-                         (_copy(state if initial else transition.state),), values,
+                         (_copy(initial_check_state if initial else (state_snapshot if state_snapshot is not _NO_STATE_SNAPSHOT else transition.state)),), values,
                          "initial check_state" if initial else "check_state")
     except ModelError as error:
         if observer is not None:
@@ -226,21 +287,42 @@ def _violations(model, state, input=None, transition=None, *, observer=None, his
         raise
     boundary = len(values)
     if initial:
-        if observer is not None:
-            _notify(observer, "initial", state, tuple(values))
+        if initial_lookup_error is not None:
+            raise ModelError(f"search observer initial: {_error_detail(initial_lookup_error)}") from initial_lookup_error
+        if initial_callback is not None:
+            snapshot = initial_snapshot.get()
+            _call("search observer initial", initial_callback, _copy(snapshot), _copy(tuple(values)))
     else:
         try:
-            _dispatch_checks(model, "check_transition_into", "check_transition",
-                             (_copy(state), _copy(input), _copy(transition)), values,
-                             "transition check", optional=True)
+            def resolve_transition_check():
+                append = getattr(model, "check_transition_into", None)
+                return append, None if append is not None else getattr(model, "check_transition", None)
+            append, legacy = _call("transition check", resolve_transition_check)
+            if append is not None or legacy is not None:
+                if edge_capture_error is not None:
+                    raise edge_capture_error
+                before_snapshot, input_snapshot, transition_snapshot = edge.get()
+                class PinnedCheck:
+                    check_transition_into = staticmethod(append) if append is not None else None
+                    check_transition = staticmethod(legacy) if legacy is not None else None
+                _dispatch_checks(PinnedCheck(), "check_transition_into", "check_transition",
+                                 (_copy(before_snapshot), _copy(input_snapshot), _copy(transition_snapshot)), values,
+                                 "transition check", optional=True)
         except ModelError as error:
             if observer is not None:
                 _notify_check_error(observer, "state", tuple(values[:boundary]), True, error)
                 _notify_check_error(observer, "transition", tuple(values[boundary:]), False, error)
             raise
-        if observer is not None:
-            _notify(observer, "transition", state, input, transition,
-                    tuple(values[:boundary]), tuple(values[boundary:]), tuple(history))
+        if transition_lookup_error is not None:
+            raise transition_lookup_error
+        if observer_transition is not None:
+            if edge_capture_error is not None:
+                raise edge_capture_error
+            before_snapshot, input_snapshot, transition_snapshot = edge.get()
+            history_value = history_snapshot.get()
+            _call("search observer transition", observer_transition,
+                  *(_copy(arg) for arg in (before_snapshot, input_snapshot, transition_snapshot,
+                    tuple(values[:boundary]), tuple(values[boundary:]), history_value)))
     failures = tuple(Violation("initial_state" if initial else "state" if index < boundary else "transition", check)
                      for index, check in enumerate(values) if check.status == "failed")
     skipped = _saturating_add_u64(0, sum(check.status == "skipped" for check in values))
@@ -288,10 +370,57 @@ class _PreviousSequence:
         return mutated, rng.index(len(mutated) + 1)
 
 
+class _AutoScanStopped(BaseException):
+    def __init__(self, owner, reason):
+        self.owner, self.reason = owner, reason
+
+
+class _ControlledAuto(Auto):
+    def __init__(self, model, options, control):
+        super().__init__(model, options)
+        self.control = control
+
+    def _poll(self):
+        reason = self.control.stop()
+        if reason:
+            raise _AutoScanStopped(self, reason)
+
+    def generate(self, state, rng):
+        return self._generate(state, rng, self._poll)
+
+    def is_enabled(self, state, input):
+        return self._is_enabled(state, input, self._poll)
+
+
+def fuzz_auto(model: EnumerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
+              *, options: AutoOptions = AutoOptions(), limits: RunLimits = RunLimits(),
+              observer: SearchObserver[S, I, O] | None = None) -> FuzzReport[I]:
+    """Fuzz a finite domain with cancellation between automatic iterator pulls.
+
+    Application callbacks cannot be preempted; an interrupted sampling scan does
+    not commit its tentative random state. Existing Auto/fuzz behavior is unchanged.
+    """
+    if not isinstance(config, FuzzConfig): raise ValueError("config must be FuzzConfig")
+    if not isinstance(limits, RunLimits): raise ValueError("limits must be RunLimits")
+    if not isinstance(options, AutoOptions): raise ValueError("options must be AutoOptions")
+    config = FuzzConfig(config.seed, config.cases, config.max_steps, config.max_transitions, config.mutation_percent)
+    config.validate()
+    options = AutoOptions(options.max_candidates)
+    control = _Control(RunLimits(limits.max_duration, limits.cancellation))
+    return _fuzz_with_driver(_ControlledAuto(model, options, control), config, control, observer)
+
+
 def fuzz(model: GenerateModel[S, I, O], config: FuzzConfig = FuzzConfig(),
          *, limits: RunLimits = RunLimits(),
          observer: SearchObserver[S, I, O] | None = None) -> FuzzReport[I]:
     """Seeded state-aware search; completion proves no graph exhaustion."""
+    if not isinstance(config, FuzzConfig):
+        raise ValueError("config must be FuzzConfig")
+    if not isinstance(limits, RunLimits):
+        raise ValueError("limits must be RunLimits")
+    config = FuzzConfig(config.seed, config.cases, config.max_steps,
+                        config.max_transitions, config.mutation_percent)
+    limits = RunLimits(limits.max_duration, limits.cancellation)
     return _fuzz_with_driver(model, config, _Control(limits), observer)
 
 
@@ -321,6 +450,14 @@ def _fuzz_with_driver(model, config, control, observer, driver=None):
             return report(stop)
         state = _copy(_call("initial_state", model.initial_state))
         cases += 1
+        # Checks and observers receive application callbacks. Keep the search's
+        # continuation state independent of aliases they may mutate. A failed
+        # extra copy is only needed if the run continues past this boundary.
+        initial_state = initial_error = None
+        try:
+            initial_state = _copy(state)
+        except ModelError as error:
+            initial_error = error
         violations, count = _violations(model, state, observer=observer, storage=check_storage)
         skipped = _saturating_add_u64(skipped, count)
         if violations:
@@ -329,10 +466,22 @@ def _fuzz_with_driver(model, config, control, observer, driver=None):
         if stop:
             return report(stop)
         if driver is not None:
+            if initial_error is not None:
+                raise initial_error
+            state = initial_state
+            continuation = continuation_error = None
+            try:
+                continuation = _copy(state)
+            except ModelError as error:
+                continuation_error = error
             driver.initial(state, cases)
             stop = control.stop()
             if stop:
                 return report(stop)
+            state = continuation
+            initial_error = continuation_error
+        else:
+            state = initial_state
         mutated, replace_at = candidate_driver.candidate(previous, rng, config.mutation_percent)
         inputs = []
         for step in range(config.max_steps):
@@ -341,27 +490,87 @@ def _fuzz_with_driver(model, config, control, observer, driver=None):
             stop = control.stop()
             if stop:
                 return report(stop)
-            reused = step != replace_at and step < len(mutated) and _enabled(model, state, mutated[step])
+            if initial_error is not None:
+                raise initial_error
+            feedback_before = None
+            if driver is not None:
+                feedback_before = _Captured(state)
+            candidate_copy = candidate_error = None
+            eligible = step != replace_at and step < len(mutated)
+            if eligible:
+                try:
+                    candidate_copy = _copy(mutated[step])
+                except Exception as error:
+                    candidate_error = error
+            try:
+                reused = eligible and _enabled(
+                    model, state, candidate_copy if candidate_error is None else mutated[step])
+            except _AutoScanStopped as stopped:
+                if stopped.owner is not model: raise
+                return report(stopped.reason)
             stop = control.stop()
             if stop:
                 return report(stop)
-            input = (_copy(mutated[step]) if reused else
-                     _copy(_call("generate", model.generate, _copy(state), rng)))
+            if reused:
+                input = mutated[step]
+                retained_input, retained_error = candidate_copy, candidate_error
+            else:
+                try:
+                    input = _copy(_call("generate", model.generate, _copy(state), rng))
+                except _AutoScanStopped as stopped:
+                    if stopped.owner is not model: raise
+                    return report(stopped.reason)
+                retained_input = retained_error = None
+                if input is not EXHAUSTED:
+                    try:
+                        retained_input = _copy(input)
+                    except Exception as error:
+                        retained_error = error
             stop = control.stop()
             if stop:
                 return report(stop)
             if input is EXHAUSTED:
                 break
-            enabled = reused or _enabled(model, state, input)
+            try:
+                enabled = reused or _enabled(
+                    model, state, retained_input if retained_error is None else input)
+            except _AutoScanStopped as stopped:
+                if stopped.owner is not model: raise
+                return report(stopped.reason)
             stop = control.stop()
             if stop:
                 return report(stop)
             if not enabled:
                 raise ModelError("generate returned a causally disabled input")
-            transition = _step(model, state, input, stage="step")
+            # Capture before admission callbacks, but preserve disabled/stop
+            # precedence if the extra copy failed and was never needed.
+            if retained_error is not None:
+                raise retained_error
+            feedback_input = None
+            if driver is not None:
+                feedback_input = _Captured(retained_input)
+            transition = _step(model, state, retained_input, stage="step")
             transitions += 1
-            inputs.append(_copy(input))
-            violations, count = _violations(model, state, input, transition, observer=observer, history=inputs, storage=check_storage)
+            successor = successor_error = None
+            try:
+                successor = _copy(transition.state)
+            except ModelError as error:
+                successor_error = error
+            checks_transition = checks_transition_error = None
+            try:
+                checks_transition = _copy(transition)
+            except ModelError as error:
+                checks_transition_error = error
+            feedback_transition = None
+            if driver is not None:
+                feedback_transition = _Captured(transition)
+            inputs.append(_copy(retained_input))
+            violations, count = _violations(model, state, retained_input,
+                checks_transition if checks_transition_error is None else transition,
+                observer=observer, history=inputs, storage=check_storage,
+                edge_capture_error=checks_transition_error,
+                state_snapshot=successor if checks_transition_error is not None else _NO_STATE_SNAPSHOT,
+                state_snapshot_error=successor_error if checks_transition_error is not None else None)
             skipped = _saturating_add_u64(skipped, count)
             if violations:
                 return report("failure_found", Failure(tuple(inputs), violations))
@@ -369,11 +578,18 @@ def _fuzz_with_driver(model, config, control, observer, driver=None):
             if stop:
                 return report(stop)
             if driver is not None:
-                driver.transition(state, input, transition, inputs, cases, transitions)
+                # Raise deferred capture failures in before/input/transition order.
+                feedback_args = (feedback_before.get(), feedback_input.get(), feedback_transition.get())
+                # The search-owned prefix is lent, not copied: the driver
+                # snapshots it only when it retains a corpus entry, so a step
+                # does not copy the whole history (quadratic per case).
+                driver.transition(*feedback_args, inputs, cases, transitions)
                 stop = control.stop()
                 if stop:
                     return report(stop)
-            state = transition.state
+            # No later step consumes the successor after the final iteration.
+            if step + 1 < config.max_steps:
+                state, initial_error = successor, successor_error
         previous = tuple(inputs)
     return report("cases_completed")
 
@@ -427,7 +643,16 @@ class ShrinkReport(Generic[I]):
 def shrink(model: GenerateModel[S, I, O], original: Failure[I],
            config: ShrinkConfig = ShrinkConfig(), *,
            limits: ShrinkLimits = ShrinkLimits()) -> ShrinkReport[I]:
-    """Replay-preserving deletion/simplification; no global minimality claim."""
+    """Replay-preserving deletion/simplification; no global minimality claim.
+
+    Candidate copies are captured ahead of replay (up to the transition budget),
+    so copy hooks can run for inputs never reached after an earlier failure or
+    cancellation. Copy hooks must cooperate; concurrent external alias mutation
+    cannot be made atomic.
+    """
+    config = ShrinkConfig(config.max_attempts)
+    limits = ShrinkLimits(RunLimits(limits.control.max_duration, limits.control.cancellation),
+                          limits.max_replayed_transitions)
     original = _copy(original)
     if not original.violations or original.violations[0].check.status != "failed":
         raise ModelError("cannot shrink a sequence without a target violation")
@@ -468,6 +693,13 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
         stop = control.stop()
         if stop:
             return stop, None
+        # Retain the candidate before callbacks can mutate later inputs. Defer
+        # copy failures until replay reaches the corresponding position.
+        input_count = len(inputs)
+        capture_count = input_count
+        if limits.max_replayed_transitions is not None:
+            capture_count = min(input_count, max(0, limits.max_replayed_transitions - transitions))
+        captured = [_Captured(value) for value in inputs[:capture_count]]
         state = _copy(_call("shrink initial_state", model.initial_state))
         violations, _ = _violations(model, state, storage=check_storage)
         if violations:
@@ -475,12 +707,15 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
         stop = control.stop()
         if stop:
             return stop, None
-        for index, input in enumerate(inputs):
+        retained_inputs = []
+        for index in range(input_count):
             stop = control.stop()
             if stop:
                 return stop, None
             if limits.max_replayed_transitions is not None and transitions >= limits.max_replayed_transitions:
                 return "transition_limit", None
+            input = captured[index].get()
+            retained_inputs.append(input)
             enabled = _enabled(model, state, input)
             stop = control.stop()
             if stop:
@@ -491,7 +726,7 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
             transitions += 1
             violations, _ = _violations(model, state, input, transition, storage=check_storage)
             if violations:
-                return "failure", Failure(_copy(tuple(inputs[:index + 1])), violations)
+                return "failure", Failure(_copy(tuple(retained_inputs)), violations)
             stop = control.stop()
             if stop:
                 return stop, None
@@ -544,6 +779,15 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
         history.append(ShrinkAttempt(attempts, len(candidate), operation, outcome))
         return True, retained
 
+    def close_simplifier(value, primary=False):
+        try:
+            closer = _call("simpler_inputs close", getattr, value, "close", None)
+            if closer is not None:
+                _call("simpler_inputs close", closer)
+        except BaseException:
+            if not primary:
+                raise
+
     while True:
         groups = 2
         while minimized.inputs:
@@ -583,41 +827,68 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
                 return result()
             callback = getattr(model, "simpler_inputs", lambda input: ())
             domain = _call("simpler_inputs", callback, _copy(minimized.inputs[index]))
-            stop = control.stop()
+            try:
+                stop = control.stop()
+            except BaseException:
+                close_simplifier(domain, primary=True)
+                raise
             if stop:
                 termination = stop
+                close_simplifier(domain)
                 return result()
-            alternatives = _call("simpler_inputs", iter, domain)
+            try:
+                alternatives = _call("simpler_inputs", iter, domain)
+            except BaseException:
+                close_simplifier(domain, primary=True)
+                raise
             alternative = 0
+            # Duplicate hints create no replay attempt or history entry, but a
+            # lazy iterator can yield them forever. Bound consecutive skips per
+            # iterator (reset after every replayed hint), mirroring Rust
+            # shrink_ops, so finite runs are unaffected.
+            duplicate_hints = 0
             sentinel = object()
-            while True:
-                stop = control.stop()
-                if stop:
-                    termination = stop
-                    return result()
-                input = _call("simpler_inputs next", next, alternatives, sentinel)
-                stop = control.stop()
-                if stop:
-                    termination = stop
-                    return result()
-                if input is sentinel:
-                    break
-                candidate = list(_copy(minimized.inputs))
-                candidate[index] = _copy(input)
-                was_seen = known(candidate)
-                stop = control.stop()
-                if stop:
-                    termination = stop
-                    return result()
-                operation = ShrinkOperation("simplify", index=index, alternative=alternative)
-                alternative += 1
-                if was_seen:
-                    continue
-                proceed, simplified = attempt(tuple(candidate), operation)
-                if not proceed:
-                    return result()
-                if simplified:
-                    break
+            exhausted = False
+            try:
+                while True:
+                    stop = control.stop()
+                    if stop:
+                        termination = stop
+                        return result()
+                    input = _call("simpler_inputs next", next, alternatives, sentinel)
+                    stop = control.stop()
+                    if stop:
+                        termination = stop
+                        return result()
+                    if input is sentinel:
+                        exhausted = True
+                        break
+                    candidate = list(_copy(minimized.inputs))
+                    candidate[index] = _copy(input)
+                    was_seen = known(candidate)
+                    stop = control.stop()
+                    if stop:
+                        termination = stop
+                        return result()
+                    operation = ShrinkOperation("simplify", index=index, alternative=alternative)
+                    alternative += 1
+                    if was_seen:
+                        duplicate_hints += 1
+                        if duplicate_hints > config.max_attempts:
+                            termination = "attempt_limit"
+                            return result()
+                        continue
+                    duplicate_hints = 0
+                    proceed, simplified = attempt(tuple(candidate), operation)
+                    if not proceed:
+                        return result()
+                    if simplified:
+                        break
+            finally:
+                if not exhausted:
+                    # Release caller-retained generators on early exit, without
+                    # replacing an exception already raised by the search.
+                    close_simplifier(alternatives, primary=sys.exc_info()[0] is not None)
             if simplified:
                 break
         if not simplified:

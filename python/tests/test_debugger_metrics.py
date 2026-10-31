@@ -17,6 +17,13 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(h.quantile(s.current().schema,95,100),Quantile(None,4,True))
         self.assertIsNone(h.quantile(s.current().schema,101,100))
         self.assertIsNone(Histogram().quantile(s.current().schema,50,100))
+    def test_histogram_lookup(self):
+        s=self.store();s.observe(MetricFamily.QUEUE_WAIT,Labels(),10)
+        s.increment(MetricFamily.REQUESTS)
+        snapshot=s.current()
+        self.assertIs(snapshot.histogram(MetricFamily.QUEUE_WAIT),snapshot.get(MetricFamily.QUEUE_WAIT))
+        self.assertIsNone(snapshot.histogram(MetricFamily.REQUESTS))
+        self.assertIsNone(snapshot.histogram(MetricFamily.QUEUE_WAIT,Labels(origin='ReplayHarness')))
     def test_fullwidth_overflow_import_and_caps(self):
         s=self.store(limits=MetricLimits(max_series=1))
         s.increment(MetricFamily.REQUESTS,n=U64_MAX)
@@ -48,6 +55,26 @@ class MetricsTests(unittest.TestCase):
         y=x.current();before=x.current()
         with self.assertRaisesRegex(MetricError,'overflow'):y.merge_disjoint(before)
         self.assertEqual(y,before)
+    def test_snapshot_rejects_reentrant_mutations_and_releases_guard(self):
+        s=self.store();s.increment(MetricFamily.REQUESTS,n=2)
+        before=s.current();windows=s.available_windows()
+        def reenter(_):s.increment(MetricFamily.REQUESTS,n=3)
+        with self.assertRaisesRegex(MetricError,'snapshot in progress'):
+            s.snapshot(SnapshotTime(9,1),validate=reenter)
+        self.assertEqual(s.current(),before);self.assertEqual(s.available_windows(),windows)
+        def nested(_):s.snapshot(SnapshotTime(9,1))
+        with self.assertRaisesRegex(MetricError,'snapshot in progress'):
+            s.snapshot(SnapshotTime(9,1),validate=nested)
+        prepared=protocol_adapters(s)['metric_snapshot']((None,0,1))
+        with self.assertRaisesRegex(MetricError,'snapshot in progress'):
+            s.snapshot(SnapshotTime(9,1),validate=lambda _:prepared.commit())
+        self.assertEqual(s.current(),before);self.assertEqual(s.available_windows(),windows)
+        s.increment(MetricFamily.REQUESTS,n=3)
+        self.assertEqual(s.current().get(MetricFamily.REQUESTS),5)
+    def test_saturated_revision_window_uses_first_retained_match(self):
+        s=self.store();s._snapshot.revision=U64_MAX
+        first=s.snapshot(SnapshotTime(9,1));s.snapshot(SnapshotTime(9,2))
+        self.assertEqual(s.window(U64_MAX,U64_MAX).start,first.end)
     def test_gauge_scope_and_production(self):
         s=self.store(gauge_scope='CompleteParticipation');l=Labels()
         s.set_gauge(MetricFamily.RUNNING,l,2);a=s.snapshot(SnapshotTime(9,1))
@@ -57,6 +84,23 @@ class MetricsTests(unittest.TestCase):
         self.assertEqual(s.current().gauge_scope,'Unknown');self.assertEqual(s.current().get(MetricFamily.RUNNING),1)
         s.increment(MetricFamily.REQUESTS,Labels(debugger_affected=True))
         self.assertIsNone(s.current().production().get(MetricFamily.REQUESTS,Labels(debugger_affected=True)))
+
+    def test_window_rejects_changed_gauge_value_type(self):
+        s=self.store();s.set_gauge(MetricFamily.RUNNING,Labels(),2)
+        start=s.snapshot(SnapshotTime(9,1));end=s.snapshot(SnapshotTime(9,2))
+        end.series[(MetricFamily.RUNNING,Labels())]=Histogram()
+        with self.assertRaisesRegex(MetricError,'incompatible'):
+            MetricSnapshot.window(start,end)
+        self.assertEqual(start.get(MetricFamily.RUNNING),2)
+
+    def test_production_filters_scope_by_labels_independently(self):
+        snapshot=self.store().current()
+        live=(MetricFamily.RUNNING,Labels())
+        debug=(MetricFamily.RUNNING,Labels(debugger_affected=True))
+        snapshot.gauge_scopes={live:'HostSnapshot',debug:'Unknown'}
+        production=snapshot.production()
+        self.assertEqual(production.gauge_scopes,{live:'HostSnapshot'})
+        self.assertEqual(len(snapshot.gauge_scopes),2)
     def test_dashboard_unknowns_payload_free_cap_and_fullwidth(self):
         s=self.store();s.increment(MetricFamily.REQUESTS,n=U64_MAX)
         d=Dashboard.from_snapshot(s.current(),{},[Labels()],18)
@@ -80,6 +124,11 @@ class MetricsTests(unittest.TestCase):
         prepared=a['metric_snapshot']((None,0,1));fields=dict(prepared.fields)
         self.assertEqual(s.available_windows(),());prepared.commit()
         self.assertEqual(fields['metrics.series.0.value'],f'u64:{U64_MAX}')
+        keys=[key for key,_ in prepared.fields if key.startswith('metrics.series.0.')]
+        self.assertEqual(keys[4:13],['metrics.series.0.operation.id','metrics.series.0.component.id',
+            'metrics.series.0.worker_pool.id','metrics.series.0.outcome','metrics.series.0.measurement_origin',
+            'metrics.series.0.debugger_affected','metrics.series.0.operation.name',
+            'metrics.series.0.component.name','metrics.series.0.worker_pool.name'])
         revision=int(fields['metrics.revision'][4:]);s.increment(MetricFamily.ATTEMPTS)
         handle=int(fields['metrics.handle'][4:]);old=dict(a['metric_snapshot']((handle,0,1)))
         self.assertEqual(old['metrics.series.total'],'u64:1')
@@ -129,7 +178,9 @@ class MetricsTests(unittest.TestCase):
         w=a['metric_window']((first,second,1));self.assertEqual(dict(w.fields)['metrics.temporality'],'enum:Delta');self.assertEqual(dict(w.fields)['metrics.series.0.value'],'u64:3');w.commit()
         handle=int(dict(w.fields)['metrics.handle'][4:]);a['metric_snapshot'].reset_connection()
         with self.assertRaisesRegex(ProtocolError,'stale_handle'):a['metric_snapshot']((handle,0,1))
-        with self.assertRaisesRegex(ProtocolError,'malformed'):a['metric_snapshot']((None,1,1))
+        before=s.available_windows()
+        with self.assertRaisesRegex(ProtocolError,'invalid_input'):a['metric_snapshot']((None,1,1))
+        self.assertEqual(s.available_windows(),before)
     def test_report_budget_stops_before_row_projection_and_rejects_payload_health(self):
         from statelessness.debugger_dashboard import Row
         class Poison:

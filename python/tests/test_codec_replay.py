@@ -85,6 +85,27 @@ class BufferTests(unittest.TestCase):
 
 
 class RichReplayTests(unittest.TestCase):
+    def test_build_mismatch_rejects_before_decode_and_observer(self):
+        foreign = replace(saved(), metadata=replace(saved().metadata, build="other-build"))
+        for bounded in (False, True):
+            with self.subTest(bounded=bounded):
+                model, observations = Model(), []
+                trace = AuditTrace.from_portable(foreign, RunConfig()) if bounded else foreign
+                run = replay_with_observations_bounded if bounded else replay_with_observations
+                report = run(model, trace, lambda o, r: observations.append(o))
+                self.assertEqual((report.outcome, report.build_matches, report.steps_verified),
+                                 ("incompatible", False, 0))
+                self.assertEqual(model.calls, ["metadata"])
+                self.assertEqual(observations, [])
+                # A matched build exercises both spies, so the negative check is meaningful.
+                model, observations = Model(), []
+                trace = AuditTrace.from_portable(saved(), RunConfig()) if bounded else saved()
+                report = run(model, trace, lambda o, r: observations.append(o))
+                self.assertEqual((report.outcome, report.build_matches), ("exact", True))
+                self.assertIn("decode state", model.calls)
+                self.assertIn("decode input", model.calls)
+                self.assertEqual([o.kind for o in observations], ["initial", "turn"])
+
     def test_exact_observations_default_record_and_basic_compatibility(self):
         model, observations = Model(), []
         report = replay_with_observations(model, saved(), lambda o, r: observations.append((o, r)))

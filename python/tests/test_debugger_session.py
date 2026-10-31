@@ -38,6 +38,40 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(session.stop.kind, 'observer_error')
         self.assertEqual(session.phase, 'ended')
 
+    def test_hostile_exception_formatter_keeps_model_error_classification(self):
+        class Hostile(Exception):
+            def __str__(self): raise Hostile()
+        class Broken(Counter):
+            def step(self,state,input): raise Hostile()
+        session=self.session(Broken())
+        result=session.step(0,1)
+        self.assertFalse(result.delivered)
+        self.assertEqual(result.stop.kind,'model_error')
+        self.assertEqual(result.stop.detail,'transition: exception detail unavailable')
+        self.assertEqual((session.state,session.revision,session.sequence),(0,0,0))
+        self.assertEqual(session.phase,'ended')
+
+    def test_hostile_snapshot_exception_remains_owned_snapshot_failure(self):
+        from statelessness.core import _copy, _SnapshotFailure
+        class Hostile(Exception):
+            def __str__(self): raise Hostile()
+        class Value:
+            def __deepcopy__(self,memo): raise Hostile()
+        with self.assertRaisesRegex(_SnapshotFailure,'snapshot: exception detail unavailable'):
+            _copy(Value())
+
+    def test_hostile_recorder_error_does_not_lose_completed_turn(self):
+        class Hostile(Exception):
+            def __str__(self): raise Hostile()
+        class Recorder:
+            def observe_checked(self,checked): raise Hostile()
+        session=self.session();session._recorder=Recorder()
+        result=session.step(0,1)
+        self.assertTrue(result.delivered)
+        self.assertEqual((session.state,session.revision,session.sequence),(1,1,1))
+        self.assertEqual((session.stop.kind,session.stop.detail),('recording_error','exception detail unavailable'))
+        self.assertEqual(session.phase,'ended')
+
     def test_property_failure_and_checker_error_commit(self):
         session = self.session(state=5)
         self.assertEqual(session.step(0, 1).stop.kind, 'property_failure')
@@ -67,6 +101,27 @@ class SessionTests(unittest.TestCase):
         self.assertTrue(InputPolicy.enumerated().permits(model, 0, 1, 1))
         with self.assertRaisesRegex(ModelError, 'budget'): InputPolicy.enumerated().permits(model, 0, 3, 1)
         self.assertFalse(InputPolicy.enumerated().permits(model, 0, 9, 3))
+
+    def test_admission_captures_query_before_state_callbacks(self):
+        query = [1]
+        class State:
+            def __deepcopy__(self, memo):
+                query[0] = 9
+                return self
+        class Domain:
+            def inputs(self, state): return iter(([1],))
+        self.assertTrue(InputPolicy.enumerated().permits(Domain(), State(), query))
+        query[0] = 1
+        policy = InputPolicy('declared', lambda model, state, value: value == [1])
+        self.assertTrue(policy.permits(Domain(), State(), query))
+
+        class Uncopyable:
+            def __deepcopy__(self, memo): raise ValueError('copy failed')
+        class Empty:
+            def inputs(self, state): return iter(())
+        self.assertFalse(InputPolicy.enumerated().permits(Empty(), 0, Uncopyable()))
+        with self.assertRaisesRegex(ModelError, 'copy failed'):
+            InputPolicy.enumerated().permits(Domain(), 0, Uncopyable())
 
     def test_recording_checks_once_and_no_codecs_default(self):
         from statelessness.monitor import RecorderOptions

@@ -140,6 +140,27 @@ class SwitchPayloads(EncodedPayloads):
 
 
 class ObservationRecorderIntegrationTests(unittest.TestCase):
+    def test_raw_observation_rejects_absolute_sequence_overflow(self):
+        model = ApplicationModel()
+        initial = check_initial(model, 0)
+        maximum = (1 << 64) - 1
+        recorder = Recorder.with_checked_initial_at(initial, maximum)
+        before = recorder.snapshot()
+        calls = execution_counts(model)
+        with self.assertRaisesRegex(ModelError, 'sequence overflow'):
+            recorder.observe(model, 0, 1, Transition(1))
+        after = recorder.snapshot()
+        self.assertEqual(after.steps, before.steps)
+        self.assertEqual(after.initial_state, before.initial_state)
+        self.assertEqual(after.termination, 'model_error')
+        self.assertEqual(execution_counts(model), calls)
+
+        recorder = Recorder.with_checked_initial_at(initial, maximum - 1)
+        recorder.observe(model, 0, 1, Transition(1, (10001, -1)))
+        self.assertEqual(len(recorder.snapshot().steps), 1)
+        with self.assertRaisesRegex(ModelError, 'sequence overflow'):
+            recorder.observe(model, 1, 1, Transition(2))
+        self.assertEqual(len(recorder.snapshot().steps), 1)
     def test_all_levels_share_authentic_checks_and_match_uninstrumented_application(self):
         inputs = (1, 0, -1, 1, 1)
         baseline, state = ApplicationModel(), 0

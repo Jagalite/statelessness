@@ -63,7 +63,7 @@ def _number(field):
     except ValueError: raise ProtocolError('malformed') from None
 
 def escape(value):
-    return ''.join(chr(b) if b in _SAFE else '%%%02X' % b for b in value.encode('utf-8'))
+    return ''.join(chr(b) if b in _SAFE else '%%%02X' % b for b in str.encode(value,'utf-8'))
 
 def _unescape(value, maximum):
     if len(value)>maximum*3: raise ProtocolError('limit')
@@ -83,8 +83,23 @@ def _unescape(value, maximum):
     except UnicodeError: raise ProtocolError('malformed') from None
 
 def _encode(fields, limits):
-    if any(len(f.encode('utf-8')) > limits.max_field_bytes for f in fields): raise ProtocolError('limit')
-    result = '\t'.join(map(escape, fields)).encode('ascii')
+    try:
+        # Admit the escaped frame before materializing any escaped field.  A
+        # character takes at least one UTF-8 byte, so reject oversized strings
+        # before constructing their UTF-8 representation.
+        total = 0
+        for index, field in enumerate(fields):
+            if str.__len__(field) > limits.max_field_bytes: raise ProtocolError('limit')
+            raw = str.encode(field,'utf-8')
+            if len(raw) > limits.max_field_bytes: raise ProtocolError('limit')
+            total += bool(index)
+            if total > limits.max_frame_bytes: raise ProtocolError('limit')
+            for byte in raw:
+                total += 1 if byte in _SAFE else 3
+                if total > limits.max_frame_bytes: raise ProtocolError('limit')
+        result = '\t'.join(map(escape, fields)).encode('ascii')
+    except UnicodeEncodeError:
+        raise ProtocolError('malformed') from None
     if not result or len(result) > limits.max_frame_bytes: raise ProtocolError('limit')
     return result
 
@@ -95,10 +110,30 @@ def _decode_fields(payload, limits, maximum):
     try: payload.decode('utf-8',errors='strict')
     except UnicodeError: raise ProtocolError('malformed') from None
     fields=[]
-    for raw in payload.split(b'\t'):
+    start=0
+    while True:
         if len(fields)==maximum: raise ProtocolError('limit')
-        fields.append(_unescape(raw,limits.max_field_bytes))
+        end=payload.find(b'\t',start)
+        if end<0:
+            if len(payload)-start>limits.max_field_bytes*3: raise ProtocolError('limit')
+            fields.append(_unescape(payload[start:],limits.max_field_bytes))
+            break
+        if end-start>limits.max_field_bytes*3: raise ProtocolError('limit')
+        fields.append(_unescape(payload[start:end],limits.max_field_bytes))
+        start=end+1
     return fields
+
+def _bounded_items(values, count):
+    # Do not trust a caller-controlled iterator to agree with its advertised
+    # length: cap traversal before expanding fields into a wire frame.
+    iterator=iter(values)
+    result=[]
+    for _ in range(count):
+        try: result.append(next(iterator))
+        except StopIteration: raise ProtocolError('malformed') from None
+    try: next(iterator)
+    except StopIteration: return tuple(result)
+    raise ProtocolError('limit')
 
 @dataclass(frozen=True)
 class Request:
@@ -113,10 +148,14 @@ class Request:
 
 
 def encode_request(request, limits=ProtocolLimits()):
-    if type(request.version) is not int or not 0<=request.version<(1<<32) or type(request.session) is not str or type(request.command) is not str or any(type(a) is not str for a in request.arguments): raise ProtocolError('malformed')
+    argument_count=len(request.arguments)
+    if argument_count>limits.max_fields-9: raise ProtocolError('limit')
+    arguments=_bounded_items(request.arguments,argument_count)
+    if type(request.version) is not int or not 0<=request.version<(1<<32) or type(request.session) is not str or type(request.command) is not str or any(type(a) is not str for a in arguments): raise ProtocolError('malformed')
+    if len(request.session)>limits.max_field_bytes-7: raise ProtocolError('limit')
     for n in (request.epoch,request.request_id,request.expected_revision,request.expected_configuration): _u64(n)
     fields = ('DDBG', 'u32:'+str(request.version), 'request', 'string:'+request.session,
-        *(f'u64:{n}' for n in (request.epoch,request.request_id,request.expected_revision,request.expected_configuration)),request.command,*request.arguments)
+        *(f'u64:{n}' for n in (request.epoch,request.request_id,request.expected_revision,request.expected_configuration)),request.command,*arguments)
     if len(fields) > limits.max_fields: raise ProtocolError('limit')
     return _encode(fields, limits)
 
@@ -144,29 +183,47 @@ class Response:
     fields: tuple[tuple[str,str], ...] = ()
 
 def encode_response(response, limits=ProtocolLimits()):
-    if len(response.fields)*2+11 > limits.max_response_fields: raise ProtocolError('limit')
-    return _encode(('DDBG','u32:1','response','string:'+response.session,
+    field_count=len(response.fields)
+    if field_count > limits.max_response_fields: raise ProtocolError('limit')
+    if 10+2*field_count>limits.max_frame_bytes: raise ProtocolError('limit')
+    if str.__len__(response.session)>limits.max_field_bytes-7: raise ProtocolError('limit')
+    fields=_bounded_items(response.fields,field_count)
+    pairs=tuple(_bounded_items(pair,2) for pair in fields)
+    return _encode(('DDBG','u32:1','response',str.__add__('string:',response.session),
         *(f'u64:{_u64(n)}' for n in (response.epoch,response.request_id,response.revision,response.configuration)),
-        'error' if response.error else 'ok',response.error or 'none',f'u64:{len(response.fields)}',
-        *(v for pair in response.fields for v in pair)), limits)
+        'error' if response.error else 'ok',response.error or 'none',f'u64:{field_count}',
+        *(v for pair in pairs for v in pair)), limits)
 
 def decode_response(payload, limits=ProtocolLimits()):
-    f=_decode_fields(payload,limits,limits.max_response_fields)
+    f=_decode_fields(payload,limits,limits.max_response_fields*2+11)
     if len(f)<11 or f[:3]!=['DDBG','u32:1','response'] or not f[3].startswith('string:') or f[8] not in ('ok','error'): raise ProtocolError('malformed')
     n=_number(f[10])
-    if len(f)!=11+2*n or (f[8]=='ok') != (f[9]=='none'): raise ProtocolError('malformed')
+    if n>limits.max_response_fields or len(f)!=11+2*n or (f[8]=='ok') != (f[9]=='none'): raise ProtocolError('malformed')
     return Response(f[3][7:],*map(_number,f[4:8]),None if f[9]=='none' else f[9],tuple(zip(f[11::2],f[12::2])))
+
+def _read_chunk(reader, size):
+    chunk = reader.read(size)
+    if isinstance(chunk, bytes):
+        size_read = bytes.__len__(chunk)
+        if size_read > size: raise OSError('protocol reader returned more bytes than requested')
+        return bytes.__getitem__(chunk, slice(None))
+    if isinstance(chunk, bytearray):
+        size_read = bytearray.__len__(chunk)
+        if size_read > size: raise OSError('protocol reader returned more bytes than requested')
+        return bytearray.__getitem__(chunk, slice(None))
+    else:
+        raise OSError('protocol reader must return bytes')
 
 def _read_exact(reader, size):
     parts = bytearray()
     while len(parts)<size:
-        chunk=reader.read(size-len(parts))
+        chunk=_read_chunk(reader,size-len(parts))
         if not chunk: raise EOFError('partial protocol frame')
         parts.extend(chunk)
     return bytes(parts)
 
 def read_frame(reader, maximum=65536):
-    first=reader.read(1)
+    first=_read_chunk(reader,1)
     if not first: return None
     size=int.from_bytes(first+_read_exact(reader,3),'big')
     if not 0<size<=maximum: raise ProtocolError('limit')
@@ -178,7 +235,9 @@ def write_frame(writer,payload,maximum=65536):
     view=memoryview(data)
     while view:
         n=writer.write(view)
-        if n is None or n<=0: raise OSError('partial protocol write')
+        if not isinstance(n, int) or isinstance(n, bool): raise OSError('invalid protocol write count')
+        n = int.__int__(n)
+        if n<=0 or n>len(view): raise OSError('invalid protocol write count')
         view=view[n:]
     writer.flush()
 
@@ -460,13 +519,20 @@ class ProtocolSession:
             if c in _HANDLE_COMMANDS and self._handles.get(typed[0])!=self.session.revision: raise ProtocolError('stale_handle')
             if c in ('inspect','export_trace','inputs','select','watch') and r.expected_revision!=self.session.revision: raise ProtocolError('stale_revision')
             if c=='watch' and typed[1]!=self.session.revision: raise ProtocolError('stale_revision')
-            prepared=self._adapters[c](typed)
+            # A structural inspector borrows the typed state for the entire
+            # projection, just as the native session does. Host callbacks may
+            # read snapshots but cannot advance the session mid-response.
+            adapter=self._adapters[c]
+            if c=='inspect' and isinstance(adapter,_InspectionAdapter):
+                prepared=self._encode_owned(adapter.with_protocol_limits,typed,self.limits)
+            else:
+                prepared=self._encode_owned(adapter,typed) if c=='inspect' else adapter(typed)
             if c in ('watch','unwatch','probe_configure','select') and type(prepared) is not ProtocolPrepared: raise ProtocolError('callback')
             source=prepared.fields if type(prepared) is ProtocolPrepared else prepared
             fields=[]
             total=0
             for pair in source:
-                if len(fields)*2+13>self.limits.max_response_fields: raise ProtocolError('limit')
+                if len(fields)>=self.limits.max_response_fields: raise ProtocolError('limit')
                 if type(pair) is not tuple or len(pair)!=2 or any(type(v) is not str for v in pair): raise ProtocolError('callback')
                 fields.append(pair)
                 total+=sum(len(v.encode('utf-8')) for v in pair)
@@ -519,6 +585,8 @@ class ProtocolSession:
             except Exception: raise ProtocolError('invalid_input') from None
             if not self.session.candidate_permitted(value): raise ProtocolError('invalid_input')
             if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
+            from dataclasses import replace
+            encode_response(replace(self._response(r.request_id,fields=(('delivered','bool:false'),('sequence',f'u64:{_U64}'))),revision=_U64,configuration=_U64),self.limits)
             try: result=self.session.step(r.expected_revision,value)
             except Exception as error:
                 if 'not permitted' in str(error): raise ProtocolError('invalid_input') from None
@@ -598,6 +666,8 @@ class ProtocolSession:
             if not self.authority.deliver_inputs: raise ProtocolError('unauthorized')
             if c=='cancel':
                 if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
+                from dataclasses import replace
+                encode_response(replace(self._response(r.request_id),revision=_U64,configuration=_U64),self.limits)
                 self.session.cancel(r.expected_revision)
                 self._publish('cancelled')
                 return ()
@@ -607,6 +677,8 @@ class ProtocolSession:
             try: value=self._encode_owned(self.decode_input,bytes.fromhex(a[0][6:]))
             except Exception: raise ProtocolError('invalid_input') from None
             if self.session.phase in ('ended','disconnected'): raise ProtocolError('ended')
+            from dataclasses import replace
+            encode_response(replace(self._response(r.request_id,fields=(('delivered','bool:false'),('sequence',f'u64:{_U64}'))),revision=_U64,configuration=_U64),self.limits)
             try: result=self.session.step(r.expected_revision,value)
             except Exception as e:
                 if 'not permitted' in str(e): raise ProtocolError('invalid_input') from None
@@ -627,6 +699,11 @@ def serve(session,reader,writer):
     finally: session.disconnect()
 
 
+class _InspectionAdapter:
+    def __init__(self, callback): self.callback=callback
+    def __call__(self, args): return self.callback(args, None)
+    def with_protocol_limits(self, args, limits): return self.callback(args, limits)
+
 def inspection_adapters(session, *, project=None, limits=None):
     """Explicitly opt one simulation into its approved structural projection.
 
@@ -634,58 +711,31 @@ def inspection_adapters(session, *, project=None, limits=None):
     must use the same identities. This does not infer typed maps from Python dicts.
     No raw state codec, repr(), or error messages are exposed.
     """
-    from .debugger_inspect import inspect, InspectQuery, InspectLimits, SnapshotId, PathSegment, PageRequest
-    bounds=InspectLimits() if limits is None else limits
-    if type(bounds) is not InspectLimits or (project is not None and not callable(project)): raise ValueError('inspection configuration')
-    def callback(args):
+    from .debugger_inspect import inspect, InspectError, InspectQuery, InspectLimits, SnapshotId, PathSegment, PageRequest
+    bounds=limits
+    if (bounds is not None and type(bounds) is not InspectLimits) or (project is not None and not callable(project)): raise ValueError('inspection configuration')
+    def callback(args, protocol_limits):
         _,schema,offset,limit,path=args
         segments=tuple(PathSegment(kind,value) if kind in ('field','variant','index')
             else PathSegment('map-key',value if kind in ('key.string','key.bool')
                 else (kind[4:],str(value) if type(value) is int else value)) for kind,value in path)
         value=session.state
         if project is not None: value=project(value)
-        result=inspect(value,InspectQuery(SnapshotId(session.epoch,session.revision,session.sequence),segments,schema,PageRequest(offset,limit),bounds))
-        fields=[('inspect.schema.name','string:'+result.schema.name),('inspect.schema.version',f'u64:{result.schema.version}')]
-        pending=[('inspect.root',result.node)]
-        while pending:
-            prefix,node=pending.pop()
-            wire_kind='float' if node.kind=='scalar' and node.value[0] in ('f32','f64') else node.kind
-            fields.extend(((prefix+'.kind','enum:'+wire_kind),(prefix+'.completeness','enum:'+node.completeness),(prefix+'.children',f'u64:{len(node.children)}'),(prefix+'.child_count','none' if node.child_count is None else f'u64:{node.child_count}')))
-            if node.page is not None:
-                fields.extend(((prefix+'.page.offset',f'u64:{node.page.offset}'),(prefix+'.page.total',f'u64:{node.page.total}'),(prefix+'.page.next_offset','none' if node.page.next_offset is None else f'u64:{node.page.next_offset}')))
-            value=node.value
-            if node.kind=='scalar' and type(value) is tuple and len(value)==3 and value[0] in ('f32','f64'):
-                kind,decimal,bits=value
-                fields.extend(((prefix+'.value',kind+':'+decimal),(prefix+'.bits',f'u64:{bits}')))
-            elif node.kind=='enum':
-                name,variant_id,variant_label=value
-                fields.extend(((prefix+'.value','string:'+name),(prefix+'.variant_id','string:'+variant_id),
-                               (prefix+'.variant_label','string:'+variant_label)))
-            elif value is None: fields.append((prefix+'.value','none'))
-            elif type(value) is str: fields.append((prefix+'.value','string:'+value))
-            elif type(value) is bytes: fields.append((prefix+'.value','bytes:'+value.hex()))
-            elif type(value) is tuple and len(value)==2 and type(value[0]) is str:
-                kind,payload=value
-                fields.append((prefix+'.value.type','enum:'+kind))
-                if type(payload) is bool: fields.append((prefix+'.value','bool:'+str(payload).lower()))
-                elif type(payload) is str: fields.append((prefix+'.value','string:'+payload))
-                elif payload is None: fields.append((prefix+'.value','none'))
-                else: fields.append((prefix+'.value','enum:unavailable'))
-            else: fields.append((prefix+'.value','enum:unavailable'))
-            for index,child in reversed(tuple(enumerate(node.children))):
-                key=f'{prefix}.child.{index}'
-                fields.extend(((key+'.label','string:'+child.label),(key+'.segment.kind','enum:'+child.segment.kind)))
-                # Segment values are bounded structural metadata, never expressions.
-                if type(child.segment.value) is str: fields.append((key+'.segment.value','string:'+child.segment.value))
-                elif type(child.segment.value) is bool: fields.append((key+'.segment.value','bool:'+str(child.segment.value).lower()))
-                elif type(child.segment.value) is int: fields.append((key+'.segment.value',f'u64:{child.segment.value}'))
-                elif type(child.segment.value) is tuple and len(child.segment.value)==2 and type(child.segment.value[0]) is str:
-                    kind,payload=child.segment.value
-                    if re.fullmatch(r'[ui](8|16|32|64|128|size)',kind) and type(payload) is str: fields.append((key+'.segment.value',kind+':'+str(payload)))
-                    elif kind=='bool' and type(payload) is bool: fields.append((key+'.segment.value','bool:'+str(payload).lower()))
-                    elif kind in ('string','char') and type(payload) is str: fields.append((key+'.segment.value','string:'+payload))
-                    else: fields.append((key+'.segment.value','enum:unavailable'))
-                else: fields.append((key+'.segment.value','enum:unavailable'))
-                pending.append((key,child.node))
+        effective=bounds or InspectLimits()
+        if protocol_limits is not None:
+            # Host limits can tighten, but never relax, the protocol's native
+            # inspection budget. Derive these per request from current limits.
+            native=InspectLimits(max_work=10_000,max_depth=16,max_nodes=128,
+                max_bytes=protocol_limits.max_frame_bytes//8,max_value_bytes=protocol_limits.max_field_bytes//4,
+                max_page_size=protocol_limits.max_page_size)
+            effective=native if bounds is None else InspectLimits(**{name:min(getattr(bounds,name),getattr(native,name)) for name in native.__dataclass_fields__})
+        try: result=inspect(value,InspectQuery(SnapshotId(session.epoch,session.revision,session.sequence),segments,schema,PageRequest(offset,limit),effective))
+        except InspectError: raise ProtocolError('invalid_input') from None
+        from .debugger_protocol_services import node_fields
+        fields=[('schema.name','string:'+result.schema.name),
+                ('schema.version',f'u64:{result.schema.version}'),
+                ('snapshot.revision',f'u64:{result.snapshot.revision}'),
+                ('snapshot.sequence',f'u64:{result.snapshot.sequence}')]
+        fields.extend(node_fields('node',result.node))
         return tuple(fields)
-    return {'inspect':callback}
+    return {'inspect':_InspectionAdapter(callback)}

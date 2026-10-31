@@ -17,6 +17,413 @@ class Counter:
 
 
 class SearchTests(unittest.TestCase):
+    def test_initial_observer_sees_precheck_state(self):
+        from statelessness.search import _violations
+        original = [1]
+        seen = []
+        class Model:
+            def check_state(self, state):
+                original[0] = 99
+                return ()
+        class Observer:
+            def initial(self, state, checks): seen.append(state)
+        _violations(Model(), original, observer=Observer())
+        self.assertEqual(seen, [[1]])
+
+    def test_initial_observer_descriptor_cannot_change_snapshot(self):
+        from statelessness.search import _violations
+        original = [1]
+        seen = []
+        class Model:
+            def check_state(self, state): seen.append(("check", state)); return ()
+        class Observer:
+            @property
+            def initial(self):
+                original[0] = 99
+                return lambda state, checks: seen.append(("observer", state))
+        _violations(Model(), original, observer=Observer())
+        self.assertEqual(seen, [("check", [1]), ("observer", [1])])
+
+    def test_captured_defers_copy_errors_but_not_base_exceptions(self):
+        from statelessness.core import _Captured
+        class Broken:
+            def __deepcopy__(self, memo): raise RuntimeError("copy hook")
+        class Fatal(BaseException): pass
+        class Interrupting:
+            def __deepcopy__(self, memo): raise Fatal()
+        value = [1]
+        captured = _Captured(value)
+        value.append(2)
+        self.assertEqual((captured.get(), captured.error), ([1], None))
+        failed = _Captured(Broken())
+        self.assertIsInstance(failed.error, ModelError)
+        with self.assertRaisesRegex(ModelError, "snapshot: copy hook"): failed.get()
+        with self.assertRaises(Fatal): _Captured(Interrupting())
+
+    def test_history_is_copied_only_for_transition_observers(self):
+        copies = []
+        class Input:
+            def __deepcopy__(self, memo):
+                copies.append(1)
+                return Input()
+        class Model:
+            def initial_state(self): return 0
+            def generate(self, state, rng): return Input()
+            def step(self, state, input): return Transition(state + 1)
+            def check_state(self, state): return ()
+        class InitialOnly:
+            def initial(self, state, checks): pass
+        config = FuzzConfig(cases=1, max_steps=20)
+        fuzz(Model(), config)
+        plain = len(copies)
+        copies.clear()
+        fuzz(Model(), config, observer=InitialOnly())
+        self.assertEqual(len(copies), plain)
+        histories = []
+        class Recording:
+            def transition(self, before, input, after, state_checks, transition_checks, history):
+                histories.append(len(history))
+        copies.clear()
+        fuzz(Model(), config, observer=Recording())
+        self.assertEqual(histories, list(range(1, 21)))
+        self.assertGreater(len(copies), plain)
+
+    def test_transition_observer_lookup_failure_is_a_model_error(self):
+        class Model:
+            def initial_state(self): return 0
+            def generate(self, state, rng): return 1
+            def step(self, state, input): return Transition(state + 1)
+            def check_state(self, state): return ()
+        class Broken:
+            @property
+            def transition(self): raise RuntimeError("lookup failed")
+        with self.assertRaisesRegex(ModelError, "search observer transition: .*lookup failed"):
+            fuzz(Model(), FuzzConfig(cases=1, max_steps=1), observer=Broken())
+
+    def test_initial_check_snapshot_survives_observer_snapshot_failure(self):
+        from statelessness.search import _violations
+        calls, seen = [], []
+        class State:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                calls.append(1)
+                if len(calls) == 2: raise RuntimeError("observer snapshot")
+                return State(self.value)
+        original = State(1)
+        class Model:
+            def check_state(self, state):
+                seen.append(state.value)
+                raise RuntimeError("primary check")
+        class Observer:
+            @property
+            def initial(self):
+                original.value = 99
+                return lambda state, checks: None
+        with self.assertRaisesRegex(ModelError, "primary check"):
+            _violations(Model(), original, observer=Observer())
+        self.assertEqual(seen, [1])
+
+    def test_initial_check_error_precedes_observer_getter_error(self):
+        from statelessness.search import _violations
+        class Model:
+            def check_state(self, state): raise RuntimeError("primary check")
+        class Observer:
+            @property
+            def initial(self): raise RuntimeError("observer getter")
+        with self.assertRaisesRegex(ModelError, "primary check"):
+            _violations(Model(), 1, observer=Observer())
+
+    def test_enumeration_edge_precedes_history_query(self):
+        from statelessness import SearchConfig, enumerate_states
+        import inspect
+        seen = []
+        class Model:
+            def initial_state(self): return 0
+            def inputs(self, state): return (1,) if state == 0 else ()
+            def step(self, state, value): return Transition([2], ([3],))
+            def check_state(self, state): return ()
+            def check_transition(self, before, value, transition):
+                seen.append((transition.state, transition.outputs))
+                return ()
+        class Observer:
+            def needs_history(self):
+                frame = inspect.currentframe().f_back
+                while frame is not None and frame.f_code.co_name != "enumerate_states":
+                    frame = frame.f_back
+                frame.f_locals["transition"].state[0] = 99
+                frame.f_locals["transition"].outputs[0][0] = 99
+                return False
+        enumerate_states(Model(), SearchConfig(max_depth=1), observer=Observer())
+        self.assertEqual(seen, [([2], ([3],))])
+
+    def test_enumeration_falls_back_to_captured_none_successor(self):
+        from statelessness import SearchConfig, enumerate_states
+        from statelessness import core
+        from unittest.mock import patch
+        import inspect
+        real_copy = core._copy
+        failed = []
+        seen = []
+        def copy_once(value, memo=None):
+            if value is None and not failed and inspect.currentframe().f_back.f_code.co_name == "enumerate_states":
+                failed.append(True)
+                raise core._SnapshotFailure("successor copy")
+            return real_copy(value, memo)
+        class Model:
+            def initial_state(self): return 0
+            def inputs(self, state): return (1,) if state == 0 else ()
+            def step(self, state, value): return Transition(None)
+            def check_state(self, state): seen.append(state); return ()
+        class Observer:
+            def needs_history(self):
+                frame = inspect.currentframe().f_back
+                while frame is not None and frame.f_code.co_name != "enumerate_states":
+                    frame = frame.f_back
+                object.__setattr__(frame.f_locals["transition"], "state", 99)
+                return False
+        # The saved edge supplies the check, while the failed node copy remains
+        # a search error after that check has run.
+        with patch.object(core, "_copy", new=copy_once):
+            with self.assertRaisesRegex(ModelError, "successor copy"):
+                enumerate_states(Model(), SearchConfig(max_depth=1), observer=Observer())
+        self.assertEqual(seen, [0, None])
+
+    def test_initial_violation_precedes_retained_node_copy_failure(self):
+        from statelessness import SearchConfig, enumerate_states
+        calls = []
+        class State:
+            def __deepcopy__(self, memo):
+                calls.append(1)
+                if len(calls) == 2:
+                    raise RuntimeError("retained node")
+                return State()
+        class Model:
+            def initial_state(self): return State()
+            def check_state(self, state): return (Check("failure", "failed", "found"),)
+            def inputs(self, state): return ()
+            def step(self, state, value): return Transition(state)
+        report = enumerate_states(Model(), SearchConfig(max_depth=1))
+        self.assertEqual(report.termination, "failure_found")
+        self.assertEqual(report.failure.violations[0].check.id, "failure")
+
+    def test_enumeration_retains_nodes_before_check_alias_mutation(self):
+        from statelessness import SearchConfig, enumerate_states
+        import inspect
+        seen = []
+        class Model:
+            def initial_state(self): return [0]
+            def inputs(self, state):
+                seen.append(state[0])
+                return (1,) if state[0] == 0 else ()
+            def step(self, state, value): return Transition([1])
+            def check_state(self, state):
+                frame = inspect.currentframe().f_back
+                while frame is not None and frame.f_code.co_name != "enumerate_states":
+                    frame = frame.f_back
+                if frame is not None:
+                    if "transition" in frame.f_locals:
+                        frame.f_locals["transition"].state[0] = 99
+                    else:
+                        frame.f_locals["state"][0] = 99
+                return ()
+        report = enumerate_states(Model(), SearchConfig(max_depth=2))
+        self.assertEqual(report.termination, "graph_exhausted")
+        self.assertEqual(seen, [0, 1])
+
+    def test_shrink_replay_retains_candidate_before_enabled_callback(self):
+        import inspect
+        seen = []
+        class Input:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                return Input(self.value)
+            def __eq__(self, other): return isinstance(other, Input) and self.value == other.value
+        class Model:
+            def initial_state(self): return 0
+            def is_enabled(self, state, value):
+                # Simulate an external alias into the candidate under replay.
+                frame = inspect.currentframe().f_back
+                while frame.f_code.co_name != "replay_candidate": frame = frame.f_back
+                if state == 0:
+                    frame.f_locals["inputs"][0].value = 99
+                    frame.f_locals["inputs"][1].value = 99
+                return True
+            def step(self, state, value): return Transition(state + 1)
+            def check_state(self, state): return ()
+            def check_transition(self, state, value, transition):
+                seen.append(value.value)
+                return (Check("failure", "failed", "observed"),) if transition.state == 2 else ()
+        original = Failure((Input(7), Input(8)), (Violation("transition", Check("failure", "failed", "observed")),))
+        result = shrink(Model(), original, ShrinkConfig(max_attempts=1))
+        self.assertEqual(seen, [7, 8])
+        self.assertEqual([value.value for value in result.minimized.inputs], [7, 8])
+
+    def test_enumeration_extra_input_copy_failure_precedes_reducer(self):
+        from statelessness import SearchConfig, enumerate_states
+        calls = []
+        class Input:
+            def __deepcopy__(self, memo):
+                calls.append("copy")
+                if len(calls) == 2: raise RuntimeError("second copy")
+                return self
+        class Model:
+            def initial_state(self): return 0
+            def inputs(self, state): return (Input(),)
+            def step(self, state, value):
+                calls.append("step")
+                return Transition(1)
+            def check_state(self, state): return ()
+        with self.assertRaisesRegex(ModelError, "second copy"):
+            enumerate_states(Model(), SearchConfig(max_depth=1))
+        self.assertEqual(calls, ["copy", "copy"])
+
+    def test_enumeration_retains_input_before_reducer_alias_mutation(self):
+        from statelessness import SearchConfig, enumerate_states
+        query = [7]
+        observed = []
+        class Model:
+            def initial_state(self): return 0
+            def inputs(self, state): return (query,) if state == 0 else ()
+            def step(self, state, value):
+                query[0] = 99
+                return Transition(1)
+            def check_state(self, state): return ()
+            def check_transition(self, state, value, transition):
+                observed.append(value)
+                return (Check("original", "failed", "found"),)
+        report = enumerate_states(Model(), SearchConfig(max_depth=1))
+        self.assertEqual(observed, [[7]])
+        self.assertEqual(report.failure.inputs, ([7],))
+
+    def test_edge_observations_precede_state_check_alias_mutation(self):
+        from statelessness.search import _violations
+        before, query, after, output, history = [1], [2], [3], [4], [[5]]
+        seen = []
+        class Model:
+            def check_state(self, state):
+                before[0] = query[0] = after[0] = output[0] = history[0][0] = 99
+                return ()
+            def check_transition(self, state, value, transition):
+                seen.append((state, value, transition.state, transition.outputs))
+                return ()
+        class Observer:
+            def transition(self, state, value, transition, state_checks, transition_checks, inputs):
+                seen.append((state, value, transition.state, transition.outputs, inputs))
+        _violations(Model(), before, query, Transition(after, (output,)),
+                    observer=Observer(), history=history)
+        self.assertEqual(seen, [([1], [2], [3], ([4],)),
+                                ([1], [2], [3], ([4],), ([5],))])
+
+    def test_edge_history_copy_failure_does_not_preempt_transition_check(self):
+        from statelessness.search import _violations
+        class Uncopyable:
+            def __deepcopy__(self, memo): raise RuntimeError("history copy")
+        class Model:
+            def check_state(self, state): return ()
+            def check_transition(self, state, value, transition):
+                raise RuntimeError("transition failure")
+        class Observer:
+            def transition(self, *args): pass
+        with self.assertRaisesRegex(ModelError, "transition failure"):
+            _violations(Model(), 0, 1, Transition(2), observer=Observer(),
+                        history=(Uncopyable(),))
+
+    def test_unused_edge_copy_failure_and_observer_only_failure_stage(self):
+        from statelessness.search import _violations
+        class Uncopyable:
+            def __deepcopy__(self, memo): raise RuntimeError("edge copy")
+        class Model:
+            def check_state(self, state): return ()
+        class Observer:
+            def __init__(self): self.errors = []
+            def check_error(self, *args): self.errors.append(args)
+            def transition(self, *args): self.fail = True
+        self.assertEqual(_violations(Model(), Uncopyable(), 1, Transition(2)), ((), 0))
+        observer = Observer()
+        with self.assertRaisesRegex(ModelError, "edge copy"):
+            _violations(Model(), Uncopyable(), 1, Transition(2), observer=observer)
+        self.assertEqual(observer.errors, [])
+
+    def test_edge_observer_transition_descriptor_is_resolved_once(self):
+        from statelessness.search import _violations
+        class Model:
+            def check_state(self, state): return ()
+        class Observer:
+            def __init__(self): self.lookups, self.calls = 0, 0
+            @property
+            def transition(self):
+                self.lookups += 1
+                return self.receive if self.lookups == 1 else None
+            def receive(self, *args): self.calls += 1
+        observer = Observer()
+        _violations(Model(), 0, 1, Transition(2), observer=observer)
+        self.assertEqual((observer.lookups, observer.calls), (1, 1))
+
+    def test_auto_membership_captures_query_before_domain_callbacks(self):
+        query = [1]
+        class Mutating(Counter):
+            def inputs(self, state):
+                query[0] = 2
+                return ([1],)
+        self.assertTrue(Auto(Mutating()).is_enabled(0, query))
+
+    def test_auto_membership_defers_query_copy_failure_until_needed(self):
+        class Uncopyable:
+            def __deepcopy__(self, memo): raise RuntimeError('query copy')
+        class Empty(Counter):
+            def inputs(self, state): return ()
+        class Broken(Counter):
+            def inputs(self, state): raise RuntimeError('domain error')
+        self.assertFalse(Auto(Empty()).is_enabled(0, Uncopyable()))
+        with self.assertRaisesRegex(ModelError, 'domain error'):
+            Auto(Broken()).is_enabled(0, Uncopyable())
+        with self.assertRaisesRegex(ModelError, 'query copy'):
+            Auto(Counter()).is_enabled(0, Uncopyable())
+
+    def test_generated_enabled_captures_input_before_state_copy(self):
+        query = [1]
+        class MutatingState:
+            def __deepcopy__(self, memo):
+                query[0] = 2
+                return self
+        generated = Generated(Counter(), lambda state, rng: 0,
+                              is_enabled=lambda state, value: value == [1])
+        self.assertTrue(generated.is_enabled(MutatingState(), query))
+
+    def test_generated_enabled_pins_callback_before_input_copy(self):
+        seen = []
+        generated = Generated(Counter(), lambda state, rng: 0,
+                              is_enabled=lambda state, value: seen.append(value) or True)
+        class Input:
+            def __deepcopy__(self, memo):
+                generated._enabled = lambda state, value: False
+                return 'captured'
+        self.assertTrue(generated.is_enabled(0, Input()))
+        self.assertEqual(seen, ['captured'])
+        self.assertFalse(generated.is_enabled(0, 1))
+
+        class Uncopyable:
+            def __deepcopy__(self, memo): raise AssertionError('unexpected copy')
+        generated._enabled = None
+        self.assertTrue(generated.is_enabled(Uncopyable(), Uncopyable()))
+
+    def test_auto_domain_limit_cannot_be_relaxed_during_iteration(self):
+        class Mutating(Counter):
+            def inputs(self, state):
+                yield 1
+                object.__setattr__(options, 'max_candidates', 100)
+                yield 2
+                yield 3
+        options = AutoOptions(1)
+        auto = Auto(Mutating(), options)
+        rng = Rng(19)
+        with self.assertRaisesRegex(ModelError, 'max_candidates'):
+            auto.generate(0, rng)
+        self.assertEqual(rng.state, 19)
+        object.__setattr__(options, 'max_candidates', 1)
+        with self.assertRaisesRegex(ModelError, 'max_candidates'):
+            auto.is_enabled(0, 3)
+
     def test_auto_full_domain_rollback_and_first_entry(self):
         rng = Rng(17)
         model = Auto(Counter(), AutoOptions(2))
@@ -57,6 +464,19 @@ class SearchTests(unittest.TestCase):
         self.assertEqual((stopped.termination, stopped.cases), ("transition_limit", 1))
         self.assertEqual(fuzz(Counter(), limits=RunLimits(cancellation=lambda: True)).cases, 0)
         self.assertEqual(fuzz(Counter(), limits=RunLimits(max_duration=0)).termination, "deadline")
+
+    def test_fuzz_owns_config_and_control_before_model_callbacks(self):
+        config = FuzzConfig(seed=7, cases=1, max_steps=5, max_transitions=1)
+        limits = RunLimits()
+        class Mutating(Counter):
+            def initial_state(self):
+                object.__setattr__(config, 'max_transitions', 100)
+                object.__setattr__(config, 'seed', 99)
+                object.__setattr__(limits, 'cancellation', lambda: True)
+                return 0
+            def check_state(self, state): return ()
+        report = fuzz(Mutating(), config, limits=limits)
+        self.assertEqual((report.termination, report.seed, report.transitions), ('transition_limit', 7, 1))
 
     def test_generation_disabled_and_error_are_errors(self):
         disabled = Generated(Counter(), lambda state, rng: -1, is_enabled=lambda state, input: False)
@@ -99,6 +519,118 @@ class SearchTests(unittest.TestCase):
         self.assertTrue(attempt.validated_original)
         self.assertEqual(attempt.termination, "attempt_limit")
         self.assertEqual(attempt.attempts, 1)
+
+    def test_shrink_counts_repeated_simplifications_and_snapshots_budget(self):
+        config = ShrinkConfig(max_attempts=5)
+        class Repeating(Counter):
+            def check_state(self, state):
+                object.__setattr__(config, 'max_attempts', 100)
+                return super().check_state(state)
+            def simpler_inputs(self, input):
+                while True:
+                    yield input
+        original = Failure((3, 3), (Violation('state', Check('bound', 'failed', 'large')),))
+        report = shrink(Repeating(), original, config)
+        self.assertEqual(report.termination, 'attempt_limit')
+        self.assertLess(report.attempts, 5)
+        self.assertFalse(any(item.outcome == 'already_seen' for item in report.history))
+        class Finite(Counter):
+            def simpler_inputs(self, input): return (input,) * 5
+        one = Failure((5,), (Violation('state', Check('bound', 'failed', 'large')),))
+        self.assertEqual(shrink(Finite(), one, ShrinkConfig(5)).termination, 'search_complete')
+
+    def test_skipped_hint_bound_is_per_iterator_not_per_run(self):
+        # Mirrors Rust tests/exploration.rs skipped_hint_bound_is_per_iterator_not_per_run.
+        class SpreadDuplicateHints:
+            def initial_state(self): return ()
+            def step(self, state, input): return Transition(state + (input,))
+            def check_state(self, state):
+                return (Check("long", "failed", "long"),) if len(state) >= 6 else ()
+            def generate(self, state, rng): return 1
+            def simpler_inputs(self, input): return (0,) * 10 if input == 0 else (0,)
+        failure = fuzz(SpreadDuplicateHints()).failure
+        self.assertIsNotNone(failure)
+        # Many hints are skipped in total, at most 10 per iterator, and fewer
+        # than 150 candidates are replayed.
+        report = shrink(SpreadDuplicateHints(), failure, ShrinkConfig(max_attempts=150))
+        self.assertEqual(report.termination, "search_complete")
+        self.assertLess(report.attempts, 150)
+        self.assertTrue(all(input == 0 for input in report.minimized.inputs))
+
+    def test_consecutive_skipped_hints_still_end_with_attempt_limit(self):
+        class Duplicates(Counter):
+            def simpler_inputs(self, input): return (input,) * 4
+        one = Failure((5,), (Violation("state", Check("bound", "failed", "large")),))
+        self.assertEqual(shrink(Duplicates(), one, ShrinkConfig(3)).termination, "attempt_limit")
+        self.assertEqual(shrink(Duplicates(), one, ShrinkConfig(4)).termination, "search_complete")
+
+    def test_shrink_closes_retained_simplifiers_and_preserves_primary_error(self):
+        original = Failure((5,), (Violation("state", Check("bound", "failed", "large")),))
+        held, closed = [], []
+        class Simplifier(Counter):
+            def simpler_inputs(self, value):
+                def values():
+                    try:
+                        if value == 5:
+                            yield 6
+                    finally:
+                        closed.append(value)
+                result = values()
+                held.append(result)
+                return result
+        report = shrink(Simplifier(), original)
+        self.assertEqual(report.minimized.inputs, (6,))
+        self.assertIn(5, closed)
+
+        class BrokenIterator:
+            def __iter__(self): return self
+            def __next__(self): raise ValueError("primary simplifier error")
+            def close(self): raise ValueError("secondary close error")
+        class Broken(Counter):
+            def simpler_inputs(self, value): return BrokenIterator()
+        with self.assertRaisesRegex(ModelError, "primary simplifier error"):
+            shrink(Broken(), original)
+
+        class CleanupIterator:
+            def __iter__(self): return self
+            def __next__(self): return 6
+            def close(self): raise ValueError("close failure")
+        class Cleanup(Counter):
+            def simpler_inputs(self, value): return CleanupIterator()
+        with self.assertRaisesRegex(ModelError, "simpler_inputs close: close failure"):
+            shrink(Cleanup(), original)
+
+        class TrappedIterator(BrokenIterator):
+            @property
+            def close(self): raise ValueError("close lookup failure")
+        class Trapped(Counter):
+            def simpler_inputs(self, value): return TrappedIterator()
+        with self.assertRaisesRegex(ModelError, "primary simplifier error"):
+            shrink(Trapped(), original)
+
+        cancel, domain_closed = [False], []
+        class Unstarted:
+            def __iter__(self): raise AssertionError("must not iterate after cancellation")
+            def close(self): domain_closed.append(True)
+        class Cancelled(Counter):
+            def simpler_inputs(self, value):
+                cancel[0] = True
+                return Unstarted()
+        report = shrink(Cancelled(), original, limits=ShrinkLimits(control=RunLimits(cancellation=lambda: cancel[0])))
+        self.assertEqual(report.termination, "cancelled")
+        self.assertEqual(domain_closed, [True])
+
+        cancel_error, domain_closed = [False], []
+        class CancelError(Counter):
+            def simpler_inputs(self, value):
+                cancel_error[0] = True
+                return Unstarted()
+        def check_cancel():
+            if cancel_error[0]: raise ValueError("cancellation failure")
+            return False
+        with self.assertRaisesRegex(ModelError, "cancellation failure"):
+            shrink(CancelError(), original, limits=ShrinkLimits(control=RunLimits(cancellation=check_cancel)))
+        self.assertEqual(domain_closed, [True])
 
     def test_shrink_cyclic_simplification_and_causality(self):
         class Cyclic(Counter):
@@ -266,6 +798,23 @@ class CooperativeSearchTests(unittest.TestCase):
 
 
 class NullableGenerationTests(unittest.TestCase):
+    def test_generated_direct_callbacks_own_state_and_input(self):
+        state=[1]; input=[2]; rng=Rng(5)
+        def generate(snapshot,random):
+            snapshot.append(3); random.next_u64(); return snapshot
+        def enabled(snapshot,item):
+            snapshot.append(4); item.append(5); return True
+        def simpler(item):
+            item.append(6); return (item,)
+        generated=Generated(object(),generate,is_enabled=enabled,simpler_inputs=simpler)
+        self.assertEqual(generated.generate(state,rng),[1,3])
+        self.assertNotEqual(rng.state,5)
+        self.assertTrue(generated.is_enabled(state,input))
+        self.assertEqual(tuple(generated.simpler_inputs(input)),([2,6],))
+        self.assertEqual((state,input),([1],[2]))
+        bad=Generated(object(),generate,is_enabled=lambda state,input:1)
+        with self.assertRaisesRegex(ModelError,'is_enabled must return bool'): bad.is_enabled(state,input)
+
     def test_none_is_present_and_exhaustion_is_explicit(self):
         class Nullable:
             def initial_state(self): return 0
@@ -380,6 +929,37 @@ class ObserverSecondaryErrorTests(unittest.TestCase):
 
 
 class OracleGenerationTests(unittest.TestCase):
+    def test_enumerated_and_simpler_inputs_are_owned(self):
+        from statelessness import WithOracle
+        class Model:
+            def __init__(self): self.values = [[1], [2]]
+            def inputs(self, state):
+                state.append(9)
+                return iter(self.values)
+            def simpler_inputs(self, value):
+                value.append(9)
+                return iter(self.values)
+        class History: pass
+        model = Model()
+        wrapper = WithOracle(model, History())
+        state = wrapper.attach([], [])
+        inputs = list(wrapper.inputs(state))
+        simpler = list(wrapper.simpler_inputs([3]))
+        inputs[0].append(4)
+        simpler[1].append(5)
+        self.assertEqual(model.values, [[1], [2]])
+        self.assertEqual(state.model, [])
+        self.assertEqual(inputs[1], [2])
+        self.assertEqual(simpler[0], [1])
+
+        generated = Generated(model, lambda state, rng: None,
+                              simpler_inputs=model.simpler_inputs)
+        source = [3]
+        result = list(generated.simpler_inputs(source))
+        result[0].append(7)
+        self.assertEqual(source, [3])
+        self.assertEqual(model.values, [[1], [2]])
+
     def test_oracle_forwards_generation_and_shrink_preserving_history(self):
         from statelessness import Metadata, WithOracle, record, replay
         class Actual(Counter):

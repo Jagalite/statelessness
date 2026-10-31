@@ -20,6 +20,25 @@ def header(construct=lambda xs: Header(*xs)):
 
 
 class Declarations(unittest.TestCase):
+    def test_field_slots_are_captured_before_encoder_callbacks(self):
+        class Value:
+            def __init__(self): self.first, self.second = 1, 2
+        value = Value()
+        def first(number, sink):
+            value.second = 9
+            sink.append(bytes([number]))
+        fields = (adapted_field('first', adapter(encode=first), get=lambda v:v.first),
+                  field('second', U8, get=lambda v:v.second))
+        positional = (adapted_field('', adapter(encode=first), get=lambda v:v.first),
+                      positional_field(U8, get=lambda v:v.second))
+        for schema, prefix in (
+            (ordered_record('R', value_type=Value, fields=fields), b''),
+            (tuple_record('T', value_type=Value, fields=positional), b''),
+            (tagged_enum('E', select=lambda v:'A', cases=(case('A',tag=3,fields=fields),)), b'\x03'),
+        ):
+            value.second = 2
+            self.assertEqual(encode_canonical(schema,value), prefix+b'\x01\x02')
+
     def test_order_and_exact_budgets(self):
         schema = header()
         self.assertEqual(encode_canonical(schema, Header(7, True, 0x1234)), bytes.fromhex('07013412'))

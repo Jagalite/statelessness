@@ -13,14 +13,22 @@ import inspect
 from typing import Callable, Generic, Hashable, Protocol, TypeVar
 
 from .core import I, O, S, ModelError, Transition, _natural
-from .search import (FuzzConfig, FuzzReport, GenerateModel, RunLimits,
-                     SearchObserver, _Control, _fuzz_with_driver)
+from .search import (AutoOptions, FuzzConfig, FuzzReport, GenerateModel, RunLimits,
+                     SearchObserver, _Control, _ControlledAuto, _fuzz_with_driver)
 
 K = TypeVar("K", bound=Hashable)
 ALGORITHM = "feature-corpus-v2"
 
 
-def _feedback_call(stage, callback, *args):
+class _FeedbackMetadataFailure(ModelError):
+    """An unwind from the infallible feedback metadata callback.
+
+    Standalone guided search retains its ModelError surface. Campaign execution
+    distinguishes this callback unwind from a fallible feature hook.
+    """
+
+
+def _feedback_call(stage, callback, *args, error_type=ModelError):
     try:
         return callback(*args)
     except Exception as error:
@@ -29,10 +37,10 @@ def _feedback_call(stage, callback, *args):
         try:
             message = str(error)
         except BaseException as diagnostic:
-            wrapped = ModelError(stage + ": callback message unavailable")
+            wrapped = error_type(stage + ": callback message unavailable")
             wrapped.diagnostic_error = diagnostic
         else:
-            wrapped = ModelError(stage + ": " + message)
+            wrapped = error_type(stage + ": " + message)
         raise wrapped from error
 
 
@@ -168,7 +176,7 @@ class StateFeedback(Generic[S, K]):
         return _snapshot(self._metadata)
 
     def initial_features(self, state: S, out: FeatureBuffer[K]) -> None:
-        out.push(_sync_value(self._project(state), "state projection must return a key synchronously"))
+        out.push(_sync_value(self._project(_snapshot(state)), "state projection must return a key synchronously"))
 
     def transition_features(self, before: S, input: I, after: Transition[S, O],
                             out: FeatureBuffer[K]) -> None:
@@ -227,7 +235,8 @@ class GuidanceReport(Generic[I]):
 class _GuidedDriver:
     def __init__(self, feedback, guidance):
         self.feedback, self.config = feedback, guidance
-        metadata = _sync_value(_feedback_call("feedback metadata", feedback.metadata),
+        metadata = _sync_value(_feedback_call("feedback metadata", lambda: feedback.metadata(),
+                                               error_type=_FeedbackMetadataFailure),
                                "feedback metadata must return FeedbackMetadata synchronously")
         if not isinstance(metadata, FeedbackMetadata):
             raise ModelError("feedback metadata must return FeedbackMetadata synchronously")
@@ -338,6 +347,20 @@ def guided_fuzz(model: GenerateModel[S, I, O], feedback: Feedback[S, I, O, K],
     Metadata time counts against the cooperative deadline. Reports contain owned
     witness inputs, not resumable hidden feature state or exhaustive coverage.
     """
+    return _guided_fuzz(model, feedback, config, guidance, limits, observer, None)
+
+
+def guided_fuzz_auto(model, feedback, config: FuzzConfig = FuzzConfig(),
+                     guidance: GuidanceConfig = GuidanceConfig(), *,
+                     options: AutoOptions = AutoOptions(), limits: RunLimits = RunLimits(),
+                     observer=None):
+    """Guided finite-domain fuzz with cooperative automatic iterator scans."""
+    if not isinstance(options, AutoOptions): raise ValueError('options must be AutoOptions')
+    return _guided_fuzz(model, feedback, config, guidance, limits, observer,
+                        AutoOptions(options.max_candidates))
+
+
+def _guided_fuzz(model, feedback, config, guidance, limits, observer, auto_options):
     if not isinstance(guidance, GuidanceConfig):
         raise ValueError("guidance must be GuidanceConfig")
     # Capture base, immutable scalar configurations before application callbacks.
@@ -353,6 +376,8 @@ def guided_fuzz(model: GenerateModel[S, I, O], feedback: Feedback[S, I, O, K],
     limits = RunLimits(limits.max_duration, limits.cancellation)
     config.validate()
     control = _Control(limits)
+    if auto_options is not None:
+        model = _ControlledAuto(model, auto_options, control)
     driver = _GuidedDriver(feedback, guidance)
     result = _fuzz_with_driver(model, config, control, observer, driver)
     return replace(result, guidance=driver.report())

@@ -6,7 +6,7 @@ Callbacks are cooperative; reflection is not a security boundary.
 from dataclasses import dataclass, replace
 from .core import ModelError, U64_MAX, _natural, _copy
 from .debugger_inspect import inspect, InspectQuery, InspectLimits, SnapshotId, PageRequest, compare_nodes, _payload_bytes
-from .debugger_inspect import PathSegment, DisplaySchema, InspectNode, _node_shape
+from .debugger_inspect import PathSegment, DisplaySchema, InspectNode, _node_shape, _float_parts, _read_schema, _inspect_with_schema
 from .debugger_watches import _node_bytes, _schema_bytes
 
 
@@ -32,6 +32,7 @@ class SinkLimits:
 
 @dataclass(frozen=True)
 class DiagnosticLimits:
+    """Limits for capture and retention; projection budgets default to InspectLimits."""
     producers: int = 64
     sinks: int = 16
     subscriptions: int = 64
@@ -40,6 +41,8 @@ class DiagnosticLimits:
     turn_bytes: int = 256*1024
     event_bytes: int = 32768
     baseline_bytes: int = 8*1024*1024
+    projection_value_bytes: int = 4096
+    projection_work: int = 10_000
     def __post_init__(self):
         for name in self.__dataclass_fields__: _natural(getattr(self,name),name)
 
@@ -107,7 +110,10 @@ class DiagnosticEvent:
     incomplete_turn: bool = False
 
 
-def _event_bytes(event): return 256+len(event.site.encode('utf8'))+sum(32+_payload_bytes(s.value) for s in event.path)+_node_bytes(event.payload)+_schema_bytes(event.display_schema)
+def _event_bytes(event, max_chars=256*1024): return 256+len(event.site.encode('utf8'))+sum(32+_payload_bytes(s.value) for s in event.path)+_node_bytes(event.payload,max_chars)+_schema_bytes(event.display_schema)
+
+def _health_increment(health,key,amount=1):
+    health[key]=min(U64_MAX,health[key]+amount)
 
 
 class DiagnosticHub:
@@ -121,7 +127,12 @@ class DiagnosticHub:
     def _guard(self):
         if self._owner is not None: raise ModelError('diagnostic hub already owned by turn/export')
     def add_sink(self,id,permissions=SinkPermissions(),limits=SinkLimits()):
-        self._guard(); _natural(id,'sink')
+        self._guard()
+        admission=object();self._owner=admission
+        try: return self._add_sink(id,permissions,limits)
+        finally: self._owner=None
+    def _add_sink(self,id,permissions,limits):
+        _natural(id,'sink')
         if type(permissions) is not SinkPermissions or type(limits) is not SinkLimits: raise ValueError('invalid sink configuration types')
         if id in self._sinks or len(self._sinks)>=self._limits.sinks: raise ModelError('sink capacity')
         if len(permissions.sites)>self._limits.subscriptions or len(permissions.paths)>self._limits.subscriptions: raise ModelError('permission capacity')
@@ -134,7 +145,12 @@ class DiagnosticHub:
         if id in self._producers or len(self._producers)>=self._limits.producers: raise ModelError('producer capacity')
         self._producers[id]={'epoch':epoch,'revision':0,'effective':0,'last':None,'source':None,'sequence':0,'config':[]}
     def configure(self,expected,subscriptions):
-        self._guard(); _natural(expected,'revision')
+        self._guard()
+        admission=object();self._owner=admission
+        try: return self._configure(expected,subscriptions)
+        finally: self._owner=None
+    def _configure(self,expected,subscriptions):
+        _natural(expected,'revision')
         if expected!=self._revision: raise ModelError('stale configuration revision')
         if type(subscriptions) not in (tuple,list) or len(subscriptions)>self._limits.subscriptions: raise ModelError('subscription capacity')
         size=0
@@ -154,8 +170,9 @@ class DiagnosticHub:
             size+=256+_payload_bytes(subscription.site)+sum(32+_payload_bytes(s.value) for s in subscription.path)+_payload_bytes(subscription.equals)+_payload_bytes(subscription.selector)
         if size>self._limits.config_bytes: raise ModelError('configuration capacity')
         if self._revision==U64_MAX: raise ModelError('capture revision exhausted')
-        self._revision+=1; self._config=_copy(tuple(subscriptions))
-        return ConfigurationAck(self._revision,tuple(self._producers))
+        staged=_copy(tuple(subscriptions))
+        self._revision+=1; self._config=staged
+        return ConfigurationAck(self._revision,tuple(sorted(self._producers)))
     def acknowledge(self,producer,revision,effective_transition):
         self._guard(); _natural(producer,'producer'); _natural(revision,'revision'); _natural(effective_transition,'effective transition')
         if revision!=self._revision: raise ModelError('stale configuration revision')
@@ -167,16 +184,28 @@ class DiagnosticHub:
             config=[{'config':s,'baseline':None,'reason':reason,'eligible':0,'schema':None,'high':False,'last_alert':None} for s in self._config])
         return ProducerAck(producer,p['epoch'],revision,effective_transition)
     @property
-    def pending_producers(self): return tuple(id for id,p in self._producers.items() if p['revision']!=self._revision)
+    def pending_producers(self): return tuple(id for id in sorted(self._producers) if self._producers[id]['revision']!=self._revision)
     def begin_turn(self,producer,run_id,transition,origin='simulation',*,context=()):
-        self._guard(); _natural(producer,'producer'); _natural(run_id,'run'); _natural(transition,'transition')
+        self._guard()
+        admission=object();self._owner=admission
+        try: return self._begin_turn(producer,run_id,transition,origin,context)
+        finally:
+            if self._owner is admission: self._owner=None
+    def _begin_turn(self,producer,run_id,transition,origin,context):
+        _natural(producer,'producer'); _natural(run_id,'run'); _natural(transition,'transition')
         p=self._producers.get(producer)
         if p is None: raise ModelError('unknown producer')
         if p['last'] is not None and transition<=p['last']: raise ModelError('stale boundary')
         if transition<p['effective']: raise ModelError('pending configuration boundary')
         if origin not in ('simulation','live','debug-controlled-live','test','replay','imported'): raise ValueError('invalid diagnostic origin')
-        labels=dict(context)
         allowed={'model','machine','entity','correlation','input_variant','output_variant','property','effect_kind','source_site','property_failed'}
+        # Context is caller-provided and may be an unbounded iterator. Consume
+        # at most one past the closed set of supported label names.
+        from collections.abc import Mapping
+        from itertools import islice
+        pairs=list(islice(iter(context.items() if isinstance(context,Mapping) else context),len(allowed)+1))
+        if len(pairs)>len(allowed): raise ModelError('context label limit')
+        labels=dict(pairs)
         for key,value in labels.items():
             if key not in allowed: raise ModelError('unknown capture context label')
             if key=='property_failed':
@@ -193,7 +222,7 @@ class DiagnosticHub:
         if changed or gap:
             for e in p['config']: e.update(baseline=None,reason='source-changed' if changed else 'observation-gap',high=False,last_alert=None)
             if gap:
-                for sink in {e['config'].sink for e in p['config']}: self._sinks[sink]['health']['observation_gaps']+=1
+                for sink in {e['config'].sink for e in p['config']}: _health_increment(self._sinks[sink]['health'],'observation_gaps')
         for e,matched in zip(p['config'],matches):
             if not matched: e.update(baseline=None,reason='selector-gap',high=False,last_alert=None)
         p['last']=transition
@@ -210,13 +239,13 @@ class DiagnosticHub:
         event,size=sink['queue'].pop(0); sink['bytes']-=size
         return _copy(event)
     def _enqueue(self,id,event):
-        sink=self._sinks[id]; size=_event_bytes(event)
-        if size>sink['limits'].bytes: sink['health']['dropped']+=1; return
+        sink=self._sinks[id]; size=_event_bytes(event,self.limits.event_bytes)
+        if size>sink['limits'].bytes: _health_increment(sink['health'],'dropped'); return
         while len(sink['queue'])>=sink['limits'].records or sink['bytes']+size>sink['limits'].bytes:
-            sink['health']['dropped']+=1
+            _health_increment(sink['health'],'dropped')
             if sink['limits'].policy=='newest': return
             _,old=sink['queue'].pop(0); sink['bytes']-=old
-        sink['queue'].append((_copy(event),size)); sink['bytes']+=size; sink['health']['captured']+=1
+        sink['queue'].append((_copy(event),size)); sink['bytes']+=size; _health_increment(sink['health'],'captured')
     def drain_to(self,id,exporter,maximum):
         self._guard(); _natural(maximum,'maximum')
         written=0
@@ -229,13 +258,13 @@ class DiagnosticHub:
                     result=exporter(event)
                     if result is not None: raise ModelError('exporter must return None')
                 except Exception:
-                    self._sinks[id]['health']['exporter_failed']+=1; break
-                written+=1; self._sinks[id]['health']['exported']+=1
+                    _health_increment(self._sinks[id]['health'],'exporter_failed'); break
+                written+=1; _health_increment(self._sinks[id]['health'],'exported')
             finally: self._owner=None
         return written
     def abandon(self,id):
         self._guard(); sink=self._sinks[id]; count=len(sink['queue'])
-        sink['health']['abandoned']+=count; sink['queue'].clear(); sink['bytes']=0
+        _health_increment(sink['health'],'abandoned',count); sink['queue'].clear(); sink['bytes']=0
         return count
 
 
@@ -276,6 +305,10 @@ class ScopedDiagnostics:
         hub=self._hub; p=hub._producers[self._producer]
         if p['sequence']==U64_MAX: return
         p['sequence']+=1; sequence=p['sequence']; projections={}
+        display=None
+        if kind=='probe':
+            try: display=_read_schema(value)
+            except Exception: pass
         levels=('trace','debug','info','warn','error')
         for e in p['config']:
             s=e['config']; sink=hub._sinks[s.sink]
@@ -286,20 +319,19 @@ class ScopedDiagnostics:
             if kind=='probe':
                 if s.path not in projections:
                     try:
-                        display=value.schema() if hasattr(value,'schema') else DisplaySchema(type(value).__name__)
-                        if type(display) is not DisplaySchema: raise ModelError('invalid display schema')
-                        result=inspect(value,InspectQuery(SnapshotId(self._run_id,self._transition,self._transition),s.path,schema_version=display.version,page=PageRequest(),limits=InspectLimits(max_bytes=max(0,hub.limits.event_bytes-512))))
+                        if display is None: raise ModelError('invalid display schema')
+                        result=_inspect_with_schema(value,InspectQuery(SnapshotId(self._run_id,self._transition,self._transition),s.path,schema_version=display.version,page=PageRequest(),limits=InspectLimits(max_bytes=max(0,hub.limits.event_bytes-512),max_value_bytes=hub.limits.projection_value_bytes,max_work=hub.limits.projection_work)),display)
                         projections[s.path]=(result.node,result.schema)
-                    except Exception: projections[s.path]=(None,None)
+                    except Exception: projections[s.path]=(None,display)
                 node,schema=projections[s.path]
-                if node is None: sink['health']['inspection_failed']+=1
+                if node is None: _health_increment(sink['health'],'inspection_failed')
             if e['schema'] is not None and schema!=e['schema']: e.update(baseline=None,reason='schema-changed',high=False,last_alert=None)
             e['schema']=schema
-            complete=node is not None and node.is_complete
+            complete=node is not None and node.complete_with_budget(hub.limits.event_bytes)
             baseline=e['baseline'] is None
             reason=(e['reason'] or 'initial') if baseline else None; e['reason']=None
             unknown=kind=='probe' and (not complete or (reason is not None and reason!='initial'))
-            changed=compare_nodes(e['baseline'],node)=='changed'
+            changed=compare_nodes(e['baseline'],node,max_chars=hub.limits.event_bytes)=='changed'
             fire=s.trigger=='every' or (s.trigger=='changed' and (baseline or unknown or changed)) or (s.trigger=='equals' and complete and node.kind=='scalar' and node.value==s.equals)
             threshold_unavailable=False
             if s.trigger=='above-u128':
@@ -314,20 +346,22 @@ class ScopedDiagnostics:
                 else: fire=False; unknown=True; threshold_unavailable=True; e.update(high=False,last_alert=None,reason='type-unavailable')
             e['baseline']=node if complete and not threshold_unavailable else None
             if not complete and kind=='probe': e.update(reason='inspection-incomplete',high=False,last_alert=None)
-            if not fire: sink['health']['filtered']+=1; continue
-            e['eligible']+=1
-            if (e['eligible']-1)%s.sample_every: sink['health']['sampled']+=1; continue
+            if not fire: _health_increment(sink['health'],'filtered'); continue
+            e['eligible']=min(U64_MAX,e['eligible']+1)
+            if (e['eligible']-1)%s.sample_every: _health_increment(sink['health'],'sampled'); continue
+            if unknown: _health_increment(sink['health'],'truncated')
             event=DiagnosticEvent(self._run_id,self._producer,p['epoch'],sequence,p['revision'],self._transition,self._origin,severity,site,kind,s.path,node,schema,baseline,reason,unknown)
-            size=_event_bytes(event)
+            size=_event_bytes(event,hub.limits.event_bytes)
             if size>hub.limits.event_bytes or len(self._staged)>=hub.limits.turn_records or self._bytes+size>hub.limits.turn_bytes:
-                sink['health']['dropped']+=1; continue
+                _health_increment(sink['health'],'dropped'); continue
             self._staged.append((s.sink,event)); self._bytes+=size
-        total=sum(_node_bytes(e['baseline']) for producer in hub._producers.values() for e in producer['config'])
+        total=sum(_node_bytes(e['baseline'],hub.limits.event_bytes) for producer in hub._producers.values() for e in producer['config'])
         if total>hub.limits.baseline_bytes:
-            for producer in hub._producers.values():
+            for producer_id in sorted(hub._producers):
+                producer=hub._producers[producer_id]
                 for e in producer['config']:
                     if e['baseline'] is not None:
-                        total-=_node_bytes(e['baseline']); hub._sinks[e['config'].sink]['health']['baseline_evicted']+=1; e.update(baseline=None,reason='evicted',high=False,last_alert=None)
+                        total-=_node_bytes(e['baseline'],hub.limits.event_bytes); _health_increment(hub._sinks[e['config'].sink]['health'],'baseline_evicted'); e.update(baseline=None,reason='evicted',high=False,last_alert=None)
                         if total<=hub.limits.baseline_bytes: return
     def finish(self,complete_turn=True):
         self._ensure()
@@ -354,8 +388,8 @@ def event_json(event):
             if type(value) is InspectNode:
                 if value.kind=='bytes':
                     result['value']={'hex':value.value.hex(),'total_bytes':display(value.total_bytes)}
-                elif value.kind=='scalar' and value.value[0] in ('f32','f64'):
-                    kind,decimal,bits=value.value
+                elif value.kind=='scalar' and _float_parts(value.value) is not None:
+                    kind,decimal,bits=_float_parts(value.value)
                     result['kind']='float'
                     result['value']={'type':kind,'decimal':decimal,'bits':str(bits)}
                 else: result['value']=display(value.value)

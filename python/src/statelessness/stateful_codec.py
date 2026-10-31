@@ -35,6 +35,11 @@ def _weight(schema):
     if schema.allocation_layout is None:raise ModelError('explicit payload allocation layout required')
     return schema.allocation_layout.size
 
+def _tag(kind, variants):
+    if type(kind) is not str or kind not in variants:
+        raise ModelError('invalid stateful action tag')
+    return variants.index(kind)
+
 def network_schemas(state,input,output):
     def address(v):return _Record((U32,v),lambda a:(a.machine,a.value),Address,32+_weight(v))
     route=_Record((U32,U32,input),lambda r:(r.destination,r.channel,r.input),Route,32+_weight(input))
@@ -48,14 +53,14 @@ def network_schemas(state,input,output):
         return NetworkState(tuple(machines),tuple(pending))
     s=_Record((U8,VectorOf(entry),VectorOf(message)),lambda s:(1,s.machines,s.pending),restore)
     kinds=('local','deliver','drop','duplicate')
-    i=_Variant((address(input),U32,U32,U32),lambda i:(kinds.index(i.kind),i.value),lambda t,v:NetworkInput(kinds[t],v))
+    i=_Variant((address(input),U32,U32,U32),lambda i:(_tag(i.kind,kinds),i.value),lambda t,v:NetworkInput(kinds[t],v))
     return s,i,address(output)
 
 def pair_schemas(left,right,left_input,right_input,left_output,right_output):
-    def address(l,r):return _Variant((l,r),lambda a:(0 if a.side=='left' else 1,a.value),lambda t,v:PairAddress('left' if t==0 else 'right',v))
+    def address(l,r):return _Variant((l,r),lambda a:(_tag(a.side,('left','right')),a.value),lambda t,v:PairAddress('left' if t==0 else 'right',v))
     message=address(left_input,right_input)
     state=_Record((left,right,VectorOf(message)),lambda s:(s.left,s.right,s.pending),lambda l,r,q:PairState(l,r,tuple(q)))
-    input=_Variant((message,U32),lambda i:(0 if i.kind=='local' else 1,i.value),lambda t,v:PairInput('local' if t==0 else 'deliver',v))
+    input=_Variant((message,U32),lambda i:(_tag(i.kind,('local','deliver')),i.value),lambda t,v:PairInput('local' if t==0 else 'deliver',v))
     return state,input,address(left_output,right_output)
 
 class _Validated(Schema):

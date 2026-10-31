@@ -5,7 +5,7 @@ consult next application state. Keys must be immutable, ordered values for index
 history; include generation/epoch when a name denotes a new operation.
 """
 from dataclasses import dataclass, field, replace
-from .core import Check, Metadata, ModelError, _copy, _natural
+from .core import Check, Metadata, ModelError, _copy, _natural, _call
 
 @dataclass(frozen=True, order=True)
 class ScopedKey:
@@ -75,23 +75,52 @@ _LEGACY = dict(time_backwards='logical time moved backwards',missing_before_adva
 class LifecycleMonitor:
     """Legacy ordered history; no retirement. Uses the existing WithOracle API."""
     indexed = False
-    def __init__(self, spec, max_history=1024, *, key_schema=None):
-        self.spec, self.limits, self.key_schema = spec, RetentionLimits(max_history,max_history,max_history),key_schema
+    def __init__(self, spec, max_history=1024, *, key_schema=None, max_events=100_000):
+        _natural(max_events, 'max_events')
+        self.spec, self.limits, self.key_schema, self.max_events = spec, RetentionLimits(max_history,max_history,max_history),key_schema,max_events
     def metadata(self):
         m=self.spec.metadata(); l=self.limits
-        name=(f'indexed-lifecycle-v1:{len(m.name.encode())}:{m.name};limits={l.obligations},{l.resources},{l.violations};diagnostics=native-codes-v1' if self.indexed else f'{m.name};history-limit={l.obligations}')
-        return replace(m,name=name,build=m.build+(';indexed-lifecycle-v1:native' if self.indexed else ';lifecycle-v1:native'))
+        diagnostics = self._diagnostics_identity() if self.indexed else None
+        name=(f'indexed-lifecycle-v1:{len(m.name.encode())}:{m.name};limits={l.obligations},{l.resources},{l.violations};{diagnostics}' if self.indexed else f'{m.name};history-limit={l.obligations}')
+        return replace(m,name=name,build=m.build+(';indexed-lifecycle-v1:native' if self.indexed else ';lifecycle-v1:native')+f';events={self.max_events}')
     def initial_state(self): return History()
     def validate(self,h):
+        return self._validate(h, enforce_limits=True)
+    def _validate(self,h, *, enforce_limits):
+        if type(h) is not History: raise ModelError('invalid lifecycle history')
         _natural(h.now,'now'); _natural(h.retired_before,'fence')
         for name in ('obligations','resources','violations'):
-            if len(getattr(h,name))>getattr(self.limits,name): raise ModelError('lifecycle retention limit; verification incomplete')
+            if enforce_limits and len(getattr(h,name))>getattr(self.limits,name): raise ModelError('lifecycle retention limit; verification incomplete')
+        def obligation(value):
+            if type(value) is not Obligation or type(value.deadline) is not int or not 0<=value.deadline<1<<64:
+                raise ModelError('invalid lifecycle obligation')
+            if any(type(getattr(value,key)) is not bool for key in ('cancelled','settled','published')):
+                raise ModelError('invalid lifecycle obligation')
+        for entry in h.obligations:
+            if type(entry) is not tuple or len(entry)!=2: raise ModelError('invalid lifecycle obligation entry')
+            obligation(entry[1])
+        for entry in h.resources:
+            if type(entry) is not tuple or len(entry)!=2 or type(entry[1]) is not bool:
+                raise ModelError('invalid lifecycle resource entry')
+        # Legacy history has neither a retirement fence nor a publication bit.
+        # Reject restored values that its codec cannot preserve rather than
+        # silently discarding indexed-only state during an encode/decode cycle.
+        if not self.indexed and (h.retired_before != 0 or any(v.published for _,v in h.obligations)):
+            raise ModelError('indexed-only state in legacy lifecycle history')
         if self.indexed:
             for entries in (h.obligations,h.resources):
                 keys=[k for k,_ in entries]
                 if any(not isinstance(k,ScopedKey) or k.epoch<h.retired_before for k in keys): raise ModelError('detail below retirement fence')
                 if any(a>=b for a,b in zip(keys,keys[1:])): raise ModelError('noncanonical indexed map order')
             if any(v.published and not v.settled for _,v in h.obligations): raise ModelError('invalid publication history')
+            for violation in h.violations:
+                if (type(violation) is not Violation or violation.key is not None and not isinstance(violation.key,ScopedKey)
+                    or type(violation.code) is not str or type(violation.event) is not str
+                    or type(violation.observed_at) is not int or not 0<=violation.observed_at<1<<64):
+                    raise ModelError('invalid indexed lifecycle violation')
+                if violation.prior is not None: obligation(violation.prior)
+        elif any(type(violation) is not str for violation in h.violations):
+            raise ModelError('invalid legacy lifecycle violation')
     def _find(self,entries,key):
         if not self.indexed:return next((n for n,(k,_) in enumerate(entries) if k==key),None)
         low,high=0,len(entries)
@@ -154,7 +183,11 @@ class LifecycleMonitor:
                 if v.deadline<h.now: fail('settlement_after_deadline')
                 v.settled=True
         elif kind=='publish':
-            if v is None or v.cancelled or not v.settled: fail('stale_or_premature_publication')
+            # Legacy history is a vector and restored histories may contain
+            # repeated keys. Rust considers every matching obligation here.
+            publishable = (v is not None and not v.cancelled and v.settled) if self.indexed else any(
+                k == key and not item.cancelled and item.settled for k,item in h.obligations)
+            if not publishable: fail('stale_or_premature_publication')
             elif self.indexed:
                 if v.published: fail('duplicate_publication')
                 else: v.published=True
@@ -167,16 +200,37 @@ class LifecycleMonitor:
                 h.resources.append((_copy(key),True))
                 if self.indexed: h.resources.sort(key=lambda v:v[0])
         elif kind=='release':
-            if v is not None and v.pending: fail('release_before_settlement')
+            pending = (v is not None and v.pending) if self.indexed else any(
+                k == key and item.pending for k,item in h.obligations)
+            if pending: fail('release_before_settlement')
             if r is None: fail('release_without_acquisition')
             elif not h.resources[r][1]: fail('duplicate_release')
             else: h.resources[r]=(_copy(key),False)
     def advance(self,before,input,outputs,disposition):
+        max_events = _natural(self.max_events, 'max_events')
         self.validate(before); h=_copy(before)
         k=self._overdue(h,h.now)
         if k is not None: self._violation(h,k[0],'missing_in_prior_history','observation')
         # Materialize both classifiers before processing, as Rust does.
-        events=list(self.spec.input_events(_copy(input),disposition))+list(self.spec.output_events(_copy(outputs)))
+        events=[]
+        def collect(iterable):
+            iterator = _call('lifecycle event iterator', iter, iterable)
+            sentinel = object()
+            while True:
+                event = _call('lifecycle event next', next, iterator, sentinel)
+                if event is sentinel: return
+                if len(events) >= max_events:
+                    raise ModelError('lifecycle event limit exceeded; verification incomplete')
+                events.append(_copy(event))
+        # The input classifier may retain an alias to the caller's outputs.
+        # Capture them before invoking it, while preserving the input-stage
+        # failure precedence if the output snapshot is never consumed.
+        output_error = None
+        try: output_snapshot = _copy(outputs)
+        except Exception as error: output_error = error
+        collect(_call('lifecycle input classifier', self.spec.input_events, _copy(input), _copy(disposition)))
+        if output_error is not None: raise output_error
+        collect(_call('lifecycle output classifier', self.spec.output_events, output_snapshot))
         for e in events: self._apply(h,e)
         k=self._overdue(h,h.now)
         if k is not None: self._violation(h,k[0],'missing_at_deadline','observation')
@@ -184,11 +238,20 @@ class LifecycleMonitor:
     def check_state(self,h,actual=None):
         self.validate(h); prefix='lifecycle.indexed' if self.indexed else 'lifecycle'
         bad=bool(h.violations) or self._overdue(h,h.now) is not None
+        if self.indexed and self._rust_debug_enabled():
+            # Construct both results before returning: formatter failures cannot
+            # turn a partially formatted batch into successful checks.
+            retention = self._debug_retention(h.retention()) if bad or h.pending() else None
+            detail = ('violations=[' + ', '.join(self._debug_violation(v) for v in h.violations) + ']; retention=' + retention) if bad else None
+            return (Check(prefix+'.safety','failed',detail) if bad else Check(prefix+'.safety'),
+                    Check(prefix+'.obligations','skipped','finite history: '+retention) if h.pending() else Check(prefix+'.obligations'))
         return (Check(prefix+'.safety','failed','; '.join(v.code for v in h.violations) or 'missing_at_deadline' if self.indexed else '; '.join(h.violations) or _LEGACY['missing_at_deadline']) if bad else Check(prefix+'.safety'),
                 Check(prefix+'.obligations','skipped',f'{h.pending()} pending obligations in finite history') if h.pending() else Check(prefix+'.obligations'))
     def encode_history(self,h):
         from .value_codec import encode_canonical
-        if self.indexed: self.validate(h)
+        # Rust's legacy codec encodes representable history independent of the
+        # monitor's retention bound; decoding and execution still enforce it.
+        self._validate(h, enforce_limits=self.indexed)
         return encode_canonical(self._schema(),self._wire(h))
     def decode_history(self,b):
         from .value_codec import decode_canonical
@@ -222,5 +285,53 @@ class LifecycleMonitor:
 
 class IndexedLifecycleMonitor(LifecycleMonitor):
     indexed=True
-    def __init__(self,spec,limits=RetentionLimits(),*,key_schema=None):
-        self.spec,self.limits,self.key_schema=spec,limits,key_schema
+    def __init__(self,spec,limits=RetentionLimits(),*,key_schema=None,max_events=100_000,
+                 rust_debug_key=None,rust_debug_string=None,rust_debug_identity=None):
+        _natural(max_events, 'max_events')
+        self.spec,self.limits,self.key_schema,self.max_events=spec,limits,key_schema,max_events
+        self.rust_debug_key,self.rust_debug_string,self.rust_debug_identity=rust_debug_key,rust_debug_string,rust_debug_identity
+        self._rust_debug_enabled()
+
+    def _rust_debug_enabled(self):
+        values=(self.rust_debug_key,self.rust_debug_string,self.rust_debug_identity)
+        if all(v is None for v in values): return False
+        if not callable(values[0]) or not callable(values[1]) or type(values[2]) is not str or not values[2]:
+            raise ModelError('Rust debug diagnostics require key and string formatters and a nonempty identity')
+        try: values[2].encode('utf-8')
+        except UnicodeError as error: raise ModelError('invalid Rust debug formatter identity') from error
+        return True
+
+    def _diagnostics_identity(self):
+        if not self._rust_debug_enabled(): return 'diagnostics=native-codes-v1'
+        identity=self.rust_debug_identity
+        return f'diagnostics=rust-debug-v1;formatter={len(identity.encode("utf-8"))}:{identity}'
+
+    def _debug_format(self, callback, value):
+        result=_call('lifecycle debug formatter', callback, _copy(value))
+        if type(result) is not str: raise ModelError('lifecycle debug formatter must return a string')
+        try: result.encode('utf-8')
+        except UnicodeError as error: raise ModelError('invalid lifecycle debug formatter output') from error
+        return result
+
+    def _debug_key(self,key):
+        inner=self._debug_format(self.rust_debug_key,key.key)
+        return f'ScopedKey {{ epoch: {key.epoch}, generation: {key.generation}, key: {inner} }}'
+
+    @staticmethod
+    def _debug_obligation(value):
+        b=lambda v:'true' if v else 'false'
+        return f'Obligation {{ deadline: {value.deadline}, cancelled: {b(value.cancelled)}, settled: {b(value.settled)}, published: {b(value.published)} }}'
+
+    def _debug_violation(self,value):
+        key='None' if value.key is None else 'Some('+self._debug_key(value.key)+')'
+        prior='None' if value.prior is None else 'Some('+self._debug_obligation(value.prior)+')'
+        code=self._debug_format(self.rust_debug_string,value.code)
+        event=self._debug_format(self.rust_debug_string,value.event)
+        return f'Violation {{ key: {key}, code: {code}, event: {event}, observed_at: {value.observed_at}, prior: {prior} }}'
+
+    def _debug_retention(self,value):
+        oldest=value['oldest_unresolved']
+        oldest='None' if oldest is None else 'Some(('+self._debug_key(oldest[0])+f', {oldest[1]}))'
+        return (f"RetentionStatus {{ active_obligations: {value['active_obligations']}, historical_obligations: {value['historical_obligations']}, "
+                f"acquired_resources: {value['acquired_resources']}, historical_resources: {value['historical_resources']}, "
+                f"oldest_unresolved: {oldest}, retired_before: {value['retired_before']} }}")

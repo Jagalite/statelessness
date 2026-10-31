@@ -100,3 +100,37 @@ class DebuggerTests(unittest.TestCase):
     def test_legacy_rust_u64_checkpoint_syntax(self):
         trace=replace(fixture(),steps=(),termination='completed',config=RunConfig(parameters=(('stateless.monitor.checkpoint_after_sequence','+018446744073709551615'),)))
         self.assertEqual(EvidenceViewer(Artifact(trace)).retained_range,((1<<64)-1,(1<<64)-1))
+        parameter='stateless.monitor.checkpoint_after_sequence'
+        trace=replace(trace,config=RunConfig(parameters=((parameter,'+'+'0'*5000+'1'),)))
+        self.assertEqual(EvidenceViewer(Artifact(trace)).retained_range,(1,1))
+        for value in ('0'*5000+'18446744073709551616','9'*5000):
+            with self.subTest(value_length=len(value)):
+                invalid=replace(trace,config=RunConfig(parameters=((parameter,value),)))
+                with self.assertRaisesRegex(ModelError,'retained sequence overflow'):
+                    EvidenceViewer(Artifact(invalid))
+
+    def test_duplicate_legacy_checkpoint_is_ambiguous_even_when_equal(self):
+        parameter='stateless.monitor.checkpoint_after_sequence'
+        for second in ('4','5','invalid'):
+            with self.subTest(second=second):
+                trace=replace(fixture(),config=RunConfig(parameters=((parameter,'4'),(parameter,second))))
+                with self.assertRaisesRegex(ModelError,'ambiguous retained checkpoint sequence'):
+                    EvidenceViewer(Artifact(trace))
+
+    def test_legacy_retained_range_uses_origin_plus_evictions(self):
+        origin='stateless.monitor.sequence_origin';checkpoint='stateless.monitor.checkpoint_after_sequence'
+        trace=fixture()
+        for parameters,expected in ((((origin,'20'),(checkpoint,'2')),(22,24)),
+                                     (((origin,'20'),),(20,22)),
+                                     (((checkpoint,'2'),),(2,4))):
+            with self.subTest(parameters=parameters):
+                view=EvidenceViewer(Artifact(replace(trace,config=RunConfig(parameters=parameters))))
+                self.assertEqual(view.retained_range,expected)
+                self.assertEqual(view.boundary(0).after,trace.initial_state)
+        for parameters in (((origin,'20'),(origin,'20')),
+                           ((origin,'20'),(origin,'21')),
+                           ((origin,'18446744073709551615'),(checkpoint,'1')),
+                           ((origin,'18446744073709551615'),)):
+            with self.subTest(parameters=parameters):
+                with self.assertRaises(ModelError):
+                    EvidenceViewer(Artifact(replace(trace,config=RunConfig(parameters=parameters))))

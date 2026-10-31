@@ -2,7 +2,7 @@
 from dataclasses import dataclass, replace
 from weakref import WeakKeyDictionary, ref
 from .core import ModelError, _copy, _natural, _call
-from .debugger import EvidenceViewer, VerificationLimits, InputPolicy
+from .debugger import EvidenceViewer, VerificationLimits, InputPolicy, _recorded_environment
 from .debugger_session import DebugSession, DebugError, SessionLimits
 from .evidence import Artifact
 from .trace_binary import audit_to_bytes, RunConfig
@@ -113,7 +113,7 @@ class BranchProvenance:
             ('stateless.debug.fork.sequence', str(self.fork_sequence)),
             ('stateless.debug.fork.checkpoint', f'fnv1a64:{self.checkpoint.fnv1a64:016x}'),
             ('stateless.debug.parent.build', self.parent_metadata.build),
-            ('stateless.debug.parent_prefix_verified', 'true'),
+            ('stateless.debug.parent_prefix_verified', str(self.parent_prefix_verified).lower()),
             ('stateless.debug.branch.origin', self.origin))
 
 
@@ -137,15 +137,15 @@ def fork_verified(viewer, id, model, sequence, policy, *, verification=Verificat
     artifact, boundary = viewer.artifact, viewer.boundary(sequence)
     if boundary is None: raise ModelError('fork outside parent history')
     trace = artifact.trace
+    recorded = _recorded_environment(trace)
+    if recorded is not None and not policy.unrestricted and (recorded[0] != policy.label or recorded[1]):
+        raise ModelError('branch environment differs; explicitly select unrestricted injection or retain parent policy')
     if any(c.status == 'failed' for c in trace.initial_checks) or any(c.status == 'failed' for c in boundary.checks):
         raise ModelError('normal branches must start before property failure')
     prefix = replace(trace, steps=trace.steps[:sequence], termination='completed', error='')
     selected = Artifact(prefix) if artifact.version == 1 else Artifact(replace(artifact.value, trace=prefix, steps=artifact.value.steps[:sequence]))
     report = EvidenceViewer(selected, limits=viewer._limits).verify(model, limits=verification, allow_build_mismatch=allow_build_mismatch)
     if report.outcome != 'exact': raise ModelError('fork prefix is not verified: ' + report.outcome)
-    parent_policy = next((v for k,v in trace.config.parameters if k == 'stateless.debug.environment'), None)
-    if parent_policy is not None and parent_policy != policy.label and not policy.unrestricted:
-        raise ModelError('branch environment differs; explicitly select unrestricted injection or retain parent policy')
     state = _call('decode fork checkpoint', model.decode_state, boundary.after)
     provenance = BranchProvenance(1, artifact_identity(trace), sequence, _bytes_identity(boundary.after),
         trace.metadata, _call('branch metadata', model.metadata), True, policy.label,

@@ -33,22 +33,51 @@ def _natural(value: int, name: str, minimum: int = 0, maximum: int = U64_MAX) ->
     return value
 
 
+def _error_detail(error: Exception) -> str:
+    try:
+        return str(error)
+    except Exception:
+        return 'exception detail unavailable'
+
+
 def _call(stage: str, callback: Callable[..., T], *args: Any) -> T:
     try:
         return callback(*args)
     except Exception as error:
-        raise ModelError(f"{stage}: {error}") from error
+        raise ModelError(f"{stage}: {_error_detail(error)}") from error
 
 
 class _SnapshotFailure(ModelError):
     """Internal typed ownership failure; never inferred from application text."""
 
 
-def _copy(value: T) -> T:
+def _copy(value: T, memo=None) -> T:
     try:
-        return deepcopy(value)
+        return deepcopy(value, memo)
     except Exception as error:
-        raise _SnapshotFailure(f"snapshot: {error}") from error
+        raise _SnapshotFailure(f"snapshot: {_error_detail(error)}") from error
+
+
+class _Captured:
+    """An owned snapshot taken now, or the copy failure deferred until use.
+
+    Single rule for deferred captures: `_copy` converts every `Exception` from a
+    copy hook into a `ModelError`, so only `ModelError` is deferred here;
+    `BaseException` (KeyboardInterrupt, SystemExit, ...) propagates immediately.
+    """
+    __slots__ = ("_value", "error")
+
+    def __init__(self, value: Any, memo=None) -> None:
+        try:
+            self._value, self.error = _copy(value, memo), None
+        except ModelError as error:
+            self._value, self.error = None, error
+
+    def get(self) -> Any:
+        """Return the snapshot, or raise the deferred copy failure."""
+        if self.error is not None:
+            raise self.error
+        return self._value
 
 
 @dataclass(frozen=True)
@@ -174,7 +203,12 @@ class _SinkLease:
 
     def poison(self, error):
         if self.buffer.failure is None:
-            self.buffer.failure = error if isinstance(error, ModelError) else ModelError(str(error))
+            # Poison before invoking application-controlled exception formatting:
+            # __str__ may raise or re-enter an escaped sink.
+            self.buffer.failure = error if isinstance(error, ModelError) else ModelError('exception detail unavailable')
+            self.active = False
+            if not isinstance(error, ModelError):
+                self.buffer.failure = ModelError(_error_detail(error))
         self.active = False
         return self.buffer.failure
 
@@ -331,13 +365,19 @@ def _check_observed_count_into(model: Model[S, I, O], before: S, input: I,
             raise ValueError("transition must be a Transition")
         if not isinstance(policy, CheckPolicy):
             raise ValueError("policy must be CheckPolicy")
-        if sequence % policy.state_every == 0:
+        # Validate and snapshot before invoking a checker, which may retain and
+        # mutate the caller's policy despite its frozen dataclass declaration.
+        state_every, transition_checks = policy.state_every, policy.transition_checks
+        _natural(state_every, "state_every", 1)
+        if type(transition_checks) is not bool:
+            raise ValueError("transition_checks must be boolean")
+        if sequence % state_every == 0:
             _dispatch_checks(model, "check_state_into", "check_state",
                              (_copy(transition.state),), checks, "state check")
         else:
             checks.append(Check("stateless.state_checks", "skipped", "periodic checking policy"))
         boundary = len(checks)
-        if policy.transition_checks:
+        if transition_checks:
             _dispatch_checks(model, "check_transition_into", "check_transition",
                              (_copy(before), _copy(input), _copy(transition)), checks,
                              "transition check", optional=True)
@@ -425,6 +465,8 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     a prefix does not validate its unrecorded terminal error.
     """
     _natural(max_steps, "max_steps")
+    if not isinstance(limits, TraceLimits): raise ValueError('limits must be TraceLimits')
+    limits = TraceLimits(**{name: getattr(limits, name) for name in TraceLimits.__dataclass_fields__})
     from .codec import encode_value
     state = _copy(_call("initial state", model.initial_state))
     check_storage: list[Check] = []
@@ -442,7 +484,10 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     termination, error = "completed", ""
     if _failed(initial_checks):
         return Trace(metadata, initial_state, initial_checks, (), "property_failed")
-    iterator = _call("inputs", iter, inputs)
+    try:
+        iterator = _call("inputs", iter, inputs)
+    except ModelError as cause:
+        return Trace(metadata, initial_state, initial_checks, (), "model_error", _error_detail(cause))
     while True:
         try:
             try:
@@ -450,7 +495,7 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
             except StopIteration:
                 break
             except Exception as cause:
-                raise ModelError(f"inputs: {cause}") from cause
+                raise ModelError(f"inputs: {_error_detail(cause)}") from cause
             if len(steps) >= min(max_steps, limits.max_steps):
                 termination = "step_limit"
                 break
@@ -473,7 +518,7 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
                 raise ModelError("recording limit: aggregate payload bytes")
             step = TraceStep(encoded_input, transition.disposition, outputs, post_state, checks)
         except ModelError as cause:
-            termination, error = "model_error", str(cause)
+            termination, error = "model_error", _error_detail(cause)
             break
         steps.append(step)
         state, items, payload_bytes = transition.state, next_items, next_payload
@@ -576,10 +621,15 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
     real root prefixes when needs_history() returns True. Snapshots are detached.
     """
     # Local import preserves the existing core/search public module split.
-    from .search import SearchLimits, _Control, _estimate, _violations
+    from .search import SearchLimits, RunLimits, _Control, _estimate, _violations
     limits = SearchLimits() if limits is None else limits
     if not isinstance(limits, SearchLimits):
         raise ValueError("limits must be SearchLimits")
+    if not isinstance(config, SearchConfig):
+        raise ValueError("config must be SearchConfig")
+    config = SearchConfig(config.max_states, config.max_transitions, config.max_depth)
+    limits = SearchLimits(RunLimits(limits.control.max_duration, limits.control.cancellation),
+                          limits.max_estimated_state_bytes)
     control = _Control(limits.control)
     states = transitions = max_depth = skipped = 0
     check_storage = []
@@ -607,6 +657,12 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
     if stop is not None:
         return stop
     state = _copy(_call("initial_state", model.initial_state))
+    # Keep the search node separate from application check/observer aliases.
+    # Copy failures are deferred while an earlier violation or stop decides the run.
+    try:
+        initial_node, initial_error = _copy(state), None
+    except _SnapshotFailure as error:
+        initial_node, initial_error = None, error
     states = 1
     violations, skipped = _violations(model, state, observer=observer, storage=check_storage)
     if violations:
@@ -614,6 +670,9 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
     stop = stopped()
     if stop is not None:
         return stop
+    if initial_error is not None:
+        raise initial_error
+    state = initial_node
     estimated = _estimate(model, state)
     stop = stopped()
     if stop is not None:
@@ -665,23 +724,43 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
                 break
             if transitions == config.max_transitions:
                 return report("transition_limit")
+            # Preserve the enumerated value for checks and witnesses before the
+            # reducer or its copy hooks can mutate an externally held alias.
+            input = _copy(input)
             transition = _step(model, state, input)
             transitions += 1
             max_depth = max(max_depth, depth + 1)
+            try:
+                successor_state, successor_error = _copy(transition.state), None
+            except _SnapshotFailure as error:
+                successor_state, successor_error = None, error
+            try:
+                edge_observation, edge_error = _copy((state, input, transition)), None
+            except _SnapshotFailure as error:
+                edge_observation, edge_error = None, error
             wants_history = getattr(observer, "needs_history", None) if observer is not None else None
             history_requested = False if wants_history is None else _call("search observer needs_history", wants_history)
             if type(history_requested) is not bool:
                 raise ModelError("search observer needs_history must return bool")
             history = path(index, input) if history_requested else ()
-            violations, count = _violations(model, state, input, transition,
-                                            observer=observer, history=history, storage=check_storage)
+            edge_before, edge_input, edge_transition = (edge_observation if edge_error is None
+                                                        else (state, input, transition))
+            violations, count = _violations(model, edge_before, edge_input, edge_transition,
+                                            observer=observer, history=history, storage=check_storage,
+                                            edge_capture_error=edge_error,
+                                            state_snapshot=(successor_state if successor_error is None
+                                                            else edge_transition.state),
+                                            state_snapshot_error=(successor_error if successor_error is not None
+                                                                  and edge_error is not None else None))
             skipped = _saturating_add_u64(skipped, count)
             if violations:
                 return report("failure_found", Failure(path(index, input), violations))
             stop = stopped()
             if stop is not None:
                 return stop
-            hashed = _call("state hash", _hash, _copy(transition.state))
+            if successor_error is not None:
+                raise successor_error
+            hashed = _call("state hash", _hash, _copy(successor_state))
             stop = stopped()
             if stop is not None:
                 return stop
@@ -694,7 +773,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
                 if stop is not None:
                     return stop
                 duplicate = _call("state equality", lambda left, right: bool(left == right),
-                                  _copy(nodes[other][0]), _copy(transition.state))
+                                  _copy(nodes[other][0]), _copy(successor_state))
                 stop = stopped()
                 if stop is not None:
                     return stop
@@ -704,7 +783,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
                 continue
             if len(nodes) == config.max_states:
                 return report("state_limit")
-            estimate = _estimate(model, transition.state)
+            estimate = _estimate(model, successor_state)
             stop = stopped()
             if stop is not None:
                 return stop
@@ -718,7 +797,7 @@ def enumerate_states(model: EnumerateModel[S, I, O], config: SearchConfig = Sear
                     return report("estimated_state_byte_limit")
             successor = len(nodes)
             visited.setdefault(hashed, []).append(successor)
-            nodes.append((_copy(transition.state), index, _copy(input), depth + 1))
+            nodes.append((_copy(successor_state), index, _copy(input), depth + 1))
             queue.append(successor)
             states, estimated = len(nodes), total
     return report("depth_bound" if cutoff else "graph_exhausted")

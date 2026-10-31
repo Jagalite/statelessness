@@ -276,6 +276,36 @@ class CampaignSerialTests(unittest.TestCase):
         self.assertEqual([x for x in log if x.endswith("close") or x == "sink"],
                          ["feedback-close", "model-close", "sink"] * 2)
 
+    def test_feedback_metadata_unwind_is_a_job_panic(self):
+        # Rust Feedback::metadata is infallible: an unwind here is a panic,
+        # even when the Python callback raises its model-error type.
+        for error_type in (RuntimeError, ModelError):
+            with self.subTest(error_type=error_type):
+                log, reports = [], []
+                class Feedback:
+                    def metadata(self):
+                        log.append("feedback-metadata")
+                        raise error_type("metadata exploded")
+                    def campaign_close(self): log.append("feedback-close")
+                def factory(job): return Counter(job, log=log)
+                def feedback(job, model): return Feedback()
+                run_guided_campaign(CampaignConfig(jobs=1, fuzz=TINY), RunLimits(),
+                                    GuidanceConfig(), factory, feedback, reports.append)
+                self.assertEqual(reports[0].outcome.kind, "panicked")
+                self.assertEqual(reports[0].outcome.error, "metadata exploded")
+                self.assertEqual(log, ["metadata", "feedback-metadata", "feedback-close", "model-close"])
+
+        # Attribute lookup is part of invoking the callback in Python and may
+        # itself unwind, including via a property that raises ModelError.
+        class LookupFailure:
+            @property
+            def metadata(self): raise ModelError("metadata lookup exploded")
+        reports = []
+        run_guided_campaign(CampaignConfig(jobs=1, fuzz=TINY), RunLimits(),
+                            GuidanceConfig(), Counter, lambda job, model: LookupFailure(), reports.append)
+        self.assertEqual(reports[0].outcome.kind, "panicked")
+        self.assertEqual(reports[0].outcome.error, "metadata lookup exploded")
+
     def test_preflight_stop_has_no_callbacks_and_factory_cancellation_keeps_metadata(self):
         calls = []
         for limits, reason in ((RunLimits(cancellation=lambda: True), "cancelled"),

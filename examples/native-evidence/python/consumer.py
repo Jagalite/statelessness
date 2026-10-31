@@ -95,6 +95,12 @@ def controls(v,prefix):
     return dict(check_once=True,coordinated_metadata_eviction=True,coordinated_cause_eviction=True,coordinated_trace_eviction=True,source_index_before_eviction=True,phase_divergence=True,verified_upgrade=True,diagnostic_exact=True,diagnostic_caps=True,exclusive_private_files=True,no_overwrite=True,passive_v1_no_execution=True),text.decode()
 
 mode,*paths=sys.argv[1:];m=Threshold()
+def destination_write(fn):
+    try: return fn()
+    except Exception as error:
+        print(f"N11_DESTINATION_CREATE_ERROR {error}", file=sys.stderr)
+        raise
+
 if mode=="record":
     path,=paths;rec=attach(m)
     for seq in (1,2,3):
@@ -114,11 +120,11 @@ elif mode in ("replay","upgrade"):
     with open(path,'rb') as f:a=Artifact.read(f,limits=ELIMITS)
     v=a.value if mode=="replay" else TraceV2.verify_upgrade(m,a.trace,PROVENANCE,0,limits=ELIMITS)
     if not isinstance(v,TraceV2):raise RuntimeError("expected v2 evidence")
-    v.write_raw_new(out,limits=ELIMITS);receipt=dict(version=2,evidence=normalize(v),report=report(v.replay(m,limits=ELIMITS)),retained_config=config(v.trace.config))
+    destination_write(lambda:v.write_raw_new(out,limits=ELIMITS));receipt=dict(version=2,evidence=normalize(v),report=report(v.replay(m,limits=ELIMITS)),retained_config=config(v.trace.config))
 elif mode=="diagnostic":
     path,out=paths
     with open(path,'rb') as f:a=Artifact.read(f,limits=ELIMITS)
-    text=diagnostic_json(a,POLICY);export_diagnostic_new(a,out,POLICY);rejected(lambda:export_diagnostic_new(a,out,POLICY))
+    text=diagnostic_json(a,POLICY);destination_write(lambda:export_diagnostic_new(a,out,POLICY));rejected(lambda:export_diagnostic_new(a,out,POLICY))
     if Path(out).read_bytes()!=text:raise RuntimeError("diagnostic overwritten")
     receipt=dict(diagnostic_text=text.decode(),execution_calls=m.steps+m.state_calls+m.edge_calls+m.initial_calls,no_overwrite=True)
 else:raise ValueError("unknown mode")

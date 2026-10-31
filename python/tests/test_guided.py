@@ -50,6 +50,320 @@ class Collision:
 
 
 class GuidedAccountingTests(unittest.TestCase):
+    def test_none_successor_snapshot_is_not_treated_as_missing(self):
+        seen = []
+        class Output:
+            def __deepcopy__(self, memo): raise RuntimeError("output snapshot")
+        turn = Transition(None, (Output(),))
+        class Model:
+            def initial_state(self): return 0
+            def is_enabled(self, state, input): return True
+            def check_state(self, state):
+                seen.append(state)
+                return ()
+        # The stand-in starts after execution, so input copying during history
+        # retention mutates the completed transition only after capture.
+        class InputAfterStep:
+            ready = False
+            def __deepcopy__(self, memo):
+                if InputAfterStep.ready: object.__setattr__(turn, "state", 99)
+                return InputAfterStep()
+        model = Model()
+        model.generate = lambda state, rng: InputAfterStep()
+        def execute(*args, **kwargs):
+            InputAfterStep.ready = True
+            return turn
+        with patch("statelessness.search._step", execute):
+            result = fuzz(model, FuzzConfig(cases=1, max_steps=1))
+        self.assertEqual(result.termination, "cases_completed")
+        self.assertEqual(seen, [0, None])
+
+    def test_state_check_uses_captured_successor_when_output_snapshot_fails(self):
+        aliases, seen = [], []
+        class State:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                result = State(self.value)
+                if self.value == 1 and not aliases: aliases.append(result)
+                return result
+        class Output:
+            copies = 0
+            def __deepcopy__(self, memo):
+                Output.copies += 1
+                if Output.copies == 2: raise RuntimeError("output snapshot")
+                return Output()
+        class Input:
+            def __deepcopy__(self, memo):
+                if aliases: aliases[0].value = 99
+                return Input()
+        class Model:
+            def initial_state(self): return State(0)
+            def generate(self, state, rng): return Input()
+            def is_enabled(self, state, input): return True
+            def step(self, state, input): return Transition(State(1), (Output(),))
+            def check_state(self, state):
+                if state.value: seen.append(state.value)
+                return ()
+        result = fuzz(Model(), FuzzConfig(cases=1, max_steps=1))
+        self.assertEqual(result.termination, "cases_completed")
+        self.assertEqual(seen, [1])
+
+    def test_unused_successor_copy_failure_does_not_preempt_next_stop(self):
+        from statelessness.search import _fuzz_with_driver
+        class State:
+            successor_copies = 0
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                if self.value == 1:
+                    State.successor_copies += 1
+                    if State.successor_copies == 2: raise RuntimeError("unused successor")
+                return State(self.value)
+        class Model:
+            def initial_state(self): return State(0)
+            def generate(self, state, rng): return 1
+            def is_enabled(self, state, input): return True
+            def step(self, state, input): return Transition(State(1))
+            def check_state(self, state): return ()
+        class Control:
+            calls = 0
+            def stop(self):
+                self.calls += 1
+                return "cancelled" if self.calls == 9 else None
+        result = _fuzz_with_driver(Model(), FuzzConfig(cases=1, max_steps=2), Control(), None)
+        self.assertEqual(result.termination, "cancelled")
+
+    def test_fuzz_unused_initial_snapshot_failure_does_not_preempt_limits(self):
+        class State:
+            copies = 0
+            def __deepcopy__(self, memo):
+                State.copies += 1
+                if State.copies == 2:
+                    raise RuntimeError("snapshot unavailable")
+                return State()
+        class Model:
+            def initial_state(self): return State()
+            def check_state(self, state): return ()
+        for steps, transitions, expected in ((0, 10, "cases_completed"), (1, 0, "transition_limit")):
+            State.copies = 0
+            result = fuzz(Model(), FuzzConfig(cases=1, max_steps=steps, max_transitions=transitions))
+            self.assertEqual(result.termination, expected)
+
+    def test_guided_feedback_uses_transition_before_check_alias_mutation(self):
+        aliases = {}
+        seen = []
+        class State:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                result = State(self.value)
+                aliases.setdefault(self.value, result)
+                return result
+        class Model:
+            def initial_state(self): return State(0)
+            def generate(self, state, rng): return 1
+            def is_enabled(self, state, input): return True
+            def step(self, state, input): return Transition(State(1))
+            def check_state(self, state):
+                if state.value == 1: aliases[1].value = 99
+                return ()
+        class Capture(EmptyFeedback):
+            def transition_features(self, before, input, after, out):
+                seen.append(after.state.value)
+        run(model=Model(), feedback=Capture(), steps=1)
+        self.assertEqual(seen, [1])
+
+    def test_feedback_history_is_copied_only_when_retained(self):
+        copies = []
+        class Input:
+            def __deepcopy__(self, memo):
+                copies.append(1)
+                return Input()
+        class Model(Walk):
+            def generate(self, state, rng): return Input()
+            def step(self, state, input): return Transition(state + 1)
+        class Constant(EmptyFeedback):
+            def transition_features(self, before, input, after, out): out.push(0)
+        run(model=Model(), feedback=Constant(), steps=1)
+        one = len(copies)
+        copies.clear()
+        g = run(model=Model(), feedback=Constant(), steps=40).guidance
+        # Only the first transition is novel and retained, so later steps add a
+        # constant number of input copies instead of a full history copy.
+        self.assertEqual(len(g.corpus), 1)
+        self.assertLessEqual(len(copies), one + 39 * one)
+
+    def test_history_copy_cannot_change_successor_or_feedback(self):
+        aliases, seen = [], []
+        class State:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                result = State(self.value)
+                if self.value == 1 and not aliases: aliases.append(result)
+                return result
+        class Input:
+            def __deepcopy__(self, memo):
+                if aliases: aliases[0].value = 99
+                return Input()
+        class Model:
+            def initial_state(self): return State(0)
+            def generate(self, state, rng): return Input()
+            def is_enabled(self, state, input): return True
+            def step(self, state, input):
+                seen.append(("step", state.value))
+                return Transition(State(state.value + 1))
+            def check_state(self, state):
+                if state.value: seen.append(("check", state.value))
+                return ()
+        class Capture(EmptyFeedback):
+            def transition_features(self, before, input, after, out):
+                seen.append(("feedback", after.state.value))
+        run(model=Model(), feedback=Capture(), steps=2)
+        self.assertEqual(seen, [("step", 0), ("check", 1), ("feedback", 1), ("step", 1), ("check", 2), ("feedback", 2)])
+
+    def test_fuzz_retains_initial_and_successor_before_checks(self):
+        aliases = {}
+        seen = []
+
+        class State:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                result = State(self.value)
+                aliases.setdefault(self.value, result)
+                return result
+
+        class Model:
+            def initial_state(self): return State(0)
+            def generate(self, state, rng): return 1
+            def is_enabled(self, state, input): return True
+            def step(self, state, input):
+                seen.append(state.value)
+                return Transition(State(state.value + 1))
+            def check_state(self, state):
+                if state.value in (0, 1):
+                    aliases[state.value].value = 99
+                return ()
+
+        result = fuzz(Model(), FuzzConfig(cases=1, max_steps=2))
+        self.assertEqual(result.termination, "cases_completed")
+        self.assertEqual(seen, [0, 1])
+
+    def test_feedback_and_checks_retain_selected_input_before_reducer(self):
+        aliases = []
+        seen = []
+
+        class Input:
+            def __init__(self, value): self.value = value
+            def __deepcopy__(self, memo):
+                result = Input(self.value)
+                if not aliases: aliases.append(result)
+                return result
+
+        class Model:
+            def initial_state(self): return 0
+            def generate(self, state, rng): return Input(7)
+            def is_enabled(self, state, input): return True
+            def step(self, state, input):
+                aliases[0].value = 99
+                return Transition(state + 1)
+            def check_state(self, state): return ()
+            def check_transition(self, before, input, after):
+                seen.append(("check", input.value))
+                return ()
+
+        class Capture(EmptyFeedback):
+            def transition_features(self, before, input, after, out):
+                seen.append(("feedback", input.value))
+
+        run(model=Model(), feedback=Capture(), steps=1)
+        self.assertEqual(seen, [("check", 7), ("feedback", 7)])
+
+    def test_enabled_mutation_does_not_change_generated_or_reused_input(self):
+        from statelessness.search import _Control, _fuzz_with_driver
+
+        class Input:
+            def __init__(self, value): self.value = value
+
+        class Model:
+            def __init__(self): self.alias = None; self.observed = []
+            def initial_state(self): return 0
+            def generate(self, state, rng): return Input(7)
+            def is_enabled(self, state, input):
+                self.alias.value = 99
+                return True
+            def step(self, state, input):
+                self.observed.append(input.value)
+                return Transition(state + 1)
+            def check_state(self, state): return ()
+
+        class GeneratedInput(Input):
+            def __deepcopy__(self, memo):
+                result = Input(self.value)
+                model.alias = result
+                return result
+
+        model = Model()
+        model.generate = lambda state, rng: GeneratedInput(7)
+        fuzz(model, FuzzConfig(cases=1, max_steps=1, mutation_percent=0))
+        self.assertEqual(model.observed, [7])
+
+        model = Model()
+        original = Input(8)
+        model.alias = original
+        class Driver:
+            def initial(self, state, case): pass
+            def candidate(self, previous, rng, percent): return [original], None
+            def transition(self, before, input, after, inputs, case, transition): pass
+        _fuzz_with_driver(model, FuzzConfig(cases=1, max_steps=1),
+                          _Control(RunLimits()), None, Driver())
+        self.assertEqual(model.observed, [8])
+
+    def test_reused_admission_uses_captured_input_when_copy_mutates_original(self):
+        from statelessness.search import _Control, _fuzz_with_driver
+
+        class Input:
+            def __init__(self, value, mutate=False): self.value, self.mutate = value, mutate
+            def __deepcopy__(self, memo):
+                result = Input(self.value)
+                if self.mutate: self.value = 99
+                return result
+
+        class Model:
+            def __init__(self): self.observed = []
+            def initial_state(self): return 0
+            def generate(self, state, rng): return Input(44)
+            def is_enabled(self, state, input): return input.value == 8
+            def step(self, state, input):
+                self.observed.append(input.value)
+                return Transition(state + 1)
+            def check_state(self, state): return ()
+
+        original = Input(8, True)
+        class Driver:
+            def initial(self, state, case): pass
+            def candidate(self, previous, rng, percent): return [original], None
+            def transition(self, before, input, after, inputs, case, transition): pass
+        model = Model()
+        _fuzz_with_driver(model, FuzzConfig(cases=1, max_steps=1),
+                          _Control(RunLimits()), None, Driver())
+        self.assertEqual(model.observed, [8])
+
+    def test_direct_state_feedback_does_not_mutate_caller_state(self):
+        class Output:
+            def __init__(self): self.values=[]
+            def push(self,value): self.values.append(value)
+        def mutate(state): state.append(9); return tuple(state)
+        feedback=StateFeedback(IDENTITY,mutate); output=Output()
+        state=[1]
+        feedback.initial_features(state,output)
+        transition=Transition([2])
+        feedback.transition_features(state,0,transition,output)
+        self.assertEqual(state,[1])
+        self.assertEqual(transition.state,[2])
+        self.assertEqual(output.values,[(1,9),(2,9)])
+        def fail(state): state.append(8); raise ValueError('projection failed')
+        with self.assertRaisesRegex(ValueError,'projection failed'):
+            StateFeedback(IDENTITY,fail).initial_features(state,output)
+        self.assertEqual(state,[1])
+
     def test_defaults_and_ordinary_surface(self):
         self.assertEqual(GuidanceConfig(), GuidanceConfig(256, 25_600, 100_000, 256))
         self.assertEqual(FuzzConfig(), FuzzConfig(0, 1000, 100, 100000, 50))

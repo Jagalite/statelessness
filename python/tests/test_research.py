@@ -399,6 +399,77 @@ class ResearchTests(unittest.TestCase):
                 self.assertIn('projection equality must be reflexive',report.limitation)
                 self.assertIsNone(report.exact); self.assertIsNone(report.reduced)
 
+    def test_nonreflexive_and_asymmetric_exact_equality_are_incomplete(self):
+        for callback, diagnostic in ((lambda left,right: left != right, 'reflexive'),
+                                     (lambda left,right: left <= right, 'symmetric')):
+            with self.subTest(diagnostic=diagnostic):
+                report = self.compare(equality=r.ResearchEquality(state=callback))
+                self.assertEqual(report.status, r.ExperimentStatus.INCOMPLETE)
+                self.assertIn('state equality must be '+diagnostic, report.limitation)
+                self.assertIsNone(report.exact); self.assertIsNone(report.reduced)
+
+    def test_successor_matching_multiple_exact_states_is_incomplete(self):
+        class Bridge(Toggle):
+            def step(self,state,input): return Transition(1,(1,2))
+        report=self.compare(Bridge(),states=(0,2),projection=lambda state:state,
+                            equality=r.ResearchEquality(state=lambda left,right:abs(left-right)<=1))
+        self.assertEqual(report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertIn('matches multiple declared states',report.limitation)
+
+    def test_asymmetric_and_nontransitive_projection_equality_are_incomplete(self):
+        class Three(Toggle):
+            def step(self,state,input): return Transition((state+1)%3,(1,2))
+        for callback, diagnostic in ((lambda left,right: left<=right,'symmetric'),
+                                     (lambda left,right: abs(left-right)<=1,'transitive')):
+            with self.subTest(diagnostic=diagnostic):
+                report=self.compare(Three(),states=(0,1,2),projection=lambda state:state,
+                                    equality=r.ResearchEquality(projection=callback))
+                self.assertEqual(report.status,r.ExperimentStatus.INCOMPLETE)
+                self.assertIn('projection equality must be '+diagnostic,report.limitation)
+
+    def test_asymmetric_output_equality_cannot_qualify_changed_effects(self):
+        class ChangedEffect(Toggle):
+            def step(self,state,input): return Transition(1-state,(state,))
+        report=self.compare(ChangedEffect(),equality=r.ResearchEquality(output=lambda left,right:left<=right))
+        self.assertEqual(report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertIn('output equality must be symmetric',report.limitation)
+
+    def test_projection_comparison_budget_is_fail_closed(self):
+        from unittest.mock import patch
+        with patch.object(r, '_MAX_PROJECTION_COMPARISONS', 2):
+            report=self.compare()
+        self.assertEqual(report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertIn('comparison budget reached',report.limitation)
+        with patch.object(r, '_MAX_STATE_COMPARISONS', 1):
+            report=self.compare()
+        self.assertEqual(report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertIn('state equality comparison budget reached',report.limitation)
+
+    def test_explicit_projection_budget_reports_usage_and_exact_boundary(self):
+        def run(limit):
+            return r.compare_equivalence_bounded(Toggle(),(0,1),proposal(),enabled(),lambda state:(),
+                limits=r.ResearchComparisonLimits(limit))
+        baseline=run(100)
+        self.assertEqual(baseline.report.status,r.ExperimentStatus.AGREES_WITHIN_DECLARED_FIXTURE)
+        self.assertGreater(baseline.projection_comparisons,0)
+        exact=run(baseline.projection_comparisons)
+        self.assertEqual(exact.report.status,baseline.report.status)
+        self.assertEqual(exact.projection_comparisons,baseline.projection_comparisons)
+        short=run(baseline.projection_comparisons-1)
+        self.assertEqual(short.report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertEqual(short.projection_comparisons,baseline.projection_comparisons-1)
+        self.assertEqual(short.comparison_limits.max_projection_comparisons,short.projection_comparisons)
+        with self.assertRaises(ValueError): r.ResearchComparisonLimits(-1)
+        state_exact=r.compare_equivalence_bounded(Toggle(),(0,1),proposal(),enabled(),lambda state:(),
+            limits=r.ResearchComparisonLimits(100,baseline.state_comparisons))
+        self.assertEqual(state_exact.report.status,baseline.report.status)
+        state_short=r.compare_equivalence_bounded(Toggle(),(0,1),proposal(),enabled(),lambda state:(),
+            limits=r.ResearchComparisonLimits(100,baseline.state_comparisons-1))
+        self.assertEqual(state_short.report.status,r.ExperimentStatus.INCOMPLETE)
+        self.assertEqual(state_short.state_comparisons,baseline.state_comparisons-1)
+        self.assertIn('state equality comparison budget reached',state_short.report.limitation)
+        with self.assertRaises(ValueError): r.ResearchComparisonLimits(1,-1)
+
     def test_changing_projection_relation_cannot_reenqueue_exact_states_forever(self):
         comparisons = []
         def changing(left,right):

@@ -15,8 +15,8 @@ import time
 from typing import Any, Callable, Generic, TypeVar
 
 from .core import Metadata, ModelError, Rng, U64_MAX, _call, _natural
-from .search import FuzzConfig, FuzzReport, RunLimits, fuzz
-from .guided import GuidanceConfig, guided_fuzz
+from .search import AutoOptions, FuzzConfig, FuzzReport, RunLimits, fuzz, fuzz_auto
+from .guided import GuidanceConfig, guided_fuzz, guided_fuzz_auto, _FeedbackMetadataFailure
 
 I = TypeVar("I")
 
@@ -218,7 +218,7 @@ def _cleanup(value):
         raise _CleanupPanic(_message(error)) from error
 
 
-def _execute_job(config, control, factory, job_id, guidance, feedback_factory):
+def _execute_job(config, control, factory, job_id, guidance, feedback_factory, job_runner=None):
     seed = job_seed(config.master_seed, job_id)
     fuzz_config = replace(config.fuzz, seed=seed)
     metadata = None
@@ -236,7 +236,9 @@ def _execute_job(config, control, factory, job_id, guidance, feedback_factory):
             metadata = Metadata(value.name, value.model_version, value.properties_version,
                                 value.codec_version, value.build)
             try:
-                if guidance is None:
+                if job_runner is not None:
+                    report = job_runner(job_id, model, metadata, fuzz_config, control.remaining())
+                elif guidance is None:
                     report = fuzz(model, fuzz_config, limits=control.remaining())
                 else:
                     runner_control = _CampaignControl(control.remaining())
@@ -247,6 +249,11 @@ def _execute_job(config, control, factory, job_id, guidance, feedback_factory):
                     finally:
                         _cleanup(feedback)
                 outcome = JobOutcome("completed", report)
+            except _FeedbackMetadataFailure as error:
+                # Feedback metadata is infallible in the reference contract.
+                # Guided search wraps callback exceptions for its direct API;
+                # the campaign must preserve the underlying unwind as a panic.
+                outcome = JobOutcome("panicked", error=_message(error.__cause__))
             except ModelError as error:
                 outcome = JobOutcome("model_error", error=_message(error))
         finally:
@@ -319,7 +326,7 @@ def _map_report_inputs(job, convert):
 
 
 def _process_main(connection, config, deadline, cancellation, factory, guidance,
-                  feedback_factory, encode_input):
+                  feedback_factory, encode_input, job_runner=None):
     from ._campaign_lifecycle import Summary
     control = _CampaignControl(RunLimits(cancellation=cancellation), deadline=deadline)
     try:
@@ -328,7 +335,12 @@ def _process_main(connection, config, deadline, cancellation, factory, guidance,
             job_id = connection.recv()
             if job_id is None:
                 break
-            job = _execute_job(config, control, factory, job_id, guidance, feedback_factory)
+            job = _execute_job(config, control, factory, job_id, guidance, feedback_factory, job_runner)
+            if job_runner is not None:
+                evidence = job_runner.reports.pop(job_id, None)
+                if evidence is not None:
+                    connection.send(('assurance', job_id, evidence))
+                    connection.recv()
             # Complete is a separate acknowledged RPC BEFORE any transfer/send.
             connection.send(("complete", job_id, Summary.from_job(job)))
             connection.recv()
@@ -386,7 +398,7 @@ class _Channel:
             return ticket[0]
 
 
-def _bridge(connection, coordinator, control, channel, slot):
+def _bridge(connection, coordinator, control, channel, slot, assurance_sink=None):
     from ._campaign_lifecycle import Event
     failure = None
     try:
@@ -396,6 +408,9 @@ def _bridge(connection, coordinator, control, channel, slot):
                 connection.send(coordinator.claim(control))
             elif message[0] == "complete":
                 coordinator.apply(Event("complete", job_id=message[1], summary=message[2]))
+                connection.send(None)
+            elif message[0] == 'assurance' and assurance_sink is not None:
+                assurance_sink(message[1], message[2])
                 connection.send(None)
             elif message[0] == "report":
                 channel.put(message[1])
@@ -419,7 +434,7 @@ def _bridge(connection, coordinator, control, channel, slot):
 
 
 def _run_processes(config, control, factory, sink, guidance, feedback_factory,
-                   policy, coordinator):
+                   policy, coordinator, job_runner=None, assurance_sink=None):
     from ._campaign_lifecycle import Event
     context = multiprocessing.get_context("spawn")
     channel = _Channel(config.result_buffer)
@@ -431,14 +446,16 @@ def _run_processes(config, control, factory, sink, guidance, feedback_factory,
         try:
             parent, child = context.Pipe()
             process = context.Process(target=_process_main, args=(child, config, control.deadline,
-                control.cancellation, factory, guidance, feedback_factory, policy.input_transfer.encode))
+                control.cancellation, factory, guidance, feedback_factory, policy.input_transfer.encode, job_runner))
             process.start()
             workers.append((slot, process))
             child.close()
             with channel.condition:
                 channel.active += 1
                 active = True
-            bridge = threading.Thread(target=_bridge, args=(parent, coordinator, control, channel, slot),
+            bridge_args = (parent, coordinator, control, channel, slot)
+            if assurance_sink is not None: bridge_args += (assurance_sink,)
+            bridge = threading.Thread(target=_bridge, args=bridge_args,
                                       name="statelessness-campaign-ipc")
             bridge.start()
         except BaseException as error:
@@ -479,7 +496,7 @@ def _run_processes(config, control, factory, sink, guidance, feedback_factory,
         process.close()
 
 
-def _run(config, limits, factory, sink, guidance, feedback_factory, process):
+def _run(config, limits, factory, sink, guidance, feedback_factory, process, job_runner=None, assurance_sink=None):
     from ._campaign_lifecycle import Event, Summary
     if not isinstance(config, CampaignConfig):
         raise ModelError("config must be CampaignConfig")
@@ -507,12 +524,15 @@ def _run(config, limits, factory, sink, guidance, feedback_factory, process):
             job_id = coordinator.claim(control)
             if job_id is None:
                 break
-            job = _execute_job(config, control, factory, job_id, guidance, feedback_factory)
+            job = _execute_job(config, control, factory, job_id, guidance, feedback_factory, job_runner)
+            if job_runner is not None and assurance_sink is not None:
+                evidence = job_runner.reports.pop(job_id, None)
+                if evidence is not None: assurance_sink(job_id, evidence)
             coordinator.apply(Event("complete", job_id=job_id, summary=Summary.from_job(job)))
             if not _deliver(job, coordinator, sink):
                 break
     else:
-        _run_processes(config, control, factory, sink, guidance, feedback_factory, process, coordinator)
+        _run_processes(config, control, factory, sink, guidance, feedback_factory, process, coordinator, job_runner, assurance_sink)
     coordinator.apply(Event("finish"))
     return coordinator.state.report
 
@@ -532,3 +552,37 @@ def run_guided_campaign(config: CampaignConfig, limits: RunLimits,
     guidance.validate()
     guidance = replace(guidance)
     return _run(config, limits, factory, sink, guidance, feedback_factory, process)
+
+
+class _AutoCampaignRunner:
+    def __init__(self, options, guidance=None, feedback_factory=None):
+        self.options, self.guidance, self.feedback_factory = options, guidance, feedback_factory
+        self.reports = {}
+
+    def __call__(self, job_id, model, metadata, config, limits):
+        if self.guidance is None:
+            return fuzz_auto(model, config, options=self.options, limits=limits)
+        control = _CampaignControl(limits)
+        feedback = _sync(self.feedback_factory(job_id, model), 'feedback factory')
+        try:
+            return guided_fuzz_auto(model, feedback, config, self.guidance,
+                                    options=self.options, limits=control.remaining())
+        finally:
+            _cleanup(feedback)
+
+
+def run_auto_campaign(config, limits, factory, sink, *, options=AutoOptions(), process=None):
+    """Run independent auto fuzz jobs with cooperative finite-domain scans."""
+    if not isinstance(options, AutoOptions): raise ValueError('options must be AutoOptions')
+    return _run(config, limits, factory, sink, None, None, process,
+                _AutoCampaignRunner(AutoOptions(options.max_candidates)))
+
+
+def run_guided_auto_campaign(config, limits, guidance, factory, feedback_factory, sink, *,
+                             options=AutoOptions(), process=None):
+    """Run guided auto fuzz jobs with worker-local cooperative scans."""
+    if not isinstance(guidance, GuidanceConfig): raise ModelError('guidance must be GuidanceConfig')
+    guidance.validate()
+    if not isinstance(options, AutoOptions): raise ValueError('options must be AutoOptions')
+    runner = _AutoCampaignRunner(AutoOptions(options.max_candidates), replace(guidance), feedback_factory)
+    return _run(config, limits, factory, sink, replace(guidance), feedback_factory, process, runner)

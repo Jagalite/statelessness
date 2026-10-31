@@ -19,6 +19,8 @@ def _text(value, name):
 # str.strip control-character policy or BOM-stripping conventions.
 _WHITE_SPACE=frozenset((*range(9,14),32,0x85,0xA0,0x1680,*range(0x2000,0x200B),
                         0x2028,0x2029,0x202F,0x205F,0x3000))
+_MAX_PROJECTION_COMPARISONS=1_000_000
+_MAX_STATE_COMPARISONS=1_000_000
 def _blank(value):
     return all(ord(character) in _WHITE_SPACE for character in str.__iter__(value))
 
@@ -74,6 +76,15 @@ class ExperimentConfig:
     def __post_init__(self):
         if type(self.enabled) is not bool: raise ValueError('enabled must be bool')
         for name in ('max_states','max_edges','max_equivalence_pairs'): _natural(getattr(self,name),name)
+
+@dataclass(frozen=True)
+class ResearchComparisonLimits:
+    """Additional native callback budget; does not change the shared wire config."""
+    max_projection_comparisons: int = 1_000_000
+    max_state_comparisons: int = 1_000_000
+    def __post_init__(self):
+        _natural(self.max_projection_comparisons,'max_projection_comparisons')
+        _natural(self.max_state_comparisons,'max_state_comparisons')
 
 class ExperimentStatus(str,Enum):
     DISABLED='Disabled'
@@ -134,6 +145,13 @@ class ExperimentReport:
                        'the explicit finite fixture and its assumptions.')
 
 @dataclass(frozen=True)
+class BoundedExperimentReport:
+    report: ExperimentReport
+    comparison_limits: ResearchComparisonLimits
+    projection_comparisons: int
+    state_comparisons: int
+
+@dataclass(frozen=True)
 class _Edge:
     input: object
     target: int
@@ -162,7 +180,16 @@ def _invoke(stage,callback,*args):
         except BaseException: message='callback failed (message unavailable)'
         raise ModelError(stage+': '+message) from error
 
+class _BoundedEquality:
+    def __init__(self,hooks,maximum,stats): self.hooks,self.maximum,self.stats=hooks,maximum,stats
+    def __getattr__(self,name): return getattr(self.hooks,name)
+    def charge(self,kind):
+        if kind=='state':
+            if self.stats[1]>=self.maximum: raise ModelError('state equality comparison budget reached')
+            self.stats[1]+=1
+
 def _equal(hooks,kind,left,right):
+    if isinstance(hooks,_BoundedEquality): hooks.charge(kind)
     a,b=_copy(left),_copy(right)
     callback=getattr(hooks,kind)
     value=_invoke(kind+' equality',callback,a,b) if callback is not None else _invoke(kind+' equality',lambda: a==b)
@@ -170,9 +197,15 @@ def _equal(hooks,kind,left,right):
     return value
 
 def _position(states,candidate,hooks):
+    match=None
     for index,state in enumerate(states):
-        if _equal(hooks,'state',state,candidate): return index
-    return None
+        forward=_equal(hooks,'state',state,candidate)
+        if forward != _equal(hooks,'state',candidate,state):
+            raise ModelError('state equality must be symmetric')
+        if forward:
+            if match is not None: raise ModelError('state equality matches multiple declared states')
+            match=index
+    return match
 
 def _disposition(value):
     if type(value) is not Disposition: raise ModelError('transition needs a Disposition')
@@ -271,25 +304,34 @@ def _reach(graph,equivalent):
     return Reachability(tuple(states),edges,tuple(violations),tuple(sorted(observed)),skipped),paths
 
 
-def _compare(graph,keys,left,right,hooks):
+def _compare(graph,keys,left,right,hooks,equivalent):
+    def same(kind,first,second):
+        forward=_equal(hooks,kind,first,second)
+        if forward != _equal(hooks,kind,second,first):
+            raise ModelError(kind+' equality must be symmetric')
+        return forward
     if graph.checks[left]!=graph.checks[right]: return 'state checks differ'
     a,b=graph.edges[left],graph.edges[right]
     if len(a)!=len(b): return 'enabled input counts differ'
     for first,second in zip(a,b):
-        if not _equal(hooks,'input',first.input,second.input): return 'enabled input labels or order differ'
-        if len(first.outputs)!=len(second.outputs) or any(not _equal(hooks,'output',x,y) for x,y in zip(first.outputs,second.outputs)):
+        if not same('input',first.input,second.input): return 'enabled input labels or order differ'
+        if len(first.outputs)!=len(second.outputs) or any(not same('output',x,y) for x,y in zip(first.outputs,second.outputs)):
             return 'ordered effects differ'
         if first.disposition!=second.disposition: return 'transition disposition differs'
         if first.checks!=second.checks: return 'transition checks differ'
-        if not _equal(hooks,'projection',keys[first.target],keys[second.target]): return 'successor equivalence classes differ'
+        if not equivalent(first.target,second.target): return 'successor equivalence classes differ'
     return None
 
 
-def compare_equivalence(model,states,proposal,config,projection,*,equality=ResearchEquality()):
+def compare_equivalence(model,states,proposal,config,projection,*,equality=ResearchEquality(),
+                        _projection_budget=None, _state_budget=None, _comparison_stats=None):
     """Compare an explicitly closed fixture once; no codecs or pruning required."""
     if type(proposal) is not Proposal or type(config) is not ExperimentConfig:
         raise ValueError('proposal/config must be Proposal/ExperimentConfig')
     if type(equality) is not ResearchEquality: raise ValueError('equality must be ResearchEquality')
+    if _comparison_stats is None: _comparison_stats=[0,0]
+    equality=_BoundedEquality(equality,_MAX_STATE_COMPARISONS if _state_budget is None else _state_budget,
+                              _comparison_stats)
     if type(states) is not tuple and type(states) is not list: raise ValueError('states must be an ordered list or tuple')
     if not callable(projection): raise ValueError('projection must be callable')
     if any(_blank(getattr(proposal.assumptions,name)) for name in _ASSUMPTIONS):
@@ -314,6 +356,8 @@ def compare_equivalence(model,states,proposal,config,projection,*,equality=Resea
         return replace(report,limitation='The explicit state domain is empty or exceeds the state budget.')
     try:
         owned=tuple(_copy(state) for state in states)
+        if any(not _equal(equality,'state',state,state) for state in owned):
+            raise ModelError('state equality must be reflexive')
         duplicate=any(_position(owned[:index],state,equality) is not None for index,state in enumerate(owned))
     except Exception as error: return replace(report,limitation=_error_text(error))
     if duplicate: raise ModelError('declared research domain contains duplicate exact states')
@@ -325,10 +369,39 @@ def compare_equivalence(model,states,proposal,config,projection,*,equality=Resea
     report=replace(report,materialized_edges=count[0])
     try:
         keys=tuple(_copy(_invoke('projection',projection,_copy(state))) for state in owned)
-        if any(not _equal(equality,'projection',key,key) for key in keys):
+        # Native callback equality can violate the equivalence relation that
+        # Rust's Eq contract assumes. Bound and validate encountered relations
+        # before a reduced traversal can claim agreement.
+        comparisons=0
+        def equivalent(a,b):
+            nonlocal comparisons
+            def compare(left,right):
+                nonlocal comparisons
+                if comparisons>=(_MAX_PROJECTION_COMPARISONS if _projection_budget is None else _projection_budget):
+                    raise ModelError('projection equality comparison budget reached')
+                comparisons+=1
+                if _comparison_stats is not None: _comparison_stats[0]=comparisons
+                return _equal(equality,'projection',keys[left],keys[right])
+            forward=compare(a,b)
+            if a!=b and forward!=compare(b,a): raise ModelError('projection equality must be symmetric')
+            return forward
+        if any(not equivalent(index,index) for index in range(len(keys))):
             raise ModelError('projection equality must be reflexive')
         exact,paths=_reach(graph,lambda a,b:a==b)
-        equivalent=lambda a,b:_equal(equality,'projection',keys[a],keys[b])
+        classes=[]
+        for position,state in enumerate(exact.states):
+            matches=[]; matched=None
+            for earlier,other in enumerate(exact.states[:position]):
+                same=equivalent(state,other); matches.append(same)
+                if same:
+                    if matched is not None and matched!=classes[earlier]:
+                        raise ModelError('projection equality must be transitive')
+                    matched=classes[earlier]
+            if matched is not None:
+                if any(same != (classes[i]==matched) for i,same in enumerate(matches)):
+                    raise ModelError('projection equality must be transitive')
+                classes.append(matched)
+            else: classes.append(position)
         reduced,_=_reach(graph,equivalent)
         reduced_failures={v.property for v in reduced.violations}
         missing=tuple(v for v in exact.violations if v.property not in reduced_failures)
@@ -339,7 +412,7 @@ def compare_equivalence(model,states,proposal,config,projection,*,equality=Resea
                 if not equivalent(left,right): continue
                 if pairs==config.max_equivalence_pairs: limited=True; break
                 pairs+=1
-                reason=_compare(graph,keys,left,right,equality)
+                reason=_compare(graph,keys,left,right,equality,equivalent)
                 if reason is not None:
                     counterexamples.append(EquivalenceCounterexample(left,right,_copy(paths[left]),_copy(paths[right]),reason))
             if limited: break
@@ -361,6 +434,18 @@ def _error_text(error):
     except BaseException: return 'research callback failed (message unavailable)'
 
 
+def compare_equivalence_bounded(model,states,proposal,config,projection,*,
+                                equality=ResearchEquality(),limits=ResearchComparisonLimits()):
+    """Compare with an explicit projection callback budget and report its use."""
+    if type(limits) is not ResearchComparisonLimits: raise ValueError('limits must be ResearchComparisonLimits')
+    owned=ResearchComparisonLimits(limits.max_projection_comparisons,limits.max_state_comparisons)
+    counts=[0,0]
+    report=compare_equivalence(model,states,proposal,config,projection,equality=equality,
+                               _projection_budget=owned.max_projection_comparisons,
+                               _state_budget=owned.max_state_comparisons,_comparison_stats=counts)
+    return BoundedExperimentReport(report,owned,counts[0],counts[1])
+
+
 def qualification_parameters(report):
     """Sorted provenance parameters; never an instruction to enable pruning."""
     values={'research.proposal':report.proposal.name,
@@ -380,4 +465,5 @@ def qualification_parameters(report):
 __all__ = ["Assumptions", "Proposal", "ExperimentConfig", "ExperimentStatus",
            "RequiredProperty", "ResearchEquality", "ViolationWitness", "Reachability",
            "EquivalenceCounterexample", "ExperimentReport", "compare_equivalence",
+           "ResearchComparisonLimits", "BoundedExperimentReport", "compare_equivalence_bounded",
            "qualification_parameters"]

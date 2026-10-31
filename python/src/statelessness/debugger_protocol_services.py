@@ -22,12 +22,13 @@ def node_fields(prefix,node,depth=0):
     kind=node.kind;value=node.value
     fields=[(prefix+'.completeness','enum:'+('Complete' if node.completeness=='complete' else 'Partial('+variant(node.completeness)+')')),(prefix+'.child_count','none' if node.child_count is None else n(node.child_count))]
     if node.page is not None:
-        fields.extend((prefix+'.page.'+k,v) for k,v in [('offset',n(node.page.offset)),('returned',n(len(node.children))),('total',n(node.page.total)),('next','none' if node.page.next_offset is None else n(node.page.next_offset))])
+        fields.extend((prefix+'.page.'+k,v) for k,v in [('offset',n(node.page.offset)),('returned',n(node.page.returned)),('total',n(node.page.total)),('next','none' if node.page.next_offset is None else n(node.page.next_offset))])
     wire='none'
     if kind=='scalar':
         tag,payload,*extra=value
-        if tag in ('f32','f64'): kind='float';wire=tag+':'+payload;fields.append((prefix+'.bits',n(extra[0])))
-        elif tag.startswith(('u','i')) and tag!='unit': kind='integer';wire=tag+':'+str(payload)
+        if tag=='float' and len(extra)==2: kind='float';wire=payload+':'+extra[0];fields.append((prefix+'.bits',n(extra[1])))
+        elif tag in ('f32','f64'): kind='float';wire=tag+':'+payload;fields.append((prefix+'.bits',n(extra[0])))
+        elif tag=='python-int' or tag.startswith(('u','i')) and tag!='unit': kind='integer';wire=tag+':'+str(payload)
         else: kind=tag;wire='unit' if tag=='unit' else b(payload) if tag=='bool' else 'char:'+payload
     elif kind=='enum':
         name,id,label=value;wire='string:'+name;fields.extend(((prefix+'.variant_id','string:'+id),(prefix+'.variant_label','string:'+label)))
@@ -42,7 +43,14 @@ def node_fields(prefix,node,depth=0):
     return fields
 
 def service_error(error):
-    text=str(error)
+    # Host exceptions may have arbitrary or throwing __str__ implementations.
+    # Only exact built-in diagnostic types with an exact string argument may
+    # contribute to protocol classification.
+    from .core import ModelError
+    from .debugger_inspect import InspectError
+    if type(error) not in (ModelError, InspectError, ValueError) or len(error.args)!=1 or type(error.args[0]) is not str:
+        return ProtocolError('callback')
+    text=error.args[0]
     for words,code in [(('unauthorized','redacted'),'unauthorized'),(('capacity','budget'),'limit'),(('unknown watch',),'stale_handle'),(('exhausted',),'exhausted'),(('owned',),'busy')]:
         if any(word in text for word in words): return ProtocolError(code)
     return ProtocolError('invalid_input')
@@ -53,7 +61,27 @@ class WatchAttachment:
         self.p,self.registry,self.project=protocol,registry,project
     def observe(self):
         s=self.p.session
-        context=ObservationContext(SnapshotId(s.epoch,s.revision,s.sequence),origin='out_of_domain_injection' if s.policy.unrestricted else 'simulation',property_failure=s.stop is not None and s.stop.kind=='property_failure')
+        failed=s.stop is not None and s.stop.kind=='property_failure'
+        # The session owns these already-validated checks. Reading only their
+        # immutable fields avoids copying arbitrary model state for diagnostics.
+        checks=s._initial_checks if s.sequence==0 else (() if s._last is None else s._last.checks)
+        ids=[]; ids_complete=True
+        if failed:
+            # Check lists are host-controlled: cap traversal even when no IDs
+            # can be retained (for example, unrepresentable Python strings).
+            if len(checks)>1024: ids_complete=False
+            for check in checks[:1024]:
+                if check.status!='failed': continue
+                if len(ids)==16:
+                    ids_complete=False
+                    break
+                prefix=check.id[:256]
+                if len(check.id)>256: ids_complete=False
+                if any(0xD800 <= ord(c) <= 0xDFFF for c in prefix):
+                    ids_complete=False
+                    continue
+                ids.append(prefix)
+        context=ObservationContext(SnapshotId(s.epoch,s.revision,s.sequence),origin='out-of-domain-injection' if s.policy.unrestricted else 'simulation',property_failure=failed,failing_properties=tuple(ids),phase='initial' if s.sequence==0 else 'post-turn',failing_properties_complete=ids_complete)
         def capture():
             value=None
             if self.registry.interested:
@@ -73,22 +101,44 @@ class WatchAttachment:
                 fields=[('watch.id',n(_U64)),('watch.generation',n(_U64)),('watch.effective_sequence',n(_U64)),('watch.installed_at_revision',n(baseline)),('watch.baseline','enum:pending_at_effective_boundary'),('watch.metadata_complete','bool:false')];reserve(fields)
                 def add():
                     value=p.session.state
-                    return registry.add_validated(config,value if self.project is None else self.project(value))
+                    if self.project is not None:
+                        try: value=self.project(value)
+                        except Exception: raise ProtocolError('callback') from None
+                    return registry.add_validated(config,value)
                 ack=p._encode_owned(add);fields[:3]=[('watch.id',n(ack.watch_id)),('watch.generation',n(ack.generation)),('watch.effective_sequence',n(ack.effective_sequence))]
                 extra=[('watch.display_schema_version',n(ack.display_schema.version)),('watch.display_schema','string:'+ack.display_schema.name),('watch.resolved_type','enum:'+registry._entries[ack.watch_id]['resolved_wire_type'])]
-                try: reserve(fields+extra)
-                except ProtocolError: pass
-                else: fields[-1]=('watch.metadata_complete','bool:true');fields+=extra
+                metadata_complete=True
+                for item in extra:
+                    try: reserve(fields+[item])
+                    except ProtocolError: metadata_complete=False
+                    else: fields.append(item)
+                if metadata_complete: fields[5]=('watch.metadata_complete','bool:true')
                 p._publish('watch_configured');return tuple(fields)
             if c=='unwatch':
                 reserve([('watch.id',n(_U64)),('watch.generation',n(_U64)),('watch.effective_sequence',n(_U64))]);ack=registry.remove(args[0]);p._publish('watch_removed')
                 return (('watch.id',n(ack.watch_id)),('watch.generation',n(ack.generation)),('watch.effective_sequence',n(ack.effective_sequence)))
             if c=='watch_status':
-                statuses=registry.list();fields=[('watches.total',n(len(statuses))),('watches.truncated',b(len(statuses)>p.limits.max_page_size))]
-                for i,status in enumerate(statuses[:p.limits.max_page_size]):
-                    for k,v in [('id',n(status['id'])),('generation',n(status['generation'])),('enabled',b(status['config'].enabled)),('has_baseline',b(status['has_baseline'])),('effective_sequence',n(status['effective_sequence']))]: fields.append((f'watches.{i}.{k}',v))
-                fields.extend((('watches.dropped_events',n(registry.health['dropped'])),('watches.observation_gaps',n(registry.health['observation_gaps'])),('watches.inspection_errors',n(registry.health.get('inspection_errors',0)))))
-                return tuple(fields)
+                statuses=registry.list();total=len(statuses)
+                health=(('watches.dropped_events',n(registry.health['dropped'])),('watches.observation_gaps',n(registry.health['observation_gaps'])),('watches.inspection_errors',n(registry.health.get('inspection_errors',0))))
+                maximum=min(total,p.limits.max_page_size,max(0,(p.limits.max_response_fields-5)//5))
+                rows=[]
+                for i,status in enumerate(statuses[:maximum]):
+                    rows.append(tuple((f'watches.{i}.{k}',v) for k,v in [('id',n(status['id'])),('generation',n(status['generation'])),('enabled',b(status['config'].enabled)),('has_baseline',b(status['has_baseline'])),('effective_sequence',n(status['effective_sequence']))]))
+                def page(count):
+                    # Rust protocol.rs Command::WatchStatus: total, truncated, health counters, then rows.
+                    return (('watches.total',n(total)),('watches.truncated',b(count<total)))+health+tuple(field for row in rows[:count] for field in row)
+                def fits(count):
+                    try: encode_response(p._response(r.request_id,fields=page(count)),p.limits);return True
+                    except ProtocolError as error:
+                        if error.code!='limit': raise
+                        return False
+                if not fits(0): raise ProtocolError('limit')
+                low,high=0,maximum
+                while low<high:
+                    mid=(low+high+1)//2
+                    if fits(mid): low=mid
+                    else: high=mid-1
+                return page(low)
             event=registry.current(args[0])
             if event is None: return (('watch.value','enum:unavailable'),)
             fields=[('watch.'+k,v) for k,v in [('id',n(event.watch_id)),('generation',n(event.generation)),('capture_revision',n(event.capture_revision)),('snapshot_revision',n(event.snapshot.revision)),('snapshot_sequence',n(event.snapshot.sequence)),('kind','enum:'+('Baseline('+variant(event.kind.split(':',1)[1])+')' if event.kind.startswith('baseline:') else 'InspectorError('+event.inspection_error+')' if event.kind=='inspector-error' else 'ChangeSinceLastSample { changed: '+str(bool(event.sampled_changed)).lower()+' }' if event.kind=='change-since-last-sample' else variant(event.kind))),('completeness','enum:'+('Complete' if event.completeness=='complete' else 'Partial('+variant(event.completeness)+')')),('origin','enum:'+variant(event.origin))]]
@@ -130,7 +180,13 @@ class ProbeAttachment:
             if any(id not in approved for id in ids): raise ProtocolError('unauthorized')
             if expected!=h.revision: raise ProtocolError('stale_configuration')
             fields=[('probes.capture_revision',n(_U64)),('probes.selected_count',n(len(ids))),('probes.pending_producers.total',n(len(h._producers))),('probes.pending_producers.truncated',b(len(h._producers)>p.limits.max_page_size))]
-            fields.extend((f'probes.pending_producers.{i}',n(id)) for i,id in enumerate(sorted(h._producers)[:p.limits.max_page_size]));reserve()
+            reserve()
+            for i,id in enumerate(sorted(h._producers)[:p.limits.max_page_size]):
+                fields.append((f'probes.pending_producers.{i}',n(id)))
+                try: reserve()
+                except ProtocolError as error:
+                    if error.code!='limit': raise
+                    fields.pop();fields[3]=('probes.pending_producers.truncated','bool:true');break
             try: ack=h.configure(expected,[approved[id] for id in ids])
             except Exception as error: raise p._encode_owned(lambda:service_error(error)) from None
             fields[0]=('probes.capture_revision',n(ack.capture_revision));self.selected=(h.revision,tuple(ids));return tuple(fields)
@@ -156,8 +212,9 @@ class ProbeAttachment:
             key=f'probes.events.{i}'
             fields.extend((key+'.'+k,n(v)) for k,v in [('schema_version',1),('run',event.run_id),('producer',event.producer),('epoch',event.epoch),('producer_sequence',event.producer_sequence),('capture_revision',event.capture_revision),('transition',event.transition)])
             fields.extend((key+'.'+k,'enum:'+variant(getattr(event,k))) for k in ('origin','severity','kind'))
-            fields.extend((key+'.'+k,b(getattr(event,k))) for k in ('baseline','change_unknown','incomplete_turn'))
+            fields.append((key+'.baseline',b(event.baseline)))
             fields.append((key+'.baseline_reason','none' if event.baseline_reason is None else 'enum:'+variant(event.baseline_reason)))
+            fields.extend((key+'.'+k,b(getattr(event,k))) for k in ('change_unknown','incomplete_turn'))
             if payload:
                 fields.append((key+'.site','string:'+event.site));fields.extend((key+f'.path.{j}',segment(v)) for j,v in enumerate(event.path))
                 if event.display_schema is not None: fields.extend(((key+'.display_schema','string:'+event.display_schema.name),(key+'.display_schema_version',n(event.display_schema.version))))
