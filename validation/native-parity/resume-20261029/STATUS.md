@@ -4083,3 +4083,26 @@ Kyoto jobs, all on macOS against the live tree:
 
 These are local live-tree results. They do not replace frozen-source
 qualification, installed consumers, platform matrices or mutation controls.
+
+### 2026-10-31 PR #13 CI follow-up
+
+GitHub CI on the stacked PR found issues the local macOS runs could not:
+- Stale explicit staging lists (`scripts/build-bindings.py`): the ABI v2 wheel
+  could not import 17 new Python modules. Regenerated from tracked sources.
+- Relocated package tests (`scripts/check-native-ports.py`) could not find new
+  wire fixtures and the requirement catalog; they are now passed through
+  environment variables, as existing corpora are.
+- Windows: CRLF checkout of byte-compared fixtures (now `eol=lf`), POSIX
+  permission and open-file unlink assumptions in tests, directory `fsync`, and
+  `?` in a test file name.
+- Swift 6.0.3: public enums need explicit `Sendable`; one expression exceeded
+  the type-checking budget; and the SIL ownership verifier crashed on
+  `copied(model.cloneX, <throwing expression>)` in closures (eight sites).
+  Reproduced and verified locally with a Swift 6.0.3 toolchain against the
+  macOS 15.4 Command Line Tools SDK: debug, test and release builds succeed and
+  687 tests pass (3 skipped).
+- Codex review: live-capture traces could not be branched after the stricter
+  branch policy check (fixed in all five engines); Go and TypeScript guided
+  fuzzing copied the full history per transition (now copied only on corpus
+  retention, as in Rust and Python).
+Local reproductions do not replace the CI runs on the final head.
