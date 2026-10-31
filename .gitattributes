@@ -2,6 +2,10 @@
 conformance/corpus.json text eol=lf
 # Source-bound additional portability vectors must hash identically on Windows.
 conformance/portability.py text eol=lf
+# Rust-generated wire fixtures and the reviewed requirement catalog are
+# compared byte-for-byte by every native port, including on Windows.
+conformance/*-wire-v1.tsv text eol=lf
+docs/requirements/** text eol=lf
 go/** text eol=lf
 swift/** text eol=lf
 typescript/** text eol=lf
