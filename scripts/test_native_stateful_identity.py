@@ -1,9 +1,12 @@
 import hashlib
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 
+# The tooling stage runs without PYTHONPATH; use the in-tree native package.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'python/src'))
 from statelessness.core import Metadata, Trace, record
 from native_stateful_identity import IdentityError, verify_and_replay, verify_and_compare_cross_build
 

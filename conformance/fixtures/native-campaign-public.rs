@@ -2,8 +2,8 @@
 //! No ModelCodec, runtime internals, or arbitrary closure serialization.
 #![allow(dead_code)]
 use stateless::campaign::*;
-use stateless::explore::{self, FuzzConfig, FuzzReport, RunLimits};
-use stateless::guided::{self, FeatureBuffer, Feedback, FeedbackMetadata, GuidanceConfig};
+use stateless::explore::{FuzzConfig, FuzzReport, RunLimits};
+use stateless::guided::{FeatureBuffer, Feedback, FeedbackMetadata, GuidanceConfig};
 use stateless::{
     Check, Generate, Model, ModelError, ModelMetadata, Rng, Transition, TransitionRef,
 };
@@ -688,14 +688,14 @@ pub fn validation_rows() -> Vec<String> {
         .map(|(name, c, want)| {
             let actual = c.validate().err().map(|e| e.0);
             assert_eq!(actual.as_deref(), want, "{name}");
-            if want.is_some() {
+            if let Some(expected) = want {
                 let r = run_campaign(
                     c.clone(),
                     RunLimits::default(),
                     |_| -> Result<Counter, ModelError> { panic!("invalid factory called") },
                     |_| panic!("invalid sink called"),
                 );
-                assert_eq!(r.unwrap_err().0, want.unwrap());
+                assert_eq!(r.unwrap_err().0, expected);
             }
             obj(&[
                 ("schema", q("native-campaign-v1")),

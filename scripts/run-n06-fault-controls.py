@@ -65,7 +65,9 @@ def command(output, name, argv, cwd, env, timeout=600, maximum=8 * 1024 * 1024):
         finally:
             try:
                 os.killpg(proc.pid, signal.SIGKILL)
-            except ProcessLookupError:
+            except (ProcessLookupError, PermissionError):
+                # macOS reports EPERM for a group whose members already exited
+                # but are not yet reaped; the group is gone either way.
                 pass
             proc.wait()
             if not proc.stdout.closed:

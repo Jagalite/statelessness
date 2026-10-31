@@ -308,10 +308,12 @@ fn event(log: &mut Logger, model: &FixtureModel, e: &Value) -> Result<io::Result
 
 fn observe(case: &Value) -> Result<Value> {
     let id = text(case, "id")?;
-    if let Some(binding) = case.get("binding") {
-        if string(binding)? != "declaration" { return Err("unknown binding".into()); }
-        // Rust exposes ModelCodec directly; native ports exercise their actual
-        // declaration binding wrapper for this same fixture case.
+    // Rust exposes ModelCodec directly; native ports exercise their actual
+    // declaration binding wrapper for this same fixture case.
+    if let Some(binding) = case.get("binding")
+        && string(binding)? != "declaration"
+    {
+        return Err("unknown binding".into());
     }
     let model = FixtureModel { callbacks: Rc::new(RefCell::new(vec![])), fault: Rc::new(RefCell::new(String::new())) };
     let o = field(case, "options")?;
