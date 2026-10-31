@@ -185,6 +185,10 @@ public final class Recorder {
         try beginMutation()
         defer { mutationInProgress = false }
         do {
+            let (observed, overflow) = observedSteps.addingReportingOverflow(1)
+            guard !overflow, !sequenceOrigin.addingReportingOverflow(observed).overflow else {
+                throw ModelError("runtime observation sequence overflow")
+            }
             let capturedBefore = try copied(model.cloneState, before); try requireActive()
             let capturedInput = try copied(model.cloneInput, input); try requireActive()
             let capturedTransition = try cloneTransition(model, transition); try requireActive()
@@ -199,6 +203,8 @@ public final class Recorder {
         try requireActive()
         let (observed, overflow) = observedSteps.addingReportingOverflow(1)
         guard !overflow else { throw ModelError("runtime observation sequence overflow") }
+        let (_, absoluteOverflow) = sequenceOrigin.addingReportingOverflow(observed)
+        guard !absoluteOverflow else { throw ModelError("runtime observation sequence overflow") }
         let maximum = executionBlobLimit(encodingLimits)
         let beforeSnapshot = try copied(model.cloneState, before); try requireActive()
         let beforeBytes = try encodedValue("runtime encode before state", codec.encodeState, codec.encodeStateInto, beforeSnapshot, maximum: maximum)

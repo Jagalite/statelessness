@@ -702,6 +702,54 @@ final class CampaignLifecycleTests: XCTestCase {
         XCTAssertEqual(replayed.outcome, "exact"); XCTAssertEqual(replayed.stepsVerified, 9)
         XCTAssertTrue(replayed.buildMatches); XCTAssertFalse(replayed.failureReproduced)
     }
+
+    // These two separately selected tests support a real process boundary. They
+    // skip in the ordinary suite unless the control supplies explicit paths.
+    func testPersistedFaultProduce() throws {
+        guard let directory = ProcessInfo.processInfo.environment["STATELESS_CAMPAIGN_PRODUCE_DIR"] else {
+            throw XCTSkip("persisted fault producer requires an output directory")
+        }
+        let faulty = CampaignFixture(duplicateDelivery: true)
+        let found = try enumerateStates(faulty.model, config: SearchConfig(maxStates: 100, maxTransitions: 1_000, maxDepth: 10))
+        let failure = try XCTUnwrap(found.failure)
+        XCTAssertEqual(found.termination, "failure_found")
+        XCTAssertTrue(failure.violations.contains { $0.phase == "transition" && $0.check.id == "campaign.effects" })
+        let original = Failure(inputs: [.sinkReturned(999, nil), .claim(nil)] + failure.inputs, violations: failure.violations)
+        let reduced = try shrink(faulty.faultGenerator, original: original, config: ShrinkConfig(maxAttempts: 1_000))
+        XCTAssertTrue(reduced.validatedOriginal)
+        XCTAssertEqual(reduced.termination, "search_complete")
+        XCTAssertEqual(reduced.minimized.inputs, [.claim(nil), campaignComplete(50, .completed), .receive(50)])
+        XCTAssertEqual(original.inputs.count, 5)
+        let config = RunConfig(strategy: "campaign-self-model-fault-control", parameters: [AuditParameter("injected_fault", "duplicate Deliver")])
+        for (name, inputs) in [("original.bin", original.inputs), ("reduced.bin", reduced.minimized.inputs)] {
+            let trace = try recordAudit(faulty.model, inputs: InputIterator(values: inputs), config: config, maxSteps: 100)
+            XCTAssertEqual(trace.termination, .propertyFailed)
+            try Data(encodeAuditTrace(trace)).write(to: URL(fileURLWithPath: directory).appendingPathComponent(name), options: .withoutOverwriting)
+        }
+    }
+
+    func testPersistedFaultReplay() throws {
+        guard let path = ProcessInfo.processInfo.environment["STATELESS_CAMPAIGN_REPLAY_PATH"] else {
+            throw XCTSkip("persisted fault replay requires a trace path")
+        }
+        let faulty = CampaignFixture(duplicateDelivery: true)
+        let trace = try decodeAuditTrace(Array(Data(contentsOf: URL(fileURLWithPath: path))))
+        let inputs = try trace.steps.map { try faulty.wire.decodeInput($0.input) }
+        guard inputs == [.claim(nil), campaignComplete(50, .completed), .receive(50)] else {
+            XCTFail("unexpected persisted witness")
+            return
+        }
+        XCTAssertEqual(trace.termination, .propertyFailed)
+        XCTAssertTrue(trace.steps.last?.checks.contains { $0.id == "campaign.effects" && $0.status == .failed } == true)
+        let replayed = try replayWithObservationsBounded(faulty.model, trace: trace) { _, _ in }
+        XCTAssertEqual(replayed.outcome, "exact"); XCTAssertTrue(replayed.failureReproduced)
+        XCTAssertTrue(replayed.buildMatches); XCTAssertEqual(replayed.stepsVerified, 3)
+        let healthy = CampaignFixture().model
+        let strict = try replayWithObservationsBounded(healthy, trace: trace) { _, _ in }
+        XCTAssertEqual(strict.outcome, "incompatible"); XCTAssertFalse(strict.buildMatches); XCTAssertFalse(strict.failureReproduced)
+        let relaxed = try replayWithObservationsBounded(healthy, trace: trace, allowBuildMismatch: true) { _, _ in }
+        XCTAssertEqual(relaxed.outcome, "diverged"); XCTAssertFalse(relaxed.buildMatches); XCTAssertFalse(relaxed.failureReproduced)
+    }
 }
 
 extension CampaignLifecycleTests {
@@ -907,5 +955,36 @@ extension CampaignLifecycleTests {
         let full = CampaignLifecycleInput.complete(.max,
             CampaignSummary(outcome: .completed, transitions: .max, cases: .max, skippedChecks: .max))
         XCTAssertEqual(try fixture.wire.decodeInput(fixture.wire.encodeInput(full)), full)
+    }
+}
+
+extension CampaignLifecycleTests {
+    func testRustPersistedCrossEngineProbe() throws {
+        guard let path = ProcessInfo.processInfo.environment["STATELESS_RUST_CAMPAIGN_TRACE"] else {
+            throw XCTSkip("cross-engine trace not supplied")
+        }
+        let model = CampaignFixture(duplicateDelivery: true)
+        let trace = try decodeAuditTrace(Array(Data(contentsOf: URL(fileURLWithPath: path))))
+        XCTAssertEqual(trace.metadata.name, "stateless-campaign:50:2:false")
+        XCTAssertEqual(trace.metadata.modelVersion, 1)
+        XCTAssertEqual(trace.metadata.propertiesVersion, 2)
+        XCTAssertEqual(trace.metadata.codecVersion, 1)
+        XCTAssertEqual(try trace.steps.map { try model.wire.decodeInput($0.input) }, [.claim(nil), campaignComplete(50, .completed), .receive(50)])
+        XCTAssertEqual(trace.termination, .propertyFailed)
+        XCTAssertTrue(trace.steps.last?.checks.contains { $0.id == "campaign.effects" && $0.status == .failed } == true)
+        let strict = try replayWithObservationsBounded(model.model, trace: trace) { _, _ in }
+        XCTAssertEqual(strict.outcome, "incompatible")
+        XCTAssertFalse(strict.buildMatches)
+        XCTAssertEqual(strict.stepsVerified, 0)
+        XCTAssertFalse(strict.failureReproduced)
+        let observed = try replayWithObservationsBounded(model.model, trace: trace, allowBuildMismatch: true) { _, _ in }
+        XCTAssertEqual(observed.outcome, "exact")
+        XCTAssertFalse(observed.buildMatches)
+        XCTAssertEqual(observed.stepsVerified, 3)
+        XCTAssertTrue(observed.failureReproduced)
+        let healthy = try replayWithObservationsBounded(CampaignFixture().model, trace: trace, allowBuildMismatch: true) { _, _ in }
+        XCTAssertEqual(healthy.outcome, "diverged")
+        XCTAssertFalse(healthy.buildMatches)
+        XCTAssertFalse(healthy.failureReproduced)
     }
 }

@@ -105,7 +105,7 @@ private func policyCase(_ mode: PolicyMode, expectedOutcome: String, expectedErr
                 "native policy projection changed outcome or diagnostic: \(mode.rawValue)")
     return ["case": mode.rawValue, "guided": guided,
             "raw_outcome": rawOutcome, "raw_native_error": nullable(rawError),
-            "metadata": nullable(job.metadata.map(metadataJSON)),
+            "metadata": nullable(job.metadata.map(campaignMetadataJSON)),
             "canonical_projection": projected,
             "error_spelling_mapped": rawError != projectedError,
             // Keep native observer events too; this output describes Swift policy.
@@ -115,12 +115,12 @@ private func policyCase(_ mode: PolicyMode, expectedOutcome: String, expectedErr
 
 func nativePolicyChecks() throws -> [String: Any] {
     let specifications: [(PolicyMode, String, String?, Bool)] = [
-        (.stepError, "ModelError", "transition: step error", true),
-        (.checkError, "ModelError", "state check: check error", true),
-        (.stepMarker, "ModelError", "transition: inside reducer", true),
+        (.stepError, "ModelError", "step: step error", true),
+        (.checkError, "ModelError", "check_state: check error", true),
+        (.stepMarker, "ModelError", "step: inside reducer", true),
         (.observerMarker, "ModelError", "search observer initial: inside observer", true),
-        (.feedbackMetadataMarker, "ModelError", "feedback metadata: inside feedback metadata", true),
-        (.feedbackMetadataPanic, "ModelError", "feedback metadata: feedback metadata panic", true),
+        (.feedbackMetadataMarker, "Panicked", "inside feedback metadata", true),
+        (.feedbackMetadataPanic, "Panicked", "feedback metadata panic", true),
         (.factoryMarker, "Panicked", "factory marker", false),
         (.feedbackFactoryMarker, "Panicked", "feedback factory marker", true),
         (.metadataMarker, "Panicked", "metadata marker", false),

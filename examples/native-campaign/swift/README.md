@@ -111,21 +111,7 @@ schema `native-campaign-swift-policy-v1`. Each case exposes `raw_outcome`,
 `raw_native_error`, actual metadata, the canonical projection, an explicit
 `error_spelling_mapped` flag, and the unfiltered native callback log. Assertions
 require the projected outcome and diagnostic to equal the raw native values,
-so `error_spelling_mapped` must remain false. Both default `native-campaign-v1`
-rows and policy output preserve the N05 diagnostics `transition: step error`
-and `state check: check error`. Rust's corresponding `step: step error` and
-`check_state: check error` diagnostics differ; strict comparison exposes these
-mismatches without rewriting any native diagnostic.
-
-The canonical `feedback-metadata-panic` case deliberately retains a known N05
-dependency: Rust reports `Panicked("feedback metadata panic")`; Swift's existing
-`call("feedback metadata", ...)` wrapper catches the thrown `CampaignPanic` and
-returns `ModelError("feedback metadata: feedback metadata panic")`, with model
-metadata present. Default JSONL and native-policy output preserve that actual
-Swift outcome and raw error. Strict comparison with all Rust rows must expose
-this mismatch; the consumer does not reclassify it or claim a 49-row parity pass.
-No N05 source was changed. See the dependency explanation in
-[N06-SWIFT.md](../../../docs/native-parity/N06-SWIFT.md).
+so `error_spelling_mapped` must remain false. The current campaign path reports `step: step error` and `check_state: check error`, matching the sealed N06 reference rows. The feedback metadata panic case reports `Panicked("feedback metadata panic")` with model metadata retained. The policy checks assert these raw values directly; no diagnostic or outcome is rewritten by the consumer.
 
 Adapter assumptions:
 

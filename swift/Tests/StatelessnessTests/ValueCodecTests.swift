@@ -166,6 +166,11 @@ final class ValueCodecTests: XCTestCase {
         XCTAssertEqual(Rust64ValueLayouts.measured("(u16,i32,bool,Option<u8>)")?.size,12)
         XCTAssertNil(Rust64ValueLayouts.measured("Option<custom-unmeasured>"))
     }
+    func testZeroSizedRustLayoutsRejectUnrepresentableNativeArrays() throws {
+        var limits = DecodeLimits(); limits.elements = .max; limits.work = .max; limits.allocation = .max
+        let fixed = ValueCodecs.array(ValueCodecs.unit,count:UInt64(Int.max))
+        XCTAssertThrowsError(try fixed.fromTrace([],limits:limits)) { error in XCTAssertEqual(String(describing:error),"decode allocation failed") }
+    }
     func testRawCallbacksRunOnFailedSinkAndKeepOwnReturnPrimary() throws {
         var bytes: [UInt8] = [], calls = 0
         let failure = TraceValueCodec<TraceUnit>(schema:"failed-writer-callback",encode:{ _,_ in calls += 1; throw ModelError("own callback error") },decode:{ _ in TraceUnit() })

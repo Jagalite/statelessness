@@ -55,8 +55,13 @@ public struct LifecycleMonitor<K> {
     public let compare: (K, K) -> Int
     public let cloneKey: (K) throws -> K
     public let epoch: ((K) -> UInt64)?
+    private var rustDiagnostics: (identity: String, format: (K) throws -> String, formatString: (String) throws -> String)? = nil
     public init(limits: RetentionLimits = RetentionLimits(), compare: @escaping (K,K) -> Int, cloneKey: @escaping (K) throws -> K, epoch: ((K) -> UInt64)? = nil) {
         self.limits = limits; self.compare = compare; self.cloneKey = cloneKey; self.epoch = epoch
+    }
+    fileprivate init(limits: RetentionLimits, compare: @escaping (K,K) -> Int, cloneKey: @escaping (K) throws -> K, epoch: @escaping (K) -> UInt64, rustIdentity: String, rustFormat: @escaping (K) throws -> String, rustFormatString: @escaping (String) throws -> String) {
+        self.limits = limits; self.compare = compare; self.cloneKey = cloneKey; self.epoch = epoch
+        self.rustDiagnostics = (rustIdentity, rustFormat, rustFormatString)
     }
     public func cloneHistory(_ h: LifecycleHistory<K>) throws -> LifecycleHistory<K> {
         var h = h
@@ -73,6 +78,12 @@ public struct LifecycleMonitor<K> {
                 for (i,k) in keys.enumerated() { if epoch(k) < h.retiredBefore || (i > 0 && compare(keys[i-1],k) >= 0) { throw ModelError("noncanonical indexed history") } }
             }
             if h.obligations.contains(where: { $0.1.published && !$0.1.settled }) { throw ModelError("invalid publication history") }
+        } else { try validateLegacyRepresentation(h) }
+    }
+    // Legacy history does not encode indexed fences or publication state.
+    func validateLegacyRepresentation(_ h: LifecycleHistory<K>) throws {
+        guard h.retiredBefore == 0, !h.obligations.contains(where: { $0.1.published }) else {
+            throw ModelError("indexed state cannot be represented in legacy lifecycle history")
         }
     }
     public func retention(_ h: LifecycleHistory<K>) throws -> LifecycleRetention<K> {
@@ -94,9 +105,16 @@ public struct LifecycleMonitor<K> {
         let prior = key.flatMap { k in find(h.obligations,k).map { h.obligations[$0].1 } }
         h.violations.append(LifecycleViolation(key: try key.map(cloneKey), code: code, event: event, observedAt: h.now, prior: prior, legacy: epoch == nil ? legacyLifecycleMessages[code] ?? code : nil))
     }
-    public func advance(_ before: LifecycleHistory<K>, events: [LifecycleEvent<K>]) throws -> LifecycleHistory<K> {
+    private func prepare(_ before: LifecycleHistory<K>) throws -> LifecycleHistory<K> {
         try validate(before); var h = try cloneHistory(before)
         if let k = overdue(h,h.now) { try violation(&h,k,"missing_in_prior_history","observation") }
+        return h
+    }
+    public func advance(_ before: LifecycleHistory<K>, events: [LifecycleEvent<K>]) throws -> LifecycleHistory<K> {
+        try advancePrepared(prepare(before), events: events)
+    }
+    private func advancePrepared(_ prepared: LifecycleHistory<K>, events: [LifecycleEvent<K>]) throws -> LifecycleHistory<K> {
+        var h = prepared
         for event in events {
             if case let .fence(time) = event {
                 guard let epoch = epoch else { throw ModelError("legacy history has no fence") }
@@ -125,7 +143,7 @@ public struct LifecycleMonitor<K> {
                 else { if let k = overdue(h,time,strict: true) { try violation(&h,k,"missing_before_advance",kind) }; h.now = time }
             case let .begin(k,deadline):
                 if n != nil { try violation(&h,k,"key_reused",kind) }
-                else { guard h.obligations.count < limits.obligations else { throw ModelError("obligation limit; explicit fence required; verification incomplete") }; h.obligations.append((try cloneKey(k),LifecycleObligation(deadline: deadline))); if deadline < h.now { try violation(&h,k,"began_after_deadline",kind) } }
+                else { guard h.obligations.count < limits.obligations else { throw ModelError("obligation limit; explicit fence required; verification incomplete") }; h.obligations.append((try cloneKey(k),LifecycleObligation(deadline: deadline))); if epoch != nil { h.obligations.sort { compare($0.0,$1.0) < 0 } }; if deadline < h.now { try violation(&h,k,"began_after_deadline",kind) } }
             case .cancel:
                 if let n = n { h.obligations[n].1.cancelled = true } else { try violation(&h,key,"cancel_without_obligation",kind) }
             case .settle:
@@ -135,6 +153,10 @@ public struct LifecycleMonitor<K> {
                     else if o.settled { try violation(&h,key,"duplicate_settlement",kind) }
                     else { if epoch == nil { h.obligations[n].1.settled = true }; if o.deadline < h.now { try violation(&h,key,"settlement_after_deadline",kind) }; h.obligations[n].1.settled = true }
                 } else { try violation(&h,key,"settlement_without_obligation",kind) }
+            case let .publish(k) where epoch == nil:
+                if !h.obligations.contains(where: { compare($0.0,k) == 0 && !$0.1.cancelled && $0.1.settled }) {
+                    try violation(&h,k,"stale_or_premature_publication",kind)
+                }
             case .publish:
                 if let n = n, !h.obligations[n].1.cancelled, h.obligations[n].1.settled {
                     if epoch != nil { if h.obligations[n].1.published { try violation(&h,key,"duplicate_publication",kind) } else { h.obligations[n].1.published = true } }
@@ -142,8 +164,9 @@ public struct LifecycleMonitor<K> {
             case let .acquire(k):
                 if let r = r { if h.resources[r].1 { try violation(&h,key,"resource_already_acquired",kind) } else { h.resources[r].1 = true } }
                 else { guard h.resources.count < limits.resources else { throw ModelError("resource limit; verification incomplete") }; h.resources.append((try cloneKey(k),true)) }
-            case .release:
-                if let n = n, h.obligations[n].1.pending { try violation(&h,key,"release_before_settlement",kind) }
+            case let .release(k):
+                let hasPending = epoch == nil ? h.obligations.contains(where: { compare($0.0,k) == 0 && $0.1.pending }) : n.map { h.obligations[$0].1.pending } ?? false
+                if hasPending { try violation(&h,key,"release_before_settlement",kind) }
                 if let r = r { if h.resources[r].1 { h.resources[r].1 = false } else { try violation(&h,key,"duplicate_release",kind) } }
                 else { try violation(&h,key,"release_without_acquisition",kind) }
             case .fence: break
@@ -154,6 +177,33 @@ public struct LifecycleMonitor<K> {
     }
     public func checks(_ h: LifecycleHistory<K>) throws -> [Check] {
         try validate(h); let prefix = epoch == nil ? "lifecycle" : "lifecycle.indexed", n = h.obligations.filter { $0.1.pending }.count
+        if let diagnostics = rustDiagnostics {
+            guard !diagnostics.identity.isEmpty else { throw ModelError("empty lifecycle diagnostic formatter identity") }
+            let retained = try retention(h)
+            func formatCallback<T>(_ value: T, _ formatter: (T) throws -> String) throws -> String {
+                do { return try formatter(value) }
+                catch let error as ModelError { throw error }
+                catch { throw ModelError("lifecycle diagnostic formatter: \(error)") }
+            }
+            func key(_ k: K) throws -> String {
+                let detached = try cloneKey(k)
+                return try formatCallback(detached, diagnostics.format)
+            }
+            func obligation(_ o: LifecycleObligation) -> String { "Obligation { deadline: \(o.deadline), cancelled: \(o.cancelled), settled: \(o.settled), published: \(o.published) }" }
+            func optionalKey(_ k: K?) throws -> String { try k.map { "Some(\(try key($0)))" } ?? "None" }
+            func optionalObligation(_ o: LifecycleObligation?) -> String { o.map { "Some(\(obligation($0)))" } ?? "None" }
+            let oldest = try retained.oldestUnresolved.map { "Some((\(try key($0.0)), \($0.1)))" } ?? "None"
+            let retentionText = "RetentionStatus { active_obligations: \(retained.activeObligations), historical_obligations: \(retained.historicalObligations), acquired_resources: \(retained.acquiredResources), historical_resources: \(retained.historicalResources), oldest_unresolved: \(oldest), retired_before: \(retained.retiredBefore) }"
+            let safe = h.violations.isEmpty && overdue(h,h.now) == nil
+            var safety: Check = .passed(prefix+".safety")
+            if !safe {
+                let violations = try h.violations.map { v in
+                    "Violation { key: \(try optionalKey(v.key)), code: \(try formatCallback(v.code, diagnostics.formatString)), event: \(try formatCallback(v.event, diagnostics.formatString)), observed_at: \(v.observedAt), prior: \(optionalObligation(v.prior)) }"
+                }.joined(separator: ", ")
+                safety = .failed(prefix+".safety", "violations=[\(violations)]; retention=\(retentionText)")
+            }
+            return [safety, n == 0 ? .passed(prefix+".obligations") : .skipped(prefix+".obligations", "finite history: \(retentionText)")]
+        }
         return [h.violations.isEmpty && overdue(h,h.now) == nil ? .passed(prefix+".safety") : .failed(prefix+".safety",h.violations.isEmpty ? (epoch == nil ? "required settlement missing at deadline" : "missing_at_deadline") : h.violations.map { epoch == nil ? $0.legacy ?? legacyLifecycleMessages[$0.code] ?? $0.code : $0.code }.joined(separator: "; ")), n == 0 ? .passed(prefix+".obligations") : .skipped(prefix+".obligations","\(n) pending obligations in finite history")]
     }
     public func equalHistory(_ a: LifecycleHistory<K>, _ b: LifecycleHistory<K>) -> Bool {
@@ -167,12 +217,58 @@ public struct LifecycleMonitor<K> {
         }
         return true
     }
-    public func oracle<S,I,O>(metadata: @escaping () throws -> Metadata, inputEvents: @escaping (I,Disposition) throws -> [LifecycleEvent<K>], outputEvents: @escaping ([O]) throws -> [LifecycleEvent<K>]) -> Oracle<S,LifecycleHistory<K>,I,O> {
-        Oracle(metadata: { let m = try metadata(); let name = self.epoch == nil ? "\(m.name);history-limit=\(self.limits.obligations)" : "indexed-lifecycle-v1:\(m.name.utf8.count):\(m.name);limits=\(self.limits.obligations),\(self.limits.resources),\(self.limits.violations);diagnostics=native-codes-v1"; return Metadata(name:name,modelVersion:m.modelVersion,propertiesVersion:m.propertiesVersion,codecVersion:m.codecVersion,build:m.build+";lifecycle-native") }, initialState: { LifecycleHistory() }, advance: { h,i,o,d in try self.advance(h,events: inputEvents(i,d)+outputEvents(o)) }, checkState: { h,_ in try self.checks(h) }, cloneHistory: cloneHistory, equalHistory: equalHistory)
+    /// History and input-event keys are copied via `cloneKey` before the next
+    /// classifier runs. Clone hooks are observable and must cooperate. Input
+    /// values must remain stable while classifiers run. Supply
+    /// `cloneOutput` for reference-valued outputs that may be mutated by the
+    /// input classifier; the default identity copy requires stable outputs.
+    /// Output copy failures are reported after input classification succeeds.
+    public func oracle<S,I,O>(metadata: @escaping () throws -> Metadata, inputEvents: @escaping (I,Disposition) throws -> [LifecycleEvent<K>], cloneOutput: @escaping (O) throws -> O = { $0 }, outputEvents: @escaping ([O]) throws -> [LifecycleEvent<K>]) -> Oracle<S,LifecycleHistory<K>,I,O> {
+        Oracle(metadata: { let m = try metadata(); let name = self.epoch == nil ? "\(m.name);history-limit=\(self.limits.obligations)" : "indexed-lifecycle-v1:\(m.name.utf8.count):\(m.name);limits=\(self.limits.obligations),\(self.limits.resources),\(self.limits.violations);diagnostics=\(self.rustDiagnostics.map { "rust-debug-v1;formatter=\($0.identity.utf8.count):\($0.identity)" } ?? "native-codes-v1")"; if let d = self.rustDiagnostics, d.identity.isEmpty { throw ModelError("empty lifecycle diagnostic formatter identity") }; return Metadata(name:name,modelVersion:m.modelVersion,propertiesVersion:m.propertiesVersion,codecVersion:m.codecVersion,build:m.build+";lifecycle-native") }, initialState: { LifecycleHistory() }, advance: { h,i,o,d in
+            // Validate and record an already-due obligation before invoking
+            // either classifier, as in the underlying lifecycle monitor.
+            let history = try self.prepare(h)
+            let outputSnapshot = Result { try o.map(cloneOutput) }
+            // Classifiers may retain and mutate reference-valued keys. Capture
+            // the first classifier's results before invoking the second.
+            let first = try inputEvents(i,d).map { event -> LifecycleEvent<K> in
+                switch event {
+                case let .begin(k, deadline): return .begin(try self.cloneKey(k), deadline: deadline)
+                case let .cancel(k): return .cancel(try self.cloneKey(k))
+                case let .settle(k): return .settle(try self.cloneKey(k))
+                case let .publish(k): return .publish(try self.cloneKey(k))
+                case let .acquire(k): return .acquire(try self.cloneKey(k))
+                case let .release(k): return .release(try self.cloneKey(k))
+                case .tick, .fence: return event
+                }
+            }
+            return try self.advancePrepared(history,events: first + outputEvents(outputSnapshot.get()))
+        }, checkState: { h,_ in try self.checks(h) }, cloneHistory: cloneHistory, equalHistory: equalHistory)
     }
 }
 public func indexedLifecycleMonitor<K: Comparable>(limits: RetentionLimits = RetentionLimits(), cloneKey: @escaping (K) throws -> K) -> LifecycleMonitor<ScopedKey<K>> {
     LifecycleMonitor(limits: limits, compare: { $0 < $1 ? -1 : $1 < $0 ? 1 : 0 }, cloneKey: { k in guard k.key == k.key else { throw ModelError("non-reflexive lifecycle key") }; return ScopedKey(epoch: k.epoch, generation: k.generation, key: try cloneKey(k.key)) }, epoch: { $0.epoch })
+}
+
+
+/// Application callbacks render the inner key and each string as complete Rust
+/// `Debug` text (including string quotes and escapes). The nonempty identity
+/// covers both callbacks and must be stable across participating applications.
+/// Formatter errors propagate; the caller owns formatting cost and compatibility.
+public struct LifecycleRustDebug<K> {
+    public let identity: String
+    public let formatKey: (K) throws -> String
+    public let formatString: (String) throws -> String
+    public init(identity: String, formatKey: @escaping (K) throws -> String, formatString: @escaping (String) throws -> String) {
+        self.identity = identity; self.formatKey = formatKey; self.formatString = formatString
+    }
+}
+
+/// Select Rust-compatible indexed diagnostic text without changing the default mode.
+public func indexedLifecycleMonitor<K: Comparable>(limits: RetentionLimits = RetentionLimits(), cloneKey: @escaping (K) throws -> K, rustDebug: LifecycleRustDebug<K>) -> LifecycleMonitor<ScopedKey<K>> {
+    LifecycleMonitor(limits: limits, compare: { $0 < $1 ? -1 : $1 < $0 ? 1 : 0 }, cloneKey: { k in guard k.key == k.key else { throw ModelError("non-reflexive lifecycle key") }; return ScopedKey(epoch: k.epoch, generation: k.generation, key: try cloneKey(k.key)) }, epoch: { $0.epoch }, rustIdentity: rustDebug.identity, rustFormat: { k in
+        "ScopedKey { epoch: \(k.epoch), generation: \(k.generation), key: \(try rustDebug.formatKey(k.key)) }"
+    }, rustFormatString: rustDebug.formatString)
 }
 
 /// Exact UTF-8 key identity/order, including canonically equivalent spellings.

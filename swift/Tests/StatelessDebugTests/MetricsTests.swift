@@ -2,6 +2,15 @@ import XCTest
 import Statelessness
 @testable import StatelessDebug
 final class MetricsTests: XCTestCase {
+    func testHistogramLookup() throws {
+        let registry = try MetricRegistry(epoch: 1,schema: HistogramSchema())
+        try registry.observe(.queueWait,quantity: 12)
+        try registry.increment(.requests)
+        let snapshot = registry.current()
+        XCTAssertEqual(snapshot.histogram(.queueWait)?.count,1)
+        XCTAssertNil(snapshot.histogram(.requests))
+        XCTAssertNil(snapshot.histogram(.attemptElapsed))
+    }
     func testExplicitClockAndHistogramOverflowGolden() throws {
         XCTAssertEqual(try LocalInstant(domain: 7,nanos: UInt64.max).elapsed(since: LocalInstant(domain: 7,nanos: UInt64.max-4)),4)
         XCTAssertThrowsError(try LocalInstant(domain: 8,nanos: 9).elapsed(since: LocalInstant(domain: 7,nanos: 4)))
@@ -57,6 +66,19 @@ final class MetricsTests: XCTestCase {
 }
 
 extension MetricsTests {
+    #if DEBUG
+    func testNestedSnapshotAtSaturationDoesNotOverwriteCommittedHistory() throws {
+        var limits = MetricLimits(); limits.maxSnapshots = 1
+        let registry = try MetricRegistry(epoch: 1,schema: HistogramSchema(),limits: limits)
+        registry.seedSnapshotSaturationForTesting()
+        _ = registry.snapshot(at: nil,completeParticipation: false)
+        XCTAssertThrowsError(try registry.trySnapshot(at: nil,completeParticipation: false) { _ in
+            _ = registry.snapshot(at: nil,completeParticipation: true)
+        })
+        let retained = try registry.window(from: UInt64.max,to: UInt64.max)
+        XCTAssertTrue(retained.completeParticipation)
+    }
+    #endif
     func testManualHistogramEmptyOverflowOnlyAndFullWidthCatalog() throws {
         let schema = try HistogramSchema(id: UInt64.max,finiteBoundsNS: [10,20])
         var h = Histogram(); for n: UInt64 in [0,10,11,30] { try h.add(n,schema: schema) }

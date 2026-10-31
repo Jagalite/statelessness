@@ -3,7 +3,7 @@ extension LifecycleMonitor {
     public func historyCodec(key:TraceValueCodec<K>) throws -> TraceValueCodec<LifecycleHistory<K>> {
         guard let layout = key.layout, layout.size <= UInt64.max-256 else { throw ModelError("explicit key allocation layout required") }; let indexed = epoch != nil
         return TraceValueCodec(schema:indexed ? "indexed-lifecycle-v1" : "legacy-lifecycle",encode:{ h,b in
-            if indexed { try self.validate(h); try ValueCodecs.u8.encodeRaw(1,into:b) }; try ValueCodecs.u64.encodeRaw(h.now,into:b); if indexed { try ValueCodecs.u64.encodeRaw(h.retiredBefore,into:b) }
+            if indexed { try self.validate(h); try ValueCodecs.u8.encodeRaw(1,into:b) } else { try self.validateLegacyRepresentation(h) }; try ValueCodecs.u64.encodeRaw(h.now,into:b); if indexed { try ValueCodecs.u64.encodeRaw(h.retiredBefore,into:b) }
             func count(_ n:Int) throws { guard let n = UInt32(exactly:n) else { throw ModelError("lifecycle collection length") }; try ValueCodecs.u32.encodeRaw(n,into:b) }
             func obligation(_ o:LifecycleObligation,_ full:Bool) throws { try ValueCodecs.u64.encodeRaw(o.deadline,into:b); try ValueCodecs.bool.encodeRaw(o.cancelled,into:b); try ValueCodecs.bool.encodeRaw(o.settled,into:b); if full { try ValueCodecs.bool.encodeRaw(o.published,into:b) } }
             try count(h.obligations.count); for (k,v) in h.obligations { try key.encodeRaw(k,into:b); try obligation(v,indexed) }; try count(h.resources.count); for (k,v) in h.resources { try key.encodeRaw(k,into:b); try ValueCodecs.bool.encodeRaw(v,into:b) }; try count(h.violations.count)
@@ -13,11 +13,15 @@ extension LifecycleMonitor {
             }
         },decode:{ r in
             if indexed { guard try r.value(ValueCodecs.u8) == 1 else { throw ModelError("indexed lifecycle codec version") } }; var h = LifecycleHistory<K>(); h.now = try r.value(ValueCodecs.u64); if indexed { h.retiredBefore = try r.value(ValueCodecs.u64) }
-            func count() throws -> Int { let n = try r.value(ValueCodecs.u32); try r.collection(UInt64(n),elementSize:layout.size+256); return Int(n) }
+            func count(_ maximum: Int) throws -> Int {
+                let n = try r.value(ValueCodecs.u32)
+                guard maximum >= 0,UInt64(n) <= UInt64(maximum) else { throw ModelError("lifecycle retention limit; verification incomplete") }
+                try r.collection(UInt64(n),elementSize:layout.size+256); return Int(n)
+            }
             func obligation(_ full:Bool) throws -> LifecycleObligation { var o = LifecycleObligation(deadline:try r.value(ValueCodecs.u64)); o.cancelled = try r.value(ValueCodecs.bool); o.settled = try r.value(ValueCodecs.bool); if full { o.published = try r.value(ValueCodecs.bool) }; return o }
             func option<T>(_ read:() throws -> T) throws -> T? { let tag = try r.value(ValueCodecs.u8); guard tag <= 1 else { throw ModelError("invalid option tag") }; return tag == 1 ? try read() : nil }
-            for _ in 0..<(try count()) { h.obligations.append((try r.value(key),try obligation(indexed))) }; for _ in 0..<(try count()) { h.resources.append((try r.value(key),try r.value(ValueCodecs.bool))) }
-            for _ in 0..<(try count()) {
+            for _ in 0..<(try count(limits.obligations)) { h.obligations.append((try r.value(key),try obligation(indexed))) }; for _ in 0..<(try count(limits.resources)) { h.resources.append((try r.value(key),try r.value(ValueCodecs.bool))) }
+            for _ in 0..<(try count(limits.violations)) {
                 if !indexed { let text = try r.value(ValueCodecs.string); let code = legacyLifecycleMessages.first { exactText($0.value,text) }?.key ?? text; h.violations.append(LifecycleViolation(key:nil,code:code,event:"",observedAt:0,prior:nil,legacy:text)) }
                 else { h.violations.append(LifecycleViolation(key:try option { try r.value(key) },code:try r.value(ValueCodecs.string),event:try r.value(ValueCodecs.string),observedAt:try r.value(ValueCodecs.u64),prior:try option { try obligation(true) })) }
             }; try self.validate(h); return h

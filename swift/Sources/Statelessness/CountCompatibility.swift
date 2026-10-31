@@ -294,6 +294,7 @@ public struct ShrinkReport<I> {
     public var termination: String
     public var history: [ShrinkAttempt]
     public var replayedTransitions: UInt64
+    public var simplificationCandidates: UInt64 = 0
     public let validatedOriginal: Bool
 }
 
@@ -334,7 +335,7 @@ extension ShrinkReport64 {
     public func checkedInt() throws -> ShrinkReport<I> {
         ShrinkReport(original: original, minimized: minimized, attempts: try nativeCount(attempts), termination: termination,
             history: try history.map { ShrinkAttempt(attempt: try nativeCount($0.attempt), candidateLength: try nativeCount($0.candidateLength), operation: try $0.operation.checkedInt(), outcome: $0.outcome) },
-            replayedTransitions: replayedTransitions, validatedOriginal: validatedOriginal)
+            replayedTransitions: replayedTransitions, simplificationCandidates:simplificationCandidates, validatedOriginal: validatedOriginal)
     }
 }
 public func shrink<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, config: ShrinkConfig = ShrinkConfig(), limits: ShrinkLimits = ShrinkLimits()) throws -> ShrinkReport<I> {

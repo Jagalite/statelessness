@@ -2,6 +2,8 @@ import Foundation
 import XCTest
 import Statelessness
 
+private final class DomainInputBox { var value: Int; init(_ value: Int) { self.value = value } }
+private final class ShrinkStateBox { var value: Int; init(_ value: Int) { self.value = value } }
 private final class CaseLog { var cases: [[Int]] = [] }
 private func searchFixture(_ name: String, log: CaseLog = CaseLog(), cap: Int = 100) throws -> Generate<Int, Int, Int> {
     let m = Model<Int, Int, Int>(initialState: { log.cases.append([]); return 0 }, step: { s, i in
@@ -44,6 +46,137 @@ private func historyJSON(_ h: [ShrinkAttempt]) -> [[String: Any]] {
     }
 }
 final class SearchTests: XCTestCase {
+    func testEnumerationDefersUnusedInitialSnapshotFailure() throws {
+        var copies = 0
+        let model = Model<Int, Int, Int>(
+            initialState: { 0 }, step: { state, _ in Transition(state: state) },
+            checkState: { _ in [.failed("initial", "failure")] },
+            cloneState: { state in copies += 1; if copies == 2 { throw ModelError("snapshot") }; return state },
+            cloneInput: { $0 }, cloneOutput: { $0 },
+            inputs: { _ in InputIterator(values: []) }, equalStates: { $0 == $1 })
+        let report = try enumerateStates(model)
+        XCTAssertEqual(report.termination, "failure_found")
+        XCTAssertEqual(report.failure?.violations.first?.check.id, "initial")
+    }
+    func testEnumerationDefersUnusedSuccessorSnapshotFailure() throws {
+        var raw: DomainInputBox?, transitionState: DomainInputBox?, failed = false
+        let model = Model<DomainInputBox, Int, Int>(
+            initialState: { DomainInputBox(0) },
+            step: { _, _ in let next = DomainInputBox(1); raw = next; return Transition(state: next) },
+            checkState: { state in state.value == 1 ? [.failed("edge", "failure")] : [] },
+            cloneState: { state in
+                if state === transitionState && !failed { failed = true; throw ModelError("snapshot") }
+                let result = DomainInputBox(state.value)
+                if state === raw { transitionState = result }
+                return result
+            }, cloneInput: { $0 }, cloneOutput: { $0 },
+            inputs: { state in InputIterator(values: state.value == 0 ? [1] : []) },
+            equalStates: { $0.value == $1.value })
+        let report = try enumerateStates(model)
+        XCTAssertTrue(failed)
+        XCTAssertEqual(report.termination, "failure_found")
+        XCTAssertEqual(report.failure?.violations.first?.check.id, "edge")
+    }
+    func testEnumerationCancellationPrecedesUnusedSnapshotFailure() throws {
+        var copies = 0, cancelled = false
+        let model = Model<Int, Int, Int>(
+            initialState: { 0 }, step: { state, _ in Transition(state: state) },
+            checkState: { _ in cancelled = true; return [] },
+            cloneState: { state in copies += 1; if copies == 2 { throw ModelError("snapshot") }; return state },
+            cloneInput: { $0 }, cloneOutput: { $0 },
+            inputs: { _ in InputIterator(values: []) }, equalStates: { $0 == $1 })
+        let report = try enumerateStates(model, limits: SearchLimits(control: RunLimits(isCancelled: { cancelled })))
+        XCTAssertEqual(report.termination, "cancelled")
+    }
+    func testEnumerationRetainsInitialAcrossCheckAliasMutation() throws {
+        let raw = DomainInputBox(0)
+        var initialAlias: DomainInputBox?
+        let model = Model<DomainInputBox, Int, Int>(
+            initialState: { raw }, step: { _, input in Transition(state: DomainInputBox(input)) },
+            checkState: { state in if state.value == 0 { initialAlias?.value = 99 }; return [] },
+            cloneState: { state in
+                let result = DomainInputBox(state.value)
+                if state === raw { initialAlias = result }
+                return result
+            }, cloneInput: { $0 }, cloneOutput: { $0 },
+            inputs: { state in InputIterator(values: state.value == 0 ? [1] : []) },
+            equalStates: { $0.value == $1.value })
+        let report = try enumerateStates(model)
+        XCTAssertEqual(report.states, 2)
+        XCTAssertEqual(report.transitions, 1)
+    }
+    func testEnumerationRetainsSuccessorAcrossCheckAliasMutation() throws {
+        var raw: DomainInputBox?, returned: DomainInputBox?
+        let model = Model<DomainInputBox, Int, Int>(
+            initialState: { DomainInputBox(0) },
+            step: { _, input in let next = DomainInputBox(input); raw = next; return Transition(state: next) },
+            checkState: { state in
+                if state.value == 1 { returned?.value = 99 }
+                return []
+            },
+            cloneState: { state in
+                let result = DomainInputBox(state.value)
+                if state === raw { returned = result }
+                return result
+            }, cloneInput: { $0 }, cloneOutput: { $0 },
+            inputs: { state in InputIterator(values: state.value == 0 ? [1] : (state.value == 1 ? [2] : [])) },
+            equalStates: { $0.value == $1.value })
+        let report = try enumerateStates(model)
+        XCTAssertEqual(report.termination, "graph_exhausted")
+        XCTAssertEqual(report.states, 3)
+        XCTAssertEqual(report.transitions, 2)
+    }
+    func testEnumerationRetainsInputAcrossReducerAliasMutation() throws {
+        let domainInput = DomainInputBox(7)
+        let model = Model<Int, DomainInputBox, Int>(
+            initialState: { 0 },
+            step: { _, _ in domainInput.value = 99; return Transition(state: 1) },
+            checkState: { _ in [] }, cloneState: { $0 },
+            cloneInput: { DomainInputBox($0.value) }, cloneOutput: { $0 },
+            checkTransition: { _, input, _ in
+                input.value == 7 ? [.failed("input", "original input observed")] : []
+            }, inputs: { _ in InputIterator(values: [domainInput]) },
+            equalStates: { $0 == $1 })
+        let report = try enumerateStates(model)
+        XCTAssertEqual(report.termination, "failure_found")
+        XCTAssertEqual(report.failure?.inputs.first?.value, 7)
+        XCTAssertEqual(domainInput.value, 99)
+    }
+    func testEnumerationInputCopiesPrecedeReducer() throws {
+        var copies = 0, steps = 0
+        let model = Model<Int, Int, Int>(
+            initialState: { 0 },
+            step: { state, _ in steps += 1; return Transition(state: state) },
+            checkState: { _ in [] }, cloneState: { $0 },
+            cloneInput: { value in
+                copies += 1
+                if copies == 2 { throw ModelError("second input copy") }
+                return value
+            }, cloneOutput: { $0 }, inputs: { _ in InputIterator(values: [7]) },
+            equalStates: { $0 == $1 })
+        XCTAssertThrowsError(try enumerateStates(model))
+        XCTAssertEqual(copies, 2)
+        XCTAssertEqual(steps, 0)
+    }
+    func testContainsCapturesQueriedInputBeforeDomainCallbacks() throws {
+        let sought = DomainInputBox(7)
+        let model = Model<Int, DomainInputBox, Int>(
+            initialState: { 0 }, step: { state, _ in Transition(state: state) },
+            checkState: { _ in [] }, cloneState: { value in sought.value = 99; return value },
+            cloneInput: { DomainInputBox($0.value) }, cloneOutput: { $0 },
+            inputs: { _ in InputIterator(values: [DomainInputBox(7)]) })
+        XCTAssertTrue(try containsEnumerated64(model, state: 0, input: sought,
+            equalInputs: { $0.value == $1.value }))
+        XCTAssertEqual(sought.value, 99)
+        var empty = model
+        empty.cloneInput = { _ in throw ModelError("copy failed") }
+        empty.inputs = { _ in InputIterator(values: []) }
+        XCTAssertFalse(try containsEnumerated64(empty, state: 0, input: sought,
+            equalInputs: { $0.value == $1.value }))
+        empty.inputs = { _ in InputIterator(values: [DomainInputBox(7)]) }
+        XCTAssertThrowsError(try containsEnumerated64(empty, state: 0, input: sought,
+            equalInputs: { $0.value == $1.value }))
+    }
     func testSharedSearchCorpusAndShrinkHistory() throws {
         let fixture = ProcessInfo.processInfo.environment["STATELESS_SEARCH_CORPUS"].map { URL(fileURLWithPath: $0) } ?? searchRoot().appendingPathComponent("conformance/search-v1.tsv")
         let historyURL = ProcessInfo.processInfo.environment["STATELESS_SEARCH_HISTORY"].map { URL(fileURLWithPath: $0) } ?? fixture.deletingLastPathComponent().appendingPathComponent("search-v1-history.json")
@@ -141,6 +274,116 @@ final class SearchTests: XCTestCase {
         XCTAssertFalse(r.validatedOriginal); XCTAssertEqual(r.minimized.inputs, [1,1,1]); XCTAssertEqual(r.replayedTransitions, 2); XCTAssertEqual(r.history.last?.outcome, .resourceLimit)
         let during = try shrink(g, original: Failure(inputs: [1,1,1], violations: [target]), limits: ShrinkLimits(maxReplayedTransitions: 4))
         XCTAssertTrue(during.validatedOriginal); XCTAssertEqual(during.termination, "transition_limit"); XCTAssertEqual(during.replayedTransitions, 4); XCTAssertEqual(during.history.last?.outcome, .resourceLimit)
+    }
+    func testShrinkCapturesFutureInputsBeforeInitialCallback() throws {
+        var saved: [DomainInputBox] = [], candidates: [DomainInputBox] = [], copies = 0, observed: [Int] = []
+        let m = Model<Int, DomainInputBox, Int>(initialState: {
+            saved[1].value = 99
+            return 0
+        }, step: { state, input in
+            observed.append(input.value)
+            return Transition(state: state + input.value)
+        }, checkState: { state in state == 3 ? [.failed("bad", "target")] : [] },
+        cloneState: { $0 }, cloneInput: { input in
+            let value = DomainInputBox(input.value)
+            copies += 1
+            if saved.count < 2 { saved.append(value) }
+            else if copies <= 4 { candidates.append(value) }
+            return value
+        }, cloneOutput: { $0 })
+        let g = Generate(model: m, generate: { _, _ in nil }, isEnabled: { _, _ in
+            candidates[0].value = 88
+            return true
+        }, equalInputs: { $0.value == $1.value })
+        let original = Failure(inputs: [DomainInputBox(1), DomainInputBox(2)], violations: [Violation(phase: "state", check: .failed("bad", "target"))])
+        let result = try shrink64(g, original: original, config: ShrinkConfig64(maxAttempts: 1))
+        XCTAssertTrue(result.validatedOriginal)
+        XCTAssertEqual(observed, [1, 2])
+        XCTAssertEqual(result.minimized.inputs.map(\.value), [1, 2])
+    }
+    func testShrinkRetainsContinuationBeforeChecks() throws {
+        let initial = ShrinkStateBox(0), successor = ShrinkStateBox(1)
+        var liveInitial: ShrinkStateBox?, liveSuccessor: ShrinkStateBox?
+        var steps: [Int] = []
+        let model = Model<ShrinkStateBox, Int, Int>(initialState: { initial }, step: { state, _ in
+            steps.append(state.value)
+            return Transition(state: state.value == 0 ? successor : ShrinkStateBox(state.value + 1))
+        }, checkState: { state in
+            if state.value == 0 { liveInitial?.value = 90 }
+            if state.value == 1 { liveSuccessor?.value = 91 }
+            return state.value == 2 ? [.failed("bad", "target")] : []
+        }, cloneState: { state in
+            let copy = ShrinkStateBox(state.value)
+            if state === initial { liveInitial = copy }
+            if state === successor { liveSuccessor = copy }
+            return copy
+        }, cloneInput: { $0 }, cloneOutput: { $0 })
+        let generated = Generate(model: model, generate: { _, _ in nil }, isEnabled: { _, _ in true }, equalInputs: { $0 == $1 })
+        let original = Failure(inputs: [1, 1], violations: [Violation(phase: "state", check: .failed("bad", "target"))])
+        let result = try shrink64(generated, original: original, config: ShrinkConfig64(maxAttempts: 1))
+        XCTAssertTrue(result.validatedOriginal)
+        XCTAssertEqual(steps, [0, 1])
+    }
+    func testShrinkRetainsStateCheckBeforeContinuationCopyHook() throws {
+        let successor = ShrinkStateBox(1)
+        var liveSuccessor: ShrinkStateBox?
+        let model = Model<ShrinkStateBox, Int, Int>(initialState: { ShrinkStateBox(0) }, step: { _, _ in
+            Transition(state: successor)
+        }, checkState: { state in
+            state.value == 1 ? [.failed("bad", "target")] : []
+        }, cloneState: { state in
+            let copy = ShrinkStateBox(state.value)
+            if state === successor { liveSuccessor = copy }
+            else if state === liveSuccessor { state.value = 99 }
+            return copy
+        }, cloneInput: { $0 }, cloneOutput: { $0 })
+        let generated = Generate(model: model, generate: { _, _ in nil }, isEnabled: { _, _ in true }, equalInputs: { $0 == $1 })
+        let original = Failure(inputs: [1], violations: [Violation(phase: "state", check: .failed("bad", "target"))])
+        let result = try shrink64(generated, original: original, config: ShrinkConfig64(maxAttempts: 1))
+        XCTAssertTrue(result.validatedOriginal)
+    }
+    func testShrinkBoundsRepeatedAlreadySeenSimplifications() throws {
+        var g = try searchFixture("cycle"), pulls = 0
+        g.simplerInputs = { input in InputIterator { pulls += 1; if pulls > 3 { throw ModelError("hint limit was not enforced") }; return input } }
+        let original = Failure(inputs:[1],violations:[Violation(phase:"state",check:.failed("bad",""))])
+        let bounded = try shrink(g,original:original,limits:ShrinkLimits(maxSimplificationCandidates:3))
+        XCTAssertTrue(bounded.validatedOriginal); XCTAssertEqual(bounded.minimized.inputs,[1])
+        XCTAssertEqual(bounded.termination,"simplification_limit"); XCTAssertEqual(bounded.simplificationCandidates,3); XCTAssertEqual(pulls,3)
+        pulls = 0
+        let zero = try shrink(g,original:original,limits:ShrinkLimits(maxSimplificationCandidates:0))
+        XCTAssertEqual(zero.termination,"simplification_limit"); XCTAssertEqual(zero.simplificationCandidates,0); XCTAssertEqual(pulls,0)
+    }
+    // Rust tests/exploration.rs skipped_hint_bound_is_per_iterator_not_per_run.
+    func testSkippedHintBoundIsPerIteratorNotPerRun() throws {
+        let m = Model<[Int], Int, Int>(initialState: { [] }, step: { s, i in Transition(state: s + [i]) },
+            checkState: { s in s.count >= 6 ? [.failed("long", "long")] : [] },
+            cloneState: { $0 }, cloneInput: { $0 }, cloneOutput: { $0 })
+        // Every simplified position re-yields an already-seen zero. The total
+        // skipped across positions exceeds max_attempts; no single iterator does.
+        let g = Generate(model: m, generate: { _, _ in 1 },
+                         simplerInputs: { i in InputIterator(values: i == 0 ? Array(repeating: 0, count: 10) : [0]) },
+                         equalInputs: { $0 == $1 })
+        let original = Failure(inputs: Array(repeating: 1, count: 6), violations: [Violation(phase: "state", check: .failed("long", "long"))])
+        let report = try shrink(g, original: original, config: ShrinkConfig(maxAttempts: 150))
+        XCTAssertEqual(report.termination, "search_complete")
+        XCTAssertLessThan(report.attempts, 150)
+        XCTAssertEqual(report.minimized.inputs, Array(repeating: 0, count: 6))
+    }
+    func testShrinkAttemptLimitBoundsRepeatedSimplificationsWithoutExtraLimit() throws {
+        var g = try searchFixture("cycle"), pulls = 0
+        g.simplerInputs = { input in InputIterator { pulls += 1; if pulls > 5 { throw ModelError("attempt limit was not enforced") }; return input } }
+        let original = Failure(inputs: [1], violations: [Violation(phase: "state", check: .failed("bad", ""))])
+        let result = try shrink(g, original: original, config: ShrinkConfig(maxAttempts: 4))
+        XCTAssertEqual(result.termination, "attempt_limit")
+        XCTAssertEqual(result.attempts, 2)
+        XCTAssertEqual(result.minimized.inputs, [1])
+        XCTAssertEqual(result.history.filter { $0.outcome == .alreadySeen }.count, 0)
+        XCTAssertEqual(pulls, 5)
+        pulls = 0
+        g.simplerInputs = { input in InputIterator { pulls += 1; return pulls <= 4 ? input : nil } }
+        let finite = try shrink(g, original: original, config: ShrinkConfig(maxAttempts: 4))
+        XCTAssertEqual(finite.termination, "search_complete")
+        XCTAssertEqual(finite.attempts, 2)
     }
     func testExactMutationRngAndDisabledReuseFallback() throws {
         let log = CaseLog()

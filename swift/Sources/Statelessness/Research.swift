@@ -37,8 +37,12 @@ public enum Research {
     public struct ExperimentConfig {
         public let enabled: Bool
         public let maxStates, maxEdges, maxEquivalencePairs: UInt64
-        public init(enabled: Bool = false, maxStates: UInt64 = 256, maxEdges: UInt64 = 4096, maxEquivalencePairs: UInt64 = 65_536) {
-            self.enabled = enabled; self.maxStates = maxStates; self.maxEdges = maxEdges; self.maxEquivalencePairs = maxEquivalencePairs
+        /// Bounds application equality calls, including symmetry and transitivity checks.
+        public let maxProjectionComparisons: UInt64
+        /// Bounds exact-state equality calls used to materialize the graph.
+        public let maxStateComparisons: UInt64
+        public init(enabled: Bool = false, maxStates: UInt64 = 256, maxEdges: UInt64 = 4096, maxEquivalencePairs: UInt64 = 65_536, maxProjectionComparisons: UInt64 = 1_000_000, maxStateComparisons: UInt64 = 1_000_000) {
+            self.enabled = enabled; self.maxStates = maxStates; self.maxEdges = maxEdges; self.maxEquivalencePairs = maxEquivalencePairs; self.maxProjectionComparisons = maxProjectionComparisons; self.maxStateComparisons = maxStateComparisons
         }
     }
     public enum ExperimentStatus: String, Equatable {
@@ -70,6 +74,8 @@ public enum Research {
         public let declaredStates: UInt64
         public fileprivate(set) var materializedEdges: UInt64 = 0
         public fileprivate(set) var comparedPairs: UInt64 = 0
+        public fileprivate(set) var projectionComparisons: UInt64 = 0
+        public fileprivate(set) var stateComparisons: UInt64 = 0
         public fileprivate(set) var exact: Reachability<I>?
         public fileprivate(set) var reduced: Reachability<I>?
         public fileprivate(set) var counterexamples: [EquivalenceCounterexample<I>] = []
@@ -125,9 +131,21 @@ public enum Research {
         guard !states.isEmpty, UInt64(states.count) <= config.maxStates else {
             report.limitation = "The explicit state domain is empty or exceeds the state budget."; return report
         }
-        func sameState(_ a: S,_ b: S) throws -> Bool { try equalStates(model.cloneState(a),model.cloneState(b)) }
+        func stateComparison(_ a: S,_ b: S) throws -> Bool {
+            guard report.stateComparisons < config.maxStateComparisons else { throw ModelError("research state comparison budget reached") }
+            report.stateComparisons += 1
+            return try equalStates(model.cloneState(a),model.cloneState(b))
+        }
+        func sameState(_ a: S,_ b: S) throws -> Bool {
+            let forward = try stateComparison(a,b),reverse = try stateComparison(b,a)
+            guard forward == reverse else { throw ModelError("research state equality must be symmetric") }
+            return forward
+        }
         var domain: [S]
         do { domain = try states.map(model.cloneState) }
+        catch { report.limitation = String(describing:error); return report }
+        // Rust Eq requires reflexivity; native callbacks may violate it.
+        do { for state in domain { guard try stateComparison(state,state) else { throw ModelError("research state equality must be reflexive") } } }
         catch { report.limitation = String(describing:error); return report }
         // Duplicate exact states are an invalid declaration, not partial evidence.
         for i in domain.indices { for j in 0..<i {
@@ -179,13 +197,44 @@ public enum Research {
             let graph = Graph(initial:initial,checks:allChecks,edges:allEdges)
             // Projection is invoked exactly once per declared state after full materialization.
             let keys = try domain.map { try cloneKey(projection(model.cloneState($0))) }
-            func sameKey(_ a: Int,_ b: Int) throws -> Bool { try equalKeys(cloneKey(keys[a]),cloneKey(keys[b])) }
+            func sameKey(_ a: Int,_ b: Int) throws -> Bool {
+                func compare(_ left: Int,_ right: Int) throws -> Bool {
+                    guard report.projectionComparisons < config.maxProjectionComparisons else { throw ModelError("research projection comparison budget reached") }
+                    report.projectionComparisons += 1
+                    return try equalKeys(cloneKey(keys[left]),cloneKey(keys[right]))
+                }
+                let forward = try compare(a,b)
+                if a != b {
+                    let reverse = try compare(b,a)
+                    guard forward == reverse else { throw ModelError("research projection equality must be symmetric") }
+                }
+                return forward
+            }
             // Rust Eq excludes non-reflexive host values such as NaN. Reject
             // those at the native boundary before any projected traversal.
             for i in keys.indices {
                 guard try sameKey(i,i) else { throw ModelError("research projection equality must be reflexive") }
             }
             let (exact,paths) = try reach(graph,clone:model.cloneInput,equivalent:{ $0 == $1 })
+            // A callable Swift equality can violate Eq's transitivity. Partition
+            // reachable keys and verify every pair against the same partition;
+            // an inconsistent relation must never qualify the reduction.
+            var classes: [Int] = []
+            for (position,state) in exact.states.enumerated() {
+                var matches: [Bool] = []; matches.reserveCapacity(position)
+                var matchedClass: Int?
+                for earlier in 0..<position {
+                    let equal = try sameKey(state,exact.states[earlier]); matches.append(equal)
+                    if equal {
+                        if let matchedClass,matchedClass != classes[earlier] { throw ModelError("research projection equality must be transitive") }
+                        matchedClass = classes[earlier]
+                    }
+                }
+                if let matchedClass {
+                    for earlier in 0..<position where matches[earlier] != (classes[earlier] == matchedClass) { throw ModelError("research projection equality must be transitive") }
+                    classes.append(matchedClass)
+                } else { classes.append(position) }
+            }
             let (reduced,_) = try reach(graph,clone:model.cloneInput,equivalent:sameKey)
             let reducedFailures = Set(reduced.violations.map(\.property))
             report.missingViolations = try exact.violations.filter { !reducedFailures.contains($0.property) }.map {
@@ -272,7 +321,7 @@ public enum Research {
     }
     public static func qualificationParameters<I>(_ report: ExperimentReport<I>) -> [String:String] {
         let a = report.proposal.assumptions
-        return ["research.proposal":report.proposal.name,"research.proposal_version":String(report.proposal.version),
+        var parameters = ["research.proposal":report.proposal.name,"research.proposal_version":String(report.proposal.version),
             "research.proposal_build":report.proposal.build,"research.model_build":report.model.build,
             "research.status":report.status.rawValue,"research.declared_states":String(report.declaredStates),
             "research.materialized_edges":String(report.materializedEdges),"research.compared_pairs":String(report.comparedPairs),
@@ -280,5 +329,14 @@ public enum Research {
             "research.transition_properties":a.transitionProperties,"research.queue_order":a.queueOrder,
             "research.oracle_history":a.oracleHistory,"research.visible_timing":a.visibleTiming,
             "research.limitation":report.limitation,"research.production_pruning_enabled":"false"]
+        if report.config.maxProjectionComparisons != 1_000_000 {
+            parameters["research.max_projection_comparisons"] = String(report.config.maxProjectionComparisons)
+            parameters["research.projection_comparisons"] = String(report.projectionComparisons)
+        }
+        if report.config.maxStateComparisons != 1_000_000 {
+            parameters["research.max_state_comparisons"] = String(report.config.maxStateComparisons)
+            parameters["research.state_comparisons"] = String(report.stateComparisons)
+        }
+        return parameters
     }
 }

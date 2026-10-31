@@ -28,7 +28,7 @@ func guidanceConfigJSON(_ value: GuidanceConfig) -> [String: Any] {
      "max_features_per_observation": String(value.maxFeaturesPerObservation)]
 }
 
-func metadataJSON(_ value: Metadata) -> [String: Any] {
+func campaignMetadataJSON(_ value: Metadata) -> [String: Any] {
     ["name": value.name, "model_version": String(value.modelVersion),
      "properties_version": String(value.propertiesVersion),
      "codec_version": String(value.codecVersion), "build": value.build]
@@ -124,6 +124,6 @@ func jobJSON(_ value: JobReport<UInt64>) throws -> [String: Any] {
     case let .panicked(message): outcome = "Panicked"; error = message; fuzz = nil
     }
     return ["job_id": String(value.jobID), "seed": String(value.seed),
-            "config": fuzzConfigJSON(value.config), "metadata": nullable(value.metadata.map(metadataJSON)),
+            "config": fuzzConfigJSON(value.config), "metadata": nullable(value.metadata.map(campaignMetadataJSON)),
             "outcome": outcome, "error": nullable(error), "fuzz": nullable(fuzz)]
 }

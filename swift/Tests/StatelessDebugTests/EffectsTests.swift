@@ -3,6 +3,17 @@ import Statelessness
 @testable import StatelessDebug
 
 final class EffectsTests: XCTestCase {
+    func testReadyRemovalDoesNotReadClockOrEmitEvent() throws {
+        var reads = 0
+        let observer = try EffectObserver(clock:DiagnosticClock { reads += 1; return LocalInstant(domain:1,nanos:0) },schema:HistogramSchema())
+        let effect = try observer.requested(); try observer.admission(effect,accepted:true)
+        let attempt = try observer.attemptCreated(effect); try observer.readyQueued(attempt)
+        let previousReads = reads, previousEvents = try XCTUnwrap(observer.effectDetails(effect.id)).events.count
+        try observer.readyRemoved(attempt)
+        XCTAssertEqual(reads,previousReads); XCTAssertEqual(observer.effectDetails(effect.id)?.events.count,previousEvents)
+        XCTAssertEqual(observer.metrics.current().get(.readyDepth),.gauge(0))
+        withExtendedLifetime((effect,attempt)) {}
+    }
     private func total(_ snapshot: MetricSnapshot,_ family: MetricFamily) -> UInt64 { snapshot.series.reduce(0) { n,pair in guard pair.key.family == family else { return n }; switch pair.value { case let .counter(v),let .gauge(v): return n+v; default: return n } } }
     private func histogram(_ snapshot: MetricSnapshot,_ family: MetricFamily) -> Histogram? { for (key,value) in snapshot.series where key.family == family { if case let .histogram(h) = value { return h } }; return nil }
     // Manually computed before executing real Rust reference: endpoints

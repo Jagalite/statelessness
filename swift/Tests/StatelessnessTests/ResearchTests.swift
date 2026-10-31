@@ -141,6 +141,58 @@ final class ResearchTests: XCTestCase {
         XCTAssertEqual(Set(native.map { $0["case"] as! String }),runtime.union(staticOnly))
         print("research native-only: 5 public host-failure controls (including NaN test), 5 typed exclusions/language-inapplicable arguments; no Rust Eq/iterator panic claim")
     }
+    func testInvalidExactStateEqualityCannotQualify() throws {
+        let counts = ResearchCounts(),model = researchModel(counts)
+        func run(_ equality: @escaping (Int,Int) -> Bool) throws -> Research.ExperimentReport<String> {
+            try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true),metadata:researchMetadata(counts),equalStates:equality,equalInputs:{$0 == $1},equalOutputs:{$0 == $1},equalKeys:{$0 == $1},cloneKey:{$0},projection:{$0})
+        }
+        let nonreflexive = try run { _,_ in false }
+        XCTAssertEqual(nonreflexive.status,.incomplete); XCTAssertEqual(nonreflexive.limitation,"research state equality must be reflexive")
+        let asymmetric = try run { $0 <= $1 }
+        XCTAssertEqual(asymmetric.status,.incomplete); XCTAssertEqual(asymmetric.limitation,"research state equality must be symmetric")
+    }
+    func testExactStateComparisonBudgetIsIndependent() throws {
+        let counts = ResearchCounts(),model = researchModel(counts)
+        let baseline = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true),metadata:researchMetadata(counts),projection:{$0})
+        let exact = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true,maxStateComparisons:baseline.stateComparisons),metadata:researchMetadata(counts),projection:{$0})
+        XCTAssertEqual(exact.status,baseline.status); XCTAssertEqual(exact.stateComparisons,baseline.stateComparisons)
+        let short = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true,maxStateComparisons:baseline.stateComparisons-1),metadata:researchMetadata(counts),projection:{$0})
+        XCTAssertEqual(short.status,.incomplete); XCTAssertEqual(short.limitation,"research state comparison budget reached")
+        XCTAssertEqual(short.stateComparisons,baseline.stateComparisons-1)
+        XCTAssertEqual(Research.qualificationParameters(short)["research.state_comparisons"],String(short.stateComparisons))
+    }
+    func testProjectionEqualityCallsRespectIndependentBudget() throws {
+        let counts = ResearchCounts(),model = researchModel(counts)
+        let result = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true,maxProjectionComparisons:3),metadata:researchMetadata(counts),projection:{$0})
+        XCTAssertEqual(result.status,.incomplete)
+        XCTAssertEqual(result.limitation,"research projection comparison budget reached")
+        XCTAssertEqual(result.projectionComparisons,3)
+        XCTAssertEqual(Research.qualificationParameters(result)["research.max_projection_comparisons"],"3")
+        XCTAssertEqual(Research.qualificationParameters(result)["research.projection_comparisons"],"3")
+        let baseline = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true),metadata:researchMetadata(counts),projection:{$0})
+        let exact = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true,maxProjectionComparisons:baseline.projectionComparisons),metadata:researchMetadata(counts),projection:{$0})
+        XCTAssertEqual(exact.status,baseline.status); XCTAssertEqual(exact.projectionComparisons,baseline.projectionComparisons)
+        let short = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true,maxProjectionComparisons:baseline.projectionComparisons-1),metadata:researchMetadata(counts),projection:{$0})
+        XCTAssertEqual(short.status,.incomplete); XCTAssertEqual(short.projectionComparisons,baseline.projectionComparisons-1)
+    }
+    func testNontransitiveProjectionCannotQualify() throws {
+        let model = Model<Int,Int,Int>(initialState:{ 0 },step:{ state,_ in Transition(state:(state+1)%3,outputs:[]) },checkState:{ _ in [.passed("state")] },cloneState:{$0},cloneInput:{$0},cloneOutput:{$0},inputs:{ _ in InputIterator(values:[0]) })
+        let result = try Research.compareEquivalence(model,states:[0,1,2],proposal:researchProposal(required:[.init(id:"state",phase:.state)]),config:.init(enabled:true),metadata:{Metadata(name:"nontransitive")},
+            equalStates:{$0 == $1},equalInputs:{$0 == $1},equalOutputs:{$0 == $1},
+            equalKeys:{ a,b in a == b || a == 0 || b == 0 },cloneKey:{$0},projection:{$0})
+        XCTAssertEqual(result.status,.incomplete)
+        XCTAssertEqual(result.limitation,"research projection equality must be transitive")
+        XCTAssertNil(result.exact); XCTAssertNil(result.reduced)
+    }
+    func testAsymmetricProjectionComparatorCannotQualify() throws {
+        let counts = ResearchCounts(),model = researchModel(counts)
+        let result = try Research.compareEquivalence(model,states:[0,1],proposal:researchProposal(),config:.init(enabled:true),metadata:researchMetadata(counts),
+            equalStates:{$0 == $1},equalInputs:{$0 == $1},equalOutputs:{$0 == $1},
+            equalKeys:{$0 <= $1},cloneKey:{$0},projection:{$0})
+        XCTAssertEqual(result.status,.incomplete)
+        XCTAssertEqual(result.limitation,"research projection equality must be symmetric")
+        XCTAssertNil(result.exact); XCTAssertNil(result.reduced)
+    }
     func testExactPropertyByteIdentityAndPhaseOrdering() throws {
         let a = ResearchRequiredProperty(id:"\u{e9}",phase:.state), b = ResearchRequiredProperty(id:"e\u{301}",phase:.state)
         XCTAssertNotEqual(a,b); XCTAssertEqual(Set([a,b]).count,2)

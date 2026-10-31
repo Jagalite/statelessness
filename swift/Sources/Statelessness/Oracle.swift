@@ -67,13 +67,19 @@ public struct WithOracle<S, H, I, O> {
         OracleState(model: try copied(actual.cloneState, model), oracle: try copied(oracle.cloneHistory, history))
     }
     public func observeTransition(before: OracleState<S, H>, input: I, transition: Transition<S, O>) throws -> Transition<OracleState<S, H>, O> {
+        // Capture independent oracle inputs before transition clone hooks can
+        // mutate external aliases. Defer failures until the completed transition
+        // has been retained, preserving ObservationError's defensive snapshot.
+        let inputCapture = Result { try copied(actual.cloneInput, input) }
+        let historyCapture = Result { try copied(oracle.cloneHistory, before.oracle) }
         var retained = transition
         do {
             retained = try cloneTransition(actual, transition)
+            let inputSnapshot = try inputCapture.get()
             let history = try call("advance history") {
-                try oracle.advance(copied(oracle.cloneHistory, before.oracle), copied(actual.cloneInput, input), transition.outputs.map { try copied(actual.cloneOutput, $0) }, transition.disposition)
+                try oracle.advance(historyCapture.get(), inputSnapshot, retained.outputs.map { try copied(actual.cloneOutput, $0) }, retained.disposition)
             }
-            return Transition(state: try attach(model: transition.state, oracle: history), outputs: retained.outputs, disposition: retained.disposition)
+            return Transition(state: try attach(model: retained.state, oracle: history), outputs: retained.outputs, disposition: retained.disposition)
         } catch { throw ObservationError(error: error, transition: retained) }
     }
     public func metadata() throws -> Metadata {
@@ -86,8 +92,14 @@ public struct WithOracle<S, H, I, O> {
         try EncodeBuffer.withBuffer(&bytes, maximum: Int.max) { try self.encodeStateInto(state, $0) }
         return bytes
     }
+    /// History is copied before model encoding, so clone hooks can run even when
+    /// encoding fails. Hooks must cooperate; capture is not atomic against mutation
+    /// through other aliases.
     public func encodeStateInto(_ state: OracleState<S, H>, _ sink: EncodeBuffer) throws {
         guard let c = actual.codec, oracle.encodeHistory != nil || oracle.encodeHistoryInto != nil else { throw ModelError("unsupported oracle adapter operation: encode state") }
+        // Capture history before model callbacks can mutate aliases. Defer a
+        // failed capture until its frame so model and frame errors retain precedence.
+        let historySnapshot = Result { try copied(oracle.cloneHistory, state.oracle) }
         try sink.extend([79, 82, 67, 49])
         try sink.framed { child in
             let snapshot = try copied(actual.cloneState, state.model)
@@ -95,7 +107,7 @@ public struct WithOracle<S, H, I, O> {
             else { try child.extendFromVec(c.encodeState(snapshot)) }
         }
         try sink.framed { child in
-            let snapshot = try copied(oracle.cloneHistory, state.oracle)
+            let snapshot = try historySnapshot.get()
             if let incremental = oracle.encodeHistoryInto { try incremental(snapshot, child) }
             else if let encode = oracle.encodeHistory { try child.extendFromVec(encode(snapshot)) }
         }
@@ -113,25 +125,33 @@ public struct WithOracle<S, H, I, O> {
         }
         let a = try component(), h = try component()
         guard offset == bytes.count else { throw ModelError("trailing oracle checkpoint bytes") }
-        return try attach(model: c.decodeState(a), oracle: decode(h))
+        let model = try copied(actual.cloneState, c.decodeState(a))
+        return try attach(model: model, oracle: decode(h))
     }
     private func appendState(_ state: OracleState<S, H>, into sink: CheckSink) throws {
-        try appendStateChecks(actual, state.model, into: sink)
+        let observed = try attach(model: state.model, oracle: state.oracle)
+        try appendStateChecks(actual, observed.model, into: sink)
         try call("oracle state check") {
             try sink.sublease { child in
-                let history = try copied(oracle.cloneHistory, state.oracle), model = try copied(actual.cloneState, state.model)
+                let history = try copied(oracle.cloneHistory, observed.oracle), model = try copied(actual.cloneState, observed.model)
                 if let callback = oracle.checkStateInto { try callback(history, model, child) }
                 else { try child.extend(oracle.checkState(history, model)) }
             }
         }
     }
     private func appendTransition(_ before: OracleState<S, H>, _ input: I, _ t: Transition<OracleState<S, H>, O>, into sink: CheckSink) throws {
-        try appendTransitionChecks(actual, before.model, input, Transition(state: t.state.model, outputs: t.outputs, disposition: t.disposition), into: sink)
-        guard oracle.checkTransitionInto != nil || oracle.checkTransition != nil else { return }
+        guard oracle.checkTransitionInto != nil || oracle.checkTransition != nil else {
+            try appendTransitionChecks(actual, before.model, input, Transition(state: t.state.model, outputs: t.outputs, disposition: t.disposition), into: sink)
+            return
+        }
+        let observedBefore = try attach(model: before.model, oracle: before.oracle)
+        let observedInput = try copied(actual.cloneInput, input)
+        let observedTurn = Transition(state: try attach(model: t.state.model, oracle: t.state.oracle), outputs: try t.outputs.map { try copied(actual.cloneOutput, $0) }, disposition: t.disposition)
+        try appendTransitionChecks(actual, observedBefore.model, observedInput, Transition(state: observedTurn.state.model, outputs: observedTurn.outputs, disposition: observedTurn.disposition), into: sink)
         try call("oracle transition check") {
             try sink.sublease { child in
-                let b = try attach(model: before.model, oracle: before.oracle), i = try copied(actual.cloneInput, input)
-                let turn = Transition(state: try attach(model: t.state.model, oracle: t.state.oracle), outputs: try t.outputs.map { try copied(actual.cloneOutput, $0) }, disposition: t.disposition)
+                let b = try attach(model: observedBefore.model, oracle: observedBefore.oracle), i = try copied(actual.cloneInput, observedInput)
+                let turn = Transition(state: try attach(model: observedTurn.state.model, oracle: observedTurn.state.oracle), outputs: try observedTurn.outputs.map { try copied(actual.cloneOutput, $0) }, disposition: observedTurn.disposition)
                 if let callback = oracle.checkTransitionInto { try callback(b, i, turn, child) }
                 else if let callback = oracle.checkTransition { try child.extend(callback(b, i, turn)) }
             }
@@ -141,8 +161,17 @@ public struct WithOracle<S, H, I, O> {
     public var model: Model<OracleState<S, H>, I, O> {
         let clone: (OracleState<S, H>) throws -> OracleState<S, H> = { try self.attach(model: $0.model, oracle: $0.oracle) }
         var result = Model<OracleState<S, H>, I, O>(
-            initialState: { try self.attach(model: self.actual.initialState(), oracle: self.oracle.initialState()) },
-            step: { before, input in try self.observeTransition(before: before, input: input, transition: perform(self.actual, before.model, input)) },
+            initialState: {
+                let model = try copied(self.actual.cloneState, self.actual.initialState())
+                return try self.attach(model: model, oracle: self.oracle.initialState())
+            },
+            step: { before, input in
+                // Capture oracle inputs before the reducer can mutate external aliases.
+                let retainedInput = try copied(self.actual.cloneInput, input)
+                let retainedHistory = try copied(self.oracle.cloneHistory, before.oracle)
+                let transition = try perform(self.actual, before.model, retainedInput)
+                return try self.observeTransition(before: OracleState(model: before.model, oracle: retainedHistory), input: retainedInput, transition: transition)
+            },
             checkState: { state in
                 var checks: [Check] = []
                 try CheckSink.withStorage(&checks) { try self.appendState(state, into: $0) }; return checks
@@ -156,19 +185,30 @@ public struct WithOracle<S, H, I, O> {
         if let inputs = actual.inputs { result.inputs = { try inputs(copied(self.actual.cloneState, $0.model)) } }
         if let equal = actual.equalStates, let historyEqual = oracle.equalHistory {
             result.equalStates = { a, b in
+                // Preserve both histories before application clone/equality callbacks.
+                // Copies run eagerly, but their failures matter only if actual
+                // states compare equal and history comparison is reached.
+                let leftHistory = Result { try copied(self.oracle.cloneHistory, a.oracle) }
+                let rightHistory = Result { try copied(self.oracle.cloneHistory, b.oracle) }
                 let sameActual = try equal(copied(self.actual.cloneState, a.model), copied(self.actual.cloneState, b.model))
                 guard sameActual else { return false }
-                return try historyEqual(copied(self.oracle.cloneHistory, a.oracle), copied(self.oracle.cloneHistory, b.oracle))
+                return try historyEqual(leftHistory.get(), rightHistory.get())
             }
         }
         if let c = actual.codec, oracle.encodeHistory != nil || oracle.encodeHistoryInto != nil, oracle.decodeHistory != nil {
             result.codec = Codec(metadata: self.metadata, encodeState: self.encodeState, decodeState: self.decodeState, encodeInput: c.encodeInput, decodeInput: c.decodeInput, encodeOutput: c.encodeOutput, encodeStateInto: self.encodeStateInto, encodeInputInto: c.encodeInputInto, encodeOutputInto: c.encodeOutputInto)
         }
         result.estimatedStateBytes = { state in
-            guard let actualEstimate = self.actual.estimatedStateBytes,
-                  let a = try actualEstimate(copied(self.actual.cloneState, state.model)),
+            guard let actualEstimate = self.actual.estimatedStateBytes else { return nil }
+            // Capture history before application clone/estimate callbacks can mutate aliases.
+            // Preserve the actual estimator's nil/error precedence if history cloning fails.
+            let history = self.oracle.estimatedStateBytes.map { _ in
+                Result { try copied(self.oracle.cloneHistory, state.oracle) }
+            }
+            guard let a = try actualEstimate(copied(self.actual.cloneState, state.model)),
                   let historyEstimate = self.oracle.estimatedStateBytes,
-                  let b = try historyEstimate(copied(self.oracle.cloneHistory, state.oracle)),
+                  let history else { return nil }
+            guard let b = try historyEstimate(history.get()),
                   let overhead = self.estimatedWrapperBytes else { return nil }
             let (payload, payloadOverflow) = a.addingReportingOverflow(b)
             let (total, totalOverflow) = payload.addingReportingOverflow(overhead)
@@ -203,14 +243,19 @@ public struct Paired<S, H, I, O, R, V, E> {
     public var oracle: Oracle<S, H, I, O> {
         let r = reference, p = projection
         let stateInto: (H, S, CheckSink) throws -> Void = { history, actual, sink in
+            // Preserve the reference observation before its checks can mutate an external alias.
+            // Defer a copy failure so a reference-check failure retains precedence.
+            let captured = Result { try copied(r.cloneState, history) }
             try appendStateChecks(r, history, into: sink)
-            let same = try p.equalState(p.actualState(actual), p.referenceState(history))
+            let same = try p.equalState(p.actualState(actual), p.referenceState(captured.get()))
             try sink.push(same ? .passed("pair.state") : .failed("pair.state", "projected states differ"))
         }
         let transitionInto: (OracleState<S, H>, I, Transition<OracleState<S, H>, O>, CheckSink) throws -> Void = { before, input, actual, sink in
             let expected = try perform(r, before.oracle, input)
+            // Preserve outputs before reference checks; state is not used for effect comparison.
+            let captured = Result { try expected.outputs.map { try copied(r.cloneOutput, $0) } }
             try appendTransitionChecks(r, before.oracle, input, expected, into: sink)
-            let a = try actual.outputs.map(p.actualEffect), b = try expected.outputs.map(p.referenceEffect)
+            let a = try actual.outputs.map(p.actualEffect), b = try captured.get().map(p.referenceEffect)
             var same = a.count == b.count
             if same { for i in a.indices { if try !p.equalEffect(a[i], b[i]) { same = false; break } } }
             try sink.push(same ? .passed("pair.effects") : .failed("pair.effects", "projected ordered effects differ"))

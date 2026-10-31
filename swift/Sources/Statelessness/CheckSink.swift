@@ -35,7 +35,7 @@ public final class CheckSink {
         try requireActive()
         guard additional >= 0 else { try reject(ModelError("check sink reserve must be nonnegative")) }
         let (capacity, overflow) = storage.values.count.addingReportingOverflow(additional)
-        guard !overflow else { try reject(ModelError("check sink reserve overflow")) }
+        guard !overflow,capacity <= Int.max / max(1,MemoryLayout<Check>.stride) else { try reject(ModelError("check sink reserve overflow")) }
         storage.values.reserveCapacity(capacity)
     }
     public var count: Int { get throws { try requireActive(); return storage.values.count } }

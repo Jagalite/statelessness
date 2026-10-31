@@ -25,8 +25,17 @@ public struct Domain<I> {
     public mutating func extend(_ inputs: InputIterator<I>) throws { while let value = try inputs.next() { try push(value) } }
     public func entries() throws -> [I] { try storage.map(clone) }
     public mutating func intoEntries() -> [I] { let out = storage; storage = []; return out }
+    /// Entry copies are captured eagerly; unused copy failures are deferred, but
+    /// copy hooks can have side effects even when an earlier entry matches.
     public func contains(_ value: I, equal: (I, I) throws -> Bool) throws -> Bool {
-        for entry in storage { if try equal(clone(entry), clone(value)) { return true } }; return false
+        guard !storage.isEmpty else { return false }
+        // Capture the query before an equality callback can mutate its external alias.
+        // Clone hooks must detach reference-backed values and can have side effects.
+        let query = try clone(value)
+        // Capture entries before equality can mutate a later reference-backed entry.
+        // Defer a later clone failure so an earlier match still short-circuits.
+        let entries = storage.map { entry in Result { try clone(entry) } }
+        for entry in entries { if try equal(entry.get(), clone(query)) { return true } }; return false
     }
     public func sampleIndexed(_ rng: inout Rng) throws -> I? {
         guard let index = rng.index(UInt64(storage.count)) else { return nil }; return try clone(storage[Int(index)])

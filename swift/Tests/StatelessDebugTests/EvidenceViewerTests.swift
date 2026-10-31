@@ -3,6 +3,16 @@ import Statelessness
 @testable import StatelessDebug
 
 final class EvidenceViewerTests: XCTestCase {
+    func testMinimizationAdmissionCapturesInputBeforeStateCopy() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let input = Box(1)
+        let model = Model<Int,Box,Int>(initialState: { 0 }, step: { state,_ in Transition(state: state) },
+            checkState: { _ in [] }, cloneState: { state in input.value = 2; return state },
+            cloneInput: { Box($0.value) }, cloneOutput: { $0 })
+        let policy = try InputPolicy<Int,Box,Int>(label: "manual", permits: { _,_,query,_ in query.value == 1 })
+        XCTAssertTrue(try policyPermitsSnapshot(policy,model:model,state:0,input:input,maximum:1))
+    }
+
     let metadata = Metadata(name: "debug-counter", build: "manual-golden")
     func fixture(checkpoint: UInt64 = 9, policy: Bool = false) -> TraceV2 {
         let checks = [Check.failed("limit", "")]
@@ -32,11 +42,49 @@ final class EvidenceViewerTests: XCTestCase {
         let invalid = AuditTrace(metadata: t.metadata, config: t.config, initialState: t.initialState, initialChecks: [], steps: t.steps, termination: .completed)
         XCTAssertThrowsError(try EvidenceViewer(.v1(invalid)))
     }
+    func testV1RejectsDuplicateCheckpointSequence() throws {
+        let key = "stateless.monitor.checkpoint_after_sequence"
+        func viewer(_ values: [String]) throws -> EvidenceViewer {
+            let trace = AuditTrace(metadata:metadata,config:RunConfig(strategy:"host",parameters:values.map { AuditParameter(key,$0) }),initialState:[7],initialChecks:[],steps:[],termination:.completed)
+            return try EvidenceViewer(.v1(trace))
+        }
+        XCTAssertEqual(try viewer(["+0009"]).checkpointAfter,9)
+        XCTAssertThrowsError(try viewer(["9","10"]))
+        XCTAssertThrowsError(try viewer(["9","9"]))
+        for value in ["+","-1","18446744073709551616","12x"] { XCTAssertThrowsError(try viewer([value])) }
+    }
+    func testV1RetainedRangeIncludesSequenceOrigin() throws {
+        func viewer(_ origin: [String],_ checkpoint: String) throws -> EvidenceViewer {
+            let parameters = origin.map { AuditParameter("stateless.monitor.sequence_origin",$0) } + [AuditParameter("stateless.monitor.checkpoint_after_sequence",checkpoint)]
+            let trace = AuditTrace(metadata:metadata,config:RunConfig(strategy:"host",parameters:parameters),initialState:[7],initialChecks:[],steps:[TraceStep(input:[1],disposition:.accepted,outputs:[[8]],postState:[8],checks:[])],termination:.completed)
+            return try EvidenceViewer(.v1(trace))
+        }
+        let result = try viewer(["10"],"2")
+        XCTAssertEqual(result.checkpointAfter,12); XCTAssertEqual(result.retainedRange,12...13)
+        var model = model(); model.checkState = { _ in [] }
+        let initial = try checkInitial(model,state:7)
+        let recorder = try Recorder(checkedInitial:initial,sequenceOrigin:10,config:RunConfig(strategy:"runtime"),options:RecorderOptions(maxSteps:1))
+        for index in 0..<3 {
+            let state = 7+index, turn = Transition(state:state+1,outputs:[state+1])
+            try recorder.observeChecked(checkTurn(model,before:state,input:1,transition:turn,sequence:UInt64(11+index)))
+        }
+        XCTAssertEqual(try EvidenceViewer(.v1(recorder.snapshot())).retainedRange,12...13)
+        XCTAssertEqual(try viewer([],"2").retainedRange,2...3)
+        XCTAssertThrowsError(try viewer(["10","10"],"2"))
+        XCTAssertThrowsError(try viewer(["bad"],"2"))
+        XCTAssertThrowsError(try viewer([String(UInt64.max)],"1"))
+        XCTAssertThrowsError(try viewer([String(UInt64.max)],"0"))
+    }
     func testExactVerificationBudgetsAndPhase() throws {
         var calls = 0
         let viewer = try EvidenceViewer(.v2(fixture()))
         XCTAssertThrowsError(try viewer.verify(model { calls += 1 }, budget: VerificationLimits(maxTransitions: 0)))
         XCTAssertEqual(calls,0)
+        XCTAssertThrowsError(try viewer.verify(model { calls += 1 }, budget: VerificationLimits(maxTransitions: 1, control: RunLimits(maxDurationNanoseconds: DurationNanoseconds(low: 0))))) { error in
+            XCTAssertTrue(String(describing: error).contains("debug operation deadline"))
+        }
+        XCTAssertEqual(calls,0)
+        XCTAssertEqual(try viewer.verify(model(), budget: VerificationLimits(maxTransitions: 1, control: RunLimits(maxDurationNanoseconds: DurationNanoseconds(high: 1, low: 0)))).outcome,"exact")
         XCTAssertEqual(try viewer.verify(model(), budget: VerificationLimits(maxTransitions: 1)).outcome,"exact")
         let f = fixture(), wrong = TraceV2(trace: f.trace, checkpointAfter: 9, steps: [StepEvidence(sequence: 10, stateCheckCount: 0)])
         XCTAssertThrowsError(try EvidenceViewer(.v2(wrong)).verify(model(), budget: VerificationLimits(maxTransitions: 1)))
@@ -47,7 +95,14 @@ final class EvidenceViewerTests: XCTestCase {
         XCTAssertThrowsError(try viewer.minimize(generator, sequence: 1, check: 0, limits: ShrinkLimits(maxReplayedTransitions: 10)))
         let policy = try InputPolicy<Int,Int,Int>(label: "manual", permits: { _,_,_,_ in true })
         let report = try viewer.minimize(generator, sequence: 1, check: 0, policy: policy, limits: ShrinkLimits(maxReplayedTransitions: 10))
+        let integerDeadline = try viewer.minimize(generator, sequence: 1, check: 0, policy: policy, limits: ShrinkLimits(control: RunLimits(maxDurationNanoseconds: DurationNanoseconds(low: 1_000_000_000)), maxReplayedTransitions: 10))
+        XCTAssertTrue(integerDeadline.validatedOriginal)
+        XCTAssertThrowsError(try viewer.minimize(generator, sequence: 1, check: 0, policy: policy, limits: ShrinkLimits(control: RunLimits(maxDurationNanoseconds: DurationNanoseconds(low: 0)), maxReplayedTransitions: 10))) { error in
+            XCTAssertTrue(String(describing: error).contains("debug operation deadline"))
+        }
         XCTAssertTrue(report.validatedOriginal); XCTAssertEqual(report.minimized.inputs,[1]); XCTAssertGreaterThanOrEqual(report.replayedTransitions,2)
+        let bounded = try viewer.minimize(generator,sequence:1,check:0,policy:policy,limits:ShrinkLimits(maxReplayedTransitions:10,maxSimplificationCandidates:0))
+        XCTAssertEqual(bounded.termination,"simplification_limit"); XCTAssertEqual(bounded.simplificationCandidates,0)
         XCTAssertThrowsError(try viewer.minimize(generator, sequence: 1, check: 0, policy: policy, limits: ShrinkLimits(maxReplayedTransitions: 0)))
     }
     func testV2InsufficientWorkbenchBudgetStillChargesPhasePass() throws {

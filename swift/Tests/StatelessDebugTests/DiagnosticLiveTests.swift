@@ -2,6 +2,18 @@ import XCTest
 import Statelessness
 @testable import StatelessDebug
 final class DiagnosticLiveTests: XCTestCase {
+    func testArrivalQueuePreservesFIFOAndCapacityAcrossCompaction() throws {
+        var options = ControllerOptions(); options.maxArrivals = 140; options.maxArrivalBytes = 140
+        let gate = try LiveController<Int>(epoch:1,options:options)
+        for value in 0..<140 { XCTAssertNil(gate.externalArrival(value,ownedBytes:1)) }
+        XCTAssertEqual(gate.bufferedArrivals,140); XCTAssertEqual(gate.bufferedBytes,140)
+        XCTAssertEqual(gate.externalArrival(999,ownedBytes:1)?.error,.overflow)
+        for value in 0..<90 { let (permit,input) = try XCTUnwrap(gate.beginNext()); XCTAssertEqual(input,value); try gate.delivered(permit,outputs:0) }
+        for value in 140..<230 { XCTAssertNil(gate.externalArrival(value,ownedBytes:1)) }
+        XCTAssertEqual(gate.bufferedArrivals,140)
+        for value in 90..<230 { let (permit,input) = try XCTUnwrap(gate.beginNext()); XCTAssertEqual(input,value); try gate.delivered(permit,outputs:0) }
+        XCTAssertEqual(gate.bufferedArrivals,0); XCTAssertEqual(gate.bufferedBytes,0); XCTAssertNil(try gate.beginNext())
+    }
     func testProbeNoInterestRevisionAndExporterFault() throws {
         let hub = try DiagnosticHub(); var calls = 0
         let context = CaptureContext(producer: UInt64.max,origin: .test,sequence: 1)

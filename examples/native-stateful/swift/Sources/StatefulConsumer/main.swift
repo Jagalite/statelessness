@@ -1,6 +1,9 @@
 import Statelessness
 import Foundation
-if CommandLine.arguments.count>1 { try networkMain(); exit(0) }
+if CommandLine.arguments.count>1 {
+    do { try networkMain(); exit(0) }
+    catch { FileHandle.standardError.write(Data("\(error)\n".utf8)); exit(1) }
+}
 let m:LifecycleMonitor<ScopedKey<UInt8>> = indexedLifecycleMonitor(limits:RetentionLimits(obligations:2,resources:2,violations:8),cloneKey:{$0})
 let key = ScopedKey(epoch:2,generation:3,key:UInt8(7))
 let c = try m.historyCodec(key:scopedKeyCodec(ValueCodecs.u8))

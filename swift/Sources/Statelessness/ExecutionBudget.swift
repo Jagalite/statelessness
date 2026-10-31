@@ -107,7 +107,10 @@ func executionErrorTextLimit(_ limits: BinaryTraceLimits) -> Int {
     Int(min(256, limits.maxStringBytes, limits.maxFrameBytes > 13 ? limits.maxFrameBytes - 13 : 0))
 }
 func executionErrorText(_ error: Error, _ limits: BinaryTraceLimits) -> String {
-    let bytes = Array(String(describing: error).utf8), maximum = executionErrorTextLimit(limits)
+    let maximum = executionErrorTextLimit(limits)
+    // The error formatter is caller-owned, but the engine need only copy one
+    // byte beyond the wire limit to distinguish a complete value from a prefix.
+    let bytes = Array(String(describing:error).utf8.prefix(maximum+1))
     if bytes.count <= maximum { return String(decoding: bytes, as: UTF8.self) }
     var end = maximum >= 3 ? maximum - 3 : maximum
     while end > 0 && String(bytes: bytes.prefix(end), encoding: .utf8) == nil { end -= 1 }

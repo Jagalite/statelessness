@@ -26,9 +26,16 @@ public func networkStateCodec<S,I>(_ state:TraceValueCodec<S>,_ input:TraceValue
     let entries = ValueCodecs.vector(entry), messages = ValueCodecs.vector(message)
     return TraceValueCodec(schema:"NetworkState",encode:{ s,b in try ValueCodecs.u8.encodeRaw(1,into:b); try entries.encodeRaw(s.machines,into:b); try messages.encodeRaw(s.pending,into:b) },decode:{ r in
         guard try r.value(ValueCodecs.u8) == 1 else { throw ModelError("network state codec version") }
-        let machines = try r.value(entries), pending = try r.value(messages), ids = machines.map { $0.machine }
-        for i in ids.indices.dropFirst() { if ids[i-1] >= ids[i] { throw ModelError("noncanonical network machine order") } }
-        if pending.contains(where:{ !ids.contains($0.source) || !ids.contains($0.route.destination) }) { throw ModelError("unknown network route machine") }
+        let machines = try r.value(entries), pending = try r.value(messages)
+        for i in machines.indices.dropFirst() { if machines[i-1].machine >= machines[i].machine { throw ModelError("noncanonical network machine order") } }
+        // Entries are strictly ordered; use binary search without allocating an
+        // uncharged identifier array or repeatedly scanning all machines.
+        func known(_ id: UInt32) -> Bool {
+            var low = 0,high = machines.count
+            while low < high { let middle = low + (high-low)/2; if machines[middle].machine < id { low = middle+1 } else { high = middle } }
+            return low < machines.count && machines[low].machine == id
+        }
+        if pending.contains(where:{ !known($0.source) || !known($0.route.destination) }) { throw ModelError("unknown network route machine") }
         return NetworkState(machines:machines,pending:pending)
     })
 }
@@ -46,7 +53,10 @@ public extension Network {
         return Codec(metadata:metadata,encodeState:{ v in try validate(v); return try s.traceBytes(v,maximum:Int.max) },decodeState:{ b in let v = try s.fromTrace(b); try validate(v); return v },encodeInput:{ try i.traceBytes($0,maximum:Int.max) },decodeInput:{ b in
             let v = try i.fromTrace(b)
             switch v { case let .local(a): guard machines[a.machine] != nil else { throw ModelError("unknown local machine") }; case .drop: guard policy.allowDrop else { throw ModelError("network dropping disabled") }; case .duplicate: guard policy.allowDuplicate else { throw ModelError("network duplication disabled") }; case .deliver: break }; return v
-        },encodeOutput:{ try o.traceBytes($0,maximum:Int.max) })
+        },encodeOutput:{ try o.traceBytes($0,maximum:Int.max) },
+        encodeStateInto:{ value,sink in try validate(value); try s.encodeRaw(value,into:sink) },
+        encodeInputInto:{ value,sink in try i.encodeRaw(value,into:sink) },
+        encodeOutputInto:{ value,sink in try o.encodeRaw(value,into:sink) })
     }
 }
 public func pairAddressCodec<L,R>(_ left:TraceValueCodec<L>,_ right:TraceValueCodec<R>) throws -> TraceValueCodec<PairAddress<L,R>> {
@@ -64,6 +74,6 @@ public extension Pair {
             let names = ms.map { m in "\(m.name.utf8.count):\(m.name):\(m.modelVersion)/\(m.propertiesVersion)/\(m.codecVersion)" }.map { "\($0.utf8.count):\($0)" }.joined(), builds = ms.map { "\($0.build.utf8.count):\($0.build)" }.joined()
             return Metadata(name:"pair-v1:\(names);pending=\(maxPending)",build:builds+";native")
         }
-        return Codec(metadata:metadata,encodeState:{try state.traceBytes($0,maximum:Int.max)},decodeState:{try state.fromTrace($0)},encodeInput:{try input.traceBytes($0,maximum:Int.max)},decodeInput:{try input.fromTrace($0)},encodeOutput:{try output.traceBytes($0,maximum:Int.max)})
+        return Codec(metadata:metadata,encodeState:{try state.traceBytes($0,maximum:Int.max)},decodeState:{try state.fromTrace($0)},encodeInput:{try input.traceBytes($0,maximum:Int.max)},decodeInput:{try input.fromTrace($0)},encodeOutput:{try output.traceBytes($0,maximum:Int.max)},encodeStateInto:{ try state.encodeRaw($0,into:$1) },encodeInputInto:{ try input.encodeRaw($0,into:$1) },encodeOutputInto:{ try output.encodeRaw($0,into:$1) })
     }
 }

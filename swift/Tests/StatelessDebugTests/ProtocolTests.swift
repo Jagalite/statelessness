@@ -10,6 +10,98 @@ final class ProtocolTests: XCTestCase {
         return try ProtocolAdapter(session:session,authority:authority,limits:limits,decodeInput:{ data in decoded(); return Int(data.first ?? 0) })
     }
     func request(_ a: ProtocolAdapter<Int,Int,Int>, _ id: UInt64, _ command: String, _ arguments: [String] = [], revision: UInt64 = 0) -> ProtocolRequest { ProtocolRequest(session:"counter",epoch:a.epoch,requestID:id,expectedRevision:revision,command:command,arguments:arguments) }
+    func testBuiltInInspectionUsesDetachedStateAndProtocolBudgets() throws {
+        var authority = ProtocolAuthority(); authority.deliverInputs = true
+        let adapter = try adapter(authority:authority)
+        var calls = 0
+        try adapter.enableInspection { state,snapshot,path,page,limits in
+            calls += 1
+            XCTAssertEqual(path,[.field(ExactString("count"))]); XCTAssertEqual(page.offset,0); XCTAssertEqual(page.limit,1)
+            XCTAssertEqual(limits.maxWork,10_000); XCTAssertEqual(limits.maxDepth,16); XCTAssertEqual(limits.maxNodes,128)
+            XCTAssertEqual(limits.maxBytes,adapter.limits.maxFrameBytes/8); XCTAssertEqual(limits.maxValueBytes,adapter.limits.maxFieldBytes/4)
+            let node = try InspectContext(limits:limits).scalar(.integer(kind:ExactString("i64"),decimal:ExactString(String(state))))
+            return InspectResult(snapshot:snapshot,schema:DisplaySchema(name:"counter"),path:path,node:node)
+        }
+        XCTAssertEqual(adapter.handle(request(adapter,1,"status")).fields["capability.inspection"],"bool:true")
+        XCTAssertEqual(adapter.handle(request(adapter,2,"snapshot")).fields["handle"],"u64:1")
+        let response = adapter.handle(request(adapter,3,"inspect",["u64:1","u64:1","u64:0","u64:1","field:count"]))
+        XCTAssertNil(response.error); XCTAssertEqual(response.fields["schema.name"],"string:counter"); XCTAssertEqual(response.fields["node.value"],"i64:0"); XCTAssertEqual(calls,1)
+        XCTAssertEqual(response.fieldOrder,["schema.name","schema.version","snapshot.revision","snapshot.sequence","node.completeness","node.child_count","node.kind","node.value","node.children.returned"])
+        let encoded = try ProtocolWire.encodeResponse(response)
+        XCTAssertEqual(try ProtocolWire.encodeResponse(ProtocolWire.decodeResponse(encoded)),encoded)
+        XCTAssertEqual(try ProtocolWire.encodeResponse(adapter.handle(request(adapter,3,"inspect",["u64:1","u64:1","u64:0","u64:1","field:count"]))),encoded)
+        XCTAssertEqual(adapter.handle(request(adapter,4,"inspect",["u64:1","u64:2","u64:0","u64:1","field:count"])).error,.invalidInput)
+        XCTAssertNil(adapter.handle(request(adapter,5,"step",["bytes:01"])).error)
+        XCTAssertEqual(adapter.handle(request(adapter,6,"inspect",["u64:1","u64:1","u64:0","u64:1","field:count"],revision:1)).error,.staleHandle)
+        XCTAssertEqual(adapter.handle(request(adapter,7,"inspect",["u64:1","u64:1","u64:0","u64:1","field:count"],revision:0)).error,.staleHandle)
+        XCTAssertEqual(calls,2)
+    }
+    func testInspectionSchemaPreflightRejectsWithoutProjecting() throws {
+        let adapter = try adapter(); var schemaCalls = 0, projections = 0
+        try adapter.enableInspection(schema:{ _ in schemaCalls += 1; return DisplaySchema(name:"counter",version:1) }) { state,snapshot,path,_,limits in
+            projections += 1
+            return InspectResult(snapshot:snapshot,schema:DisplaySchema(name:"counter",version:1),path:path,node:try InspectContext(limits:limits).scalar(.integer(kind:ExactString("i64"),decimal:ExactString(String(state)))))
+        }
+        XCTAssertNil(adapter.handle(request(adapter,1,"snapshot")).error)
+        XCTAssertEqual(adapter.handle(request(adapter,2,"inspect",["u64:1","u64:2","u64:0","u64:1"])).error,.invalidInput)
+        XCTAssertEqual(schemaCalls,1); XCTAssertEqual(projections,0)
+        XCTAssertNil(adapter.handle(request(adapter,3,"inspect",["u64:1","u64:1","u64:0","u64:1"])).error)
+        XCTAssertEqual(schemaCalls,2); XCTAssertEqual(projections,1)
+    }
+    func testInspectionRejectsNegativePageMetadataBeforeWireEncoding() throws {
+        let adapter = try adapter()
+        try adapter.enableInspection { _,snapshot,path,_,_ in
+            InspectResult(snapshot:snapshot,schema:DisplaySchema(name:"bad"),path:path,node:InspectNode(kind:.sequence(ExactString("bad")),page:PageInfo(offset:-1,returned:0,total:0,nextOffset:nil)))
+        }
+        XCTAssertNil(adapter.handle(request(adapter,1,"snapshot")).error)
+        let response = adapter.handle(request(adapter,2,"inspect",["u64:1","u64:1","u64:0","u64:1"]))
+        XCTAssertEqual(response.error,.invalidInput); XCTAssertNil(response.fields["node.page.offset"])
+    }
+    func testInspectionRejectsNegativeStringAndBytesTotalsBeforeWireEncoding() throws {
+        let adapter = try adapter(); var bytes = false
+        try adapter.enableInspection { _,snapshot,path,_,_ in
+            let kind: NodeKind = bytes ? .bytes(preview:[],totalBytes:-1) : .string(preview:ExactString(""),totalBytes:-1)
+            return InspectResult(snapshot:snapshot,schema:DisplaySchema(name:"bad"),path:path,node:InspectNode(kind:kind))
+        }
+        XCTAssertNil(adapter.handle(request(adapter,1,"snapshot")).error)
+        XCTAssertEqual(adapter.handle(request(adapter,2,"inspect",["u64:1","u64:1","u64:0","u64:1"])).error,.invalidInput)
+        bytes = true
+        XCTAssertEqual(adapter.handle(request(adapter,3,"inspect",["u64:1","u64:1","u64:0","u64:1"])).error,.invalidInput)
+    }
+    func testInspectionErrorPrecedesOversizedSchemaResponseLimit() throws {
+        let adapter = try adapter(); let schema = DisplaySchema(name:String(repeating:"s",count:adapter.limits.maxFieldBytes),version:1)
+        var fail = true
+        try adapter.enableInspection(schema:{ _ in schema }) { _,snapshot,path,_,limits in
+            if fail { throw InspectError.pathNotFound }
+            return InspectResult(snapshot:snapshot,schema:schema,path:path,node:try InspectContext(limits:limits).scalar(.bool(true)))
+        }
+        XCTAssertNil(adapter.handle(request(adapter,1,"snapshot")).error)
+        XCTAssertEqual(adapter.handle(request(adapter,2,"inspect",["u64:1","u64:1","u64:0","u64:1"])).error,.invalidInput)
+        fail = false
+        XCTAssertEqual(adapter.handle(request(adapter,3,"inspect",["u64:1","u64:1","u64:0","u64:1"])).error,.limit)
+    }
+    func testOrderedHostFieldsAndBuiltInSnapshotWireOrder() throws {
+        let base = try adapter()
+        let host = ProtocolHostBindings(commands:["telemetry_health"]) { _ in try PreparedProtocolResponse(orderedFields:[("z","last"),("a","first")]) }
+        let adapter = try ProtocolAdapter(session:base.session,host:host)
+        let snapshot = adapter.handle(request(adapter,1,"snapshot"))
+        XCTAssertEqual(snapshot.fieldOrder,["handle","snapshot.revision","snapshot.sequence"])
+        let hostResponse = adapter.handle(request(adapter,2,"telemetry_health"))
+        XCTAssertEqual(hostResponse.fieldOrder,["z","a"])
+        let encoded = try ProtocolWire.encodeResponse(hostResponse)
+        XCTAssertTrue(String(decoding:encoded,as:UTF8.self).hasSuffix("\tz\tlast\ta\tfirst"))
+        XCTAssertEqual(try ProtocolWire.encodeResponse(ProtocolWire.decodeResponse(encoded)),encoded)
+        XCTAssertThrowsError(try PreparedProtocolResponse(orderedFields:[("same","a"),("same","b")]))
+    }
+    func testUnencodableResponseWithMaximumCacheLimitDoesNotTrap() throws {
+        let model = Model<Int,Int,Int>(initialState:{0},step:{s,_ in Transition(state:s,outputs:[])},checkState:{_ in []},cloneState:{$0},cloneInput:{$0},cloneOutput:{$0})
+        let session = try DebugSession(id:"cache",model:model,policy:.outOfDomainInjection,equalInputs: ==)
+        var limits = ProtocolLimits(); limits.maxCacheBytes = .max; limits.maxResponseFields = .max
+        let adapter = try ProtocolAdapter(session:session,limits:limits)
+        let request = ProtocolRequest(session:"cache",epoch:adapter.epoch,requestID:1,command:"status")
+        XCTAssertEqual(adapter.handle(request).error,.limit)
+        XCTAssertEqual(adapter.handle(request).error,.retiredRequest)
+    }
     func testConcreteExactExportAndRangeChecks() throws {
         let codec = Codec<Int,Int,Int>(metadata: {Metadata(name:"window")},encodeState:{[UInt8($0)]},decodeState:{Int($0[0])},encodeInput:{[UInt8($0)]},decodeInput:{Int($0[0])},encodeOutput:{[UInt8($0)]})
         let model = Model(initialState:{0},step:{s,i in Transition(state:s+i,outputs:[s+i])},checkState:{_ in []},cloneState:{$0},cloneInput:{$0},cloneOutput:{$0},codec:codec)
@@ -36,6 +128,29 @@ final class ProtocolTests: XCTestCase {
         XCTAssertThrowsError(try ProtocolWire.quantity("u64:18446744073709551616"))
         XCTAssertThrowsError(try ProtocolWire.unescape("%FF",maximum:8))
         XCTAssertThrowsError(try ProtocolWire.unescape("<",maximum:8))
+    }
+    func testWireEncodingAdmitsEscapedSizeAndFieldCount() throws {
+        let r = ProtocolRequest(session:"π\t%",epoch:1,requestID:2,command:"status",arguments:["a b"])
+        let encoded = try ProtocolWire.encodeRequest(r)
+        XCTAssertTrue(String(decoding:encoded,as:UTF8.self).contains("string:%CF%80%09%25"))
+        var limits = ProtocolLimits(); limits.maxFrameBytes = encoded.count
+        XCTAssertEqual(try ProtocolWire.encodeRequest(r,limits:limits),encoded)
+        limits.maxFrameBytes -= 1
+        XCTAssertThrowsError(try ProtocolWire.encodeRequest(r,limits:limits)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        limits.maxFrameBytes = 65536; limits.maxRequestFields = 9
+        XCTAssertThrowsError(try ProtocolWire.encodeRequest(r,limits:limits)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        limits.maxRequestFields = 64; limits.maxFieldBytes = 7
+        XCTAssertThrowsError(try ProtocolWire.encodeRequest(r,limits:limits)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        XCTAssertThrowsError(try ProtocolWire.inputBytes("bytes:0102",maximum:1)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        XCTAssertThrowsError(try ProtocolWire.unescape(String(repeating:"%41",count:10),maximum:2)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        let response = ProtocolResponse(session:"π",epoch:1,requestID:2,revision:0,configuration:0,error:nil,fields:["k":"%"])
+        let encodedResponse = try ProtocolWire.encodeResponse(response)
+        limits = ProtocolLimits(); limits.maxFrameBytes = encodedResponse.count
+        XCTAssertEqual(try ProtocolWire.encodeResponse(response,limits:limits),encodedResponse)
+        limits.maxFrameBytes -= 1
+        XCTAssertThrowsError(try ProtocolWire.encodeResponse(response,limits:limits)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
+        limits = ProtocolLimits(); limits.maxResponseFields = Int.min
+        XCTAssertThrowsError(try ProtocolWire.decodeResponse(encodedResponse,limits:limits)) { XCTAssertEqual($0 as? ProtocolError,.limit) }
     }
     func testPartialFramesAndBoundBeforeDispatch() throws {
         let reader = try ProtocolFrameReader(maximum:16); var seen: [Data] = []
@@ -164,14 +279,17 @@ final class ProtocolTests: XCTestCase {
         let model = Model<Int,Int,Int>(initialState:{0},step:{s,i in Transition(state:s+i,outputs:[])},checkState:{_ in []},cloneState:{$0},cloneInput:{$0},cloneOutput:{$0},inputs:{_ in InputIterator(values:[1,2])})
         let session = try DebugSession(id:"counter",model:model,policy:InputPolicy.enumerated(equalInputs: ==),equalInputs: ==)
         var authority = ProtocolAuthority(); authority.deliverInputs = true
-        let a = try ProtocolAdapter(session:session,authority:authority,encodeInput:{Data([UInt8($0)])})
+        let a = try ProtocolAdapter(session:session,authority:authority,decodeInput:{ data in
+            guard data.count == 1, let byte = data.first else { throw ProtocolError.invalidInput }
+            return Int(byte)
+        },encodeInput:{Data([UInt8($0)])})
         let page = a.handle(request(a,1,"inputs",["u64:0","u64:2"]))
         XCTAssertNil(page.error); XCTAssertEqual(page.fields["candidates.0.token"],"u64:1"); XCTAssertNil(page.fields["candidates.0.encoded"]); XCTAssertEqual(page.fields["candidates.returned"],"u64:2")
         XCTAssertNil(a.handle(request(a,2,"select",["u64:1"])).error)
         XCTAssertEqual(a.handle(request(a,3,"select",["u64:2"],revision:1)).error,.staleHandle)
         let fresh = a.handle(request(a,4,"inputs",["u64:0","u64:1"],revision:1)); XCTAssertNil(fresh.error)
         try a.disconnect(); _ = try a.reconnect()
-        XCTAssertEqual(a.handle(request(a,1,"select",[fresh.fields["candidates.0.token"]!],revision:1)).error,.staleHandle)
+        XCTAssertEqual(a.handle(request(a,1,"select",[try XCTUnwrap(fresh.fields["candidates.0.token"])],revision:1)).error,.staleHandle)
     }
 
     func testHostMutationWaitsForCompleteReplyPreflight() throws {

@@ -198,8 +198,11 @@ private final class GuidedDriver<S, I, O, K: Hashable> {
         try learn([], caseNumber: caseNumber, transition: 0)
     }
     func transition(_ before: S, input: I, after: Transition<S, O>, inputs: [I], caseNumber: UInt64, transition: UInt64) throws {
+        // Capture input before the state-copy hook can alter an external alias.
+        // Preserve the previous state-copy error precedence if both copies fail.
+        let capturedInput = Result { try copied(model.cloneInput, input) }
         try FeatureBuffer.collect(&scratch, maximum: report.config.maxFeaturesPerObservation, clone: feedback.cloneFeature) {
-            try feedback.transitionFeatures(copied(model.cloneState, before), copied(model.cloneInput, input), cloneTransition(model, after), $0)
+            try feedback.transitionFeatures(copied(model.cloneState, before), capturedInput.get(), cloneTransition(model, after), $0)
         }
         try learn(inputs, caseNumber: caseNumber, transition: transition)
     }
@@ -231,6 +234,12 @@ public func guidedFuzz64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
     guard (0...100).contains(config.mutationPercent) else { throw ConfigError("mutation_percent must be in 0..=100") }
     try validateFuzzConfig(config)
     let control = try RunControl(limits)
+    return try guidedFuzzKernel64(generated, config: config, guidance: guidance, feedback: feedback, control: control, observer: observer)
+}
+
+func guidedFuzzKernel64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>, config: FuzzConfig64,
+    guidance: GuidanceConfig64, feedback: Feedback<S, I, O, K>, control: RunControl,
+    observer: SearchObserver<S, I, O>?, scanStop: (() -> String?)? = nil) throws -> FuzzReport64<I> {
     let metadata: FeedbackMetadata
     do { metadata = try feedback.metadata() }
     catch let panic as CampaignPanic { throw panic }
@@ -241,7 +250,7 @@ public func guidedFuzz64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
         initialFeedback: { state, c in try driver.initial(state, caseNumber: c) },
         transitionFeedback: { before, input, after, inputs, c, t in
             try driver.transition(before, input: input, after: after, inputs: inputs, caseNumber: c, transition: t)
-        })
+        }, scanStop: scanStop)
     result.guidance = driver.report
     return result
 }
@@ -251,4 +260,19 @@ public func guidedFuzz64<S, I, O, K: Hashable>(_ generated: Generate<S, I, O>,
     feedback: StateFeedback<S, K>, limits: RunLimits = RunLimits(),
     observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
     try guidedFuzz64(generated, config: config, guidance: guidance, feedback: feedback.feedback(), limits: limits, observer: observer)
+}
+
+/// Guided automatic finite-domain fuzzing with scan-level cooperative control.
+public func guidedFuzzAuto64<S, I, O, K: Hashable>(_ model: Model<S, I, O>, options: AutoOptions64 = AutoOptions64(), equalInputs: @escaping (I, I) throws -> Bool, config: FuzzConfig64 = FuzzConfig64(), guidance: GuidanceConfig64 = GuidanceConfig64(), feedback: Feedback<S, I, O, K>, limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
+    try guidance.validate()
+    guard (0...100).contains(config.mutationPercent) else { throw ConfigError("mutation_percent must be in 0..=100") }
+    try validateFuzzConfig(config)
+    guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+    let control = try RunControl(limits), scan = AutoScanControl(control)
+    let generated = autoControlled(model, options: options, equalInputs: equalInputs, scan: scan)
+    return try guidedFuzzKernel64(generated, config: config, guidance: guidance, feedback: feedback, control: control, observer: observer, scanStop: { scan.reason })
+}
+
+public func guidedFuzzAuto64<S, I, O, K: Hashable>(_ model: Model<S, I, O>, options: AutoOptions64 = AutoOptions64(), equalInputs: @escaping (I, I) throws -> Bool, config: FuzzConfig64 = FuzzConfig64(), guidance: GuidanceConfig64 = GuidanceConfig64(), feedback: StateFeedback<S, K>, limits: RunLimits = RunLimits(), observer: SearchObserver<S, I, O>? = nil) throws -> FuzzReport64<I> {
+    try guidedFuzzAuto64(model, options: options, equalInputs: equalInputs, config: config, guidance: guidance, feedback: feedback.feedback(), limits: limits, observer: observer)
 }

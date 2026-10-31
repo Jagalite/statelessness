@@ -8,21 +8,28 @@ import Glibc
 private struct CampaignControl: Sendable {
     let limits: CampaignLimits
     let started: TimeInterval?
+    let integerClock: IntegerDeadlineClock?
     init(_ limits: CampaignLimits) throws {
         if let n = limits.maxDuration, !n.isFinite || n < 0 { throw ConfigError("invalid run duration") }
         self.limits = limits
         started = limits.maxDuration == nil ? nil : ProcessInfo.processInfo.systemUptime
+        integerClock = limits.maxDurationNanoseconds == nil ? nil : IntegerDeadlineClock()
     }
     func stop() -> CampaignExternalStop? {
         if limits.isCancelled() { return .cancelled }
+        if let clock = integerClock, let duration = limits.maxDurationNanoseconds, clock.reached(duration) { return .deadline }
         if let started, let n = limits.maxDuration, ProcessInfo.processInfo.systemUptime - started >= n { return .deadline }
         return nil
     }
     func remaining() -> RunLimits {
+        if let clock = integerClock, let duration = limits.maxDurationNanoseconds {
+            return RunLimits(maxDurationNanoseconds: clock.remaining(duration), isCancelled: limits.cancellationEnabled ? { limits.isCancelled() } : nil)
+        }
         let duration = started.flatMap { start in
             limits.maxDuration.map { max(0, $0 - (ProcessInfo.processInfo.systemUptime - start)) }
         }
-        return RunLimits(maxDuration: duration, isCancelled: limits.isCancelled)
+        if limits.cancellationEnabled { return RunLimits(maxDuration:duration,isCancelled:{ limits.isCancelled() }) }
+        return RunLimits(maxDuration:duration)
     }
 }
 
@@ -234,11 +241,19 @@ private final class CampaignThreadContext: Sendable {
     let body: @Sendable () -> Void
     init(_ body: @escaping @Sendable () -> Void) { self.body = body }
 }
+#if canImport(Darwin)
+private func campaignThreadEntry(_ raw: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
+    let context = Unmanaged<CampaignThreadContext>.fromOpaque(raw).takeRetainedValue()
+    context.body()
+    return nil
+}
+#else
 private func campaignThreadEntry(_ raw: UnsafeMutableRawPointer?) -> UnsafeMutableRawPointer? {
     let context = Unmanaged<CampaignThreadContext>.fromOpaque(raw!).takeRetainedValue()
     context.body()
     return nil
 }
+#endif
 // Pass the retained context through an integer address across the C shim.
 // The context contains only an immutable Sendable closure. Successful creation
 // transfers its retain to campaignThreadEntry; failure releases it in the caller.

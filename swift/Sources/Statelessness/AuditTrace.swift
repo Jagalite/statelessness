@@ -99,7 +99,7 @@ public enum BinaryTraceError: Error, Equatable {
 private let auditHeader: [UInt8] = [83, 84, 76, 69, 83, 83, 26, 10, 1, 0, 0, 0]
 /// IEEE reflected CRC32; corruption detection only, not authentication.
 public func auditCRC32(_ bytes: [UInt8]) -> UInt32 { auditCRC(bytes, 0..<bytes.count) }
-private func auditCRC(_ bytes: [UInt8], _ range: Range<Int>) -> UInt32 {
+func auditCRC(_ bytes: [UInt8], _ range: Range<Int>) -> UInt32 {
     var value: UInt32 = 0xffffffff
     for index in range {
         value ^= UInt32(bytes[index])

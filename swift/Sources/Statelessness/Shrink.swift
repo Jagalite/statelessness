@@ -6,7 +6,12 @@ public struct ShrinkConfig64: Sendable {
 public struct ShrinkLimits {
     public let control: RunLimits
     public let maxReplayedTransitions: UInt64?
-    public init(control: RunLimits = RunLimits(), maxReplayedTransitions: UInt64? = nil) { self.control = control; self.maxReplayedTransitions = maxReplayedTransitions }
+    /// Swift-only extension (no Rust counterpart): bounds yielded
+    /// simplification hints across the whole run, including duplicate hints
+    /// that do not consume a replay attempt, ending with
+    /// `simplification_limit`. Nil (the default) matches Rust exactly.
+    public let maxSimplificationCandidates: UInt64?
+    public init(control: RunLimits = RunLimits(), maxReplayedTransitions: UInt64? = nil,maxSimplificationCandidates: UInt64? = nil) { self.control = control; self.maxReplayedTransitions = maxReplayedTransitions; self.maxSimplificationCandidates = maxSimplificationCandidates }
 }
 public enum ShrinkOperation64: Equatable, Sendable {
     case validateOriginal
@@ -31,6 +36,7 @@ public struct ShrinkReport64<I> {
     public var termination: String
     public var history: [ShrinkAttempt64]
     public var replayedTransitions: UInt64
+    public var simplificationCandidates: UInt64 = 0
     public let validatedOriginal: Bool
 }
 private final class ShrinkWork {
@@ -38,8 +44,9 @@ private final class ShrinkWork {
     let control: RunControl
     let maximum: UInt64?
     let maxAttempts: UInt64
+    let maxSimplificationCandidates: UInt64?
     var transitions: UInt64 = 0
-    init(config: ShrinkConfig64, limits: ShrinkLimits) throws { control = try RunControl(limits.control); maximum = limits.maxReplayedTransitions; maxAttempts = config.maxAttempts }
+    init(config: ShrinkConfig64, limits: ShrinkLimits) throws { control = try RunControl(limits.control); maximum = limits.maxReplayedTransitions; maxAttempts = config.maxAttempts; maxSimplificationCandidates = limits.maxSimplificationCandidates }
 }
 private enum ShrinkCandidate<I> {
     case pass, invalid, failure(Failure<I>), stopped(String)
@@ -66,23 +73,56 @@ private func seenSequence<S, I, O>(_ g: Generate<S, I, O>, seen: [[I]], inputs: 
 private func replayCandidate<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], work: ShrinkWork) throws -> ShrinkCandidate<I> {
     if let stop = work.control.stop() { return .stopped(stop) }
     let m = g.model
-    var state = try searchInitial(m), skipped: UInt64 = 0
-    let initial = try searchInitialChecks(m, state: state, skipped: &skipped, storage: work.checkStorage)
+    // Snapshot the replayable prefix before initial/check callbacks can alter
+    // later inputs through aliases. Preserve limit and earlier-error priority by
+    // retaining copy failures until their position is actually reached.
+    let budget = work.maximum.map { $0 > work.transitions ? $0 - work.transitions : 0 }
+    let count = budget.map { Int(min(UInt64(inputs.count), $0)) } ?? inputs.count
+    var candidates: [Result<I, Error>] = []
+    for input in inputs.prefix(count) {
+        try requireNativeGrowth(candidates.count, elementStride: MemoryLayout<Result<I, Error>>.stride, context: "shrink replay candidates")
+        candidates.append(Result { try copied(m.cloneInput, input) })
+    }
+    let initialState = try searchInitial(m)
+    // Checks can invoke application code which holds an alias to the live
+    // state. Retain the continuation before those callbacks, but do not let
+    // an unused copy error preempt a finding, stop, or transition limit.
+    let checkedInitial = Result { try copied(m.cloneState, initialState) }
+    var continuation = Result { try copied(m.cloneState, initialState) }
+    var skipped: UInt64 = 0
+    var retainedInputs: [Result<I, Error>] = []
+    let initial = try searchInitialChecks(m, state: checkedInitial.get(), skipped: &skipped, storage: work.checkStorage)
     if !initial.isEmpty { return .failure(Failure(inputs: [], violations: initial)) }
     if let stop = work.control.stop() { return .stopped(stop) }
-    for (index, input) in inputs.enumerated() {
+    for index in inputs.indices {
         if let stop = work.control.stop() { return .stopped(stop) }
         if let maximum = work.maximum, work.transitions >= maximum { return .stopped("transition_limit") }
-        let enabled = try call("shrink is_enabled") { try g.isEnabled(copied(m.cloneState, state), copied(m.cloneInput, input)) }
+        let state = try continuation.get()
+        let retained = try candidates[index].get()
+        let stepInput = Result { try copied(m.cloneInput, retained) }
+        let checkInput = Result { try copied(m.cloneInput, retained) }
+        let witnessInput = Result { try copied(m.cloneInput, retained) }
+        let enabled = try call("shrink is_enabled") {
+            let query = try copied(m.cloneInput, retained)
+            return try g.isEnabled(copied(m.cloneState, state), query)
+        }
         if let stop = work.control.stop() { return .stopped(stop) }
         if !enabled { return .invalid }
-        let t = try perform(m, state, input)
+        let t = try perform(m, state, stepInput.get())
+        // Retain check observations before the continuation copy hook can
+        // mutate application aliases. Report failures only at their stage.
+        let checkedState = Result { try copied(m.cloneState, t.state) }
+        let checkedTransition = Result { try cloneTransition(m, t) }
+        let checkedBefore = Result { try copied(m.cloneState, state) }
+        let next = Result { try copied(m.cloneState, t.state) }
+        try requireNativeGrowth(retainedInputs.count, elementStride: MemoryLayout<Result<I, Error>>.stride, context: "shrink replay history")
+        retainedInputs.append(witnessInput)
         let (count, overflow) = work.transitions.addingReportingOverflow(1)
         guard !overflow else { throw ModelError("replayed transition count overflow") }; work.transitions = count
-        let bad = try searchEdge(m, state: state, input: input, transition: t, skipped: &skipped, storage: work.checkStorage)
-        if !bad.isEmpty { return .failure(Failure(inputs: try inputs[...index].map { try copied(m.cloneInput, $0) }, violations: bad)) }
+        let bad = try searchEdge(m, state: state, input: retained, transition: t, skipped: &skipped, storage: work.checkStorage, capturedTransition: checkedTransition, capturedState: checkedState, capturedInput: checkInput, capturedBefore: checkedBefore)
+        if !bad.isEmpty { return .failure(Failure(inputs: try retainedInputs.map { try $0.get() }, violations: bad)) }
         if let stop = work.control.stop() { return .stopped(stop) }
-        state = t.state
+        continuation = next
     }
     return .pass
 }
@@ -164,11 +204,20 @@ public func shrink64<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, conf
             let alternatives = try call("simpler_inputs") { try g.simplerInputs(copied(g.model.cloneInput, report.minimized.inputs[index])) }
             if let stop = work.control.stop() { report.termination = stop; return report }
             var alternative: UInt64 = 0
+            // Duplicate hints do not create replay attempts or history entries,
+            // but a lazy host iterator can produce them forever. Bound
+            // consecutive skips per iterator (Rust shrink_ops) so finite runs
+            // are unaffected.
+            var duplicateHints: UInt64 = 0
             while true {
                 if let stop = work.control.stop() { report.termination = stop; return report }
+                if let limit = work.maxSimplificationCandidates,report.simplificationCandidates >= limit { report.termination = "simplification_limit"; return report }
                 let value = try call("simpler_inputs next", alternatives.next)
                 if let stop = work.control.stop() { report.termination = stop; return report }
                 guard let value else { break }
+                let (candidateCount,countOverflow) = report.simplificationCandidates.addingReportingOverflow(1)
+                guard !countOverflow else { throw ModelError("simplification candidate count overflow") }
+                report.simplificationCandidates = candidateCount
                 let (nextIndex, overflow) = alternative.addingReportingOverflow(1)
                 guard !overflow else { throw ModelError("simplification index overflow") }
                 let alternativeIndex = alternative; alternative = nextIndex
@@ -176,7 +225,12 @@ public func shrink64<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, conf
                 candidate[index] = try copied(g.model.cloneInput, value)
                 let known = try seenSequence(g, seen: seen, inputs: candidate, control: work.control)
                 if let stop = work.control.stop() { report.termination = stop; return report }
-                if known { continue }
+                if known {
+                    if duplicateHints == work.maxAttempts { report.termination = "attempt_limit"; return report }
+                    duplicateHints += 1
+                    continue
+                }
+                duplicateHints = 0
                 if try !shrinkAttempt(g, target: target, candidate: candidate, operation: .simplify(index: UInt64(index), alternative: alternativeIndex), report: &report, seen: &seen, work: work) { return report }
                 if report.history.last?.outcome == .retained { simplified = true; break positions }
             }

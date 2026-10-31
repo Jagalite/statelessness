@@ -464,6 +464,14 @@ private func cancellationDrainCheck() throws -> [String: Any] {
     let state = try requireDrained(report, ledger: ledger)
     try require(state.threads.count == 2 && report.started == 2 && report.delivered == 2,
                 "cancellation failed to preserve already-claimed jobs")
+    try require(report.requested == 12 && report.notStarted == 10
+                && Set(jobs.map(\.jobID)) == state.started && jobs.count == state.started.count,
+                "cancellation delivered duplicate or missing claimed jobs, or started later jobs")
+    for job in jobs {
+        let fuzz = try completedFuzz(job)
+        try require(fuzz.termination == "cancelled" && fuzz.cases == 0 && fuzz.transitions == 0,
+                    "claimed job \(job.jobID) did not report cancellation before work")
+    }
     try require(report.termination == .cancelled && report.reportedCases == 0,
                 "factory cancellation skipped preflight or failed to stop scheduling")
     return ["config": campaignConfigJSON(config), "jobs": try jobs.map(jobJSON),

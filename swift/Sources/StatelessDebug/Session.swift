@@ -75,6 +75,25 @@ public final class DebugSession<S,I,O> {
     private var checkPolicy = CheckPolicy()
     public var capabilities: SessionCapabilities { SessionCapabilities(exactRecording: recorder != nil) }
     public var inputPolicy: String { policy.label }
+    var watchOrigin: ObservationOrigin { policy.unrestricted ? .outOfDomainInjection : .simulation }
+    // Bound diagnostic traversal even when failures occur after many passing checks.
+    var watchFailingProperties: (ids: [String], complete: Bool) {
+        let checks = sequence == 0 ? initialChecks : (last?.checks ?? [])
+        var ids: [String] = []
+        for check in checks.prefix(1024) where check.status == .failed {
+            if ids.count == 16 { return (ids, false) }
+            ids.append(check.id)
+        }
+        return (ids, checks.count <= 1024)
+    }
+    func withInspectionState<R>(_ body: (S) throws -> R) throws -> R {
+        let wasBusy = busy; busy = true; defer { busy = wasBusy }
+        return try body(model.cloneState(current))
+    }
+    func withProtocolCallback<R>(_ body: () throws -> R) throws -> R {
+        let wasBusy = busy; busy = true; defer { busy = wasBusy }
+        return try body()
+    }
     public var state: S {
         get throws {
             // Clone callbacks may read recursively, but cannot mutate the owner.
@@ -157,7 +176,9 @@ public final class DebugSession<S,I,O> {
         func result(_ delivered: Bool) -> StepResult { StepResult(sequence: sequence, delivered: delivered, stop: stop) }
         guard sequence < limits.maxTurns, revision != UInt64.max else { phase = .ended; stop = .budgetExhausted; return result(false) }
         let input = try model.cloneInput(input)
-        guard try policy.permits(model, model.cloneState(current), model.cloneInput(input), limits.maxCandidates) else { throw DebugError.inputNotPermitted }
+        let policyInput = try model.cloneInput(input)
+        let policyState = try model.cloneState(current)
+        guard try policy.permits(model, policyState, policyInput, limits.maxCandidates) else { throw DebugError.inputNotPermitted }
         let bypass = try pending.map { try $0.0 == revision && equalInputs(model.cloneInput($0.1), model.cloneInput(input)) } ?? false
         pending = nil
         if !bypass {
@@ -248,10 +269,14 @@ extension InputPolicy {
     public static func enumerated(equalInputs: @escaping (I,I) throws -> Bool) throws -> Self {
         try Self(label: "enumerated-domain") { model,state,input,maximum in
             guard maximum > 0, let enumerate = model.inputs else { throw DebugError.unsupported("enumerated admission unavailable") }
+            // Preserve the queried value before state/domain callbacks can mutate
+            // an external alias.  An unused copy failure must not preempt an
+            // empty domain, iterator error, or candidate-budget error.
+            let query = Result { try model.cloneInput(input) }
             let iterator = try enumerate(model.cloneState(state))
             for _ in 0..<maximum {
                 guard let candidate = try iterator.next() else { return false }
-                if try equalInputs(model.cloneInput(candidate),model.cloneInput(input)) { return true }
+                if try equalInputs(model.cloneInput(candidate),model.cloneInput(query.get())) { return true }
             }
             guard try iterator.next() == nil else { throw ModelError("environmental admission budget exhausted") }
             return false

@@ -233,6 +233,32 @@ final class EncodeReplayTests: XCTestCase {
         let incompatible = try replayWithObservationsBounded(m, trace: trace, limits: none) { _, _ in XCTFail("incompatible notified") }
         XCTAssertEqual(incompatible.outcome, "incompatible"); XCTAssertEqual(decodes, 0)
     }
+    func testStrictBuildMismatchStopsBeforeDecodingAndObservation() throws {
+        var m = codecCounter()
+        let portable = try Statelessness.record(m, inputs: InputIterator(values: [1]))
+        let trace = try AuditTrace(portable: portable, config: RunConfig(strategy: "test"))
+        var stateDecodes = 0, inputDecodes = 0, initialObservations = 0, turnObservations = 0
+        m.codec!.metadata = { Metadata(name: "codec", build: "different-build") }
+        m.codec!.decodeState = { bytes in stateDecodes += 1; return Int(String(decoding: bytes, as: UTF8.self))! }
+        m.codec!.decodeInput = { bytes in inputDecodes += 1; return Int(String(decoding: bytes, as: UTF8.self))! }
+        func observe(_ observation: ReplayObservation<Int,Int,Int>, _ report: ReplayReport) {
+            if case .initial = observation { initialObservations += 1 }
+            if case .turn = observation { turnObservations += 1 }
+        }
+        for bounded in [false, true] {
+            stateDecodes = 0; inputDecodes = 0; initialObservations = 0; turnObservations = 0
+            func run(_ allow: Bool) throws -> ReplayReport {
+                if bounded { return try replayWithObservationsBounded(m, trace: trace, allowBuildMismatch: allow, observer: observe) }
+                return try replayWithObservations(m, trace: portable, allowBuildMismatch: allow, observer: observe)
+            }
+            let strict = try run(false)
+            XCTAssertEqual(strict.outcome, "incompatible"); XCTAssertFalse(strict.buildMatches)
+            XCTAssertEqual(stateDecodes, 0); XCTAssertEqual(inputDecodes, 0); XCTAssertEqual(initialObservations, 0); XCTAssertEqual(turnObservations, 0)
+            let allowed = try run(true)
+            XCTAssertEqual(allowed.outcome, "exact"); XCTAssertFalse(allowed.buildMatches)
+            XCTAssertGreaterThan(stateDecodes, 0); XCTAssertGreaterThan(inputDecodes, 0); XCTAssertEqual(initialObservations, 1); XCTAssertEqual(turnObservations, 1)
+        }
+    }
     func testAuditRecordPreferredCodecsStampAndCoherentFailurePrefix() throws {
         var m = codecCounter(), events: [String] = []
         m.codec!.encodeState = { _ in throw ModelError("legacy state") }; m.codec!.encodeInput = { _ in throw ModelError("legacy input") }; m.codec!.encodeOutput = { _ in throw ModelError("legacy output") }

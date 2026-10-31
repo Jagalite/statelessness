@@ -42,9 +42,14 @@ public func jobSeed(masterSeed: UInt64, jobID: UInt64) -> UInt64 {
 /// simultaneous calls. Unlike bare RunLimits this enforces a Sendable callback.
 public struct CampaignLimits: Sendable {
     public let maxDuration: TimeInterval?
+    public let maxDurationNanoseconds: DurationNanoseconds?
     public let isCancelled: @Sendable () -> Bool
-    public init(maxDuration: TimeInterval? = nil, isCancelled: @escaping @Sendable () -> Bool = { false }) {
-        self.maxDuration = maxDuration; self.isCancelled = isCancelled
+    public let cancellationEnabled: Bool
+    public init(maxDuration: TimeInterval? = nil, isCancelled: (@Sendable () -> Bool)? = nil) {
+        self.maxDuration = maxDuration; self.maxDurationNanoseconds = nil; self.cancellationEnabled = isCancelled != nil; self.isCancelled = isCancelled ?? { false }
+    }
+    public init(maxDurationNanoseconds: DurationNanoseconds, isCancelled: (@Sendable () -> Bool)? = nil) {
+        self.maxDuration = nil; self.maxDurationNanoseconds = maxDurationNanoseconds; self.cancellationEnabled = isCancelled != nil; self.isCancelled = isCancelled ?? { false }
     }
 }
 
@@ -146,10 +151,29 @@ public func runGuidedCampaign64<S, I: Sendable, O, K: Hashable>(
     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
         let control = try RunControl(remaining)
         let feedback = try feedbackFactory(id, job.generated)
-        let duration = control.started.flatMap { start in
-            remaining.maxDuration.map { max(0, $0 - (ProcessInfo.processInfo.systemUptime - start)) }
-        }
         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
-                              limits: RunLimits(maxDuration: duration, isCancelled: remaining.isCancelled), observer: job.observer)
+                              limits: control.remainingLimits(), observer: job.observer)
+    }
+}
+
+/// Campaign variant whose jobs use finite-domain automatic generation and poll
+/// each job's campaign control between domain iterator calls. The job's model
+/// and input equality are used; its custom generation callbacks are not used.
+public func runAutoCampaign64<S, I: Sendable, O>(config: CampaignConfig64 = CampaignConfig64(), limits: CampaignLimits = CampaignLimits(), options: AutoOptions64 = AutoOptions64(), factory: @escaping @Sendable (UInt64) throws -> CampaignJob<S, I, O>, sink: (JobReport64<I>) throws -> Void) throws -> CampaignReport64 {
+    guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+    return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { _, job, fuzzConfig, remaining in
+        try fuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, limits: remaining, observer: job.observer)
+    }
+}
+
+/// Guided automatic campaign. Work performed inside feedbackFactory remains a
+/// user callback and cannot be preempted by scan-level control.
+public func runGuidedAutoCampaign64<S, I: Sendable, O, K: Hashable>(config: CampaignConfig64 = CampaignConfig64(), limits: CampaignLimits = CampaignLimits(), options: AutoOptions64 = AutoOptions64(), guidance: GuidanceConfig64 = GuidanceConfig64(), factory: @escaping @Sendable (UInt64) throws -> CampaignJob<S, I, O>, feedbackFactory: @escaping @Sendable (UInt64, Generate<S, I, O>) throws -> Feedback<S, I, O, K>, sink: (JobReport64<I>) throws -> Void) throws -> CampaignReport64 {
+    try guidance.validate()
+    guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+    return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+        let control = try RunControl(remaining)
+        let feedback = try feedbackFactory(id, job.generated)
+        return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
     }
 }

@@ -33,8 +33,18 @@ an existing transition without executing it again. `record`, `replay`,
 
 `cloneState`, `cloneInput`, and `cloneOutput` must isolate mutable references.
 `{ $0 }` is appropriate for value-only/immutable types; classes or structs holding
-mutable class references need explicit copies. Throwing callbacks become
-`ModelError`. Swift traps and process exits remain process failures; they cannot
+mutable class references need explicit copies. Pair and Network check operations
+capture their full observation before invoking child checks, so later checks see
+the same detached values. Clone callbacks are cooperative: they cannot guarantee
+an atomic snapshot if other code concurrently mutates aliases while cloning.
+Network state cloning copies pending inputs before invoking machine-state clone
+hooks; this ordering is observable and hooks must cooperate across aliases.
+Network state equality eagerly captures both pending queues and machine states
+before child comparisons. Clone hooks can therefore run or throw even when an
+earlier comparison would have returned false; hooks must cooperate across aliases.
+Pair equality also captures pending inputs and both child states before comparing;
+unused copy errors are deferred, but early copy hooks can still have side effects.
+Throwing callbacks become `ModelError`. Swift traps and process exits remain process failures; they cannot
 be represented as passing checks or caught as ordinary throws.
 
 Swift's normal String equality uses canonical equivalence. The portable contract
@@ -92,6 +102,44 @@ termination, complete attempt history, aggregate replay work, and
 `validatedOriginal`; interrupted validation preserves supplied evidence without
 claiming reproduction. `RunLimits` provides cooperative cancellation/deadlines;
 `ShrinkLimits` bounds aggregate replayed transitions in addition to attempts.
+As in Rust, already-seen simplification hints do not consume attempts; at most
+`maxAttempts` consecutive skipped hints are allowed per `simplerInputs`
+iterator (the count resets after each replayed hint) before the run ends with
+`attempt_limit`. Swift-only extension: `ShrinkLimits(maxSimplificationCandidates:)`
+bounds yielded hints across the whole run and ends with the Swift-only
+termination `simplification_limit`; the nil default matches Rust exactly.
+Direct search controls also accept `RunLimits(maxDurationNanoseconds:)` with a
+`DurationNanoseconds(high:low:)` unsigned 128-bit nanosecond budget. The
+monotonic integer clock is polled between callbacks, so callbacks cannot be
+preempted and actual clock resolution is platform dependent. Elapsed accounting
+assumes less than one complete UInt64 nanosecond clock cycle between polls.
+Direct assurance reports retain this requested budget exactly as
+`max_duration_ns`. `CampaignLimits(maxDurationNanoseconds:)` carries the same
+integer budget through campaign scheduling and worker search; campaign assurance
+reports retain the original budget and job reports retain the remaining budget.
+Offline debugger verification and minimization share the same integer deadline;
+minimization receives the budget remaining after verification.
+
+Assurance reports (`assuredEnumerate`, `assuredFuzz64`, `assuredGuidedFuzz64`,
+`mergeAssuranceReports`, `assuredCampaign64` and variants) follow Rust
+`src/assurance.rs` for every Rust-defined field: `outcome` is Rust's
+`SearchOutcome` spelling, `termination` is the Rust Debug spelling of the run
+termination (`GraphExhausted`, `CasesCompleted`, `ModelError`, ...),
+`MergedJobs` for merged reports and `Campaign::<termination>` for campaign
+aggregates, and `budgets` contains only Rust's keys and units
+(`max_duration_ns`, `cancellation_enabled`, ...). `assess()` runs
+`validate()` first and reports Rust's reason strings. Swift-only extensions
+stay outside Rust-defined fields and are not exported in assurance JSON:
+`AssuranceReport.nativeBudgets` holds `max_duration_seconds` (a TimeInterval
+duration whose nanosecond value is not an exact integer has no
+`max_duration_ns`), the `assurance.*` observation limits,
+`auto.max_candidates`, and `campaign.max_retained_jobs`,
+`campaign.max_retained_evidence_bytes` and `campaign.retained_evidence_bytes`;
+the automatic assured runs and the guided/automatic assured campaigns have no
+Rust counterpart; a failed job teardown replaces that job's report with outcome
+`Failed` and termination `ModelError`; and a retained-evidence overflow adds a
+callback error. As in Rust, each campaign job records the remaining campaign
+budget it was started with as its `max_duration_ns`.
 Callbacks are not preemptible, process memory is not bounded, and these APIs
 remain synchronous and confined to their owning actor/thread. The shared
 `search-v1` corpus and shrink history are experimental candidate tests, not a
@@ -156,6 +204,12 @@ zero. Unknown layout arithmetic/estimates or overflow stay unknown. This is
 Swift/type/architecture-specific inline layout, not heap measurement or a promise
 of equal byte totals across languages. `Paired` delegates history estimation to
 its reference model; outer wrapper padding is still added.
+When both estimators exist, `WithOracle` copies history before invoking the actual
+model's clone and estimator callbacks so those callbacks cannot change the later
+history observation through an external alias. The history copy hook therefore
+runs even if the actual estimate is unknown or throws. An actual unknown or
+error takes precedence over a history-copy error. Copy hooks must cooperate, and
+this does not make access safe against concurrent external mutation.
 
 `bfs-controls-v1` remains experimental; the four promoted portable profile
 projections are unchanged. Array-returning throwing checkers cannot expose checks
@@ -196,8 +250,11 @@ turn checking. Search error observers receive actually emitted partial batches;
 a transition-check error retains the completed state batch followed by an
 incomplete edge batch. Both notifications are attempted and checker errors remain
 primary. `WithOracle` appends actual checks before oracle checks. `Paired` appends
-reference checks before projection comparisons; `Generate.withOracle` preserves
-these hooks. Search reuses its boundary buffer, while retained traces and observer
+reference checks before projection comparisons; reference history and effects are
+copied before those callbacks, and copy errors are deferred until checks finish.
+These early copy hooks can have side effects. The standalone `Paired` API has no
+actual-side clone hooks, so actual-side aliases require application discipline.
+`Generate.withOracle` preserves these hooks. Search reuses its boundary buffer, while retained traces and observer
 snapshots remain detached. Legacy callbacks may still allocate arrays; this
 candidate makes no zero-allocation or RSS claim and does not promote the four
 portable conformance profiles. See
@@ -340,6 +397,42 @@ trace. `stopWithError` is therefore a throwing API. Transfer during a codec/chec
 callback is rejected and freezes the existing prefix. Read-only snapshots, exports
 and counters remain available after transfer as a native extension; the returned
 value owns its immutable/copy-on-write encoded evidence.
+
+## Candidate inspection budget behavior
+
+Local display scalars retain integer decimal text and float kind, decimal text,
+and bits as supplied. Swift owns float kind strings, so inspection limits them
+to 4,096 UTF-8 bytes and charges them to the projection budget; Rust uses a
+static kind string. Wire parsing applies its own numeric grammar.
+
+Watch configurations can specify a bounded `page`. Use
+`WatchRegistry.observePaged` or `ProtocolAdapter.enablePagedWatches` when a
+projection needs that page, and `WatchRegistry.addValidatedPaged` or
+`updateValidatedPaged` to validate a custom page at installation or update;
+the legacy callbacks remain available for their
+default first page. Identical paths and limits with different pages are projected
+separately.
+Each `WatchRegistry` has one `schemaVersion` (default 1); add and update reject
+configurations for another version before changing registry state. Set the
+registry version explicitly when installing watches for a different schema.
+`WatchRegistry.snapshot()` copies the bounded diagnostic ring, and
+`failureSnapshot` retains an independent snapshot from the latest observed
+property failure even after the live ring is drained. These snapshots contain
+projected diagnostics; they are not replayable exact evidence.
+`snapshotNowPaged` captures a bounded safe-point projection, including for a
+paused watch, without advancing observation order or replacing its baseline.
+
+`MarkerCollector` provides lazy, bounded post-turn classifications. Its 48-byte
+per-marker charge matches the 64-bit Rust logical layout, not Swift heap usage;
+callback allocations are outside the budget. The collector is single-threaded.
+
+Swift's paged inspection callbacks retain the public `InspectError.budgetExceeded`
+error type. If such an error escapes a child callback, the page fails closed
+rather than claiming a partial result: the public error does not distinguish an
+engine limit from the same error raised by the host. Rust can distinguish its
+internal limit causes and may instead return a partial page. This boundary is an
+open parity gap. A callback that catches an engine limit and returns cannot turn
+that exhausted page into complete evidence; Swift records a partial result.
 
 ## Candidate synchronous diagnostic observation
 
@@ -766,3 +859,13 @@ passing witnesses, shrinks the property failure, and records/replays that failur
 python3 /Volumes/seed1/Projects/kyoto/kyoto.py submit -- \
   swift run --package-path swift/Examples/Guided -j 2 GuidedExample
 ```
+
+`fuzzAuto64` is an opt-in finite-domain fuzz entry point that shares its run
+cancellation and deadline with automatic generation and membership scans. It
+polls between iterator callbacks; callbacks already executing cannot be
+interrupted. An interrupted reservoir scan leaves its tentative RNG uncommitted.
+Existing `Auto64.generated` and `fuzz64` retain their callback-boundary behavior.
+`guidedFuzzAuto64`, `runAutoCampaign64`, and `runGuidedAutoCampaign64` apply
+this scan-level control to guided and campaign runs. Auto campaign jobs use the
+factory job's model and input equality; custom generation callbacks are ignored.
+Feedback-factory work and callbacks already in progress cannot be interrupted.

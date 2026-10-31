@@ -50,7 +50,7 @@ extension EvidenceViewer {
         guard exactText(identity.name,parentIdentity.name),identity.modelVersion == parentIdentity.modelVersion,identity.propertiesVersion == parentIdentity.propertiesVersion,identity.codecVersion == parentIdentity.codecVersion,allowBuildMismatch || exactText(identity.build,parentIdentity.build) else { throw ModelError("fork model identity differs") }
         let trace = artifact.trace
         guard !trace.initialChecks.contains(where: { $0.status == .failed }), !boundary.checks.contains(where: { $0.status == .failed }) else { throw ModelError("normal branches must start before property failure") }
-        if let environment = trace.config.parameters.first(where: { exactText($0.key,"stateless.debug.environment") }), !exactText(environment.value,policy.label), !policy.unrestricted { throw ModelError("branch environment differs; retain policy or explicitly select unrestricted injection") }
+        if let (environment,unrestricted) = try recordedEnvironment(trace), !policy.unrestricted, (!exactText(environment,policy.label) || unrestricted) { throw ModelError("branch environment differs; retain policy or explicitly select unrestricted injection") }
         let termination: AuditTermination
         if sequence == trace.steps.count { termination = .completed }
         else if sequence == 0 && trace.initialChecks.contains(where: { $0.status == .failed }) { termination = .propertyFailed }

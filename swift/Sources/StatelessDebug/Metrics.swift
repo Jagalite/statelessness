@@ -123,6 +123,7 @@ public struct MetricSnapshot {
 }
 /// Bounded cumulative accounting. Byte limits bound retained representation,
 /// not process RSS. Hosts serialize access; no clock or recorder is installed.
+private final class MetricSnapshotGeneration {}
 public final class MetricRegistry {
     public let schema: HistogramSchema
     public let epoch: UInt64
@@ -138,9 +139,20 @@ public final class MetricRegistry {
     private var complete = true
     private var lastValidEnd: LocalInstant?
     private var history: [MetricSnapshot] = []
+    // A reference identity cannot saturate like the public revision/counters.
+    // It detects an intervening or reentrant snapshot commit even when retained
+    // history revisions and all saturating counters remain unchanged.
+    private var snapshotGeneration = MetricSnapshotGeneration()
     public private(set) var revision: UInt64 = 0
     public var importedIgnored: UInt64 { health.importedIgnored }
     private var series: [SeriesKey:MetricValue] = [:]
+    #if DEBUG
+    // Reach saturation boundaries in tests without executing 2^64 operations.
+    func seedSnapshotSaturationForTesting() {
+        revision = .max
+        health.snapshotsEvicted = .max
+    }
+    #endif
     public init(epoch: UInt64,schema: HistogramSchema,maxSeries: Int = 2048,labels: LabelCatalog? = nil,limits: MetricLimits? = nil,start: LocalInstant? = nil,gaugeScope: GaugeScope = .unknown) throws {
         var bounds = limits ?? MetricLimits(); if limits == nil { bounds.maxSeries = maxSeries }
         guard epoch > 0,schema.id > 0,bounds.maxSeries > 0,bounds.maxFamilies > 0,bounds.maxFamilies <= 128,bounds.maxBytes >= 0,bounds.maxSnapshots > 0,bounds.maxSnapshotBytes >= 0 else { throw MetricError.capacity }
@@ -193,6 +205,17 @@ public final class MetricRegistry {
     /// Stage endpoint validation and history eviction before external validation.
     /// A rejected transport/query leaves all acknowledged snapshots untouched.
     public func trySnapshot(at timestamp: LocalInstant?,completeParticipation: Bool = false,validate: (MetricSnapshot) throws -> Void) throws -> MetricSnapshot {
+        let (staged,commit) = try prepareSnapshot(at:timestamp,completeParticipation:completeParticipation)
+        try validate(staged)
+        try commit()
+        return staged
+    }
+    func prepareSnapshot(at timestamp: LocalInstant?,completeParticipation: Bool = false) throws -> (MetricSnapshot,() throws -> Void) {
+        let originalRevision = revision
+        let originalSeries = series, originalHealth = health, originalComplete = complete
+        let originalEndpoint = endpoint, originalLastValidEnd = lastValidEnd
+        let originalGaugeScope = gaugeScope, originalGaugeScopes = gaugeScopes
+        let originalHistory = history.map(\.revision), originalGeneration = snapshotGeneration
         var nextHealth = health,last = lastValidEnd,end = timestamp,nextComplete = complete
         let nextRevision = revision == UInt64.max ? revision : revision+1
         if let timestamp {
@@ -206,10 +229,12 @@ public final class MetricRegistry {
             while remove < history.count && (history.count-remove >= limits.maxSnapshots || size > limits.maxSnapshotBytes-retainedBytes) { retainedBytes -= history[remove].estimatedBytes; remove += 1; nextHealth.bump(\.snapshotsEvicted) }
         } else { nextHealth.bump(\.snapshotRejections) }
         let staged = MetricSnapshot(limits: limits,epoch: epoch,revision: nextRevision,timestamp: end,start: start,labels: labels,gaugeScope: gaugeScope,gaugeScopes: gaugeScopes,health: nextHealth,complete: nextComplete,temporality: .cumulative,schema: schema,series: series,completeParticipation: completeParticipation)
-        try validate(staged)
-        revision = nextRevision; endpoint = end; lastValidEnd = last; health = nextHealth; complete = nextComplete
-        if retain { if remove > 0 { history.removeFirst(remove) }; history.append(staged) }
-        return staged
+        return (staged,{ [self] in
+            guard snapshotGeneration === originalGeneration,revision == originalRevision,series == originalSeries,health == originalHealth,complete == originalComplete,endpoint == originalEndpoint,lastValidEnd == originalLastValidEnd,gaugeScope == originalGaugeScope,gaugeScopes == originalGaugeScopes,history.map(\.revision) == originalHistory else { throw MetricError.incompatibleWindow }
+            revision = nextRevision; endpoint = end; lastValidEnd = last; health = nextHealth; complete = nextComplete
+            if retain { if remove > 0 { history.removeFirst(remove) }; history.append(staged) }
+            snapshotGeneration = MetricSnapshotGeneration()
+        })
     }
     public func snapshot(at timestamp: LocalInstant?,completeParticipation: Bool = false) -> MetricSnapshot {
         // The no-op validator cannot throw.
@@ -351,6 +376,11 @@ extension Histogram {
 extension MetricSnapshot {
     public var end: LocalInstant? { timestamp }
     public func get(_ family: MetricFamily,labels: MetricLabels = MetricLabels()) -> MetricValue? { series[SeriesKey(family,labels: labels)] }
+    /// Returns the histogram for this series, or nil if absent or another kind.
+    public func histogram(_ family: MetricFamily,labels: MetricLabels = MetricLabels()) -> Histogram? {
+        guard case let .histogram(value)? = get(family,labels: labels) else { return nil }
+        return value
+    }
     public func production() -> MetricSnapshot {
         let values = series.filter { $0.key.labels.origin == .live && !$0.key.labels.debuggerAffected }
         let scopes = gaugeScopes.filter { values[$0.key] != nil }

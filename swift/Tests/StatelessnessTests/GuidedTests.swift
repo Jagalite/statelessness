@@ -260,6 +260,112 @@ final class GuidedTests: XCTestCase {
         corpus[0].inputs[0].value = 66
         XCTAssertEqual(corpus[1].inputs.map(\.value), [1,1]); XCTAssertEqual(r.failure?.inputs.map(\.value), [1,1,1])
     }
+    func testFeedbackInputIsCapturedBeforeStateCloneHook() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let generated = Box(7)
+        var retained: Box?
+        var mutateOnStateCopy = false
+        var seen: Int?
+        let model = Model<Int, Box, Int>(initialState: { 0 }, step: { s,_ in Transition(state: s + 1) },
+            checkState: { _ in [] }, cloneState: { value in
+                if mutateOnStateCopy { retained?.value = 99 }
+                return value
+            }, cloneInput: { value in
+                let copy = Box(value.value)
+                if value === generated { retained = copy }
+                return copy
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in generated }, equalInputs: { $0.value == $1.value })
+        let feedback = Feedback<Int, Box, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _, input, _, _ in seen = input.value })
+        let observer = SearchObserver<Int, Box, Int>(transition: { _,_,_,_,_,_ in mutateOnStateCopy = true })
+        _ = try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback, observer: observer)
+        XCTAssertEqual(seen, 7)
+    }
+    func testFeedbackStateCopyErrorPrecedesInputCopyError() throws {
+        var failCopies = false
+        let model = Model<Int, Int, Int>(initialState: { 0 }, step: { s,_ in Transition(state: s + 1) },
+            checkState: { _ in [] }, cloneState: { value in
+                if failCopies { throw ModelError("feedback state copy") }; return value
+            }, cloneInput: { value in
+                if failCopies { throw ModelError("feedback input copy") }; return value
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in 1 }, equalInputs: ==)
+        let feedback = Feedback<Int, Int, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _,_,_,_ in XCTFail("feedback must not run") })
+        let observer = SearchObserver<Int, Int, Int>(transition: { _,_,_,_,_,_ in failCopies = true })
+        XCTAssertThrowsError(try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback, observer: observer)) {
+            XCTAssertTrue(String(describing: $0).contains("feedback state copy"))
+        }
+    }
+    func testFeedbackInputPrecedesStateCheckMutation() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let generated = Box(7)
+        var retained: Box?
+        var seen: Int?
+        let model = Model<Int, Box, Int>(initialState: { 0 }, step: { s,_ in Transition(state: s + 1) },
+            checkState: { state in if state == 1 { retained?.value = 99 }; return [] },
+            cloneState: { $0 }, cloneInput: { value in
+                let copy = Box(value.value)
+                if value === generated { retained = copy }
+                return copy
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in generated }, equalInputs: { $0.value == $1.value })
+        let feedback = Feedback<Int, Box, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _, input, _, _ in seen = input.value })
+        _ = try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback)
+        XCTAssertEqual(seen, 7)
+    }
+    func testUnusedFeedbackInputCopyFailureDoesNotPreemptViolation() throws {
+        var afterGenerate = false, inputCopies = 0
+        let model = Model<Int, Int, Int>(initialState: { 0 }, step: { s,_ in Transition(state: s + 1) },
+            checkState: { $0 == 1 ? [.failed("failure", "expected")] : [] }, cloneState: { $0 },
+            cloneInput: { value in
+                if afterGenerate { inputCopies += 1; if inputCopies == 2 { throw ModelError("unused feedback input") } }
+                return value
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in afterGenerate = true; return 1 }, equalInputs: ==)
+        let feedback = Feedback<Int, Int, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _,_,_,_ in XCTFail("feedback must not run") })
+        let report = try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback)
+        XCTAssertEqual(report.termination, "failure_found")
+        XCTAssertEqual(report.failure?.violations.count, 1)
+    }
+    func testFeedbackInputPrecedesHistoryCopyMutation() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let generated = Box(7)
+        var retained: Box?, afterStep = false, copiesAfterStep = 0
+        var seen: Int?
+        let model = Model<Int, Box, Int>(initialState: { 0 }, step: { s,_ in afterStep = true; return Transition(state: s + 1) },
+            checkState: { _ in [] }, cloneState: { $0 }, cloneInput: { value in
+                if afterStep { copiesAfterStep += 1; if copiesAfterStep == 1 { retained?.value = 99 } }
+                let copy = Box(value.value)
+                if value === generated { retained = copy }
+                return copy
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in generated }, equalInputs: { $0.value == $1.value })
+        let feedback = Feedback<Int, Box, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _, input, _, _ in seen = input.value })
+        _ = try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback)
+        XCTAssertEqual(seen, 7)
+    }
+    func testFeedbackInputPrecedesReducerMutation() throws {
+        final class Box { var value: Int; init(_ value: Int) { self.value = value } }
+        let generated = Box(7)
+        var retained: Box?, seen: Int?
+        let model = Model<Int, Box, Int>(initialState: { 0 }, step: { state,_ in
+                retained?.value = 99; return Transition(state: state + 1)
+            }, checkState: { _ in [] }, cloneState: { $0 }, cloneInput: { value in
+                let copy = Box(value.value)
+                if value === generated { retained = copy }
+                return copy
+            }, cloneOutput: { $0 })
+        let generatedModel = Generate(model: model, generate: { _,_ in generated }, equalInputs: { $0.value == $1.value })
+        let feedback = Feedback<Int, Box, Int, Int>(metadata: { guidedIdentity }, cloneFeature: { $0 },
+            transitionFeatures: { _, input, _, _ in seen = input.value })
+        _ = try guidedFuzz(generatedModel, config: FuzzConfig(cases: 1, maxSteps: 1), feedback: feedback)
+        XCTAssertEqual(seen, 7)
+    }
     func testExactStateIncludesOracleHistory() throws {
         var g = guidedCounter(); g.model.step = { _, _ in Transition(state: 0) }
         let oracle = Oracle<Int, Int, Int, Int>(metadata: { Metadata(name: "history") }, initialState: { 0 },
