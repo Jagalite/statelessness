@@ -22,7 +22,10 @@ func TestSessionPolicyCapturesInputBeforeStateCopy(t *testing.T) {
 				CloneInput:  func(v *int) *int { x := *v; return &x },
 				CloneOutput: s.ValueCopy[int],
 				CheckState:  func(int) ([]s.Check, error) { return nil, nil },
-				Step:        func(state int, v *int) (s.Transition[int, int], error) { seen = *v; return s.Accept[int, int](state), nil },
+				Step: func(state int, v *int) (s.Transition[int, int], error) {
+					seen = *v
+					return s.Accept[int, int](state), nil
+				},
 			}
 			policy := InputPolicy[int, *int]{Label: "test"}
 			if declared {

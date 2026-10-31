@@ -20,7 +20,7 @@ import (
 type observationRecorderCalls struct {
 	initial, reducer, state, edge, effects int
 	encodeState, encodeInput, encodeOutput int
-	encodeFault                           string
+	encodeFault                            string
 }
 
 func (c *observationRecorderCalls) application() [5]int {

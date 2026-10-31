@@ -97,4 +97,3 @@ func TestNetworkCloneAndChecksCapturePendingBeforeMachineClone(t *testing.T) {
 		t.Fatalf("global check pending = %d", observed)
 	}
 }
-

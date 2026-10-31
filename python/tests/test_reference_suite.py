@@ -154,6 +154,7 @@ class MutationSuiteTests(unittest.TestCase):
             with self.assertRaises(FileExistsError): _exclusive(path,broken)
             self.assertEqual(path.read_bytes(),b'preexisting')
 
+    @unittest.skipIf(os.name == 'nt', 'Windows cannot unlink a file that is still open for writing')
     def test_failed_writer_does_not_unlink_replacement_file(self):
         with tempfile.TemporaryDirectory() as directory:
             path=Path(directory)/'evidence'
