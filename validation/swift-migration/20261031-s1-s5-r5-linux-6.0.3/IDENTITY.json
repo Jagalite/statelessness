@@ -1,0 +1,9 @@
+{
+ "head": "9615908",
+ "sources": "git archive of 9615908 (Package.swift, swift/ minus ExternalConsumers, conformance/, docs/requirements/); consumer staged separately",
+ "swift": "swift:6.0.3 image",
+ "results": {
+  "aarch64": "732 tests, 3 skipped, 0 failures; consumer ok",
+  "x86_64-rosetta": "732 tests, 3 skipped, 0 failures; consumer ok"
+ }
+}
