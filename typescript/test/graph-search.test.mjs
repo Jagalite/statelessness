@@ -171,3 +171,14 @@ test('sink error aborts with a partial report',()=>{
  assert.throws(()=>exploreGraph(intModel(diamond),undefined,{},{events:e=>{if(e.kind==='successorAdmitted'&&e.node===2)throw Error('sink full');}}),e=>{
   assert.ok(e instanceof GraphSearchError);assert.match(e.message,/sink full/);assert.equal(e.report.nodes.length,3);assert.equal(spellCoverage(e.report.coverage),'incomplete:model_error');return true;});
 });
+
+// The sink receives detached expansion statuses (Codex review on PR #19).
+test('expansionFinished statuses are detached from the search state',()=>{
+ const model=(fail)=>({initialState:()=>0,cloneState:s=>s,cloneInput:i=>i,cloneOutput:o=>o,equalStates:(a,b)=>a===b,hashState:s=>s,
+  inputs:s=>s<2?[s+1]:[],step:(s,i)=>accepted(i),checkState:s=>fail&&s===0?[check('bad','failed','root')]:[check('ok')]});
+ const tamper=e=>{if(e.kind==='expansionFinished')e.status.kind='complete';};
+ const frontier=exploreGraph(model(false),{maxStates:100000,maxTransitions:1000000n,maxDepth:0},undefined,{events:tamper});
+ assert.equal(frontier.nodes[0].expansion.kind,'depthFrontier');assert.equal(frontier.frontierSize,1);
+ const pruned=exploreGraph(model(true),undefined,undefined,{failurePolicy:{kind:'collect',maxRetainedFindings:4,expandFailingSuccessors:false},events:tamper});
+ assert.equal(pruned.nodes[0].expansion.kind,'failurePruned');assert.equal(pruned.nodes.length,1);
+});
