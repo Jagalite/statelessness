@@ -39,15 +39,20 @@ with depth cutoff generalized to unmeasured.
 
 **PROGRESS-004.** Settled nodes are terminal, intentional-wait and
 external-wait nodes. `settledTransactionStates` counts transaction-progress
-nodes with a fair path to a settled node; the others are listed in
+nodes with a fair path to a settled node. `unsettledTransactionStates` lists
+only `transactionProgress` nodes without such a path. A transaction node with no
+fair outgoing edge is classified `stuck` and appears in `stuckStates`, not in
 `unsettledTransactionStates`. An exit reachable only through unfair edges does
 not settle a transaction.
 
-**PROGRESS-005.** A closed nonterminal component is an SCC that contains a
+**PROGRESS-005.** SCCs are computed over all edges, fair and unfair. A closed
+nonterminal component is an SCC that contains a
 `transactionProgress` or `stuck` node, has no edge leaving the component (fair
 or unfair), and has no fair edge whose target rank is strictly lower than its
 source rank. A component meeting those conditions that contains an unmeasured
-node is not reported closed; it increments `unmeasuredComponents`. Ranks default
+node is not reported closed; it increments `unmeasuredComponents`. A component
+without any `transactionProgress` or `stuck` member (for example a single
+unmeasured node) is never a candidate and is not counted. Ranks default
 to zero. `graphComplete` is true only when every node is measured. Absent
 findings on an incomplete graph are not evidence.
 

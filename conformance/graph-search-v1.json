@@ -1,7 +1,7 @@
 {
  "format": "stateless.graph-search-fixtures",
  "version": 1,
- "description": "Hand-derived graph-search-v1 vectors. step(state,input)=input with outputs [input*10]; state checks are [ok] plus failed bad_state when state is in fail_state; the transition checker emits failed bad_edge when [before,input] is in fail_edge. hash identity is the state value; constant hashes every state to one value. Event and coverage spellings are defined in the case descriptions of spec/graph-search-v1.md.",
+ "description": "Hand-derived graph-search-v1 vectors. step(state,input)=input with outputs [input*10]; state checks are [ok] plus failed bad_state when state is in fail_state; the transition checker emits failed bad_edge when [before,input] is in fail_edge. hash identity is the state value; constant hashes every state to one value. Event, target and coverage spellings are defined in the Fixture spellings section of spec/graph-search-v1.md.",
  "cases": [
   {
    "case": "diamond",

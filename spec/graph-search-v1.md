@@ -35,9 +35,9 @@ admitting edge's state checks otherwise), `pathFailed`, and `expansion`:
 
 | Expansion | Meaning |
 | --- | --- |
-| `complete` | Every enumerated input was evaluated and its successor resolved; or at max_depth the domain was empty. |
+| `complete` | Every enumerated input was evaluated and its successor resolved (admitted, duplicate, reduced, or rejected as `failing_successor`); or at max_depth the domain was empty. |
 | `depthFrontier` | At max_depth with at least one unexamined input. |
-| `failurePruned` | A failing root under `collect(expandFailingSuccessors: false)`. |
+| `failurePruned` | Only the root: a failing initial state under `collect(expandFailingSuccessors: false)`. It is never dequeued for expansion and receives no `expansionStarted`. |
 | `interrupted(reason)` | Expansion started and the search ended first. |
 | `unexpanded` | Still queued when the search ended. |
 
@@ -60,11 +60,24 @@ order: `rootAdmitted`; per dequeued node `expansionStarted`; per edge
 `edgeEvaluated`, then `finding` when its batch failed, then exactly one of
 `successorAdmitted`, `duplicateEdge`, `edgeReduced` or `successorRejected`
 (absent only when the search ends on that edge for a property failure under
-stop-at-first or an error); `expansionFinished(node, status)`; `layerCompleted(d)`
-when the first node of a deeper layer is dequeued and after the queue
-exhausts; finally `searchFinished(termination)` on non-error returns. An
+stop-at-first or an error); `expansionFinished(node, status)` for nodes that
+finish (interrupted nodes receive none); `layerCompleted(d)` for the previous
+layer `d` when the first node of a deeper layer is dequeued, before that node's
+control poll and `expansionStarted`, and `layerCompleted(d)` for the deepest
+dequeued layer when the queue exhausts normally (never after a cap, stop or
+error); finally `searchFinished(termination)` on non-error returns. An
 initial-state finding precedes `rootAdmitted`. Pre-start stops emit only
 `searchFinished`. Sink errors abort with `GraphSearchError`.
+
+## Fixture spellings
+
+Fixture event logs spell events as `root:N`, `expand:N`, `edge:ID:SOURCE:INPUT`
+(SOURCE is the source node ID), `finding:INDEX:EDGE:phase/id[,phase/id]` (EDGE is
+`-` for an initial finding), `admit:EDGE:NODE`, `dup:EDGE:NODE`,
+`reduced:EDGE:REP`, `reject:EDGE:REASON`, `finish:NODE:STATUS`, `layer:DEPTH` and
+`end:TERMINATION`. Targets are `admitted:N`, `duplicate:N`, `reduced:E` and
+`rejected:REASON`. Coverage is `exhaustive`, `bounded:` followed by
+`depth_cutoff`, `failure_pruned` or both joined by `+`, or `incomplete:REASON`.
 
 ## Report counters
 
@@ -78,6 +91,9 @@ counts emitted `layerCompleted` events. `states` keeps its bfs-v1 meaning.
 retained-edge bookkeeping (struct strides, check text, outputs, labels). It is
 separate from `estimatedRetainedStateBytes`, which covers model state
 representation only. Neither is process RSS.
+
+**GRAPH-006a.** `max_states` is the maximum admitted count: a new successor is
+rejected with `state_limit` when the admitted count already equals it.
 
 **GRAPH-007.** Retention: `retainEdges: false` streams edges through events
 only. `maxRetainedEdges` and `maxGraphBytes` are caps; exceeding either ends the
@@ -104,11 +120,16 @@ Reaching max_depth at a node whose input domain is empty is not a cutoff.
 the search with `failure_found`. `collect(maxRetainedFindings,
 expandFailingSuccessors)` records each failing batch as a finding and continues:
 
+- Violation phases are `initial_state` (initial checks), `state` (successor
+  state checks) and `transition` (transition checks), as in bfs-v1.
 - A finding has a run-local index, a deterministic witness (BFS root path plus
   the edge input; empty for the initial state), every failed check of its batch
   in order (state checks before transition checks, so two violations on one
   edge stay one finding), its edge ID (nil for initial), and
-  `requiresContinuedEvidence` when the witness prefix crosses an earlier failure.
+  `requiresContinuedEvidence`. The latter is true exactly when the source node's
+  `pathFailed` is true, i.e. some failed batch (the initial checks, or the state
+  or transition checks of an admitting edge) occurs on the root path to the
+  edge's source. A failing duplicate edge does not mark the node it targets.
 - Failing edges still resolve duplicates. With `expandFailingSuccessors`, new
   failing successors are admitted and expanded. Without it they are rejected as
   `failing_successor` and coverage is failure-pruned. A failing root is then
