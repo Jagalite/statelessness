@@ -1,0 +1,23 @@
+{
+ "ok": false,
+ "jobs": [
+  {
+   "name": "consumer-build",
+   "job": "b1f3d44c634f441f92a11638b5372158",
+   "command": [
+    "env",
+    "STATELESS_SWIFT_PACKAGE_PATH=/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness",
+    "swift",
+    "build",
+    "--package-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer",
+    "--scratch-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer-build"
+   ],
+   "status": "failed",
+   "exit_code": 1,
+   "elapsed_seconds": 8.148635149002075,
+   "peak_rss_mb": 54.53125
+  }
+ ]
+}

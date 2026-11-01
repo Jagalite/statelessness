@@ -1,0 +1,50 @@
+{
+ "ok": true,
+ "jobs": [
+  {
+   "name": "consumer-build",
+   "job": "fef1707f8614401984f4f3eaf9ebf44f",
+   "command": [
+    "env",
+    "STATELESS_SWIFT_PACKAGE_PATH=/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/Statelessness",
+    "swift",
+    "build",
+    "--package-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/consumer",
+    "--scratch-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/consumer-build"
+   ],
+   "status": "succeeded",
+   "exit_code": 0,
+   "elapsed_seconds": 14.63624906539917,
+   "peak_rss_mb": 53.96875
+  },
+  {
+   "name": "consumer-run",
+   "job": "10e05f6c0f5e4cca92f6cbc7a9183c57",
+   "command": [
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/consumer-build/debug/MigrationConsumer"
+   ],
+   "status": "succeeded",
+   "exit_code": 0,
+   "elapsed_seconds": 0.3980839252471924,
+   "peak_rss_mb": 0.03125
+  },
+  {
+   "name": "staged-tests",
+   "job": "d868a473e93542adb0ed9067bfea7e29",
+   "command": [
+    "swift",
+    "test",
+    "--package-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/Statelessness",
+    "--scratch-path",
+    "/private/tmp/stateless-swift-migration-20261031-s1-s5-r4/engine-build"
+   ],
+   "status": "succeeded",
+   "exit_code": 0,
+   "elapsed_seconds": 72.43819499015808,
+   "peak_rss_mb": 49.546875
+  }
+ ]
+}

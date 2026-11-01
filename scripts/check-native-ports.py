@@ -28,6 +28,8 @@ def fixture_environment():
         STATELESS_SEARCH_HISTORY=str(ROOT / 'conformance/search-v1-history.json'),
         STATELESS_BINARY_CORPUS=str(ROOT / 'conformance/native-binary-v1.json'),
         STATELESS_BFS_CORPUS=str(ROOT / 'conformance/bfs-controls-v1.json'),
+        STATELESS_GRAPH_SEARCH_CORPUS=str(ROOT / 'conformance/graph-search-v1.json'),
+        STATELESS_PROGRESS_CORPUS=str(ROOT / 'conformance/progress-analysis-v1.json'),
         STATELESS_APPEND_CORPUS=str(ROOT / 'conformance/append-checks-v1.json'),
         STATELESS_ENCODE_CORPUS=str(ROOT / 'conformance/encode-buffers-v1.json'),
         STATELESS_REPLAY_CORPUS=str(ROOT / 'conformance/replay-evidence-v1.json'),

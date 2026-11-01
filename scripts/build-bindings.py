@@ -70,6 +70,9 @@ PYTHON_FILES = (
     "src/statelessness/trace_binary.py",
     "src/statelessness/trace_json.py",
     "src/statelessness/value_codec.py",
+    "src/statelessness/continued.py",
+    "src/statelessness/graph_search.py",
+    "src/statelessness/progress.py",
 )
 BROWSER_V2_FILES = ("v2.mjs", "v2.d.ts", "v2.d.mts", "v2-values.mjs", "v2-packet.mjs", "v2-json.mjs")
 SWIFT_V2_FILES = (
@@ -89,6 +92,7 @@ PORTABLE_SWIFT_FILES = (
     "swift/Sources/Statelessness/CheckSink.swift",
     "swift/Sources/Statelessness/CheckedResults.swift",
     "swift/Sources/Statelessness/Composition.swift",
+    "swift/Sources/Statelessness/ContinuedEvidence.swift",
     "swift/Sources/Statelessness/CountCompatibility.swift",
     "swift/Sources/Statelessness/DeriveCodec.swift",
     "swift/Sources/Statelessness/EncodeBuffer.swift",
@@ -102,6 +106,7 @@ PORTABLE_SWIFT_FILES = (
     "swift/Sources/Statelessness/Fuzz.swift",
     "swift/Sources/Statelessness/FuzzAuto.swift",
     "swift/Sources/Statelessness/Generate.swift",
+    "swift/Sources/Statelessness/GraphSearch.swift",
     "swift/Sources/Statelessness/Guided.swift",
     "swift/Sources/Statelessness/JSON.swift",
     "swift/Sources/Statelessness/Lifecycle.swift",
@@ -111,7 +116,9 @@ PORTABLE_SWIFT_FILES = (
     "swift/Sources/Statelessness/Network.swift",
     "swift/Sources/Statelessness/Observation.swift",
     "swift/Sources/Statelessness/Oracle.swift",
+    "swift/Sources/Statelessness/ProgressAnalysis.swift",
     "swift/Sources/Statelessness/Recorder.swift",
+    "swift/Sources/Statelessness/Reduction.swift",
     "swift/Sources/Statelessness/ReferenceCatalogData.swift",
     "swift/Sources/Statelessness/ReferenceController.swift",
     "swift/Sources/Statelessness/ReferenceControllerBuildID.swift",

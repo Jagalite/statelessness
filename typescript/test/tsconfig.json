@@ -4,5 +4,5 @@
     "strict": true, "noEmit": true, "lib": ["ES2022", "DOM"],
     "forceConsistentCasingInFileNames": true
   },
-  "files": ["auto-control-types.ts", "node-auto-types.ts"]
+  "files": ["auto-control-types.ts", "node-auto-types.ts", "graph-types.ts"]
 }

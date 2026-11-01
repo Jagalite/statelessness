@@ -1,0 +1,10 @@
+{
+ "purpose": "Fixes for PR #14 CI on 1c69acd: Swift 6.0.3 SIL ownership verifier crash in GraphSearchRun.execute (reproduced locally with -Xfrontend -sil-verify-all on swift:6.0.3, then clean after restructuring), and relocated tests reading fixtures by repository path.",
+ "sources": "SOURCES.sha256: working tree staged for these runs",
+ "results": {
+  "sil-verify-all build (swift:6.0.3, package and tests)": "Build complete",
+  "macos-tests": "732 tests, 3 skipped, 0 failures",
+  "linux-6.0.3-tests": "732 tests, 3 skipped, 0 failures",
+  "linux-6.0.3-relocated": "conformance/ removed, fixtures via STATELESS_* env: 26 tests, 0 failures"
+ }
+}

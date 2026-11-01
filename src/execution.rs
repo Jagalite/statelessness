@@ -221,7 +221,7 @@ pub fn record_with_limits<M: ModelCodec>(
 
 /// Keep iterator construction after the initial checkpoint, as in the native
 /// recorder. In particular, an initial property failure never opens the input.
-struct InfallibleInputs<I>(I);
+pub(crate) struct InfallibleInputs<I>(pub(crate) I);
 
 impl<I: IntoIterator> IntoIterator for InfallibleInputs<I> {
     type Item = Result<I::Item, ModelError>;
@@ -256,6 +256,43 @@ pub(crate) fn record_ops_with_payload_limit<M: CodecOps>(
     limits: &ReadLimits,
     max_payload_bytes: Option<u64>,
     max_payload_items: Option<usize>,
+) -> Result<Trace, ModelError> {
+    record_kernel(
+        model,
+        inputs,
+        config,
+        max_steps,
+        limits,
+        max_payload_bytes,
+        max_payload_items,
+        false,
+    )
+}
+
+/// Record with continued-failure-evidence-v1 semantics: failed checks do not
+/// end the trace. See [`crate::continued::record_continued`].
+pub(crate) fn record_continued_ops<M: CodecOps>(
+    model: &M,
+    inputs: impl IntoIterator<Item = Result<M::Input, ModelError>>,
+    config: RunConfig,
+    max_steps: usize,
+    limits: &ReadLimits,
+) -> Result<Trace, ModelError> {
+    record_kernel(model, inputs, config, max_steps, limits, None, None, true)
+}
+
+/// `continued` records past property failures (continued-failure-evidence-v1);
+/// otherwise the first failing batch ends the trace with property_failed.
+#[allow(clippy::too_many_arguments)]
+fn record_kernel<M: CodecOps>(
+    model: &M,
+    inputs: impl IntoIterator<Item = Result<M::Input, ModelError>>,
+    config: RunConfig,
+    max_steps: usize,
+    limits: &ReadLimits,
+    max_payload_bytes: Option<u64>,
+    max_payload_items: Option<usize>,
+    continued: bool,
 ) -> Result<Trace, ModelError> {
     use crate::trace::{
         FILE_HEADER_SIZE, end_size, error_termination, reserved_end_size, run_size, step_size,
@@ -305,7 +342,9 @@ pub(crate) fn record_ops_with_payload_limit<M: CodecOps>(
         limits,
     )
     .map_err(format_error)?;
-    let initial_failed = trace.initial_checks.iter().any(Check::is_failure);
+    // A continued recording never ends on a failure, so a failing batch keeps
+    // the full future-error reserve like any passing one.
+    let initial_failed = !continued && trace.initial_checks.iter().any(Check::is_failure);
     let terminal_end = end_size(0, &Termination::PropertyFailed, limits).map_err(format_error)?;
     let end = if initial_failed {
         terminal_end
@@ -445,7 +484,7 @@ pub(crate) fn record_ops_with_payload_limit<M: CodecOps>(
             let next_items = items
                 .checked_add(size.items)
                 .ok_or_else(|| ModelError::new("recording item count overflow"))?;
-            let footer = if step.checks.iter().any(Check::is_failure) {
+            let footer = if !continued && step.checks.iter().any(Check::is_failure) {
                 terminal_end
             } else {
                 end
@@ -472,7 +511,7 @@ pub(crate) fn record_ops_with_payload_limit<M: CodecOps>(
                     break;
                 }
             };
-        let failed = step.checks.iter().any(Check::is_failure);
+        let failed = !continued && step.checks.iter().any(Check::is_failure);
         if trace.steps.try_reserve(1).is_err() {
             trace.termination = error_termination("unable to allocate trace step", limits);
             break;
@@ -698,7 +737,18 @@ fn replay_observations_impl<M: ModelCodec>(
     limits: Option<&ReadLimits>,
     observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
 ) -> Result<ReplayReport, ReplayError<M>> {
-    replay_kernel::native(model, trace, options, limits, observer)
+    replay_kernel::native(model, trace, options, limits, validate_recording, observer)
+}
+
+/// Replay with a caller-selected recording validator (continued traces).
+pub(crate) fn replay_observations_validated<M: ModelCodec>(
+    model: &M,
+    trace: &Trace,
+    options: ReplayOptions,
+    validate: fn(&Trace) -> Result<(), ModelError>,
+    observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
+) -> Result<ReplayReport, ReplayError<M>> {
+    replay_kernel::native(model, trace, options, None, validate, observer)
 }
 
 pub(crate) fn replay_ops<M: CodecOps>(

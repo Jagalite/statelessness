@@ -384,6 +384,32 @@ interchange remains unchanged; these additive APIs need separate qualification.
 
 The BFS extension is the experimental [`bfs-controls-v1` candidate](../spec/bfs-controls-v1.md); tests consume its shared callback/report vectors.
 
+## Candidate graph search, progress, reduction and continued evidence
+
+Ports of the Swift migration extensions, experimental and not listed in
+`EXPERIMENTAL_PROFILES`:
+
+- [`graph-search-v1`](../spec/graph-search-v1.md): `explore_graph(model, config,
+  limits=..., options=GraphSearchOptions(...))` retains the admitted graph,
+  edge evidence, coverage and an event stream, and collects failures with
+  `FailurePolicy.collect(...)`. Default options run exactly the
+  `enumerate_states` callback sequence. Errors after the search starts raise
+  `GraphSearchError` with the partial report.
+- [`progress-analysis-v1`](../spec/progress-analysis-v1.md): `ProgressGraph`
+  (or `ProgressGraph.from_report`), `analyze_progress`,
+  `strongly_connected_components` and `reverse_reachable`.
+- [`reduction-v1`](../spec/reduction-v1.md): `EquivalenceReduction` in
+  `GraphSearchOptions.reduction`, `validate_diamonds` and `compare_reduction`.
+- [`continued-failure-evidence-v1`](../spec/continued-failure-evidence-v1.md):
+  `record_continued`, `replay_continued`, `encode_continued_trace` /
+  `parse_continued_trace` and `shrink_continued`.
+
+State identity is the same native Python identity that `enumerate_states` uses:
+`hash()` buckets checked with `==`. Unhashable states fall back to comparing
+against every admitted state. `compare_reduction` therefore takes two reports
+and no model. `estimated_graph_bytes` uses fixed per-record engine charges plus
+text sizes. It is not a CPython object size.
+
 ## Candidate append-only checking
 
 Optional `check_state_into(state, sink)` and

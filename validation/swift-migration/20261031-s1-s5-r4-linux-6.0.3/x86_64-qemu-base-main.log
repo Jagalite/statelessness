@@ -1,0 +1,68 @@
+Building for debugging...
+[0/23] Write sources
+[6/23] Write swift-version-24593BA9C3E375BF.txt
+[8/64] Emitting module Statelessness
+[9/77] Compiling Statelessness Model.swift
+[10/77] Compiling Statelessness Modeling.swift
+[11/77] Compiling Statelessness Network.swift
+[12/77] Compiling Statelessness Observation.swift
+[13/77] Compiling Statelessness Oracle.swift
+[14/77] Compiling Statelessness Recorder.swift
+[15/77] Compiling Statelessness ReferenceCatalogData.swift
+[16/77] Compiling Statelessness ReferenceController.swift
+[17/77] Compiling Statelessness ReferenceControllerBuildID.swift
+[18/77] Compiling Statelessness ReferenceControllerCodec.swift
+[19/77] Compiling Statelessness ReferenceCoverage.swift
+[20/77] Compiling Statelessness ReferenceRegressionData.swift
+[21/77] Compiling Statelessness ReferenceRegressions.swift
+[22/77] Compiling Statelessness ReferenceSuitePersistence.swift
+[23/77] Compiling Statelessness ReferenceWitness.swift
+[24/77] Compiling Statelessness Replay.swift
+[25/77] Compiling Statelessness Research.swift
+[26/77] Compiling Statelessness Rng.swift
+[27/77] Compiling Statelessness Shrink.swift
+[28/77] Compiling Statelessness StatefulCodec.swift
+[29/77] Compiling Statelessness TraceJSON.swift
+[30/77] Compiling Statelessness ValueCodec.swift
+[31/77] Compiling Statelessness ValueCodec128.swift
+[32/77] Compiling Statelessness ValueCodecBuiltins.swift
+[33/77] Compiling Statelessness ValueCodecDecoder.swift
+[34/77] Compiling Statelessness ValueCodecLayouts.swift
+[35/77] Compiling Statelessness EvidenceCodec.swift
+[36/77] Compiling Statelessness EvidenceExports.swift
+[37/77] Compiling Statelessness EvidenceRecorder.swift
+[38/77] Compiling Statelessness Execution.swift
+[39/77] Compiling Statelessness ExecutionBudget.swift
+[40/77] Compiling Statelessness Explore.swift
+[41/77] Compiling Statelessness Fuzz.swift
+[42/77] Compiling Statelessness FuzzAuto.swift
+[43/77] Compiling Statelessness Generate.swift
+[44/77] Compiling Statelessness Guided.swift
+[45/77] Compiling Statelessness JSON.swift
+[46/77] Compiling Statelessness Lifecycle.swift
+[47/77] Compiling Statelessness LifecycleCodec.swift
+[48/77] Compiling Statelessness Assurance.swift
+[49/77] Compiling Statelessness AssuranceCampaign.swift
+[50/77] Compiling Statelessness AuditRecording.swift
+[51/77] Compiling Statelessness AuditTrace.swift
+[52/77] Compiling Statelessness Campaign.swift
+[53/77] Compiling Statelessness CampaignLifecycle.swift
+[54/77] Compiling Statelessness CampaignRuntime.swift
+[55/77] Compiling Statelessness CheckSink.swift
+[56/77] Compiling Statelessness CheckedResults.swift
+[57/77] Compiling Statelessness Composition.swift
+[58/77] Compiling Statelessness CountCompatibility.swift
+[59/77] Compiling Statelessness DeriveCodec.swift
+[60/77] Compiling Statelessness EncodeBuffer.swift
+[61/77] Compiling Statelessness Evidence.swift
+[62/78] Wrapping AST for Statelessness for debugging
+swift-runtime: failed to suspend thread 340 while processing a crash; backtraces will be missing information
+swift-runtime: failed to suspend thread 342 while processing a crash; backtraces will be missing information
+swift-runtime: failed to suspend thread 393 while processing a crash; backtraces will be missing information
+swift-runtime: failed to suspend thread 340 while processing a crash; backtraces will be missing information
+swift-runtime: failed to suspend thread 340 while processing a crash; backtraces will be missing information
+
+*** Signal 4: Backtracing from 0x4003912270... failed ***
+
+[64/80] Emitting module StatelessConformance
+error: fatalError

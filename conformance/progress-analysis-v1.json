@@ -1,0 +1,342 @@
+{
+ "format": "stateless.progress-analysis-fixtures",
+ "version": 1,
+ "description": "Hand-authored progress-analysis-v1 graphs independent of any application. Edges are [source,target,fair]. ranks null means all zero.",
+ "cases": [
+  {
+   "case": "settling_transaction",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "terminal"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "terminal"
+    ],
+    "closed": [],
+    "unsettled": [],
+    "settled_transactions": 1,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "intentional_and_external_waits",
+   "nodes": 3,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ],
+    [
+     0,
+     2,
+     true
+    ],
+    [
+     1,
+     1,
+     false
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "intentionalWait",
+    "externalWait"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "stableIntentionalWait",
+     "declaredExternalWait"
+    ],
+    "closed": [],
+    "unsettled": [],
+    "settled_transactions": 1,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "closed_nonterminal_cycle",
+   "nodes": 3,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ],
+    [
+     1,
+     0,
+     true
+    ],
+    [
+     2,
+     0,
+     true
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "transaction",
+    "transaction"
+   ],
+   "ranks": [
+    4,
+    4,
+    4
+   ],
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "transactionProgress",
+     "transactionProgress"
+    ],
+    "closed": [
+     [
+      0,
+      1
+     ]
+    ],
+    "unsettled": [
+     0,
+     1,
+     2
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "unfair_only_exit",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     false
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "terminal"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "stuck",
+     "terminal"
+    ],
+    "closed": [],
+    "unsettled": [],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "fair_loop_with_unfair_exit",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     0,
+     true
+    ],
+    [
+     0,
+     1,
+     false
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "terminal"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "terminal"
+    ],
+    "closed": [],
+    "unsettled": [
+     0
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "fair_rank_decrease",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ],
+    [
+     1,
+     0,
+     true
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "transaction"
+   ],
+   "ranks": [
+    2,
+    1
+   ],
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "transactionProgress"
+    ],
+    "closed": [],
+    "unsettled": [
+     0,
+     1
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "unfair_rank_decrease",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     false
+    ],
+    [
+     1,
+     0,
+     true
+    ]
+   ],
+   "unmeasured": [],
+   "kinds": [
+    "transaction",
+    "transaction"
+   ],
+   "ranks": [
+    2,
+    1
+   ],
+   "expected": {
+    "classes": [
+     "stuck",
+     "transactionProgress"
+    ],
+    "closed": [
+     [
+      0,
+      1
+     ]
+    ],
+    "unsettled": [
+     1
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": true
+   }
+  },
+  {
+   "case": "depth_cutoff",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ]
+   ],
+   "unmeasured": [
+    1
+   ],
+   "kinds": [
+    "transaction",
+    "transaction"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "unmeasuredCutoff"
+    ],
+    "closed": [],
+    "unsettled": [
+     0
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 0,
+    "graph_complete": false
+   }
+  },
+  {
+   "case": "partial_expansion",
+   "nodes": 2,
+   "edges": [
+    [
+     0,
+     1,
+     true
+    ],
+    [
+     1,
+     0,
+     true
+    ]
+   ],
+   "unmeasured": [
+    1
+   ],
+   "kinds": [
+    "transaction",
+    "transaction"
+   ],
+   "ranks": null,
+   "expected": {
+    "classes": [
+     "transactionProgress",
+     "unmeasuredCutoff"
+    ],
+    "closed": [],
+    "unsettled": [
+     0
+    ],
+    "settled_transactions": 0,
+    "unmeasured_components": 1,
+    "graph_complete": false
+   }
+  }
+ ]
+}

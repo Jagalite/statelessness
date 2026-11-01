@@ -1,0 +1,69 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write swift-version-24593BA9C3E375BF.txt
+[4/51] Emitting module Statelessness
+[5/65] Compiling Statelessness ReferenceRegressions.swift
+[6/65] Compiling Statelessness ReferenceSuitePersistence.swift
+[7/65] Compiling Statelessness ReferenceWitness.swift
+[8/65] Compiling Statelessness Replay.swift
+[9/65] Compiling Statelessness Research.swift
+[10/65] Compiling Statelessness Rng.swift
+[11/65] Compiling Statelessness Shrink.swift
+[12/65] Compiling Statelessness StatefulCodec.swift
+[13/65] Compiling Statelessness TraceJSON.swift
+[14/65] Compiling Statelessness ValueCodec.swift
+[15/65] Compiling Statelessness ValueCodec128.swift
+[16/65] Compiling Statelessness ValueCodecBuiltins.swift
+[17/65] Compiling Statelessness ValueCodecDecoder.swift
+[18/65] Compiling Statelessness ValueCodecLayouts.swift
+[19/65] Compiling Statelessness Model.swift
+[20/65] Compiling Statelessness Modeling.swift
+[21/65] Compiling Statelessness Network.swift
+[22/65] Compiling Statelessness Observation.swift
+[23/65] Compiling Statelessness Oracle.swift
+[24/65] Compiling Statelessness ProgressAnalysis.swift
+[25/65] Compiling Statelessness Recorder.swift
+[26/65] Compiling Statelessness Reduction.swift
+[27/65] Compiling Statelessness ReferenceCatalogData.swift
+[28/65] Compiling Statelessness ReferenceController.swift
+[29/65] Compiling Statelessness ReferenceControllerBuildID.swift
+[30/65] Compiling Statelessness ReferenceControllerCodec.swift
+[31/65] Compiling Statelessness ReferenceCoverage.swift
+[32/65] Compiling Statelessness ReferenceRegressionData.swift
+[33/65] Compiling Statelessness EvidenceCodec.swift
+[34/65] Compiling Statelessness EvidenceExports.swift
+[35/65] Compiling Statelessness EvidenceRecorder.swift
+[36/65] Compiling Statelessness Execution.swift
+[37/65] Compiling Statelessness ExecutionBudget.swift
+[38/65] Compiling Statelessness Explore.swift
+[39/65] Compiling Statelessness Fuzz.swift
+[40/65] Compiling Statelessness FuzzAuto.swift
+[41/65] Compiling Statelessness Generate.swift
+[42/65] Compiling Statelessness GraphSearch.swift
+[43/65] Compiling Statelessness Guided.swift
+[44/65] Compiling Statelessness JSON.swift
+[45/65] Compiling Statelessness Lifecycle.swift
+[46/65] Compiling Statelessness LifecycleCodec.swift
+[47/65] Compiling Statelessness Assurance.swift
+[48/65] Compiling Statelessness AssuranceCampaign.swift
+[49/65] Compiling Statelessness AuditRecording.swift
+[50/65] Compiling Statelessness AuditTrace.swift
+[51/65] Compiling Statelessness Campaign.swift
+[52/65] Compiling Statelessness CampaignLifecycle.swift
+[53/65] Compiling Statelessness CampaignRuntime.swift
+[54/65] Compiling Statelessness CheckSink.swift
+[55/65] Compiling Statelessness CheckedResults.swift
+[56/65] Compiling Statelessness Composition.swift
+[57/65] Compiling Statelessness ContinuedEvidence.swift
+[58/65] Compiling Statelessness CountCompatibility.swift
+[59/65] Compiling Statelessness DeriveCodec.swift
+[60/65] Compiling Statelessness EncodeBuffer.swift
+[61/65] Compiling Statelessness Evidence.swift
+[62/66] Wrapping AST for Statelessness for debugging
+[64/68] Emitting module MigrationConsumer
+[65/68] Compiling MigrationConsumer main.swift
+[66/69] Wrapping AST for MigrationConsumer for debugging
+[67/69] Write Objects.LinkFileList
+[68/69] Linking MigrationConsumer
+Build complete! (6.78s)
+migration-consumer: ok graph-search-v1,progress-analysis-v1,reduction-v1,continued-failure-evidence-v1

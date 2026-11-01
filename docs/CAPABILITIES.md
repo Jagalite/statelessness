@@ -56,6 +56,10 @@ qualification and measured benchmark baseline remain pending until receipts exis
 | Native BFS controls | `bfs-controls-v1 candidate; not a promoted portable profile` | [spec/bfs-controls-v1.md](../spec/bfs-controls-v1.md) |
 | Native append checking | `append-checks-v1 candidate; not a promoted portable profile` | [spec/append-checks-v1.md](../spec/append-checks-v1.md) |
 | Native binary interoperability | `native-binary-v1 candidate; Rust audit format 1; not promoted` | [spec/native-binary-v1.md](../spec/native-binary-v1.md) |
+| Graph search extension | `graph-search-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile` | [spec/graph-search-v1.md](../spec/graph-search-v1.md) |
+| Progress analysis extension | `progress-analysis-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile` | [spec/progress-analysis-v1.md](../spec/progress-analysis-v1.md) |
+| Qualified reduction extension | `reduction-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile` | [spec/reduction-v1.md](../spec/reduction-v1.md) |
+| Continued-failure evidence extension | `continued-failure-evidence-v1 candidate; Rust, Swift, Python, Go, TypeScript; trace format 1; not promoted` | [spec/continued-failure-evidence-v1.md](../spec/continued-failure-evidence-v1.md) |
 | Reference requirements | `1` | [docs/requirements/controller.json](../docs/requirements/controller.json) |
 
 <!-- END GENERATED CAPABILITIES -->

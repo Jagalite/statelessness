@@ -1,0 +1,11 @@
+{
+ "head": "bc912fb",
+ "sources": "SOURCES.sha256: staged copy of committed bc912fb (Package.swift, swift/, conformance/, docs/requirements/); consumer staged separately",
+ "image": "swift@sha256:1a1c10372d9c6c0ba9b6151085e0a26ee83a79968b3c738a47a70eac1a70bba4",
+ "swift": "Swift 6.0.3 (swift-6.0.3-RELEASE)",
+ "results": {
+  "aarch64": "colima qemu VM, native aarch64: 731 tests, 3 skipped, 0 failures; consumer ok",
+  "x86_64-rosetta": "colima vz VM with Rosetta: 731 tests, 3 skipped, 0 failures; consumer ok",
+  "x86_64-qemu-*": "QEMU user-mode emulation: SIGILL at the same address in the Swift compiler/runtime, including unmodified main b99f4d6; emulator fault, not package evidence"
+ }
+}

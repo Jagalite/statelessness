@@ -32,7 +32,7 @@ function notify<S,I,O>(observer:ReplayObserver<S,I,O>|undefined,value:ReplayObse
  if(result!==undefined){if(result instanceof Promise)void result.catch(()=>{});throw new ModelError('observer must return undefined synchronously');}
 }
 /** All actual values in an error belong to the caller after the error is thrown. */
-function kernel<S,I,O>(original:CodecModel<S,I,O>,source:Trace,options:ReplayOptions,observer:ReplayObserver<S,I,O>|undefined,overrides?:Partial<BinaryLimits>):ReplayReport {
+function kernel<S,I,O>(original:CodecModel<S,I,O>,source:Trace,options:ReplayOptions,observer:ReplayObserver<S,I,O>|undefined,overrides?:Partial<BinaryLimits>,validate:(trace:Trace)=>void=validateRecording):ReplayReport {
  const allowOption=options.allowBuildMismatch,allow=allowOption===undefined?false:allowOption;if(typeof allow!=='boolean')throw new ConfigError('allowBuildMismatch must be boolean');
  if(observer!==undefined&&typeof observer!=='function')throw new ConfigError('observer must be a function');
  const capturedLimits=overrides===undefined?undefined:overrides===null?null:{...overrides};
@@ -52,7 +52,7 @@ function kernel<S,I,O>(original:CodecModel<S,I,O>,source:Trace,options:ReplayOpt
   if((['name','model_version','properties_version','codec_version'] as const).some(k=>identity[k]!==expectedIdentity[k])||(!report.build_matches&&!allow)){report.outcome='incompatible';return report;}
   const limits=capturedLimits===undefined?undefined:resolveBinaryLimits(capturedLimits as Partial<BinaryLimits>);
   const trace=invoke(limits?'bounded replay artifact':'recording',()=>limits?snapshotAuditTrace(source as AuditTrace,limits):traceCopy(source));
-  invoke('recording',()=>validateRecording(trace));
+  invoke('recording',()=>validate(trace));
   let state=invoke('decode initial state',()=>model.decodeState(blob(trace.initialState)));
   actual={kind:'initial',sequence:0,state,checks:null};
   state=snapshot(()=>model.cloneState(state));actual={kind:'initial',sequence:0,state,checks:null};
@@ -109,3 +109,5 @@ function kernel<S,I,O>(original:CodecModel<S,I,O>,source:Trace,options:ReplayOpt
 export function replayWithObservations<S,I,O>(model:CodecModel<S,I,O>,trace:Trace,options:ReplayOptions={},observer?:ReplayObserver<S,I,O>):ReplayReport{return kernel(model,trace,options,observer);}
 export function replayWithObservationsBounded<S,I,O>(model:CodecModel<S,I,O>,trace:AuditTrace,options:ReplayOptions={},limits:Partial<BinaryLimits>={},observer?:ReplayObserver<S,I,O>):ReplayReport{return kernel(model,trace,options,observer,limits);}
 export function replayBasic<S,I,O>(model:CodecModel<S,I,O>,trace:Trace,allowBuildMismatch=false):ReplayReport {try{return replayWithObservations(model,trace,{allowBuildMismatch});}catch(e){if(e instanceof ReplayError)throw e.error;throw e;}}
+/** continued-failure-evidence-v1: the standard kernel with continued-trace validation. Not a package entrypoint. */
+export function replayContinuedKernel<S,I,O>(model:CodecModel<S,I,O>,trace:Trace,allowBuildMismatch:boolean,validate:(trace:Trace)=>void,observer:ReplayObserver<S,I,O>):ReplayReport {try{return kernel(model,trace,{allowBuildMismatch},observer,undefined,validate);}catch(e){if(e instanceof ReplayError)throw e.error;throw e;}}

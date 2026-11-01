@@ -46,7 +46,11 @@ private final class ShrinkWork {
     let maxAttempts: UInt64
     let maxSimplificationCandidates: UInt64?
     var transitions: UInt64 = 0
-    init(config: ShrinkConfig64, limits: ShrinkLimits) throws { control = try RunControl(limits.control); maximum = limits.maxReplayedTransitions; maxAttempts = config.maxAttempts; maxSimplificationCandidates = limits.maxSimplificationCandidates }
+    /// continued-failure-evidence-v1: replay continues past failures and a
+    /// candidate fails only when its final sequence fails.
+    let continued: Bool
+    var lastFindings: [ContinuedFinding] = [], originalFindings: [ContinuedFinding] = [], minimizedFindings: [ContinuedFinding] = []
+    init(config: ShrinkConfig64, limits: ShrinkLimits, continued: Bool = false) throws { control = try RunControl(limits.control); maximum = limits.maxReplayedTransitions; maxAttempts = config.maxAttempts; maxSimplificationCandidates = limits.maxSimplificationCandidates; self.continued = continued }
 }
 private enum ShrinkCandidate<I> {
     case pass, invalid, failure(Failure<I>), stopped(String)
@@ -92,7 +96,11 @@ private func replayCandidate<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], work:
     var skipped: UInt64 = 0
     var retainedInputs: [Result<I, Error>] = []
     let initial = try searchInitialChecks(m, state: checkedInitial.get(), skipped: &skipped, storage: work.checkStorage)
-    if !initial.isEmpty { return .failure(Failure(inputs: [], violations: initial)) }
+    var findings: [ContinuedFinding] = []
+    if !initial.isEmpty {
+        if work.continued { findings.append(ContinuedFinding(sequence: 0, violations: initial)) }
+        else { return .failure(Failure(inputs: [], violations: initial)) }
+    }
     if let stop = work.control.stop() { return .stopped(stop) }
     for index in inputs.indices {
         if let stop = work.control.stop() { return .stopped(stop) }
@@ -120,9 +128,16 @@ private func replayCandidate<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], work:
         let (count, overflow) = work.transitions.addingReportingOverflow(1)
         guard !overflow else { throw ModelError("replayed transition count overflow") }; work.transitions = count
         let bad = try searchEdge(m, state: state, input: retained, transition: t, skipped: &skipped, storage: work.checkStorage, capturedTransition: checkedTransition, capturedState: checkedState, capturedInput: checkInput, capturedBefore: checkedBefore)
-        if !bad.isEmpty { return .failure(Failure(inputs: try retainedInputs.map { try $0.get() }, violations: bad)) }
+        if !bad.isEmpty {
+            if work.continued { findings.append(ContinuedFinding(sequence: UInt64(index + 1), violations: bad)) }
+            else { return .failure(Failure(inputs: try retainedInputs.map { try $0.get() }, violations: bad)) }
+        }
         if let stop = work.control.stop() { return .stopped(stop) }
         continuation = next
+    }
+    if work.continued, let last = findings.last, last.sequence == UInt64(inputs.count) {
+        work.lastFindings = findings
+        return .failure(Failure(inputs: try retainedInputs.map { try $0.get() }, violations: last.violations))
     }
     return .pass
 }
@@ -148,6 +163,7 @@ private func shrinkAttempt<S, I, O>(_ g: Generate<S, I, O>, target: Violation, c
                 try requireNativeGrowth(seen.count, elementStride: MemoryLayout<[I]>.stride, context: "shrink seen storage")
                 seen.append(try failure.inputs.map { try copied(g.model.cloneInput, $0) })
                 report.minimized = failure; outcome = .retained
+                if work.continued { work.minimizedFindings = work.lastFindings }
             }
         }
     }
@@ -161,7 +177,9 @@ private func shrinkAttempt<S, I, O>(_ g: Generate<S, I, O>, target: Violation, c
 public func shrink64<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, config: ShrinkConfig64 = ShrinkConfig64(), limits: ShrinkLimits = ShrinkLimits()) throws -> ShrinkReport64<I> {
     guard config.maxAttempts > 0 else { throw ConfigError("shrink max_attempts must be greater than zero") }
     guard let target = original.violations.first, target.check.status == .failed else { throw ModelError("cannot shrink a sequence without a target violation") }
-    let work = try ShrinkWork(config: config, limits: limits)
+    return try shrinkDriver(g, original: original, target: target, work: try ShrinkWork(config: config, limits: limits))
+}
+private func shrinkDriver<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, target: Violation, work: ShrinkWork) throws -> ShrinkReport64<I> {
     let saved = try clonedFailure(g.model, original)
     let validation = try replayCandidate(g, inputs: saved.inputs, work: work)
     let minimized: Failure<I>, validated: Bool, termination: String, outcome: ShrinkOutcome
@@ -170,6 +188,7 @@ public func shrink64<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, conf
     case let .failure(failure):
         guard shrinkHasTarget(failure, target) else { throw ModelError("original failure does not reproduce the target check and phase") }
         minimized = failure; validated = true; termination = "search_complete"; outcome = .retained
+        work.originalFindings = work.lastFindings; work.minimizedFindings = work.lastFindings
     default: throw ModelError("original failure does not reproduce with valid causality")
     }
     var report = ShrinkReport64(original: saved, minimized: minimized, attempts: 1, termination: termination,
@@ -237,4 +256,36 @@ public func shrink64<S, I, O>(_ g: Generate<S, I, O>, original: Failure<I>, conf
         }
         if !simplified { return report }
     }
+}
+
+// MARK: continued-failure-evidence-v1
+public struct ContinuedFinding: Equatable, Sendable {
+    /// 0 for the initial state; otherwise the 1-based step.
+    public let sequence: UInt64
+    /// Every failed check of that batch, state checks before transition checks.
+    public let violations: [Violation]
+    public init(sequence: UInt64, violations: [Violation]) { self.sequence = sequence; self.violations = violations }
+}
+public struct ContinuedShrinkReport<I> {
+    public let target: Violation
+    /// `base.original.violations` is `[target]`; `base.minimized.violations`
+    /// holds the final sequence's complete failing batch.
+    public let base: ShrinkReport64<I>
+    /// Every failure of the validated original, in sequence order; empty when
+    /// validation was interrupted.
+    public let originalFindings: [ContinuedFinding]
+    /// Every failure of the minimized witness. Earlier failures are retained
+    /// and never suppressed; the last entry contains the target.
+    public let minimizedFindings: [ContinuedFinding]
+}
+/// Shrinks a witness whose selected failure occurs after earlier failed checks.
+/// Replay continues past failures; a candidate reproduces only when its final
+/// sequence fails with the target's exact phase and ID. Causal validity is the
+/// same rule as shrink64 (each step must be enabled when it is replayed).
+public func shrinkContinued<S, I, O>(_ g: Generate<S, I, O>, inputs: [I], target: Violation, config: ShrinkConfig64 = ShrinkConfig64(), limits: ShrinkLimits = ShrinkLimits()) throws -> ContinuedShrinkReport<I> {
+    guard config.maxAttempts > 0 else { throw ConfigError("shrink max_attempts must be greater than zero") }
+    guard target.check.status == .failed else { throw ModelError("cannot shrink a sequence without a target violation") }
+    let work = try ShrinkWork(config: config, limits: limits, continued: true)
+    let base = try shrinkDriver(g, original: Failure(inputs: inputs, violations: [target]), target: target, work: work)
+    return ContinuedShrinkReport(target: target, base: base, originalFindings: base.validatedOriginal ? work.originalFindings : [], minimizedFindings: base.validatedOriginal ? work.minimizedFindings : [])
 }
