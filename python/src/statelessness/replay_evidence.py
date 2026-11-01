@@ -135,7 +135,7 @@ def replay_with_observations_bounded(model, trace: AuditTrace, observer=None, *,
     return _replay(model, trace, observer, allow_build_mismatch, (captured, capture_error))
 
 
-def _replay(model, trace, observer, allow_build_mismatch, limits):
+def _replay(model, trace, observer, allow_build_mismatch, limits, validate=validate_recording):
     if type(allow_build_mismatch) is not bool: raise ValueError("allow_build_mismatch must be boolean")
     report = ReplayReport("exact", build_matches=False)
     sequence, actual = 0, None
@@ -208,7 +208,7 @@ def _replay(model, trace, observer, allow_build_mismatch, limits):
         portable = replace(portable, termination=kind, error=reason,
             initial_checks=tuple(_validated_check(c) for c in portable.initial_checks),
             steps=tuple(replace(s, checks=tuple(_validated_check(c) for c in s.checks)) for s in portable.steps))
-        validate_recording(portable)
+        validate(portable)
         blob_limit = U64_MAX if limits is None else min(limits.max_blob_bytes, limits.max_frame_bytes, U32_MAX, limits.max_total_bytes)
         bounded_bytes = bounded_items = 0
         state = _call("decode initial state", model.decode_state, portable.initial_state)
