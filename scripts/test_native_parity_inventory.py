@@ -90,6 +90,29 @@ pub use {Model as Renamed, Other};
         with self.assertRaises(ValueError):
             inventory.check_working(expected, unamended, record)
 
+    def test_added_files_require_exact_addition_amendment(self):
+        item = lambda path, name: {'id': f'{path}:1:1:fn:{name}', 'path': path, 'name': name}
+        expected = {'baseline_commit': 'b', 'files': [{'path': 'a.rs', 'sha256': '1'}], 'items': [item('a.rs', 'x')]}
+        working = copy.deepcopy(expected)
+        working['files'].append({'path': 'new.rs', 'sha256': '7'})
+        working['items'].append(item('new.rs', 'added'))
+        addition = {'path': 'new.rs', 'baseline_sha256': None, 'sha256': '7', 'reason': 'r', 'gap_ids': ['N01']}
+        record = {'schema_version': 1, 'baseline_commit': 'b', 'amendments': [addition]}
+        inventory.check_working(expected, working, record)
+        failures = {
+            'unrecorded': {**record, 'amendments': []},
+            'hash': {**record, 'amendments': [{**addition, 'sha256': '8'}]},
+            'claims-baseline': {**record, 'amendments': [{**addition, 'baseline_sha256': '7'}]},
+        }
+        for name, bad in failures.items():
+            with self.subTest(name), self.assertRaises(ValueError):
+                inventory.check_working(expected, working, bad)
+        removed = copy.deepcopy(expected); removed['files'] = []; removed['items'] = []
+        with self.assertRaises(ValueError):
+            inventory.check_working(expected, removed, {'schema_version': 1, 'baseline_commit': 'b', 'amendments': []})
+        self.assertEqual(inventory.gap_for('src/graph.rs', 'explore_graph'), ['N01'])
+        self.assertEqual(inventory.gap_for('src/continued.rs', 'shrink_continued'), ['N04'])
+
 
 if __name__ == '__main__':
     unittest.main()

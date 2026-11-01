@@ -2,7 +2,7 @@
   "schema_version": 1,
   "baseline_commit": "0876717bee85e335449c2c99ada41f6c6e6112d1",
   "description": "Reviewed Rust reference changes made after the pinned baseline. The inventory gate accepts working-source drift only for these exact file hashes; every other Rust source must still match the baseline byte for byte.",
-  "review": "2026-10-31 independent read-only review of Rust, scripts and docs changes; native lanes updated to mirror each behavior change.",
+  "review": "2026-10-31 independent read-only review of Rust, scripts and docs changes; native lanes updated to mirror each behavior change. 2026-11-01: Illiquid migration extension ports (PR #18), reviewed against spec/graph-search-v1.md, progress-analysis-v1.md, reduction-v1.md and continued-failure-evidence-v1.md; mirrored by the Go, Python, Swift and TypeScript ports.",
   "amendments": [
     {
       "path": "crates/statelessness-debug/src/inspect.rs",
@@ -75,13 +75,104 @@
       "mirrored_by": []
     },
     {
-      "path": "src/explore.rs",
-      "baseline_sha256": "496c19c7181a6bf3f2af97d3e04df1d3c7b22c241351104b4cd66201f6706ecb",
-      "sha256": "45f67568db4e63bc16f64c809c4b0b6bccc15e1374dd7676a2234c173ae10e65",
+      "path": "src/continued.rs",
+      "baseline_sha256": null,
+      "sha256": "41c22f2c43a3f098a792c90ff0af948b68e5b4249bf3eb877c76e19ab65ae3af",
       "gap_ids": [
         "N04"
       ],
-      "reason": "Bound consecutive already-seen simplifier hints per simpler_inputs iterator; an endless hint stream ends with attempt_limit, finite streams are unchanged.",
+      "reason": "Add continued-failure-evidence-v1: record, replay and shrink past earlier failures.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/continued/json.rs",
+      "baseline_sha256": null,
+      "sha256": "c2b6752873989b6c1fb30e0f72650f12aa5338bc29942db98d00ef68b6576698",
+      "gap_ids": [
+        "N04"
+      ],
+      "reason": "Add the stateless.continued-trace-json v1 reader and writer.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/execution.rs",
+      "baseline_sha256": "acd82232904dc45e5df92c16f32ac3c12840ba3519fe88887737a6e7f05f9df0",
+      "sha256": "1335cc1c4ab726a044a6ef9cb27f1dea422a3b6eb2b870c37d9fcba7acdeed14",
+      "gap_ids": [
+        "N01"
+      ],
+      "reason": "Internal continued flag for recording; record behavior unchanged.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/execution/replay_kernel.rs",
+      "baseline_sha256": "a7a4c8242408531e10453b0314c11b26c8c469ce2c8eca56e81c2e748d783cd1",
+      "sha256": "01ebb8128f6086352a9e6b9733e7dabef7c2f9eaf5db636ff9d9bb12b06051dd",
+      "gap_ids": [
+        "N01"
+      ],
+      "reason": "Internal validation hook for continued replay; replay behavior unchanged.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/explore.rs",
+      "baseline_sha256": "496c19c7181a6bf3f2af97d3e04df1d3c7b22c241351104b4cd66201f6706ecb",
+      "sha256": "969db9b8823341c1e486175a1b6fa7ab6559e5cf9a78dc1782b501312531cc1d",
+      "gap_ids": [
+        "N01",
+        "N04"
+      ],
+      "reason": "Bound consecutive already-seen simplifier hints per simpler_inputs iterator; an endless hint stream ends with attempt_limit, finite streams are unchanged. Internal hooks for graph search and continued shrinking; enumerate/shrink behavior unchanged.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/graph.rs",
+      "baseline_sha256": null,
+      "sha256": "19e872f7b30b92be18a832dd79967d435dcc27855d2ed437e07e523f7c414702",
+      "gap_ids": [
+        "N01"
+      ],
+      "reason": "Add explore_graph (graph-search-v1): admitted graph, events, coverage, failure collection and in-search reduction.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/lib.rs",
+      "baseline_sha256": "e11f13805755f9923c00840e9352d235cfbd61d1c66c8b3245d2c59fa91165c7",
+      "sha256": "d8a1b771afad4560c463ad27f7a33165fa988b552c8b4ff4ee513c483aa3d320",
+      "gap_ids": [
+        "N14"
+      ],
+      "reason": "Export the graph, progress, reduction and continued modules.",
       "mirrored_by": [
         "go",
         "python",
@@ -97,6 +188,36 @@
         "N07"
       ],
       "reason": "Check runtime observation sequence overflow (including sequence origin) before the model metadata callback.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/progress.rs",
+      "baseline_sha256": null,
+      "sha256": "286d03d0d854221aca14547f09e5ae8b75f27adf2d6420cb63a9d4e8c5828573",
+      "gap_ids": [
+        "N01"
+      ],
+      "reason": "Add progress-analysis-v1: explicit-stack SCC, reverse reachability and progress classification.",
+      "mirrored_by": [
+        "go",
+        "python",
+        "swift",
+        "typescript"
+      ]
+    },
+    {
+      "path": "src/reduction.rs",
+      "baseline_sha256": null,
+      "sha256": "4dbac303d390a8b17f68770e69dd94b0949e07026896cecbd834f4b23b0e2183",
+      "gap_ids": [
+        "N01"
+      ],
+      "reason": "Add reduction-v1: equivalence reduction, diamond validation and reduced/unreduced comparison.",
       "mirrored_by": [
         "go",
         "python",

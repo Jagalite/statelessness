@@ -22,6 +22,8 @@ GAPS = {
     'monitor': 'N07', 'network': 'N08', 'observation': 'N07',
     'operations': 'N14', 'oracle': 'N02', 'reference': 'N10',
     'research': 'N14', 'trace': 'N11', 'value_codec': 'N11',
+    # Illiquid migration extensions (spec/graph-search-v1.md and siblings).
+    'graph': 'N01', 'progress': 'N01', 'reduction': 'N01', 'continued': 'N04',
 }
 # Strings/comments are blanked with offsets and line breaks preserved. Lifetimes
 # are not character literals; raw strings may contain arbitrary quote/hash runs.
@@ -119,10 +121,9 @@ def inventory(working=False):
     paths = sorted(path for path in git('ls-tree', '-r', '--name-only', BASELINE).decode().splitlines()
                    if path.endswith('.rs') and path.startswith(ROOTS))
     if working:
-        actual = sorted(str(path.relative_to(ROOT)) for prefix in ROOTS
-                        for path in (ROOT / prefix).rglob('*.rs'))
-        if actual != paths:
-            raise ValueError('Rust source file set differs from pinned baseline; review and update baseline explicitly')
+        # check_working accepts added files only with an exact addition amendment.
+        paths = sorted(str(path.relative_to(ROOT)) for prefix in ROOTS
+                       for path in (ROOT / prefix).rglob('*.rs'))
     files, items = [], []
     for path in paths:
         data = (ROOT / path).read_bytes() if working else git('show', f'{BASELINE}:{path}')
@@ -151,14 +152,16 @@ def check_working(expected, working, record):
     """Require working sources to equal the baseline except exact reviewed amendments.
 
     An amendment names one file, its baseline hash and its reviewed working hash.
-    Drift without an amendment, a stale amendment, or a hash mismatch fails, and
-    declarations in unamended files must still match the baseline exactly.
+    A file added after the baseline needs an addition amendment whose baseline
+    hash is null. Removed files, drift or additions without an amendment, a
+    stale amendment, or a hash mismatch fail, and declarations in unamended files
+    must still match the baseline exactly.
     """
     if record.get('schema_version') != 1 or record.get('baseline_commit') != expected['baseline_commit']:
         raise ValueError('Rust baseline amendments do not name the pinned baseline')
     base = {row['path']: row['sha256'] for row in expected['files']}
     actual = {row['path']: row['sha256'] for row in working['files']}
-    if set(base) != set(actual):
+    if set(base) - set(actual):
         raise ValueError('Rust source file set differs from pinned baseline; review and update baseline explicitly')
     amendments = {}
     for row in record.get('amendments', []):
@@ -167,14 +170,15 @@ def check_working(expected, working, record):
         if not row.get('reason') or not row.get('gap_ids'):
             raise ValueError(f'Rust baseline amendment lacks reason or mapping: {row["path"]}')
         amendments[row['path']] = row
-    drifted = {path for path in base if base[path] != actual[path]}
+    added = set(actual) - set(base)
+    drifted = {path for path in base if base[path] != actual[path]} | added
     if drifted - set(amendments):
         raise ValueError('Working Rust sources drifted from pinned baseline without a reviewed amendment: '
                          + ', '.join(sorted(drifted - set(amendments))))
     if set(amendments) - drifted:
         raise ValueError('Stale Rust baseline amendment: ' + ', '.join(sorted(set(amendments) - drifted)))
     for path, row in amendments.items():
-        if row['baseline_sha256'] != base[path] or row['sha256'] != actual[path]:
+        if row['baseline_sha256'] != base.get(path) or row['sha256'] != actual[path]:
             raise ValueError(f'Rust baseline amendment hash mismatch: {path}')
     unamended = lambda document: [item for item in document['items'] if item['path'] not in amendments]
     if unamended(expected) != unamended(working):
