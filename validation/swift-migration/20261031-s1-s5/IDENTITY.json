@@ -1,0 +1,32 @@
+{
+ "label": "20261031-s1-s5",
+ "created": "2026-10-31T23:25:56+00:00",
+ "head": "b99f4d6130873e479292a0a1904bc260b342271a",
+ "branch": "swift-migration/s1-s6-proposals",
+ "dirty": [
+  " M swift/Sources/Statelessness/Execution.swift",
+  " M swift/Sources/Statelessness/Fuzz.swift",
+  " M swift/Sources/Statelessness/Model.swift",
+  " M swift/Sources/Statelessness/Replay.swift",
+  " M swift/Sources/Statelessness/Shrink.swift",
+  "?? conformance/graph-search-v1.json",
+  "?? conformance/progress-analysis-v1.json",
+  "?? scripts/swift-migration/",
+  "?? swift/ExternalConsumers/",
+  "?? swift/Sources/Statelessness/ContinuedEvidence.swift",
+  "?? swift/Sources/Statelessness/GraphSearch.swift",
+  "?? swift/Sources/Statelessness/ProgressAnalysis.swift",
+  "?? swift/Sources/Statelessness/Reduction.swift",
+  "?? swift/Tests/StatelessnessTests/ContinuedEvidenceTests.swift",
+  "?? swift/Tests/StatelessnessTests/GraphSearchTests.swift",
+  "?? swift/Tests/StatelessnessTests/MigrationFixtureTests.swift",
+  "?? swift/Tests/StatelessnessTests/MigrationNegativeControlTests.swift",
+  "?? swift/Tests/StatelessnessTests/ProgressAnalysisTests.swift",
+  "?? swift/Tests/StatelessnessTests/ReductionTests.swift"
+ ],
+ "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101) Target: arm64-apple-macosx26.0",
+ "platform": "Darwin 25.5.0 arm64",
+ "kyoto": "/Volumes/seed1/Projects/kyoto/kyoto.py",
+ "staged_files": 272,
+ "profiles": "graph-search-v1, progress-analysis-v1, reduction-v1, continued-failure-evidence-v1 (Swift-only)"
+}

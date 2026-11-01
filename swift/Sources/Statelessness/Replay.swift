@@ -70,7 +70,7 @@ public func replayWithObservationsBounded<S,I,O>(_ model: Model<S,I,O>, trace: A
 func replayBasic<S,I,O>(_ m: Model<S,I,O>, trace: Trace, allowBuildMismatch: Bool) throws -> ReplayReport {
     try replayKernel(m, trace: trace, config: nil, limits: nil, allowBuildMismatch: allowBuildMismatch, observe: false) { _, _ in }
 }
-private func replayKernel<S,I,O>(_ m: Model<S,I,O>, trace: Trace, config: RunConfig?, limits: BinaryTraceLimits?, allowBuildMismatch: Bool, observe: Bool = true, observer: (ReplayObservation<S,I,O>, ReplayReport) throws -> Void) throws -> ReplayReport {
+func replayKernel<S,I,O>(_ m: Model<S,I,O>, trace: Trace, config: RunConfig?, limits: BinaryTraceLimits?, allowBuildMismatch: Bool, observe: Bool = true, validate: (Trace) throws -> Void = validateRecording, observer: (ReplayObservation<S,I,O>, ReplayReport) throws -> Void) throws -> ReplayReport {
     var report = ReplayReport(outcome: "exact", stepsVerified: 0, failureReproduced: false, buildMatches: false, step: nil, field: nil)
     func failed(_ error: Error, _ actual: ReplayActual<S,I,O>?, _ sequence: UInt64) -> ReplayError<S,I,O> {
         if !observe { return ReplayError(error: error, observerError: nil, report: report, actual: actual) }
@@ -94,7 +94,7 @@ private func replayKernel<S,I,O>(_ m: Model<S,I,O>, trace: Trace, config: RunCon
     }
     do {
         if let limits, let config { try call("bounded replay artifact") { try auditPreflight(AuditTrace(portable: trace, config: config), limits) } }
-        try validateRecording(trace)
+        try validate(trace)
     } catch { throw failed(error, nil, 0) }
     let maximum = limits.map(executionBlobLimit) ?? Int.max
     var state: S

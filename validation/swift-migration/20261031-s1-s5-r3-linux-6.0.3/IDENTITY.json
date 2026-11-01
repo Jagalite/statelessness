@@ -1,0 +1,10 @@
+{
+ "sources": "identical bytes to 20261031-s1-s5-r3/SOURCES.sha256 (verified with shasum -c before the run)",
+ "image": "swift@sha256:1a1c10372d9c6c0ba9b6151085e0a26ee83a79968b3c738a47a70eac1a70bba4",
+ "swift": "Swift version 6.0.3 (swift-6.0.3-RELEASE) aarch64-unknown-linux-gnu",
+ "runtime": "colima docker 29.5.2 aarch64",
+ "results": {
+  "staged-tests": "731 tests, 3 skipped, 0 failures",
+  "consumer": "migration-consumer: ok"
+ }
+}

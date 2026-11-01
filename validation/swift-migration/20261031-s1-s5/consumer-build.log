@@ -1,0 +1,369 @@
+Building for debugging...
+[0/7] Write sources
+[2/7] Write MigrationConsumer-entitlement.plist
+[3/7] Write swift-version--58304C5D6DBC2206.txt
+[5/58] Compiling Statelessness FuzzAuto.swift
+[6/58] Compiling Statelessness Generate.swift
+[7/58] Compiling Statelessness GraphSearch.swift
+[8/58] Compiling Statelessness Guided.swift
+[9/58] Compiling Statelessness JSON.swift
+[10/58] Compiling Statelessness Lifecycle.swift
+[11/58] Compiling Statelessness LifecycleCodec.swift
+[12/65] Compiling Statelessness EvidenceCodec.swift
+[13/65] Compiling Statelessness EvidenceExports.swift
+[14/65] Compiling Statelessness EvidenceRecorder.swift
+[15/65] Compiling Statelessness Execution.swift
+[16/65] Compiling Statelessness ExecutionBudget.swift
+[17/65] Compiling Statelessness Explore.swift
+[18/65] Compiling Statelessness Fuzz.swift
+[19/65] Compiling Statelessness CheckedResults.swift
+[20/65] Compiling Statelessness Composition.swift
+[21/65] Compiling Statelessness ContinuedEvidence.swift
+[22/65] Compiling Statelessness CountCompatibility.swift
+[23/65] Compiling Statelessness DeriveCodec.swift
+[24/65] Compiling Statelessness EncodeBuffer.swift
+[25/65] Compiling Statelessness Evidence.swift
+[26/65] Compiling Statelessness Model.swift
+[27/65] Compiling Statelessness Modeling.swift
+[28/65] Compiling Statelessness Network.swift
+[29/65] Compiling Statelessness Observation.swift
+[30/65] Compiling Statelessness Oracle.swift
+[31/65] Compiling Statelessness ProgressAnalysis.swift
+[32/65] Compiling Statelessness Recorder.swift
+[33/65] Compiling Statelessness ReferenceRegressions.swift
+[34/65] Compiling Statelessness ReferenceSuitePersistence.swift
+[35/65] Compiling Statelessness ReferenceWitness.swift
+[36/65] Compiling Statelessness Replay.swift
+[37/65] Compiling Statelessness Research.swift
+[38/65] Compiling Statelessness Rng.swift
+[39/65] Compiling Statelessness Shrink.swift
+[40/65] Compiling Statelessness Reduction.swift
+[41/65] Compiling Statelessness ReferenceCatalogData.swift
+[42/65] Compiling Statelessness ReferenceController.swift
+[43/65] Compiling Statelessness ReferenceControllerBuildID.swift
+[44/65] Compiling Statelessness ReferenceControllerCodec.swift
+[45/65] Compiling Statelessness ReferenceCoverage.swift
+[46/65] Compiling Statelessness ReferenceRegressionData.swift
+[47/65] Emitting module Statelessness
+[48/65] Compiling Statelessness Assurance.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[49/65] Compiling Statelessness AssuranceCampaign.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[50/65] Compiling Statelessness AuditRecording.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[51/65] Compiling Statelessness AuditTrace.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[52/65] Compiling Statelessness Campaign.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[53/65] Compiling Statelessness CampaignLifecycle.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[54/65] Compiling Statelessness CampaignRuntime.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[55/65] Compiling Statelessness CheckSink.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:83:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 81 |     try guidance.validate()
+ 82 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+ 83 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:nil,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 84 |     }
+ 85 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/AssuranceCampaign.swift:101:13: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+ 99 |     guard options.maxCandidates > 0 else { throw ConfigError("automatic generation max_candidates must be positive") }
+100 |     return try assuredCampaignUsing64(config:config,limits:limits,manifest:manifest,metadata:metadata,factory:factory,coverageFactory:coverageFactory,maxRetainedJobs:maxRetainedJobs,maxRetainedEvidenceBytes:maxRetainedEvidenceBytes,observationLimits:observationLimits,sink:sink) { id,job,fuzz,remaining,observer,budgets in
+101 |         try assuredGuidedCampaignJob(id:id,job:job,fuzz:fuzz,remaining:remaining,observer:observer,budgets:budgets,guidance:guidance,options:options,feedbackFactory:feedbackFactory)
+    |             `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+102 |     }
+103 | }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:153:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+151 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+152 |         let control = try RunControl(remaining)
+153 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+154 |         return try guidedFuzz64(job.generated, config: fuzzConfig, guidance: guidance, feedback: feedback,
+155 |                               limits: control.remainingLimits(), observer: job.observer)
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/Statelessness/swift/Sources/Statelessness/Campaign.swift:176:28: warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+174 |     return try runCampaignUsing64(config: config, limits: limits, factory: factory, sink: sink) { id, job, fuzzConfig, remaining in
+175 |         let control = try RunControl(remaining)
+176 |         let feedback = try feedbackFactory(id, job.generated)
+    |                            `- warning: capture of non-Sendable type 'K.Type' in an isolated closure [#SendableMetatypes]
+177 |         return try guidedFuzzAuto64(job.generated.model, options: options, equalInputs: job.generated.equalInputs, config: fuzzConfig, guidance: guidance, feedback: feedback, limits: control.remainingLimits(), observer: job.observer)
+178 |     }
+
+[#SendableMetatypes]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-metatypes>
+[56/65] Compiling Statelessness StatefulCodec.swift
+[57/65] Compiling Statelessness TraceJSON.swift
+[58/65] Compiling Statelessness ValueCodec.swift
+[59/65] Compiling Statelessness ValueCodec128.swift
+[60/65] Compiling Statelessness ValueCodecBuiltins.swift
+[61/65] Compiling Statelessness ValueCodecDecoder.swift
+[62/65] Compiling Statelessness ValueCodecLayouts.swift
+error: emit-module command failed with exit code 1 (use -v to see invocation)
+[63/67] Emitting module MigrationConsumer
+/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer/Sources/MigrationConsumer/main.swift:60:26: error: operator can throw but expression is not marked with 'try'
+58 | expect(trace.failingSequences == [2, 4], "continued record")
+59 | let restored = try parseContinuedTrace(try encodeContinuedTrace(trace))
+60 | expect(restored == trace && (try replayContinued(trigger, trace: restored).completeReproduction), "continued replay")
+   |                          |  `- note: call is to 'rethrows' function, but argument function can throw
+   |                          `- error: operator can throw but expression is not marked with 'try'
+61 | expect((try? validateRecording(trace.trace)) == nil, "old reader rejects continued trace")
+62 | 
+[64/67] Compiling MigrationConsumer main.swift
+/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer/Sources/MigrationConsumer/main.swift:60:26: error: operator can throw but expression is not marked with 'try'
+58 | expect(trace.failingSequences == [2, 4], "continued record")
+59 | let restored = try parseContinuedTrace(try encodeContinuedTrace(trace))
+60 | expect(restored == trace && (try replayContinued(trigger, trace: restored).completeReproduction), "continued replay")
+   |                          |  `- note: call is to 'rethrows' function, but argument function can throw
+   |                          `- error: operator can throw but expression is not marked with 'try'
+61 | expect((try? validateRecording(trace.trace)) == nil, "old reader rejects continued trace")
+62 | 
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer/Sources/MigrationConsumer/main.swift:9:32: error: main actor-isolated var 'failures' can not be mutated from a nonisolated context
+ 5 | // continued-failure-evidence-v1 through public API only. Exits nonzero on the
+ 6 | // first mismatch so qualification records an executed failure.
+ 7 | var failures: [String] = []
+   |     `- note: mutation of this var is only permitted within the actor
+ 8 | func expect(_ condition: @autoclosure () throws -> Bool, _ label: String) {
+   |      `- note: add '@MainActor' to make global function 'expect' part of global actor 'MainActor'
+ 9 |     do { if try !condition() { failures.append(label) } } catch { failures.append("\(label): \(error)") }
+   |                                `- error: main actor-isolated var 'failures' can not be mutated from a nonisolated context
+10 | }
+11 | func bytes(_ v: Int) -> [UInt8] { withUnsafeBytes(of: Int64(v).littleEndian, Array.init) }
+
+/private/tmp/stateless-swift-migration-20261031-s1-s5/consumer/Sources/MigrationConsumer/main.swift:9:67: error: main actor-isolated var 'failures' can not be mutated from a nonisolated context
+ 5 | // continued-failure-evidence-v1 through public API only. Exits nonzero on the
+ 6 | // first mismatch so qualification records an executed failure.
+ 7 | var failures: [String] = []
+   |     `- note: mutation of this var is only permitted within the actor
+ 8 | func expect(_ condition: @autoclosure () throws -> Bool, _ label: String) {
+   |      `- note: add '@MainActor' to make global function 'expect' part of global actor 'MainActor'
+ 9 |     do { if try !condition() { failures.append(label) } } catch { failures.append("\(label): \(error)") }
+   |                                                                   `- error: main actor-isolated var 'failures' can not be mutated from a nonisolated context
+10 | }
+11 | func bytes(_ v: Int) -> [UInt8] { withUnsafeBytes(of: Int64(v).littleEndian, Array.init) }

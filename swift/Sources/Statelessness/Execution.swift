@@ -34,6 +34,11 @@ public struct TraceLimits: Sendable {
     func validate() throws { for n in [maxSteps, maxBlobBytes, maxItems, maxPayloadBytes, maxJSONBytes] { if n < 0 || n > Int.max / 2 { throw ConfigError("invalid trace limit") } } }
 }
 public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int = 100_000, limits: TraceLimits = TraceLimits()) throws -> Trace {
+    try recordKernel(m, inputs: inputs, maxSteps: maxSteps, limits: limits, continued: false)
+}
+/// `continued` records past property failures (continued-failure-evidence-v1);
+/// otherwise the first failing batch ends the trace with property_failed.
+func recordKernel<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSteps: Int, limits: TraceLimits, continued: Bool) throws -> Trace {
     guard maxSteps >= 0 else { throw ConfigError("negative step limit") }; try limits.validate()
     guard let codec = m.codec else { throw ModelError("record requires a codec") }
     // Evaluate throwing arguments separately. Swift 6.0.3 on Darwin otherwise
@@ -52,7 +57,7 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
     func result(_ termination: Termination, _ error: String = "") -> Trace {
         Trace(metadata: metadata, initialState: initialState, initialChecks: initialChecks, steps: steps, termination: termination, error: error)
     }
-    if hasFailure(initialChecks) { return result(.propertyFailed) }
+    if hasFailure(initialChecks) && !continued { return result(.propertyFailed) }
     do {
         while let input = try call("inputs", inputs.next) {
             if steps.count >= min(maxSteps, limits.maxSteps) { return result(.stepLimit) }
@@ -73,7 +78,7 @@ public func record<S, I, O>(_ m: Model<S, I, O>, inputs: InputIterator<I>, maxSt
             if nextPayload > limits.maxPayloadBytes { throw ModelError("recording limit: aggregate payload bytes") }
             steps.append(TraceStep(input: bytes, disposition: t.disposition, outputs: outputs, postState: postState, checks: checks))
             state = t.state; items = nextItems; payload = nextPayload
-            if hasFailure(checks) { return result(.propertyFailed) }
+            if hasFailure(checks) && !continued { return result(.propertyFailed) }
         }
         return result(.completed)
     } catch { return result(.modelError, String(describing: error)) }

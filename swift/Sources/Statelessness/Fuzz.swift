@@ -116,7 +116,8 @@ private func observerCheckError<S, I, O>(_ observer: SearchObserver<S, I, O>?, p
     do { try observer.checkError(phase, checks, complete) }
     catch { throw ModelError("\(checkerError); search observer check_error: \(error)") }
 }
-final class SearchCheckStorage { var checks: [Check] = [] }
+/// `stateCount` is the state-check prefix length of the last completed edge batch.
+final class SearchCheckStorage { var checks: [Check] = []; var stateCount = 0 }
 func searchInitialChecks<S, I, O>(_ m: Model<S, I, O>, state: S, skipped: inout UInt64, observer: SearchObserver<S, I, O>? = nil, storage: SearchCheckStorage? = nil) throws -> [Violation] {
     let storage = storage ?? SearchCheckStorage()
     // Preserve the observer's initial observation before user checks can mutate
@@ -162,6 +163,7 @@ func searchEdge<S, I, O>(_ m: Model<S, I, O>, state: S, input: I, transition: Tr
     }
     catch { try observerCheckError(observer, phase: "state", checks: storage.checks, complete: false, checkerError: error); throw error }
     let stateCount = storage.checks.count
+    storage.stateCount = stateCount
     do { if m.checkTransitionInto != nil || m.checkTransition != nil, let edge {
         let (s,i,t) = try edge.get(); try edgeChecksInto(m, s, i, t, checks: &storage.checks)
     } }

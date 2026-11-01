@@ -40,6 +40,17 @@ the four advertised qualified profiles. Its shared Rust/Python/TypeScript golden
 suite still needs Rust runtime qualification and independent specification review;
 Go and Swift do not implement it. `EXPERIMENTAL_PROFILES` is separate from `PROFILES`.
 
+The native Swift package additionally declares four Swift-only extensions in
+`swiftExtensionProfiles`, implementing the Illiquid verification migration's
+upstream proposals S1–S5: [`graph-search-v1`](graph-search-v1.md) (admitted graph,
+events, coverage, failure collection), [`progress-analysis-v1`](progress-analysis-v1.md)
+(SCC, reverse reachability, progress classification), [`reduction-v1`](reduction-v1.md)
+(edge equivalence grouping, diamond validation, reduced/unreduced comparison) and
+[`continued-failure-evidence-v1`](continued-failure-evidence-v1.md) (record, replay
+and shrink past earlier failures). They are not advertised in `conformanceProfiles`
+and claim no cross-language parity. Their independent fixtures are
+`conformance/graph-search-v1.json` and `conformance/progress-analysis-v1.json`.
+
 Native APIs, ownership, allocation, internal hashes, error prose, and performance
 may differ. Normative observations, ordering, identity checks, deterministic work
 counts, and termination classifications within a profile may not. Human callback

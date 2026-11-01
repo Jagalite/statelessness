@@ -2,6 +2,11 @@
 public let statelessnessVersion = "0.1.0"
 public let specificationVersion = "1.0.0"
 public let conformanceProfiles = ["core-v1", "bfs-v1", "rng-splitmix64-v1", "trace-json-v1"]
+/// Swift-only experimental extensions (S1-S5 of the Illiquid migration plan).
+/// They have no cross-language qualification and are deliberately not
+/// advertised in `conformanceProfiles`; see spec/graph-search-v1.md,
+/// progress-analysis-v1.md, reduction-v1.md and continued-failure-evidence-v1.md.
+public let swiftExtensionProfiles = ["graph-search-v1", "progress-analysis-v1", "reduction-v1", "continued-failure-evidence-v1"]
 
 public struct ModelError: Error, CustomStringConvertible {
     public let description: String
