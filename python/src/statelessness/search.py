@@ -244,7 +244,7 @@ def _notify_check_error(observer, phase, checks, complete, primary):
 _NO_STATE_SNAPSHOT = object()
 
 
-def _violations(model, state, input=None, transition=None, *, observer=None, history=(), storage=None, edge_capture_error=None, state_snapshot=_NO_STATE_SNAPSHOT, state_snapshot_error=None):
+def _violations(model, state, input=None, transition=None, *, observer=None, history=(), storage=None, edge_capture_error=None, state_snapshot=_NO_STATE_SNAPSHOT, state_snapshot_error=None, boundary_out=None):
     values = [] if storage is None else storage
     values.clear()
     initial = transition is None
@@ -323,6 +323,8 @@ def _violations(model, state, input=None, transition=None, *, observer=None, his
             _call("search observer transition", observer_transition,
                   *(_copy(arg) for arg in (before_snapshot, input_snapshot, transition_snapshot,
                     tuple(values[:boundary]), tuple(values[boundary:]), history_value)))
+    if boundary_out is not None:
+        boundary_out.append(boundary)
     failures = tuple(Violation("initial_state" if initial else "state" if index < boundary else "transition", check)
                      for index, check in enumerate(values) if check.status == "failed")
     skipped = _saturating_add_u64(0, sum(check.status == "skipped" for check in values))
@@ -650,6 +652,11 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
     cancellation. Copy hooks must cooperate; concurrent external alias mutation
     cannot be made atomic.
     """
+    return _shrink(model, original, config, limits, None)
+
+
+def _shrink(model, original, config, limits, continued):
+    """shrink driver; `continued` (a _ContinuedWork) selects continued replay."""
     config = ShrinkConfig(config.max_attempts)
     limits = ShrinkLimits(RunLimits(limits.control.max_duration, limits.control.cancellation),
                           limits.max_replayed_transitions)
@@ -702,8 +709,11 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
         captured = [_Captured(value) for value in inputs[:capture_count]]
         state = _copy(_call("shrink initial_state", model.initial_state))
         violations, _ = _violations(model, state, storage=check_storage)
+        findings = []
         if violations:
-            return "failure", Failure((), violations)
+            if continued is None:
+                return "failure", Failure((), violations)
+            findings.append(ContinuedFinding(0, violations))
         stop = control.stop()
         if stop:
             return stop, None
@@ -726,11 +736,17 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
             transitions += 1
             violations, _ = _violations(model, state, input, transition, storage=check_storage)
             if violations:
-                return "failure", Failure(_copy(tuple(retained_inputs)), violations)
+                if continued is None:
+                    return "failure", Failure(_copy(tuple(retained_inputs)), violations)
+                findings.append(ContinuedFinding(index + 1, violations))
             stop = control.stop()
             if stop:
                 return stop, None
             state = transition.state
+        if continued is not None and findings and findings[-1].sequence == input_count:
+            # Only a failing final sequence reproduces; earlier failures are kept.
+            continued.last = tuple(findings)
+            return "failure", Failure(_copy(tuple(retained_inputs)), findings[-1].violations)
         return "no_failure", None
 
     def result():
@@ -746,6 +762,8 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
     if outcome != "failure" or not has_target(failure):
         raise ModelError("original failure does not reproduce the target check and phase with valid causality")
     minimized, validated = failure, True
+    if continued is not None:
+        continued.original = continued.minimized = continued.last
     seen.append(_copy(minimized.inputs))
     history.append(ShrinkAttempt(1, len(original.inputs), ShrinkOperation("validate_original"), "retained"))
 
@@ -775,6 +793,8 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
                     outcome = "already_seen"
                 else:
                     outcome, retained, minimized = "retained", True, failure
+                    if continued is not None:
+                        continued.minimized = continued.last
                     seen.append(_copy(failure.inputs))
         history.append(ShrinkAttempt(attempts, len(candidate), operation, outcome))
         return True, retained
@@ -893,3 +913,47 @@ def shrink(model: GenerateModel[S, I, O], original: Failure[I],
                 break
         if not simplified:
             return result()
+
+
+# continued-failure-evidence-v1 (CONT-004)
+@dataclass(frozen=True)
+class ContinuedFinding:
+    """0 for the initial state, else the 1-based step; every failed check of the
+    batch, state checks before transition checks."""
+    sequence: int
+    violations: tuple[Violation, ...]
+
+
+@dataclass(frozen=True)
+class ContinuedShrinkReport(Generic[I]):
+    """`base.original.violations` is `(target,)`; `base.minimized.violations` is
+    the final sequence's complete failing batch. Findings are empty when
+    validation was interrupted; earlier failures are retained, never suppressed."""
+    target: Violation
+    base: ShrinkReport[I]
+    original_findings: tuple[ContinuedFinding, ...]
+    minimized_findings: tuple[ContinuedFinding, ...]
+
+
+class _ContinuedWork:
+    __slots__ = ("last", "original", "minimized")
+    def __init__(self):
+        self.last = self.original = self.minimized = ()
+
+
+def shrink_continued(model: GenerateModel[S, I, O], inputs: Iterable[I], target: Violation,
+                     config: ShrinkConfig = ShrinkConfig(), *,
+                     limits: ShrinkLimits = ShrinkLimits()) -> ContinuedShrinkReport[I]:
+    """Shrink a witness whose selected failure follows earlier failed checks.
+
+    Same driver, budgets and causal rule (is_enabled at each replayed state) as
+    shrink; replay continues past failures and a candidate reproduces only when
+    its final sequence fails with the target's exact phase and check ID.
+    """
+    if not isinstance(target, Violation) or not isinstance(target.check, Check) or target.check.status != "failed":
+        raise ModelError("cannot shrink a sequence without a target violation")
+    work = _ContinuedWork()
+    base = _shrink(model, Failure(tuple(inputs), (target,)), config, limits, work)
+    validated = base.validated_original
+    return ContinuedShrinkReport(_copy(target), base, work.original if validated else (),
+                                 work.minimized if validated else ())
