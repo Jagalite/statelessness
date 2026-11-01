@@ -143,6 +143,26 @@ class DiamondTests(unittest.TestCase):
                                       limits=RunLimits(cancellation=lambda: True))
         self.assertEqual(cancelled.termination, "cancelled")
 
+    def test_diamond_inputs_are_copied_as_yielded(self):
+        # The generator reuses one list: [0] means add one, [1] means double (mod 4).
+        class Reused:
+            def initial_state(self): return 1
+            def inputs(self, s):
+                box = [0]
+                yield box
+                box[0] = 1
+                yield box
+            def step(self, s, i): return Transition((s + 1) % 4 if i[0] == 0 else (s * 2) % 4)
+            def check_state(self, s): return ()
+        class Fresh(Reused):
+            def inputs(self, s): return [[0], [1]]
+        fresh, reused = Fresh(), Reused()
+        expected = validate_diamonds(fresh, explore_graph(fresh), candidate=lambda s, i: True, projection=lambda i, t: b"")
+        actual = validate_diamonds(reused, explore_graph(reused), candidate=lambda s, i: True, projection=lambda i, t: b"")
+        self.assertGreater(len(expected.non_commuting), 0)
+        self.assertEqual([(w.node, w.first, w.second, w.reason) for w in actual.non_commuting],
+                         [(w.node, w.first, w.second, w.reason) for w in expected.non_commuting])
+
 
 class NegativeControlTests(unittest.TestCase):
     """Each control introduces one defect and requires the evidence to expose it."""
