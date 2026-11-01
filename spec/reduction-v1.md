@@ -56,9 +56,14 @@ plus model equality and reports unmatched states in each direction. It compares
 represented edge classes `(source, resolved target, disposition, state checks,
 transition checks)` in both directions, so raw edge counts may differ when
 actions collapse. An edge whose target has no counterpart is never represented.
-It also compares finding counts, failed property counts and coverage. Progress
-results are compared by running progress-analysis-v1 on both graphs. The check
-is quadratic and intended for exhaustive small bounds.
+It also compares finding counts, failed property counts and coverage. When
+`ReductionProgressPredicates` (edge fairness, state kind, optional state rank)
+are supplied, it runs progress-analysis-v1 on both graphs and requires, under the
+state mapping, equal classes, equal unsettled-transaction membership, member-for
+member equal closed nonterminal components, and equal graph completeness. Without
+predicates `progressMatch` is nil: progress was not compared and the comparison
+establishes no progress evidence. The check is quadratic and intended for
+exhaustive small bounds.
 
 Qualification keeps an unreduced profile. Any change that strengthens the
 comparison signature is a separately versioned semantic change, not engine

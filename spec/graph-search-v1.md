@@ -83,7 +83,9 @@ Fixture event logs spell events as `root:N`, `expand:N`, `edge:ID:SOURCE:INPUT`
 
 `transitions` counts evaluated edges. `graphEdges` counts edges between
 admitted nodes (admitted plus duplicate targets). `duplicateEdges`,
-`reducedEdges`, and `rejectedSuccessors` count those outcomes. `frontierSize`
+`reducedEdges`, and `rejectedSuccessors` count those outcomes; an edge still
+unresolved when the search ends (stop-at-first failure, error) is a rejected
+successor with the termination as its reason, whether or not edges are retained. `frontierSize`
 counts admitted nodes whose expansion is not `complete`. `completedLayers`
 counts emitted `layerCompleted` events. `states` keeps its bfs-v1 meaning.
 

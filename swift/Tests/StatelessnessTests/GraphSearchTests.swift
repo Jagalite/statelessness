@@ -133,7 +133,10 @@ final class GraphSearchTests: XCTestCase {
         let (stop, _) = try search(graphModel(diamond, failEdge: [[2, 3]]))
         XCTAssertEqual(stop.termination, "failure_found"); XCTAssertEqual(stop.coverage, .incomplete("failure_found"))
         XCTAssertEqual(stop.edges.last?.target, .rejected("failure_found")); XCTAssertEqual(stop.nodes[2].expansion, .interrupted("failure_found"))
-        XCTAssertEqual(stop.failure?.inputs, [2, 3])
+        XCTAssertEqual(stop.failure?.inputs, [2, 3]); XCTAssertEqual(stop.rejectedSuccessors, 1)
+        // The unresolved edge is counted even when only streamed.
+        let (streamed, _) = try search(graphModel(diamond, failEdge: [[2, 3]]), retention: GraphRetention(retainEdges: false))
+        XCTAssertEqual(streamed.rejectedSuccessors, 1); XCTAssertTrue(streamed.edges.isEmpty)
     }
     func testStateCapOnNewSuccessor() throws {
         let (r, events) = try search(graphModel(diamond), config: SearchConfig(maxStates: 2))
@@ -225,6 +228,7 @@ final class GraphSearchTests: XCTestCase {
             XCTAssertEqual(e.report.findings.map(\.witness), [[1, 2]]); XCTAssertEqual(e.report.nodes[2].expansion, .interrupted("model_error"))
             // The failing batch never completed, so no record exists for its edge.
             XCTAssertEqual(e.report.edges.count, 2); XCTAssertEqual(e.report.edges.last?.target, .admitted(2))
+            XCTAssertEqual(e.report.rejectedSuccessors, 0)
         }
     }
     func testDeterministicFindingTruncation() throws {

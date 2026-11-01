@@ -34,6 +34,20 @@ final class ReductionTests: XCTestCase {
             try analyzeProgress(try ProgressGraph(report: r, fair: { _ in true }), kind: { r.nodes[$0].state == 2 ? .terminal : .transaction })
         }
         XCTAssertEqual(try progress(reduced), try progress(unreduced))
+        let predicates = ReductionProgressPredicates<Int, Int, Int>(fair: { _ in true }, kind: { $0 == 2 ? .terminal : .transaction })
+        let withProgress = try compareReduction(same, unreduced: unreduced, reduced: reduced, progress: predicates)
+        XCTAssertEqual(withProgress.progressMatch, true); XCTAssertTrue(withProgress.equivalent)
+        XCTAssertNil(comparison.progressMatch, "progress is not compared without predicates")
+    }
+    func testProgressDifferenceIsNotEquivalent() throws {
+        // Same states 0 -> 1, same dispositions and checks; only the input
+        // differs, and fairness depends on it.
+        func oneEdge(_ input: Int) -> Model<Int, Int, Int> { model(step: { _, _ in Transition(state: 1) }, inputs: [0: [input]]) }
+        let a = try explore(oneEdge(5)), b = try explore(oneEdge(6))
+        XCTAssertTrue(try compareReduction(oneEdge(5), unreduced: a, reduced: b).equivalent, "structure alone matches")
+        let predicates = ReductionProgressPredicates<Int, Int, Int>(fair: { $0.input == 5 }, kind: { $0 == 1 ? .terminal : .transaction })
+        let c = try compareReduction(oneEdge(5), unreduced: a, reduced: b, progress: predicates)
+        XCTAssertEqual(c.progressMatch, false); XCTAssertEqual(c.progressMismatches, [0]); XCTAssertFalse(c.equivalent)
     }
     func testRejectedEquivalencesAreInspectable() throws {
         // Same projection, different successor: successor equality is required.

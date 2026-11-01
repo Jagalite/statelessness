@@ -202,6 +202,8 @@ private final class GraphSearchRun<S, I, O> {
     var r: GraphSearchReport<S, I, O>
     var visited: [UInt64: [Int]] = [:]
     var nextEdge = 0, currentLayer = 0, activeNode: Int?
+    /// The evaluated edge whose successor is not yet resolved, retained or not.
+    var pendingEdge: GraphEdgeID?
     init(_ m: Model<S, I, O>, config: SearchConfig, limits: SearchLimits, options: GraphSearchOptions<S, I, O>, inputs: @escaping (S) throws -> InputIterator<I>, equal: @escaping (S, S) throws -> Bool, control: RunControl) {
         self.m = m; self.config = config; self.limits = limits; self.options = options; self.inputs = inputs; self.equal = equal; self.control = control
         switch options.failurePolicy {
@@ -254,6 +256,7 @@ private final class GraphSearchRun<S, I, O> {
         return bytes
     }
     func setTarget(_ edge: GraphEdgeID, _ target: EdgeTarget) {
+        if pendingEdge == edge { pendingEdge = nil }
         if r.edgesRetained, edge < r.edges.count { r.edges[edge].target = target }
     }
     func reject(_ edge: GraphEdgeID, _ reason: String) throws {
@@ -282,7 +285,9 @@ private final class GraphSearchRun<S, I, O> {
         if let active = activeNode, active < r.nodes.count, r.nodes[active].expansion == .unexpanded {
             r.nodes[active].expansion = .interrupted(r.termination); activeNode = nil
         }
-        if r.edgesRetained { for k in r.edges.indices where r.edges[k].target == .pending { r.edges[k].target = .rejected(r.termination) } }
+        // An edge evaluated when the search ended (stop-at-first failure, error)
+        // is a rejected successor whether or not its record was retained.
+        if let edge = pendingEdge { setTarget(edge, .rejected(r.termination)); r.rejectedSuccessors += 1 }
         r.frontierSize = r.nodes.reduce(0) { $0 + ($1.expansion == .complete ? 0 : 1) }
         if r.termination == "graph_exhausted" || r.termination == "depth_bound" {
             r.coverage = !r.depthCutoff && !r.failurePruned ? .exhaustive : .bounded(depthCutoff: r.depthCutoff, failurePruned: r.failurePruned)
@@ -358,7 +363,7 @@ private final class GraphSearchRun<S, I, O> {
                     let snapshot = Transition(state: try copied(m.cloneState, successor.get()), outputs: try transition.outputs.map { try copied(m.cloneOutput, $0) }, disposition: transition.disposition)
                     annotations = try call("annotate edge") { try annotate(copied(m.cloneState, current.state), copied(m.cloneInput, retainedInput), snapshot) }
                 }
-                let edgeID = nextEdge; nextEdge += 1
+                let edgeID = nextEdge; nextEdge += 1; pendingEdge = edgeID
                 var retained = false
                 if let payload {
                     let (edgeInput, outputs) = try payload.get()

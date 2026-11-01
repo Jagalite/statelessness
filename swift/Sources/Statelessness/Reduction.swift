@@ -105,6 +105,16 @@ public func validateDiamonds<S, I, O>(_ m: Model<S, I, O>, report: GraphSearchRe
     return out
 }
 // MARK: Reduced versus unreduced comparison
+/// Application progress predicates (progress-analysis-v1) applied to both
+/// graphs. Kind and rank take states so they agree across the two reports.
+public struct ReductionProgressPredicates<S, I, O> {
+    public var fair: (GraphEdge<I, O>) throws -> Bool
+    public var kind: (S) throws -> ProgressKind
+    public var rank: ((S) throws -> UInt64)?
+    public init(fair: @escaping (GraphEdge<I, O>) throws -> Bool, kind: @escaping (S) throws -> ProgressKind, rank: ((S) throws -> UInt64)? = nil) {
+        self.fair = fair; self.kind = kind; self.rank = rank
+    }
+}
 public struct ReductionComparison: Equatable, Sendable {
     /// Unreduced node IDs with no equal reduced node, and the reverse.
     public var missingInReduced: [GraphNodeID]
@@ -115,12 +125,20 @@ public struct ReductionComparison: Equatable, Sendable {
     public var extraReducedEdges: [GraphEdgeID]
     public var findingsMatch: Bool
     public var coverageMatch: Bool
-    public var equivalent: Bool { missingInReduced.isEmpty && extraInReduced.isEmpty && unrepresentedEdges.isEmpty && extraReducedEdges.isEmpty && findingsMatch && coverageMatch }
+    /// nil when no progress predicates were supplied: progress was not compared.
+    public var progressMatch: Bool?
+    /// Unreduced nodes whose progress class, settlement or closed-component
+    /// membership differs from their reduced counterpart.
+    public var progressMismatches: [GraphNodeID]
+    /// Not compared progress (`progressMatch == nil`) does not block
+    /// equivalence; it is simply absent evidence and is reported as such.
+    public var equivalent: Bool { missingInReduced.isEmpty && extraInReduced.isEmpty && unrepresentedEdges.isEmpty && extraReducedEdges.isEmpty && findingsMatch && coverageMatch && progressMatch != false }
 }
 /// Compares reachable states by model equality, represented edge classes
-/// (raw edge counts may differ), failed property counts and coverage. Both
-/// reports must retain edges and must not be incomplete.
-public func compareReduction<S, I, O>(_ m: Model<S, I, O>, unreduced: GraphSearchReport<S, I, O>, reduced: GraphSearchReport<S, I, O>) throws -> ReductionComparison {
+/// (raw edge counts may differ), failed property counts, coverage and, when
+/// predicates are supplied, progress results. Both reports must retain edges
+/// and must not be incomplete.
+public func compareReduction<S, I, O>(_ m: Model<S, I, O>, unreduced: GraphSearchReport<S, I, O>, reduced: GraphSearchReport<S, I, O>, progress: ReductionProgressPredicates<S, I, O>? = nil) throws -> ReductionComparison {
     guard let equal = m.equalStates else { throw ModelError("reduction comparison requires equality") }
     for report in [unreduced, reduced] {
         guard report.edgesRetained else { throw ModelError("reduction comparison requires retained edges") }
@@ -130,7 +148,7 @@ public func compareReduction<S, I, O>(_ m: Model<S, I, O>, unreduced: GraphSearc
     var buckets: [UInt64: [Int]] = [:]
     for node in reduced.nodes { buckets[try hash(node.state), default: []].append(node.id) }
     var mapping = [Int?](repeating: nil, count: unreduced.nodes.count), matched = Set<Int>()
-    var out = ReductionComparison(missingInReduced: [], extraInReduced: [], unrepresentedEdges: [], extraReducedEdges: [], findingsMatch: true, coverageMatch: unreduced.coverage == reduced.coverage)
+    var out = ReductionComparison(missingInReduced: [], extraInReduced: [], unrepresentedEdges: [], extraReducedEdges: [], findingsMatch: true, coverageMatch: unreduced.coverage == reduced.coverage, progressMatch: nil, progressMismatches: [])
     for node in unreduced.nodes {
         for other in buckets[try hash(node.state)] ?? [] where try call("state equality", { try equal(copied(m.cloneState, node.state), copied(m.cloneState, reduced.nodes[other].state)) }) {
             mapping[node.id] = other; matched.insert(other); break
@@ -168,5 +186,21 @@ public func compareReduction<S, I, O>(_ m: Model<S, I, O>, unreduced: GraphSearc
         if !represented { out.extraReducedEdges.append(edge.id) }
     }
     out.findingsMatch = unreduced.findingCount == reduced.findingCount && unreduced.failedProperties == reduced.failedProperties
+    if let progress {
+        func analyze(_ report: GraphSearchReport<S, I, O>) throws -> ProgressReport {
+            try analyzeProgress(try ProgressGraph(report: report, fair: progress.fair), kind: { n in try progress.kind(copied(m.cloneState, report.nodes[n].state)) },
+                                rank: progress.rank.map { rank in { n in try rank(copied(m.cloneState, report.nodes[n].state)) } })
+        }
+        let u = try analyze(unreduced), r = try analyze(reduced)
+        func component(_ report: ProgressReport, _ n: Int) -> Int? { report.closedNonterminalComponents.firstIndex { $0.contains(n) } }
+        let uUnsettled = Set(u.unsettledTransactionStates), rUnsettled = Set(r.unsettledTransactionStates)
+        // Closed components must correspond member for member under the mapping.
+        let uClosed = Set(u.closedNonterminalComponents.map { Set($0.compactMap { at(mapping, $0) }) }), rClosed = Set(r.closedNonterminalComponents.map { Set($0) })
+        for n in unreduced.nodes.indices {
+            guard let k = at(mapping, n) else { continue }
+            if u.classes[n] != r.classes[k] || uUnsettled.contains(n) != rUnsettled.contains(k) || (component(u, n) == nil) != (component(r, k) == nil) { out.progressMismatches.append(n) }
+        }
+        out.progressMatch = out.progressMismatches.isEmpty && uClosed == rClosed && u.graphComplete == r.graphComplete
+    }
     return out
 }
