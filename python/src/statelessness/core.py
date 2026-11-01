@@ -464,6 +464,11 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
     retain only the coherent prefix with model_error termination. Replaying such
     a prefix does not validate its unrecorded terminal error.
     """
+    return _record_kernel(model, inputs, max_steps, limits, continued=False)
+
+
+def _record_kernel(model, inputs, max_steps, limits, *, continued):
+    """`continued` records past property failures (continued-failure-evidence-v1)."""
     _natural(max_steps, "max_steps")
     if not isinstance(limits, TraceLimits): raise ValueError('limits must be TraceLimits')
     limits = TraceLimits(**{name: getattr(limits, name) for name in TraceLimits.__dataclass_fields__})
@@ -482,7 +487,7 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
         raise ModelError("recording limit: initial checkpoint")
     steps: list[TraceStep] = []
     termination, error = "completed", ""
-    if _failed(initial_checks):
+    if _failed(initial_checks) and not continued:
         return Trace(metadata, initial_state, initial_checks, (), "property_failed")
     try:
         iterator = _call("inputs", iter, inputs)
@@ -522,7 +527,7 @@ def record(model: ModelCodec[S, I, O], inputs: Iterable[I], max_steps: int = 100
             break
         steps.append(step)
         state, items, payload_bytes = transition.state, next_items, next_payload
-        if _failed(checks):
+        if _failed(checks) and not continued:
             termination = "property_failed"
             break
     return Trace(metadata, initial_state, initial_checks, tuple(steps), termination, error)

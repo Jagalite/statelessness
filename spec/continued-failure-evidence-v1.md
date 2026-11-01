@@ -1,6 +1,7 @@
-# continued-failure-evidence-v1 (candidate, Swift-only extension)
+# continued-failure-evidence-v1 (candidate extension)
 
-Status: experimental Swift-only extension implementing the remaining gap of
+Status: experimental candidate extension, implemented in the Rust, Swift, Python, Go
+and TypeScript engines, implementing the remaining gap of
 migration proposal S5: a witness whose selected failure occurs after an earlier
 failed check. Targeted terminal-failure selection, bounded recording,
 phase-aware evidence and checked results already exist and are not duplicated.

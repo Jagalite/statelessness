@@ -1,10 +1,12 @@
 # Illiquid migration: upstream Statelessness proposals S1–S6
 
 Status of the upstream work requested by Illiquid's
-`Documentation/STATELESSNESS_SWIFT_MIGRATION.md`. All of it is additive, opt-in
-and Swift-only. Existing `bfs-v1`, `search-v1`, trace-json v1 and causal-evidence
-v2 semantics are unchanged. No Rust or other native-port parity is claimed for
-these extensions.
+`Documentation/STATELESSNESS_SWIFT_MIGRATION.md`. All of it is additive and
+opt-in. Existing `bfs-v1`, `search-v1`, trace-json v1 and causal-evidence v2
+semantics are unchanged. Swift (PR #14) is the package Illiquid consumes. The
+same four contracts are also implemented in the other engines (see
+[Other engines](#other-engines)). They remain experimental candidates, not
+promoted portable profiles.
 
 | Proposal | API | Contract | Tests |
 | --- | --- | --- | --- |
@@ -14,6 +16,27 @@ these extensions.
 | S4 Qualified reduction | `EquivalenceReduction`, `ReductionDecision`, `validateDiamonds`, `compareReduction` | [reduction-v1](../spec/reduction-v1.md) | `ReductionTests` |
 | S5 Continued-failure replay and shrinking | `recordContinued`, `replayContinued`, `encodeContinuedTrace`/`parseContinuedTrace`, `shrinkContinued` | [continued-failure-evidence-v1](../spec/continued-failure-evidence-v1.md) | `ContinuedEvidenceTests` |
 | S6 Versioned qualification and packaging | `swiftExtensionProfiles`; capability matrix rows; external consumer; Kyoto driver | this document, [spec index](../spec/README.md) | `MigrationNegativeControlTests`, [`MigrationConsumer`](../swift/ExternalConsumers/MigrationConsumer), [`qualify.py`](../scripts/swift-migration/qualify.py) |
+
+## Other engines
+
+Each port implements all four contracts from the specs, consumes the unedited
+`conformance/graph-search-v1.json` and `conformance/progress-analysis-v1.json`,
+runs the whole `bfs-controls-v1` corpus through its existing kernel and its new
+graph search with identical callback logs and counters, and ports the negative
+controls and the review regressions. Each ran its full suite through Kyoto.
+
+| Engine | PR | Entry points | Notable adaptations |
+| --- | --- | --- | --- |
+| Rust | #18 | `stateless::graph::explore_graph`, `progress`, `reduction`, `continued` | Identity from `Eq`/`Hash`; continued JSON carries no `RunConfig`; unsigned caps; borrowed event payloads |
+| Python | #17 | `explore_graph`, `analyze_progress`, `compare_reduction`, `record_continued` | Identity from `hash`/`==`; `deepcopy` clones; no simplification budget |
+| Go | #15 | `ExploreGraph`, `AnalyzeProgress`, `CompareReduction`, `RecordContinued` | `StreamEdgesOnly` (zero value retains edges); pointer optionals |
+| TypeScript | #16 | `exploreGraph`, `analyzeProgress`, `compareReduction`, `recordContinued` | `bigint` 64-bit counters; nominal byte estimates |
+
+`estimatedGraphBytes` is an engine estimate and differs between engines, as the
+spec allows. Swift's `maxSimplificationCandidates` shrink budget exists only in
+Swift. No shared runner protocol yet exercises one engine's evidence in another,
+so these results are per-engine fixture conformance, not cross-implementation
+qualification.
 
 ## Decisions recorded against the migration plan
 

@@ -122,7 +122,7 @@ pub struct ShrinkLimits<'a> {
 }
 
 #[derive(Clone, Copy)]
-enum Stop {
+pub(crate) enum Stop {
     Deadline,
     Cancelled,
 }
@@ -155,7 +155,7 @@ impl<'a> Control<'a> {
             cancellation: self.limits.cancellation,
         }
     }
-    fn stop(&self) -> Option<Stop> {
+    pub(crate) fn stop(&self) -> Option<Stop> {
         if self
             .limits
             .cancellation
@@ -993,13 +993,7 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
     config: ShrinkConfig,
     limits: ShrinkLimits<'_>,
 ) -> Result<ShrinkReport<M::Input>, ModelError> {
-    let mut work = ShrinkWork {
-        control: Control::new(limits.control)?,
-        maximum: limits.max_replayed_transitions,
-        max_attempts: config.max_attempts,
-        transitions: 0,
-        checks: Vec::new(),
-    };
+    let mut work = ShrinkWork::new(&config, limits, false)?;
     if config.max_attempts == 0 {
         return Err(ModelError::new(
             "shrink max_attempts must be greater than zero",
@@ -1010,7 +1004,93 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
         .first()
         .filter(|failure| failure.check.is_failure())
         .ok_or_else(|| ModelError::new("cannot shrink a sequence without a target violation"))?;
-    let validation = replay_candidate(model, &original.inputs, &mut work)?;
+    shrink_driver(model, original, target, &config, &mut work)
+}
+
+/// One continued-failure-evidence-v1 failure: 0 is the initial state, otherwise
+/// the 1-based step. Violations keep batch order (state before transition).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ContinuedFinding {
+    pub sequence: u64,
+    pub violations: Vec<PropertyFailure>,
+}
+
+#[derive(Clone, Debug)]
+pub struct ContinuedShrinkReport<I> {
+    pub target: PropertyFailure,
+    /// `base.original.violations` is `[target]`; `base.minimized.violations`
+    /// is the final sequence's complete failing batch.
+    pub base: ShrinkReport<I>,
+    /// Every failure of the validated original, in sequence order. Empty when
+    /// validation was interrupted.
+    pub original_findings: Vec<ContinuedFinding>,
+    /// Every failure of the minimized witness. Earlier failures are retained,
+    /// never suppressed; the last entry contains the target.
+    pub minimized_findings: Vec<ContinuedFinding>,
+}
+
+/// continued-failure-evidence-v1: shrink a witness whose selected failure occurs
+/// after earlier failed checks. Replay continues past failures, and a candidate
+/// reproduces only when its final sequence fails with the target's exact phase
+/// and check ID. Causal validity is unchanged from [`shrink`].
+pub fn shrink_continued<M: Generate>(
+    model: &M,
+    inputs: &[M::Input],
+    target: &PropertyFailure,
+    config: ShrinkConfig,
+) -> Result<ContinuedShrinkReport<M::Input>, ModelError> {
+    shrink_continued_with_limits(model, inputs, target, config, ShrinkLimits::default())
+}
+
+pub fn shrink_continued_with_limits<M: Generate>(
+    model: &M,
+    inputs: &[M::Input],
+    target: &PropertyFailure,
+    config: ShrinkConfig,
+    limits: ShrinkLimits<'_>,
+) -> Result<ContinuedShrinkReport<M::Input>, ModelError> {
+    let model = &NativeOps::new(model);
+    if config.max_attempts == 0 {
+        return Err(ModelError::new(
+            "shrink max_attempts must be greater than zero",
+        ));
+    }
+    if !target.check.is_failure() {
+        return Err(ModelError::new(
+            "cannot shrink a sequence without a target violation",
+        ));
+    }
+    let mut work = ShrinkWork::new(&config, limits, true)?;
+    let original = Failure {
+        inputs: inputs.to_vec(),
+        violations: vec![target.clone()],
+    };
+    let base = shrink_driver(model, &original, target, &config, &mut work)?;
+    let validated = base.validated_original;
+    Ok(ContinuedShrinkReport {
+        target: target.clone(),
+        base,
+        original_findings: if validated {
+            work.original_findings
+        } else {
+            Vec::new()
+        },
+        minimized_findings: if validated {
+            work.minimized_findings
+        } else {
+            Vec::new()
+        },
+    })
+}
+
+fn shrink_driver<M: GenerateOps>(
+    model: &M,
+    original: &Failure<M::Input>,
+    target: &PropertyFailure,
+    config: &ShrinkConfig,
+    work: &mut ShrinkWork<'_>,
+) -> Result<ShrinkReport<M::Input>, ModelError> {
+    let validation = replay_candidate(model, &original.inputs, work)?;
     let (minimized, validated_original, termination, outcome) = match validation {
         Candidate::Stopped(reason) => (
             original.clone(),
@@ -1023,6 +1103,10 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
                 return Err(ModelError::new(
                     "original failure does not reproduce the target check and phase",
                 ));
+            }
+            if work.continued {
+                work.original_findings = work.last_findings.clone();
+                work.minimized_findings = work.last_findings.clone();
             }
             (
                 validated,
@@ -1087,7 +1171,7 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
                     ShrinkOperation::Remove { start, end },
                     &mut report,
                     &mut seen,
-                    &mut work,
+                    work,
                 )? {
                     return Ok(report);
                 }
@@ -1173,7 +1257,7 @@ pub(crate) fn shrink_ops<M: GenerateOps>(
                     },
                     &mut report,
                     &mut seen,
-                    &mut work,
+                    work,
                 )? {
                     return Ok(report);
                 }
@@ -1232,6 +1316,9 @@ fn attempt<M: GenerateOps>(
             } else {
                 seen.push(failure.inputs.clone());
                 report.minimized = failure;
+                if work.continued {
+                    work.minimized_findings = work.last_findings.clone();
+                }
                 ShrinkOutcome::Retained
             }
         }
@@ -1252,6 +1339,32 @@ struct ShrinkWork<'a> {
     max_attempts: usize,
     transitions: u64,
     checks: Vec<Check>,
+    /// continued-failure-evidence-v1: replay continues past failures and a
+    /// candidate fails only when its final sequence fails.
+    continued: bool,
+    last_findings: Vec<ContinuedFinding>,
+    original_findings: Vec<ContinuedFinding>,
+    minimized_findings: Vec<ContinuedFinding>,
+}
+
+impl<'a> ShrinkWork<'a> {
+    fn new(
+        config: &ShrinkConfig,
+        limits: ShrinkLimits<'a>,
+        continued: bool,
+    ) -> Result<Self, ModelError> {
+        Ok(Self {
+            control: Control::new(limits.control)?,
+            maximum: limits.max_replayed_transitions,
+            max_attempts: config.max_attempts,
+            transitions: 0,
+            checks: Vec::new(),
+            continued,
+            last_findings: Vec::new(),
+            original_findings: Vec::new(),
+            minimized_findings: Vec::new(),
+        })
+    }
 }
 
 /// Resolve sequence identity through the model. Cancellation is checked between
@@ -1315,11 +1428,19 @@ fn replay_candidate<M: GenerateOps>(
         &mut work.checks,
         &mut Unobserved,
     )?;
+    let mut findings = Vec::new();
     if !violations.is_empty() {
-        return Ok(Candidate::Failure(Failure {
-            inputs: Vec::new(),
-            violations,
-        }));
+        if work.continued {
+            findings.push(ContinuedFinding {
+                sequence: 0,
+                violations,
+            });
+        } else {
+            return Ok(Candidate::Failure(Failure {
+                inputs: Vec::new(),
+                violations,
+            }));
+        }
     }
     if let Some(stop) = work.control.stop() {
         return Ok(Candidate::Stopped(shrink_stop(stop)));
@@ -1358,15 +1479,33 @@ fn replay_candidate<M: GenerateOps>(
             &[],
         )?;
         if !violations.is_empty() {
-            return Ok(Candidate::Failure(Failure {
-                inputs: inputs[..=index].to_vec(),
-                violations,
-            }));
+            if work.continued {
+                findings.push(ContinuedFinding {
+                    sequence: index as u64 + 1,
+                    violations,
+                });
+            } else {
+                return Ok(Candidate::Failure(Failure {
+                    inputs: inputs[..=index].to_vec(),
+                    violations,
+                }));
+            }
         }
         if let Some(stop) = work.control.stop() {
             return Ok(Candidate::Stopped(shrink_stop(stop)));
         }
         state = transition.state;
+    }
+    if work.continued
+        && let Some(last) = findings.last()
+        && last.sequence == inputs.len() as u64
+    {
+        let violations = last.violations.clone();
+        work.last_findings = findings;
+        return Ok(Candidate::Failure(Failure {
+            inputs: inputs.to_vec(),
+            violations,
+        }));
     }
     Ok(Candidate::Pass)
 }
@@ -1386,7 +1525,7 @@ fn has_target<I>(failure: &Failure<I>, target: &PropertyFailure) -> bool {
     })
 }
 
-fn context(phase: &str, error: ModelError) -> ModelError {
+pub(crate) fn context(phase: &str, error: ModelError) -> ModelError {
     ModelError::new(format!("{phase}: {error}"))
 }
 
@@ -1426,13 +1565,68 @@ fn initial_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     checks: &mut Vec<Check>,
     observer: &mut O,
 ) -> Result<Vec<PropertyFailure>, ModelError> {
+    run_initial_checks(model, state, checks, observer)?;
+    Ok(observe(checks, checks.len(), true, skipped))
+}
+
+/// The same callbacks as the BFS kernel's initial checks, but the complete batch
+/// stays in `checks` for graph evidence. Failures are copied, not drained.
+pub(crate) fn initial_checks_retained<M: ModelOps, O: OpsObserver<M>>(
+    model: &M,
+    state: &M::State,
+    skipped: &mut u64,
+    checks: &mut Vec<Check>,
+    observer: &mut O,
+) -> Result<Vec<PropertyFailure>, ModelError> {
+    run_initial_checks(model, state, checks, observer)?;
+    Ok(classify(checks, checks.len(), true, skipped))
+}
+
+fn run_initial_checks<M: ModelOps, O: OpsObserver<M>>(
+    model: &M,
+    state: &M::State,
+    checks: &mut Vec<Check>,
+    observer: &mut O,
+) -> Result<(), ModelError> {
     checks.clear();
     if let Err(error) = model.check_state_into(state, &mut CheckSink::new(checks)) {
         observer.check_error(CheckPhase::InitialState, checks, false);
         return Err(context("initial check_state", error));
     }
     observer.initial(state, checks);
-    Ok(observe(checks, checks.len(), true, skipped))
+    Ok(())
+}
+
+fn classify(
+    checks: &[Check],
+    state_count: usize,
+    initial: bool,
+    skipped: &mut u64,
+) -> Vec<PropertyFailure> {
+    checks
+        .iter()
+        .enumerate()
+        .filter_map(|(index, check)| {
+            let phase = if initial {
+                CheckPhase::InitialState
+            } else if index < state_count {
+                CheckPhase::State
+            } else {
+                CheckPhase::Transition
+            };
+            match &check.status {
+                CheckStatus::Failed(_) => Some(PropertyFailure {
+                    phase,
+                    check: check.clone(),
+                }),
+                CheckStatus::Skipped(_) => {
+                    *skipped = skipped.saturating_add(1);
+                    None
+                }
+                CheckStatus::Passed => None,
+            }
+        })
+        .collect()
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1446,6 +1640,38 @@ fn transition_checks_ops<M: ModelOps, O: OpsObserver<M>>(
     observer: &mut O,
     history: &[M::Input],
 ) -> Result<Vec<PropertyFailure>, ModelError> {
+    let state_count =
+        run_transition_checks(model, before, input, transition, checks, observer, history)?;
+    Ok(observe(checks, state_count, false, skipped))
+}
+
+/// Transition checks that leave the complete batch in `checks`. Returns the
+/// failures and the number of state checks preceding transition checks.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn transition_checks_retained<M: ModelOps, O: OpsObserver<M>>(
+    model: &M,
+    before: &M::State,
+    input: &M::Input,
+    transition: &Transition<M::State, M::Output>,
+    skipped: &mut u64,
+    checks: &mut Vec<Check>,
+    observer: &mut O,
+    history: &[M::Input],
+) -> Result<(Vec<PropertyFailure>, usize), ModelError> {
+    let state_count =
+        run_transition_checks(model, before, input, transition, checks, observer, history)?;
+    Ok((classify(checks, state_count, false, skipped), state_count))
+}
+
+fn run_transition_checks<M: ModelOps, O: OpsObserver<M>>(
+    model: &M,
+    before: &M::State,
+    input: &M::Input,
+    transition: &Transition<M::State, M::Output>,
+    checks: &mut Vec<Check>,
+    observer: &mut O,
+    history: &[M::Input],
+) -> Result<usize, ModelError> {
     checks.clear();
     if let Err(error) = model.check_state_into(&transition.state, &mut CheckSink::new(checks)) {
         observer.check_error(CheckPhase::State, checks, false);
@@ -1470,5 +1696,5 @@ fn transition_checks_ops<M: ModelOps, O: OpsObserver<M>>(
         &checks[state_count..],
         history,
     );
-    Ok(observe(checks, state_count, false, skipped))
+    Ok(state_count)
 }

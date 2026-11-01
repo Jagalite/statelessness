@@ -70,6 +70,9 @@ PYTHON_FILES = (
     "src/statelessness/trace_binary.py",
     "src/statelessness/trace_json.py",
     "src/statelessness/value_codec.py",
+    "src/statelessness/continued.py",
+    "src/statelessness/graph_search.py",
+    "src/statelessness/progress.py",
 )
 BROWSER_V2_FILES = ("v2.mjs", "v2.d.ts", "v2.d.mts", "v2-values.mjs", "v2-packet.mjs", "v2-json.mjs")
 SWIFT_V2_FILES = (

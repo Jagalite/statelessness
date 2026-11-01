@@ -1,4 +1,4 @@
-/// Swift-only extension `graph-search-v1` (S1 admitted graph, S2 failure
+/// Candidate extension `graph-search-v1` (S1 admitted graph, S2 failure
 /// collection); see spec/graph-search-v1.md. With default options the model
 /// callback sequence is exactly bfs-controls-v1. `enumerateStates` is unchanged
 /// and remains the portable bfs-v1 entry point.

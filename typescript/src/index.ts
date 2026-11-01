@@ -58,3 +58,14 @@ export {RequestModel} from './demo.js';
 export type {RequestState,RequestInput,RequestOutput} from './demo.js';
 
 export {RUNTIME_SOURCE_BUILD_ID} from './runtime_identity.js';
+
+// Experimental opt-in extensions (graph-search-v1, progress-analysis-v1, reduction-v1,
+// continued-failure-evidence-v1). Portable profiles and bfs-v1 entry points are unchanged.
+export {DEFAULT_GRAPH_SEARCH,GraphSearchError,exploreGraph,findingsTruncated,graphFailure,resolvedTarget,sameCoverage,sameExpansion} from './graph_search.js';
+export type {GraphNodeID,GraphEdgeID,FailurePolicy,GraphRetention,NodeExpansion,EdgeTarget,GraphNode,GraphEdge,GraphFinding,PropertyFailureCount,GraphCoverage,GraphEvent,GraphSearchOptions,GraphSearchConfig,GraphSearchReport} from './graph_search.js';
+export {ProgressGraph,analyzeProgress,stronglyConnectedComponents,reverseReachable} from './progress.js';
+export type {ProgressEdge,ProgressKind,ProgressClass,ProgressReport} from './progress.js';
+export {validateDiamonds,compareReduction,reductionEquivalent} from './reduction.js';
+export type {EquivalenceReduction,RejectedEquivalence,ReductionDecision,DiamondWitness,DiamondReport,ReductionProgressPredicates,ReductionComparison} from './reduction.js';
+export {CONTINUED_TRACE_FORMAT,CONTINUED_TRACE_VERSION,continuedFailingSequences,validateContinuedRecording,replayContinued,encodeContinuedTrace,parseContinuedTrace} from './continued.js';
+export type {ContinuedReplayReport} from './continued.js';

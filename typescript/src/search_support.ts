@@ -48,6 +48,8 @@ export function captureEdgeConsumers<S,I,O>(m: Model<S,I,O>, observer?: SearchOb
 export function searchChecks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I, t?: Transition<S, O>, observer?: SearchObserver<S, I, O>, history: readonly I[] = [], storage: Check[] = [], resolveInput?: () => I, resolveState?: () => S, resolveTransition?: () => Transition<S,O>, resolveBefore?: () => S, consumers?: ReturnType<typeof captureEdgeConsumers<S,I,O>>): {
     violations: Violation[];
     skipped: bigint;
+    /** Leading entries of `storage` that are state checks; the rest are transition checks. */
+    stateCount: number;
 } {
     storage.length = 0;
     const phase = t ? 'state' : 'initial_state';
@@ -149,7 +151,7 @@ export function searchChecks<S, I, O>(m: Model<S, I, O>, s: S, before?: S, i?: I
         else if (c.status === 'skipped')
             skipped++;
     }
-    return { violations, skipped };
+    return { violations, skipped, stateCount };
 }
 /** Snapshot copied run settings; only the captured cancellation function's external state stays live. */
 export function runControl(limits: RunLimits): () => ControlStop | null {

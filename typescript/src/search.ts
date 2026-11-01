@@ -29,6 +29,7 @@ function call<T>(stage: string, fn: () => T): T {
         throw new ModelError(`${stage}: ${e instanceof Error ? e.message : String(e)}`);
     }
 }
+const copyViolations = (v: readonly Violation[]): Violation[] => v.map(x => ({ phase: x.phase, check: check(x.check.id, x.check.status, x.check.details) }));
 function closeSimplifier<I>(iterator: Iterator<I>): void {
     try { iterator.return?.(); }
     catch (error) {
@@ -229,6 +230,40 @@ export interface ShrinkReport<I, C extends Count = number> {
 export function shrink<S, I, O>(m: GenerateModel<S, I, O>, original: Failure<I>, config?: ShrinkConfig, limits?: ShrinkLimits): ShrinkReport<I>;
 export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig<C>, limits?: ShrinkLimits): ShrinkReport<I, C>;
 export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig<C> = DEFAULT_SHRINK as ShrinkConfig<C>, limits: ShrinkLimits = {}): ShrinkReport<I, C> {
+    return shrinkKernel(m, original, config, limits, null);
+}
+/** continued-failure-evidence-v1: one failing check batch of a replayed sequence. */
+export interface ContinuedFinding {
+    /** 0 for the initial state; otherwise the 1-based step (bounded by the witness length). */
+    readonly sequence: number;
+    /** Every failed check of that batch, state checks before transition checks. */
+    readonly violations: readonly Violation[];
+}
+export interface ContinuedShrinkReport<I, C extends Count = number> {
+    readonly target: Violation;
+    /** `base.original.violations` is `[target]`; `base.minimized.violations`
+     * holds the final sequence's complete failing batch. */
+    readonly base: ShrinkReport<I, C>;
+    /** Every failure of the validated original, in sequence order; empty when validation was interrupted. */
+    readonly originalFindings: readonly ContinuedFinding[];
+    /** Every failure of the minimized witness. Earlier failures are retained and
+     * never suppressed; the last entry contains the target. */
+    readonly minimizedFindings: readonly ContinuedFinding[];
+}
+type ContinuedWork = { last: ContinuedFinding[]; original: ContinuedFinding[]; minimized: ContinuedFinding[] };
+/** Shrinks a witness whose selected failure occurs after earlier failed checks.
+ * Replay continues past failures; a candidate reproduces only when its final
+ * sequence fails with the target's exact phase and ID. Causal validity is the
+ * same rule as shrink (each step must be enabled when it is replayed). */
+export function shrinkContinued<S, I, O>(m: GenerateModel<S, I, O>, inputs: readonly I[], target: Violation, config?: ShrinkConfig, limits?: ShrinkLimits): ContinuedShrinkReport<I>;
+export function shrinkContinued<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, inputs: readonly I[], target: Violation, config: ShrinkConfig<C>, limits?: ShrinkLimits): ContinuedShrinkReport<I, C>;
+export function shrinkContinued<S, I, O, C extends Count = number>(m: GenerateModel<S, I, O>, inputs: readonly I[], target: Violation, config: ShrinkConfig<C> = DEFAULT_SHRINK as ShrinkConfig<C>, limits: ShrinkLimits = {}): ContinuedShrinkReport<I, C> {
+    const work: ContinuedWork = { last: [], original: [], minimized: [] };
+    const base = shrinkKernel(m, { inputs, violations: [target] }, config, limits, work);
+    const selected = base.original.violations[0];
+    return { target: selected, base, originalFindings: base.validated_original ? work.original : [], minimizedFindings: base.validated_original ? work.minimized : [] };
+}
+function shrinkKernel<S, I, O, C extends Count>(m: GenerateModel<S, I, O>, original: Failure<I>, config: ShrinkConfig<C>, limits: ShrinkLimits, continued: ContinuedWork | null): ShrinkReport<I, C> {
     const maxAttempts=config.maxAttempts;
     const maxReplayedTransitions=limits.maxReplayedTransitions;
     if (count64(maxAttempts, 'maxAttempts') === 0n) throw new ConfigError('maxAttempts must be positive');
@@ -275,8 +310,11 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
         const candidates = slots.map(capture);
         let s = state(m, call('shrink initial_state', () => m.initialState()));
         const initial = searchChecks(m,s,undefined,undefined,undefined,undefined,[],checkStorage);
-        if (initial.violations.length)
-            return { kind: 'failure', failure: { inputs: [], violations: initial.violations } };
+        const findings: ContinuedFinding[] = [];
+        if (initial.violations.length) {
+            if (continued) findings.push({ sequence: 0, violations: copyViolations(initial.violations) });
+            else return { kind: 'failure', failure: { inputs: [], violations: initial.violations } };
+        }
         reason = stop();
         if (reason)
             return { kind: 'stopped', reason };
@@ -303,12 +341,20 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
             const t = step(m, s, unwrap(stepInput));
             r.replayed_transitions = increment64(r.replayed_transitions, 'replayed transition count overflow');
             const observed = searchChecks(m,t.state,s,undefined,t,undefined,[],checkStorage,()=>unwrap(observedInput));
-            if (observed.violations.length)
-                return { kind: 'failure', failure: { inputs: retained.map(i => input(m, unwrap(i))), violations: observed.violations } };
+            if (observed.violations.length) {
+                if (continued) findings.push({ sequence: n + 1, violations: copyViolations(observed.violations) });
+                else return { kind: 'failure', failure: { inputs: retained.map(i => input(m, unwrap(i))), violations: observed.violations } };
+            }
             reason = stop();
             if (reason)
                 return { kind: 'stopped', reason };
             s = t.state;
+        }
+        // Continued mode: only a failing final sequence is a failure; earlier ones are kept as evidence.
+        const last = findings.at(-1);
+        if (continued && last && last.sequence === candidateLength) {
+            continued.last = findings;
+            return { kind: 'failure', failure: { inputs: retained.map(i => input(m, unwrap(i))), violations: last.violations } };
         }
         return { kind: 'pass' };
     };
@@ -326,6 +372,7 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
         throw new ModelError('original failure does not reproduce the target check and phase');
     r.minimized = copy(validation.failure);
     r.validated_original = true;
+    if (continued) { continued.original = continued.last; continued.minimized = continued.last; }
     r.history.push({ attempt: countLike(1n, maxAttempts), candidate_length: countLike(BigInt(supplied.inputs.length), maxAttempts), operation: { kind: 'validate_original' }, outcome: 'retained' });
     const seen: I[][] = [r.minimized.inputs.map(i => input(m, i))];
     const known = (values: readonly I[]) => {
@@ -383,6 +430,7 @@ export function shrink<S, I, O, C extends Count = number>(m: GenerateModel<S, I,
                 arrayGrowth(seen.length);
                 seen.push(candidate.failure.inputs.map(i => input(m, i)));
                 r.minimized = copy(candidate.failure);
+                if (continued) continued.minimized = continued.last;
                 outcome = 'retained';
             }
         }

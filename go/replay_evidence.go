@@ -149,6 +149,12 @@ func replayEvidence[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTra
 
 // capture is engine-private admission of an entry-owned artifact after identity.
 func replayEvidenceCaptured[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTrace, allow bool, limits *BinaryLimits, observer ReplayObserver[S, I, O], capture func() (*AuditTrace, error)) (*ReplayReport, error) {
+	return replayEvidenceValidated(m, trace, audit, allow, limits, observer, capture, ValidateRecording)
+}
+
+// replayEvidenceValidated admits the trace through validate; continued traces
+// (continued-failure-evidence-v1) substitute their own recording validation.
+func replayEvidenceValidated[S, I, O any](m Model[S, I, O], trace *Trace, audit *AuditTrace, allow bool, limits *BinaryLimits, observer ReplayObserver[S, I, O], capture func() (*AuditTrace, error), validate func(*Trace) error) (*ReplayReport, error) {
 	r := ReplayReport{Outcome: "exact"}
 	var actual *ReplayActual[S, I, O]
 	sequence := uint64(0)
@@ -209,7 +215,7 @@ func replayEvidenceCaptured[S, I, O any](m Model[S, I, O], trace *Trace, audit *
 			return fail(fmt.Errorf("bounded replay artifact: %w", e), true)
 		}
 	}
-	if e = ValidateRecording(trace); e != nil {
+	if e = validate(trace); e != nil {
 		return fail(e, true)
 	}
 	blob := uint64(math.MaxInt)

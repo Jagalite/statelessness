@@ -131,3 +131,29 @@ __all__ += ["assurance", "AssuranceManifest", "AssuranceProvenance", "AssuranceR
     "AssuranceInputFamily", "AssuranceCoverGoal", "AssuranceCoverageHits", "AssuranceCheckCounts", "AssurancePropertyResult", "AssuranceFamilyResult", "AssuranceGoalResult",
     "AssuranceObserver", "AssuranceReport", "AssuranceAssessment", "MergedAssuranceReport",
     "merge_assurance_reports", "AssuredRun", "AssuredCampaign", "assured_enumerate", "assured_fuzz", "assured_guided_fuzz", "assured_campaign", "assured_guided_campaign", "assured_fuzz_auto", "assured_guided_fuzz_auto", "assured_auto_campaign", "assured_guided_auto_campaign", "assurance_search_outcome"]
+
+# Candidate migration extensions, ported from the Swift package: graph-search-v1
+# (S1/S2), progress-analysis-v1 (S3), reduction-v1 (S4) and
+# continued-failure-evidence-v1 (S5). Experimental; no profile claim.
+from .graph_search import (FailurePolicy, GraphRetention, EdgeTarget, GraphNode, GraphEdge,
+    GraphFinding, PropertyFailureCount, GraphCoverage, GraphEvent, GraphSearchOptions,
+    GraphSearchReport, GraphSearchError, explore_graph, EquivalenceReduction, RejectedEquivalence,
+    ReductionDecision, DiamondWitness, DiamondReport, validate_diamonds,
+    ReductionProgressPredicates, ReductionComparison, compare_reduction)
+from .progress import (PROGRESS_KINDS, PROGRESS_CLASSES, ProgressEdge, ProgressGraph, ProgressReport,
+    analyze_progress, strongly_connected_components, reverse_reachable)
+from .continued import (CONTINUED_TRACE_FORMAT, CONTINUED_TRACE_VERSION, ContinuedTrace,
+    ContinuedReplayReport, validate_continued_recording, record_continued, replay_continued,
+    encode_continued_trace, parse_continued_trace)
+from .search import ContinuedFinding, ContinuedShrinkReport, shrink_continued
+__all__ += ["FailurePolicy", "GraphRetention", "EdgeTarget", "GraphNode", "GraphEdge",
+    "GraphFinding", "PropertyFailureCount", "GraphCoverage", "GraphEvent", "GraphSearchOptions",
+    "GraphSearchReport", "GraphSearchError", "explore_graph", "EquivalenceReduction", "RejectedEquivalence",
+    "ReductionDecision", "DiamondWitness", "DiamondReport", "validate_diamonds",
+    "ReductionProgressPredicates", "ReductionComparison", "compare_reduction",
+    "PROGRESS_KINDS", "PROGRESS_CLASSES", "ProgressEdge", "ProgressGraph", "ProgressReport",
+    "analyze_progress", "strongly_connected_components", "reverse_reachable",
+    "CONTINUED_TRACE_FORMAT", "CONTINUED_TRACE_VERSION", "ContinuedTrace", "ContinuedReplayReport",
+    "validate_continued_recording", "record_continued", "replay_continued",
+    "encode_continued_trace", "parse_continued_trace",
+    "ContinuedFinding", "ContinuedShrinkReport", "shrink_continued"]

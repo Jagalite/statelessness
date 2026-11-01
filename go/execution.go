@@ -47,6 +47,13 @@ func Record[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxSteps int) (*T
 // RecordWithLimits preserves only a coherent prefix after a later callback error.
 // A failure in initial checkpoint creation returns an error without a trace.
 func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxSteps int, limits TraceLimits) (*Trace, error) {
+	return recordKernel(m, inputs, maxSteps, limits, false)
+}
+
+// recordKernel with continued records past property failures
+// (continued-failure-evidence-v1); otherwise the first failing batch ends the
+// trace with property_failed.
+func recordKernel[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxSteps int, limits TraceLimits, continued bool) (*Trace, error) {
 	if maxSteps < 0 {
 		return nil, &ConfigError{"negative step limit"}
 	}
@@ -100,7 +107,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 		return nil, &ModelError{"recording limit: initial checkpoint"}
 	}
 	trace := &Trace{Metadata: metadata, InitialState: initial, InitialChecks: initialChecks, Steps: []TraceStep{}, Termination: "completed"}
-	if hasFailure(initialChecks) {
+	if hasFailure(initialChecks) && !continued {
 		trace.Termination = "property_failed"
 		return trace, nil
 	}
@@ -177,7 +184,7 @@ func RecordWithLimits[S, I, O any](m Model[S, I, O], inputs Iterator[I], maxStep
 		state = t.State
 		items = nextItems
 		payload = nextPayload
-		if hasFailure(checks) {
+		if hasFailure(checks) && !continued {
 			trace.Termination = "property_failed"
 			return trace, nil
 		}

@@ -1,9 +1,11 @@
-# graph-search-v1 (candidate, Swift-only extension)
+# graph-search-v1 (candidate extension)
 
-Status: experimental Swift-only extension implementing migration proposals S1
+Status: experimental candidate extension implementing migration proposals S1
 (admitted graph and complete search reporting) and S2 (failure collection and
-explicit result semantics). It is not part of the four portable profiles and
-claims no Rust, Python, Go or TypeScript parity. `enumerateStates` and
+explicit result semantics). It is implemented in the Rust, Swift, Python, Go and
+TypeScript engines; each passes the shared fixtures and its own
+default-options/bfs-controls equivalence test. It is not part of the four
+portable profiles, and no cross-implementation runner qualification exists. `enumerateStates` and
 `bfs-controls-v1` are unchanged; this contract is additive and opt-in.
 
 API: `exploreGraph(model, config:, limits:, options:) -> GraphSearchReport`.
