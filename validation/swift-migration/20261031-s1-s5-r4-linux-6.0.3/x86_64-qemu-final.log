@@ -1,0 +1,9 @@
+Building for debugging...
+[0/23] Write sources
+[6/23] Write swift-version-24593BA9C3E375BF.txt
+swift-runtime: failed to suspend thread 212 while processing a crash; backtraces will be missing information
+swift-runtime: failed to suspend thread 212 while processing a crash; backtraces will be missing information
+
+*** Signal 4: Backtracing from 0x4003912270... failed ***
+
+error: fatalError

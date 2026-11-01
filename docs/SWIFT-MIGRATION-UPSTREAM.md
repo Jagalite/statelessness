@@ -56,20 +56,24 @@ repository and Swift identity, and submits three serialized Kyoto jobs:
 
 Receipts go to `validation/swift-migration/<label>/`.
 
-Recorded runs (macOS arm64, Apple Swift 6.3.3, base `b99f4d6` plus the
-uncommitted working tree, whose 278 staged files are hashed in each receipt):
+Recorded runs. Each receipt hashes every staged file. r1–r3 staged the then
+uncommitted tree on base `b99f4d6`. r4 staged commit `bc912fb`, which adds
+spec wording changes found by an independent re-derivation of the fixtures from
+the specs alone; that re-derivation matched all 19 cases.
 
 | Label | Result | Cause |
 | --- | --- | --- |
 | `20261031-s1-s5` | consumer build failed | Consumer top-level globals violated Swift 6 strict concurrency; fixed in the consumer. |
 | `20261031-s1-s5-r2` | consumer passed; 2 of 731 staged tests failed | Driver did not stage `docs/requirements/`, which pre-existing tests read; fixed in the driver. |
 | `20261031-s1-s5-r3` | **passed** | Consumer built and ran (`migration-consumer: ok`); 731 staged tests, 3 skipped, 0 failures. |
+| `20261031-s1-s5-r4` | **passed** | macOS arm64, Swift 6.3.3, commit `bc912fb`: consumer ok; 731 tests, 3 skipped, 0 failures. |
+| `20261031-s1-s5-r4-linux-6.0.3` | **passed** | `swift:6.0.3` image via Kyoto. aarch64: 731 tests, 0 failures, consumer ok. x86_64 (Rosetta): 731 tests, 0 failures, consumer ok. QEMU user-mode x86_64 attempts crashed with SIGILL inside the compiler and runtime, also on unmodified `main`; they are kept as emulator diagnostics, not package evidence. |
 | `20261031-s1-s5-r3-linux-6.0.3` | **passed** | Same staged bytes in the `swift:6.0.3` Linux aarch64 image (CI's pinned compiler) via Kyoto: 731 tests, 3 skipped, 0 failures; consumer built and ran. |
 
 Distinct statuses: source review, compiled, executed tests, and external
 consumer execution are recorded by the receipts. They do not establish
-cross-language parity, x86_64 Linux or Windows buildability, Illiquid
-integration, or release qualification. Illiquid's
+cross-language parity, Windows buildability, native (non-translated) x86_64
+hardware, Illiquid integration, or release qualification. Illiquid's
 remaining phases (model adapters, parity against the frozen explorer, CI
 wiring, retirement) are Illiquid work. They consume a pinned revision of this
 package.

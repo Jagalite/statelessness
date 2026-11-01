@@ -1,0 +1,12 @@
+{
+ "label": "20261031-s1-s5-r4",
+ "created": "2026-11-01T00:26:03+00:00",
+ "head": "bc912fb10ef0e46e58d31c0ccb9b75d53391a0f3",
+ "branch": "swift-migration/s1-s6-proposals",
+ "dirty": [],
+ "swift": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101) Target: arm64-apple-macosx26.0",
+ "platform": "Darwin 25.5.0 arm64",
+ "kyoto": "/Volumes/seed1/Projects/kyoto/kyoto.py",
+ "staged_files": 276,
+ "profiles": "graph-search-v1, progress-analysis-v1, reduction-v1, continued-failure-evidence-v1 (Swift-only)"
+}
