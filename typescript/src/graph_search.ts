@@ -266,7 +266,8 @@ export function exploreGraph<S, I, O>(m: EnumerateModel<S, I, O>, config: GraphS
   };
   const finishNode = (id: GraphNodeID, status: NodeExpansion): void => {
     r.nodes[id].expansion = status; activeNode = null;
-    emit(() => ({ kind: 'expansionFinished', node: id, status }));
+    // The sink receives a detached status; the node keeps its own object.
+    emit(() => ({ kind: 'expansionFinished', node: id, status: { ...status } }));
   };
   const recordFinding = (violations: readonly Violation[], edge: GraphEdgeID | null, earlier: boolean, makeWitness: () => I[]): void => {
     const index = r.findingCount;
