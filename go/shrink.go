@@ -31,6 +31,10 @@ type shrinkWork[S, I, O any] struct {
 	maximum     *uint64
 	transitions uint64
 	checks      []Check
+	// continued-failure-evidence-v1: replay continues past failures and a
+	// candidate fails only when its final sequence fails.
+	continued                                         bool
+	lastFindings, originalFindings, minimizedFindings []ContinuedFinding
 }
 type shrinkCandidate[I any] struct {
 	kind    string
@@ -91,9 +95,13 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 		return shrinkCandidate[I]{}, e
 	}
 	var skipped uint64
+	var found []ContinuedFinding
 	violations := findings("initial_state", checks, &skipped)
 	if len(violations) > 0 {
-		return shrinkCandidate[I]{kind: "failure", failure: &Failure[I]{[]I{}, violations}}, nil
+		if !w.continued {
+			return shrinkCandidate[I]{kind: "failure", failure: &Failure[I]{[]I{}, violations}}, nil
+		}
+		found = append(found, ContinuedFinding{0, violations})
 	}
 	if reason := w.control.stop(); reason != "" {
 		return shrinkCandidate[I]{kind: "stopped", stop: reason}, nil
@@ -131,7 +139,9 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 		if e != nil {
 			return shrinkCandidate[I]{}, e
 		}
-		if len(violations) > 0 {
+		if len(violations) > 0 && w.continued {
+			found = append(found, ContinuedFinding{uint64(index + 1), violations})
+		} else if len(violations) > 0 {
 			owned, e := cloneInputs(g, captured[:index+1])
 			if e != nil {
 				return shrinkCandidate[I]{}, e
@@ -142,6 +152,14 @@ func (w *shrinkWork[S, I, O]) replay(inputs []I) (shrinkCandidate[I], error) {
 			return shrinkCandidate[I]{kind: "stopped", stop: reason}, nil
 		}
 		state = transition.State
+	}
+	if w.continued && len(found) > 0 && found[len(found)-1].Sequence == uint64(len(inputs)) {
+		owned, e := cloneInputs(g, captured[:len(inputs)])
+		if e != nil {
+			return shrinkCandidate[I]{}, e
+		}
+		w.lastFindings = found
+		return shrinkCandidate[I]{kind: "failure", failure: &Failure[I]{owned, found[len(found)-1].Violations}}, nil
 	}
 	return shrinkCandidate[I]{kind: "pass"}, nil
 }
@@ -172,6 +190,14 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 	if e != nil {
 		return nil, e
 	}
+	work := &shrinkWork[S, I, O]{g: g, control: control, maximum: limits.MaxReplayedTransitions}
+	return shrinkDriver(g, original, original.Violations[0], config, work)
+}
+
+// shrinkDriver is shared by Shrink64 and ShrinkContinued; only candidate replay
+// differs between them (see shrinkWork.continued).
+func shrinkDriver[S, I, O any](g GenerateModel[S, I, O], original Failure[I], target Violation, config ShrinkConfig64, work *shrinkWork[S, I, O]) (*ShrinkReport64[I], error) {
+	control := work.control
 	saved, e := cloneFailure(g, original)
 	if e != nil {
 		return nil, e
@@ -181,8 +207,6 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 		return nil, e
 	}
 	report := &ShrinkReport64[I]{Original: saved, Minimized: minimum, Attempts: 1, Termination: "search_complete"}
-	target := saved.Violations[0]
-	work := shrinkWork[S, I, O]{g: g, control: control, maximum: limits.MaxReplayedTransitions}
 	validation, e := work.replay(saved.Inputs)
 	if e != nil {
 		return nil, e
@@ -197,6 +221,8 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 	} else {
 		report.Minimized = *validation.failure
 		report.ValidatedOriginal = true
+		work.originalFindings = work.lastFindings
+		work.minimizedFindings = work.lastFindings
 	}
 	report.History = []ShrinkAttempt64{{1, uint64(len(saved.Inputs)), ShrinkOperation64{Kind: "validate_original"}, outcome}}
 	if !report.ValidatedOriginal {
@@ -287,6 +313,9 @@ func ShrinkWithLimits64[S, I, O any](g GenerateModel[S, I, O], original Failure[
 					seen = append(seen, copy)
 					report.Minimized = *replayed.failure
 					outcome = "retained"
+					if work.continued {
+						work.minimizedFindings = work.lastFindings
+					}
 				}
 			}
 		}

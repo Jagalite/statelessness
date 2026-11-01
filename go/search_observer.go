@@ -106,6 +106,13 @@ func captureFuzzEdge[S, I, O any](g GenerateModel[S, I, O], state S, input I, t 
 }
 
 func searchEdgeObservedPrepared[S, I, O any](g GenerateModel[S, I, O], state S, input I, t Transition[S, O], history []I, skipped *uint64, observer *SearchObserver[S, I, O], checks *[]Check, prepared *fuzzEdgeCapture[S, I, O]) ([]Violation, error) {
+	violations, _, e := searchEdgeObservedBoundary(g, state, input, t, history, skipped, observer, checks, prepared)
+	return violations, e
+}
+
+// searchEdgeObservedBoundary also reports how many leading checks in *checks
+// are state checks; the remainder are transition checks.
+func searchEdgeObservedBoundary[S, I, O any](g GenerateModel[S, I, O], state S, input I, t Transition[S, O], history []I, skipped *uint64, observer *SearchObserver[S, I, O], checks *[]Check, prepared *fuzzEdgeCapture[S, I, O]) ([]Violation, int, error) {
 	resetChecks(checks)
 	// Capture the edge before state checks can mutate externally aliased inputs.
 	// A failed capture is consumed only by the later stage that needs it, so a
@@ -156,9 +163,9 @@ func searchEdgeObservedPrepared[S, I, O any](g GenerateModel[S, I, O], state S, 
 	}
 	if e != nil {
 		if observerError := observerCheckError(observer, "state", *checks, false); observerError != nil {
-			return nil, fmt.Errorf("%w; %v", e, observerError)
+			return nil, 0, fmt.Errorf("%w; %v", e, observerError)
 		}
-		return nil, e
+		return nil, 0, e
 	}
 	boundary := len(*checks)
 	if needCheck {
@@ -171,9 +178,9 @@ func searchEdgeObservedPrepared[S, I, O any](g GenerateModel[S, I, O], state S, 
 		first := observerCheckError(observer, "state", (*checks)[:boundary], true)
 		second := observerCheckError(observer, "transition", (*checks)[boundary:], false)
 		if first != nil || second != nil {
-			return nil, fmt.Errorf("%w; observer errors: %v; %v", e, first, second)
+			return nil, 0, fmt.Errorf("%w; observer errors: %v; %v", e, first, second)
 		}
-		return nil, e
+		return nil, 0, e
 	}
 	if needObserver {
 		_, e = call("observer transition", func() (struct{}, error) {
@@ -192,8 +199,8 @@ func searchEdgeObservedPrepared[S, I, O any](g GenerateModel[S, I, O], state S, 
 			return struct{}{}, transitionObserver(g.CloneState(edge.before), g.CloneInput(edge.input), snapshot, copyChecks((*checks)[:boundary]), copyChecks((*checks)[boundary:]), retainedHistory)
 		})
 		if e != nil {
-			return nil, e
+			return nil, 0, e
 		}
 	}
-	return append(findings("state", (*checks)[:boundary], skipped), findings("transition", (*checks)[boundary:], skipped)...), nil
+	return append(findings("state", (*checks)[:boundary], skipped), findings("transition", (*checks)[boundary:], skipped)...), boundary, nil
 }
