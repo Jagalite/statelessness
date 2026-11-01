@@ -293,11 +293,35 @@ private final class GraphSearchRun<S, I, O> {
             r.coverage = !r.depthCutoff && !r.failurePruned ? .exhaustive : .bounded(depthCutoff: r.depthCutoff, failurePruned: r.failurePruned)
         } else { r.coverage = .incomplete(r.termination) }
     }
+    // Throwing clone closures live in these small methods rather than inside
+    // the long search loop: the Swift 6.0.3 SIL ownership verifier otherwise
+    // reports a leaked copy of the generic clone closure on early exits.
+    func detach(_ state: S) -> Result<S, Error> { Result { try copied(m.cloneState, state) } }
+    func copyState(_ state: S) throws -> S { try copied(m.cloneState, state) }
+    func copyInput(_ input: I) throws -> I { try copied(m.cloneInput, input) }
+    func copyOutputs(_ outputs: [O]) throws -> [O] { try outputs.map { try copied(m.cloneOutput, $0) } }
+    func enumerate(_ state: S) throws -> InputIterator<I> { try call("enumerate inputs") { try inputs(copied(m.cloneState, state)) } }
+    func pull(_ iterator: InputIterator<I>) throws -> I? { try call("enumerate inputs", iterator.next) }
+    func sameState(_ admitted: S, _ candidate: S) throws -> Bool { try call("state equality") { try equal(copied(m.cloneState, admitted), copied(m.cloneState, candidate)) } }
+    func payload(_ input: I, _ outputs: [O]) -> Result<(I, [O]), Error> { Result { (try copyInput(input), try copyOutputs(outputs)) } }
+    func witness(_ cursor: Int, _ input: I) throws -> [I] { var w = try path(cursor); w.append(try copyInput(input)); return w }
+    func annotations(_ before: S, _ input: I, _ successor: Result<S, Error>, _ t: Transition<S, O>) throws -> [String] {
+        guard let annotate = options.annotateEdge else { return [] }
+        let snapshot = Transition(state: try copyState(successor.get()), outputs: try copyOutputs(t.outputs), disposition: t.disposition)
+        return try call("annotate edge") { try annotate(copied(m.cloneState, before), copied(m.cloneInput, input), snapshot) }
+    }
+    func reductionClass(_ reduction: EquivalenceReduction<S, I, O>, _ before: S, _ input: I) throws -> String? {
+        try call("reduction eligible_class") { try reduction.eligibleClass(copied(m.cloneState, before), copied(m.cloneInput, input)) }
+    }
+    func reductionProjection(_ reduction: EquivalenceReduction<S, I, O>, _ input: I, _ successor: S, _ t: Transition<S, O>, _ labels: [String]) throws -> [UInt8] {
+        let observed = Transition(state: try copyState(successor), outputs: try copyOutputs(t.outputs), disposition: t.disposition)
+        return try call("reduction projection") { try reduction.projection(copied(m.cloneInput, input), observed, labels) }
+    }
     func execute() throws {
         if stopped() { return }
         let initial = try searchInitial(m)
         // Checks can invoke application code with aliases to the returned value.
-        let initialSnapshot = Result { try copied(m.cloneState, initial) }
+        let initialSnapshot = detach(initial)
         r.states = 1
         let initialBad = try searchInitialChecks(m, state: initial, skipped: &r.skippedChecks, observer: options.observer, storage: storage)
         let initialChecks = storage.checks
@@ -328,134 +352,138 @@ private final class GraphSearchRun<S, I, O> {
             let current = r.nodes[cursor]
             if current.depth > currentLayer { try completeLayer(); currentLayer = current.depth }
             if current.expansion == .failurePruned { cursor += 1; continue }
-            if stopped() { return }
-            activeNode = cursor
-            try emit(.expansionStarted(cursor))
-            let iterator = try call("enumerate inputs") { try inputs(copied(m.cloneState, current.state)) }
-            if stopped() { return }
-            func next() throws -> I? { try call("enumerate inputs", iterator.next) }
-            if current.depth == config.maxDepth {
-                let item = try next()
-                if stopped() { return }
-                if item != nil { r.depthCutoff = true }
-                try finishNode(cursor, item != nil ? .depthFrontier : .complete); cursor += 1; continue
-            }
-            var representatives: [ExactString: [Representative<S>]] = [:]
-            while true {
-                if stopped() { return }
-                let item = try next()
-                if stopped() { return }
-                guard let input = item else { break }
-                if r.transitions == config.maxTransitions { r.termination = "transition_limit"; return }
-                let retainedInput = try copied(m.cloneInput, input)
-                let transition = try perform(m, current.state, retainedInput)
-                r.transitions += 1; r.maxDepthReached = max(r.maxDepthReached, current.depth + 1)
-                // Detach the successor and edge payload before checks/observers can
-                // mutate an external alias. Copy failures surface only when used.
-                let successor = Result { try copied(m.cloneState, transition.state) }
-                let payload = needsEdgeRecord ? Result { (try copied(m.cloneInput, retainedInput), try transition.outputs.map { try copied(m.cloneOutput, $0) }) } : nil
-                var history: [I] = []
-                if options.observer?.needsHistory() == true { history = try path(cursor); history.append(try copied(m.cloneInput, retainedInput)) }
-                let bad = try searchEdge(m, state: current.state, input: retainedInput, transition: transition, skipped: &r.skippedChecks, observer: options.observer, history: history, storage: storage)
-                let stateChecks = Array(storage.checks.prefix(storage.stateCount)), transitionChecks = Array(storage.checks.dropFirst(storage.stateCount))
-                var annotations: [String] = []
-                if let annotate = options.annotateEdge {
-                    let snapshot = Transition(state: try copied(m.cloneState, successor.get()), outputs: try transition.outputs.map { try copied(m.cloneOutput, $0) }, disposition: transition.disposition)
-                    annotations = try call("annotate edge") { try annotate(copied(m.cloneState, current.state), copied(m.cloneInput, retainedInput), snapshot) }
-                }
-                let edgeID = nextEdge; nextEdge += 1; pendingEdge = edgeID
-                var retained = false
-                if let payload {
-                    let (edgeInput, outputs) = try payload.get()
-                    let edge = GraphEdge(id: edgeID, source: cursor, input: edgeInput, disposition: transition.disposition, outputs: outputs, stateChecks: stateChecks, transitionChecks: transitionChecks, annotations: annotations, target: .pending)
-                    if r.edgesRetained {
-                        if let maximum = options.retention.maxRetainedEdges, r.edges.count >= maximum { r.edgesRetained = false }
-                        else if !chargeGraph(edgeBytes(edge)) { r.edgesRetained = false }
-                        else { r.edges.append(edge); retained = true }
-                    }
-                    try emit(.edgeEvaluated(try detached(edge)))
-                }
-                if !bad.isEmpty {
-                    try recordFinding(bad, edge: edgeID, earlier: current.pathFailed) { var w = try path(cursor); w.append(try copied(m.cloneInput, retainedInput)); return w }
-                    if !collect { r.termination = "failure_found"; return }
-                }
-                if options.retention.retainEdges && !retained {
-                    // The graph can no longer be retained completely.
-                    r.termination = "graph_retention_limit"; try reject(edgeID, "graph_retention_limit"); return
-                }
-                if stopped() { try reject(edgeID, r.termination); return }
-                let retainedSuccessor = try successor.get()
-                if let reduction = options.reduction {
-                    let label = try call("reduction eligible_class") { try reduction.eligibleClass(copied(m.cloneState, current.state), copied(m.cloneInput, retainedInput)) }
-                    if stopped() { try reject(edgeID, r.termination); return }
-                    if let label {
-                        let key = ExactString(label)
-                        let observed = Transition(state: try copied(m.cloneState, retainedSuccessor), outputs: try transition.outputs.map { try copied(m.cloneOutput, $0) }, disposition: transition.disposition)
-                        let projection = try call("reduction projection") { try reduction.projection(copied(m.cloneInput, retainedInput), observed, annotations) }
-                        if stopped() { try reject(edgeID, r.termination); return }
-                        var rejected: [RejectedEquivalence] = [], reducedTo: GraphEdgeID?
-                        for rep in representatives[key] ?? [] {
-                            let reason: String?
-                            if rep.disposition != transition.disposition { reason = "disposition_differs" }
-                            else if rep.checks != storage.checks { reason = "checks_differ" }
-                            else if rep.projection != projection { reason = "projection_differs" }
-                            else {
-                                if stopped() { try reject(edgeID, r.termination); return }
-                                let same = try call("state equality") { try equal(copied(m.cloneState, rep.state), copied(m.cloneState, retainedSuccessor)) }
-                                if stopped() { try reject(edgeID, r.termination); return }
-                                reason = same ? nil : "successor_differs"
-                            }
-                            if let reason { rejected.append(RejectedEquivalence(representative: rep.edge, reason: reason)) } else { reducedTo = rep.edge; break }
-                        }
-                        r.reductionDecisions.append(ReductionDecision(edge: edgeID, source: cursor, equivalenceClass: label, reducedTo: reducedTo, rejected: rejected))
-                        if let rep = reducedTo {
-                            setTarget(edgeID, .reduced(rep)); r.reducedEdges += 1
-                            try emit(.edgeReduced(edge: edgeID, representative: rep)); continue
-                        }
-                        representatives[key, default: []].append(Representative(edge: edgeID, state: try copied(m.cloneState, retainedSuccessor), disposition: transition.disposition, checks: storage.checks, projection: projection))
-                    }
-                }
-                let key = try hash(retainedSuccessor)
-                if stopped() { try reject(edgeID, r.termination); return }
-                var duplicate: Int?
-                // Rust collision chains visit the most recently admitted state first.
-                for index in (visited[key] ?? []).reversed() {
-                    if stopped() { try reject(edgeID, r.termination); return }
-                    let same = try call("state equality") { try equal(copied(m.cloneState, r.nodes[index].state), copied(m.cloneState, retainedSuccessor)) }
-                    if stopped() { try reject(edgeID, r.termination); return }
-                    if same { duplicate = index; break }
-                }
-                if let existing = duplicate {
-                    setTarget(edgeID, .duplicate(existing)); r.duplicateEdges += 1; r.graphEdges += 1
-                    try emit(.duplicateEdge(edge: edgeID, existing: existing)); continue
-                }
-                if !bad.isEmpty && !expandFailing { r.failurePruned = true; try reject(edgeID, "failing_successor"); continue }
-                if r.nodes.count == config.maxStates { r.termination = "state_limit"; try reject(edgeID, "state_limit"); return }
-                let successorBytes = try estimate(retainedSuccessor)
-                if stopped() { try reject(edgeID, r.termination); return }
-                let total: UInt64?
-                if let retainedBytes = r.estimatedRetainedStateBytes, let bytes = successorBytes {
-                    let (sum, overflow) = retainedBytes.addingReportingOverflow(bytes); total = overflow ? nil : sum
-                } else { total = nil }
-                if let maximum = limits.maxEstimatedStateBytes {
-                    guard successorBytes != nil else { throw ModelError("state byte budget requires estimated_state_bytes") }
-                    guard let sum = total, sum <= maximum else { r.termination = "estimated_state_byte_limit"; try reject(edgeID, "estimated_state_byte_limit"); return }
-                }
-                guard chargeGraph(saturatingAdd(UInt64(MemoryLayout<GraphNode<S, I>>.stride), checkBytes(stateChecks))) else {
-                    r.termination = "graph_retention_limit"; try reject(edgeID, "graph_retention_limit"); return
-                }
-                let ownedInput = try copied(m.cloneInput, retainedInput)
-                let id = r.nodes.count
-                visited[key, default: []].append(id)
-                r.nodes.append(GraphNode(id: id, state: retainedSuccessor, parent: cursor, input: ownedInput, admittingEdge: edgeID, depth: current.depth + 1, checks: stateChecks, pathFailed: current.pathFailed || !bad.isEmpty, expansion: .unexpanded))
-                r.states = r.nodes.count; r.estimatedRetainedStateBytes = total; r.graphEdges += 1
-                setTarget(edgeID, .admitted(id))
-                try emit(.successorAdmitted(edge: edgeID, node: id))
-            }
-            try finishNode(cursor, .complete)
+            guard try expand(cursor, current) else { return }
             cursor += 1
         }
         try completeLayer()
         if r.depthCutoff { r.termination = "depth_bound" }
+    }
+    /// Expands one dequeued node. False when the search ends.
+    func expand(_ cursor: Int, _ current: GraphNode<S, I>) throws -> Bool {
+        if stopped() { return false }
+        activeNode = cursor
+        try emit(.expansionStarted(cursor))
+        let iterator = try enumerate(current.state)
+        if stopped() { return false }
+        if current.depth == config.maxDepth {
+            let item = try pull(iterator)
+            if stopped() { return false }
+            if item != nil { r.depthCutoff = true }
+            try finishNode(cursor, item != nil ? .depthFrontier : .complete); return true
+        }
+        var representatives: [ExactString: [Representative<S>]] = [:]
+        while true {
+            if stopped() { return false }
+            let item = try pull(iterator)
+            if stopped() { return false }
+            guard let input = item else { break }
+            if r.transitions == config.maxTransitions { r.termination = "transition_limit"; return false }
+            guard try evaluate(cursor, current, input, &representatives) else { return false }
+        }
+        try finishNode(cursor, .complete)
+        return true
+    }
+    /// Evaluates and resolves one edge. False when the search ends.
+    func evaluate(_ cursor: Int, _ current: GraphNode<S, I>, _ input: I, _ representatives: inout [ExactString: [Representative<S>]]) throws -> Bool {
+        let retainedInput = try copyInput(input)
+        let transition = try perform(m, current.state, retainedInput)
+        r.transitions += 1; r.maxDepthReached = max(r.maxDepthReached, current.depth + 1)
+        // Detach the successor and edge payload before checks/observers can
+        // mutate an external alias. Copy failures surface only when used.
+        let successor = detach(transition.state)
+        let edgePayload = needsEdgeRecord ? payload(retainedInput, transition.outputs) : nil
+        var history: [I] = []
+        if options.observer?.needsHistory() == true { history = try witness(cursor, retainedInput) }
+        let bad = try searchEdge(m, state: current.state, input: retainedInput, transition: transition, skipped: &r.skippedChecks, observer: options.observer, history: history, storage: storage)
+        let stateChecks = Array(storage.checks.prefix(storage.stateCount)), transitionChecks = Array(storage.checks.dropFirst(storage.stateCount))
+        let labels = try annotations(current.state, retainedInput, successor, transition)
+        let edgeID = nextEdge; nextEdge += 1; pendingEdge = edgeID
+        var retained = false
+        if let edgePayload {
+            let (edgeInput, outputs) = try edgePayload.get()
+            let edge = GraphEdge(id: edgeID, source: cursor, input: edgeInput, disposition: transition.disposition, outputs: outputs, stateChecks: stateChecks, transitionChecks: transitionChecks, annotations: labels, target: .pending)
+            if r.edgesRetained {
+                if let maximum = options.retention.maxRetainedEdges, r.edges.count >= maximum { r.edgesRetained = false }
+                else if !chargeGraph(edgeBytes(edge)) { r.edgesRetained = false }
+                else { r.edges.append(edge); retained = true }
+            }
+            try emit(.edgeEvaluated(try detached(edge)))
+        }
+        if !bad.isEmpty {
+            try recordFinding(bad, edge: edgeID, earlier: current.pathFailed) { try witness(cursor, retainedInput) }
+            if !collect { r.termination = "failure_found"; return false }
+        }
+        if options.retention.retainEdges && !retained {
+            // The graph can no longer be retained completely.
+            r.termination = "graph_retention_limit"; try reject(edgeID, "graph_retention_limit"); return false
+        }
+        if stopped() { try reject(edgeID, r.termination); return false }
+        let retainedSuccessor = try successor.get()
+        if let reduction = options.reduction {
+            let label = try reductionClass(reduction, current.state, retainedInput)
+            if stopped() { try reject(edgeID, r.termination); return false }
+            if let label {
+                let key = ExactString(label)
+                let projection = try reductionProjection(reduction, retainedInput, retainedSuccessor, transition, labels)
+                if stopped() { try reject(edgeID, r.termination); return false }
+                var rejected: [RejectedEquivalence] = [], reducedTo: GraphEdgeID?
+                for rep in representatives[key] ?? [] {
+                    let reason: String?
+                    if rep.disposition != transition.disposition { reason = "disposition_differs" }
+                    else if rep.checks != storage.checks { reason = "checks_differ" }
+                    else if rep.projection != projection { reason = "projection_differs" }
+                    else {
+                        if stopped() { try reject(edgeID, r.termination); return false }
+                        let same = try sameState(rep.state, retainedSuccessor)
+                        if stopped() { try reject(edgeID, r.termination); return false }
+                        reason = same ? nil : "successor_differs"
+                    }
+                    if let reason { rejected.append(RejectedEquivalence(representative: rep.edge, reason: reason)) } else { reducedTo = rep.edge; break }
+                }
+                r.reductionDecisions.append(ReductionDecision(edge: edgeID, source: cursor, equivalenceClass: label, reducedTo: reducedTo, rejected: rejected))
+                if let rep = reducedTo {
+                    setTarget(edgeID, .reduced(rep)); r.reducedEdges += 1
+                    try emit(.edgeReduced(edge: edgeID, representative: rep)); return true
+                }
+                representatives[key, default: []].append(Representative(edge: edgeID, state: try copyState(retainedSuccessor), disposition: transition.disposition, checks: storage.checks, projection: projection))
+            }
+        }
+        let key = try hash(retainedSuccessor)
+        if stopped() { try reject(edgeID, r.termination); return false }
+        var duplicate: Int?
+        // Rust collision chains visit the most recently admitted state first.
+        for index in (visited[key] ?? []).reversed() {
+            if stopped() { try reject(edgeID, r.termination); return false }
+            let same = try sameState(r.nodes[index].state, retainedSuccessor)
+            if stopped() { try reject(edgeID, r.termination); return false }
+            if same { duplicate = index; break }
+        }
+        if let existing = duplicate {
+            setTarget(edgeID, .duplicate(existing)); r.duplicateEdges += 1; r.graphEdges += 1
+            try emit(.duplicateEdge(edge: edgeID, existing: existing)); return true
+        }
+        if !bad.isEmpty && !expandFailing { r.failurePruned = true; try reject(edgeID, "failing_successor"); return true }
+        if r.nodes.count == config.maxStates { r.termination = "state_limit"; try reject(edgeID, "state_limit"); return false }
+        let successorBytes = try estimate(retainedSuccessor)
+        if stopped() { try reject(edgeID, r.termination); return false }
+        let total: UInt64?
+        if let retainedBytes = r.estimatedRetainedStateBytes, let bytes = successorBytes {
+            let (sum, overflow) = retainedBytes.addingReportingOverflow(bytes); total = overflow ? nil : sum
+        } else { total = nil }
+        if let maximum = limits.maxEstimatedStateBytes {
+            guard successorBytes != nil else { throw ModelError("state byte budget requires estimated_state_bytes") }
+            guard let sum = total, sum <= maximum else { r.termination = "estimated_state_byte_limit"; try reject(edgeID, "estimated_state_byte_limit"); return false }
+        }
+        guard chargeGraph(saturatingAdd(UInt64(MemoryLayout<GraphNode<S, I>>.stride), checkBytes(stateChecks))) else {
+            r.termination = "graph_retention_limit"; try reject(edgeID, "graph_retention_limit"); return false
+        }
+        let ownedInput = try copyInput(retainedInput)
+        let id = r.nodes.count
+        visited[key, default: []].append(id)
+        r.nodes.append(GraphNode(id: id, state: retainedSuccessor, parent: cursor, input: ownedInput, admittingEdge: edgeID, depth: current.depth + 1, checks: stateChecks, pathFailed: current.pathFailed || !bad.isEmpty, expansion: .unexpanded))
+        r.states = r.nodes.count; r.estimatedRetainedStateBytes = total; r.graphEdges += 1
+        setTarget(edgeID, .admitted(id))
+        try emit(.successorAdmitted(edge: edgeID, node: id))
+        return true
     }
 }

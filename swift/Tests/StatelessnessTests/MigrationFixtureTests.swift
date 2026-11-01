@@ -3,9 +3,11 @@ import XCTest
 import Statelessness
 
 /// Consumes the published graph-search-v1 and progress-analysis-v1 fixtures.
-private func fixture(_ name: String) throws -> [[String: Any]] {
+/// Relocated package tests bind fixture paths explicitly (scripts/check-native-ports.py).
+private func fixture(_ name: String, environment key: String) throws -> [[String: Any]] {
     let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-    let doc = try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("conformance/\(name)"))) as! [String: Any]
+    let path = ProcessInfo.processInfo.environment[key].map { URL(fileURLWithPath: $0) } ?? root.appendingPathComponent("conformance/\(name)")
+    let doc = try JSONSerialization.jsonObject(with: Data(contentsOf: path)) as! [String: Any]
     XCTAssertEqual(doc["version"] as? Int, 1)
     return doc["cases"] as! [[String: Any]]
 }
@@ -42,7 +44,7 @@ private func spelled(_ c: GraphCoverage) -> String {
 }
 final class MigrationFixtureTests: XCTestCase {
     func testGraphSearchFixtures() throws {
-        let cases = try fixture("graph-search-v1.json")
+        let cases = try fixture("graph-search-v1.json", environment: "STATELESS_GRAPH_SEARCH_CORPUS")
         XCTAssertEqual(cases.count, 10)
         for c in cases {
             let name = c["case"] as! String
@@ -70,7 +72,7 @@ final class MigrationFixtureTests: XCTestCase {
         }
     }
     func testProgressAnalysisFixtures() throws {
-        let cases = try fixture("progress-analysis-v1.json")
+        let cases = try fixture("progress-analysis-v1.json", environment: "STATELESS_PROGRESS_CORPUS")
         XCTAssertEqual(cases.count, 9)
         for c in cases {
             let name = c["case"] as! String, n = c["nodes"] as! Int

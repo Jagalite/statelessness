@@ -40,7 +40,9 @@ private func search(_ m: Model<Int, Int, Int>, config: SearchConfig = SearchConf
 private func targets(_ r: GraphSearchReport<Int, Int, Int>) -> [EdgeTarget] { r.edges.map(\.target) }
 private func corpus() throws -> [[String: Any]] {
     let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-    return (try JSONSerialization.jsonObject(with: Data(contentsOf: root.appendingPathComponent("conformance/bfs-controls-v1.json"))) as! [String: Any])["cases"] as! [[String: Any]]
+    // Relocated package tests bind the shared corpus explicitly (scripts/check-native-ports.py).
+    let path = ProcessInfo.processInfo.environment["STATELESS_BFS_CORPUS"].map { URL(fileURLWithPath: $0) } ?? root.appendingPathComponent("conformance/bfs-controls-v1.json")
+    return (try JSONSerialization.jsonObject(with: Data(contentsOf: path)) as! [String: Any])["cases"] as! [[String: Any]]
 }
 
 final class GraphSearchTests: XCTestCase {

@@ -66,6 +66,7 @@ the specs alone; that re-derivation matched all 19 cases.
 | `20261031-s1-s5` | consumer build failed | Consumer top-level globals violated Swift 6 strict concurrency; fixed in the consumer. |
 | `20261031-s1-s5-r2` | consumer passed; 2 of 731 staged tests failed | Driver did not stage `docs/requirements/`, which pre-existing tests read; fixed in the driver. |
 | `20261031-s1-s5-r3` | **passed** | Consumer built and ran (`migration-consumer: ok`); 731 staged tests, 3 skipped, 0 failures. |
+| `20261031-s1-s5-r7-ci-fixes` | **passed** | Fixes for PR CI: the Swift 6.0.3 SIL ownership verifier crash in `exploreGraph`, reproduced locally with `-sil-verify-all` and clean after the fix; and fixture paths for relocated tests. macOS and Linux 6.0.3: 732 tests, 0 failures each; relocated run, 26 tests, 0 failures. |
 | `20261031-s1-s5-r5` | **passed** | Commit `9615908` (fixes from the gpt-6.1-sol review: unresolved-edge counting, progress comparison): macOS consumer ok, 732 tests, 0 failures. |
 | `20261031-s1-s5-r5-linux-6.0.3` | **passed** | `9615908` in `swift:6.0.3`: aarch64 and x86_64 (Rosetta), 732 tests, 0 failures each, consumer ok. |
 | `20261031-s1-s5-r4` | **passed** | macOS arm64, Swift 6.3.3, commit `bc912fb`: consumer ok; 731 tests, 3 skipped, 0 failures. |

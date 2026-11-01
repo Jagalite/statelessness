@@ -1,0 +1,624 @@
+Building for debugging...
+[0/23] Write sources
+[6/23] Write swift-version-24593BA9C3E375BF.txt
+[8/67] Emitting module Statelessness
+[9/81] Compiling Statelessness Model.swift
+[10/81] Compiling Statelessness Modeling.swift
+[11/81] Compiling Statelessness Network.swift
+[12/81] Compiling Statelessness Observation.swift
+[13/81] Compiling Statelessness Oracle.swift
+[14/81] Compiling Statelessness ProgressAnalysis.swift
+[15/81] Compiling Statelessness Recorder.swift
+[16/81] Compiling Statelessness Reduction.swift
+[17/81] Compiling Statelessness ReferenceCatalogData.swift
+[18/81] Compiling Statelessness ReferenceController.swift
+[19/81] Compiling Statelessness ReferenceControllerBuildID.swift
+[20/81] Compiling Statelessness ReferenceControllerCodec.swift
+[21/81] Compiling Statelessness ReferenceCoverage.swift
+[22/81] Compiling Statelessness ReferenceRegressionData.swift
+[23/81] Compiling Statelessness ReferenceRegressions.swift
+[24/81] Compiling Statelessness ReferenceSuitePersistence.swift
+[25/81] Compiling Statelessness ReferenceWitness.swift
+[26/81] Compiling Statelessness Replay.swift
+[27/81] Compiling Statelessness Research.swift
+[28/81] Compiling Statelessness Rng.swift
+[29/81] Compiling Statelessness Shrink.swift
+[30/81] Compiling Statelessness StatefulCodec.swift
+[31/81] Compiling Statelessness TraceJSON.swift
+[32/81] Compiling Statelessness ValueCodec.swift
+[33/81] Compiling Statelessness ValueCodec128.swift
+[34/81] Compiling Statelessness ValueCodecBuiltins.swift
+[35/81] Compiling Statelessness ValueCodecDecoder.swift
+[36/81] Compiling Statelessness ValueCodecLayouts.swift
+[37/81] Compiling Statelessness Assurance.swift
+[38/81] Compiling Statelessness AssuranceCampaign.swift
+[39/81] Compiling Statelessness AuditRecording.swift
+[40/81] Compiling Statelessness AuditTrace.swift
+[41/81] Compiling Statelessness Campaign.swift
+[42/81] Compiling Statelessness CampaignLifecycle.swift
+[43/81] Compiling Statelessness CampaignRuntime.swift
+[44/81] Compiling Statelessness CheckSink.swift
+[45/81] Compiling Statelessness CheckedResults.swift
+[46/81] Compiling Statelessness Composition.swift
+[47/81] Compiling Statelessness ContinuedEvidence.swift
+[48/81] Compiling Statelessness CountCompatibility.swift
+[49/81] Compiling Statelessness DeriveCodec.swift
+[50/81] Compiling Statelessness EncodeBuffer.swift
+[51/81] Compiling Statelessness Evidence.swift
+[52/81] Compiling Statelessness EvidenceCodec.swift
+[53/81] Compiling Statelessness EvidenceExports.swift
+[54/81] Compiling Statelessness EvidenceRecorder.swift
+[55/81] Compiling Statelessness Execution.swift
+[56/81] Compiling Statelessness ExecutionBudget.swift
+[57/81] Compiling Statelessness Explore.swift
+[58/81] Compiling Statelessness Fuzz.swift
+[59/81] Compiling Statelessness FuzzAuto.swift
+[60/81] Compiling Statelessness Generate.swift
+[61/81] Compiling Statelessness GraphSearch.swift
+[62/81] Compiling Statelessness Guided.swift
+[63/81] Compiling Statelessness JSON.swift
+[64/81] Compiling Statelessness Lifecycle.swift
+[65/81] Compiling Statelessness LifecycleCodec.swift
+[66/82] Wrapping AST for Statelessness for debugging
+[68/98] Compiling StatelessConformance Conformance.swift
+[69/98] Emitting module StatelessConformance
+[70/99] Wrapping AST for StatelessConformance for debugging
+[72/139] Compiling StatelessCorpus main.swift
+[73/139] Emitting module StatelessCorpus
+[74/140] Wrapping AST for StatelessCorpus for debugging
+[75/140] Write Objects.LinkFileList
+[76/140] Linking stateless-corpus
+[78/140] Compiling StatelessnessTests PairStepSnapshotTests.swift
+[79/140] Compiling StatelessnessTests ProgressAnalysisTests.swift
+[80/140] Compiling StatelessnessTests RecorderTests.swift
+[81/140] Compiling StatelessnessTests RecordingErrorTests.swift
+[82/140] Compiling StatelessnessTests ReductionTests.swift
+[83/140] Compiling StatelessnessTests ReferenceControllerTests.swift
+[84/140] Compiling StatelessnessTests ReplayCorpusTests.swift
+[85/140] Compiling StatelessnessTests EvidenceExportsTests.swift
+[86/140] Compiling StatelessnessTests NetworkStepSnapshotTests.swift
+[87/140] Compiling StatelessnessTests ObservationBudgetPrecedenceTests.swift
+[88/140] Compiling StatelessnessTests ObservationRecorderIntegrationTests.swift
+[89/140] Compiling StatelessnessTests ObservationTests.swift
+[90/140] Compiling StatelessnessTests OracleTests.swift
+[91/140] Emitting module StatelessDebug
+[92/144] Compiling StatelessDebug ProtocolWatches.swift
+[93/144] Compiling StatelessDebug Session.swift
+[94/144] Compiling StatelessDebug TraceViewer.swift
+[95/144] Compiling StatelessDebug Watches.swift
+[96/145] Wrapping AST for StatelessDebug for debugging
+[98/161] Compiling StatelessDebugTests EffectsTests.swift
+[99/161] Compiling StatelessDebugTests EvidenceViewerTests.swift
+[100/161] Compiling StatelessDebugTests InspectionTests.swift
+[101/161] Compiling StatelessDebugTests LiveBridgeTests.swift
+[102/161] Compiling StatelessDebugTests MarkerTests.swift
+[103/161] Compiling StatelessDebugTests MetricsTests.swift
+[104/161] Compiling StatelessDebugTests ProtocolEventStreamTests.swift
+[105/161] Compiling StatelessDebugTests ProtocolProbeAttachmentTests.swift
+[106/161] Compiling StatelessDebugTests ProtocolTelemetryAttachmentTests.swift
+[107/161] Compiling StatelessDebugTests ProtocolTests.swift
+[108/161] Compiling StatelessDebugTests BranchTests.swift
+[109/161] Compiling StatelessDebugTests DashboardTests.swift
+[110/161] Compiling StatelessDebugTests DiagnosticLiveTests.swift
+[111/161] Compiling StatelessDebugTests DiagnosticsTests.swift
+[112/161] Compiling StatelessDebugTests EffectDashboardTests.swift
+[115/161] Compiling StatelessnessTests GraphSearchTests.swift
+[116/161] Compiling StatelessnessTests GuidedTests.swift
+[117/161] Compiling StatelessnessTests LifecycleRustDiagnosticsTests.swift
+[118/161] Compiling StatelessnessTests MigrationFixtureTests.swift
+[119/161] Compiling StatelessnessTests MigrationNegativeControlTests.swift
+[120/161] Compiling StatelessnessTests NativeTests.swift
+[121/161] Compiling StatelessnessTests NetworkEqualitySnapshotTests.swift
+[122/161] Emitting module StatelessnessTests
+[123/173] Emitting module StatelessDebugTests
+[139/178] Compiling StatelessnessTests AppendChecksTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[140/178] Compiling StatelessnessTests AssuranceTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[141/178] Compiling StatelessnessTests AuditTraceTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[142/178] Compiling StatelessnessTests BFSControlsTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[143/178] Compiling StatelessnessTests CampaignLifecycleCodec.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[144/178] Compiling StatelessnessTests CampaignLifecycleTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[145/178] Compiling StatelessnessTests CampaignRuntimeTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[146/178] Compiling StatelessnessTests CheckedResultsTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[147/178] Compiling StatelessnessTests ContinuedEvidenceTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[148/178] Compiling StatelessnessTests Count64Tests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[149/178] Compiling StatelessnessTests DeriveCodecTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[150/178] Compiling StatelessnessTests DomainContainsSnapshotTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[151/178] Compiling StatelessnessTests EncodeReplayTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/CampaignLifecycleTests.swift:924:47: warning: will never be executed
+922 | 
+923 |     func testConsistentInitialCountBoundaryExtendsNativeIntDomain() throws {
+924 |         guard Int.bitWidth == 64 else { throw XCTSkip("Rust64 versus signed-64 count boundary") }
+    |                            |                  `- warning: will never be executed
+    |                            `- note: condition always evaluates to true
+925 |         let configuration = CampaignConfig(firstJob: 0, jobs: Int.max,
+926 |                                            fuzz: FuzzConfig(cases: 0, maxSteps: 0, maxTransitions: 0))
+[152/178] Compiling StatelessDebugTests ProtocolWatchAttachmentTests.swift
+[153/178] Compiling StatelessDebugTests SessionReadOwnershipTests.swift
+[154/178] Compiling StatelessDebugTests SessionTests.swift
+[155/178] Compiling StatelessDebugTests WatchTests.swift
+[156/178] Compiling StatelessDebugTests WireParityTests.swift
+[157/179] Wrapping AST for StatelessDebugTests for debugging
+[159/179] Compiling StatelessnessTests ResearchTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[160/179] Compiling StatelessnessTests SearchEdgeSnapshotTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[161/179] Compiling StatelessnessTests SearchTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[162/179] Compiling StatelessnessTests StatefulCheckSnapshotTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[163/179] Compiling StatelessnessTests StatefulCodecStreamingTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[164/179] Compiling StatelessnessTests StatefulLazyInputTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[165/179] Compiling StatelessnessTests StatefulTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[166/179] Compiling StatelessnessTests ValueCodecDecoderTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[167/179] Compiling StatelessnessTests ValueCodecDirectionsTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[168/179] Compiling StatelessnessTests ValueCodecEncoderCorpusTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[169/179] Compiling StatelessnessTests ValueCodecReaderCorpusTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[170/179] Compiling StatelessnessTests ValueCodecTests.swift
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:296:6: warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+294 | static func normalized(_ value:Research.ExperimentReport<String>,_ inputProposal:Object,_ inputConfig:Object,_ inputMetadata:Object)->Object {
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+    |      `- warning: immutable value 'proposal' was never used; consider replacing with '_' or removing it
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:297:6: warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+295 |  let p=value.proposal,a=p.assumptions,m=value.model,c=value.config
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+    |      `- warning: immutable value 'config' was never used; consider replacing with '_' or removing it
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+
+/w/pkg/swift/Tests/StatelessnessTests/ResearchTests.swift:298:6: warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+296 |  let proposal:Object=["name":p.name,"version":p.version,"build":p.build,"required_properties":p.requiredProperties.map(property),"assumptions":["established":a.established,"finite_domain":a.finiteDomain,"equivalence":a.equivalence,"effects":a.effects,"transition_properties":a.transitionProperties,"queue_order":a.queueOrder,"oracle_history":a.oracleHistory,"visible_timing":a.visibleTiming] as Object]
+297 |  let config:Object=["enabled":c.enabled,"max_states":String(c.maxStates),"max_edges":String(c.maxEdges),"max_equivalence_pairs":String(c.maxEquivalencePairs)]
+298 |  let metadata:Object=["name":m.name,"model_version":m.modelVersion,"properties_version":m.propertiesVersion,"codec_version":m.codecVersion,"build":m.build]
+    |      `- warning: immutable value 'metadata' was never used; consider replacing with '_' or removing it
+299 |  return ["model":metadataJSON(value.model),"proposal":proposalJSON(value.proposal),"config":configJSON(value.config),"status":value.status.rawValue,"declared_states":String(value.declaredStates),"materialized_edges":String(value.materializedEdges),"compared_pairs":String(value.comparedPairs),"exact":reachability(value.exact),"reduced":reachability(value.reduced),"counterexamples":value.counterexamples.map{["left_state":$0.leftState,"right_state":$0.rightState,"left_prefix":$0.leftPrefix,"right_prefix":$0.rightPrefix,"reason":$0.reason] as Object},"missing_violations":violations(value.missingViolations),"missing_properties":value.missingProperties.map(property),"limitation":value.limitation]
+300 | }
+[171/180] /tmp/eb/aarch64-unknown-linux-gnu/debug/StatelessnessPackageDiscoveredTests.derived/all-discovered-tests.swift
+[172/180] Write sources
+[173/180] Wrapping AST for StatelessnessTests for debugging
+[175/184] Compiling StatelessnessPackageDiscoveredTests all-discovered-tests.swift
+[176/184] Compiling StatelessnessPackageDiscoveredTests StatelessnessTests.swift
+[177/184] Compiling StatelessnessPackageDiscoveredTests StatelessDebugTests.swift
+<unknown>:0: warning: passing argument of non-sendable type 'EffectsTests' into main actor-isolated context may introduce data races; this is an error in the Swift 6 language mode
+<unknown>:0: warning: passing argument of non-sendable type 'EffectsTests' into main actor-isolated context may introduce data races; this is an error in the Swift 6 language mode
+/w/pkg/swift/Tests/StatelessDebugTests/EffectsTests.swift:5:13: note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+  3 | @testable import StatelessDebug
+  4 | 
+  5 | final class EffectsTests: XCTestCase {
+    |             |- note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+    |             `- note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+  6 |     func testReadyRemovalDoesNotReadClockOrEmitEvent() throws {
+  7 |         var reads = 0
+[178/184] Emitting module StatelessnessPackageDiscoveredTests
+<unknown>:0: warning: passing argument of non-sendable type 'EffectsTests' into main actor-isolated context may introduce data races; this is an error in the Swift 6 language mode
+<unknown>:0: warning: passing argument of non-sendable type 'EffectsTests' into main actor-isolated context may introduce data races; this is an error in the Swift 6 language mode
+/w/pkg/swift/Tests/StatelessDebugTests/EffectsTests.swift:5:13: note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+  3 | @testable import StatelessDebug
+  4 | 
+  5 | final class EffectsTests: XCTestCase {
+    |             |- note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+    |             `- note: class 'EffectsTests' does not conform to the 'Sendable' protocol
+  6 |     func testReadyRemovalDoesNotReadClockOrEmitEvent() throws {
+  7 |         var reads = 0
+[179/185] /tmp/eb/aarch64-unknown-linux-gnu/debug/StatelessnessPackageTests.derived/runner.swift
+[180/185] Write sources
+[181/185] Wrapping AST for StatelessnessPackageDiscoveredTests for debugging
+[183/187] Compiling StatelessnessPackageTests runner.swift
+[184/187] Emitting module StatelessnessPackageTests
+[185/188] Wrapping AST for StatelessnessPackageTests for debugging
+[186/188] Write Objects.LinkFileList
+[187/188] Linking StatelessnessPackageTests.xctest
+Build complete! (20.50s)
+Test Suite 'Selected tests' started at 2026-11-01 01:07:23.951
+Test Suite 'BFSControlsTests' started at 2026-11-01 01:07:23.952
+Test Case 'BFSControlsTests.testAdmittedByteTotalsAndInitialCap' started at 2026-11-01 01:07:23.952
+Test Case 'BFSControlsTests.testAdmittedByteTotalsAndInitialCap' passed (0.001 seconds)
+Test Case 'BFSControlsTests.testDetachedDiamondHistoriesAndOptionalHistory' started at 2026-11-01 01:07:23.953
+Test Case 'BFSControlsTests.testDetachedDiamondHistoriesAndOptionalHistory' passed (0.001 seconds)
+Test Case 'BFSControlsTests.testOracleNativePaddingUnknownOverflowAndPairedForwarding' started at 2026-11-01 01:07:23.954
+Test Case 'BFSControlsTests.testOracleNativePaddingUnknownOverflowAndPairedForwarding' passed (0.0 seconds)
+Test Case 'BFSControlsTests.testPrimaryCheckerErrorAndValidatedPrefix' started at 2026-11-01 01:07:23.954
+Test Case 'BFSControlsTests.testPrimaryCheckerErrorAndValidatedPrefix' passed (0.0 seconds)
+Test Case 'BFSControlsTests.testPromotedConformanceProjectionStaysStable' started at 2026-11-01 01:07:23.955
+Test Case 'BFSControlsTests.testPromotedConformanceProjectionStaysStable' passed (0.0 seconds)
+Test Case 'BFSControlsTests.testRealDeadlineDuringChecksPreservesFailure' started at 2026-11-01 01:07:23.955
+Test Case 'BFSControlsTests.testRealDeadlineDuringChecksPreservesFailure' passed (1.02 seconds)
+Test Case 'BFSControlsTests.testSharedBFSControlsCorpus' started at 2026-11-01 01:07:24.975
+Test Case 'BFSControlsTests.testSharedBFSControlsCorpus' passed (0.116 seconds)
+Test Suite 'BFSControlsTests' passed at 2026-11-01 01:07:25.092
+	 Executed 7 tests, with 0 failures (0 unexpected) in 1.139 (1.139) seconds
+Test Suite 'GraphSearchTests' started at 2026-11-01 01:07:25.092
+Test Case 'GraphSearchTests.testAnnotationsAndDetachedEventPayloads' started at 2026-11-01 01:07:25.092
+Test Case 'GraphSearchTests.testAnnotationsAndDetachedEventPayloads' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testCancellationAndDeadline' started at 2026-11-01 01:07:25.092
+Test Case 'GraphSearchTests.testCancellationAndDeadline' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testCheckerErrorAfterPartialEvidence' started at 2026-11-01 01:07:25.093
+Test Case 'GraphSearchTests.testCheckerErrorAfterPartialEvidence' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testDefaultOptionsReproduceBFSControlsCorpus' started at 2026-11-01 01:07:25.094
+Test Case 'GraphSearchTests.testDefaultOptionsReproduceBFSControlsCorpus' passed (0.01 seconds)
+Test Case 'GraphSearchTests.testDeterministicFindingTruncation' started at 2026-11-01 01:07:25.105
+Test Case 'GraphSearchTests.testDeterministicFindingTruncation' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testDiamondGraphIDsAndEventOrder' started at 2026-11-01 01:07:25.106
+Test Case 'GraphSearchTests.testDiamondGraphIDsAndEventOrder' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testDuplicateFailingEdgeKeepsEvidence' started at 2026-11-01 01:07:25.106
+Test Case 'GraphSearchTests.testDuplicateFailingEdgeKeepsEvidence' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testEdgeCapMidwayThroughNode' started at 2026-11-01 01:07:25.107
+Test Case 'GraphSearchTests.testEdgeCapMidwayThroughNode' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testFailurePlusCutoff' started at 2026-11-01 01:07:25.108
+Test Case 'GraphSearchTests.testFailurePlusCutoff' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testFirstAndSubsequentFailures' started at 2026-11-01 01:07:25.108
+Test Case 'GraphSearchTests.testFirstAndSubsequentFailures' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testInitialFailureUnderCollection' started at 2026-11-01 01:07:25.109
+Test Case 'GraphSearchTests.testInitialFailureUnderCollection' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testMultiplePhasesOnOneEdgeAreOrdered' started at 2026-11-01 01:07:25.109
+Test Case 'GraphSearchTests.testMultiplePhasesOnOneEdgeAreOrdered' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testRetentionLimitsAreVisible' started at 2026-11-01 01:07:25.110
+Test Case 'GraphSearchTests.testRetentionLimitsAreVisible' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testSelfLoopAndHashCollisionsKeepStructure' started at 2026-11-01 01:07:25.110
+Test Case 'GraphSearchTests.testSelfLoopAndHashCollisionsKeepStructure' passed (0.001 seconds)
+Test Case 'GraphSearchTests.testSinkErrorAbortsWithPartialReport' started at 2026-11-01 01:07:25.111
+Test Case 'GraphSearchTests.testSinkErrorAbortsWithPartialReport' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testStateCapOnNewSuccessor' started at 2026-11-01 01:07:25.112
+Test Case 'GraphSearchTests.testStateCapOnNewSuccessor' passed (0.0 seconds)
+Test Case 'GraphSearchTests.testZeroDepthAndDepthBoundCoverage' started at 2026-11-01 01:07:25.112
+Test Case 'GraphSearchTests.testZeroDepthAndDepthBoundCoverage' passed (0.001 seconds)
+Test Suite 'GraphSearchTests' passed at 2026-11-01 01:07:25.112
+	 Executed 17 tests, with 0 failures (0 unexpected) in 0.021 (0.021) seconds
+Test Suite 'MigrationFixtureTests' started at 2026-11-01 01:07:25.113
+Test Case 'MigrationFixtureTests.testGraphSearchFixtures' started at 2026-11-01 01:07:25.113
+Test Case 'MigrationFixtureTests.testGraphSearchFixtures' passed (0.003 seconds)
+Test Case 'MigrationFixtureTests.testProgressAnalysisFixtures' started at 2026-11-01 01:07:25.116
+Test Case 'MigrationFixtureTests.testProgressAnalysisFixtures' passed (0.106 seconds)
+Test Suite 'MigrationFixtureTests' passed at 2026-11-01 01:07:25.222
+	 Executed 2 tests, with 0 failures (0 unexpected) in 0.109 (0.109) seconds
+Test Suite 'Selected tests' passed at 2026-11-01 01:07:25.222
+	 Executed 26 tests, with 0 failures (0 unexpected) in 1.27 (1.27) seconds
