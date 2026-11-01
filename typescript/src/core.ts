@@ -345,6 +345,19 @@ export function validateTraceLimits(limits: TraceLimits): void {
   for (const key of ['maxSteps', 'maxBlobBytes', 'maxItems', 'maxPayloadBytes', 'maxJSONBytes'] as const) natural(limits[key], key);
 }
 export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps = 100_000, limits: TraceLimits = DEFAULT_TRACE_LIMITS): Trace {
+  return recordKernel(m, inputs, maxSteps, limits, false);
+}
+/** continued-failure-evidence-v1: a trace that may record steps after a failed check.
+ * Termination is completed, step_limit, interrupted or model_error, never property_failed. */
+export interface ContinuedTrace { readonly trace: Trace }
+/** Records every input until the iterable ends, a step limit, or a model error,
+ * continuing past failed checks. Checker errors after earlier failures yield
+ * model_error with every completed step retained. */
+export function recordContinued<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps = 100_000, limits: TraceLimits = DEFAULT_TRACE_LIMITS): ContinuedTrace {
+  return { trace: recordKernel(m, inputs, maxSteps, limits, true) };
+}
+/** `continued` records past property failures; otherwise the first failing batch ends the trace. */
+function recordKernel<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, maxSteps: number, limits: TraceLimits, continued: boolean): Trace {
   limits={maxSteps:limits.maxSteps,maxBlobBytes:limits.maxBlobBytes,maxItems:limits.maxItems,maxPayloadBytes:limits.maxPayloadBytes,maxJSONBytes:limits.maxJSONBytes};
   natural(maxSteps, 'maxSteps'); validateTraceLimits(limits);
   const encodingStorage=new EncodeStorage();
@@ -357,7 +370,7 @@ export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, max
   const steps: TraceStep[] = [];
   const checkStorage:Check[]=[];
   const result = (termination: Termination, error = ''): Trace => ({ metadata: identity, initialState, initialChecks, steps, termination, error });
-  if (failed(initialChecks)) return result('property_failed');
+  if (failed(initialChecks) && !continued) return result('property_failed');
   try {
     const iterator = call('inputs', () => inputs[Symbol.iterator]());
     while (true) {
@@ -376,7 +389,7 @@ export function record<S, I, O>(m: CodecModel<S, I, O>, inputs: Iterable<I>, max
       if (nextPayload > limits.maxPayloadBytes) throw new ModelError('recording limit: aggregate payload bytes');
       steps.push({ input, disposition: t.disposition, outputs, postState, checks });
       state = t.state; items = nextItems; payload = nextPayload;
-      if (failed(checks)) return result('property_failed');
+      if (failed(checks) && !continued) return result('property_failed');
     }
   } catch (error) {
     if (!(error instanceof ModelError)) throw error;
