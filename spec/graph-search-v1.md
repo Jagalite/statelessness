@@ -75,7 +75,9 @@ Fixture event logs spell events as `root:N`, `expand:N`, `edge:ID:SOURCE:INPUT`
 (SOURCE is the source node ID), `finding:INDEX:EDGE:phase/id[,phase/id]` (EDGE is
 `-` for an initial finding), `admit:EDGE:NODE`, `dup:EDGE:NODE`,
 `reduced:EDGE:REP`, `reject:EDGE:REASON`, `finish:NODE:STATUS`, `layer:DEPTH` and
-`end:TERMINATION`. Targets are `admitted:N`, `duplicate:N`, `reduced:E` and
+`end:TERMINATION`. STATUS is `complete`, `depthFrontier` or `failurePruned`;
+interrupted and unexpanded nodes receive no `finish` event, so those statuses
+have no event spelling. Targets are `admitted:N`, `duplicate:N`, `reduced:E` and
 `rejected:REASON`. Coverage is `exhaustive`, `bounded:` followed by
 `depth_cutoff`, `failure_pruned` or both joined by `+`, or `incomplete:REASON`.
 

@@ -25,9 +25,13 @@ lists 0 for a failing initial state and the 1-based steps whose checks failed.
 **CONT-002.** The JSON form is the trace-json v1 object with `format` =
 `stateless.continued-trace-json`, `version` = 1, and an added
 `failing_sequences` array that MUST equal the recorded checks. Old readers MUST
-reject it: `parseTrace` fails on the format or the unknown field,
-`validateRecording` and `replay` fail with "trace continues after property
-failure", and `parseContinuedTrace` rejects trace-json v1, other versions,
+reject it: `parseTrace` fails on the format or the unknown field, and
+`validateRecording` and `replay` reject the trace. The rejection reason depends on
+where failures occur: a failure before the last step gives "trace continues after
+property failure", while a failure only on the last step gives "trace termination
+disagrees with recorded checks", because continued terminations are never
+`property_failed`. Object key order is not normative: writers may emit
+`failing_sequences` anywhere and readers MUST accept any order. Finally, `parseContinuedTrace` rejects trace-json v1, other versions,
 truncated bytes, and mismatched `failing_sequences`.
 
 ## Replay
