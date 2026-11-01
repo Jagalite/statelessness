@@ -814,9 +814,17 @@ def validate_diamonds(model, report: GraphSearchReport, *, candidate: Callable[[
     same_input = equal_inputs if equal_inputs is not None else (lambda a, b: a == b)
     termination, checked, pairs, validated, witnesses = "search_complete", 0, 0, 0, []
 
+    end = object()
+
     def enumerate_inputs(state):
+        # Copy each yielded input before pulling the next: a generator may reuse
+        # one mutable object across yields.
         domain = _call("enumerate inputs", model.inputs, _copy(state))
-        return [_copy(value) for value in _call("enumerate inputs", lambda: list(iter(domain)))]
+        iterator = _call("enumerate inputs", iter, domain)
+        values = []
+        while (value := _call("enumerate inputs", next, iterator, end)) is not end:
+            values.append(_copy(value))
+        return values
 
     def boolean(stage, callback, *args):
         value = _call(stage, callback, *(_copy(arg) for arg in args))
