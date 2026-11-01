@@ -180,6 +180,7 @@ pub(super) fn native<M: ModelCodec>(
     trace: &Trace,
     options: ReplayOptions,
     limits: Option<&ReadLimits>,
+    validate: fn(&Trace) -> Result<(), ModelError>,
     observer: impl FnMut(ReplayObservation<'_, M>, &ReplayReport) -> Result<(), ModelError>,
 ) -> Result<ReplayReport, ReplayError<M>> {
     core(
@@ -187,6 +188,7 @@ pub(super) fn native<M: ModelCodec>(
         trace,
         options,
         limits,
+        validate,
         NativeSink {
             callback: observer,
             marker: PhantomData::<fn() -> M>,
@@ -206,7 +208,15 @@ pub(super) fn run<M: CodecOps>(
     options: ReplayOptions,
     limits: &ReadLimits,
 ) -> Result<ReplayReport, ModelError> {
-    core(model, trace, options, Some(limits), Unobserved).map_err(|error| error.error)
+    core(
+        model,
+        trace,
+        options,
+        Some(limits),
+        validate_recording,
+        Unobserved,
+    )
+    .map_err(|error| error.error)
 }
 
 fn core<M: CodecOps, S: ReplaySink<M>>(
@@ -214,6 +224,7 @@ fn core<M: CodecOps, S: ReplaySink<M>>(
     trace: &Trace,
     options: ReplayOptions,
     limits: Option<&ReadLimits>,
+    validate: fn(&Trace) -> Result<(), ModelError>,
     mut observer: S,
 ) -> Result<ReplayReport, OpsReplayError<S::Actual>> {
     let mut report = ReplayReport {
@@ -260,7 +271,7 @@ fn core<M: CodecOps, S: ReplaySink<M>>(
             &mut observer,
         ));
     }
-    if let Err(error) = validate_recording(trace) {
+    if let Err(error) = validate(trace) {
         return Err(replay_error_ops::<M, S>(
             error,
             report,
