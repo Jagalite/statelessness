@@ -1,4 +1,4 @@
-/// Swift-only extension `continued-failure-evidence-v1` (S5); see
+/// Candidate extension `continued-failure-evidence-v1` (S5); see
 /// spec/continued-failure-evidence-v1.md. A continued trace may record steps
 /// after a failed check. It is a distinct versioned format: `validateRecording`,
 /// `replay`, and `parseTrace` (trace-json v1) reject it rather than silently

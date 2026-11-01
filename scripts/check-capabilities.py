@@ -122,10 +122,10 @@ def render():
         ("Native BFS controls", "bfs-controls-v1 candidate; not a promoted portable profile", "spec/bfs-controls-v1.md"),
         ("Native append checking", "append-checks-v1 candidate; not a promoted portable profile", "spec/append-checks-v1.md"),
         ("Native binary interoperability", "native-binary-v1 candidate; Rust audit format 1; not promoted", "spec/native-binary-v1.md"),
-        ("Swift graph search", "graph-search-v1 candidate; Swift-only; not a promoted portable profile", "spec/graph-search-v1.md"),
-        ("Swift progress analysis", "progress-analysis-v1 candidate; Swift-only; not a promoted portable profile", "spec/progress-analysis-v1.md"),
-        ("Swift qualified reduction", "reduction-v1 candidate; Swift-only; not a promoted portable profile", "spec/reduction-v1.md"),
-        ("Swift continued-failure evidence", "continued-failure-evidence-v1 candidate; Swift-only; trace format " + value("swift/Sources/Statelessness/ContinuedEvidence.swift", r'public let continuedTraceVersion: UInt64 = ([0-9]+)') + "; not promoted", "spec/continued-failure-evidence-v1.md"),
+        ("Graph search extension", "graph-search-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile", "spec/graph-search-v1.md"),
+        ("Progress analysis extension", "progress-analysis-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile", "spec/progress-analysis-v1.md"),
+        ("Qualified reduction extension", "reduction-v1 candidate; Rust, Swift, Python, Go, TypeScript; not a promoted portable profile", "spec/reduction-v1.md"),
+        ("Continued-failure evidence extension", "continued-failure-evidence-v1 candidate; Rust, Swift, Python, Go, TypeScript; trace format " + value("swift/Sources/Statelessness/ContinuedEvidence.swift", r'public let continuedTraceVersion: UInt64 = ([0-9]+)') + "; not promoted", "spec/continued-failure-evidence-v1.md"),
         ("Reference requirements", str(json.loads(read("docs/requirements/controller.json"))["schema_version"]), "docs/requirements/controller.json"),
     ]
     lines.extend(f"| {name} | `{version}` | {link(path, path)} |" for name, version, path in protocols)

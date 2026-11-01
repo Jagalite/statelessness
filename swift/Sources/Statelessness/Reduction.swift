@@ -1,4 +1,4 @@
-/// Swift-only extension `reduction-v1` (S4); see spec/reduction-v1.md.
+/// Candidate extension `reduction-v1` (S4); see spec/reduction-v1.md.
 /// Reduction collapses an evaluated edge into an earlier representative edge of
 /// the same eligible class from the same node. It never skips executing or
 /// checking an edge. Collapse requires equal disposition, every check, the

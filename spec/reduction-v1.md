@@ -1,6 +1,7 @@
-# reduction-v1 (candidate, Swift-only extension)
+# reduction-v1 (candidate extension)
 
-Status: experimental Swift-only extension implementing migration proposal S4.
+Status: experimental candidate extension, implemented in the Rust, Swift, Python, Go
+and TypeScript engines, implementing migration proposal S4.
 Scope is deliberately narrow: action-equivalence grouping of edges from the same
 node and enabled-action diamond validation. No independence-based pruning (sleep
 sets, persistent sets) is introduced. Evidence from `Research.compareEquivalence`

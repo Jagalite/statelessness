@@ -1,4 +1,4 @@
-/// Swift-only extension `progress-analysis-v1` (S3); see
+/// Candidate extension `progress-analysis-v1` (S3); see
 /// spec/progress-analysis-v1.md. Applications supply node kinds, ranks and
 /// edge fairness; this file owns only graph algorithms. Fair-path reachability
 /// and rank checks are bounded evidence, not a proof that every scheduler

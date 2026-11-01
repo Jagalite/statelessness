@@ -1,6 +1,7 @@
-# progress-analysis-v1 (candidate, Swift-only extension)
+# progress-analysis-v1 (candidate extension)
 
-Status: experimental Swift-only extension implementing migration proposal S3.
+Status: experimental candidate extension, implemented in the Rust, Swift, Python, Go
+and TypeScript engines, implementing migration proposal S3.
 The library owns graph algorithms; applications own every predicate (terminal,
 intentional wait, declared external wait, transaction, rank, fair edge). General
 liveness remains deferred: fair-path reachability and rank checks over a bounded
