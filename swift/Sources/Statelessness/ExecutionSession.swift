@@ -75,23 +75,33 @@ public final class ExecutionSession<S, I, O> {
         defer { executing = false }
         let next = sequence + 1
         let checked: CheckedTurn<S, I, O>
-        let transition: Transition<S, O>
+        let state: S
+        let outputs: [O]
+        let disposition: Disposition
         do {
+            // The step and the certificate each get their own detached state
+            // and input, so a step that mutates its arguments cannot alter
+            // the certified "before" or the committed state.
             let before = try copied(model.cloneState, committed)
-            let detachedInput = try copied(model.cloneInput, input)
-            let candidate = try perform(model, before, detachedInput)
-            checked = try checkTurn(model, before: before, input: detachedInput, transition: candidate, sequence: next, policy: policy)
-            transition = try checked.transition
+            let retainedInput = try copied(model.cloneInput, input)
+            let candidate = try call("transition") {
+                try model.step(copied(model.cloneState, before), copied(model.cloneInput, retainedInput))
+            }
+            checked = try CheckedTurn.adopting(model, before: before, input: retainedInput, transition: candidate, sequence: next, policy: policy)
+            // The certificate retains `candidate`; commit and hand off copies.
+            state = try copied(model.cloneState, candidate.state)
+            outputs = try candidate.outputs.map { try copied(model.cloneOutput, $0) }
+            disposition = candidate.disposition
         } catch {
             throw ExecutionFault.model(String(describing: error))
         }
-        committed = transition.state
+        committed = state
         sequence = next
         var recorderFault: String?
         if let recorder {
             do { _ = try recorder.observeChecked(checked) } catch { recorderFault = String(describing: error) }
         }
-        return CommittedTurn(checked: checked, sequence: next, outputs: transition.outputs, disposition: transition.disposition, recorderFault: recorderFault)
+        return CommittedTurn(checked: checked, sequence: next, outputs: outputs, disposition: disposition, recorderFault: recorderFault)
     }
 }
 
