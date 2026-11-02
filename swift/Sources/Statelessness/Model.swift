@@ -61,7 +61,7 @@ public struct Transition<State, Output> {
     public let state: State
     public let outputs: [Output]
     public let disposition: Disposition
-    public init(state: State, outputs: [Output] = [], disposition: Disposition = .accepted) {
+    @inlinable public init(state: State, outputs: [Output] = [], disposition: Disposition = .accepted) {
         self.state = state; self.outputs = outputs; self.disposition = disposition
     }
 }

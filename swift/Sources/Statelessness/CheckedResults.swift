@@ -65,6 +65,16 @@ public final class CheckedTurn<S,I,O> {
     public func observation() throws -> TurnObservation<S,I,O> {
         TurnObservation(sequence: sequence, before: try copied(certifiedModel.cloneState, certifiedBefore), input: try copied(certifiedModel.cloneInput, certifiedInput), transition: try cloneTransition(certifiedModel, certifiedTransition), checks: certifiedChecks, stateCheckCount: stateCheckCount)
     }
+    /// Checks values the caller has already detached and hands over. Used by
+    /// `ExecutionSession`, which owns fresh clones of the prior state, the
+    /// input and the step's result; copying them again would only repeat work.
+    static func adopting(_ model: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>, sequence: UInt64, policy: CheckPolicy) throws -> CheckedTurn<S,I,O> {
+        guard sequence > 0 else { throw ModelError("transition sequence must be positive") }
+        guard policy.stateEvery > 0 else { throw ConfigError("state period must be positive") }
+        var checks: [Check] = []
+        let boundary = try checkObservedCountInto(model, before: before, input: input, transition: transition, sequence: sequence, policy: policy, checks: &checks)
+        return CheckedTurn(model: model, before: before, input: input, transition: transition, sequence: sequence, checks: checks, stateCheckCount: boundary, fullChecking: policy.stateEvery == 1 && policy.transitionChecks)
+    }
     fileprivate static func checked(_ model: Model<S,I,O>, before: S, input: I, transition: Transition<S,O>, sequence: UInt64, policy: CheckPolicy) throws -> CheckedTurn<S,I,O> {
         guard sequence > 0 else { throw ModelError("transition sequence must be positive") }
         guard policy.stateEvery > 0 else { throw ConfigError("state period must be positive") }
