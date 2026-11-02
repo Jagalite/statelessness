@@ -13,8 +13,13 @@ effects.
    `reentrantSubmission`. A committed sequence of `UInt64.max` fails with
    `sequenceExhausted` before the step runs.
 2. The prior state and the input are cloned with the model's clone contract.
+   The step receives its own copies; checks receive a separate pristine copy
+   of the input, so a step that consumes its input cannot change what checks
+   see.
 3. `step` is invoked exactly once. Checks, recording and snapshots never invoke
-   it again.
+   it again. The returned transition is detached with the model's clone
+   contract before anything else uses it, so the session owns its committed
+   state and outputs even if the step retained references to them.
 4. The candidate is checked with `checkTurn` at sequence `n + 1` under the
    session's `CheckPolicy`.
 5. Only if 2–4 complete without throwing are the state and the sequence
@@ -27,6 +32,9 @@ sealed `CheckedTurn` for each turn (its own copies of the prior state, the
 input and the transition). Otherwise it checks the turn against the committed
 prior state and the step's result without retaining copies; the contract
 above is unchanged.
+
+`read` and `snapshot` are exclusive in the same way: they fail with
+`reentrantSubmission` during a turn, and a callback they run cannot submit.
 
 A complete check batch that contains failed checks is a committed turn
 (`failedChecks`), not a fault. Rejected and ignored dispositions commit the

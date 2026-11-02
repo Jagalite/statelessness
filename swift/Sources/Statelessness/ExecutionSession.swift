@@ -61,7 +61,13 @@ public final class ExecutionSession<S, I, O> {
     }
 
     /// A detached copy of the committed state (the model's clone contract).
-    public func snapshot() throws -> S { try copied(model.cloneState, committed) }
+    /// Exclusive like `read`: a clone callback cannot submit meanwhile.
+    public func snapshot() throws -> S {
+        guard !executing else { throw ExecutionFault.reentrantSubmission }
+        executing = true
+        defer { executing = false }
+        return try copied(model.cloneState, committed)
+    }
 
     /// Read-only access to the committed state without cloning. The body
     /// must not retain mutable references beyond the call; it cannot submit.
@@ -86,19 +92,12 @@ public final class ExecutionSession<S, I, O> {
         let outputs: [O]
         let disposition: Disposition
         do {
-            // The step and the certificate each get their own detached state
-            // and input, so a step that mutates its arguments cannot alter
-            // the certified "before" or the committed state.
-            let before = try copied(model.cloneState, committed)
-            let retainedInput = try copied(model.cloneInput, input)
-            let candidate = try call("transition") {
-                try model.step(copied(model.cloneState, before), copied(model.cloneInput, retainedInput))
-            }
-            checked = try CheckedTurn.adopting(model, before: before, input: retainedInput, transition: candidate, sequence: next, policy: policy)
-            // The certificate retains `candidate`; commit and hand off copies.
-            state = try copied(model.cloneState, candidate.state)
-            outputs = try candidate.outputs.map { try copied(model.cloneOutput, $0) }
-            disposition = candidate.disposition
+            let (before, checkedInput, owned) = try execute(input, before: try copied(model.cloneState, committed))
+            checked = try CheckedTurn.adopting(model, before: before, input: checkedInput, transition: owned, sequence: next, policy: policy)
+            // The certificate retains `owned`; commit and hand off copies.
+            state = try copied(model.cloneState, owned.state)
+            outputs = try owned.outputs.map { try copied(model.cloneOutput, $0) }
+            disposition = owned.disposition
         } catch {
             throw ExecutionFault.model(String(describing: error))
         }
@@ -111,26 +110,34 @@ public final class ExecutionSession<S, I, O> {
         return CommittedTurn(checked: checked, checks: checked.checks, sequence: next, outputs: outputs, disposition: disposition, recorderFault: recorderFault)
     }
 
-    /// One state clone (the step's argument), one input clone and one clone
-    /// per output. Checks read the committed prior state; nothing else
-    /// retains the step's resulting state, so it is committed without a copy.
+    /// Runs the step on its own detached state and input, then detaches the
+    /// returned transition with the model's clone contract, so the session
+    /// owns the result even if the step retained references to it. Returns
+    /// the prior state, a pristine input for checks (the step may have
+    /// mutated its own copy), and the owned transition.
+    private func execute(_ input: I, before: S) throws -> (S, I, Transition<S, O>) {
+        let checkedInput = try copied(model.cloneInput, input)
+        let candidate = try call("transition") {
+            try model.step(copied(model.cloneState, before), copied(model.cloneInput, checkedInput))
+        }
+        return (before, checkedInput, try cloneTransition(model, candidate))
+    }
+
+    /// Checks read the committed prior state in place; the owned transition
+    /// is retained by nothing else, so it is committed and handed off as is.
     private func submitUncertified(_ input: I, sequence next: UInt64) throws -> CommittedTurn<S, I, O> {
-        let candidate: Transition<S, O>
-        let outputs: [O]
+        let owned: Transition<S, O>
         var checks: [Check] = []
         do {
-            let detachedInput = try copied(model.cloneInput, input)
-            candidate = try call("transition") {
-                try model.step(copied(model.cloneState, committed), detachedInput)
-            }
-            _ = try checkObservedCountInto(model, before: committed, input: detachedInput, transition: candidate, sequence: next, policy: policy, checks: &checks)
-            outputs = try candidate.outputs.map { try copied(model.cloneOutput, $0) }
+            let (_, checkedInput, result) = try execute(input, before: committed)
+            owned = result
+            _ = try checkObservedCountInto(model, before: committed, input: checkedInput, transition: owned, sequence: next, policy: policy, checks: &checks)
         } catch {
             throw ExecutionFault.model(String(describing: error))
         }
-        committed = candidate.state
+        committed = owned.state
         sequence = next
-        return CommittedTurn(checked: nil, checks: checks, sequence: next, outputs: outputs, disposition: candidate.disposition, recorderFault: nil)
+        return CommittedTurn(checked: nil, checks: checks, sequence: next, outputs: owned.outputs, disposition: owned.disposition, recorderFault: nil)
     }
 }
 

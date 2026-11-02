@@ -199,4 +199,128 @@ final class ExecutionSessionTests: XCTestCase {
     func testInvalidPolicyIsAConfigurationError() {
         XCTAssertThrowsError(try ExecutionSession(model: counterModel(steps: SessionBox(0)), policy: CheckPolicy(stateEvery: 0)))
     }
+
+    // MARK: Both modes (certified and uncertified) share one contract.
+
+    private func modes<S, I, O>(_ model: @autoclosure () -> Model<S, I, O>, _ body: (ExecutionSession<S, I, O>, String) throws -> Void) throws {
+        for certified in [false, true] {
+            try body(try ExecutionSession(model: model(), certifiesTurns: certified), certified ? "certified" : "uncertified")
+        }
+    }
+
+    func testChecksSeeThePristineInputEvenWhenTheStepConsumesIt() throws {
+        // The step consumes a reference input (amount -> 0); a conservation
+        // check must still see the submitted amount in both modes.
+        let model = Model<Counter, SessionBox, String>(
+            initialState: { Counter() },
+            step: { state, input in
+                var next = state; next.total += input.value; input.value = 0
+                return Transition(state: next)
+            },
+            checkState: { _ in [] },
+            cloneState: { $0 }, cloneInput: { SessionBox($0.value) }, cloneOutput: { $0 },
+            checkTransition: { before, input, t in
+                [t.state.total == before.total + input.value ? Check("conserved") : Check("conserved", .failed, "\(input.value)")]
+            })
+        try modes(model) { session, mode in
+            let submitted = SessionBox(5)
+            let turn = try session.submit(submitted)
+            XCTAssertEqual(turn.failedChecks.map(\.id), [], mode)
+            XCTAssertEqual(submitted.value, 5, "the caller's input is never mutated (\(mode))")
+        }
+    }
+
+    func testCommittedStateIsDetachedFromReferencesTheStepRetains() throws {
+        // The model keeps the state object it returns in its own cache and
+        // mutates it later; committed state, outputs and certificates must not change.
+        let cache = SessionBox(0)
+        var retained: [SessionBox] = []
+        let model = Model<SessionBox, Int, SessionBox>(
+            initialState: { SessionBox(0) },
+            step: { state, input in
+                let next = SessionBox(state.value + input); retained.append(next); cache.value += 1
+                return Transition(state: next, outputs: [next])
+            },
+            checkState: { _ in [] },
+            cloneState: { SessionBox($0.value) }, cloneInput: { $0 }, cloneOutput: { SessionBox($0.value) })
+        try modes(model) { session, mode in
+            retained.removeAll()
+            let turn = try session.submit(3)
+            for box in retained { box.value = -100 }
+            XCTAssertEqual(try session.snapshot().value, 3, mode)
+            XCTAssertEqual(try session.read { $0.value }, 3, mode)
+            XCTAssertEqual(turn.outputs[0].value, 3, mode)
+            if let checked = turn.checked { XCTAssertEqual(try checked.transition.state.value, 3, mode) }
+        }
+    }
+
+    func testSnapshotIsExclusive() throws {
+        var session: ExecutionSession<Counter, Int, String>!
+        var fromClone: ExecutionFault?
+        var fromStep: ExecutionFault?
+        var cloning = false
+        let model = Model<Counter, Int, String>(
+            initialState: { Counter() },
+            step: { state, input in
+                do { _ = try session.snapshot() } catch { fromStep = error as? ExecutionFault }
+                return Transition(state: Counter(total: state.total + input))
+            },
+            checkState: { _ in [] },
+            cloneState: { state in
+                if cloning { cloning = false; do { try session.submit(9) } catch { fromClone = error as? ExecutionFault } }
+                return state
+            },
+            cloneInput: { $0 }, cloneOutput: { $0 })
+        session = try ExecutionSession(model: model)
+        try session.submit(1)
+        XCTAssertEqual(fromStep, .reentrantSubmission, "no snapshot during a turn")
+        cloning = true
+        XCTAssertEqual(try session.snapshot(), Counter(total: 1))
+        XCTAssertEqual(fromClone, .reentrantSubmission, "a clone callback cannot submit during a snapshot")
+        XCTAssertEqual(session.sequence, 1)
+    }
+
+    func testFaultMatrixCommitsNothingInEitherMode() throws {
+        enum Stage: CaseIterable { case step, check, inputClone, stateClone, outputClone }
+        for stage in Stage.allCases {
+            let armed = SessionBox(0)
+            var model = counterModel(steps: SessionBox(0), throwOn: stage == .step ? 7 : nil, checkThrowsOn: stage == .check ? 7 : nil)
+            switch stage {
+            case .inputClone: model.cloneInput = { input in if armed.value == 1 && input == 7 { throw SessionFailure() }; return input }
+            case .stateClone: model.cloneState = { state in if armed.value == 1 { throw SessionFailure() }; return state }
+            case .outputClone: model.cloneOutput = { output in if output == "added 7" { throw SessionFailure() }; return output }
+            case .step, .check: break
+            }
+            try modes(model) { session, mode in
+                try session.submit(2)
+                armed.value = 1
+                XCTAssertThrowsError(try session.submit(7), "\(stage) \(mode)") { error in
+                    guard case .model = error as? ExecutionFault else { return XCTFail("\(stage) \(mode): \(error)") }
+                }
+                armed.value = 0
+                XCTAssertEqual(try session.snapshot(), Counter(total: 2), "\(stage) \(mode)")
+                XCTAssertEqual(session.sequence, 1, "\(stage) \(mode)")
+            }
+        }
+    }
+
+    func testRecorderCapacityNeverRollsBackCommittedTurns() throws {
+        var model = counterModel(steps: SessionBox(0))
+        model.codec = Codec(metadata: { Metadata(name: "counter") },
+                            encodeState: { Array("\($0.total),\($0.rejections)".utf8) },
+                            decodeState: { bytes in
+                                let parts = String(decoding: bytes, as: UTF8.self).split(separator: ",").map { Int($0)! }
+                                return Counter(total: parts[0], rejections: parts[1])
+                            },
+                            encodeInput: { Array(String($0).utf8) },
+                            decodeInput: { Int(String(decoding: $0, as: UTF8.self))! },
+                            encodeOutput: { Array($0.utf8) })
+        let recorder = try Recorder(checkedInitial: checkInitial(model, state: Counter()), config: RunConfig(strategy: "session"),
+                                    options: RecorderOptions(maxSteps: 1))
+        let session = try ExecutionSession(model: model, recorder: recorder)
+        for value in 1...4 { _ = try session.submit(value) }
+        XCTAssertEqual(session.sequence, 4)
+        XCTAssertEqual(try session.snapshot().total, 10, "every turn stays committed whatever the recorder retains")
+        XCTAssertLessThanOrEqual(recorder.retainedSteps, 1)
+    }
 }
