@@ -31,24 +31,30 @@ public final class ExecutionSession<S, I, O> {
     /// Optional bounded audit recorder. Recorder failure after commit is a
     /// diagnostic (`CommittedTurn.recorderFault`); the turn stays committed.
     public let recorder: Recorder?
+    /// Whether each committed turn carries a sealed `CheckedTurn` certificate.
+    /// Always true with a recorder. Without one, the session checks the turn
+    /// on its own detached values and hands the step's result off directly,
+    /// avoiding the certificate's retained copies.
+    public let certifiesTurns: Bool
     private var committed: S
     private var executing = false
 
     /// Starts from `model.initialState()`.
-    public convenience init(model: Model<S, I, O>, policy: CheckPolicy = CheckPolicy(), recorder: Recorder? = nil) throws {
+    public convenience init(model: Model<S, I, O>, policy: CheckPolicy = CheckPolicy(), recorder: Recorder? = nil, certifiesTurns: Bool = false) throws {
         let state = try call("initial state") { try model.initialState() }
-        try self.init(model: model, checkpoint: state, sequence: 0, policy: policy, recorder: recorder)
+        try self.init(model: model, checkpoint: state, sequence: 0, policy: policy, recorder: recorder, certifiesTurns: certifiesTurns)
     }
 
     /// Restores a checkpoint. `sequence` is the number of the last turn that
     /// produced it; the next submission is `sequence + 1`. Restoration is
     /// effect-free: no outputs are replayed.
-    public init(model: Model<S, I, O>, checkpoint: S, sequence: UInt64, policy: CheckPolicy = CheckPolicy(), recorder: Recorder? = nil) throws {
+    public init(model: Model<S, I, O>, checkpoint: S, sequence: UInt64, policy: CheckPolicy = CheckPolicy(), recorder: Recorder? = nil, certifiesTurns: Bool = false) throws {
         guard policy.stateEvery > 0 else { throw ConfigError("state period must be positive") }
         let checked = try checkInitial(model, state: checkpoint)
         self.model = model
         self.policy = policy
         self.recorder = recorder
+        self.certifiesTurns = certifiesTurns || recorder != nil
         self.sequence = sequence
         self.committed = try checked.state
         self.initialChecks = checked.checks
@@ -74,6 +80,7 @@ public final class ExecutionSession<S, I, O> {
         executing = true
         defer { executing = false }
         let next = sequence + 1
+        guard certifiesTurns else { return try submitUncertified(input, sequence: next) }
         let checked: CheckedTurn<S, I, O>
         let state: S
         let outputs: [O]
@@ -101,7 +108,29 @@ public final class ExecutionSession<S, I, O> {
         if let recorder {
             do { _ = try recorder.observeChecked(checked) } catch { recorderFault = String(describing: error) }
         }
-        return CommittedTurn(checked: checked, sequence: next, outputs: outputs, disposition: disposition, recorderFault: recorderFault)
+        return CommittedTurn(checked: checked, checks: checked.checks, sequence: next, outputs: outputs, disposition: disposition, recorderFault: recorderFault)
+    }
+
+    /// One state clone (the step's argument), one input clone and one clone
+    /// per output. Checks read the committed prior state; nothing else
+    /// retains the step's resulting state, so it is committed without a copy.
+    private func submitUncertified(_ input: I, sequence next: UInt64) throws -> CommittedTurn<S, I, O> {
+        let candidate: Transition<S, O>
+        let outputs: [O]
+        var checks: [Check] = []
+        do {
+            let detachedInput = try copied(model.cloneInput, input)
+            candidate = try call("transition") {
+                try model.step(copied(model.cloneState, committed), detachedInput)
+            }
+            _ = try checkObservedCountInto(model, before: committed, input: detachedInput, transition: candidate, sequence: next, policy: policy, checks: &checks)
+            outputs = try candidate.outputs.map { try copied(model.cloneOutput, $0) }
+        } catch {
+            throw ExecutionFault.model(String(describing: error))
+        }
+        committed = candidate.state
+        sequence = next
+        return CommittedTurn(checked: nil, checks: checks, sequence: next, outputs: outputs, disposition: candidate.disposition, recorderFault: nil)
     }
 }
 
@@ -121,15 +150,17 @@ public enum ExecutionFault: Error, Equatable, CustomStringConvertible {
     }
 }
 
-/// A committed turn. `outputs` are detached copies owned by the caller and
-/// returned exactly once; `checked` is the sealed checking certificate.
+/// A committed turn. `outputs` are detached values owned by the caller and
+/// returned exactly once; `checked` is the sealed checking certificate when
+/// the session certifies turns.
 public struct CommittedTurn<S, I, O> {
-    public let checked: CheckedTurn<S, I, O>
+    public let checked: CheckedTurn<S, I, O>?
+    /// The complete check batch of this turn.
+    public let checks: [Check]
     public let sequence: UInt64
     public let outputs: [O]
     public let disposition: Disposition
     /// Set when the optional recorder rejected the committed turn.
     public let recorderFault: String?
-    public var checks: [Check] { checked.checks }
-    public var failedChecks: [Check] { checked.checks.filter { $0.status == .failed } }
+    public var failedChecks: [Check] { checks.filter { $0.status == .failed } }
 }

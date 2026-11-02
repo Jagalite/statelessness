@@ -22,6 +22,12 @@ effects.
    `model(message)`; nothing is committed and no outputs are exposed.
 6. Detached outputs are returned once in `CommittedTurn`.
 
+A session created with a recorder, or with `certifiesTurns: true`, retains a
+sealed `CheckedTurn` for each turn (its own copies of the prior state, the
+input and the transition). Otherwise it checks the turn against the committed
+prior state and the step's result without retaining copies; the contract
+above is unchanged.
+
 A complete check batch that contains failed checks is a committed turn
 (`failedChecks`), not a fault. Rejected and ignored dispositions commit the
 state the step returned; rejection is not rollback. Safety policy, such as

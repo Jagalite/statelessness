@@ -127,10 +127,15 @@ final class ExecutionSessionTests: XCTestCase {
             step: { state, input in state.value += input; return Transition(state: state, outputs: [SessionBox(state.value)]) },
             checkState: { _ in [] },
             cloneState: { SessionBox($0.value) }, cloneInput: { $0 }, cloneOutput: { SessionBox($0.value) })
+        let certifying = try ExecutionSession(model: model, certifiesTurns: true)
+        let certified = try certifying.submit(5)
+        XCTAssertEqual(try certified.checked?.before.value, 0, "an in-place mutating step cannot alter the certified before state")
+        XCTAssertEqual(try certified.checked?.transition.state.value, 5)
+        certified.outputs[0].value = 999
+        XCTAssertEqual(try certifying.snapshot().value, 5)
         let session = try ExecutionSession(model: model)
         let turn = try session.submit(5)
-        XCTAssertEqual(try turn.checked.before.value, 0, "an in-place mutating step cannot alter the certified before state")
-        XCTAssertEqual(try turn.checked.transition.state.value, 5)
+        XCTAssertNil(turn.checked)
         turn.outputs[0].value = 999
         let snapshot = try session.snapshot()
         snapshot.value = -1
